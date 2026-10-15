@@ -620,7 +620,6 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
   throw new Error("All Gemini Flash free-tier quotas have been exhausted for the day. Please wait for reset or check your Google AI Studio billing.")
 }
 
-
 // ------------------------------------------------------------------
 // PROFILE & GLOBAL ACTIONS
 // ------------------------------------------------------------------
@@ -3318,4 +3317,12 @@ export async function submitSupportTicket(formData: FormData) {
   })
 
   return { success: true, ticketId }
+}
+
+// ------------------------------------------------------------------
+// LEGACY COMPATIBILITY EXPORT FOR /dashboard/post-job/page.tsx
+// ------------------------------------------------------------------
+
+export async function createJob(formData: FormData) {
+  await createStructuredJob(formData)
 }
