@@ -27,15 +27,18 @@ export default function CandidateJobsPage() {
       if (user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('identity_verified, is_verified, verification_status')
+          .select('*')
           .eq('id', user.id)
           .single()
 
         setIsVerified(
           Boolean(
             profile?.identity_verified === true ||
+              String(profile?.identity_verified) === 'true' ||
               profile?.is_verified === true ||
-              profile?.verification_status === 'verified'
+              String(profile?.is_verified) === 'true' ||
+              profile?.verification_status === 'verified' ||
+              profile?.verification_status === 'approved'
           )
         )
       }
