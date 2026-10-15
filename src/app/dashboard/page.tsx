@@ -861,18 +861,12 @@ export default async function DashboardPage({
         </Link>
       </section>
 
-      {/* RECOMMENDED ROLES SECTION */}
+      {/* RECOMMENDED ROLES SECTION (Blue duplicate link removed!) */}
       <section className="pt-6 border-t border-slate-200">
-        <div className="flex items-center justify-between mb-5">
+        <div className="mb-5">
           <h2 className="text-lg font-extrabold text-slate-900">
             Recommended Roles
           </h2>
-          <Link
-            href="/dashboard/jobs"
-            className="text-xs font-bold text-indigo-600 hover:text-indigo-800"
-          >
-            View all open roles →
-          </Link>
         </div>
 
         <CandidateJobFeed jobs={recommendedJobs} isVerified={isVerified} />
