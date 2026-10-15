@@ -63,6 +63,9 @@ export default function CandidateConnectionRequestsPage() {
       // Keep this card visible in the current tab so it doesn't vanish on click
       setJustUpdatedIds(prev => ({ ...prev, [applicationId]: true }))
 
+      // Refresh from server first, then apply the authoritative unlocked fields from result
+      await loadRequestsFromServer(false)
+
       setRequests(prev =>
         prev.map(req => {
           if (req.id !== applicationId) return req
@@ -73,10 +76,16 @@ export default function CandidateConnectionRequestsPage() {
           const unlockedName =
             decision === 'accepted'
               ? result.unlocked_employer_name ||
-                req.unlocked_employer_name ||
-                ( existingOrg.name && existingOrg.name !== 'A Verified Employer'
+                (req.unlocked_employer_name && req.unlocked_employer_name !== 'Verified Employer'
+                  ? req.unlocked_employer_name
+                  : null) ||
+                (existingOrg.name &&
+                existingOrg.name !== 'A Verified Employer' &&
+                existingOrg.name !== 'Verified Employer'
                   ? existingOrg.name
-                  : 'Verified Employer')
+                  : null) ||
+                req.match_data?.employer_org_name ||
+                'Verified Employer'
               : existingOrg.name
 
           const unlockedDomain =
@@ -107,18 +116,8 @@ export default function CandidateConnectionRequestsPage() {
           }
         })
       )
-
-      // Also refresh from server in background so all database fields are 100% synced
-      await loadRequestsFromServer(false)
-
-      setFeedback({
-        id: applicationId,
-        type: 'success',
-        text:
-          decision === 'accepted'
-            ? `Connection accepted! Reference ID ${result.referenceId || ''} and ${result.unlocked_employer_name || 'the employer'}'s contact details are now unlocked below.`
-            : 'Connection request declined. Your identity remains hidden.'
-      })
+      // Note: No duplicate green feedback toast needed here because the card's
+      // permanent footer bar and top dark contact card immediately display the unlocked status!
     }
 
     setProcessingId(null)
@@ -305,9 +304,14 @@ export default function CandidateConnectionRequestsPage() {
               const isUnlocked = normalizedStatus === 'accepted'
 
               const companyName = isUnlocked
-                ? req.unlocked_employer_name ||
-                  (org.name && org.name !== 'A Verified Employer' ? org.name : null) ||
+                ? (req.unlocked_employer_name && req.unlocked_employer_name !== 'Verified Employer'
+                    ? req.unlocked_employer_name
+                    : null) ||
+                  (org.name && org.name !== 'A Verified Employer' && org.name !== 'Verified Employer'
+                    ? org.name
+                    : null) ||
                   req.match_data?.employer_org_name ||
+                  req.unlocked_employer_name ||
                   'Verified Employer'
                 : 'A Verified Employer'
 
@@ -664,8 +668,8 @@ export default function CandidateConnectionRequestsPage() {
                       )}
                     </div>
 
-                    {/* Feedback Banner */}
-                    {feedback?.id === req.id && (
+                    {/* Feedback Banner (Only shown for AI Recalculate or Errors — never duplicates the Accepted footer!) */}
+                    {feedback && feedback.id === req.id && (
                       <div
                         className={`mt-6 p-3.5 rounded-xl text-xs font-bold flex items-center justify-between gap-3 ${
                           feedback.type === 'error'
