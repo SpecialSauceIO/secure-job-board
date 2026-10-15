@@ -3631,4 +3631,58 @@ export async function submitSupportTicket(formData: FormData) {
 
 export async function createJob(formData: FormData) {
   await createStructuredJob(formData)
+
+  
+}
+
+// ------------------------------------------------------------------
+// LIGHTWEIGHT 1-CLICK BUG & FEEDBACK REPORTER (AUTO-TELEMETRY)
+// ------------------------------------------------------------------
+
+export async function submitQuickFeedback(formData: FormData) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const feedbackType = ((formData.get('feedback_type') as string) || 'Bug').trim()
+  const notes = ((formData.get('notes') as string) || '').trim()
+  const pageUrl = ((formData.get('page_url') as string) || '/dashboard').trim()
+  const userAgent = ((formData.get('user_agent') as string) || 'Unknown Browser').trim()
+
+  if (!notes) {
+    return { error: 'Please enter a short note before sending.' }
+  }
+
+  let role = 'unauthenticated'
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle()
+    role = profile?.role || 'unknown'
+  }
+
+  const refId = `FB-${Date.now().toString().slice(-6)}`
+  const userEmail = user?.email || 'anonymous@specialsauce.io'
+
+  await sendPlatformNotification({
+    to: 'info@specialsauce.io',
+    subject: `${feedbackType} Report from ${userEmail} on ${pageUrl}`,
+    referenceId: refId,
+    heading: `Quick ${feedbackType} Report [${refId}]`,
+    bodyLines: [
+      `Reporter: ${userEmail} (Role: ${role.toUpperCase()})`,
+      `Page Path: ${pageUrl}`,
+      `Browser / Device: ${userAgent}`,
+      `User ID: ${user?.id || 'N/A'}`,
+      '--- USER MESSAGE ---',
+      notes,
+    ],
+    ctaUrl: pageUrl.startsWith('/') ? pageUrl : '/dashboard',
+    ctaLabel: 'Open Reported Page →',
+  })
+
+  return { success: true, referenceId: refId }
 }
