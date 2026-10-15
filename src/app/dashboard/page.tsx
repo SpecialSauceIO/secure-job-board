@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
+import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import Stripe from 'stripe'
 import { CandidateJobFeed } from '@/components/CandidateJobFeed'
@@ -13,6 +14,29 @@ import {
 import VerifyButton from './VerifyButton'
 
 export const dynamic = 'force-dynamic'
+
+async function resetCandidateVerificationSandbox() {
+  'use server'
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return
+
+  await supabase
+    .from('profiles')
+    .update({ identity_verified: false, verification_status: 'unverified' })
+    .eq('id', user.id)
+
+  try {
+    const cookieStore = await cookies()
+    cookieStore.delete('stripe_vs_id')
+  } catch {
+  }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/jobs')
+}
 
 export default async function DashboardPage({
   searchParams,
@@ -36,18 +60,20 @@ export default async function DashboardPage({
     .single()
 
   // ============================================================================
-  // AUTOMATIC STRIPE IDENTITY SYNC (USES STRIPE_IDENTITY_SECRET_KEY)
+  // AUTOMATIC STRIPE IDENTITY SYNC (STRICTLY SCOPED TO CURRENT USER.ID)
   // ============================================================================
   const currentlyVerified = Boolean(
     profile?.identity_verified === true ||
+    String(profile?.identity_verified) === 'true' ||
     profile?.is_verified === true ||
+    String(profile?.is_verified) === 'true' ||
     profile?.verification_status === 'verified'
   )
 
   const stripeKey = process.env.STRIPE_IDENTITY_SECRET_KEY || process.env.STRIPE_SECRET_KEY
 
   if (
-    profile?.role !== 'employer' &&
+    profile?.role === 'candidate' &&
     (!currentlyVerified || isReturningFromStripe) &&
     stripeKey
   ) {
@@ -60,6 +86,12 @@ export default async function DashboardPage({
       const isCompletedStatus = (status?: string) =>
         status === 'verified' || (isTestKey && status === 'processing')
 
+      const belongsToCurrentUser = (s: any) =>
+        s &&
+        (s.metadata?.userId === user.id ||
+          s.metadata?.user_id === user.id ||
+          s.client_reference_id === user.id)
+
       let matchedSession: any = null
 
       const cookieStore = await cookies()
@@ -68,7 +100,7 @@ export default async function DashboardPage({
       if (cookieSessionId) {
         try {
           const retrieved = await stripe.identity.verificationSessions.retrieve(cookieSessionId)
-          if (isCompletedStatus(retrieved.status)) {
+          if (belongsToCurrentUser(retrieved) && isCompletedStatus(retrieved.status)) {
             matchedSession = retrieved
           }
         } catch (retrieveErr: any) {
@@ -79,18 +111,9 @@ export default async function DashboardPage({
       if (!matchedSession) {
         try {
           const sessions = await stripe.identity.verificationSessions.list({ limit: 10 })
-          matchedSession =
-            sessions.data.find((s) => {
-              const matchesUser =
-                s.metadata?.userId === user.id ||
-                s.metadata?.user_id === user.id ||
-                s.client_reference_id === user.id
-
-              return matchesUser && isCompletedStatus(s.status)
-            }) ||
-            (isReturningFromStripe && isCompletedStatus(sessions.data[0]?.status)
-              ? sessions.data[0]
-              : null)
+          matchedSession = sessions.data.find(
+            (s) => belongsToCurrentUser(s) && isCompletedStatus(s.status)
+          )
         } catch (listErr: any) {
           console.warn('[STRIPE IDENTITY SYNC] List sessions warning:', listErr.message)
         }
@@ -99,7 +122,7 @@ export default async function DashboardPage({
       if (matchedSession) {
         const { data: updatedProfile, error: updateError } = await supabase
           .from('profiles')
-          .update({ identity_verified: true })
+          .update({ identity_verified: true, verification_status: 'verified' })
           .eq('id', user.id)
           .select('*')
           .single()
@@ -107,7 +130,7 @@ export default async function DashboardPage({
         if (updateError) {
           await supabase
             .from('profiles')
-            .update({ verification_status: 'verified' })
+            .update({ identity_verified: true })
             .eq('id', user.id)
         }
 
@@ -573,7 +596,9 @@ export default async function DashboardPage({
   // ============================================================================
   const isVerified = Boolean(
     profile?.identity_verified === true ||
+    String(profile?.identity_verified) === 'true' ||
     profile?.is_verified === true ||
+    String(profile?.is_verified) === 'true' ||
     profile?.verification_status === 'verified'
   )
 
@@ -657,13 +682,24 @@ export default async function DashboardPage({
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Candidate Dashboard</h1>
               {isVerified && (
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-extrabold shadow-sm">
-                  <span className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </span>
-                  Identity Verified
+                <div className="inline-flex items-center gap-2">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-extrabold shadow-sm">
+                    <span className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </span>
+                    Identity Verified
+                  </div>
+                  <form action={resetCandidateVerificationSandbox}>
+                    <button
+                      type="submit"
+                      title="Sandbox: Reset this candidate back to Unverified"
+                      className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-700 border border-slate-200 hover:border-rose-200 text-[11px] font-bold transition-colors"
+                    >
+                      Reset to Unverified
+                    </button>
+                  </form>
                 </div>
               )}
             </div>
