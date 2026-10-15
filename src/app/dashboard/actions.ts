@@ -673,14 +673,20 @@ export async function forceVerifyCandidateIdentity() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return
 
-  const { error: err1 } = await supabase
+  await supabase
     .from('profiles')
-    .update({ identity_verified: true, verification_status: 'verified' })
+    .update({ identity_verified: true })
     .eq('id', user.id)
 
-  if (err1) {
-    console.warn('Update identity_verified warning:', err1.message)
-  }
+  await supabase
+    .from('profiles')
+    .update({ is_verified: true })
+    .eq('id', user.id)
+
+  await supabase
+    .from('profiles')
+    .update({ verification_status: 'verified' })
+    .eq('id', user.id)
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/jobs')
@@ -720,6 +726,7 @@ export async function revealProfile(formData: FormData) {
       match_data,
       jobs (
         title,
+        organization_id,
         organizations:organization_id (name, domain)
       ),
       profiles (*)
@@ -743,9 +750,17 @@ export async function revealProfile(formData: FormData) {
     existingApp?.match_data?.candidate_full_name ||
     'Verified Candidate'
 
+  const jobObj: any = Array.isArray(existingApp?.jobs) ? existingApp?.jobs[0] : existingApp?.jobs
+  const orgObj: any = Array.isArray(jobObj?.organizations) ? jobObj?.organizations[0] : jobObj?.organizations
+  const companyName = orgObj?.name || existingApp?.match_data?.employer_org_name || 'Verified Employer'
+  const companyDomain = orgObj?.domain || existingApp?.match_data?.employer_org_domain || ''
+  const roleTitle = jobObj?.title || 'Open Role'
+
   const updatedMatchData = {
     ...(existingApp?.match_data || {}),
     employer_contact_email: employerEmail,
+    employer_org_name: companyName,
+    employer_org_domain: companyDomain,
     candidate_contact_email: candidateEmail,
     candidate_full_name: candidateFullName,
     reference_id: referenceId,
@@ -764,11 +779,6 @@ export async function revealProfile(formData: FormData) {
     console.error('Error revealing profile:', error)
     return { error: error.message }
   }
-
-  const jobObj: any = Array.isArray(existingApp?.jobs) ? existingApp?.jobs[0] : existingApp?.jobs
-  const orgObj: any = Array.isArray(jobObj?.organizations) ? jobObj?.organizations[0] : jobObj?.organizations
-  const companyName = orgObj?.name || 'A Verified Employer'
-  const roleTitle = jobObj?.title || 'Open Role'
 
   await sendPlatformNotification({
     to: candidateEmail,
@@ -1052,14 +1062,17 @@ export async function applyBlind(formData: FormData) {
 
   const { data: jobInfo } = await supabase
     .from('jobs')
-    .select('title, employer_id, organizations:organization_id (name, domain)')
+    .select('title, employer_id, organization_id, organizations:organization_id (name, domain)')
     .eq('id', jobId)
     .single()
 
+  const orgObj: any = Array.isArray(jobInfo?.organizations) ? jobInfo?.organizations[0] : jobInfo?.organizations
   const candidateLiveEmail = user.email || profile?.contact_email || profile?.email || null
 
   match_data = {
     ...match_data,
+    employer_org_name: orgObj?.name || null,
+    employer_org_domain: orgObj?.domain || null,
     candidate_contact_email: candidateLiveEmail,
     candidate_full_name: profile?.full_name || profile?.name || null
   }
@@ -1121,7 +1134,6 @@ export async function applyBlind(formData: FormData) {
 
   const refId = formatReferenceId(finalApplicationId)
   const roleTitle = jobInfo?.title || 'Open Role'
-  const orgObj: any = Array.isArray(jobInfo?.organizations) ? jobInfo?.organizations[0] : jobInfo?.organizations
   const employerTargetEmail =
     existingApp?.match_data?.employer_contact_email ||
     (orgObj?.domain ? `hiring@${orgObj.domain}` : null)
@@ -1249,6 +1261,7 @@ export async function getCandidateApplications(
         salary_min,
         salary_max,
         structured_requirements,
+        organization_id,
         organizations:organization_id (*)
       )
     `)
@@ -1285,11 +1298,39 @@ export async function getCandidateApplications(
 
     const isUnlocked = Boolean(app.is_revealed || normalizedStatus === 'unlocked' || normalizedStatus === 'shortlisted')
     const enrichedJob = app.jobs ? enrichJobRecord(app.jobs) : null
-    
-    // SERVER-SIDE REDACTION: Hide employer identity if not unlocked
-    if (!isUnlocked && enrichedJob?.organizations) {
-      enrichedJob.organizations.name = 'A Verified Employer'
-      enrichedJob.organizations.domain = 'hidden'
+
+    if (enrichedJob) {
+      const rawOrg = Array.isArray(enrichedJob.organizations)
+        ? enrichedJob.organizations[0]
+        : enrichedJob.organizations || {}
+
+      const realOrgName =
+        rawOrg?.name ||
+        app.match_data?.employer_org_name ||
+        (app.match_data?.employer_contact_email
+          ? app.match_data.employer_contact_email.split('@')[1]
+          : null) ||
+        'Verified Employer'
+
+      const realOrgDomain =
+        rawOrg?.domain ||
+        app.match_data?.employer_org_domain ||
+        (app.match_data?.employer_contact_email
+          ? app.match_data.employer_contact_email.split('@')[1]
+          : null) ||
+        ''
+
+      enrichedJob.organizations = isUnlocked
+        ? {
+            ...rawOrg,
+            name: realOrgName,
+            domain: realOrgDomain,
+          }
+        : {
+            ...rawOrg,
+            name: 'A Verified Employer',
+            domain: 'hidden',
+          }
     }
 
     const org = enrichedJob?.organizations || {}
@@ -1300,6 +1341,8 @@ export async function getCandidateApplications(
       jobs: enrichedJob,
       normalized_status: normalizedStatus,
       reference_id: formatReferenceId(app.id),
+      unlocked_employer_name: isUnlocked ? org?.name || null : null,
+      unlocked_employer_domain: isUnlocked && org?.domain !== 'hidden' ? org?.domain || null : null,
       unlocked_employer_email: isUnlocked
         ? app.match_data?.employer_contact_email || fallbackEmployerEmail
         : null,
@@ -1351,6 +1394,7 @@ export async function getCandidateConnectionRequests() {
         salary_min,
         salary_max,
         structured_requirements,
+        organization_id,
         organizations:organization_id (*)
       )
     `)
@@ -1365,11 +1409,39 @@ export async function getCandidateConnectionRequests() {
   const enriched = requests.map((req: any) => {
     const isAccepted = req.status === 'accepted' || req.is_revealed === true
     const enrichedJob = req.jobs ? enrichJobRecord(req.jobs) : null
-    
-    // SERVER-SIDE REDACTION: Hide employer identity if not accepted
-    if (!isAccepted && enrichedJob?.organizations) {
-      enrichedJob.organizations.name = 'A Verified Employer'
-      enrichedJob.organizations.domain = 'hidden'
+
+    if (enrichedJob) {
+      const rawOrg = Array.isArray(enrichedJob.organizations)
+        ? enrichedJob.organizations[0]
+        : enrichedJob.organizations || {}
+
+      const emailDomain = req.match_data?.employer_contact_email
+        ? req.match_data.employer_contact_email.split('@')[1]
+        : ''
+
+      const realOrgName =
+        rawOrg?.name ||
+        req.match_data?.employer_org_name ||
+        (emailDomain ? emailDomain.split('.')[0].toUpperCase() : '') ||
+        'Verified Employer'
+
+      const realOrgDomain =
+        rawOrg?.domain ||
+        req.match_data?.employer_org_domain ||
+        emailDomain ||
+        ''
+
+      enrichedJob.organizations = isAccepted
+        ? {
+            ...rawOrg,
+            name: realOrgName,
+            domain: realOrgDomain,
+          }
+        : {
+            ...rawOrg,
+            name: 'A Verified Employer',
+            domain: 'hidden',
+          }
     }
 
     const org = enrichedJob?.organizations || {}
@@ -1379,6 +1451,8 @@ export async function getCandidateConnectionRequests() {
       ...req,
       jobs: enrichedJob,
       reference_id: formatReferenceId(req.id),
+      unlocked_employer_name: isAccepted ? org?.name || null : null,
+      unlocked_employer_domain: isAccepted && org?.domain !== 'hidden' ? org?.domain || null : null,
       unlocked_employer_email: isAccepted
         ? req.match_data?.employer_contact_email || fallbackEmployerEmail
         : null,
@@ -1486,6 +1560,7 @@ export async function respondToConnectionRequest(
       match_data,
       jobs (
         title,
+        organization_id,
         organizations:organization_id (name, domain)
       ),
       profiles (
@@ -1527,8 +1602,29 @@ export async function respondToConnectionRequest(
     existingApp?.match_data?.candidate_full_name ||
     'Verified Candidate'
 
+  const jobObj: any = Array.isArray(existingApp?.jobs) ? existingApp?.jobs[0] : existingApp?.jobs
+  const orgObj: any = Array.isArray(jobObj?.organizations) ? jobObj?.organizations[0] : jobObj?.organizations
+
+  const emailDomain = existingApp?.match_data?.employer_contact_email
+    ? existingApp.match_data.employer_contact_email.split('@')[1]
+    : ''
+
+  const resolvedOrgName =
+    orgObj?.name ||
+    existingApp?.match_data?.employer_org_name ||
+    (emailDomain ? emailDomain.split('.')[0].toUpperCase() : '') ||
+    'Verified Employer'
+
+  const resolvedOrgDomain =
+    orgObj?.domain ||
+    existingApp?.match_data?.employer_org_domain ||
+    emailDomain ||
+    ''
+
   const updatedMatchData = {
     ...(existingApp?.match_data || {}),
+    employer_org_name: resolvedOrgName,
+    employer_org_domain: resolvedOrgDomain,
     candidate_contact_email: user.email || existingApp?.match_data?.candidate_contact_email || null,
     candidate_full_name: candidateName,
     reference_id: referenceId,
@@ -1566,11 +1662,9 @@ export async function respondToConnectionRequest(
     return { error: acceptError.message }
   }
 
-  const jobObj: any = Array.isArray(existingApp?.jobs) ? existingApp?.jobs[0] : existingApp?.jobs
-  const orgObj: any = Array.isArray(jobObj?.organizations) ? jobObj?.organizations[0] : jobObj?.organizations
   const employerEmail =
     updatedMatchData.employer_contact_email ||
-    (orgObj?.domain ? `hiring@${orgObj.domain}` : null)
+    (resolvedOrgDomain ? `hiring@${resolvedOrgDomain}` : null)
 
   await sendPlatformNotification({
     to: employerEmail,
@@ -1589,11 +1683,11 @@ export async function respondToConnectionRequest(
 
   await sendPlatformNotification({
     to: user.email,
-    subject: `You Unlocked ${orgObj?.name || 'Employer'} Contact Info for ${jobObj?.title || 'Open Role'}`,
+    subject: `You Unlocked ${resolvedOrgName} Contact Info for ${jobObj?.title || 'Open Role'}`,
     referenceId,
     heading: 'Connection Confirmed & Contact Info Unlocked!',
     bodyLines: [
-      `You accepted the connection pitch from ${orgObj?.name || 'Verified Employer'} for "${jobObj?.title || 'Open Role'}".`,
+      `You accepted the connection pitch from ${resolvedOrgName} for "${jobObj?.title || 'Open Role'}".`,
       `Connection Reference ID: ${referenceId}`,
       employerEmail ? `Employer Contact Email: ${employerEmail}` : `View their contact info in your Employer Pitches inbox.`
     ],
@@ -1609,6 +1703,8 @@ export async function respondToConnectionRequest(
     success: true,
     storedStatus,
     referenceId,
+    unlocked_employer_name: resolvedOrgName,
+    unlocked_employer_domain: resolvedOrgDomain,
     unlocked_employer_email: employerEmail,
     unlocked_candidate_email: user.email || null
   }
@@ -2278,6 +2374,8 @@ export async function sendConnectionRequest(
 
   const enrichedMatchData = {
     ...(matchData || {}),
+    employer_org_name: orgObj?.name || null,
+    employer_org_domain: orgObj?.domain || null,
     employer_contact_email: user.email || (orgObj?.domain ? `hiring@${orgObj.domain}` : null),
     candidate_contact_email: knownCandidateEmail,
     candidate_full_name: knownCandidateName
@@ -2347,13 +2445,13 @@ export async function sendConnectionRequest(
 
   await sendPlatformNotification({
     to: enrichedMatchData.candidate_contact_email,
-    subject: `${orgObj?.name || 'A Verified Employer'} pitched you a role: ${job.title} (${matchScore}% Match)`,
+    subject: `A Domain-Verified Employer pitched you a role: ${job.title} (${matchScore}% Match)`,
     referenceId: refId,
     heading: `New Employer Connection Pitch (${matchScore}% AI Match)`,
     bodyLines: [
-      `${orgObj?.name || 'A Domain-Verified Employer'} matched with your anonymous profile and spent a connection credit to pitch you their "${job.title}" role.`,
+      `A Domain-Verified Employer matched with your anonymous profile and spent a connection credit to pitch you their "${job.title}" role.`,
       `Transaction Reference ID: ${refId}`,
-      `Your identity remains hidden until you accept the request in your Employer Pitches inbox.`
+      `Both your identity and the employer's company name remain hidden until you accept the request in your Employer Pitches inbox.`
     ],
     ctaUrl: '/dashboard/requests',
     ctaLabel: 'Review Pitch in Inbox →'
@@ -2622,6 +2720,7 @@ export async function updateInboundApplicationDecision(
       match_data,
       jobs (
         title,
+        organization_id,
         organizations:organization_id (name, domain)
       ),
       profiles (*)
@@ -2638,9 +2737,16 @@ export async function updateInboundApplicationDecision(
     profileObj?.email ||
     null
 
+  const jobObj: any = Array.isArray(existingApp?.jobs) ? existingApp?.jobs[0] : existingApp?.jobs
+  const orgObj: any = Array.isArray(jobObj?.organizations) ? jobObj?.organizations[0] : jobObj?.organizations
+  const resolvedOrgName = orgObj?.name || existingApp?.match_data?.employer_org_name || 'Verified Employer'
+  const resolvedOrgDomain = orgObj?.domain || existingApp?.match_data?.employer_org_domain || ''
+
   const updatedMatchData = {
     ...(existingApp?.match_data || {}),
     employer_decision: decision,
+    employer_org_name: resolvedOrgName,
+    employer_org_domain: resolvedOrgDomain,
     employer_contact_email: employerEmail,
     candidate_contact_email: candidateEmail,
     reference_id: referenceId
@@ -2680,16 +2786,13 @@ export async function updateInboundApplicationDecision(
 
     if (error) return { error: error.message }
 
-    const jobObj: any = Array.isArray(existingApp?.jobs) ? existingApp?.jobs[0] : existingApp?.jobs
-    const orgObj: any = Array.isArray(jobObj?.organizations) ? jobObj?.organizations[0] : jobObj?.organizations
-
     await sendPlatformNotification({
       to: candidateEmail,
-      subject: `You Were Shortlisted by ${orgObj?.name || 'Verified Employer'} for ${jobObj?.title || 'Open Role'}!`,
+      subject: `You Were Shortlisted by ${resolvedOrgName} for ${jobObj?.title || 'Open Role'}!`,
       referenceId,
       heading: 'Congratulations! You Have Been Shortlisted for an Interview',
       bodyLines: [
-        `${orgObj?.name || 'A Verified Employer'} shortlisted your application for "${jobObj?.title || 'Open Role'}".`,
+        `${resolvedOrgName} shortlisted your application for "${jobObj?.title || 'Open Role'}".`,
         `Connection Reference ID: ${referenceId}`,
         employerEmail ? `Hiring Team Contact Email: ${employerEmail}` : `View their contact info in your Application Tracker.`
       ],

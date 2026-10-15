@@ -13,22 +13,24 @@ export default function CandidateConnectionRequestsPage() {
   const [requests, setRequests] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'accepted' | 'declined'>('pending')
+  const [justUpdatedIds, setJustUpdatedIds] = useState<Record<string, boolean>>({})
   const [processingId, setProcessingId] = useState<string | null>(null)
   const [recalculatingId, setRecalculatingId] = useState<string | null>(null)
   const [expandedRadarId, setExpandedRadarId] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<{ id: string; type: 'success' | 'error'; text: string } | null>(null)
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchRequests = async () => {
-      setIsLoading(true)
-      const result = await getCandidateConnectionRequests()
-      if (result.data) {
-        setRequests(result.data)
-      }
-      setIsLoading(false)
+  const loadRequestsFromServer = async (showSpinner = true) => {
+    if (showSpinner) setIsLoading(true)
+    const result = await getCandidateConnectionRequests()
+    if (result.data) {
+      setRequests(result.data)
     }
-    fetchRequests()
+    if (showSpinner) setIsLoading(false)
+  }
+
+  useEffect(() => {
+    loadRequestsFromServer(true)
   }, [])
 
   const copyToClipboard = (text: string, key: string) => {
@@ -43,35 +45,79 @@ export default function CandidateConnectionRequestsPage() {
     return 'pending'
   }
 
+  const handleTabChange = (newTab: 'all' | 'pending' | 'accepted' | 'declined') => {
+    setStatusFilter(newTab)
+    setJustUpdatedIds({})
+    setFeedback(null)
+  }
+
   const handleDecision = async (applicationId: string, decision: 'accepted' | 'declined') => {
     setProcessingId(applicationId)
     setFeedback(null)
 
-    const result = await respondToConnectionRequest(applicationId, decision)
+    const result: any = await respondToConnectionRequest(applicationId, decision)
 
     if (result?.error) {
       setFeedback({ id: applicationId, type: 'error', text: result.error })
     } else {
+      // Keep this card visible in the current tab so it doesn't vanish on click
+      setJustUpdatedIds(prev => ({ ...prev, [applicationId]: true }))
+
       setRequests(prev =>
-        prev.map(req =>
-          req.id === applicationId
-            ? {
-                ...req,
-                status: result.storedStatus || (decision === 'declined' ? 'rejected' : 'accepted'),
-                is_revealed: decision === 'accepted',
-                reference_id: result.referenceId || req.reference_id,
-                unlocked_employer_email: result.unlocked_employer_email || req.unlocked_employer_email
+        prev.map(req => {
+          if (req.id !== applicationId) return req
+
+          const existingJob = req.jobs || {}
+          const existingOrg = existingJob.organizations || {}
+
+          const unlockedName =
+            decision === 'accepted'
+              ? result.unlocked_employer_name ||
+                req.unlocked_employer_name ||
+                ( existingOrg.name && existingOrg.name !== 'A Verified Employer'
+                  ? existingOrg.name
+                  : 'Verified Employer')
+              : existingOrg.name
+
+          const unlockedDomain =
+            decision === 'accepted'
+              ? result.unlocked_employer_domain ||
+                req.unlocked_employer_domain ||
+                (existingOrg.domain && existingOrg.domain !== 'hidden'
+                  ? existingOrg.domain
+                  : '')
+              : existingOrg.domain
+
+          return {
+            ...req,
+            status: result.storedStatus || (decision === 'declined' ? 'rejected' : 'accepted'),
+            is_revealed: decision === 'accepted',
+            reference_id: result.referenceId || req.reference_id,
+            unlocked_employer_name: unlockedName,
+            unlocked_employer_domain: unlockedDomain,
+            unlocked_employer_email: result.unlocked_employer_email || req.unlocked_employer_email,
+            jobs: {
+              ...existingJob,
+              organizations: {
+                ...existingOrg,
+                name: unlockedName,
+                domain: unlockedDomain
               }
-            : req
-        )
+            }
+          }
+        })
       )
+
+      // Also refresh from server in background so all database fields are 100% synced
+      await loadRequestsFromServer(false)
+
       setFeedback({
         id: applicationId,
         type: 'success',
         text:
           decision === 'accepted'
-            ? `Connection accepted! Reference ID ${result.referenceId || ''} and direct contact details are now unlocked.`
-            : 'Connection request declined. This employer can now send a fresh pitch if needed.'
+            ? `Connection accepted! Reference ID ${result.referenceId || ''} and ${result.unlocked_employer_name || 'the employer'}'s contact details are now unlocked below.`
+            : 'Connection request declined. Your identity remains hidden.'
       })
     }
 
@@ -82,34 +128,56 @@ export default function CandidateConnectionRequestsPage() {
     setRecalculatingId(applicationId)
     setFeedback(null)
 
-    const result = await recalculatePitchMatch(applicationId)
-    if (result?.error) {
-      setFeedback({ id: applicationId, type: 'error', text: result.error })
-    } else if (result?.data) {
-      setRequests(prev =>
-        prev.map(req =>
-          req.id === applicationId
-            ? {
-                ...req,
-                match_score: result.data.match_score,
-                employer_pitch: result.data.employer_pitch,
-                match_data: result.data.match_data
-              }
-            : req
+    try {
+      const timeoutPromise = new Promise<{ error: string }>((resolve) => {
+        setTimeout(() => {
+          resolve({
+            error:
+              'AI Match recalculation took longer than 30 seconds across our 3-tier matching cascade. Please try again.'
+          })
+        }, 30000)
+      })
+
+      const result: any = await Promise.race([
+        recalculatePitchMatch(applicationId),
+        timeoutPromise
+      ])
+
+      if (result?.error) {
+        setFeedback({ id: applicationId, type: 'error', text: result.error })
+      } else if (result?.data) {
+        setRequests(prev =>
+          prev.map(req =>
+            req.id === applicationId
+              ? {
+                  ...req,
+                  match_score: result.data.match_score,
+                  employer_pitch: result.data.employer_pitch,
+                  match_data: result.data.match_data
+                }
+              : req
+          )
         )
-      )
+        setFeedback({
+          id: applicationId,
+          type: 'success',
+          text: `AI Match recalculated (${result.data.match_score}%) using your current profile skills!`
+        })
+      }
+    } catch {
       setFeedback({
         id: applicationId,
-        type: 'success',
-        text: `AI Match recalculated (${result.data.match_score}%) using your current profile skills!`
+        type: 'error',
+        text: 'Network timeout while recalculating AI Match. Please try again.'
       })
+    } finally {
+      setRecalculatingId(null)
     }
-
-    setRecalculatingId(null)
   }
 
   const filteredRequests = requests.filter(req => {
     if (statusFilter === 'all') return true
+    if (justUpdatedIds[req.id]) return true
     return getNormalizedStatus(req) === statusFilter
   })
 
@@ -147,7 +215,7 @@ export default function CandidateConnectionRequestsPage() {
         {/* Status Filter Tabs */}
         <div className="flex flex-wrap gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm w-fit">
           <button
-            onClick={() => setStatusFilter('pending')}
+            onClick={() => handleTabChange('pending')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               statusFilter === 'pending'
                 ? 'bg-slate-900 text-white shadow-sm'
@@ -163,7 +231,7 @@ export default function CandidateConnectionRequestsPage() {
           </button>
 
           <button
-            onClick={() => setStatusFilter('accepted')}
+            onClick={() => handleTabChange('accepted')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               statusFilter === 'accepted'
                 ? 'bg-slate-900 text-white shadow-sm'
@@ -179,7 +247,7 @@ export default function CandidateConnectionRequestsPage() {
           </button>
 
           <button
-            onClick={() => setStatusFilter('declined')}
+            onClick={() => handleTabChange('declined')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               statusFilter === 'declined'
                 ? 'bg-slate-900 text-white shadow-sm'
@@ -195,7 +263,7 @@ export default function CandidateConnectionRequestsPage() {
           </button>
 
           <button
-            onClick={() => setStatusFilter('all')}
+            onClick={() => handleTabChange('all')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               statusFilter === 'all'
                 ? 'bg-slate-900 text-white shadow-sm'
@@ -233,15 +301,30 @@ export default function CandidateConnectionRequestsPage() {
             {filteredRequests.map((req) => {
               const job = req.jobs || {}
               const org = job.organizations || {}
-              const companyName = org.name || 'Verified Employer'
+              const normalizedStatus = getNormalizedStatus(req)
+              const isUnlocked = normalizedStatus === 'accepted'
+
+              const companyName = isUnlocked
+                ? req.unlocked_employer_name ||
+                  (org.name && org.name !== 'A Verified Employer' ? org.name : null) ||
+                  req.match_data?.employer_org_name ||
+                  'Verified Employer'
+                : 'A Verified Employer'
+
+              const companyDomain = isUnlocked
+                ? req.unlocked_employer_domain ||
+                  (org.domain && org.domain !== 'hidden' ? org.domain : null) ||
+                  req.match_data?.employer_org_domain ||
+                  ''
+                : ''
+
               const referenceId =
                 req.reference_id || `SS-${(req.id || '').replace(/-/g, '').substring(0, 8).toUpperCase()}`
               const matchScore = req.match_score ?? req.match_data?.overall_score ?? null
-              const normalizedStatus = getNormalizedStatus(req)
               const employerEmail =
                 req.unlocked_employer_email ||
                 req.match_data?.employer_contact_email ||
-                (org.domain ? `hiring@${org.domain}` : 'e@test.com')
+                (companyDomain ? `hiring@${companyDomain}` : 'e@test.com')
 
               const pitchText =
                 req.employer_pitch ||
@@ -258,24 +341,34 @@ export default function CandidateConnectionRequestsPage() {
                         ? { skill: item }
                         : { skill: item?.skill || item?.name || '', level: item?.level }
                     )
-                    .filter((r: any) => r.skill)
+                    .filter((r: any) => r.skill && !String(r.skill).startsWith('__SS_'))
                 : []
 
               return (
                 <div
                   key={req.id}
-                  className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:border-indigo-200 transition-colors"
+                  className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all ${
+                    isUnlocked
+                      ? 'border-emerald-300 ring-2 ring-emerald-500/10'
+                      : 'border-slate-200 hover:border-indigo-200'
+                  }`}
                 >
                   <div className="p-6 md:p-8">
                     {/* Top Row: Company Badge, Reference ID, Match Score, and Status */}
                     <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center font-extrabold text-sm">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm border ${
+                          isUnlocked
+                            ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                            : 'bg-indigo-50 border-indigo-100 text-indigo-600'
+                        }`}>
                           {companyName.charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                            <span className={`text-xs font-extrabold uppercase tracking-wider ${
+                              isUnlocked ? 'text-emerald-700' : 'text-indigo-600'
+                            }`}>
                               {companyName}
                             </span>
                             <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-[11px] font-bold border border-slate-200">
@@ -333,9 +426,19 @@ export default function CandidateConnectionRequestsPage() {
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          ${job.salary_min ? (job.salary_min / 1000).toFixed(0) + 'k' : ''}
-                          {job.salary_min && job.salary_max ? ' – ' : ''}
-                          {job.salary_max ? '$' + (job.salary_max / 1000).toFixed(0) + 'k' : ''} USD
+                          {job.salary_max && job.salary_max <= 500 ? (
+                            <>
+                              ${job.salary_min || ''}
+                              {job.salary_min && job.salary_max ? ' – ' : ''}
+                              {job.salary_max ? `$${job.salary_max}` : ''} /hr
+                            </>
+                          ) : (
+                            <>
+                              ${job.salary_min ? (job.salary_min / 1000).toFixed(0) + 'k' : ''}
+                              {job.salary_min && job.salary_max ? ' – ' : ''}
+                              {job.salary_max ? '$' + (job.salary_max / 1000).toFixed(0) + 'k' : ''} /yr
+                            </>
+                          )}
                         </span>
                       )}
 
@@ -345,26 +448,51 @@ export default function CandidateConnectionRequestsPage() {
                         </span>
                       )}
 
-                      {normalizedStatus === 'accepted' && org.domain && (
+                      {isUnlocked && companyDomain && (
                         <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-100">
-                          🌐 {org.domain}
+                          🌐 {companyDomain}
                         </span>
                       )}
                     </div>
 
                     {/* UNLOCKED EMPLOYER CONTACT & TRANSACTION REFERENCE ID BAR */}
-                    {normalizedStatus === 'accepted' && (
-                      <div className="mb-6 p-5 bg-slate-900 text-white rounded-xl shadow-sm space-y-4">
-                        <div>
-                          <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400 block mb-1">
-                            Unlocked Employer Contact & Reference ID
-                          </span>
-                          <p className="text-xs text-slate-300">
-                            Reference the ID below when corresponding with {companyName} regarding the {job.title} role.
-                          </p>
+                    {isUnlocked && (
+                      <div className="mb-6 p-5 bg-slate-900 text-white rounded-xl shadow-sm space-y-4 animate-in fade-in duration-300">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div>
+                            <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400 block mb-1">
+                              Unlocked Employer Identity & Contact Details
+                            </span>
+                            <p className="text-xs text-slate-300">
+                              Reference ID <strong className="text-white">{referenceId}</strong> when corresponding with <strong className="text-white">{companyName}</strong> regarding the {job.title} role.
+                            </p>
+                          </div>
+                          {statusFilter === 'pending' && justUpdatedIds[req.id] && (
+                            <button
+                              type="button"
+                              onClick={() => handleTabChange('accepted')}
+                              className="shrink-0 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold transition-colors"
+                            >
+                              Go to Accepted Tab →
+                            </button>
+                          )}
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-800">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-800">
+                          <div className="bg-slate-800/90 px-4 py-3 rounded-lg border border-slate-700">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                              Unlocked Employer
+                            </span>
+                            <span className="text-sm font-extrabold text-white block truncate">
+                              {companyName}
+                            </span>
+                            {companyDomain && (
+                              <span className="text-[11px] text-indigo-300 font-medium block truncate">
+                                {companyDomain}
+                              </span>
+                            )}
+                          </div>
+
                           <div className="bg-slate-800/90 px-4 py-3 rounded-lg border border-slate-700 flex items-center justify-between gap-3">
                             <div>
                               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
@@ -404,6 +532,21 @@ export default function CandidateConnectionRequestsPage() {
                       </div>
                     )}
 
+                    {/* 30-Second AI Recalculation Progress Banner */}
+                    {recalculatingId === req.id && (
+                      <div className="mb-6 p-4 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center gap-3.5 animate-pulse">
+                        <div className="w-5 h-5 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin shrink-0" />
+                        <div className="text-xs text-indigo-950">
+                          <span className="font-extrabold block">
+                            Recalculating 5-Point AI Fit (This may take up to 30 seconds)...
+                          </span>
+                          <span className="text-indigo-700 font-medium">
+                            Routing your updated skill matrix across our 3-tier AI matching cascade.
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Why You Matched Box (AI Pitch to Candidate) */}
                     <div className="p-4 rounded-xl bg-indigo-50/70 border border-indigo-100 mb-6">
                       <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
@@ -424,7 +567,7 @@ export default function CandidateConnectionRequestsPage() {
                             <svg className={`w-3.5 h-3.5 ${recalculatingId === req.id ? 'animate-spin text-indigo-600' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
-                            {recalculatingId === req.id ? 'Recalculating...' : 'Recalculate AI Match'}
+                            {recalculatingId === req.id ? 'Recalculating (Up to 30s)...' : 'Recalculate AI Match'}
                           </button>
 
                           {radarData && (
@@ -524,13 +667,22 @@ export default function CandidateConnectionRequestsPage() {
                     {/* Feedback Banner */}
                     {feedback?.id === req.id && (
                       <div
-                        className={`mt-6 p-3 rounded-xl text-xs font-bold ${
+                        className={`mt-6 p-3.5 rounded-xl text-xs font-bold flex items-center justify-between gap-3 ${
                           feedback.type === 'error'
                             ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                         }`}
                       >
-                        {feedback.text}
+                        <span>{feedback.text}</span>
+                        {feedback.type === 'error' && (
+                          <button
+                            type="button"
+                            onClick={() => handleRecalculate(req.id)}
+                            className="shrink-0 px-3 py-1.5 rounded-lg bg-rose-700 text-white text-xs font-extrabold hover:bg-rose-800 transition-colors"
+                          >
+                            ↻ Try Again
+                          </button>
+                        )}
                       </div>
                     )}
 
@@ -539,7 +691,7 @@ export default function CandidateConnectionRequestsPage() {
                       {normalizedStatus === 'pending' ? (
                         <>
                           <p className="text-xs text-slate-500">
-                            <strong className="text-slate-700">Your identity is currently hidden.</strong> Accepting this request reveals your contact details and resume to {companyName}.
+                            <strong className="text-slate-700">Your identity is currently hidden.</strong> Accepting this request reveals your contact details and resume to this verified employer and unlocks their company identity.
                           </p>
                           <div className="flex items-center gap-3 shrink-0">
                             <button
@@ -557,7 +709,7 @@ export default function CandidateConnectionRequestsPage() {
                               className="px-6 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold hover:bg-emerald-600 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
                             >
                               {processingId === req.id ? (
-                                'Updating...'
+                                'Unlocking...'
                               ) : (
                                 <>
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -570,15 +722,18 @@ export default function CandidateConnectionRequestsPage() {
                           </div>
                         </>
                       ) : normalizedStatus === 'accepted' ? (
-                        <div className="flex items-center justify-between w-full">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
                           <span className="text-xs font-bold text-emerald-700">
-                            You accepted this connection request. Both you and {companyName} can reference ID {referenceId} when communicating.
+                            ✓ You accepted this connection request. Both you and {companyName} can reference ID {referenceId} when communicating.
+                          </span>
+                          <span className="px-4 py-2 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-extrabold shrink-0 text-center">
+                            ✓ Mutual Identity Unlocked
                           </span>
                         </div>
                       ) : (
                         <div className="flex items-center justify-between w-full">
                           <span className="text-xs font-medium text-slate-400">
-                            You declined this connection request. Your identity remains hidden from {companyName}.
+                            You declined this connection request. Your identity remains hidden.
                           </span>
                         </div>
                       )}
