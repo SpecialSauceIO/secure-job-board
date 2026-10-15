@@ -294,22 +294,18 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   monthlyCredits: number
   maxSeats: number
 }> {
-  // 1. Check explicit [TIER:...] marker in description first
   const descMatch = (org?.description || '').match(
     /\[TIER:(free|starter|growth|enterprise)\]/i
   )
   const descTier = descMatch ? descMatch[1].toLowerCase() : ''
 
-  // 2. Check subscription_tier column if non-free
   const rawTierCol = (org?.subscription_tier || '').toLowerCase().trim()
 
-  // 3. Check persistent server cookie fallback (guarantees persistence even if RLS blocks org update)
   let cookieTier = ''
   try {
     const cookieStore = await cookies()
     cookieTier = (cookieStore.get('ss_employer_tier')?.value || '').toLowerCase().trim()
   } catch {
-    // Ignore cookie read error outside request context
   }
 
   const explicitTier =
@@ -355,7 +351,6 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
     }
   }
 
-  // 4. Fallback heuristic based on credits
   const credits = org?.connection_credits || 0
   const sent = org?.total_requests_sent || 0
   const totalCapacity = credits + sent
@@ -620,6 +615,7 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
   throw new Error("All Gemini Flash free-tier quotas have been exhausted for the day. Please wait for reset or check your Google AI Studio billing.")
 }
 
+
 // ------------------------------------------------------------------
 // PROFILE & GLOBAL ACTIONS
 // ------------------------------------------------------------------
@@ -648,15 +644,11 @@ export async function forceVerifyCandidateIdentity() {
 
   const { error: err1 } = await supabase
     .from('profiles')
-    .update({ identity_verified: true })
+    .update({ identity_verified: true, verification_status: 'verified' })
     .eq('id', user.id)
 
   if (err1) {
     console.warn('Update identity_verified warning:', err1.message)
-    await supabase
-      .from('profiles')
-      .update({ verification_status: 'verified' })
-      .eq('id', user.id)
   }
 
   revalidatePath('/dashboard')
@@ -986,8 +978,11 @@ export async function applyBlind(formData: FormData) {
 
   const isVerified = Boolean(
     profile?.identity_verified === true ||
+    String(profile?.identity_verified) === 'true' ||
     profile?.is_verified === true ||
-    profile?.verification_status === 'verified'
+    String(profile?.is_verified) === 'true' ||
+    profile?.verification_status === 'verified' ||
+    profile?.verification_status === 'approved'
   )
 
   if (!isVerified) {
@@ -1259,8 +1254,15 @@ export async function getCandidateApplications(
 
     const isUnlocked = Boolean(app.is_revealed || normalizedStatus === 'unlocked' || normalizedStatus === 'shortlisted')
     const enrichedJob = app.jobs ? enrichJobRecord(app.jobs) : null
+    
+    // SERVER-SIDE REDACTION: Hide employer identity if not unlocked
+    if (!isUnlocked && enrichedJob?.organizations) {
+      enrichedJob.organizations.name = 'A Verified Employer'
+      enrichedJob.organizations.domain = 'hidden'
+    }
+
     const org = enrichedJob?.organizations || {}
-    const fallbackEmployerEmail = org?.domain ? `hiring@${org.domain}` : null
+    const fallbackEmployerEmail = org?.domain && org.domain !== 'hidden' ? `hiring@${org.domain}` : null
 
     return {
       ...app,
@@ -1332,8 +1334,15 @@ export async function getCandidateConnectionRequests() {
   const enriched = requests.map((req: any) => {
     const isAccepted = req.status === 'accepted' || req.is_revealed === true
     const enrichedJob = req.jobs ? enrichJobRecord(req.jobs) : null
+    
+    // SERVER-SIDE REDACTION: Hide employer identity if not accepted
+    if (!isAccepted && enrichedJob?.organizations) {
+      enrichedJob.organizations.name = 'A Verified Employer'
+      enrichedJob.organizations.domain = 'hidden'
+    }
+
     const org = enrichedJob?.organizations || {}
-    const fallbackEmployerEmail = org?.domain ? `hiring@${org.domain}` : null
+    const fallbackEmployerEmail = org?.domain && org.domain !== 'hidden' ? `hiring@${org.domain}` : null
 
     return {
       ...req,
@@ -3158,7 +3167,6 @@ export async function activateSandboxEmployerTier(
   const existingSeatsTag = seatsMatch ? seatsMatch[0] : ''
   const taggedDesc = `${cleanDesc} [TIER:${targetTier}] ${existingSeatsTag}`.trim()
 
-  // Persist tier in HTTP-only cookie as well so navigation never loses state
   try {
     const cookieStore = await cookies()
     cookieStore.set('ss_employer_tier', targetTier, {
@@ -3167,10 +3175,8 @@ export async function activateSandboxEmployerTier(
       sameSite: 'lax',
     })
   } catch {
-    // Ignore cookie error if any
   }
 
-  // Always update description + connection_credits first (guaranteed columns on organizations)
   const { error: baseErr } = await supabase
     .from('organizations')
     .update({
@@ -3179,7 +3185,6 @@ export async function activateSandboxEmployerTier(
     })
     .eq('id', member.organization_id)
 
-  // Also attempt updating optional subscription_tier / max_active_jobs columns if they exist
   await supabase
     .from('organizations')
     .update({
