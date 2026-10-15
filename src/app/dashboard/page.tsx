@@ -23,7 +23,6 @@ async function resetCandidateVerificationSandbox() {
   } = await supabase.auth.getUser()
   if (!user) return
 
-  // Update each possible verification column individually so a missing column never blocks the others
   await supabase
     .from('profiles')
     .update({ identity_verified: false })
@@ -47,13 +46,13 @@ async function resetCandidateVerificationSandbox() {
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/jobs')
-  redirect('/dashboard?reset=1')
+  redirect('/dashboard')
 }
 
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ verification?: string; session_id?: string; reset?: string }>
+  searchParams?: Promise<{ verification?: string; session_id?: string }>
 }) {
   const supabase = await createClient()
   
@@ -63,8 +62,9 @@ export default async function DashboardPage({
   }
 
   const resolvedParams = searchParams ? await searchParams : {}
-  const isReturningFromStripe = resolvedParams?.verification === 'pending'
-  const isManualReset = resolvedParams?.reset === '1'
+  const isReturningFromStripe = Boolean(
+    resolvedParams?.verification === 'pending' || resolvedParams?.session_id
+  )
 
   let { data: profile } = await supabase
     .from('profiles')
@@ -73,22 +73,13 @@ export default async function DashboardPage({
     .single()
 
   // ============================================================================
-  // AUTOMATIC STRIPE IDENTITY SYNC (STRICTLY SCOPED TO CURRENT USER.ID)
+  // AUTOMATIC STRIPE IDENTITY SYNC (ONLY RUNS WHEN RETURNING FROM STRIPE FLOW)
   // ============================================================================
-  const currentlyVerified = Boolean(
-    profile?.identity_verified === true ||
-    String(profile?.identity_verified) === 'true' ||
-    profile?.is_verified === true ||
-    String(profile?.is_verified) === 'true' ||
-    profile?.verification_status === 'verified'
-  )
-
   const stripeKey = process.env.STRIPE_IDENTITY_SECRET_KEY || process.env.STRIPE_SECRET_KEY
 
   if (
     profile?.role === 'candidate' &&
-    !isManualReset &&
-    (!currentlyVerified || isReturningFromStripe) &&
+    isReturningFromStripe &&
     stripeKey
   ) {
     try {
