@@ -68,7 +68,7 @@ export default function EmployerCandidateSearch({ activeJobs, credits }: { activ
     setIsLoading(false)
   }
 
-  // 3. Role Selection & Real-Time AI Match Analysis
+  // 3. Role Selection & Real-Time AI Match Analysis (With 30-Second Safety Timer)
   const handleRoleSelect = async (jobId: string, candidateId: string) => {
     setSelectedJobId(jobId)
     setAiMatchData(null)
@@ -77,13 +77,43 @@ export default function EmployerCandidateSearch({ activeJobs, credits }: { activ
     if (!jobId) return
 
     setIsAnalyzingMatch(true)
-    const result = await analyzeCandidateFit(candidateId, jobId)
-    if (result?.data) {
-      setAiMatchData(result.data)
-    } else if (result?.error) {
-      setFeedback({ type: 'error', text: result.error })
+
+    try {
+      const timeoutPromise = new Promise<{ error: string }>((resolve) => {
+        setTimeout(() => {
+          resolve({
+            error:
+              'AI Match analysis took longer than 30 seconds across our providers. Please click "Try AI Match Again" to retry.',
+          })
+        }, 30000)
+      })
+
+      const result: any = await Promise.race([
+        analyzeCandidateFit(candidateId, jobId),
+        timeoutPromise,
+      ])
+
+      if (result?.data) {
+        setAiMatchData(result.data)
+      } else if (result?.error) {
+        setFeedback({
+          type: 'error',
+          text: `${result.error} Please try again.`,
+        })
+      } else {
+        setFeedback({
+          type: 'error',
+          text: 'Unable to generate AI Match score at this moment. Please try again.',
+        })
+      }
+    } catch (err: any) {
+      setFeedback({
+        type: 'error',
+        text: 'Network or server timeout while calculating AI Match. Please click "Try AI Match Again" to retry.',
+      })
+    } finally {
+      setIsAnalyzingMatch(false)
     }
-    setIsAnalyzingMatch(false)
   }
 
   // 4. Pitching Logic
@@ -267,8 +297,11 @@ export default function EmployerCandidateSearch({ activeJobs, credits }: { activ
             const displayId = candidate.id.split('-')[0].toUpperCase()
             const isCandidateVerified = Boolean(
               candidate.identity_verified === true ||
+              String(candidate.identity_verified) === 'true' ||
               candidate.is_verified === true ||
-              candidate.verification_status === 'verified'
+              String(candidate.is_verified) === 'true' ||
+              candidate.verification_status === 'verified' ||
+              candidate.verification_status === 'approved'
             )
 
             let selectedJob = null
@@ -276,6 +309,7 @@ export default function EmployerCandidateSearch({ activeJobs, credits }: { activ
             let modelFails = false
             let scoreFails = false
             let hasDealbreaker = false
+            let annualizedJobMax = 0
 
             const matchScore = pitchCandidateId === candidate.id ? (aiMatchData?.overall_score ?? null) : null
 
@@ -283,7 +317,16 @@ export default function EmployerCandidateSearch({ activeJobs, credits }: { activ
               selectedJob = activeJobs.find(j => j.id === selectedJobId)
               
               if (selectedJob) {
-                if (candidate.min_salary_expectation > 0 && selectedJob.salary_max && selectedJob.salary_max < candidate.min_salary_expectation) {
+                const isHourlyJob =
+                  selectedJob.pay_type === 'hourly' ||
+                  (selectedJob.salary_max && selectedJob.salary_max > 0 && selectedJob.salary_max <= 500)
+
+                annualizedJobMax =
+                  isHourlyJob && selectedJob.salary_max
+                    ? selectedJob.salary_max * 2080
+                    : selectedJob.salary_max || 0
+
+                if (candidate.min_salary_expectation > 0 && annualizedJobMax > 0 && annualizedJobMax < candidate.min_salary_expectation) {
                   salaryFails = true
                 }
                 
@@ -361,24 +404,40 @@ export default function EmployerCandidateSearch({ activeJobs, credits }: { activ
                   </div>
                 </div>
 
-                <div className="flex flex-col justify-center shrink-0 w-full md:w-[340px] border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6">
+                <div className="flex flex-col justify-center shrink-0 w-full md:w-[360px] border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6">
                   {pitchCandidateId === candidate.id ? (
                     <div className="space-y-3 animate-in fade-in zoom-in duration-200">
                       <select 
                         value={selectedJobId} 
+                        disabled={isAnalyzingMatch}
                         onChange={(e) => handleRoleSelect(e.target.value, candidate.id)}
-                        className="w-full text-sm rounded-lg border-slate-300 bg-white text-slate-900 font-medium focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full text-sm rounded-lg border-slate-300 bg-white text-slate-900 font-medium focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50"
                       >
                         <option value="">Select a role to pitch...</option>
                         {activeJobs.map(job => (
                           <option key={job.id} value={job.id}>{job.title}</option>
                         ))}
                       </select>
+
+                      {/* Unified 30-Second Progress Notifier Banner */}
+                      {isAnalyzingMatch && (
+                        <div className="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 flex items-start gap-3 animate-pulse">
+                          <div className="w-4 h-4 mt-0.5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin shrink-0" />
+                          <div className="text-xs text-indigo-950 leading-relaxed">
+                            <span className="font-extrabold block">
+                              Analyzing 5-Point AI Fit (May take up to 30s)...
+                            </span>
+                            <span className="text-indigo-700 font-medium">
+                              Routing across our 3-tier AI cascade (Gemini → Groq → OpenAI). If all providers are busy, you will be prompted to try again.
+                            </span>
+                          </div>
+                        </div>
+                      )}
                       
                       {selectedJob && (
                         <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-sm space-y-2">
                           <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                            <span className="font-bold text-slate-700 flex items-center gap-1.5">
+                            <span className="font-bold text-slate-700 flex items-center gap-1.5 text-xs">
                               <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                               </svg>
@@ -387,21 +446,35 @@ export default function EmployerCandidateSearch({ activeJobs, credits }: { activ
 
                             {isAnalyzingMatch ? (
                               <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600">
-                                <span className="w-3.5 h-3.5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></span>
-                                Analyzing...
+                                Scoring (Up to 30s)...
                               </span>
                             ) : matchScore !== null ? (
-                              <span className={`px-2 py-0.5 rounded-md font-bold text-xs ${
-                                matchScore >= 80
-                                  ? 'bg-emerald-100 text-emerald-700'
-                                  : matchScore >= MIN_MATCH_THRESHOLD
-                                  ? 'bg-amber-100 text-amber-700'
-                                  : 'bg-rose-100 text-rose-700'
-                              }`}>
-                                {matchScore}%
-                              </span>
+                              <div className="flex items-center gap-1.5">
+                                <span className={`px-2 py-0.5 rounded-md font-bold text-xs ${
+                                  matchScore >= 80
+                                    ? 'bg-emerald-100 text-emerald-700'
+                                    : matchScore >= MIN_MATCH_THRESHOLD
+                                    ? 'bg-amber-100 text-amber-700'
+                                    : 'bg-rose-100 text-rose-700'
+                                }`}>
+                                  {matchScore}%
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRoleSelect(selectedJobId, candidate.id)}
+                                  className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 underline"
+                                >
+                                  ↻ Re-Run
+                                </button>
+                              </div>
                             ) : (
-                              <span className="text-xs text-slate-400 font-medium">N/A</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRoleSelect(selectedJobId, candidate.id)}
+                                className="text-xs text-indigo-600 font-extrabold hover:underline"
+                              >
+                                ↻ Run AI Match
+                              </button>
                             )}
                           </div>
 
@@ -414,7 +487,7 @@ export default function EmployerCandidateSearch({ activeJobs, credits }: { activ
                           {salaryFails && (
                             <div className="flex items-start gap-1.5 text-rose-600 text-xs font-medium">
                               <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                              <span>Dealbreaker: Candidate minimum (${(candidate.min_salary_expectation/1000).toFixed(0)}k) exceeds role max budget (${(selectedJob.salary_max/1000).toFixed(0)}k).</span>
+                              <span>Dealbreaker: Candidate minimum (${(candidate.min_salary_expectation/1000).toFixed(0)}k/yr) exceeds role max budget (${(annualizedJobMax/1000).toFixed(0)}k/yr).</span>
                             </div>
                           )}
 
@@ -442,7 +515,7 @@ export default function EmployerCandidateSearch({ activeJobs, credits }: { activ
                       )}
 
                       {feedback && (
-                        <div className={`text-xs font-bold p-2.5 rounded-lg flex items-center justify-between gap-2 ${
+                        <div className={`text-xs font-bold p-3 rounded-xl flex flex-col gap-2 ${
                           feedback.type === 'error'
                             ? 'bg-rose-50 text-rose-700 border border-rose-200'
                             : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
@@ -452,9 +525,9 @@ export default function EmployerCandidateSearch({ activeJobs, credits }: { activ
                             <button
                               type="button"
                               onClick={() => handleRoleSelect(selectedJobId, candidate.id)}
-                              className="shrink-0 px-2.5 py-1 bg-white text-rose-700 border border-rose-300 rounded-md hover:bg-rose-100 transition-colors text-[11px] font-extrabold"
+                              className="self-start px-3 py-1.5 bg-rose-700 text-white rounded-lg hover:bg-rose-800 transition-colors text-xs font-extrabold shadow-sm"
                             >
-                              ↻ Retry Match
+                              ↻ Try AI Match Again
                             </button>
                           )}
                         </div>
@@ -476,7 +549,7 @@ export default function EmployerCandidateSearch({ activeJobs, credits }: { activ
                           disabled={!selectedJobId || isSending || isAnalyzingMatch || hasDealbreaker || matchScore === null || liveCredits < 1}
                           className="flex-1 py-2 bg-slate-900 text-white text-sm font-bold rounded-lg hover:bg-indigo-600 disabled:opacity-50"
                         >
-                          {isSending ? 'Sending...' : isAnalyzingMatch ? 'Scoring...' : 'Send Pitch'}
+                          {isSending ? 'Sending...' : isAnalyzingMatch ? 'Analyzing (Up to 30s)...' : 'Send Pitch'}
                         </button>
                       </div>
                     </div>

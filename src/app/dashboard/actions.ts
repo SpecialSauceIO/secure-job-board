@@ -32,6 +32,27 @@ const FREE_EMAIL_DOMAINS = new Set([
 ])
 
 // ------------------------------------------------------------------
+// HELPER: PROMISE TIMEOUT WRAPPER FOR FAST AI FAILOVER
+// ------------------------------------------------------------------
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`${label} timed out after ${ms}ms`))
+    }, ms)
+
+    promise
+      .then((val) => {
+        clearTimeout(timer)
+        resolve(val)
+      })
+      .catch((err) => {
+        clearTimeout(timer)
+        reject(err)
+      })
+  })
+}
+
+// ------------------------------------------------------------------
 // HELPER: STRIP INTERNAL METADATA FROM CANDIDATE STRUCTURED_SKILLS
 // ------------------------------------------------------------------
 function filterVisibleSkills(rawSkills: any): any[] {
@@ -583,36 +604,40 @@ async function sendPlatformNotification({
 }
 
 // ------------------------------------------------------------------
-// HELPER: CASCADING MULTI-MODEL PDF EXTRACTOR (BYPASSES QUOTA LIMITS)
+// HELPER: CASCADING MULTI-MODEL PDF EXTRACTOR (WITH 12s TIMEOUT PER MODEL)
 // ------------------------------------------------------------------
 async function extractPdfWithRetry(prompt: string, base64Data: string) {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
-  const modelsToTry = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash']
+  const modelsToTry = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash']
 
   for (const model of modelsToTry) {
     try {
-      const response = await ai.models.generateContent({
+      const response = await withTimeout(
+        ai.models.generateContent({
           model: model,
           contents: [
-              { text: prompt },
-              { 
-                  inlineData: {
-                      data: base64Data,
-                      mimeType: 'application/pdf'
-                  } 
+            { text: prompt },
+            {
+              inlineData: {
+                data: base64Data,
+                mimeType: 'application/pdf'
               }
+            }
           ]
-      })
+        }),
+        12000,
+        `PDF Gemini (${model})`
+      )
       if (response.text) {
         console.log(`PDF successfully extracted using model: ${model}`)
         return response.text
       }
     } catch (error: any) {
-      console.warn(`Model ${model} rate-limited or unavailable, falling back to next model...`)
+      console.warn(`Model ${model} rate-limited or timed out, falling back to next model...`)
       continue
     }
   }
-  throw new Error("All Gemini Flash free-tier quotas have been exhausted for the day. Please wait for reset or check your Google AI Studio billing.")
+  throw new Error("All Gemini Flash models timed out or exhausted quota. Please wait a moment and try again.")
 }
 
 
@@ -1584,7 +1609,7 @@ export async function respondToConnectionRequest(
 }
 
 // ------------------------------------------------------------------
-// AI MATCH SCORING (Candidate <-> Job) WITH CASCADING FALLBACKS
+// AI MATCH SCORING (Candidate <-> Job) WITH FAST TIMEOUT FAILOVER
 // ------------------------------------------------------------------
 
 export async function analyzeJobFit(jobId: string) {
@@ -1595,7 +1620,7 @@ export async function analyzeJobFit(jobId: string) {
   const { data: profile } = await supabase.from('profiles').select('experience_years, skills, structured_skills, bio').eq('id', user.id).single()
   const visibleSkills = filterVisibleSkills(profile?.structured_skills)
   if (!profile || (!profile.skills && visibleSkills.length === 0)) {
-    return { error: 'Profile incomplete' }
+    return { error: 'Profile incomplete: Please add skills to your profile before running AI Match.' }
   }
 
   const { data: rawJob } = await supabase.from('jobs').select('*').eq('id', jobId).single()
@@ -1707,22 +1732,22 @@ async function analyzeMatchRouter(
 ) {
   const prompt = getMatchPrompt(profile, job, viewerRole)
 
+  // 1. PRIMARY ENGINE: GEMINI FLASH (8-second timeout per model)
   if (process.env.GEMINI_API_KEY) {
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
-      const geminiModelsToTry = [
-        'gemini-3.8-flash',
-        'gemini-3.6-flash',
-        'gemini-3.5-flash-lite',
-        'gemini-2.5-flash'
-      ]
+      const geminiModelsToTry = ['gemini-2.5-flash', 'gemini-2.0-flash']
 
       for (const model of geminiModelsToTry) {
         try {
-          const response = await ai.models.generateContent({
-            model: model,
-            contents: prompt
-          })
+          const response = await withTimeout(
+            ai.models.generateContent({
+              model: model,
+              contents: prompt
+            }),
+            8000,
+            `Gemini (${model})`
+          )
 
           if (response.text) {
             const parsed = parseAiResponse(response.text)
@@ -1730,7 +1755,7 @@ async function analyzeMatchRouter(
             return { data: parsed }
           }
         } catch (error: any) {
-          console.warn(`[${viewerRole}] Gemini Match (${model}) failed:`, error.message || error)
+          console.warn(`[${viewerRole}] Gemini Match (${model}) failed/timed out:`, error.message || error)
           continue
         }
       }
@@ -1739,6 +1764,7 @@ async function analyzeMatchRouter(
     }
   }
 
+  // 2. SECONDARY ENGINE: GROQ LLAMA (8-second timeout per model)
   if (process.env.GROQ_API_KEY) {
     try {
       const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
@@ -1746,14 +1772,18 @@ async function analyzeMatchRouter(
 
       for (const groqModel of groqModelsToTry) {
         try {
-          const chatCompletion = await groq.chat.completions.create({
-            messages: [
-              { role: 'system', content: 'You are a data extraction API. You MUST output valid JSON.' },
-              { role: 'user', content: prompt }
-            ],
-            model: groqModel,
-            response_format: { type: 'json_object' }
-          })
+          const chatCompletion = await withTimeout(
+            groq.chat.completions.create({
+              messages: [
+                { role: 'system', content: 'You are a data extraction API. You MUST output valid JSON.' },
+                { role: 'user', content: prompt }
+              ],
+              model: groqModel,
+              response_format: { type: 'json_object' }
+            }),
+            8000,
+            `Groq (${groqModel})`
+          )
 
           if (chatCompletion.choices[0]?.message?.content) {
             const parsed = parseAiResponse(chatCompletion.choices[0].message.content)
@@ -1761,7 +1791,7 @@ async function analyzeMatchRouter(
             return { data: parsed }
           }
         } catch (error: any) {
-          console.warn(`[${viewerRole}] Groq Match (${groqModel}) failed:`, error.message || error)
+          console.warn(`[${viewerRole}] Groq Match (${groqModel}) failed/timed out:`, error.message || error)
           continue
         }
       }
@@ -1770,6 +1800,7 @@ async function analyzeMatchRouter(
     }
   }
 
+  // 3. TERTIARY ENGINE: OPENAI GPT-4O (8-second timeout per model)
   if (process.env.OPENAI_API_KEY) {
     try {
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
@@ -1777,11 +1808,15 @@ async function analyzeMatchRouter(
 
       for (const openAiModel of openAiModelsToTry) {
         try {
-          const completion = await openai.chat.completions.create({
-            messages: [{ role: 'user', content: prompt }],
-            model: openAiModel,
-            response_format: { type: 'json_object' }
-          })
+          const completion = await withTimeout(
+            openai.chat.completions.create({
+              messages: [{ role: 'user', content: prompt }],
+              model: openAiModel,
+              response_format: { type: 'json_object' }
+            }),
+            8000,
+            `OpenAI (${openAiModel})`
+          )
 
           if (completion.choices[0]?.message?.content) {
             const parsed = parseAiResponse(completion.choices[0].message.content)
@@ -1789,7 +1824,7 @@ async function analyzeMatchRouter(
             return { data: parsed }
           }
         } catch (error: any) {
-          console.warn(`[${viewerRole}] OpenAI Match (${openAiModel}) failed:`, error.message || error)
+          console.warn(`[${viewerRole}] OpenAI Match (${openAiModel}) failed/timed out:`, error.message || error)
           continue
         }
       }
@@ -1798,7 +1833,9 @@ async function analyzeMatchRouter(
     }
   }
 
-  return { error: 'Failed to analyze fit across all available services. Please try again.' }
+  return {
+    error: 'All 3 AI matching engines (Gemini, Groq, and OpenAI) were busy or timed out. Please click "Re-Run AI Match" to try again.'
+  }
 }
 
 // ------------------------------------------------------------------

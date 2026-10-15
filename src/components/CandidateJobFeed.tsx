@@ -103,20 +103,54 @@ export function CandidateJobFeed({
       return copy
     })
 
-    const result = await analyzeJobFit(jobId)
-    if (result?.error) {
+    try {
+      const timeoutPromise = new Promise<{ error: string }>((resolve) => {
+        setTimeout(() => {
+          resolve({
+            error:
+              'AI Match analysis took longer than 30 seconds across our providers. Please click "Try AI Match Again" to retry.',
+          })
+        }, 30000)
+      })
+
+      const result: any = await Promise.race([
+        analyzeJobFit(jobId),
+        timeoutPromise,
+      ])
+
+      if (result?.error) {
+        setFeedback((prev) => ({
+          ...prev,
+          [jobId]: {
+            type: 'error',
+            text: `${result.error} Please try again.`,
+          },
+        }))
+      } else if (result?.data) {
+        setMatchResults((prev) => ({
+          ...prev,
+          [jobId]: result.data,
+        }))
+      } else {
+        setFeedback((prev) => ({
+          ...prev,
+          [jobId]: {
+            type: 'error',
+            text: 'Unable to generate AI Match score at this moment. Please try again.',
+          },
+        }))
+      }
+    } catch (err: any) {
       setFeedback((prev) => ({
         ...prev,
-        [jobId]: { type: 'error', text: result.error },
+        [jobId]: {
+          type: 'error',
+          text: 'Network or server timeout while calculating AI Match. Please click "Try AI Match Again" to retry.',
+        },
       }))
-    } else if (result?.data) {
-      setMatchResults((prev) => ({
-        ...prev,
-        [jobId]: result.data,
-      }))
+    } finally {
+      setAnalyzingId(null)
     }
-
-    setAnalyzingId(null)
   }
 
   const handleBlindApply = async (jobId: string) => {
@@ -359,8 +393,23 @@ export function CandidateJobFeed({
                 </div>
               )}
 
+              {/* Live 30-Second Progress Notifier Banner */}
+              {isAnalyzing && (
+                <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center gap-3.5 animate-pulse">
+                  <div className="w-5 h-5 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin shrink-0" />
+                  <div className="text-xs text-indigo-950">
+                    <span className="font-extrabold block">
+                      Analyzing 5-Point AI Fit (This may take up to 30 seconds)...
+                    </span>
+                    <span className="text-indigo-700 font-medium">
+                      Routing your anonymous skill matrix across our 3-tier AI cascade (Gemini → Groq → OpenAI). If all providers are busy, you will be prompted to try again.
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {/* AI Match Radar & Fit Analysis Results Box */}
-              {matchData && (
+              {matchData && !isAnalyzing && (
                 <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-5 animate-in fade-in duration-300">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
                     <div>
@@ -447,7 +496,7 @@ export function CandidateJobFeed({
                 </div>
               )}
 
-              {/* Feedback / Upgrade Prompt Banner */}
+              {/* Feedback / Retry / Upgrade Prompt Banner */}
               {cardFeedback && (
                 <div
                   className={`p-3.5 rounded-xl text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
@@ -457,15 +506,27 @@ export function CandidateJobFeed({
                   }`}
                 >
                   <span>{cardFeedback.text}</span>
-                  {cardFeedback.type === 'error' &&
-                    cardFeedback.text.includes('Candidate Pro') && (
-                      <Link
-                        href="/dashboard/billing"
-                        className="shrink-0 px-3.5 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors text-center"
-                      >
-                        Upgrade to Pro ($9/mo) →
-                      </Link>
-                    )}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {cardFeedback.type === 'error' &&
+                      !cardFeedback.text.includes('Candidate Pro') && (
+                        <button
+                          type="button"
+                          onClick={() => handleAnalyzeFit(jobId)}
+                          className="px-3.5 py-1.5 rounded-lg bg-rose-700 text-white text-xs font-extrabold hover:bg-rose-800 transition-colors"
+                        >
+                          ↻ Try AI Match Again
+                        </button>
+                      )}
+                    {cardFeedback.type === 'error' &&
+                      cardFeedback.text.includes('Candidate Pro') && (
+                        <Link
+                          href="/dashboard/billing"
+                          className="px-3.5 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors text-center"
+                        >
+                          Upgrade to Pro ($9/mo) →
+                        </Link>
+                      )}
+                  </div>
                 </div>
               )}
 
@@ -473,7 +534,7 @@ export function CandidateJobFeed({
               <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <p className="text-xs text-slate-500">
                   {!matchData
-                    ? `Step 1: Run a free AI Fit Analysis (${MIN_MATCH_THRESHOLD}%+ match required to submit a blind application).`
+                    ? `Step 1: Run a free AI Fit Analysis (${MIN_MATCH_THRESHOLD}%+ match required to submit a blind application • May take up to 30s).`
                     : score >= MIN_MATCH_THRESHOLD
                     ? '✓ You meet the 40%+ relevance firewall! Your name & contact info stay hidden until unlocked.'
                     : `Requires ${MIN_MATCH_THRESHOLD}%+ AI Match Score to apply (Current: ${score}%).`}
@@ -487,7 +548,7 @@ export function CandidateJobFeed({
                     className="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-50"
                   >
                     {isAnalyzing
-                      ? 'Analyzing Fit...'
+                      ? 'Analyzing Fit (Up to 30s)...'
                       : matchData
                       ? '↻ Re-Run AI Match'
                       : '⚡ Check AI Fit Score'}
