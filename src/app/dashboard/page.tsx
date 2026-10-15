@@ -23,9 +23,20 @@ async function resetCandidateVerificationSandbox() {
   } = await supabase.auth.getUser()
   if (!user) return
 
+  // Update each possible verification column individually so a missing column never blocks the others
   await supabase
     .from('profiles')
-    .update({ identity_verified: false, verification_status: 'unverified' })
+    .update({ identity_verified: false })
+    .eq('id', user.id)
+
+  await supabase
+    .from('profiles')
+    .update({ is_verified: false })
+    .eq('id', user.id)
+
+  await supabase
+    .from('profiles')
+    .update({ verification_status: 'unverified' })
     .eq('id', user.id)
 
   try {
@@ -36,12 +47,13 @@ async function resetCandidateVerificationSandbox() {
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/jobs')
+  redirect('/dashboard?reset=1')
 }
 
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ verification?: string; session_id?: string }>
+  searchParams?: Promise<{ verification?: string; session_id?: string; reset?: string }>
 }) {
   const supabase = await createClient()
   
@@ -52,6 +64,7 @@ export default async function DashboardPage({
 
   const resolvedParams = searchParams ? await searchParams : {}
   const isReturningFromStripe = resolvedParams?.verification === 'pending'
+  const isManualReset = resolvedParams?.reset === '1'
 
   let { data: profile } = await supabase
     .from('profiles')
@@ -74,6 +87,7 @@ export default async function DashboardPage({
 
   if (
     profile?.role === 'candidate' &&
+    !isManualReset &&
     (!currentlyVerified || isReturningFromStripe) &&
     stripeKey
   ) {
@@ -120,21 +134,17 @@ export default async function DashboardPage({
       }
 
       if (matchedSession) {
-        const { data: updatedProfile, error: updateError } = await supabase
+        await supabase
           .from('profiles')
-          .update({ identity_verified: true, verification_status: 'verified' })
+          .update({ identity_verified: true })
           .eq('id', user.id)
-          .select('*')
-          .single()
 
-        if (updateError) {
-          await supabase
-            .from('profiles')
-            .update({ identity_verified: true })
-            .eq('id', user.id)
-        }
+        await supabase
+          .from('profiles')
+          .update({ verification_status: 'verified' })
+          .eq('id', user.id)
 
-        profile = updatedProfile || {
+        profile = {
           ...profile,
           identity_verified: true,
           verification_status: 'verified',
@@ -695,7 +705,7 @@ export default async function DashboardPage({
                     <button
                       type="submit"
                       title="Sandbox: Reset this candidate back to Unverified"
-                      className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-700 border border-slate-200 hover:border-rose-200 text-[11px] font-bold transition-colors"
+                      className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-700 border border-slate-200 hover:border-rose-200 text-[11px] font-bold transition-colors cursor-pointer"
                     >
                       Reset to Unverified
                     </button>
