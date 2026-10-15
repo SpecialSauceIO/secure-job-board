@@ -112,43 +112,22 @@ export default function DashboardNav({
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200">
+      {/* TOP BRAND BAR: Logo (No Duplicate Text), Centered Tagline, and Right Account/Bug Actions */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gap-4">
-        {/* LEFT: LOGO + 5 CORE WORKFLOW TABS */}
-        <div className="flex items-center gap-6 lg:gap-8 min-w-0">
-          <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0 group">
-            <img
-              src="/logo.png"
-              alt="Special Sauce"
-              className="h-8 w-auto object-contain"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none'
-              }}
-            />
-            <span className="text-lg font-black tracking-tight text-slate-900">
-              special<span className="text-orange-500">sauce</span>
-            </span>
-          </Link>
+        {/* LEFT: IMAGE LOGO ONLY (Removes duplicate text logo) */}
+        <Link href="/dashboard" className="flex items-center shrink-0">
+          <img
+            src="/logo.png"
+            alt="Special Sauce"
+            className="h-9 w-auto object-contain"
+          />
+        </Link>
 
-          {primaryLinks.length > 0 && (
-            <nav className="hidden md:flex items-center gap-1">
-              {primaryLinks.map((item) => {
-                const active = isActive(item.href, item.exact)
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                      active
-                        ? 'bg-slate-900 text-white shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                )
-              })}
-            </nav>
-          )}
+        {/* CENTER: BRAND TAGLINE (Never covered or squished) */}
+        <div className="hidden lg:flex items-center justify-center">
+          <span className="px-6 py-1 border-x border-slate-200 text-[11px] font-bold tracking-[0.18em] text-slate-500 uppercase">
+            Securely Connecting Professionals &amp; Employers
+          </span>
         </div>
 
         {/* RIGHT: 1-CLICK BUG REPORTER + UNIFIED ACCOUNT MENU */}
@@ -187,7 +166,7 @@ export default function DashboardNav({
                       Sent! Reference: {feedbackSentRef}
                     </p>
                     <p className="text-[11px] text-slate-500 mt-0.5">
-                      Page URL & device context attached automatically.
+                      Page URL &amp; device context attached automatically.
                     </p>
                   </div>
                 ) : (
@@ -244,7 +223,7 @@ export default function DashboardNav({
             )}
           </div>
 
-          {/* ACCOUNT & SETTINGS DROPDOWN (Consolidates Company, Billing, Security, Help, Sign Out) */}
+          {/* ACCOUNT & SETTINGS DROPDOWN */}
           <div className="relative" ref={accountRef}>
             <button
               type="button"
@@ -254,7 +233,7 @@ export default function DashboardNav({
               }}
               className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200/80 text-slate-800 text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer"
             >
-              <span className="max-w-[150px] truncate">{userEmail || 'Account'}</span>
+              <span className="max-w-[180px] truncate">{userEmail || 'Account'}</span>
               <svg
                 className={`w-3.5 h-3.5 text-slate-500 transition-transform ${
                   accountOpen ? 'rotate-180' : ''
@@ -286,14 +265,14 @@ export default function DashboardNav({
                         className="flex items-center gap-2.5 px-4 py-2 text-slate-700 hover:bg-slate-50 font-semibold"
                       >
                         <span>🏢</span>
-                        <span>Company & Team Seats</span>
+                        <span>Company &amp; Team Seats</span>
                       </Link>
                       <Link
                         href="/dashboard/employer/billing"
                         className="flex items-center gap-2.5 px-4 py-2 text-slate-700 hover:bg-slate-50 font-semibold"
                       >
                         <span>💳</span>
-                        <span>Plans & Pitch Credits</span>
+                        <span>Plans &amp; Pitch Credits</span>
                       </Link>
                     </>
                   )}
@@ -312,7 +291,7 @@ export default function DashboardNav({
                         className="flex items-center gap-2.5 px-4 py-2 text-slate-700 hover:bg-slate-50 font-semibold"
                       >
                         <span>💳</span>
-                        <span>Membership & Pro Pass</span>
+                        <span>Membership &amp; Pro Pass</span>
                       </Link>
                     </>
                   )}
@@ -322,7 +301,7 @@ export default function DashboardNav({
                     className="flex items-center gap-2.5 px-4 py-2 text-slate-700 hover:bg-slate-50 font-semibold"
                   >
                     <span>🛡️</span>
-                    <span>Security & Stripe Vault</span>
+                    <span>Security &amp; Stripe Vault</span>
                   </Link>
 
                   <Link
@@ -330,7 +309,7 @@ export default function DashboardNav({
                     className="flex items-center gap-2.5 px-4 py-2 text-slate-700 hover:bg-slate-50 font-semibold"
                   >
                     <span>❓</span>
-                    <span>Help Center & Playbooks</span>
+                    <span>Help Center &amp; Playbooks</span>
                   </Link>
                 </div>
 
@@ -351,23 +330,27 @@ export default function DashboardNav({
         </div>
       </div>
 
-      {/* MOBILE NAV ROW (Only visible on small screens) */}
+      {/* CLEAN 5-TAB WORKFLOW ROW (With generous breathing room now that the other 4 links live in the dropdown) */}
       {primaryLinks.length > 0 && (
-        <div className="flex md:hidden items-center gap-1 overflow-x-auto px-4 py-2 border-t border-slate-100 bg-slate-50/60">
-          {primaryLinks.map((item) => {
-            const active = isActive(item.href, item.exact)
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`px-3 py-1 rounded-md text-xs font-bold whitespace-nowrap ${
-                  active ? 'bg-slate-900 text-white' : 'text-slate-600'
-                }`}
-              >
-                {item.label}
-              </Link>
-            )
-          })}
+        <div className="border-t border-slate-100 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 h-11 flex items-center gap-2 overflow-x-auto">
+            {primaryLinks.map((item) => {
+              const active = isActive(item.href, item.exact)
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
+                    active
+                      ? 'bg-slate-900 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              )
+            })}
+          </div>
         </div>
       )}
     </header>
