@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { GoogleGenAI } from '@google/genai'
@@ -37,6 +38,103 @@ const FREE_EMAIL_DOMAINS = new Set([
 function cleanEnvKey(rawKey?: string | null): string {
   if (!rawKey) return ''
   return rawKey.trim().replace(/^["']+|["']+$/g, '').trim()
+}
+
+// ------------------------------------------------------------------
+// HELPER: PRIVATE STORAGE SIGNED URL GENERATOR (1-HOUR EXPIRY)
+// Works seamlessly with both raw storage filenames & legacy public URLs
+// ------------------------------------------------------------------
+function extractResumeStoragePath(rawUrlOrPath?: string | null): string | null {
+  if (!rawUrlOrPath) return null
+  const trimmed = rawUrlOrPath.trim()
+  if (!trimmed) return null
+
+  const bucketMarker = '/resumes/'
+  const idx = trimmed.indexOf(bucketMarker)
+  if (idx !== -1) {
+    const afterBucket = trimmed.slice(idx + bucketMarker.length).split('?')[0]
+    return decodeURIComponent(afterBucket)
+  }
+
+  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+    return trimmed.replace(/^\/+/, '')
+  }
+
+  return null
+}
+
+async function resolveSignedResumeUrl(
+  rawUrlOrPath?: string | null,
+  expiresInSeconds = 3600
+): Promise<string | null> {
+  const storagePath = extractResumeStoragePath(rawUrlOrPath)
+  if (!storagePath) return rawUrlOrPath || null
+
+  const supabaseUrl = cleanEnvKey(process.env.NEXT_PUBLIC_SUPABASE_URL)
+  const serviceRoleKey = cleanEnvKey(process.env.SUPABASE_SERVICE_ROLE_KEY)
+
+  // Use Service Role key so authorized Employers can receive a signed URL for an unlocked Candidate's resume
+  if (supabaseUrl && serviceRoleKey) {
+    try {
+      const adminClient = createSupabaseAdminClient(supabaseUrl, serviceRoleKey, {
+        auth: { persistSession: false, autoRefreshToken: false }
+      })
+      const { data, error } = await adminClient.storage
+        .from('resumes')
+        .createSignedUrl(storagePath, expiresInSeconds)
+
+      if (!error && data?.signedUrl) {
+        return data.signedUrl
+      }
+    } catch (err) {
+      console.warn('Admin signed URL fallback triggered:', err)
+    }
+  }
+
+  // Fallback to standard server client (works when Candidate views their own resume)
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase.storage
+      .from('resumes')
+      .createSignedUrl(storagePath, expiresInSeconds)
+
+    if (!error && data?.signedUrl) {
+      return data.signedUrl
+    }
+  } catch (err) {
+    console.warn('Standard signed URL error:', err)
+  }
+
+  return null
+}
+
+// ------------------------------------------------------------------
+// HELPER: VERIFY LOGGED-IN USER OWNS THE EMPLOYER ORGANIZATION FOR A JOB
+// ------------------------------------------------------------------
+async function verifyUserOwnsApplicationJob(
+  supabase: any,
+  userId: string,
+  applicationId: string
+): Promise<{ authorized: boolean; orgId?: string | null }> {
+  const { data: appRow } = await supabase
+    .from('applications')
+    .select('job_id, jobs:job_id (organization_id)')
+    .eq('id', applicationId)
+    .single()
+
+  const jobObj: any = Array.isArray(appRow?.jobs) ? appRow?.jobs[0] : appRow?.jobs
+  const orgId = jobObj?.organization_id
+  if (!orgId) return { authorized: false }
+
+  const { data: member } = await supabase
+    .from('organization_members')
+    .select('id')
+    .eq('organization_id', orgId)
+    .eq('user_id', userId)
+    .limit(1)
+    .maybeSingle()
+
+  return { authorized: Boolean(member?.id), orgId }
 }
 
 // ------------------------------------------------------------------
@@ -704,10 +802,19 @@ export async function forceVerifyCandidateIdentity() {
 
 export async function updateApplicationStatus(formData: FormData) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
   const applicationId = formData.get('application_id') as string
   const status = formData.get('status') as string
 
   if (!applicationId || !status) return
+
+  const ownership = await verifyUserOwnsApplicationJob(supabase, user.id, applicationId)
+  if (!ownership.authorized) {
+    console.error('Unauthorized attempt to update application status by user:', user.id)
+    return
+  }
 
   const { error } = await supabase
     .from('applications')
@@ -727,6 +834,12 @@ export async function revealProfile(formData: FormData) {
 
   const applicationId = formData.get('application_id') as string
   if (!applicationId) return { error: 'Missing application ID' }
+
+  // Strict server-side ownership check: Only the Employer organization that owns the job can unlock an applicant
+  const ownership = await verifyUserOwnsApplicationJob(supabase, user.id, applicationId)
+  if (!ownership.authorized) {
+    return { error: 'Forbidden: Only a member of the hiring organization can unlock this application.' }
+  }
 
   const { data: existingApp } = await supabase
     .from('applications')
@@ -759,6 +872,8 @@ export async function revealProfile(formData: FormData) {
     profileObj?.name ||
     existingApp?.match_data?.candidate_full_name ||
     'Verified Candidate'
+
+  const signedResumeUrl = await resolveSignedResumeUrl(profileObj?.resume_url)
 
   const jobObj: any = Array.isArray(existingApp?.jobs) ? existingApp?.jobs[0] : existingApp?.jobs
   const orgObj: any = Array.isArray(jobObj?.organizations) ? jobObj?.organizations[0] : jobObj?.organizations
@@ -814,7 +929,8 @@ export async function revealProfile(formData: FormData) {
     referenceId,
     employer_contact_email: employerEmail,
     candidate_contact_email: candidateEmail,
-    candidate_full_name: candidateFullName
+    candidate_full_name: candidateFullName,
+    resume_url: signedResumeUrl
   }
 }
 
@@ -934,12 +1050,14 @@ export async function parseResumeAutoFill(formData: FormData) {
 
     const fileExt = file.name.split('.').pop() || 'pdf'
     const fileName = `${user.id}-${Date.now()}.${fileExt}`
-    const { error: uploadError } = await supabase.storage.from('resumes').upload(fileName, file)
+    const { error: uploadError } = await supabase.storage
+      .from('resumes')
+      .upload(fileName, file, { upsert: true })
     
-    let resumeUrl = ''
+    // Store the private storage filename in profiles.resume_url (signed URLs are minted dynamically upon unlock)
+    let resumeStorageRef = ''
     if (!uploadError) {
-      const { data: publicUrlData } = supabase.storage.from('resumes').getPublicUrl(fileName)
-      resumeUrl = publicUrlData.publicUrl
+      resumeStorageRef = fileName
     } else {
       console.error("Storage upload error:", uploadError)
     }
@@ -977,8 +1095,8 @@ export async function parseResumeAutoFill(formData: FormData) {
       is_discoverable: true
     }
 
-    if (resumeUrl) {
-      baseUpdatePayload.resume_url = resumeUrl
+    if (resumeStorageRef) {
+      baseUpdatePayload.resume_url = resumeStorageRef
     }
 
     if (extractedData.full_name) {
@@ -2530,46 +2648,54 @@ export async function getEmployerPitches(statusFilter?: string, daysFilter?: num
   const { data, error } = await dbQuery
   if (error) return { error: error.message }
 
-  let processedData = (data || []).map((app: any) => {
-    const normalizedStatus =
-      app.status === 'rejected' || app.status === 'declined'
-        ? 'declined'
-        : app.status === 'accepted' || app.is_revealed === true
-        ? 'accepted'
-        : 'pending'
+  let processedData = await Promise.all(
+    (data || []).map(async (app: any) => {
+      const normalizedStatus =
+        app.status === 'rejected' || app.status === 'declined'
+          ? 'declined'
+          : app.status === 'accepted' || app.is_revealed === true
+          ? 'accepted'
+          : 'pending'
 
-    const isUnlocked = normalizedStatus === 'accepted'
-    const rawProfile = app.profiles || {}
-    const resolvedFullName =
-      rawProfile.full_name ||
-      rawProfile.name ||
-      app.match_data?.candidate_full_name ||
-      null
+      const isUnlocked = normalizedStatus === 'accepted'
+      const rawProfile = app.profiles || {}
+      const resolvedFullName =
+        rawProfile.full_name ||
+        rawProfile.name ||
+        app.match_data?.candidate_full_name ||
+        null
 
-    const safeProfile = app.profiles
-      ? {
-          ...rawProfile,
-          structured_skills: filterVisibleSkills(rawProfile.structured_skills),
-          full_name: isUnlocked ? resolvedFullName : null,
-          resume_url: isUnlocked ? rawProfile.resume_url : null
-        }
-      : null
+      // Mint a 1-hour private signed URL ONLY when the candidate has unlocked/accepted the pitch
+      const signedResumeUrl =
+        isUnlocked && rawProfile.resume_url
+          ? await resolveSignedResumeUrl(rawProfile.resume_url)
+          : null
 
-    return {
-      ...app,
-      jobs: app.jobs ? enrichJobRecord(app.jobs) : null,
-      normalized_status: normalizedStatus,
-      reference_id: formatReferenceId(app.id),
-      unlocked_candidate_name: isUnlocked ? resolvedFullName : null,
-      unlocked_candidate_email: isUnlocked
-        ? app.match_data?.candidate_contact_email || rawProfile.contact_email || rawProfile.email || null
-        : null,
-      unlocked_employer_email: isUnlocked
-        ? app.match_data?.employer_contact_email || user.email || null
-        : null,
-      profiles: safeProfile
-    }
-  })
+      const safeProfile = app.profiles
+        ? {
+            ...rawProfile,
+            structured_skills: filterVisibleSkills(rawProfile.structured_skills),
+            full_name: isUnlocked ? resolvedFullName : null,
+            resume_url: signedResumeUrl
+          }
+        : null
+
+      return {
+        ...app,
+        jobs: app.jobs ? enrichJobRecord(app.jobs) : null,
+        normalized_status: normalizedStatus,
+        reference_id: formatReferenceId(app.id),
+        unlocked_candidate_name: isUnlocked ? resolvedFullName : null,
+        unlocked_candidate_email: isUnlocked
+          ? app.match_data?.candidate_contact_email || rawProfile.contact_email || rawProfile.email || null
+          : null,
+        unlocked_employer_email: isUnlocked
+          ? app.match_data?.employer_contact_email || user.email || null
+          : null,
+        profiles: safeProfile
+      }
+    })
+  )
 
   if (statusFilter && statusFilter !== 'all') {
     processedData = processedData.filter((app: any) => app.normalized_status === statusFilter)
@@ -2644,52 +2770,62 @@ export async function getEmployerInboundApplications(
   const { data, error } = await dbQuery
   if (error) return { error: error.message }
 
-  let processedData = (data || []).map((app: any) => {
-    let normalizedStatus: 'unrevealed' | 'unlocked' | 'shortlisted' | 'rejected' = 'unrevealed'
+  let processedData = await Promise.all(
+    (data || []).map(async (app: any) => {
+      let normalizedStatus: 'unrevealed' | 'unlocked' | 'shortlisted' | 'rejected' = 'unrevealed'
 
-    if (app.status === 'rejected' || app.status === 'declined') {
-      normalizedStatus = 'rejected'
-    } else if (
-      app.status === 'accepted' ||
-      app.status === 'shortlisted' ||
-      app.status === 'interviewing' ||
-      app.match_data?.employer_decision === 'shortlisted'
-    ) {
-      normalizedStatus = 'shortlisted'
-    } else if (app.is_revealed === true) {
-      normalizedStatus = 'unlocked'
-    } else {
-      normalizedStatus = 'unrevealed'
-    }
+      if (app.status === 'rejected' || app.status === 'declined') {
+        normalizedStatus = 'rejected'
+      } else if (
+        app.status === 'accepted' ||
+        app.status === 'shortlisted' ||
+        app.status === 'interviewing' ||
+        app.match_data?.employer_decision === 'shortlisted'
+      ) {
+        normalizedStatus = 'shortlisted'
+      } else if (app.is_revealed === true) {
+        normalizedStatus = 'unlocked'
+      } else {
+        normalizedStatus = 'unrevealed'
+      }
 
-    const isUnlocked = Boolean(app.is_revealed || normalizedStatus === 'unlocked' || normalizedStatus === 'shortlisted')
-    const rawProfile = app.profiles || {}
-    const resolvedFullName =
-      rawProfile.full_name ||
-      rawProfile.name ||
-      app.match_data?.candidate_full_name ||
-      null
+      const isUnlocked = Boolean(app.is_revealed || normalizedStatus === 'unlocked' || normalizedStatus === 'shortlisted')
+      const rawProfile = app.profiles || {}
+      const resolvedFullName =
+        rawProfile.full_name ||
+        rawProfile.name ||
+        app.match_data?.candidate_full_name ||
+        null
 
-    return {
-      ...app,
-      jobs: app.jobs ? enrichJobRecord(app.jobs) : null,
-      normalized_status: normalizedStatus,
-      reference_id: formatReferenceId(app.id),
-      unlocked_candidate_name: isUnlocked ? resolvedFullName : null,
-      unlocked_candidate_email: isUnlocked
-        ? app.match_data?.candidate_contact_email || rawProfile.contact_email || rawProfile.email || null
-        : null,
-      unlocked_employer_email: isUnlocked
-        ? app.match_data?.employer_contact_email || user.email || null
-        : null,
-      profiles: app.profiles
-        ? {
-            ...rawProfile,
-            structured_skills: filterVisibleSkills(rawProfile.structured_skills),
-          }
-        : null,
-    }
-  })
+      // Mint a 1-hour private signed URL ONLY when the application is unlocked or shortlisted
+      const signedResumeUrl =
+        isUnlocked && rawProfile.resume_url
+          ? await resolveSignedResumeUrl(rawProfile.resume_url)
+          : null
+
+      return {
+        ...app,
+        jobs: app.jobs ? enrichJobRecord(app.jobs) : null,
+        normalized_status: normalizedStatus,
+        reference_id: formatReferenceId(app.id),
+        unlocked_candidate_name: isUnlocked ? resolvedFullName : null,
+        unlocked_candidate_email: isUnlocked
+          ? app.match_data?.candidate_contact_email || rawProfile.contact_email || rawProfile.email || null
+          : null,
+        unlocked_employer_email: isUnlocked
+          ? app.match_data?.employer_contact_email || user.email || null
+          : null,
+        profiles: app.profiles
+          ? {
+              ...rawProfile,
+              structured_skills: filterVisibleSkills(rawProfile.structured_skills),
+              full_name: isUnlocked ? resolvedFullName : null,
+              resume_url: signedResumeUrl
+            }
+          : null,
+      }
+    })
+  )
 
   if (statusFilter && statusFilter !== 'all') {
     processedData = processedData.filter((app: any) => app.normalized_status === statusFilter)
@@ -2719,6 +2855,12 @@ export async function updateInboundApplicationDecision(
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Unauthorized' }
+
+  // Strict server-side ownership check: Only the Employer organization that owns the job can update this decision
+  const ownership = await verifyUserOwnsApplicationJob(supabase, user.id, applicationId)
+  if (!ownership.authorized) {
+    return { error: 'Forbidden: Only a member of the hiring organization can update this application.' }
+  }
 
   const { data: existingApp } = await supabase
     .from('applications')
