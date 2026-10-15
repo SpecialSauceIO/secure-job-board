@@ -7,10 +7,10 @@ import { useState, useEffect } from 'react'
 export default function LandingPage() {
   const [currentSlide, setCurrentSlide] = useState(0)
 
-  // Cycles through slides 0, 1, and 2 every 7 seconds (7000ms)
+  // Cycles through slides 0, 1, 2, and 3 every 7 seconds (7000ms)
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev === 2 ? 0 : prev + 1))
+      setCurrentSlide((prev) => (prev === 3 ? 0 : prev + 1))
     }, 7000)
     return () => clearInterval(timer)
   }, [])
@@ -63,8 +63,26 @@ export default function LandingPage() {
         {/* Cross-fading text container */}
         <div className="grid [grid-template-areas:'stack'] mb-10 w-full place-items-center">
           
-          {/* SLIDE 0: Platform Integrity (New First Slide) */}
+          {/* SLIDE 0: The End of Traditional Recruiting (Flagship Opening Slide) */}
           <div className={`[grid-area:stack] flex flex-col items-center transition-all duration-1000 ${currentSlide === 0 ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 -translate-y-4 z-0 pointer-events-none'}`}>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-50 border border-violet-200 text-violet-700 text-xs font-bold uppercase tracking-wide mb-8">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-600"></span>
+              </span>
+              The End of Traditional Recruiting
+            </div>
+            <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-6">
+              Changing the Hiring <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-orange-500">Landscape.</span><br />
+              For good.
+            </h1>
+            <p className="text-lg md:text-xl text-slate-500 max-w-2xl leading-relaxed">
+              We stripped away the noise, the bias, and the black-hole job boards—replacing them with verified identities, blind skill matrices, and pure 1-to-1 merit.
+            </p>
+          </div>
+
+          {/* SLIDE 1: Platform Integrity */}
+          <div className={`[grid-area:stack] flex flex-col items-center transition-all duration-1000 ${currentSlide === 1 ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 -translate-y-4 z-0 pointer-events-none'}`}>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-700 text-xs font-bold uppercase tracking-wide mb-8">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
@@ -81,8 +99,8 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 1: Employers */}
-          <div className={`[grid-area:stack] flex flex-col items-center transition-all duration-1000 ${currentSlide === 1 ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 translate-y-4 z-0 pointer-events-none'}`}>
+          {/* SLIDE 2: Employers */}
+          <div className={`[grid-area:stack] flex flex-col items-center transition-all duration-1000 ${currentSlide === 2 ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 translate-y-4 z-0 pointer-events-none'}`}>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-wide mb-8">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
@@ -99,8 +117,8 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 2: Candidates */}
-          <div className={`[grid-area:stack] flex flex-col items-center transition-all duration-1000 ${currentSlide === 2 ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 translate-y-4 z-0 pointer-events-none'}`}>
+          {/* SLIDE 3: Candidates */}
+          <div className={`[grid-area:stack] flex flex-col items-center transition-all duration-1000 ${currentSlide === 3 ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 translate-y-4 z-0 pointer-events-none'}`}>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold uppercase tracking-wide mb-8">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -132,9 +150,10 @@ export default function LandingPage() {
         
         {/* Indicators */}
         <div className="flex gap-2 mt-8 z-20 relative">
-          <button onClick={() => setCurrentSlide(0)} className={`w-2 h-2 rounded-full transition-all duration-300 ${currentSlide === 0 ? 'bg-orange-500 w-6' : 'bg-slate-300 hover:bg-slate-400'}`} aria-label="View platform integrity slide" />
-          <button onClick={() => setCurrentSlide(1)} className={`w-2 h-2 rounded-full transition-all duration-300 ${currentSlide === 1 ? 'bg-indigo-600 w-6' : 'bg-slate-300 hover:bg-slate-400'}`} aria-label="View employer slide" />
-          <button onClick={() => setCurrentSlide(2)} className={`w-2 h-2 rounded-full transition-all duration-300 ${currentSlide === 2 ? 'bg-emerald-500 w-6' : 'bg-slate-300 hover:bg-slate-400'}`} aria-label="View candidate slide" />
+          <button onClick={() => setCurrentSlide(0)} className={`w-2 h-2 rounded-full transition-all duration-300 ${currentSlide === 0 ? 'bg-violet-600 w-6' : 'bg-slate-300 hover:bg-slate-400'}`} aria-label="View changing the hiring landscape slide" />
+          <button onClick={() => setCurrentSlide(1)} className={`w-2 h-2 rounded-full transition-all duration-300 ${currentSlide === 1 ? 'bg-orange-500 w-6' : 'bg-slate-300 hover:bg-slate-400'}`} aria-label="View platform integrity slide" />
+          <button onClick={() => setCurrentSlide(2)} className={`w-2 h-2 rounded-full transition-all duration-300 ${currentSlide === 2 ? 'bg-indigo-600 w-6' : 'bg-slate-300 hover:bg-slate-400'}`} aria-label="View employer slide" />
+          <button onClick={() => setCurrentSlide(3)} className={`w-2 h-2 rounded-full transition-all duration-300 ${currentSlide === 3 ? 'bg-emerald-500 w-6' : 'bg-slate-300 hover:bg-slate-400'}`} aria-label="View candidate slide" />
         </div>
       </section>
 
