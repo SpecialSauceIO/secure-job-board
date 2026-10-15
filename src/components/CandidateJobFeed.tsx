@@ -108,7 +108,7 @@ export function CandidateJobFeed({
         setTimeout(() => {
           resolve({
             error:
-              'AI Match analysis took longer than 30 seconds across our providers. Please click "Try AI Match Again" to retry.',
+              'AI Match analysis took longer than 30 seconds across our 3-tier matching cascade. Please click "Try AI Match Again" to retry.',
           })
         }, 30000)
       })
@@ -123,7 +123,7 @@ export function CandidateJobFeed({
           ...prev,
           [jobId]: {
             type: 'error',
-            text: `${result.error} Please try again.`,
+            text: `${result.error} Please click "Try AI Match Again" to retry.`,
           },
         }))
       } else if (result?.data) {
@@ -402,7 +402,7 @@ export function CandidateJobFeed({
                       Analyzing 5-Point AI Fit (This may take up to 30 seconds)...
                     </span>
                     <span className="text-indigo-700 font-medium">
-                      Routing your anonymous skill matrix across our 3-tier AI cascade (Gemini → Groq → OpenAI). If all providers are busy, you will be prompted to try again.
+                      Routing your anonymous skill matrix across our 3-tier AI matching cascade. If all tiers are busy, you will be prompted to try again.
                     </span>
                   </div>
                 </div>

@@ -604,11 +604,17 @@ async function sendPlatformNotification({
 }
 
 // ------------------------------------------------------------------
-// HELPER: CASCADING MULTI-MODEL PDF EXTRACTOR (WITH 12s TIMEOUT PER MODEL)
+// HELPER: CASCADING MULTI-MODEL PDF EXTRACTOR (WITH 10s TIMEOUT PER MODEL)
 // ------------------------------------------------------------------
 async function extractPdfWithRetry(prompt: string, base64Data: string) {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
-  const modelsToTry = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash']
+  const modelsToTry = [
+    'gemini-3.8-flash',
+    'gemini-3.6-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-2.5-flash',
+    'gemini-2.0-flash'
+  ]
 
   for (const model of modelsToTry) {
     try {
@@ -625,8 +631,8 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
             }
           ]
         }),
-        12000,
-        `PDF Gemini (${model})`
+        10000,
+        `PDF Extractor (${model})`
       )
       if (response.text) {
         console.log(`PDF successfully extracted using model: ${model}`)
@@ -637,7 +643,7 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
       continue
     }
   }
-  throw new Error("All Gemini Flash models timed out or exhausted quota. Please wait a moment and try again.")
+  throw new Error("Our AI document extraction engines timed out or are currently at capacity. Please wait a moment and try again.")
 }
 
 
@@ -1609,7 +1615,7 @@ export async function respondToConnectionRequest(
 }
 
 // ------------------------------------------------------------------
-// AI MATCH SCORING (Candidate <-> Job) WITH FAST TIMEOUT FAILOVER
+// AI MATCH SCORING (Candidate <-> Job) WITH FULL MODEL CASCADE & TIMEOUTS
 // ------------------------------------------------------------------
 
 export async function analyzeJobFit(jobId: string) {
@@ -1732,11 +1738,17 @@ async function analyzeMatchRouter(
 ) {
   const prompt = getMatchPrompt(profile, job, viewerRole)
 
-  // 1. PRIMARY ENGINE: GEMINI FLASH (8-second timeout per model)
+  // 1. TIER 1 CASCADE (Full model list restored with 5-second timeout per model)
   if (process.env.GEMINI_API_KEY) {
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
-      const geminiModelsToTry = ['gemini-2.5-flash', 'gemini-2.0-flash']
+      const geminiModelsToTry = [
+        'gemini-3.8-flash',
+        'gemini-3.6-flash',
+        'gemini-3.5-flash-lite',
+        'gemini-2.5-flash',
+        'gemini-2.0-flash'
+      ]
 
       for (const model of geminiModelsToTry) {
         try {
@@ -1745,26 +1757,26 @@ async function analyzeMatchRouter(
               model: model,
               contents: prompt
             }),
-            8000,
-            `Gemini (${model})`
+            5000,
+            `Tier 1 (${model})`
           )
 
           if (response.text) {
             const parsed = parseAiResponse(response.text)
-            console.log(`[${viewerRole}] Match generated via Gemini (${model})`)
+            console.log(`[${viewerRole}] Match generated via Tier 1 (${model})`)
             return { data: parsed }
           }
         } catch (error: any) {
-          console.warn(`[${viewerRole}] Gemini Match (${model}) failed/timed out:`, error.message || error)
+          console.warn(`[${viewerRole}] Tier 1 (${model}) skipped:`, error.message || error)
           continue
         }
       }
     } catch (initError: any) {
-      console.warn(`[${viewerRole}] Gemini SDK initialization error:`, initError.message || initError)
+      console.warn(`[${viewerRole}] Tier 1 initialization error:`, initError.message || initError)
     }
   }
 
-  // 2. SECONDARY ENGINE: GROQ LLAMA (8-second timeout per model)
+  // 2. TIER 2 CASCADE (6-second timeout per model)
   if (process.env.GROQ_API_KEY) {
     try {
       const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
@@ -1781,26 +1793,26 @@ async function analyzeMatchRouter(
               model: groqModel,
               response_format: { type: 'json_object' }
             }),
-            8000,
-            `Groq (${groqModel})`
+            6000,
+            `Tier 2 (${groqModel})`
           )
 
           if (chatCompletion.choices[0]?.message?.content) {
             const parsed = parseAiResponse(chatCompletion.choices[0].message.content)
-            console.log(`[${viewerRole}] Match generated via Groq (${groqModel})`)
+            console.log(`[${viewerRole}] Match generated via Tier 2 (${groqModel})`)
             return { data: parsed }
           }
         } catch (error: any) {
-          console.warn(`[${viewerRole}] Groq Match (${groqModel}) failed/timed out:`, error.message || error)
+          console.warn(`[${viewerRole}] Tier 2 (${groqModel}) skipped:`, error.message || error)
           continue
         }
       }
     } catch (initError: any) {
-      console.error(`[${viewerRole}] Groq SDK initialization error:`, initError.message || initError)
+      console.error(`[${viewerRole}] Tier 2 initialization error:`, initError.message || initError)
     }
   }
 
-  // 3. TERTIARY ENGINE: OPENAI GPT-4O (8-second timeout per model)
+  // 3. TIER 3 CASCADE (7-second timeout per model)
   if (process.env.OPENAI_API_KEY) {
     try {
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
@@ -1814,27 +1826,27 @@ async function analyzeMatchRouter(
               model: openAiModel,
               response_format: { type: 'json_object' }
             }),
-            8000,
-            `OpenAI (${openAiModel})`
+            7000,
+            `Tier 3 (${openAiModel})`
           )
 
           if (completion.choices[0]?.message?.content) {
             const parsed = parseAiResponse(completion.choices[0].message.content)
-            console.log(`[${viewerRole}] Match generated via OpenAI (${openAiModel})`)
+            console.log(`[${viewerRole}] Match generated via Tier 3 (${openAiModel})`)
             return { data: parsed }
           }
         } catch (error: any) {
-          console.warn(`[${viewerRole}] OpenAI Match (${openAiModel}) failed/timed out:`, error.message || error)
+          console.warn(`[${viewerRole}] Tier 3 (${openAiModel}) skipped:`, error.message || error)
           continue
         }
       }
     } catch (initError: any) {
-      console.error(`[${viewerRole}] OpenAI SDK initialization error:`, initError.message || initError)
+      console.error(`[${viewerRole}] Tier 3 initialization error:`, initError.message || initError)
     }
   }
 
   return {
-    error: 'All 3 AI matching engines (Gemini, Groq, and OpenAI) were busy or timed out. Please click "Re-Run AI Match" to try again.'
+    error: 'All 3 tiers of our AI matching cascade are currently busy or timed out.'
   }
 }
 

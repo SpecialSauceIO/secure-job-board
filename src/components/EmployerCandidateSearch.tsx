@@ -83,7 +83,7 @@ export default function EmployerCandidateSearch({ activeJobs, credits }: { activ
         setTimeout(() => {
           resolve({
             error:
-              'AI Match analysis took longer than 30 seconds across our providers. Please click "Try AI Match Again" to retry.',
+              'AI Match analysis took longer than 30 seconds across our 3-tier matching cascade. Please click "Try AI Match Again" to retry.',
           })
         }, 30000)
       })
@@ -98,7 +98,7 @@ export default function EmployerCandidateSearch({ activeJobs, credits }: { activ
       } else if (result?.error) {
         setFeedback({
           type: 'error',
-          text: `${result.error} Please try again.`,
+          text: `${result.error} Please click "Try AI Match Again" to retry.`,
         })
       } else {
         setFeedback({
@@ -428,7 +428,7 @@ export default function EmployerCandidateSearch({ activeJobs, credits }: { activ
                               Analyzing 5-Point AI Fit (May take up to 30s)...
                             </span>
                             <span className="text-indigo-700 font-medium">
-                              Routing across our 3-tier AI cascade (Gemini → Groq → OpenAI). If all providers are busy, you will be prompted to try again.
+                              Routing across our 3-tier AI matching cascade. If all tiers are busy, you will be prompted to try again.
                             </span>
                           </div>
                         </div>
