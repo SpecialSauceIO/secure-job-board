@@ -32,6 +32,14 @@ const FREE_EMAIL_DOMAINS = new Set([
 ])
 
 // ------------------------------------------------------------------
+// HELPER: SANITIZE ENV KEYS (STRIPS ACCIDENTAL QUOTES & WHITESPACE)
+// ------------------------------------------------------------------
+function cleanEnvKey(rawKey?: string | null): string {
+  if (!rawKey) return ''
+  return rawKey.trim().replace(/^["']+|["']+$/g, '').trim()
+}
+
+// ------------------------------------------------------------------
 // HELPER: PROMISE TIMEOUT WRAPPER FOR FAST AI FAILOVER
 // ------------------------------------------------------------------
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
@@ -489,14 +497,15 @@ async function sendPlatformNotification({
   ctaLabel?: string
 }) {
   const rawRecipient = (to || '').trim()
-  const fallbackInbox = (process.env.RESEND_TEST_TO_EMAIL || '').trim()
+  const fallbackInbox = cleanEnvKey(process.env.RESEND_TEST_TO_EMAIL)
+  const resendKey = cleanEnvKey(process.env.RESEND_API_KEY)
 
   const isFakeTestAddress = rawRecipient.endsWith('@test.com') || rawRecipient.endsWith('@example.com')
   const primaryRecipient = (!rawRecipient || (isFakeTestAddress && fallbackInbox))
     ? (fallbackInbox || rawRecipient)
     : rawRecipient
 
-  const appUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const appUrl = cleanEnvKey(process.env.NEXT_PUBLIC_SITE_URL) || 'http://localhost:3000'
   const fullUrl = ctaUrl ? `${appUrl}${ctaUrl}` : `${appUrl}/dashboard`
 
   console.log('\n======================================================')
@@ -507,9 +516,9 @@ async function sendPlatformNotification({
   console.log(`Heading:            ${heading}`)
   bodyLines.forEach(line => console.log(`  - ${line}`))
 
-  if (!process.env.RESEND_API_KEY) {
+  if (!resendKey) {
     console.warn(
-      `⚠️  EMAIL NOT SENT TO INBOX: RESEND_API_KEY is missing in .env.local! Add RESEND_API_KEY=re_... to send live emails.`
+      `⚠️  EMAIL NOT SENT TO INBOX: RESEND_API_KEY is missing! Add RESEND_API_KEY=re_... to send live emails.`
     )
     console.log('======================================================\n')
     return
@@ -521,7 +530,7 @@ async function sendPlatformNotification({
     return
   }
 
-  const fromAddress = process.env.RESEND_FROM_EMAIL || 'Special Sauce <onboarding@resend.dev>'
+  const fromAddress = cleanEnvKey(process.env.RESEND_FROM_EMAIL) || 'Special Sauce <onboarding@resend.dev>'
 
   const buildHtml = (intendedNote?: string) => `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
@@ -551,7 +560,7 @@ async function sendPlatformNotification({
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        Authorization: `Bearer ${resendKey}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -578,7 +587,7 @@ async function sendPlatformNotification({
         const retryRes = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+            Authorization: `Bearer ${resendKey}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
@@ -604,16 +613,17 @@ async function sendPlatformNotification({
 }
 
 // ------------------------------------------------------------------
-// HELPER: CASCADING MULTI-MODEL PDF EXTRACTOR (WITH 10s TIMEOUT PER MODEL)
+// HELPER: CASCADING MULTI-MODEL PDF EXTRACTOR
 // ------------------------------------------------------------------
 async function extractPdfWithRetry(prompt: string, base64Data: string) {
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+  const geminiKey = cleanEnvKey(process.env.GEMINI_API_KEY)
+  const ai = new GoogleGenAI({ apiKey: geminiKey })
   const modelsToTry = [
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
     'gemini-3.8-flash',
     'gemini-3.6-flash',
-    'gemini-3.5-flash-lite',
-    'gemini-2.5-flash',
-    'gemini-2.0-flash'
+    'gemini-3.5-flash-lite'
   ]
 
   for (const model of modelsToTry) {
@@ -631,7 +641,7 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
             }
           ]
         }),
-        10000,
+        6000,
         `PDF Extractor (${model})`
       )
       if (response.text) {
@@ -1711,7 +1721,7 @@ export async function respondToConnectionRequest(
 }
 
 // ------------------------------------------------------------------
-// AI MATCH SCORING (Candidate <-> Job) WITH FULL MODEL CASCADE & TIMEOUTS
+// AI MATCH SCORING (Candidate <-> Job) WITH FAST FAILOVER FOR VERCEL HOBBY
 // ------------------------------------------------------------------
 
 export async function analyzeJobFit(jobId: string) {
@@ -1833,18 +1843,15 @@ async function analyzeMatchRouter(
   viewerRole: 'candidate' | 'employer' = 'candidate'
 ) {
   const prompt = getMatchPrompt(profile, job, viewerRole)
+  const geminiKey = cleanEnvKey(process.env.GEMINI_API_KEY)
+  const groqKey = cleanEnvKey(process.env.GROQ_API_KEY)
+  const openAiKey = cleanEnvKey(process.env.OPENAI_API_KEY)
 
-  // 1. TIER 1 CASCADE (Full model list restored with 5-second timeout per model)
-  if (process.env.GEMINI_API_KEY) {
+  // 1. TIER 1 CASCADE (Fast 3s cap so Vercel Hobby 10s limit never kills the function before Tier 2!)
+  if (geminiKey) {
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
-      const geminiModelsToTry = [
-        'gemini-3.8-flash',
-        'gemini-3.6-flash',
-        'gemini-3.5-flash-lite',
-        'gemini-2.5-flash',
-        'gemini-2.0-flash'
-      ]
+      const ai = new GoogleGenAI({ apiKey: geminiKey })
+      const geminiModelsToTry = ['gemini-2.5-flash', 'gemini-3.5-flash-lite']
 
       for (const model of geminiModelsToTry) {
         try {
@@ -1853,7 +1860,7 @@ async function analyzeMatchRouter(
               model: model,
               contents: prompt
             }),
-            5000,
+            3000,
             `Tier 1 (${model})`
           )
 
@@ -1872,10 +1879,10 @@ async function analyzeMatchRouter(
     }
   }
 
-  // 2. TIER 2 CASCADE (6-second timeout per model)
-  if (process.env.GROQ_API_KEY) {
+  // 2. TIER 2 CASCADE (Ultra-fast LPU inference — responds in ~0.6s)
+  if (groqKey) {
     try {
-      const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+      const groq = new Groq({ apiKey: groqKey })
       const groqModelsToTry = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant']
 
       for (const groqModel of groqModelsToTry) {
@@ -1889,7 +1896,7 @@ async function analyzeMatchRouter(
               model: groqModel,
               response_format: { type: 'json_object' }
             }),
-            6000,
+            4500,
             `Tier 2 (${groqModel})`
           )
 
@@ -1908,10 +1915,10 @@ async function analyzeMatchRouter(
     }
   }
 
-  // 3. TIER 3 CASCADE (7-second timeout per model)
-  if (process.env.OPENAI_API_KEY) {
+  // 3. TIER 3 CASCADE
+  if (openAiKey) {
     try {
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+      const openai = new OpenAI({ apiKey: openAiKey })
       const openAiModelsToTry = ['gpt-4o-mini', 'gpt-4o']
 
       for (const openAiModel of openAiModelsToTry) {
@@ -1922,7 +1929,7 @@ async function analyzeMatchRouter(
               model: openAiModel,
               response_format: { type: 'json_object' }
             }),
-            7000,
+            4500,
             `Tier 3 (${openAiModel})`
           )
 
