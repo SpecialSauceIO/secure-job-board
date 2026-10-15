@@ -86,6 +86,7 @@ export function CandidateJobFeed({
   const [jobList, setJobList] = useState<any[]>(jobs || [])
   const [analyzingId, setAnalyzingId] = useState<string | null>(null)
   const [applyingId, setApplyingId] = useState<string | null>(null)
+  const [appliedJobs, setAppliedJobs] = useState<Record<string, string>>({})
   const [matchResults, setMatchResults] = useState<Record<string, any>>({})
   const [feedback, setFeedback] = useState<
     Record<string, { type: 'success' | 'error'; text: string }>
@@ -184,17 +185,19 @@ export function CandidateJobFeed({
       return
     }
 
+    const refCode = result.referenceId || 'SS-CONFIRMED'
+    setAppliedJobs((prev) => ({
+      ...prev,
+      [jobId]: refCode,
+    }))
+
     setFeedback((prev) => ({
       ...prev,
       [jobId]: {
         type: 'success',
-        text: `Blind Application Submitted (Ref: ${result.referenceId || 'SS'})! Check your Application Tracker.`,
+        text: `Blind Application Submitted (Ref: ${refCode})! Your identity remains hidden until the employer unlocks your profile.`,
       },
     }))
-
-    setTimeout(() => {
-      setJobList((prev) => prev.filter((j) => (j.uuid || j.id) !== jobId))
-    }, 1800)
 
     setApplyingId(null)
   }
@@ -220,9 +223,15 @@ export function CandidateJobFeed({
         <h3 className="text-xl font-bold text-slate-900 mb-2">
           No unapplied roles match right now
         </h3>
-        <p className="text-slate-500 text-sm max-w-md mx-auto">
-          You have either applied to all matching active roles or no roles match your current filter. Check your Application Tracker for updates!
+        <p className="text-slate-500 text-sm max-w-md mx-auto mb-6">
+          You have either applied to all matching active roles or no roles match your current filter.
         </p>
+        <Link
+          href="/dashboard/applications"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm"
+        >
+          Check My Application Tracker →
+        </Link>
       </div>
     )
   }
@@ -236,6 +245,8 @@ export function CandidateJobFeed({
         const score = matchData?.overall_score ?? null
         const isAnalyzing = analyzingId === jobId
         const isApplying = applyingId === jobId
+        const appliedRef = appliedJobs[jobId]
+        const isApplied = Boolean(appliedRef)
         const cardFeedback = feedback[jobId]
         const orgVerified =
           job.organizations?.verification_status === 'verified'
@@ -248,7 +259,11 @@ export function CandidateJobFeed({
         return (
           <div
             key={jobId}
-            className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-300 transition-all overflow-hidden"
+            className={`bg-white rounded-2xl border transition-all overflow-hidden ${
+              isApplied
+                ? 'border-emerald-300 ring-2 ring-emerald-500/10 shadow-md'
+                : 'border-slate-200 shadow-sm hover:border-indigo-300'
+            }`}
           >
             <div className="p-6 md:p-8 space-y-5">
               {/* Top Row: Anonymous Company Teaser & Prominent Compensation Band */}
@@ -275,6 +290,12 @@ export function CandidateJobFeed({
                     {orgVerified && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-extrabold">
                         ✓ Domain-Verified Employer
+                      </span>
+                    )}
+
+                    {isApplied && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-600 text-white text-[11px] font-extrabold shadow-sm">
+                        ✓ Application Submitted ({appliedRef})
                       </span>
                     )}
 
@@ -496,36 +517,53 @@ export function CandidateJobFeed({
                 </div>
               )}
 
-              {/* Feedback / Retry / Upgrade Prompt Banner */}
-              {cardFeedback && (
-                <div
-                  className={`p-3.5 rounded-xl text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                    cardFeedback.type === 'error'
-                      ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                      : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                  }`}
-                >
+              {/* Persistent Application Confirmation & Tracker CTA Banner */}
+              {isApplied && (
+                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in duration-300">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5 font-black text-sm">
+                      ✓
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-extrabold text-emerald-950">
+                        Blind Application Successfully Submitted! (Ref: {appliedRef})
+                      </h4>
+                      <p className="text-xs text-emerald-800 mt-0.5 leading-relaxed">
+                        Your anonymous skill matrix and {score}% AI Match Radar are now in the employer&apos;s pipeline. Your name and contact info remain hidden until they unlock your application.
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/dashboard/applications"
+                    className="shrink-0 px-4 py-2.5 rounded-xl bg-emerald-700 text-white text-xs font-extrabold hover:bg-emerald-800 transition-colors text-center shadow-sm whitespace-nowrap"
+                  >
+                    View in Application Tracker →
+                  </Link>
+                </div>
+              )}
+
+              {/* Error / Upgrade Prompt Banner */}
+              {cardFeedback && cardFeedback.type === 'error' && (
+                <div className="p-3.5 rounded-xl text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-rose-50 text-rose-700 border border-rose-200">
                   <span>{cardFeedback.text}</span>
                   <div className="flex items-center gap-2 shrink-0">
-                    {cardFeedback.type === 'error' &&
-                      !cardFeedback.text.includes('Candidate Pro') && (
-                        <button
-                          type="button"
-                          onClick={() => handleAnalyzeFit(jobId)}
-                          className="px-3.5 py-1.5 rounded-lg bg-rose-700 text-white text-xs font-extrabold hover:bg-rose-800 transition-colors"
-                        >
-                          ↻ Try AI Match Again
-                        </button>
-                      )}
-                    {cardFeedback.type === 'error' &&
-                      cardFeedback.text.includes('Candidate Pro') && (
-                        <Link
-                          href="/dashboard/billing"
-                          className="px-3.5 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors text-center"
-                        >
-                          Upgrade to Pro ($9/mo) →
-                        </Link>
-                      )}
+                    {!cardFeedback.text.includes('Candidate Pro') && (
+                      <button
+                        type="button"
+                        onClick={() => handleAnalyzeFit(jobId)}
+                        className="px-3.5 py-1.5 rounded-lg bg-rose-700 text-white text-xs font-extrabold hover:bg-rose-800 transition-colors"
+                      >
+                        ↻ Try AI Match Again
+                      </button>
+                    )}
+                    {cardFeedback.text.includes('Candidate Pro') && (
+                      <Link
+                        href="/dashboard/billing"
+                        className="px-3.5 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors text-center"
+                      >
+                        Upgrade to Pro ($9/mo) →
+                      </Link>
+                    )}
                   </div>
                 </div>
               )}
@@ -533,7 +571,9 @@ export function CandidateJobFeed({
               {/* Bottom Action Bar */}
               <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <p className="text-xs text-slate-500">
-                  {!matchData
+                  {isApplied
+                    ? `✓ Application logged under Reference ID ${appliedRef}. Track employer unlock status in your Application Tracker.`
+                    : !matchData
                     ? `Step 1: Run a free AI Fit Analysis (${MIN_MATCH_THRESHOLD}%+ match required to submit a blind application • May take up to 30s).`
                     : score >= MIN_MATCH_THRESHOLD
                     ? '✓ You meet the 40%+ relevance firewall! Your name & contact info stay hidden until unlocked.'
@@ -541,43 +581,51 @@ export function CandidateJobFeed({
                 </p>
 
                 <div className="flex items-center gap-3 shrink-0">
-                  <button
-                    type="button"
-                    disabled={isAnalyzing}
-                    onClick={() => handleAnalyzeFit(jobId)}
-                    className="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-50"
-                  >
-                    {isAnalyzing
-                      ? 'Analyzing Fit (Up to 30s)...'
-                      : matchData
-                      ? '↻ Re-Run AI Match'
-                      : '⚡ Check AI Fit Score'}
-                  </button>
-
-                  {matchData && (
+                  {!isApplied && (
                     <button
                       type="button"
-                      disabled={
-                        isApplying || !isVerified || score < MIN_MATCH_THRESHOLD
-                      }
-                      onClick={() => handleBlindApply(jobId)}
-                      title={
-                        !isVerified
-                          ? 'Complete Stripe Identity verification on your dashboard first'
-                          : score < MIN_MATCH_THRESHOLD
-                          ? `Minimum ${MIN_MATCH_THRESHOLD}% match required`
-                          : 'Submit anonymous application'
-                      }
-                      className="px-6 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                      disabled={isAnalyzing || isApplying}
+                      onClick={() => handleAnalyzeFit(jobId)}
+                      className="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-50"
                     >
-                      {isApplying
-                        ? 'Submitting...'
-                        : !isVerified
-                        ? '🔒 Verify Identity to Apply'
-                        : score < MIN_MATCH_THRESHOLD
-                        ? `Locked (<${MIN_MATCH_THRESHOLD}% Match)`
-                        : 'Submit Blind Application →'}
+                      {isAnalyzing
+                        ? 'Analyzing Fit (Up to 30s)...'
+                        : matchData
+                        ? '↻ Re-Run AI Match'
+                        : '⚡ Check AI Fit Score'}
                     </button>
+                  )}
+
+                  {matchData && (
+                    isApplied ? (
+                      <span className="px-5 py-2.5 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-extrabold inline-flex items-center gap-1.5">
+                        ✓ Applied Blindly
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={
+                          isApplying || !isVerified || score < MIN_MATCH_THRESHOLD
+                        }
+                        onClick={() => handleBlindApply(jobId)}
+                        title={
+                          !isVerified
+                            ? 'Complete Stripe Identity verification on your dashboard first'
+                            : score < MIN_MATCH_THRESHOLD
+                            ? `Minimum ${MIN_MATCH_THRESHOLD}% match required`
+                            : 'Submit anonymous application'
+                        }
+                        className="px-6 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        {isApplying
+                          ? 'Submitting...'
+                          : !isVerified
+                          ? '🔒 Verify Identity to Apply'
+                          : score < MIN_MATCH_THRESHOLD
+                          ? `Locked (<${MIN_MATCH_THRESHOLD}% Match)`
+                          : 'Submit Blind Application →'}
+                      </button>
+                    )
                   )}
                 </div>
               </div>
