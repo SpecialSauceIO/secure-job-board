@@ -10,6 +10,43 @@ import {
   ThreadMessage,
 } from '@/app/dashboard/messaging-actions'
 
+// Synthesize a clean, pleasant 2-note harmonic chime using the browser's native Web Audio API
+function playIncomingMessageChime() {
+  if (typeof window === 'undefined') return
+  try {
+    const AudioCtx =
+      window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    if (!AudioCtx) return
+    const ctx = new AudioCtx()
+
+    // Note 1: A5 (880 Hz)
+    const osc1 = ctx.createOscillator()
+    const gain1 = ctx.createGain()
+    osc1.type = 'sine'
+    osc1.frequency.setValueAtTime(880, ctx.currentTime)
+    gain1.gain.setValueAtTime(0.08, ctx.currentTime)
+    gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18)
+    osc1.connect(gain1)
+    gain1.connect(ctx.destination)
+    osc1.start(ctx.currentTime)
+    osc1.stop(ctx.currentTime + 0.18)
+
+    // Note 2: E6 (1318.5 Hz)
+    const osc2 = ctx.createOscillator()
+    const gain2 = ctx.createGain()
+    osc2.type = 'sine'
+    osc2.frequency.setValueAtTime(1318.5, ctx.currentTime + 0.11)
+    gain2.gain.setValueAtTime(0.09, ctx.currentTime + 0.11)
+    gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.42)
+    osc2.connect(gain2)
+    gain2.connect(ctx.destination)
+    osc2.start(ctx.currentTime + 0.11)
+    osc2.stop(ctx.currentTime + 0.42)
+  } catch {
+    // Ignore if browser autoplay policy blocks audio prior to first click
+  }
+}
+
 export default function SecureMessageThread({
   applicationId,
   referenceId,
@@ -53,6 +90,8 @@ export default function SecureMessageThread({
   const [draft, setDraft] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [isReleasing, setIsReleasing] = useState(false)
+  const [soundEnabled, setSoundEnabled] = useState(true)
+  const [justReceivedAlert, setJustReceivedAlert] = useState(false)
   const [liveResumeUrl, setLiveResumeUrl] = useState<string | null>(
     initialResumeUrl || null
   )
@@ -61,7 +100,13 @@ export default function SecureMessageThread({
 
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   const prevMsgCountRef = useRef<number>(messages.length)
+  const hasHydratedRef = useRef<boolean>(false)
+  const soundEnabledRef = useRef<boolean>(soundEnabled)
   const channelRef = useRef<any>(null)
+
+  useEffect(() => {
+    soundEnabledRef.current = soundEnabled
+  }, [soundEnabled])
 
   // Keep state in sync if parent re-fetches applications list
   useEffect(() => {
@@ -79,23 +124,36 @@ export default function SecureMessageThread({
     }
   }, [initialVaultReleased, vaultReleased])
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll & chime when a new message from the OTHER party arrives
   useEffect(() => {
-    if (
-      messages.length > prevMsgCountRef.current &&
-      scrollContainerRef.current
-    ) {
-      scrollContainerRef.current.scrollTop =
-        scrollContainerRef.current.scrollHeight
+    if (messages.length > prevMsgCountRef.current) {
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTop =
+          scrollContainerRef.current.scrollHeight
+      }
+
+      const newestMsg = messages[messages.length - 1]
+      if (
+        hasHydratedRef.current &&
+        newestMsg &&
+        newestMsg.sender_role !== viewerRole
+      ) {
+        if (soundEnabledRef.current) {
+          playIncomingMessageChime()
+        }
+        setJustReceivedAlert(true)
+        setTimeout(() => setJustReceivedAlert(false), 4000)
+      }
     }
     prevMsgCountRef.current = messages.length
-  }, [messages.length])
+    hasHydratedRef.current = true
+  }, [messages, viewerRole])
 
   // Direct, uncached server state pull
   const syncLatestThreadState = useCallback(async () => {
     if (!applicationId) return
     try {
-      const res = await getApplicationThreadState(applicationId)
+      const res = await getApplicationThreadState(applicationId, viewerRole)
       if (!res.error) {
         setMessages((prev) => {
           if (
@@ -117,13 +175,12 @@ export default function SecureMessageThread({
     } catch {
       // Ignore transient network hiccups during polling
     }
-  }, [applicationId])
+  }, [applicationId, viewerRole])
 
   // Subscribe to Instant WebSocket Broadcast + Postgres Changes + 2.5s Uncached Poll
   useEffect(() => {
     if (!applicationId) return
 
-    // Pull immediately on mount
     syncLatestThreadState()
 
     const supabase = createClient()
@@ -169,7 +226,7 @@ export default function SecureMessageThread({
         })
       }
     } catch {
-      // Fallback polling handles it if broadcast socket is reconnecting
+      // Fallback polling handles it
     }
   }
 
@@ -229,7 +286,13 @@ export default function SecureMessageThread({
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-xs">
+    <div
+      className={`rounded-2xl border bg-white overflow-hidden transition-all ${
+        justReceivedAlert
+          ? 'border-indigo-500 ring-4 ring-indigo-500/15 shadow-md'
+          : 'border-slate-200 shadow-xs'
+      }`}
+    >
       {/* Top Vault Status Header */}
       <div
         className={`px-4 py-3 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
@@ -262,6 +325,26 @@ export default function SecureMessageThread({
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 Live Sync
               </span>
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !soundEnabled
+                  setSoundEnabled(next)
+                  if (next) playIncomingMessageChime()
+                }}
+                title={
+                  soundEnabled
+                    ? 'Audio chime enabled for incoming messages (Click to mute)'
+                    : 'Audio chime muted (Click to enable & test chime)'
+                }
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold transition-colors cursor-pointer ${
+                  soundEnabled
+                    ? 'bg-white border-indigo-200 text-indigo-700 hover:bg-indigo-50'
+                    : 'bg-slate-100 border-slate-200 text-slate-500 hover:bg-slate-200'
+                }`}
+              >
+                {soundEnabled ? '🔔 Chime On' : '🔕 Muted'}
+              </button>
             </div>
             <p className="text-[11px] text-slate-600 mt-0.5">
               {vaultReleased

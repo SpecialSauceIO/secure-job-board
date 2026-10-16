@@ -38,6 +38,29 @@ function extractBookmarkCounts(profile: any): {
   }
 }
 
+function hasUnreadThreadMessage(
+  app: any,
+  viewerRole: 'employer' | 'candidate'
+): boolean {
+  const matchData = app?.match_data || {}
+  const messages = Array.isArray(matchData.messages) ? matchData.messages : []
+  if (messages.length === 0) return false
+
+  const lastMsg = messages[messages.length - 1]
+  if (!lastMsg || lastMsg.sender_role === viewerRole) return false
+
+  const readKey =
+    viewerRole === 'candidate'
+      ? 'candidate_last_read_at'
+      : 'employer_last_read_at'
+  const lastReadIso = matchData[readKey]
+  if (!lastReadIso) return true
+
+  return (
+    new Date(lastMsg.created_at).getTime() > new Date(lastReadIso).getTime()
+  )
+}
+
 export default async function DashboardPage({
   searchParams,
 }: {
@@ -237,7 +260,7 @@ export default async function DashboardPage({
   const { savedJobsCount, savedCandidatesCount } = extractBookmarkCounts(profile)
 
   // ============================================================================
-  // STREAMLINED EMPLOYER DASHBOARD (MINIMALIST WIREFRAME LAYOUT)
+  // STREAMLINED EMPLOYER DASHBOARD (WITH UNREAD MESSAGE INDICATORS)
   // ============================================================================
   if (profile?.role === 'employer') {
     const { data: member } = await supabase
@@ -265,8 +288,10 @@ export default async function DashboardPage({
     let activeJobsCount = 0
     let inboundTotalCount = 0
     let pendingAppsCount = 0
+    let inboundUnreadMsgsCount = 0
     let sentPitchesCount = 0
     let acceptedPitchesCount = 0
+    let pitchesUnreadMsgsCount = 0
 
     if (member?.organization_id) {
       const { data: allApps } = await supabase
@@ -277,6 +302,7 @@ export default async function DashboardPage({
           status,
           is_revealed,
           initiated_by,
+          match_data,
           jobs!inner (
             organization_id
           )
@@ -289,6 +315,9 @@ export default async function DashboardPage({
       const inboundApps = orgApps.filter((app) => app.initiated_by !== 'employer')
       inboundTotalCount = inboundApps.length
       pendingAppsCount = inboundApps.filter((app) => !app.is_revealed).length
+      inboundUnreadMsgsCount = inboundApps.filter((app) =>
+        hasUnreadThreadMessage(app, 'employer')
+      ).length
 
       const outboundPitches = orgApps.filter(
         (app) => app.initiated_by === 'employer'
@@ -296,6 +325,9 @@ export default async function DashboardPage({
       sentPitchesCount = outboundPitches.length
       acceptedPitchesCount = outboundPitches.filter(
         (app) => app.status === 'accepted' || app.is_revealed === true
+      ).length
+      pitchesUnreadMsgsCount = outboundPitches.filter((app) =>
+        hasUnreadThreadMessage(app, 'employer')
       ).length
 
       const { count: jobsCount } = await supabase
@@ -314,7 +346,7 @@ export default async function DashboardPage({
 
     return (
       <div className="max-w-6xl mx-auto py-4 space-y-8">
-        {/* CALM HERO ROW: Title, Quiet Status Line, Shortlist Pill & Primary Action Button */}
+        {/* CALM HERO ROW */}
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
@@ -405,7 +437,7 @@ export default async function DashboardPage({
           </div>
         </header>
 
-        {/* 4 CORE METRIC CARDS (DIRECTLY ABOVE THE FOLD — ZERO BANNER CLUTTER) */}
+        {/* 4 CORE METRIC CARDS */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Card 1: Company & Seats */}
           <Link
@@ -492,7 +524,7 @@ export default async function DashboardPage({
                 : '/dashboard/employer/organization'
             }
             className={`group bg-white p-6 rounded-2xl border shadow-xs hover:shadow-md transition-all flex flex-col justify-between ${
-              acceptedPitchesCount > 0
+              pitchesUnreadMsgsCount > 0 || acceptedPitchesCount > 0
                 ? 'border-2 border-emerald-500/40'
                 : 'border-slate-200 hover:border-slate-400'
             }`}
@@ -502,10 +534,15 @@ export default async function DashboardPage({
                 <span className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-base">
                   📐
                 </span>
-                <div className="flex items-center gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {pitchesUnreadMsgsCount > 0 && (
+                    <span className="px-2 py-0.5 text-[11px] font-extrabold bg-indigo-600 text-white rounded-md animate-pulse">
+                      💬 {pitchesUnreadMsgsCount} New Msg
+                    </span>
+                  )}
                   {acceptedPitchesCount > 0 && (
                     <span className="px-2 py-0.5 text-[11px] font-bold bg-emerald-600 text-white rounded-md">
-                      {acceptedPitchesCount} Unlocked!
+                      {acceptedPitchesCount} Unlocked
                     </span>
                   )}
                   <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
@@ -517,18 +554,24 @@ export default async function DashboardPage({
                 Sent Pitches
               </p>
               <h3 className="text-lg font-black text-slate-900 mt-1">
-                {acceptedPitchesCount > 0
+                {pitchesUnreadMsgsCount > 0
+                  ? `${pitchesUnreadMsgsCount} Unread ${
+                      pitchesUnreadMsgsCount === 1 ? 'Reply' : 'Replies'
+                    }`
+                  : acceptedPitchesCount > 0
                   ? `${acceptedPitchesCount} Accepted`
                   : 'Outbound Pipeline'}
               </h3>
               <p className="text-xs text-slate-500 mt-1">
-                {acceptedPitchesCount > 0
-                  ? 'Candidate identity & resume PDF unlocked'
+                {pitchesUnreadMsgsCount > 0
+                  ? 'Candidates replied in your secure pitch threads'
+                  : acceptedPitchesCount > 0
+                  ? 'Message accepted matches & view released vaults'
                   : 'Track connection pitches sent to talent'}
               </p>
             </div>
             <p className="text-xs font-bold text-emerald-700 group-hover:text-emerald-800 mt-5">
-              View unlocked resumes →
+              Open pitch threads →
             </p>
           </Link>
 
@@ -540,7 +583,7 @@ export default async function DashboardPage({
                 : '/dashboard/employer/organization'
             }
             className={`group bg-white p-6 rounded-2xl border shadow-xs hover:shadow-md transition-all flex flex-col justify-between ${
-              pendingAppsCount > 0
+              inboundUnreadMsgsCount > 0 || pendingAppsCount > 0
                 ? 'border-2 border-indigo-500/40'
                 : 'border-slate-200 hover:border-slate-400'
             }`}
@@ -550,7 +593,12 @@ export default async function DashboardPage({
                 <span className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-base">
                   👥
                 </span>
-                <div className="flex items-center gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {inboundUnreadMsgsCount > 0 && (
+                    <span className="px-2 py-0.5 text-[11px] font-extrabold bg-emerald-600 text-white rounded-md animate-pulse">
+                      💬 {inboundUnreadMsgsCount} New Msg
+                    </span>
+                  )}
                   {pendingAppsCount > 0 && (
                     <span className="px-2 py-0.5 text-[11px] font-bold bg-indigo-600 text-white rounded-md">
                       {pendingAppsCount} New
@@ -565,12 +613,18 @@ export default async function DashboardPage({
                 Inbound Pipeline
               </p>
               <h3 className="text-lg font-black text-slate-900 mt-1">
-                {pendingAppsCount > 0
+                {inboundUnreadMsgsCount > 0
+                  ? `${inboundUnreadMsgsCount} Unread ${
+                      inboundUnreadMsgsCount === 1 ? 'Message' : 'Messages'
+                    }`
+                  : pendingAppsCount > 0
                   ? `${pendingAppsCount} Awaiting Review`
                   : 'Applicant Pipeline'}
               </h3>
               <p className="text-xs text-slate-500 mt-1">
-                Review blind skill matrices &amp; unlock profiles
+                {inboundUnreadMsgsCount > 0
+                  ? 'Applicants replied or released their resume vault'
+                  : 'Review blind skill matrices & unlock profiles'}
               </p>
             </div>
             <p className="text-xs font-bold text-indigo-600 group-hover:text-indigo-800 mt-5">
@@ -583,7 +637,7 @@ export default async function DashboardPage({
   }
 
   // ============================================================================
-  // STREAMLINED CANDIDATE VIEW (PRODUCTION — NO SANDBOX BUTTONS)
+  // STREAMLINED CANDIDATE VIEW (WITH UNREAD MESSAGE INDICATORS)
   // ============================================================================
   const isVerified = Boolean(
     profile?.identity_verified === true ||
@@ -595,31 +649,34 @@ export default async function DashboardPage({
 
   const candidateTierInfo = await resolveCandidateTierInfo(user.id)
 
-  const { count: applicationCount } = await supabase
+  const { data: allCandidateApps } = await supabase
     .from('applications')
-    .select('*', { count: 'exact', head: true })
+    .select('id, job_id, status, is_revealed, initiated_by, match_data')
     .eq('candidate_id', user.id)
-    .neq('initiated_by', 'employer')
 
-  const { count: pendingRequestsCount } = await supabase
-    .from('applications')
-    .select('*', { count: 'exact', head: true })
-    .eq('candidate_id', user.id)
-    .eq('initiated_by', 'employer')
-    .eq('status', 'pending')
+  const candidateRecords = allCandidateApps || []
+  const outboundCandidateApps = candidateRecords.filter(
+    (a) => a.initiated_by !== 'employer'
+  )
+  const inboundEmployerPitches = candidateRecords.filter(
+    (a) => a.initiated_by === 'employer'
+  )
+
+  const applicationCount = outboundCandidateApps.length
+  const pendingRequestsCount = inboundEmployerPitches.filter(
+    (a) => a.status === 'pending' && !a.is_revealed
+  ).length
+
+  const unreadOutboundMsgsCount = outboundCandidateApps.filter((a) =>
+    hasUnreadThreadMessage(a, 'candidate')
+  ).length
+  const unreadPitchMsgsCount = inboundEmployerPitches.filter((a) =>
+    hasUnreadThreadMessage(a, 'candidate')
+  ).length
 
   const hasProfileData = !!(profile?.skills && profile?.bio)
 
-  const { data: userApps } = await supabase
-    .from('applications')
-    .select('job_id, initiated_by')
-    .eq('candidate_id', user.id)
-
-  const appliedJobIds = new Set(
-    (userApps || [])
-      .filter((a) => a.initiated_by !== 'employer')
-      .map((a) => a.job_id)
-  )
+  const appliedJobIds = new Set(outboundCandidateApps.map((a) => a.job_id))
 
   let recommendedJobs: any[] = []
 
@@ -736,7 +793,7 @@ export default async function DashboardPage({
         </div>
       </header>
 
-      {/* UNVERIFIED PROMPT BANNER (Only shows if Candidate is not yet verified) */}
+      {/* UNVERIFIED PROMPT BANNER */}
       {!isVerified && (
         <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
@@ -794,7 +851,7 @@ export default async function DashboardPage({
         <Link
           href="/dashboard/requests"
           className={`group bg-white p-6 rounded-2xl border shadow-xs hover:shadow-md transition-all flex flex-col justify-between ${
-            (pendingRequestsCount ?? 0) > 0
+            unreadPitchMsgsCount > 0 || pendingRequestsCount > 0
               ? 'border-2 border-violet-500/40'
               : 'border-slate-200 hover:border-slate-400'
           }`}
@@ -804,14 +861,19 @@ export default async function DashboardPage({
               <span className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center text-base">
                 ⚡
               </span>
-              <div className="flex items-center gap-1.5">
-                {(pendingRequestsCount ?? 0) > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {unreadPitchMsgsCount > 0 && (
+                  <span className="px-2 py-0.5 text-[11px] font-extrabold bg-emerald-600 text-white rounded-md animate-pulse">
+                    💬 {unreadPitchMsgsCount} New Msg
+                  </span>
+                )}
+                {pendingRequestsCount > 0 && (
                   <span className="px-2 py-0.5 text-[11px] font-bold bg-violet-600 text-white rounded-md">
                     {pendingRequestsCount} New!
                   </span>
                 )}
                 <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
-                  {pendingRequestsCount || 0}
+                  {inboundEmployerPitches.length}
                 </span>
               </div>
             </div>
@@ -819,12 +881,18 @@ export default async function DashboardPage({
               Employer Pitches
             </p>
             <h3 className="text-lg font-black text-slate-900 mt-1">
-              {(pendingRequestsCount ?? 0) > 0
+              {unreadPitchMsgsCount > 0
+                ? `${unreadPitchMsgsCount} Unread ${
+                    unreadPitchMsgsCount === 1 ? 'Message' : 'Messages'
+                  }`
+                : pendingRequestsCount > 0
                 ? `${pendingRequestsCount} Pending`
                 : 'Inbound Inbox'}
             </h3>
             <p className="text-xs text-slate-500 mt-1">
-              Review direct role pitches from verified employers
+              {unreadPitchMsgsCount > 0
+                ? 'An employer sent you a message in your pitch inbox'
+                : 'Review direct role pitches from verified employers'}
             </p>
           </div>
           <p className="text-xs font-bold text-violet-600 mt-5">
@@ -834,29 +902,46 @@ export default async function DashboardPage({
 
         <Link
           href="/dashboard/applications"
-          className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-400 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+          className={`group bg-white p-6 rounded-2xl border shadow-xs hover:shadow-md transition-all flex flex-col justify-between ${
+            unreadOutboundMsgsCount > 0
+              ? 'border-2 border-cyan-500/50'
+              : 'border-slate-200 hover:border-slate-400'
+          }`}
         >
           <div>
             <div className="flex items-center justify-between mb-4">
               <span className="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-base">
                 🎯
               </span>
-              <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
-                {applicationCount || 0}
-              </span>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {unreadOutboundMsgsCount > 0 && (
+                  <span className="px-2 py-0.5 text-[11px] font-extrabold bg-emerald-600 text-white rounded-md animate-pulse">
+                    💬 {unreadOutboundMsgsCount} New Msg
+                  </span>
+                )}
+                <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
+                  {applicationCount}
+                </span>
+              </div>
             </div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               Outbound Pipeline
             </p>
             <h3 className="text-lg font-black text-slate-900 mt-1">
-              Applications
+              {unreadOutboundMsgsCount > 0
+                ? `${unreadOutboundMsgsCount} Unread ${
+                    unreadOutboundMsgsCount === 1 ? 'Message' : 'Messages'
+                  }`
+                : 'Applications'}
             </h3>
             <p className="text-xs text-slate-500 mt-1">
-              Track blind applications &amp; unlocked employers
+              {unreadOutboundMsgsCount > 0
+                ? 'An employer messaged you about your application!'
+                : 'Track blind applications & unlocked employers'}
             </p>
           </div>
           <p className="text-xs font-bold text-cyan-600 mt-5">
-            Track status →
+            {unreadOutboundMsgsCount > 0 ? 'Read & reply →' : 'Track status →'}
           </p>
         </Link>
 

@@ -19,6 +19,46 @@ function cleanEnvKey(rawKey?: string | null): string {
   return rawKey.trim().replace(/^["']+|["']+$/g, '').trim()
 }
 
+function getAdminSupabaseClient() {
+  const supabaseUrl = cleanEnvKey(process.env.NEXT_PUBLIC_SUPABASE_URL)
+  const serviceRoleKey = cleanEnvKey(process.env.SUPABASE_SERVICE_ROLE_KEY)
+  if (!supabaseUrl || !serviceRoleKey) return null
+  return createSupabaseAdminClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+}
+
+async function resolveAuthUserEmail(userId?: string | null): Promise<string | null> {
+  if (!userId) return null
+  const adminClient = getAdminSupabaseClient()
+  if (!adminClient) return null
+  try {
+    const { data } = await adminClient.auth.admin.getUserById(userId)
+    return data?.user?.email || null
+  } catch {
+    return null
+  }
+}
+
+async function resolveOrganizationOwnerEmail(
+  supabase: any,
+  organizationId?: string | null
+): Promise<string | null> {
+  if (!organizationId) return null
+  try {
+    const { data: members } = await supabase
+      .from('organization_members')
+      .select('user_id, role')
+      .eq('organization_id', organizationId)
+
+    if (!members || members.length === 0) return null
+    const owner = members.find((m: any) => m.role === 'owner') || members[0]
+    return await resolveAuthUserEmail(owner.user_id)
+  } catch {
+    return null
+  }
+}
+
 function formatReferenceId(applicationId: string): string {
   const clean = (applicationId || '').replace(/-/g, '').substring(0, 8).toUpperCase()
   return `SS-${clean || '00000000'}`
@@ -59,14 +99,9 @@ async function mintSignedResumeUrl(
   const storagePath = extractResumeStoragePath(rawUrlOrPath)
   if (!storagePath) return rawUrlOrPath || null
 
-  const supabaseUrl = cleanEnvKey(process.env.NEXT_PUBLIC_SUPABASE_URL)
-  const serviceRoleKey = cleanEnvKey(process.env.SUPABASE_SERVICE_ROLE_KEY)
-
-  if (supabaseUrl && serviceRoleKey) {
+  const adminClient = getAdminSupabaseClient()
+  if (adminClient) {
     try {
-      const adminClient = createSupabaseAdminClient(supabaseUrl, serviceRoleKey, {
-        auth: { persistSession: false, autoRefreshToken: false },
-      })
       const { data, error } = await adminClient.storage
         .from('resumes')
         .createSignedUrl(storagePath, expiresInSeconds)
@@ -147,7 +182,6 @@ async function sendThreadEmailNotification({
   const rawRecipient = (to || '').trim()
   const fallbackInbox = cleanEnvKey(process.env.RESEND_TEST_TO_EMAIL)
   const resendKey = cleanEnvKey(process.env.RESEND_API_KEY)
-  if (!resendKey) return
 
   const isFakeTestAddress =
     rawRecipient.endsWith('@test.com') || rawRecipient.endsWith('@example.com')
@@ -156,20 +190,36 @@ async function sendThreadEmailNotification({
       ? fallbackInbox || rawRecipient
       : rawRecipient
 
-  if (!primaryRecipient) return
-
   const appUrl =
     cleanEnvKey(process.env.NEXT_PUBLIC_SITE_URL) || 'http://localhost:3000'
   const fullUrl = `${appUrl}${ctaUrl}`
+
+  console.log('\n======================================================')
+  console.log(`💬 SECURE MESSAGE EMAIL RELAY [${referenceId}]`)
+  console.log(`Intended Recipient: ${rawRecipient || '(None)'}`)
+  console.log(`Actual Recipient:   ${primaryRecipient || '(None)'}`)
+  console.log(`Subject:            [${referenceId}] ${subject}`)
+
+  if (!resendKey || !primaryRecipient) {
+    console.warn('⚠️  MESSAGE EMAIL SKIPPED: Missing RESEND_API_KEY or recipient email.')
+    console.log('======================================================\n')
+    return
+  }
+
   const fromAddress =
     cleanEnvKey(process.env.RESEND_FROM_EMAIL) ||
     'Special Sauce <onboarding@resend.dev>'
 
-  const html = `
+  const buildHtml = (intendedNote?: string) => `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+      ${
+        intendedNote
+          ? `<div style="margin-bottom: 12px; padding: 8px 12px; background-color: #fef3c7; color: #92400e; border-radius: 8px; font-size: 11px; font-weight: 700;">${intendedNote}</div>`
+          : ''
+      }
       <div style="margin-bottom: 16px;">
         <span style="display: inline-block; padding: 4px 10px; background-color: #eef2ff; color: #4338ca; border-radius: 6px; font-size: 12px; font-weight: 700; font-family: monospace;">
-          Secure Thread: ${referenceId}
+          Encrypted Thread: ${referenceId}
         </span>
       </div>
       <h2 style="color: #0f172a; font-size: 20px; font-weight: 800; margin: 0 0 12px 0;">
@@ -190,7 +240,7 @@ async function sendThreadEmailNotification({
   `
 
   try {
-    await fetch('https://api.resend.com/emails', {
+    const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${resendKey}`,
@@ -200,12 +250,33 @@ async function sendThreadEmailNotification({
         from: fromAddress,
         to: [primaryRecipient],
         subject: `[${referenceId}] ${subject}`,
-        html,
+        html: buildHtml(
+          primaryRecipient !== rawRecipient && rawRecipient
+            ? `Sandbox Routing: Originally addressed to ${rawRecipient}`
+            : undefined
+        ),
       }),
     })
+
+    if (!response.ok && fallbackInbox && fallbackInbox !== primaryRecipient) {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${resendKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: [fallbackInbox],
+          subject: `[${referenceId}] ${subject}`,
+          html: buildHtml(`Sandbox Fallback: Originally addressed to ${rawRecipient}`),
+        }),
+      })
+    }
   } catch (err) {
     console.warn('Thread email notification warning:', err)
   }
+  console.log('======================================================\n')
 }
 
 // ------------------------------------------------------------------
@@ -293,12 +364,14 @@ export async function sendApplicationMessage(
       `
       id,
       candidate_id,
+      initiated_by,
       is_revealed,
       status,
       match_data,
       jobs (
         id,
         title,
+        employer_id,
         organization_id,
         organizations:organization_id (name, domain)
       ),
@@ -374,14 +447,38 @@ export async function sendApplicationMessage(
       ? existingMatchData.employer_messaged_at || nowIso
       : existingMatchData.employer_messaged_at || null
 
+  // Resolve authoritative emails so future messages & notifications never miss
+  const resolvedCandidateEmail =
+    existingMatchData.candidate_contact_email ||
+    profileObj?.contact_email ||
+    profileObj?.email ||
+    (isCandidate ? user.email : await resolveAuthUserEmail(appRow.candidate_id)) ||
+    null
+
+  const resolvedEmployerEmail =
+    existingMatchData.employer_contact_email ||
+    (!isCandidate ? user.email : null) ||
+    (await resolveAuthUserEmail(jobObj?.employer_id)) ||
+    (await resolveOrganizationOwnerEmail(supabase, jobObj?.organization_id)) ||
+    (orgObj?.domain ? `hiring@${orgObj.domain}` : null)
+
   const updatedMatchData = {
     ...existingMatchData,
     messages: updatedMessages,
     employer_messaged_at: employerMessagedAt,
     last_message_at: nowIso,
+    last_message_sender: senderRole,
+    ...(resolvedCandidateEmail
+      ? { candidate_contact_email: resolvedCandidateEmail }
+      : {}),
+    ...(resolvedEmployerEmail
+      ? { employer_contact_email: resolvedEmployerEmail }
+      : {}),
+    ...(senderRole === 'employer'
+      ? { employer_last_read_at: nowIso }
+      : { candidate_last_read_at: nowIso }),
   }
 
-  // Also ensure is_revealed is true whenever an employer messages a thread
   const { error: updateErr } = await supabase
     .from('applications')
     .update({
@@ -396,48 +493,44 @@ export async function sendApplicationMessage(
 
   const refId = formatReferenceId(applicationId)
   const roleTitle = jobObj?.title || 'Open Role'
+  const isEmployerInitiatedPitch = appRow.initiated_by === 'employer'
 
   if (senderRole === 'employer') {
-    const candidateEmail =
-      existingMatchData.candidate_contact_email ||
-      profileObj?.contact_email ||
-      profileObj?.email ||
-      null
-
     await sendThreadEmailNotification({
-      to: candidateEmail,
-      subject: `New message from ${senderDisplayName} regarding ${roleTitle}`,
+      to: resolvedCandidateEmail,
+      subject: `New secure message from ${senderDisplayName} regarding ${roleTitle}`,
       referenceId: refId,
-      heading: `New Message from ${senderDisplayName}`,
+      heading: `New Secure Message from ${senderDisplayName}`,
       bodyLines: [
-        `${senderDisplayName} sent you a message regarding "${roleTitle}":`,
+        `${senderDisplayName} sent you a secure message regarding "${roleTitle}":`,
         `"${trimmed}"`,
         isVaultReleased
           ? 'Your contact card and resume are unlocked for this employer.'
           : '🔒 Stage 1 Privacy Active: Your raw email and PDF resume are still vaulted. You can reply in the thread and release your full resume whenever you are ready.',
       ],
-      ctaUrl: '/dashboard/applications',
-      ctaLabel: 'Reply & Manage Vault Access →',
+      ctaUrl: isEmployerInitiatedPitch
+        ? '/dashboard/requests'
+        : '/dashboard/applications',
+      ctaLabel: 'View & Reply in Secure Thread →',
     })
   } else {
-    const employerEmail =
-      existingMatchData.employer_contact_email ||
-      (orgObj?.domain ? `hiring@${orgObj.domain}` : null)
-
     await sendThreadEmailNotification({
-      to: employerEmail,
+      to: resolvedEmployerEmail,
       subject: `New reply from ${senderDisplayName} for ${roleTitle}`,
       referenceId: refId,
       heading: `Candidate Reply for ${roleTitle}`,
       bodyLines: [
-        `${senderDisplayName} replied in your secure thread (${refId}):`,
+        `${senderDisplayName} replied in your encrypted thread (${refId}):`,
         `"${trimmed}"`,
       ],
-      ctaUrl: '/dashboard/employer/applications',
+      ctaUrl: isEmployerInitiatedPitch
+        ? '/dashboard/employer/pitches'
+        : '/dashboard/employer/applications',
       ctaLabel: 'Open Secure Thread →',
     })
   }
 
+  revalidatePath('/dashboard')
   revalidatePath('/dashboard/applications')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
@@ -473,10 +566,12 @@ export async function releaseCandidateVaultToEmployer(
       `
       id,
       candidate_id,
+      initiated_by,
       match_data,
       jobs (
         id,
         title,
+        employer_id,
         organization_id,
         organizations:organization_id (name, domain)
       ),
@@ -533,6 +628,8 @@ export async function releaseCandidateVaultToEmployer(
     candidate_vault_released_at: nowIso,
     candidate_full_name: fullName,
     candidate_contact_email: candidateEmail,
+    last_message_at: nowIso,
+    last_message_sender: 'candidate',
     messages: [...existingMessages, systemMessage],
   }
 
@@ -552,6 +649,8 @@ export async function releaseCandidateVaultToEmployer(
   const refId = formatReferenceId(applicationId)
   const employerEmail =
     existingMatchData.employer_contact_email ||
+    (await resolveAuthUserEmail(jobObj?.employer_id)) ||
+    (await resolveOrganizationOwnerEmail(supabase, jobObj?.organization_id)) ||
     (orgObj?.domain ? `hiring@${orgObj.domain}` : null)
 
   await sendThreadEmailNotification({
@@ -569,10 +668,14 @@ export async function releaseCandidateVaultToEmployer(
       `Direct Email: ${candidateEmail || 'Available in dashboard'}`,
       `You can now download their original PDF resume and contact them directly.`,
     ],
-    ctaUrl: '/dashboard/employer/applications',
+    ctaUrl:
+      appRow.initiated_by === 'employer'
+        ? '/dashboard/employer/pitches'
+        : '/dashboard/employer/applications',
     ctaLabel: 'View Released Resume & Contact Card →',
   })
 
+  revalidatePath('/dashboard')
   revalidatePath('/dashboard/applications')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
@@ -629,9 +732,12 @@ export async function getVaultReleasedResumeUrl(
 }
 
 // ------------------------------------------------------------------
-// 5. DIRECT, ZERO-JOIN LIVE THREAD SYNC (NEVER CACHED BY NEXT.JS 16)
+// 5. DIRECT, ZERO-JOIN LIVE THREAD SYNC + READ RECEIPT STAMP
 // ------------------------------------------------------------------
-export async function getApplicationThreadState(applicationId: string): Promise<{
+export async function getApplicationThreadState(
+  applicationId: string,
+  viewerRole?: 'employer' | 'candidate'
+): Promise<{
   messages: ThreadMessage[]
   vaultReleased: boolean
   isRevealed: boolean
@@ -656,7 +762,6 @@ export async function getApplicationThreadState(applicationId: string): Promise<
     }
   }
 
-  // Direct query on `applications` only (zero joins so RLS on profiles/organizations never blocks polling)
   const { data: appRow, error } = await supabase
     .from('applications')
     .select('id, candidate_id, is_revealed, status, match_data')
@@ -677,6 +782,31 @@ export async function getApplicationThreadState(applicationId: string): Promise<
     ? matchData.messages
     : []
   const vaultReleased = Boolean(matchData.candidate_vault_released === true)
+
+  // If the last message was sent by the other party, mark it read for this viewer so dashboard unread badges clear
+  const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null
+  const role: 'employer' | 'candidate' =
+    viewerRole || (appRow.candidate_id === user.id ? 'candidate' : 'employer')
+
+  if (lastMsg && lastMsg.sender_role !== role) {
+    const readKey =
+      role === 'candidate' ? 'candidate_last_read_at' : 'employer_last_read_at'
+    const lastReadIso = matchData[readKey]
+    if (
+      !lastReadIso ||
+      new Date(lastReadIso).getTime() < new Date(lastMsg.created_at).getTime()
+    ) {
+      await supabase
+        .from('applications')
+        .update({
+          match_data: {
+            ...matchData,
+            [readKey]: new Date().toISOString(),
+          },
+        })
+        .eq('id', applicationId)
+    }
+  }
 
   const resolvedEmployerEmail =
     matchData.employer_contact_email ||
