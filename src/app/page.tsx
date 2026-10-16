@@ -50,11 +50,11 @@ export default function LandingPage() {
         }
       `}</style>
 
-      {/* Navigation (Compact h-20 height) */}
+      {/* Navigation (Clean 3-part layout: Logo Left, Tagline Center, Sign In / Get Started Right) */}
       <nav className="fixed top-0 left-0 right-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6 md:px-12 h-20 flex items-center justify-between relative">
           {/* LEFT: Clickable Logo */}
-          <div className="flex items-center">
+          <div className="flex items-center shrink-0">
             <Link
               href="/"
               className="flex items-center hover:opacity-90 transition-opacity"
@@ -70,8 +70,8 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          {/* CENTERED: Tagline */}
-          <div className="absolute left-1/2 -translate-x-1/2 hidden lg:flex items-center gap-4">
+          {/* CENTERED: Tagline (With generous breathing room now that nav links are removed) */}
+          <div className="absolute left-1/2 -translate-x-1/2 hidden lg:flex items-center gap-4 pointer-events-none">
             <span className="h-5 w-px bg-slate-200"></span>
             <p className="text-[11px] font-bold text-slate-500 tracking-[0.15em] uppercase whitespace-nowrap">
               Securely Connecting Professionals &amp; Employers
@@ -79,31 +79,17 @@ export default function LandingPage() {
             <span className="h-5 w-px bg-slate-200"></span>
           </div>
 
-          {/* RIGHT: Quick CTAs */}
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={scrollToHowItWorks}
-              className="hidden md:inline-flex text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
-            >
-              How It Works
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowTechDocsModal(true)}
-              className="hidden sm:inline-flex text-xs font-bold text-slate-500 hover:text-indigo-600 transition-colors cursor-pointer"
-            >
-              Security &amp; Trust
-            </button>
+          {/* RIGHT: Only Sign In & Get Started */}
+          <div className="flex items-center gap-5 shrink-0">
             <Link
               href="/login"
-              className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
+              className="text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors"
             >
               Sign In
             </Link>
             <Link
               href="/signup"
-              className="px-4 py-2 bg-slate-900 text-white text-sm font-bold rounded-lg hover:bg-indigo-600 transition-colors shadow-sm"
+              className="px-4 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-indigo-600 transition-colors shadow-sm"
             >
               Get Started
             </Link>
@@ -297,7 +283,7 @@ export default function LandingPage() {
           />
         </div>
 
-        {/* Center Scroll-Down Cue */}
+        {/* Single Clean Scroll-Down Cue */}
         <button
           type="button"
           onClick={scrollToHowItWorks}
@@ -323,15 +309,15 @@ export default function LandingPage() {
           </span>
         </button>
 
-        {/* Side Navigational Pill */}
+        {/* Floating Bottom-Right Security & Trust Pill (Replaces the redundant "Learn More" scroll button!) */}
         <button
           type="button"
-          onClick={scrollToHowItWorks}
-          className="hidden xl:inline-flex items-center gap-2 fixed right-8 bottom-8 z-30 px-3.5 py-2 rounded-full bg-white/90 backdrop-blur border border-slate-200 shadow-md hover:border-slate-900 text-xs font-bold text-slate-700 hover:text-slate-900 transition-all cursor-pointer group"
+          onClick={() => setShowTechDocsModal(true)}
+          className="hidden sm:inline-flex items-center gap-2 fixed right-6 bottom-6 z-30 px-4 py-2.5 rounded-full bg-slate-900/95 backdrop-blur text-white border border-slate-700 shadow-lg hover:bg-indigo-600 hover:border-indigo-500 text-xs font-extrabold transition-all cursor-pointer group"
         >
-          <span>Learn More</span>
+          <span>🛡️ Security &amp; Trust</span>
           <svg
-            className="w-3.5 h-3.5 text-indigo-600 group-hover:translate-y-0.5 transition-transform"
+            className="w-3.5 h-3.5 text-emerald-400 group-hover:text-white transition-colors"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -340,7 +326,7 @@ export default function LandingPage() {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="2.5"
-              d="M19 9l-7 7-7-7"
+              d="M9 5l7 7-7 7"
             />
           </svg>
         </button>
@@ -694,7 +680,7 @@ export default function LandingPage() {
               onClick={() => setShowTechDocsModal(true)}
               className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer"
             >
-              Security &amp; Technical Docs
+              Security &amp; Trust
             </button>
             <Link
               href="/terms"
@@ -749,7 +735,7 @@ export default function LandingPage() {
               </button>
             </div>
 
-            {/* Dark Hero Header (Inside the scroll container so wheel/trackpad scrolling works here too!) */}
+            {/* Dark Hero Header */}
             <div className="bg-slate-900 text-white px-6 sm:px-8 pt-5 pb-7 border-b border-slate-800 space-y-2">
               <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
                 How Special Sauce Works Under the Hood
