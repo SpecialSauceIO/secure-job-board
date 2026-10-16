@@ -104,7 +104,6 @@ function scanMessageForSuspiciousContent(text: string): {
 } {
   const lower = text.toLowerCase()
 
-  // 1. Block requests for sensitive government/financial identifiers
   if (
     /\b(ssn|social security|bank account|routing number|wire transfer|whatsapp|telegram|signal app|crypto|usdt)\b/i.test(
       lower
@@ -117,7 +116,6 @@ function scanMessageForSuspiciousContent(text: string): {
     }
   }
 
-  // 2. Block mass-harvesting external form links before Stage 2 vault release
   if (/\b(forms\.gle|docs\.google\.com\/forms|bit\.ly|tinyurl\.com)\b/i.test(lower)) {
     return {
       flagged: true,
@@ -282,7 +280,6 @@ export async function sendApplicationMessage(
     return { error: 'Message is too long (max 2,000 characters).' }
   }
 
-  // Run AI / Heuristic Anti-Phishing & Anti-Harvesting check
   const safetyScan = scanMessageForSuspiciousContent(trimmed)
   if (safetyScan.flagged) {
     return { error: safetyScan.reason }
@@ -621,4 +618,89 @@ export async function getVaultReleasedResumeUrl(
 
   const signedUrl = await mintSignedResumeUrl(profileObj?.resume_url)
   return { signedUrl }
+}
+
+// ------------------------------------------------------------------
+// 5. LIVE THREAD SYNC ACTION (FOR REALTIME + BACKGROUND POLLING)
+// ------------------------------------------------------------------
+export async function getApplicationThreadState(applicationId: string): Promise<{
+  messages: ThreadMessage[]
+  vaultReleased: boolean
+  candidateFullName?: string | null
+  candidateEmail?: string | null
+  employerEmail?: string | null
+  error?: string
+}> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { messages: [], vaultReleased: false, error: 'Not authenticated' }
+  }
+
+  const { data: appRow, error } = await supabase
+    .from('applications')
+    .select(
+      `
+      id,
+      candidate_id,
+      match_data,
+      jobs (
+        organization_id,
+        organizations:organization_id (domain)
+      ),
+      profiles (
+        full_name,
+        name,
+        email,
+        contact_email
+      )
+    `
+    )
+    .eq('id', applicationId)
+    .single()
+
+  if (error || !appRow) {
+    return { messages: [], vaultReleased: false, error: 'Thread not found' }
+  }
+
+  const matchData = appRow.match_data || {}
+  const messages: ThreadMessage[] = Array.isArray(matchData.messages)
+    ? matchData.messages
+    : []
+  const vaultReleased = Boolean(matchData.candidate_vault_released === true)
+
+  const profileObj: any = Array.isArray(appRow.profiles)
+    ? appRow.profiles[0]
+    : appRow.profiles
+  const jobObj: any = Array.isArray(appRow.jobs) ? appRow.jobs[0] : appRow.jobs
+  const orgObj: any = Array.isArray(jobObj?.organizations)
+    ? jobObj?.organizations[0]
+    : jobObj?.organizations
+
+  const resolvedFullName =
+    profileObj?.full_name ||
+    profileObj?.name ||
+    matchData.candidate_full_name ||
+    null
+
+  const resolvedCandidateEmail =
+    matchData.candidate_contact_email ||
+    profileObj?.contact_email ||
+    profileObj?.email ||
+    null
+
+  const resolvedEmployerEmail =
+    matchData.employer_contact_email ||
+    (orgObj?.domain ? `hiring@${orgObj.domain}` : null)
+
+  return {
+    messages,
+    vaultReleased,
+    candidateFullName: vaultReleased ? resolvedFullName : null,
+    candidateEmail: vaultReleased ? resolvedCandidateEmail : null,
+    employerEmail: vaultReleased ? resolvedEmployerEmail : null,
+  }
 }

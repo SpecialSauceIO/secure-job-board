@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { createClient } from '@/utils/supabase/client'
 import {
   sendApplicationMessage,
   releaseCandidateVaultToEmployer,
   getVaultReleasedResumeUrl,
+  getApplicationThreadState,
   ThreadMessage,
 } from '@/app/dashboard/messaging-actions'
 
@@ -16,9 +18,9 @@ export default function SecureMessageThread({
   initialVaultReleased = false,
   employerName = 'Verified Employer',
   candidateDisplayName = 'Verified Candidate',
-  candidateFullName,
-  candidateEmail,
-  employerEmail,
+  candidateFullName: initialCandidateFullName,
+  candidateEmail: initialCandidateEmail,
+  employerEmail: initialEmployerEmail,
   initialResumeUrl,
 }: {
   applicationId: string
@@ -39,6 +41,15 @@ export default function SecureMessageThread({
   const [vaultReleased, setVaultReleased] = useState<boolean>(
     Boolean(initialVaultReleased)
   )
+  const [candidateFullName, setCandidateFullName] = useState<string | null>(
+    initialCandidateFullName || null
+  )
+  const [candidateEmail, setCandidateEmail] = useState<string | null>(
+    initialCandidateEmail || null
+  )
+  const [employerEmail, setEmployerEmail] = useState<string | null>(
+    initialEmployerEmail || null
+  )
   const [draft, setDraft] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [isReleasing, setIsReleasing] = useState(false)
@@ -47,6 +58,69 @@ export default function SecureMessageThread({
   )
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
+
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null)
+  const prevMsgCountRef = useRef<number>(messages.length)
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (messages.length > prevMsgCountRef.current && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop =
+        scrollContainerRef.current.scrollHeight
+    }
+    prevMsgCountRef.current = messages.length
+  }, [messages.length])
+
+  // Silent server state pull
+  const syncLatestThreadState = useCallback(async () => {
+    if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+      return
+    }
+    const res = await getApplicationThreadState(applicationId)
+    if (!res.error) {
+      setMessages((prev) => {
+        if (JSON.stringify(prev) !== JSON.stringify(res.messages)) {
+          return res.messages
+        }
+        return prev
+      })
+      setVaultReleased((prev) => (prev !== res.vaultReleased ? res.vaultReleased : prev))
+      if (res.candidateFullName) setCandidateFullName(res.candidateFullName)
+      if (res.candidateEmail) setCandidateEmail(res.candidateEmail)
+      if (res.employerEmail) setEmployerEmail(res.employerEmail)
+    }
+  }, [applicationId])
+
+  // Subscribe to Supabase Realtime + 4-second background heartbeat
+  useEffect(() => {
+    if (!applicationId) return
+
+    const supabase = createClient()
+    const channel = supabase
+      .channel(`thread-sync-${applicationId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'applications',
+          filter: `id=eq.${applicationId}`,
+        },
+        () => {
+          syncLatestThreadState()
+        }
+      )
+      .subscribe()
+
+    const intervalId = setInterval(() => {
+      syncLatestThreadState()
+    }, 4000)
+
+    return () => {
+      clearInterval(intervalId)
+      supabase.removeChannel(channel)
+    }
+  }, [applicationId, syncLatestThreadState])
 
   const hasEmployerMessaged = messages.some((m) => m.sender_role === 'employer')
 
@@ -82,16 +156,7 @@ export default function SecureMessageThread({
       setSuccessMsg(
         `Full Identity Vault (Resume PDF & Direct Email) released to ${employerName}!`
       )
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `sys-${Date.now()}`,
-          sender_role: 'system',
-          sender_name: 'Special Sauce Vault',
-          text: `🔓 Full Identity Vault (Direct Email & Signed Resume PDF) released to ${employerName}.`,
-          created_at: new Date().toISOString(),
-        },
-      ])
+      await syncLatestThreadState()
     }
     setIsReleasing(false)
   }
@@ -139,6 +204,10 @@ export default function SecureMessageThread({
               </span>
               <span className="px-2 py-0.5 rounded bg-white/80 border border-slate-200 text-[10px] font-mono font-bold text-slate-600">
                 {referenceId}
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100/80 text-emerald-800 text-[10px] font-extrabold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Live Sync
               </span>
             </div>
             <p className="text-[11px] text-slate-600 mt-0.5">
@@ -225,7 +294,10 @@ export default function SecureMessageThread({
       )}
 
       {/* Message History Feed */}
-      <div className="p-4 max-h-64 overflow-y-auto space-y-3 bg-slate-50/60">
+      <div
+        ref={scrollContainerRef}
+        className="p-4 max-h-64 overflow-y-auto space-y-3 bg-slate-50/60"
+      >
         {messages.length === 0 ? (
           <div className="text-center py-6 px-4">
             <p className="text-xs font-bold text-slate-600">
