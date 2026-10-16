@@ -8,6 +8,10 @@ import {
   toggleBookmarkItem,
 } from '@/app/dashboard/bookmark-actions'
 import {
+  STANDARD_INDUSTRY_VERTICALS,
+  normalizeIndustryVertical,
+} from '@/constants/industries'
+import {
   Radar,
   RadarChart,
   PolarGrid,
@@ -94,6 +98,11 @@ function extractJobCardMeta(job: any) {
   const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
   const isExpired = diffMs <= 0
 
+  const rawIndustry = job.industry || metaItem.industry || ''
+  const normalizedIndustry = rawIndustry
+    ? normalizeIndustryVertical(rawIndustry)
+    : ''
+
   return {
     formattedPay,
     payType,
@@ -105,7 +114,7 @@ function extractJobCardMeta(job: any) {
     employmentType:
       job.employment_type || metaItem.employment_type || 'Full-Time (W-2)',
     experienceLevel: job.experience_level || metaItem.experience_level || '',
-    industry: job.industry || metaItem.industry || '',
+    industry: normalizedIndustry,
     companySize: job.company_size || metaItem.company_size || '',
     workAuth: job.work_auth || metaItem.work_auth || '',
     daysRemaining,
@@ -131,6 +140,7 @@ export function CandidateJobFeed({
   const [sortBy, setSortBy] = useState<SortOption>('newest')
   const [employmentTypeFilter, setEmploymentTypeFilter] =
     useState<string>('all')
+  const [industryFilter, setIndustryFilter] = useState<string>('all')
   const [internalSavedIds, setInternalSavedIds] = useState<string[]>([])
   const [togglingSaveId, setTogglingSaveId] = useState<string | null>(null)
   const [analyzingId, setAnalyzingId] = useState<string | null>(null)
@@ -287,7 +297,7 @@ export function CandidateJobFeed({
     setApplyingId(null)
   }
 
-  // Filter out expired roles, apply employment type filter, and sort dynamically
+  // Filter out expired roles, apply employment type & industry filters, and sort dynamically
   const sortedAndFilteredJobs = useMemo(() => {
     const freshWithMeta = (jobList || [])
       .map((job) => ({
@@ -305,6 +315,14 @@ export function CandidateJobFeed({
               .includes(employmentTypeFilter.toLowerCase())
           )
 
+    const filteredByIndustry =
+      industryFilter === 'all'
+        ? filteredByType
+        : filteredByType.filter(
+            (item) =>
+              item.meta.industry.toLowerCase() === industryFilter.toLowerCase()
+          )
+
     const workModelPriority = (model?: string): number => {
       const m = (model || '').toLowerCase().trim()
       if (m === 'remote') return 1
@@ -313,7 +331,7 @@ export function CandidateJobFeed({
       return 4
     }
 
-    const sorted = [...filteredByType].sort((a, b) => {
+    const sorted = [...filteredByIndustry].sort((a, b) => {
       switch (sortBy) {
         case 'newest':
           return b.meta.startMs - a.meta.startMs
@@ -342,7 +360,7 @@ export function CandidateJobFeed({
     })
 
     return sorted
-  }, [jobList, sortBy, employmentTypeFilter])
+  }, [jobList, sortBy, employmentTypeFilter, industryFilter])
 
   const totalFreshCount = useMemo(() => {
     return (jobList || []).filter((j) => !extractJobCardMeta(j).isExpired).length
@@ -384,50 +402,77 @@ export function CandidateJobFeed({
 
   return (
     <div className="space-y-6">
-      {/* SORT & WORK TYPE ORGANIZER BAR */}
+      {/* SORT, INDUSTRY VERTICAL & WORK TYPE ORGANIZER BAR */}
       {showSortControls && (
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          {/* Employment Type Quick Filter Pills */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mr-1.5">
-              Work Type:
-            </span>
-            {[
-              { id: 'all', label: 'All Types' },
-              { id: 'Full-Time', label: 'Full-Time (W-2)' },
-              { id: 'Contract (1099', label: 'Contract (1099 / C2C)' },
-              { id: 'Contract-to-Hire', label: 'Contract-to-Hire' },
-              { id: 'Part-Time', label: 'Part-Time' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setEmploymentTypeFilter(tab.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  employmentTypeFilter === tab.id
-                    ? 'bg-slate-900 text-white shadow-2xs'
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/70'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3.5">
+          {/* Row 1: Employment Type Quick Filter Pills + Role Count */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mr-1.5">
+                Work Type:
+              </span>
+              {[
+                { id: 'all', label: 'All Types' },
+                { id: 'Full-Time', label: 'Full-Time (W-2)' },
+                { id: '1099', label: 'Contract (1099 / C2C)' },
+                { id: 'Contract-to-Hire', label: 'Contract-to-Hire' },
+                { id: 'Part-Time', label: 'Part-Time' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setEmploymentTypeFilter(tab.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    employmentTypeFilter === tab.id
+                      ? 'bg-slate-900 text-white shadow-2xs'
+                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/70'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
 
-          {/* Sort By Dropdown */}
-          <div className="flex items-center justify-between lg:justify-end gap-3 shrink-0 border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-100">
             <span className="text-xs font-bold text-slate-500">
               Showing{' '}
               <strong className="text-slate-900">
                 {sortedAndFilteredJobs.length}
               </strong>{' '}
-              {sortedAndFilteredJobs.length === 1 ? 'role' : 'roles'}
+              of {totalFreshCount}{' '}
+              {totalFreshCount === 1 ? 'active role' : 'active roles'}
             </span>
+          </div>
 
+          {/* Row 2: Industry Vertical Dropdown + Sort By Dropdown */}
+          <div className="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Industry Vertical Filter */}
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="candidate-industry-filter"
+                className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
+              >
+                Industry:
+              </label>
+              <select
+                id="candidate-industry-filter"
+                value={industryFilter}
+                onChange={(e) => setIndustryFilter(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
+              >
+                <option value="all">All Industry Verticals</option>
+                {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
+                  <option key={vertical} value={vertical}>
+                    {vertical}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Sort By Dropdown */}
             <div className="flex items-center gap-2">
               <label
                 htmlFor="candidate-job-sort"
-                className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap"
+                className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
               >
                 Sort By:
               </label>
@@ -435,7 +480,7 @@ export function CandidateJobFeed({
                 id="candidate-job-sort"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
               >
                 <option value="newest">Newest Posted (Freshness)</option>
                 <option value="closing_soon">
@@ -460,14 +505,17 @@ export function CandidateJobFeed({
       {sortedAndFilteredJobs.length === 0 ? (
         <div className="bg-white p-10 rounded-2xl border border-slate-200 text-center shadow-xs">
           <p className="text-sm font-bold text-slate-700 mb-2">
-            No open roles match that specific Employment Type filter.
+            No open roles match your selected Work Type or Industry Vertical filter.
           </p>
           <button
             type="button"
-            onClick={() => setEmploymentTypeFilter('all')}
+            onClick={() => {
+              setEmploymentTypeFilter('all')
+              setIndustryFilter('all')
+            }}
             className="px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer"
           >
-            Reset Work Type Filter →
+            Reset Work Type &amp; Industry Filters →
           </button>
         </div>
       ) : (
