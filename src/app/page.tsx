@@ -15,11 +15,18 @@ export default function LandingPage() {
     return () => clearInterval(timer)
   }, [])
 
+  const scrollToHowItWorks = () => {
+    const el = document.getElementById('how-it-works')
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 h-24 flex items-center justify-between relative">
+      {/* Navigation (Compact h-20 height) */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/85 backdrop-blur-md border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 h-20 flex items-center justify-between relative">
           
           {/* LEFT: Clickable Logo */}
           <div className="flex items-center">
@@ -29,7 +36,7 @@ export default function LandingPage() {
                 alt="specialsauce.io Logo" 
                 width={300} 
                 height={75} 
-                className="w-[210px] sm:w-[260px] h-auto"
+                className="w-[185px] sm:w-[225px] h-auto"
                 priority
               />
             </Link>
@@ -37,15 +44,22 @@ export default function LandingPage() {
 
           {/* CENTERED: Tagline */}
           <div className="absolute left-1/2 -translate-x-1/2 hidden lg:flex items-center gap-4">
-            <span className="h-6 w-px bg-slate-250"></span>
-            <p className="text-xs font-bold text-slate-500 tracking-[0.15em] uppercase whitespace-nowrap">
-              Securely Connecting Professionals & Employers
+            <span className="h-5 w-px bg-slate-200"></span>
+            <p className="text-[11px] font-bold text-slate-500 tracking-[0.15em] uppercase whitespace-nowrap">
+              Securely Connecting Professionals &amp; Employers
             </p>
-            <span className="h-6 w-px bg-slate-250"></span>
+            <span className="h-5 w-px bg-slate-200"></span>
           </div>
 
           {/* RIGHT: Quick CTAs */}
           <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={scrollToHowItWorks}
+              className="hidden md:inline-flex text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
+            >
+              How It Works
+            </button>
             <Link href="/login" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
               Sign In
             </Link>
@@ -57,80 +71,80 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-40 pb-20 px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center text-center">
+      {/* Hero Section (Compact vertical footprint so CTAs + Scroll Cue fit comfortably on all screens) */}
+      <section className="relative pt-28 pb-10 px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center text-center">
         
         {/* Cross-fading text container */}
-        <div className="grid [grid-template-areas:'stack'] mb-10 w-full place-items-center">
+        <div className="grid [grid-template-areas:'stack'] mb-6 w-full place-items-center">
           
           {/* SLIDE 0: The End of Traditional Recruiting (Flagship Opening Slide) */}
-          <div className={`[grid-area:stack] flex flex-col items-center transition-all duration-1000 ${currentSlide === 0 ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 -translate-y-4 z-0 pointer-events-none'}`}>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-50 border border-violet-200 text-violet-700 text-xs font-bold uppercase tracking-wide mb-8">
+          <div className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${currentSlide === 0 ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 pointer-events-none z-0'}`}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-50 border border-violet-200 text-violet-700 text-[11px] font-bold uppercase tracking-wide mb-5">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-600"></span>
               </span>
               The End of Traditional Recruiting
             </div>
-            <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Changing the Hiring <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-orange-500">Landscape.</span><br />
               For good.
             </h1>
-            <p className="text-lg md:text-xl text-slate-500 max-w-2xl leading-relaxed">
+            <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
               We stripped away the noise, the bias, and the black-hole job boards—replacing them with verified identities, blind skill matrices, and pure 1-to-1 merit.
             </p>
           </div>
 
           {/* SLIDE 1: Platform Integrity */}
-          <div className={`[grid-area:stack] flex flex-col items-center transition-all duration-1000 ${currentSlide === 1 ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 -translate-y-4 z-0 pointer-events-none'}`}>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-700 text-xs font-bold uppercase tracking-wide mb-8">
+          <div className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${currentSlide === 1 ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 pointer-events-none z-0'}`}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-100 text-orange-700 text-[11px] font-bold uppercase tracking-wide mb-5">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
               </span>
               Platform Integrity
             </div>
-            <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Zero <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-rose-500">Spam.</span><br />
               No more bots.
             </h1>
-            <p className="text-lg md:text-xl text-slate-500 max-w-2xl leading-relaxed">
+            <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
               Say goodbye to automated application blizzards and phantom job postings. Our closed-loop extraction system ensures every applicant is a real professional and every role is a genuine opportunity.
             </p>
           </div>
 
           {/* SLIDE 2: Employers */}
-          <div className={`[grid-area:stack] flex flex-col items-center transition-all duration-1000 ${currentSlide === 2 ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 translate-y-4 z-0 pointer-events-none'}`}>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-wide mb-8">
+          <div className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${currentSlide === 2 ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 pointer-events-none z-0'}`}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-[11px] font-bold uppercase tracking-wide mb-5">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
               </span>
               For Employers
             </div>
-            <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Hire for <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-500">Talent.</span><br />
               Not for background.
             </h1>
-            <p className="text-lg md:text-xl text-slate-500 max-w-2xl leading-relaxed">
+            <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
               specialsauce.io strips away names, photos, and bias. We use AI to extract pure skills and experience, letting candidates prove their worth and employers find the absolute best fit.
             </p>
           </div>
 
           {/* SLIDE 3: Candidates */}
-          <div className={`[grid-area:stack] flex flex-col items-center transition-all duration-1000 ${currentSlide === 3 ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 translate-y-4 z-0 pointer-events-none'}`}>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold uppercase tracking-wide mb-8">
+          <div className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${currentSlide === 3 ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 pointer-events-none z-0'}`}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-[11px] font-bold uppercase tracking-wide mb-5">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
               For Candidates
             </div>
-            <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Get hired for <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-emerald-400">Skills.</span><br />
               Not your pedigree.
             </h1>
-            <p className="text-lg md:text-xl text-slate-500 max-w-2xl leading-relaxed">
+            <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
               Bypass the resume black hole. Apply to real companies with an anonymous profile that highlights your true capabilities, putting your raw talent front and center.
             </p>
           </div>
@@ -138,27 +152,55 @@ export default function LandingPage() {
         </div>
         
         {/* CTAs */}
-        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto relative z-20">
-          <Link href="/signup/candidate" className="px-8 py-4 bg-slate-900 text-white text-base font-bold rounded-xl hover:bg-indigo-600 hover:-translate-y-1 transition-all shadow-lg hover:shadow-indigo-200 flex items-center justify-center gap-2">
-            I'm a Candidate
+        <div className="flex flex-col sm:flex-row gap-3.5 w-full sm:w-auto relative z-20">
+          <Link href="/signup/candidate" className="px-7 py-3.5 bg-slate-900 text-white text-sm sm:text-base font-bold rounded-xl hover:bg-indigo-600 hover:-translate-y-0.5 transition-all shadow-md hover:shadow-indigo-200 flex items-center justify-center gap-2">
+            I&apos;m a Candidate
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
           </Link>
-          <Link href="/signup/employer" className="px-8 py-4 bg-white text-slate-900 text-base font-bold rounded-xl border-2 border-slate-200 hover:border-slate-900 hover:-translate-y-1 transition-all shadow-sm flex items-center justify-center gap-2">
-            I'm an Employer
+          <Link href="/signup/employer" className="px-7 py-3.5 bg-white text-slate-900 text-sm sm:text-base font-bold rounded-xl border-2 border-slate-200 hover:border-slate-900 hover:-translate-y-0.5 transition-all shadow-xs flex items-center justify-center gap-2">
+            I&apos;m an Employer
           </Link>
         </div>
         
-        {/* Indicators */}
-        <div className="flex gap-2 mt-8 z-20 relative">
-          <button onClick={() => setCurrentSlide(0)} className={`w-2 h-2 rounded-full transition-all duration-300 ${currentSlide === 0 ? 'bg-violet-600 w-6' : 'bg-slate-300 hover:bg-slate-400'}`} aria-label="View changing the hiring landscape slide" />
-          <button onClick={() => setCurrentSlide(1)} className={`w-2 h-2 rounded-full transition-all duration-300 ${currentSlide === 1 ? 'bg-orange-500 w-6' : 'bg-slate-300 hover:bg-slate-400'}`} aria-label="View platform integrity slide" />
-          <button onClick={() => setCurrentSlide(2)} className={`w-2 h-2 rounded-full transition-all duration-300 ${currentSlide === 2 ? 'bg-indigo-600 w-6' : 'bg-slate-300 hover:bg-slate-400'}`} aria-label="View employer slide" />
-          <button onClick={() => setCurrentSlide(3)} className={`w-2 h-2 rounded-full transition-all duration-300 ${currentSlide === 3 ? 'bg-emerald-500 w-6' : 'bg-slate-300 hover:bg-slate-400'}`} aria-label="View candidate slide" />
+        {/* Slide Indicators */}
+        <div className="flex gap-2 mt-5 z-20 relative">
+          <button onClick={() => setCurrentSlide(0)} className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${currentSlide === 0 ? 'bg-violet-600 w-6' : 'bg-slate-300 hover:bg-slate-400'}`} aria-label="View changing the hiring landscape slide" />
+          <button onClick={() => setCurrentSlide(1)} className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${currentSlide === 1 ? 'bg-orange-500 w-6' : 'bg-slate-300 hover:bg-slate-400'}`} aria-label="View platform integrity slide" />
+          <button onClick={() => setCurrentSlide(2)} className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${currentSlide === 2 ? 'bg-indigo-600 w-6' : 'bg-slate-300 hover:bg-slate-400'}`} aria-label="View employer slide" />
+          <button onClick={() => setCurrentSlide(3)} className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${currentSlide === 3 ? 'bg-emerald-500 w-6' : 'bg-slate-300 hover:bg-slate-400'}`} aria-label="View candidate slide" />
         </div>
+
+        {/* Center Scroll-Down Cue (Visible right below the dots on all devices) */}
+        <button
+          type="button"
+          onClick={scrollToHowItWorks}
+          className="mt-6 inline-flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors group cursor-pointer z-20"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
+            Explore How It Works
+          </span>
+          <span className="w-6 h-6 rounded-full border border-slate-200 bg-white shadow-2xs flex items-center justify-center group-hover:border-indigo-300 transition-all">
+            <svg className="w-3 h-3 animate-bounce text-slate-500 group-hover:text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+            </svg>
+          </span>
+        </button>
+
+        {/* Side Navigational Tidbit (Floating right-side pill for wide desktop resolutions) */}
+        <button
+          type="button"
+          onClick={scrollToHowItWorks}
+          className="hidden xl:inline-flex items-center gap-2 fixed right-8 bottom-8 z-30 px-3.5 py-2 rounded-full bg-white/90 backdrop-blur border border-slate-200 shadow-md hover:border-slate-900 text-xs font-bold text-slate-700 hover:text-slate-900 transition-all cursor-pointer group"
+        >
+          <span>Learn More</span>
+          <svg className="w-3.5 h-3.5 text-indigo-600 group-hover:translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
       </section>
 
       {/* Feature Section */}
-      <section className="py-20 px-6 md:px-12 bg-white border-t border-slate-200">
+      <section id="how-it-works" className="scroll-mt-20 py-20 px-6 md:px-12 bg-white border-t border-slate-200">
         <div className="max-w-7xl mx-auto">
           
           {/* TRACK 1: CANDIDATES */}
@@ -327,7 +369,7 @@ export default function LandingPage() {
             />
           </Link>
           
-          {/* New Legal Links */}
+          {/* Legal Links */}
           <div className="flex items-center gap-6">
             <Link href="/terms" className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">
               Terms of Service
