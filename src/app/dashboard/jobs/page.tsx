@@ -41,6 +41,14 @@ export default function CandidateJobsPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    // Check if the user clicked "Saved Roles (X)" from the Dashboard (?saved=true)
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('saved') === 'true') {
+        setOnlySavedJobs(true)
+      }
+    }
+
     const initPage = async () => {
       setIsLoading(true)
       const supabase = createClient()

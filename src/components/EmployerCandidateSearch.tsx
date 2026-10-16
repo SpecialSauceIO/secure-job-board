@@ -93,6 +93,13 @@ export default function EmployerCandidateSearch({
 
   // 1. Initial Load: Fetch passive candidates & saved shortlist when the page first opens
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('saved') === 'true') {
+        setOnlyShortlisted(true)
+      }
+    }
+
     const fetchInitial = async () => {
       setIsLoading(true)
       const [result, bookmarks] = await Promise.all([
