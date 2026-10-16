@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import Stripe from 'stripe'
 import { CandidateJobFeed } from '@/components/CandidateJobFeed'
+import DashboardLiveSync from '@/components/DashboardLiveSync'
 import {
   setRole,
   resolveEmployerTierInfo,
@@ -260,7 +261,7 @@ export default async function DashboardPage({
   const { savedJobsCount, savedCandidatesCount } = extractBookmarkCounts(profile)
 
   // ============================================================================
-  // STREAMLINED EMPLOYER DASHBOARD (WITH UNREAD MESSAGE INDICATORS)
+  // STREAMLINED EMPLOYER DASHBOARD (WITH REAL-TIME LIVE SYNC)
   // ============================================================================
   if (profile?.role === 'employer') {
     const { data: member } = await supabase
@@ -346,6 +347,8 @@ export default async function DashboardPage({
 
     return (
       <div className="max-w-6xl mx-auto py-4 space-y-8">
+        <DashboardLiveSync />
+
         {/* CALM HERO ROW */}
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
           <div>
@@ -637,7 +640,7 @@ export default async function DashboardPage({
   }
 
   // ============================================================================
-  // STREAMLINED CANDIDATE VIEW (WITH UNREAD MESSAGE INDICATORS)
+  // STREAMLINED CANDIDATE VIEW (WITH REAL-TIME LIVE SYNC)
   // ============================================================================
   const isVerified = Boolean(
     profile?.identity_verified === true ||
@@ -724,6 +727,8 @@ export default async function DashboardPage({
 
   return (
     <div className="max-w-6xl mx-auto py-4 space-y-8">
+      <DashboardLiveSync />
+
       {/* CALM CANDIDATE HERO ROW */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div>

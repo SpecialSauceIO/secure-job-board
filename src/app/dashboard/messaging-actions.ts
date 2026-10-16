@@ -130,6 +130,29 @@ async function mintSignedResumeUrl(
   return null
 }
 
+function hasUnreadMsgForRole(
+  app: any,
+  viewerRole: 'employer' | 'candidate'
+): boolean {
+  const matchData = app?.match_data || {}
+  const messages = Array.isArray(matchData.messages) ? matchData.messages : []
+  if (messages.length === 0) return false
+
+  const lastMsg = messages[messages.length - 1]
+  if (!lastMsg || lastMsg.sender_role === viewerRole) return false
+
+  const readKey =
+    viewerRole === 'candidate'
+      ? 'candidate_last_read_at'
+      : 'employer_last_read_at'
+  const lastReadIso = matchData[readKey]
+  if (!lastReadIso) return true
+
+  return (
+    new Date(lastMsg.created_at).getTime() > new Date(lastReadIso).getTime()
+  )
+}
+
 // ------------------------------------------------------------------
 // AI / HEURISTIC ANTI-HARVESTING & PHISHING SCANNER
 // ------------------------------------------------------------------
@@ -447,7 +470,6 @@ export async function sendApplicationMessage(
       ? existingMatchData.employer_messaged_at || nowIso
       : existingMatchData.employer_messaged_at || null
 
-  // Resolve authoritative emails so future messages & notifications never miss
   const resolvedCandidateEmail =
     existingMatchData.candidate_contact_email ||
     profileObj?.contact_email ||
@@ -783,7 +805,6 @@ export async function getApplicationThreadState(
     : []
   const vaultReleased = Boolean(matchData.candidate_vault_released === true)
 
-  // If the last message was sent by the other party, mark it read for this viewer so dashboard unread badges clear
   const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null
   const role: 'employer' | 'candidate' =
     viewerRole || (appRow.candidate_id === user.id ? 'candidate' : 'employer')
@@ -822,5 +843,92 @@ export async function getApplicationThreadState(
     candidateFullName: vaultReleased ? matchData.candidate_full_name || null : null,
     candidateEmail: vaultReleased ? matchData.candidate_contact_email || null : null,
     employerEmail: vaultReleased ? resolvedEmployerEmail : null,
+  }
+}
+
+// ------------------------------------------------------------------
+// 6. MAIN DASHBOARD LIVE PULSE (FOR REAL-TIME CARD BADGE REFRESH)
+// ------------------------------------------------------------------
+export async function getDashboardLivePulse(): Promise<{
+  signature: string
+  totalUnreadMessages: number
+}> {
+  noStore()
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { signature: 'anon', totalUnreadMessages: 0 }
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.role === 'employer') {
+    const { data: member } = await supabase
+      .from('organization_members')
+      .select('organization_id')
+      .eq('user_id', user.id)
+      .limit(1)
+      .maybeSingle()
+
+    if (!member?.organization_id) {
+      return { signature: 'emp-none', totalUnreadMessages: 0 }
+    }
+
+    const { data: jobs } = await supabase
+      .from('jobs')
+      .select('id')
+      .eq('organization_id', member.organization_id)
+
+    const jobIds = (jobs || []).map((j) => j.id)
+    if (jobIds.length === 0) {
+      return { signature: 'emp-0', totalUnreadMessages: 0 }
+    }
+
+    const { data: apps } = await supabase
+      .from('applications')
+      .select('id, status, is_revealed, initiated_by, match_data')
+      .in('job_id', jobIds)
+
+    const list = apps || []
+    const unreadCount = list.filter((a) =>
+      hasUnreadMsgForRole(a, 'employer')
+    ).length
+    const unlockedCount = list.filter(
+      (a) => a.is_revealed || a.status === 'accepted'
+    ).length
+
+    return {
+      signature: `emp:${list.length}:${unlockedCount}:${unreadCount}`,
+      totalUnreadMessages: unreadCount,
+    }
+  }
+
+  // Candidate pulse
+  const { data: candidateApps } = await supabase
+    .from('applications')
+    .select('id, status, is_revealed, initiated_by, match_data')
+    .eq('candidate_id', user.id)
+
+  const list = candidateApps || []
+  const unreadCount = list.filter((a) =>
+    hasUnreadMsgForRole(a, 'candidate')
+  ).length
+  const revealedCount = list.filter(
+    (a) => a.is_revealed || a.status === 'accepted'
+  ).length
+  const pendingPitches = list.filter(
+    (a) => a.initiated_by === 'employer' && a.status === 'pending'
+  ).length
+
+  return {
+    signature: `cand:${list.length}:${revealedCount}:${pendingPitches}:${unreadCount}`,
+    totalUnreadMessages: unreadCount,
   }
 }
