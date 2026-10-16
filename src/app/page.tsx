@@ -25,6 +25,31 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900">
+      {/* Custom Styles to Force Always-Visible Scrollbar inside the Security Modal (even on macOS) */}
+      <style jsx global>{`
+        .always-visible-scrollbar {
+          overflow-y: scroll !important;
+          scrollbar-width: auto;
+          scrollbar-color: #6366f1 #e2e8f0;
+        }
+        .always-visible-scrollbar::-webkit-scrollbar {
+          width: 11px;
+          display: block !important;
+        }
+        .always-visible-scrollbar::-webkit-scrollbar-track {
+          background: #e2e8f0;
+          border-radius: 9999px;
+        }
+        .always-visible-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #6366f1;
+          border-radius: 9999px;
+          border: 2px solid #e2e8f0;
+        }
+        .always-visible-scrollbar::-webkit-scrollbar-thumb:hover {
+          background-color: #4f46e5;
+        }
+      `}</style>
+
       {/* Navigation (Compact h-20 height) */}
       <nav className="fixed top-0 left-0 right-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6 md:px-12 h-20 flex items-center justify-between relative">
@@ -691,42 +716,51 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* BUILT-IN TECHNICAL & SECURITY DOCUMENTATION MODAL (Zero 404 Risk!) */}
+      {/* BUILT-IN TECHNICAL & SECURITY DOCUMENTATION MODAL */}
       {showTechDocsModal && (
         <div
-          className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+          className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6"
           onClick={() => setShowTechDocsModal(false)}
         >
+          {/* Single Unified Scroll Container so scrolling works even when cursor is over the dark header! */}
           <div
-            className="bg-slate-50 w-full max-w-4xl rounded-3xl border border-slate-200 shadow-2xl overflow-hidden my-8 max-h-[90vh] flex flex-col"
+            className="always-visible-scrollbar bg-slate-50 w-full max-w-4xl rounded-3xl border border-slate-200 shadow-2xl max-h-[86vh] relative"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header */}
-            <div className="bg-slate-900 text-white p-6 sm:p-8 flex items-start justify-between gap-4 shrink-0">
-              <div className="space-y-2">
-                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs font-extrabold uppercase tracking-wider">
-                  🛡️ Technical &amp; Privacy Architecture Overview
+            {/* Sticky Top Bar with Scroll Indicator + Close Button */}
+            <div className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur-md px-6 py-3.5 border-b border-slate-800 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2.5">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-[11px] font-extrabold uppercase tracking-wider">
+                  🛡️ Security &amp; Privacy Architecture
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                  How Special Sauce Works Under the Hood
-                </h2>
-                <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-2xl">
-                  Built so candidates and hiring managers across every industry get a simple, stress-free experience—backed by enterprise-grade identity verification, data minimization, and anti-harvesting guardrails.
-                </p>
+                <span className="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-indigo-300 animate-pulse">
+                  ↓ Scroll down to read all 4 pillars
+                </span>
               </div>
 
               <button
                 type="button"
                 onClick={() => setShowTechDocsModal(false)}
-                className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-lg font-extrabold shrink-0 cursor-pointer transition-colors"
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white flex items-center gap-1.5 text-xs font-extrabold shrink-0 cursor-pointer transition-colors border border-slate-700"
                 aria-label="Close documentation modal"
               >
-                ✕
+                <span>Close</span>
+                <span>✕</span>
               </button>
             </div>
 
-            {/* Modal Scrollable Body */}
-            <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
+            {/* Dark Hero Header (Inside the scroll container so wheel/trackpad scrolling works here too!) */}
+            <div className="bg-slate-900 text-white px-6 sm:px-8 pt-5 pb-7 border-b border-slate-800 space-y-2">
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                How Special Sauce Works Under the Hood
+              </h2>
+              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-2xl">
+                Built so candidates and hiring managers across every industry get a simple, stress-free experience—backed by enterprise-grade identity verification, data minimization, and anti-harvesting guardrails.
+              </p>
+            </div>
+
+            {/* Light Body Content */}
+            <div className="p-6 sm:p-8 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Pillar 1 */}
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
