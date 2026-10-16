@@ -7,12 +7,31 @@ import { CandidateJobFeed } from '@/components/CandidateJobFeed'
 import { searchJobs } from '@/app/dashboard/actions'
 import { US_STATES_AND_METROS, US_REMOTE_REGIONS } from '@/constants/usLocations'
 
+const EMPLOYMENT_TYPES = [
+  'Full-Time (W-2)',
+  'Contract (1099 / Corp-to-Corp)',
+  'Contract-to-Hire',
+  'Part-Time',
+]
+
+function getJobEmploymentType(job: any): string {
+  const rawReqs = Array.isArray(job?.structured_requirements)
+    ? job.structured_requirements
+    : []
+  const metaItem =
+    rawReqs.find((r: any) => r && r._ss_job_meta === true) || job?.job_meta || {}
+  return job?.employment_type || metaItem?.employment_type || 'Full-Time (W-2)'
+}
+
 export default function CandidateJobsPage() {
   const [query, setQuery] = useState('')
   const [workModel, setWorkModel] = useState('all')
+  const [employmentType, setEmploymentType] = useState('all')
   const [selectedState, setSelectedState] = useState('')
   const [selectedMetro, setSelectedMetro] = useState('')
-  const [jobs, setJobs] = useState<any[]>([])
+  const [rawJobs, setRawJobs] = useState<any[]>([])
+  const [savedEmpTypes, setSavedEmpTypes] = useState<string[]>([])
+  const [onlyMyDealbreakers, setOnlyMyDealbreakers] = useState(false)
   const [isVerified, setIsVerified] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -41,10 +60,20 @@ export default function CandidateJobsPage() {
               profile?.verification_status === 'approved'
           )
         )
+
+        const rawSkills = Array.isArray(profile?.structured_skills)
+          ? profile.structured_skills
+          : []
+        const prefMeta = rawSkills.find(
+          (item: any) => item && item._ss_pref_meta === true
+        )
+        if (Array.isArray(prefMeta?.employment_types) && prefMeta.employment_types.length > 0) {
+          setSavedEmpTypes(prefMeta.employment_types)
+        }
       }
 
       const initialJobs = await searchJobs('', 'all', '')
-      setJobs(initialJobs || [])
+      setRawJobs(initialJobs || [])
       setIsLoading(false)
     }
 
@@ -73,9 +102,29 @@ export default function CandidateJobsPage() {
     }
 
     const results = await searchJobs(query, workModel, locationFilter)
-    setJobs(results || [])
+    setRawJobs(results || [])
     setIsLoading(false)
   }
+
+  // Client-side filter for Employment Type & Saved Dealbreakers
+  const filteredJobs = rawJobs.filter((job) => {
+    const jobEmpType = getJobEmploymentType(job)
+
+    if (employmentType !== 'all') {
+      if (jobEmpType.toLowerCase() !== employmentType.toLowerCase()) {
+        return false
+      }
+    }
+
+    if (onlyMyDealbreakers && savedEmpTypes.length > 0) {
+      const matchesSaved = savedEmpTypes.some(
+        (t) => t.toLowerCase() === jobEmpType.toLowerCase()
+      )
+      if (!matchesSaved) return false
+    }
+
+    return true
+  })
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-12">
@@ -100,31 +149,53 @@ export default function CandidateJobsPage() {
             </svg>
             Back to Candidate Dashboard
           </Link>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            Discover Blind Roles
-          </h1>
-          <p className="text-slate-500 mt-1">
-            Every listing displays transparent pay (/yr or /hr) and standardized US metro locations while keeping company identities blind until mutual unlock.
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                Discover Blind Roles
+              </h1>
+              <p className="text-slate-500 mt-1">
+                Every listing displays transparent pay (/yr or /hr), employment type, and standardized US metro locations while keeping company identities blind until mutual unlock.
+              </p>
+            </div>
+
+            {savedEmpTypes.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setOnlyMyDealbreakers((prev) => !prev)}
+                className={`shrink-0 px-3.5 py-2 rounded-xl text-xs font-extrabold border transition-all cursor-pointer ${
+                  onlyMyDealbreakers
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                    : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400'
+                }`}
+              >
+                {onlyMyDealbreakers
+                  ? '✓ Matching My Employment Dealbreakers'
+                  : '🛡️ Filter by My Saved Dealbreakers'}
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Search & Cascading US State / Metro Filter Bar */}
+        {/* Search & Cascading US State / Metro / Employment Type Filter Bar */}
         <form
           onSubmit={handleSearch}
           className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4"
         >
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-            <div className="md:col-span-8">
+            {/* Keyword Search */}
+            <div className="md:col-span-6">
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search job title, skills, or industry (e.g. React, Python, SaaS, FinTech)..."
+                placeholder="Search job title, skills, or industry (e.g. React, Python, SaaS)..."
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
               />
             </div>
 
-            <div className="md:col-span-4">
+            {/* Work Model Filter */}
+            <div className="md:col-span-3">
               <select
                 value={workModel}
                 onChange={(e) => setWorkModel(e.target.value)}
@@ -134,6 +205,22 @@ export default function CandidateJobsPage() {
                 <option value="remote">Remote Only</option>
                 <option value="hybrid">Hybrid</option>
                 <option value="onsite">On-site</option>
+              </select>
+            </div>
+
+            {/* Employment Type Filter */}
+            <div className="md:col-span-3">
+              <select
+                value={employmentType}
+                onChange={(e) => setEmploymentType(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none"
+              >
+                <option value="all">All Employment Types</option>
+                {EMPLOYMENT_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -149,7 +236,7 @@ export default function CandidateJobsPage() {
                 }}
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none"
               >
-                <option value="">All US States & Remote Regions</option>
+                <option value="">All US States &amp; Remote Regions</option>
                 <option value="REMOTE_US">🇺🇸 US Remote (By Timezone / Nationwide)</option>
                 {US_STATES_AND_METROS.map((st) => (
                   <option key={st.code} value={st.code}>
@@ -186,7 +273,7 @@ export default function CandidateJobsPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-full py-2.5 px-4 bg-slate-900 text-white text-sm font-extrabold rounded-xl hover:bg-indigo-600 transition-colors shadow-sm disabled:opacity-50"
+                className="w-full h-full py-2.5 px-4 bg-slate-900 text-white text-sm font-extrabold rounded-xl hover:bg-indigo-600 transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
               >
                 {isLoading ? '...' : 'Filter Roles'}
               </button>
@@ -200,7 +287,7 @@ export default function CandidateJobsPage() {
             <p className="text-slate-500 font-medium">Loading blind roles...</p>
           </div>
         ) : (
-          <CandidateJobFeed jobs={jobs} isVerified={isVerified} />
+          <CandidateJobFeed jobs={filteredJobs} isVerified={isVerified} />
         )}
       </div>
     </div>

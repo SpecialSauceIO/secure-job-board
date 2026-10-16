@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import { SubmitButton } from '@/components/SubmitButton'
 import UsLocationSelector from '@/components/UsLocationSelector'
@@ -7,9 +8,94 @@ import { updateProfile, forceVerifyCandidateIdentity } from '@/app/dashboard/act
 
 export const dynamic = 'force-dynamic'
 
+const EMPLOYMENT_TYPE_OPTIONS = [
+  {
+    value: 'Full-Time (W-2)',
+    label: 'Full-Time (W-2)',
+    desc: 'Standard salaried or hourly W-2 employment with benefits',
+  },
+  {
+    value: 'Contract (1099 / Corp-to-Corp)',
+    label: 'Contract (1099 / C2C)',
+    desc: 'Independent contractor or Corp-to-Corp project engagements',
+  },
+  {
+    value: 'Contract-to-Hire',
+    label: 'Contract-to-Hire',
+    desc: 'Initial contract period with intent to convert to Full-Time',
+  },
+  {
+    value: 'Part-Time',
+    label: 'Part-Time',
+    desc: 'Reduced weekly hours or flexible fractional roles',
+  },
+]
+
+function extractSavedEmploymentTypes(profile: any): string[] {
+  if (Array.isArray(profile?.preferred_employment_types) && profile.preferred_employment_types.length > 0) {
+    return profile.preferred_employment_types
+  }
+  const rawSkills = Array.isArray(profile?.structured_skills) ? profile.structured_skills : []
+  const metaEntry = rawSkills.find((item: any) => item && item._ss_pref_meta === true)
+  if (Array.isArray(metaEntry?.employment_types) && metaEntry.employment_types.length > 0) {
+    return metaEntry.employment_types
+  }
+  // Default: All 4 enabled if not yet customized
+  return EMPLOYMENT_TYPE_OPTIONS.map((o) => o.value)
+}
+
+async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
+  'use server'
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const selectedTypes = formData.getAll('employment_types').map(String).filter(Boolean)
+  const finalEmploymentTypes =
+    selectedTypes.length > 0
+      ? selectedTypes
+      : EMPLOYMENT_TYPE_OPTIONS.map((o) => o.value)
+
+  // Preserve existing visible skills while embedding _ss_pref_meta for zero-migration compatibility
+  let rawSkills: any[] = []
+  try {
+    rawSkills = JSON.parse(String(formData.get('structured_skills') || '[]'))
+  } catch {
+    rawSkills = []
+  }
+
+  const cleanedSkills = (Array.isArray(rawSkills) ? rawSkills : []).filter(
+    (item: any) => !(item && item._ss_pref_meta === true)
+  )
+
+  cleanedSkills.push({
+    _ss_pref_meta: true,
+    employment_types: finalEmploymentTypes,
+  })
+
+  formData.set('structured_skills', JSON.stringify(cleanedSkills))
+
+  // Call existing updateProfile server action for salary, work model, and location
+  await updateProfile(formData)
+
+  // Also ensure structured_skills (with _ss_pref_meta) is persisted even if updateProfile skips it
+  await supabase
+    .from('profiles')
+    .update({ structured_skills: cleanedSkills })
+    .eq('id', user.id)
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/preferences')
+  revalidatePath('/dashboard/jobs')
+}
+
 export default async function MatchPreferencesPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase
@@ -22,14 +108,15 @@ export default async function MatchPreferencesPage() {
 
   const isVerified = Boolean(
     profile?.identity_verified === true ||
-    profile?.is_verified === true ||
-    profile?.verification_status === 'verified'
+      profile?.is_verified === true ||
+      profile?.verification_status === 'verified'
   )
+
+  const savedEmploymentTypes = extractSavedEmploymentTypes(profile)
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-12">
       <div className="max-w-3xl mx-auto space-y-8">
-        
         <header>
           <Link
             href="/dashboard"
@@ -40,9 +127,11 @@ export default async function MatchPreferencesPage() {
             </svg>
             Back to Candidate Dashboard
           </Link>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Match Preferences & Dealbreakers</h1>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            Match Preferences &amp; Dealbreakers
+          </h1>
           <p className="text-slate-500 mt-1">
-            Configure your minimum salary expectations, preferred work model, and target US location to control which employer connection pitches you receive.
+            Configure your minimum salary expectations, accepted employment types, preferred work model, and target US location to control which employer connection pitches you receive.
           </p>
         </header>
 
@@ -65,14 +154,24 @@ export default async function MatchPreferencesPage() {
           </div>
         )}
 
-        <form action={updateProfile} className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+        <form
+          action={saveCandidatePreferencesWithEmploymentTypes}
+          className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6"
+        >
           <input type="hidden" name="experience_years" value={profile?.experience_years || ''} />
           <input type="hidden" name="bio" value={profile?.bio || ''} />
-          <input type="hidden" name="structured_skills" value={JSON.stringify(profile?.structured_skills || [])} />
+          <input
+            type="hidden"
+            name="structured_skills"
+            value={JSON.stringify(profile?.structured_skills || [])}
+          />
 
           <div className="space-y-6">
+            {/* 1. MINIMUM SALARY EXPECTATION */}
             <div>
-              <label className="block text-sm font-bold text-slate-700">Minimum Salary Expectation (Annual USD)</label>
+              <label className="block text-sm font-bold text-slate-700">
+                Minimum Salary Expectation (Annual USD)
+              </label>
               <div className="relative mt-2">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
                   <span className="text-slate-500 font-bold">$</span>
@@ -93,7 +192,46 @@ export default async function MatchPreferencesPage() {
               </p>
             </div>
 
-            <div>
+            {/* 2. ACCEPTED EMPLOYMENT TYPES (DEALBREAKER) */}
+            <div className="pt-2 border-t border-slate-100">
+              <label className="block text-sm font-bold text-slate-700">
+                Accepted Employment Types (Dealbreaker)
+              </label>
+              <p className="text-xs text-slate-500 mt-0.5 mb-3">
+                Select all employment models you are open to. Roles outside these types will be filtered out of your recommendations and dealbreaker guardrails.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {EMPLOYMENT_TYPE_OPTIONS.map((opt) => {
+                  const isChecked = savedEmploymentTypes.includes(opt.value)
+                  return (
+                    <label
+                      key={opt.value}
+                      className="relative flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-indigo-50/40 hover:border-indigo-300 transition-colors cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        name="employment_types"
+                        value={opt.value}
+                        defaultChecked={isChecked}
+                        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                      />
+                      <div className="text-xs">
+                        <span className="font-extrabold text-slate-900 block">
+                          {opt.label}
+                        </span>
+                        <span className="text-slate-500 leading-snug block mt-0.5">
+                          {opt.desc}
+                        </span>
+                      </div>
+                    </label>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* 3. PREFERRED WORK MODEL */}
+            <div className="pt-2 border-t border-slate-100">
               <label className="block text-sm font-bold text-slate-700">Preferred Work Model</label>
               <select
                 name="preferred_work_model"
@@ -107,8 +245,8 @@ export default async function MatchPreferencesPage() {
               </select>
             </div>
 
-            {/* US CASCADING LOCATION SELECTOR */}
-            <div className="pt-2">
+            {/* 4. US CASCADING LOCATION SELECTOR */}
+            <div className="pt-2 border-t border-slate-100">
               <label className="block text-sm font-bold text-slate-700 mb-1">Target Location</label>
               <p className="text-xs text-slate-500 mb-3">
                 Select your preferred US state and metro area for hybrid/on-site roles (or remote preference).
@@ -130,7 +268,6 @@ export default async function MatchPreferencesPage() {
             </SubmitButton>
           </div>
         </form>
-
       </div>
     </div>
   )
