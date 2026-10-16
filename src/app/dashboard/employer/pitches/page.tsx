@@ -1,9 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { getEmployerPitches } from '@/app/dashboard/actions'
 import SecureMessageThread from '@/components/SecureMessageThread'
+import {
+  STANDARD_INDUSTRY_VERTICALS,
+  normalizeIndustryVertical,
+} from '@/constants/industries'
 import {
   Radar,
   RadarChart,
@@ -14,11 +18,43 @@ import {
   Tooltip,
 } from 'recharts'
 
+type PitchSortOption =
+  | 'match_high'
+  | 'match_low'
+  | 'recent_activity'
+  | 'newest'
+  | 'oldest'
+  | 'exp_high'
+
 function maskFirstInitial(fullName?: string | null): string {
   if (!fullName || !fullName.trim()) return 'Verified Candidate'
   const parts = fullName.trim().split(/\s+/)
   if (parts.length === 1) return parts[0]
   return `${parts[0]} ${parts[parts.length - 1][0]?.toUpperCase() || ''}.`
+}
+
+function getPitchIndustry(pitch: any): string {
+  const candInd = pitch?.profiles?.industry_vertical
+  if (candInd) return normalizeIndustryVertical(candInd)
+  const jobInd = pitch?.jobs?.industry || pitch?.jobs?.job_meta?.industry
+  if (jobInd) return normalizeIndustryVertical(jobInd)
+  return ''
+}
+
+function getLastActivityTimestamp(pitch: any): number {
+  const messages = Array.isArray(pitch?.match_data?.messages)
+    ? pitch.match_data.messages
+    : []
+  if (messages.length > 0) {
+    const lastMsg = messages[messages.length - 1]
+    const msgTime = new Date(lastMsg.created_at || 0).getTime()
+    if (!isNaN(msgTime) && msgTime > 0) return msgTime
+  }
+  if (pitch?.match_data?.last_message_at) {
+    const t = new Date(pitch.match_data.last_message_at).getTime()
+    if (!isNaN(t)) return t
+  }
+  return new Date(pitch?.created_at || 0).getTime()
 }
 
 export default function EmployerSentPitchesPage() {
@@ -27,36 +63,90 @@ export default function EmployerSentPitchesPage() {
   const [statusFilter, setStatusFilter] = useState<
     'all' | 'pending' | 'accepted' | 'declined'
   >('all')
+  const [industryFilter, setIndustryFilter] = useState<string>('all')
+  const [sortBy, setSortBy] = useState<PitchSortOption>('match_high')
   const [daysFilter, setDaysFilter] = useState<number>(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedRadarId, setExpandedRadarId] = useState<string | null>(null)
 
-  const fetchPitches = async () => {
-    setIsLoading(true)
-    const result = await getEmployerPitches(
-      'all',
-      daysFilter || undefined,
-      searchQuery || undefined
-    )
-    if (result.data) {
-      setPitches(result.data)
-    }
-    setIsLoading(false)
-  }
+  const fetchPitches = useCallback(
+    async (showSpinner = true) => {
+      if (showSpinner) setIsLoading(true)
+      const result = await getEmployerPitches(
+        'all',
+        daysFilter || undefined,
+        searchQuery || undefined
+      )
+      if (result.data) {
+        setPitches(result.data)
+      }
+      if (showSpinner) setIsLoading(false)
+    },
+    [daysFilter, searchQuery]
+  )
 
   useEffect(() => {
-    fetchPitches()
+    fetchPitches(true)
   }, [daysFilter])
+
+  // Silent 5-second background sync so candidate pitch acceptances & Stage 2 Vault Releases appear live
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchPitches(false)
+    }, 5000)
+    return () => clearInterval(intervalId)
+  }, [fetchPitches])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    fetchPitches()
+    fetchPitches(true)
   }
 
-  const filteredPitches = pitches.filter((pitch) => {
-    if (statusFilter === 'all') return true
-    return pitch.normalized_status === statusFilter
-  })
+  const filteredAndSortedPitches = useMemo(() => {
+    const filtered = pitches.filter((pitch) => {
+      if (statusFilter !== 'all' && pitch.normalized_status !== statusFilter) {
+        return false
+      }
+      if (industryFilter !== 'all') {
+        const pitchInd = getPitchIndustry(pitch)
+        if (pitchInd.toLowerCase() !== industryFilter.toLowerCase()) {
+          return false
+        }
+      }
+      return true
+    })
+
+    const getMatchScore = (pitch: any): number =>
+      Number(pitch.match_score ?? pitch.match_data?.overall_score ?? 0)
+
+    const getExpYears = (pitch: any): number => {
+      const num = parseFloat(String(pitch?.profiles?.experience_years || '0'))
+      return isNaN(num) ? 0 : num
+    }
+
+    return [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'match_high':
+          return getMatchScore(b) - getMatchScore(a)
+        case 'match_low':
+          return getMatchScore(a) - getMatchScore(b)
+        case 'recent_activity':
+          return getLastActivityTimestamp(b) - getLastActivityTimestamp(a)
+        case 'newest':
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          )
+        case 'oldest':
+          return (
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          )
+        case 'exp_high':
+          return getExpYears(b) - getExpYears(a)
+        default:
+          return 0
+      }
+    })
+  }, [pitches, statusFilter, industryFilter, sortBy])
 
   const pendingCount = pitches.filter(
     (p) => p.normalized_status === 'pending'
@@ -97,7 +187,7 @@ export default function EmployerSentPitchesPage() {
               Sent Connection Pitches
             </h1>
             <p className="text-slate-500 mt-1">
-              Track outbound connection requests sent to passive candidates, message accepted matches, and access unlocked resumes once released.
+              Track outbound connection requests sent to passive candidates, sort by AI Match score, and message accepted matches in real time.
             </p>
           </div>
 
@@ -122,7 +212,7 @@ export default function EmployerSentPitchesPage() {
           </Link>
         </div>
 
-        {/* Filter Bar: Status Tabs + Search + Date Range */}
+        {/* Filter Bar: Status Tabs + Search + Date Range + Industry & Sort By */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             {/* Status Tabs */}
@@ -130,7 +220,7 @@ export default function EmployerSentPitchesPage() {
               <button
                 type="button"
                 onClick={() => setStatusFilter('all')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   statusFilter === 'all'
                     ? 'bg-slate-900 text-white shadow-sm'
                     : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
@@ -142,7 +232,7 @@ export default function EmployerSentPitchesPage() {
               <button
                 type="button"
                 onClick={() => setStatusFilter('pending')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                   statusFilter === 'pending'
                     ? 'bg-slate-900 text-white shadow-sm'
                     : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
@@ -163,7 +253,7 @@ export default function EmployerSentPitchesPage() {
               <button
                 type="button"
                 onClick={() => setStatusFilter('accepted')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                   statusFilter === 'accepted'
                     ? 'bg-slate-900 text-white shadow-sm'
                     : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
@@ -184,7 +274,7 @@ export default function EmployerSentPitchesPage() {
               <button
                 type="button"
                 onClick={() => setStatusFilter('declined')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                   statusFilter === 'declined'
                     ? 'bg-slate-900 text-white shadow-sm'
                     : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
@@ -229,11 +319,74 @@ export default function EmployerSentPitchesPage() {
             />
             <button
               type="submit"
-              className="px-6 py-2.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-colors"
+              className="px-6 py-2.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-colors cursor-pointer"
             >
               Filter
             </button>
           </form>
+
+          {/* Organizer Row: Industry Vertical Filter + Sort By Dropdown */}
+          <div className="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+            <div className="md:col-span-5 flex items-center gap-2">
+              <label
+                htmlFor="pitch-industry-filter"
+                className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
+              >
+                Industry:
+              </label>
+              <select
+                id="pitch-industry-filter"
+                value={industryFilter}
+                onChange={(e) => setIndustryFilter(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              >
+                <option value="all">All Industry Verticals</option>
+                {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
+                  <option key={vertical} value={vertical}>
+                    {vertical}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="md:col-span-5 flex items-center gap-2">
+              <label
+                htmlFor="pitch-sort"
+                className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
+              >
+                Sort By:
+              </label>
+              <select
+                id="pitch-sort"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as PitchSortOption)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              >
+                <option value="match_high">
+                  AI Match Score (Highest First)
+                </option>
+                <option value="match_low">AI Match Score (Lowest First)</option>
+                <option value="recent_activity">
+                  Recent Thread Activity / Unread First
+                </option>
+                <option value="newest">Newest Sent First</option>
+                <option value="oldest">Oldest Sent First</option>
+                <option value="exp_high">
+                  Candidate Experience (Most Years First)
+                </option>
+              </select>
+            </div>
+
+            <div className="md:col-span-2 text-right">
+              <span className="text-xs font-bold text-slate-500">
+                Showing{' '}
+                <strong className="text-slate-900">
+                  {filteredAndSortedPitches.length}
+                </strong>{' '}
+                of {pitches.length}
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Pitches List */}
@@ -244,7 +397,7 @@ export default function EmployerSentPitchesPage() {
               Loading your sent connection pitches...
             </p>
           </div>
-        ) : filteredPitches.length === 0 ? (
+        ) : filteredAndSortedPitches.length === 0 ? (
           <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-sm">
             <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
@@ -265,22 +418,36 @@ export default function EmployerSentPitchesPage() {
               No sent pitches found
             </h3>
             <p className="text-slate-500 max-w-md mx-auto text-sm mb-6">
-              {statusFilter === 'all'
+              {statusFilter === 'all' && industryFilter === 'all'
                 ? "You haven't sent any outbound connection requests yet. Browse the anonymous talent pool to pitch candidates your open roles."
-                : `You don't have any pitches with the "${statusFilter}" status right now.`}
+                : 'No pitches match your current status or Industry Vertical filter.'}
             </p>
-            <Link
-              href="/dashboard/employer/search"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"
-            >
-              Browse Passive Candidates →
-            </Link>
+            {statusFilter !== 'all' || industryFilter !== 'all' ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter('all')
+                  setIndustryFilter('all')
+                }}
+                className="px-5 py-2.5 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer"
+              >
+                Reset Active Filters →
+              </button>
+            ) : (
+              <Link
+                href="/dashboard/employer/search"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"
+              >
+                Browse Passive Candidates →
+              </Link>
+            )}
           </div>
         ) : (
           <div className="space-y-6">
-            {filteredPitches.map((pitch) => {
+            {filteredAndSortedPitches.map((pitch) => {
               const candidate = pitch.profiles || {}
               const job = pitch.jobs || {}
+              const pitchIndustry = getPitchIndustry(pitch)
               const displayId = (pitch.candidate_id || 'ANON')
                 .split('-')[0]
                 .toUpperCase()
@@ -345,12 +512,17 @@ export default function EmployerSentPitchesPage() {
                   }`}
                 >
                   <div className="p-6 md:p-8 space-y-5">
-                    {/* Top Row: Role Badge, Reference ID, Timestamp, Match %, and Status */}
+                    {/* Top Row: Role Badge, Industry, Reference ID, Timestamp, Match %, and Status */}
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div className="flex flex-wrap items-center gap-2.5">
                         <span className="px-3 py-1 rounded-lg bg-slate-900 text-white text-xs font-bold">
                           Pitched Role: {job.title || 'Open Role'}
                         </span>
+                        {pitchIndustry && (
+                          <span className="px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-800 border border-indigo-200 text-xs font-bold">
+                            {pitchIndustry}
+                          </span>
+                        )}
                         <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 font-mono text-xs font-bold border border-slate-200">
                           Ref: {referenceId}
                         </span>
@@ -534,7 +706,7 @@ export default function EmployerSentPitchesPage() {
                                 isExpanded ? null : pitch.id
                               )
                             }
-                            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline"
+                            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
                           >
                             {isExpanded
                               ? 'Hide Radar Breakdown'
