@@ -11,6 +11,10 @@ import {
   STANDARD_INDUSTRY_VERTICALS,
   normalizeIndustryVertical,
 } from '@/constants/industries'
+import {
+  CANDIDATE_EDUCATION_LEVELS,
+  normalizeCandidateEducation,
+} from '@/constants/education'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,10 +52,24 @@ async function saveCandidateProfilePreservingMeta(formData: FormData) {
     ? normalizeIndustryVertical(rawSubmittedIndustry)
     : existingPrefObj.industry_vertical || 'Technology, Software & SaaS'
 
+  const rawSubmittedEducation = String(
+    formData.get('education_level') || ''
+  ).trim()
+  const normalizedEducation = rawSubmittedEducation
+    ? normalizeCandidateEducation(rawSubmittedEducation)
+    : existingPrefObj.education_level ||
+      'Practical Experience & Industry Certifications'
+
+  const submittedCertifications = String(
+    formData.get('certifications') || ''
+  ).trim()
+
   const updatedPrefObj = {
     ...existingPrefObj,
     _ss_pref_meta: true,
     industry_vertical: normalizedIndustry,
+    education_level: normalizedEducation,
+    certifications: submittedCertifications,
   }
 
   let submittedSkills: any[] = []
@@ -76,6 +94,8 @@ async function saveCandidateProfilePreservingMeta(formData: FormData) {
   ]
   formData.set('structured_skills', JSON.stringify(mergedSkills))
   formData.set('industry_vertical', normalizedIndustry)
+  formData.set('education_level', normalizedEducation)
+  formData.set('certifications', submittedCertifications)
 
   // Preserve salary & work model if not present on the Profile form
   if (
@@ -146,6 +166,12 @@ export default async function ProfilePage() {
     ? normalizeIndustryVertical(prefMetaObj.industry_vertical)
     : 'Technology, Software & SaaS'
 
+  const currentEducationLevel = prefMetaObj?.education_level
+    ? normalizeCandidateEducation(prefMetaObj.education_level)
+    : 'Practical Experience & Industry Certifications'
+
+  const currentCertifications = prefMetaObj?.certifications || ''
+
   const hasProfileData = !!profile?.bio
 
   const AiSection = (
@@ -158,7 +184,7 @@ export default async function ProfilePage() {
         </h2>
         <p className="text-sm text-slate-500 mt-1">
           {hasProfileData
-            ? 'Upload a new resume to overwrite your current profile with fresh extracted data.'
+            ? 'Upload a new resume to overwrite your current profile with fresh extracted skills, education, and certifications.'
             : 'Upload your resume to instantly generate an anonymous profile using AI.'}
         </p>
       </div>
@@ -176,7 +202,7 @@ export default async function ProfilePage() {
           {hasProfileData ? 'Profile Details' : 'Step 2: Manual Review'}
         </h2>
         <p className="text-sm text-slate-500 mt-1">
-          Review and manually adjust your public anonymous profile, primary industry vertical, location, and vaulted contact details.
+          Review and manually adjust your public anonymous profile, primary industry vertical, education, active certifications, and vaulted contact details.
         </p>
       </div>
 
@@ -235,7 +261,7 @@ export default async function ProfilePage() {
           />
         </div>
 
-        {/* Experience Years + Primary Industry Vertical */}
+        {/* Row 1: Experience Years + Primary Industry Vertical */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-1.5">
@@ -272,6 +298,45 @@ export default async function ProfilePage() {
                 </option>
               ))}
             </select>
+          </div>
+        </div>
+
+        {/* Row 2: Education & Academic Background + Active Certifications & Licenses */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-200/80">
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-1.5">
+              🎓 Education &amp; Academic Background
+            </label>
+            <p className="text-xs text-slate-500 mb-2">
+              Practical experience is weighted equally for roles accepting equivalent experience.
+            </p>
+            <select
+              name="education_level"
+              defaultValue={currentEducationLevel}
+              className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
+            >
+              {CANDIDATE_EDUCATION_LEVELS.map((level) => (
+                <option key={level} value={level}>
+                  {level}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-1.5">
+              🏅 Active Certifications &amp; Licenses (Optional)
+            </label>
+            <p className="text-xs text-slate-500 mb-2">
+              Comma-separated credentials matched directly against certification-required roles.
+            </p>
+            <input
+              type="text"
+              name="certifications"
+              defaultValue={currentCertifications}
+              placeholder="e.g. AWS Solutions Architect, CompTIA Security+, PMP"
+              className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+            />
           </div>
         </div>
 
@@ -334,7 +399,7 @@ export default async function ProfilePage() {
             Anonymous Profile
           </h1>
           <p className="text-slate-500 mt-2">
-            Manage your extracted skills, primary industry vertical, target location, anonymous bio, and vaulted contact identity.
+            Manage your extracted skills, education &amp; certifications, primary industry vertical, target location, and vaulted contact identity.
           </p>
         </header>
 

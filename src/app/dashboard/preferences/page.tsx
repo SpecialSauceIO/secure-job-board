@@ -9,6 +9,10 @@ import {
   STANDARD_INDUSTRY_VERTICALS,
   normalizeIndustryVertical,
 } from '@/constants/industries'
+import {
+  CANDIDATE_EDUCATION_LEVELS,
+  normalizeCandidateEducation,
+} from '@/constants/education'
 
 export const dynamic = 'force-dynamic'
 
@@ -57,17 +61,22 @@ function extractSavedEmploymentTypes(profile: any): string[] {
   return EMPLOYMENT_TYPE_OPTIONS.map((o) => o.value)
 }
 
-function extractSavedIndustryVertical(profile: any): string {
+function extractSavedPrefMeta(profile: any) {
   const rawSkills = Array.isArray(profile?.structured_skills)
     ? profile.structured_skills
     : []
-  const metaEntry = rawSkills.find(
-    (item: any) => item && item._ss_pref_meta === true
-  )
-  if (metaEntry?.industry_vertical) {
-    return normalizeIndustryVertical(metaEntry.industry_vertical)
+  const metaEntry =
+    rawSkills.find((item: any) => item && item._ss_pref_meta === true) || {}
+
+  return {
+    industryVertical: metaEntry.industry_vertical
+      ? normalizeIndustryVertical(metaEntry.industry_vertical)
+      : 'Technology, Software & SaaS',
+    educationLevel: metaEntry.education_level
+      ? normalizeCandidateEducation(metaEntry.education_level)
+      : 'Practical Experience & Industry Certifications',
+    certifications: metaEntry.certifications || '',
   }
-  return 'Technology, Software & SaaS'
 }
 
 async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
@@ -90,8 +99,14 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
   const rawSubmittedIndustry = String(
     formData.get('industry_vertical') || ''
   ).trim()
+  const rawSubmittedEducation = String(
+    formData.get('education_level') || ''
+  ).trim()
+  const submittedCertifications = String(
+    formData.get('certifications') || ''
+  ).trim()
 
-  // Fetch latest structured_skills from DB so we preserve saved_job_ids, saved_candidate_ids, and industry_vertical
+  // Fetch latest structured_skills from DB so we preserve saved_job_ids, saved_candidate_ids, and skills
   const { data: currentProfile } = await supabase
     .from('profiles')
     .select('structured_skills')
@@ -109,6 +124,11 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
     ? normalizeIndustryVertical(rawSubmittedIndustry)
     : existingPrefMeta.industry_vertical || 'Technology, Software & SaaS'
 
+  const finalEducationLevel = rawSubmittedEducation
+    ? normalizeCandidateEducation(rawSubmittedEducation)
+    : existingPrefMeta.education_level ||
+      'Practical Experience & Industry Certifications'
+
   const cleanedSkills = rawSkills.filter(
     (item: any) => !(item && item._ss_pref_meta === true)
   )
@@ -118,10 +138,14 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
     _ss_pref_meta: true,
     employment_types: finalEmploymentTypes,
     industry_vertical: finalIndustryVertical,
+    education_level: finalEducationLevel,
+    certifications: submittedCertifications,
   })
 
   formData.set('structured_skills', JSON.stringify(cleanedSkills))
   formData.set('industry_vertical', finalIndustryVertical)
+  formData.set('education_level', finalEducationLevel)
+  formData.set('certifications', submittedCertifications)
 
   await updateProfile(formData)
 
@@ -159,7 +183,8 @@ export default async function MatchPreferencesPage() {
   )
 
   const savedEmploymentTypes = extractSavedEmploymentTypes(profile)
-  const savedIndustryVertical = extractSavedIndustryVertical(profile)
+  const { industryVertical, educationLevel, certifications } =
+    extractSavedPrefMeta(profile)
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-12">
@@ -188,7 +213,7 @@ export default async function MatchPreferencesPage() {
             Match Preferences &amp; Dealbreakers
           </h1>
           <p className="text-slate-500 mt-1">
-            Configure your minimum salary expectations, accepted employment types, primary industry vertical, preferred work model, and target US location to control which employer connection pitches you receive.
+            Configure your minimum salary expectations, accepted employment types, primary industry vertical, education &amp; certifications, preferred work model, and target US location.
           </p>
         </header>
 
@@ -306,7 +331,7 @@ export default async function MatchPreferencesPage() {
                 </p>
                 <select
                   name="industry_vertical"
-                  defaultValue={savedIndustryVertical}
+                  defaultValue={industryVertical}
                   className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
                 >
                   {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
@@ -337,7 +362,46 @@ export default async function MatchPreferencesPage() {
               </div>
             </div>
 
-            {/* 4. US CASCADING LOCATION SELECTOR */}
+            {/* 4. EDUCATION & ACTIVE INDUSTRY CERTIFICATIONS */}
+            <div className="pt-2 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-700">
+                  🎓 Education &amp; Academic Background
+                </label>
+                <p className="text-xs text-slate-500 mt-0.5 mb-2">
+                  Practical experience is weighted equally for roles accepting equivalent experience.
+                </p>
+                <select
+                  name="education_level"
+                  defaultValue={educationLevel}
+                  className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
+                >
+                  {CANDIDATE_EDUCATION_LEVELS.map((level) => (
+                    <option key={level} value={level}>
+                      {level}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-slate-700">
+                  🏅 Active Certifications &amp; Licenses (Optional)
+                </label>
+                <p className="text-xs text-slate-500 mt-0.5 mb-2">
+                  Comma-separated credentials matched against certification-required roles.
+                </p>
+                <input
+                  type="text"
+                  name="certifications"
+                  defaultValue={certifications}
+                  placeholder="e.g. AWS Solutions Architect, CompTIA Security+, PMP"
+                  className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+                />
+              </div>
+            </div>
+
+            {/* 5. US CASCADING LOCATION SELECTOR */}
             <div className="pt-2 border-t border-slate-100">
               <label className="block text-sm font-bold text-slate-700 mb-1">
                 Target Location
