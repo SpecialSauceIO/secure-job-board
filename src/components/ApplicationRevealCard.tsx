@@ -6,6 +6,11 @@ import {
   updateInboundApplicationDecision,
 } from '@/app/dashboard/actions'
 import SecureMessageThread from '@/components/SecureMessageThread'
+import { normalizeIndustryVertical } from '@/constants/industries'
+import {
+  normalizeCandidateEducation,
+  normalizeJobEducationReq,
+} from '@/constants/education'
 import {
   Radar,
   RadarChart,
@@ -54,6 +59,7 @@ export function ApplicationRevealCard({
   const [isUpdatingDecision, setIsUpdatingDecision] = useState(false)
 
   const profile = application.profiles
+  const job = application.jobs || {}
   const vaultReleased = Boolean(
     application.match_data?.candidate_vault_released === true
   )
@@ -94,6 +100,27 @@ export function ApplicationRevealCard({
       profile?.is_verified === true ||
       profile?.verification_status === 'verified'
   )
+
+  // Extract Candidate Industry, Education & Active Certifications
+  const candidateIndustry = profile?.industry_vertical
+    ? normalizeIndustryVertical(profile.industry_vertical)
+    : ''
+  const candidateEducation = profile?.education_level
+    ? normalizeCandidateEducation(profile.education_level)
+    : ''
+  const candidateCertifications = profile?.certifications
+    ? String(profile.certifications).trim()
+    : ''
+
+  // Extract Applied Role Education & Target Certifications for quick comparison
+  const jobEducationReq =
+    job.education_req || job.job_meta?.education_req
+      ? normalizeJobEducationReq(
+          job.education_req || job.job_meta?.education_req
+        )
+      : ''
+  const jobRequiredCerts =
+    job.required_certifications || job.job_meta?.required_certifications || ''
 
   const executivePitch = application.employer_pitch
     ? application.employer_pitch.replace(
@@ -363,16 +390,58 @@ export function ApplicationRevealCard({
         </div>
       )}
 
-      {/* The Resume & Match Data Grid */}
+      {/* The Resume, Education/Certs & Match Data Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6">
+          {/* Experience, Industry Vertical, Education & Active Certifications */}
           <div>
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-              Extracted Experience
+              Experience, Education &amp; Credentials
             </h4>
-            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-bold bg-slate-100 text-slate-700 border border-slate-200">
-              {profile?.experience_years || '0'} Years Professional Experience
-            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-violet-50 text-violet-800 border border-violet-200">
+                {profile?.experience_years || '0'} Years Experience
+              </span>
+
+              {candidateIndustry && (
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                  {candidateIndustry}
+                </span>
+              )}
+
+              {candidateEducation && (
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-sky-50 text-sky-800 border border-sky-200">
+                  🎓 {candidateEducation}
+                </span>
+              )}
+
+              {candidateCertifications && (
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                  🏅 Certs: {candidateCertifications}
+                </span>
+              )}
+            </div>
+
+            {(jobEducationReq || jobRequiredCerts) && (
+              <div className="mt-2.5 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                <span className="font-bold text-slate-400 uppercase tracking-wider">
+                  Role Target:
+                </span>
+                {jobEducationReq && (
+                  <span className="font-semibold text-slate-600">
+                    {jobEducationReq}
+                  </span>
+                )}
+                {jobRequiredCerts && (
+                  <>
+                    <span>•</span>
+                    <span className="font-semibold text-amber-700">
+                      Target Certs: {jobRequiredCerts}
+                    </span>
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           <div>
