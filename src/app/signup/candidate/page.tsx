@@ -14,7 +14,7 @@ export default async function CandidateSignupPage({
       <div className="mb-6 flex justify-center">
         <Link href="/" className="group block hover:opacity-90 transition-opacity">
           <Image
-            src="/logo.jpg"
+            src="/logo.png"
             alt="specialsauce.io Logo"
             width={240}
             height={60}

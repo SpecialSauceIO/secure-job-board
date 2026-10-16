@@ -32,7 +32,7 @@ export default function LandingPage() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
               <Image 
-                src="/logo.jpg" 
+                src="/logo.png" 
                 alt="specialsauce.io Logo" 
                 width={300} 
                 height={75} 
@@ -367,7 +367,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
             <Image 
-              src="/logo.jpg" 
+              src="/logo.png" 
               alt="specialsauce.io Logo" 
               width={200} 
               height={50} 
