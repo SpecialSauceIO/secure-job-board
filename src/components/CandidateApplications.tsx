@@ -1,12 +1,16 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import {
   getCandidateApplications,
   recalculatePitchMatch,
 } from '@/app/dashboard/actions'
 import SecureMessageThread from '@/components/SecureMessageThread'
+import {
+  STANDARD_INDUSTRY_VERTICALS,
+  normalizeIndustryVertical,
+} from '@/constants/industries'
 import {
   Radar,
   RadarChart,
@@ -17,11 +21,52 @@ import {
   Tooltip,
 } from 'recharts'
 
+type CandidateAppSortOption =
+  | 'match_high'
+  | 'match_low'
+  | 'recent_activity'
+  | 'pay_high'
+  | 'newest'
+  | 'oldest'
+
 function cleanCompanyDescription(raw?: string | null): string {
   return (raw || '')
     .replace(/\s*\[TIER:[a-z]+\]/gi, '')
     .replace(/\s*\[SEATS:[^\]]*\]/gi, '')
     .trim()
+}
+
+function getAppJobIndustry(app: any): string {
+  const job = app?.jobs || {}
+  const rawInd = job.industry || job.job_meta?.industry || ''
+  return rawInd ? normalizeIndustryVertical(rawInd) : ''
+}
+
+function getAnnualizedMaxPay(app: any): number {
+  const job = app?.jobs || {}
+  const rawMax = Number(job.salary_max) || Number(job.salary_min) || 0
+  if (!rawMax) return 0
+  const isHourly =
+    job.pay_type === 'hourly' ||
+    job.job_meta?.pay_type === 'hourly' ||
+    (rawMax > 0 && rawMax <= 500)
+  return isHourly ? rawMax * 2080 : rawMax
+}
+
+function getLastActivityTimestamp(app: any): number {
+  const messages = Array.isArray(app?.match_data?.messages)
+    ? app.match_data.messages
+    : []
+  if (messages.length > 0) {
+    const lastMsg = messages[messages.length - 1]
+    const msgTime = new Date(lastMsg.created_at || 0).getTime()
+    if (!isNaN(msgTime) && msgTime > 0) return msgTime
+  }
+  if (app?.match_data?.last_message_at) {
+    const t = new Date(app.match_data.last_message_at).getTime()
+    if (!isNaN(t)) return t
+  }
+  return new Date(app?.created_at || 0).getTime()
 }
 
 export function CandidateApplications() {
@@ -30,6 +75,8 @@ export function CandidateApplications() {
   const [statusFilter, setStatusFilter] = useState<
     'all' | 'pending' | 'unlocked' | 'shortlisted' | 'rejected'
   >('all')
+  const [industryFilter, setIndustryFilter] = useState<string>('all')
+  const [sortBy, setSortBy] = useState<CandidateAppSortOption>('newest')
   const [daysFilter, setDaysFilter] = useState<number>(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedRadarId, setExpandedRadarId] = useState<string | null>(null)
@@ -112,10 +159,46 @@ export function CandidateApplications() {
     setRecalculatingId(null)
   }
 
-  const filteredApplications = applications.filter((app) => {
-    if (statusFilter === 'all') return true
-    return app.normalized_status === statusFilter
-  })
+  const filteredAndSortedApplications = useMemo(() => {
+    const filtered = applications.filter((app) => {
+      if (statusFilter !== 'all' && app.normalized_status !== statusFilter) {
+        return false
+      }
+      if (industryFilter !== 'all') {
+        const jobInd = getAppJobIndustry(app)
+        if (jobInd.toLowerCase() !== industryFilter.toLowerCase()) {
+          return false
+        }
+      }
+      return true
+    })
+
+    const getMatchScore = (app: any): number =>
+      Number(app.match_score ?? app.match_data?.overall_score ?? 0)
+
+    return [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'match_high':
+          return getMatchScore(b) - getMatchScore(a)
+        case 'match_low':
+          return getMatchScore(a) - getMatchScore(b)
+        case 'recent_activity':
+          return getLastActivityTimestamp(b) - getLastActivityTimestamp(a)
+        case 'pay_high':
+          return getAnnualizedMaxPay(b) - getAnnualizedMaxPay(a)
+        case 'newest':
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          )
+        case 'oldest':
+          return (
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          )
+        default:
+          return 0
+      }
+    })
+  }, [applications, statusFilter, industryFilter, sortBy])
 
   const pendingCount = applications.filter(
     (a) => a.normalized_status === 'pending'
@@ -132,7 +215,7 @@ export function CandidateApplications() {
 
   return (
     <div className="space-y-6">
-      {/* Filter Bar: Status Tabs + Date Range + Keyword Search */}
+      {/* Filter Bar: Status Tabs + Date Range + Keyword Search + Industry & Sort By */}
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           {/* Status Tabs */}
@@ -140,7 +223,7 @@ export function CandidateApplications() {
             <button
               type="button"
               onClick={() => setStatusFilter('all')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 statusFilter === 'all'
                   ? 'bg-slate-900 text-white shadow-sm'
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
@@ -152,7 +235,7 @@ export function CandidateApplications() {
             <button
               type="button"
               onClick={() => setStatusFilter('pending')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 statusFilter === 'pending'
                   ? 'bg-slate-900 text-white shadow-sm'
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
@@ -173,7 +256,7 @@ export function CandidateApplications() {
             <button
               type="button"
               onClick={() => setStatusFilter('unlocked')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 statusFilter === 'unlocked'
                   ? 'bg-slate-900 text-white shadow-sm'
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
@@ -194,7 +277,7 @@ export function CandidateApplications() {
             <button
               type="button"
               onClick={() => setStatusFilter('shortlisted')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 statusFilter === 'shortlisted'
                   ? 'bg-slate-900 text-white shadow-sm'
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
@@ -215,7 +298,7 @@ export function CandidateApplications() {
             <button
               type="button"
               onClick={() => setStatusFilter('rejected')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 statusFilter === 'rejected'
                   ? 'bg-slate-900 text-white shadow-sm'
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
@@ -260,11 +343,74 @@ export function CandidateApplications() {
           />
           <button
             type="submit"
-            className="px-6 py-2.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-colors"
+            className="px-6 py-2.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-colors cursor-pointer"
           >
             Filter
           </button>
         </form>
+
+        {/* Organizer Row: Industry Vertical Filter + Sort By Dropdown */}
+        <div className="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+          <div className="md:col-span-5 flex items-center gap-2">
+            <label
+              htmlFor="candidate-app-industry"
+              className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
+            >
+              Industry:
+            </label>
+            <select
+              id="candidate-app-industry"
+              value={industryFilter}
+              onChange={(e) => setIndustryFilter(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+            >
+              <option value="all">All Industry Verticals</option>
+              {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
+                <option key={vertical} value={vertical}>
+                  {vertical}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="md:col-span-5 flex items-center gap-2">
+            <label
+              htmlFor="candidate-app-sort"
+              className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
+            >
+              Sort By:
+            </label>
+            <select
+              id="candidate-app-sort"
+              value={sortBy}
+              onChange={(e) =>
+                setSortBy(e.target.value as CandidateAppSortOption)
+              }
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+            >
+              <option value="newest">Newest Applied First</option>
+              <option value="recent_activity">
+                Recent Thread Activity / Unread First
+              </option>
+              <option value="match_high">AI Match Score (Highest First)</option>
+              <option value="match_low">AI Match Score (Lowest First)</option>
+              <option value="pay_high">
+                Highest Compensation (Annualized)
+              </option>
+              <option value="oldest">Oldest Applied First</option>
+            </select>
+          </div>
+
+          <div className="md:col-span-2 text-right">
+            <span className="text-xs font-bold text-slate-500">
+              Showing{' '}
+              <strong className="text-slate-900">
+                {filteredAndSortedApplications.length}
+              </strong>{' '}
+              of {applications.length}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Applications List */}
@@ -275,7 +421,7 @@ export function CandidateApplications() {
             Loading your application history...
           </p>
         </div>
-      ) : filteredApplications.length === 0 ? (
+      ) : filteredAndSortedApplications.length === 0 ? (
         <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-sm">
           <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
@@ -296,22 +442,36 @@ export function CandidateApplications() {
             No applications found
           </h3>
           <p className="text-slate-500 max-w-md mx-auto text-sm mb-6">
-            {statusFilter === 'all'
+            {statusFilter === 'all' && industryFilter === 'all'
               ? "You haven't submitted any blind applications yet. Browse open roles to run AI fit predictions and apply."
-              : `You don't have any applications in the "${statusFilter}" stage right now.`}
+              : 'No applications match your current status or Industry Vertical filter.'}
           </p>
-          <Link
-            href="/dashboard/jobs"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"
-          >
-            Browse Open Roles →
-          </Link>
+          {statusFilter !== 'all' || industryFilter !== 'all' ? (
+            <button
+              type="button"
+              onClick={() => {
+                setStatusFilter('all')
+                setIndustryFilter('all')
+              }}
+              className="px-5 py-2.5 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer"
+            >
+              Reset Active Filters →
+            </button>
+          ) : (
+            <Link
+              href="/dashboard/jobs"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"
+            >
+              Browse Open Roles →
+            </Link>
+          )}
         </div>
       ) : (
         <div className="space-y-6">
-          {filteredApplications.map((app) => {
+          {filteredAndSortedApplications.map((app) => {
             const job = app.jobs || {}
             const org = job.organizations || {}
+            const jobIndustry = getAppJobIndustry(app)
             const status = app.normalized_status as
               | 'pending'
               | 'unlocked'
@@ -365,6 +525,10 @@ export function CandidateApplications() {
                 : []
 
             const cleanOrgDesc = cleanCompanyDescription(org.description)
+            const isHourlyJob =
+              job.pay_type === 'hourly' ||
+              job.job_meta?.pay_type === 'hourly' ||
+              (job.salary_max && job.salary_max > 0 && job.salary_max <= 500)
 
             return (
               <div
@@ -422,6 +586,11 @@ export function CandidateApplications() {
                           <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-[11px] font-bold border border-slate-200">
                             Ref: {referenceId}
                           </span>
+                          {jobIndustry && (
+                            <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-800 border border-indigo-200 text-[11px] font-bold">
+                              {jobIndustry}
+                            </span>
+                          )}
                         </div>
                         <span className="text-xs text-slate-400">
                           Applied on{' '}
@@ -505,21 +674,37 @@ export function CandidateApplications() {
                               d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                             />
                           </svg>
-                          $
-                          {job.salary_min
-                            ? (job.salary_min / 1000).toFixed(0) + 'k'
-                            : ''}
-                          {job.salary_min && job.salary_max ? ' – ' : ''}
-                          {job.salary_max
-                            ? '$' + (job.salary_max / 1000).toFixed(0) + 'k'
-                            : ''}{' '}
-                          USD
+                          {isHourlyJob ? (
+                            <>
+                              ${job.salary_min || ''}
+                              {job.salary_min && job.salary_max ? ' – ' : ''}
+                              {job.salary_max ? `$${job.salary_max}` : ''} /hr
+                            </>
+                          ) : (
+                            <>
+                              $
+                              {job.salary_min
+                                ? (job.salary_min / 1000).toFixed(0) + 'k'
+                                : ''}
+                              {job.salary_min && job.salary_max ? ' – ' : ''}
+                              {job.salary_max
+                                ? '$' + (job.salary_max / 1000).toFixed(0) + 'k'
+                                : ''}{' '}
+                              /yr
+                            </>
+                          )}
                         </span>
                       )}
 
                       {job.work_model && (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold capitalize border border-slate-200">
                           {job.work_model} Work Model
+                        </span>
+                      )}
+
+                      {job.employment_type && (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200">
+                          {job.employment_type}
                         </span>
                       )}
 
@@ -603,7 +788,7 @@ export function CandidateApplications() {
                           type="button"
                           disabled={recalculatingId === app.id}
                           onClick={() => handleRecalculate(app.id)}
-                          className="text-xs font-bold text-slate-600 hover:text-indigo-700 flex items-center gap-1 disabled:opacity-50"
+                          className="text-xs font-bold text-slate-600 hover:text-indigo-700 flex items-center gap-1 disabled:opacity-50 cursor-pointer"
                         >
                           <svg
                             className={`w-3.5 h-3.5 ${
@@ -633,7 +818,7 @@ export function CandidateApplications() {
                             onClick={() =>
                               setExpandedRadarId(isExpanded ? null : app.id)
                             }
-                            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline"
+                            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
                           >
                             {isExpanded
                               ? 'Hide 5-Point Radar'

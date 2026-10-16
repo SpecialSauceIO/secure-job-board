@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import {
   getCandidateConnectionRequests,
@@ -8,6 +8,10 @@ import {
   recalculatePitchMatch,
 } from '@/app/dashboard/actions'
 import SecureMessageThread from '@/components/SecureMessageThread'
+import {
+  STANDARD_INDUSTRY_VERTICALS,
+  normalizeIndustryVertical,
+} from '@/constants/industries'
 import {
   Radar,
   RadarChart,
@@ -18,12 +22,55 @@ import {
   Tooltip,
 } from 'recharts'
 
+type RequestSortOption =
+  | 'match_high'
+  | 'match_low'
+  | 'recent_activity'
+  | 'pay_high'
+  | 'newest'
+  | 'oldest'
+
+function getRequestJobIndustry(req: any): string {
+  const job = req?.jobs || {}
+  const rawInd = job.industry || job.job_meta?.industry || ''
+  return rawInd ? normalizeIndustryVertical(rawInd) : ''
+}
+
+function getAnnualizedMaxPay(req: any): number {
+  const job = req?.jobs || {}
+  const rawMax = Number(job.salary_max) || Number(job.salary_min) || 0
+  if (!rawMax) return 0
+  const isHourly =
+    job.pay_type === 'hourly' ||
+    job.job_meta?.pay_type === 'hourly' ||
+    (rawMax > 0 && rawMax <= 500)
+  return isHourly ? rawMax * 2080 : rawMax
+}
+
+function getLastActivityTimestamp(req: any): number {
+  const messages = Array.isArray(req?.match_data?.messages)
+    ? req.match_data.messages
+    : []
+  if (messages.length > 0) {
+    const lastMsg = messages[messages.length - 1]
+    const msgTime = new Date(lastMsg.created_at || 0).getTime()
+    if (!isNaN(msgTime) && msgTime > 0) return msgTime
+  }
+  if (req?.match_data?.last_message_at) {
+    const t = new Date(req.match_data.last_message_at).getTime()
+    if (!isNaN(t)) return t
+  }
+  return new Date(req?.created_at || 0).getTime()
+}
+
 export default function CandidateConnectionRequestsPage() {
   const [requests, setRequests] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<
     'all' | 'pending' | 'accepted' | 'declined'
   >('pending')
+  const [industryFilter, setIndustryFilter] = useState<string>('all')
+  const [sortBy, setSortBy] = useState<RequestSortOption>('match_high')
   const [justUpdatedIds, setJustUpdatedIds] = useState<Record<string, boolean>>(
     {}
   )
@@ -37,18 +84,26 @@ export default function CandidateConnectionRequestsPage() {
   } | null>(null)
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
 
-  const loadRequestsFromServer = async (showSpinner = true) => {
+  const loadRequestsFromServer = useCallback(async (showSpinner = true) => {
     if (showSpinner) setIsLoading(true)
     const result = await getCandidateConnectionRequests()
     if (result.data) {
       setRequests(result.data)
     }
     if (showSpinner) setIsLoading(false)
-  }
+  }, [])
 
   useEffect(() => {
     loadRequestsFromServer(true)
-  }, [])
+  }, [loadRequestsFromServer])
+
+  // Silent 5-second background sync so new incoming pitches & employer replies appear live
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      loadRequestsFromServer(false)
+    }, 5000)
+    return () => clearInterval(intervalId)
+  }, [loadRequestsFromServer])
 
   const copyToClipboard = (text: string, key: string) => {
     navigator.clipboard.writeText(text)
@@ -202,11 +257,51 @@ export default function CandidateConnectionRequestsPage() {
     }
   }
 
-  const filteredRequests = requests.filter((req) => {
-    if (statusFilter === 'all') return true
-    if (justUpdatedIds[req.id]) return true
-    return getNormalizedStatus(req) === statusFilter
-  })
+  const filteredAndSortedRequests = useMemo(() => {
+    const filtered = requests.filter((req) => {
+      const statusMatches =
+        statusFilter === 'all' ||
+        Boolean(justUpdatedIds[req.id]) ||
+        getNormalizedStatus(req) === statusFilter
+
+      if (!statusMatches) return false
+
+      if (industryFilter !== 'all') {
+        const reqInd = getRequestJobIndustry(req)
+        if (reqInd.toLowerCase() !== industryFilter.toLowerCase()) {
+          return false
+        }
+      }
+
+      return true
+    })
+
+    const getMatchScore = (req: any): number =>
+      Number(req.match_score ?? req.match_data?.overall_score ?? 0)
+
+    return [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'match_high':
+          return getMatchScore(b) - getMatchScore(a)
+        case 'match_low':
+          return getMatchScore(a) - getMatchScore(b)
+        case 'recent_activity':
+          return getLastActivityTimestamp(b) - getLastActivityTimestamp(a)
+        case 'pay_high':
+          return getAnnualizedMaxPay(b) - getAnnualizedMaxPay(a)
+        case 'newest':
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          )
+        case 'oldest':
+          return (
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          )
+        default:
+          return 0
+      }
+    })
+  }, [requests, statusFilter, industryFilter, sortBy, justUpdatedIds])
 
   const pendingCount = requests.filter(
     (r) => getNormalizedStatus(r) === 'pending'
@@ -254,78 +349,147 @@ export default function CandidateConnectionRequestsPage() {
           </div>
         </div>
 
-        {/* Status Filter Tabs */}
-        <div className="flex flex-wrap gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm w-fit">
-          <button
-            onClick={() => handleTabChange('pending')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-              statusFilter === 'pending'
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            Pending Review
-            <span
-              className={`px-2 py-0.5 rounded-full text-[11px] ${
-                statusFilter === 'pending'
-                  ? 'bg-indigo-500 text-white'
-                  : 'bg-slate-100 text-slate-600'
-              }`}
-            >
-              {pendingCount}
-            </span>
-          </button>
+        {/* Status Tabs + Industry Vertical Filter + Sort By Bar */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => handleTabChange('pending')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  statusFilter === 'pending'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                Pending Review
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[11px] ${
+                    statusFilter === 'pending'
+                      ? 'bg-indigo-500 text-white'
+                      : 'bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {pendingCount}
+                </span>
+              </button>
 
-          <button
-            onClick={() => handleTabChange('accepted')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-              statusFilter === 'accepted'
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            Accepted &amp; Thread Open
-            <span
-              className={`px-2 py-0.5 rounded-full text-[11px] ${
-                statusFilter === 'accepted'
-                  ? 'bg-emerald-500 text-white'
-                  : 'bg-slate-100 text-slate-600'
-              }`}
-            >
-              {acceptedCount}
-            </span>
-          </button>
+              <button
+                type="button"
+                onClick={() => handleTabChange('accepted')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  statusFilter === 'accepted'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                Accepted &amp; Thread Open
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[11px] ${
+                    statusFilter === 'accepted'
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {acceptedCount}
+                </span>
+              </button>
 
-          <button
-            onClick={() => handleTabChange('declined')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-              statusFilter === 'declined'
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            Declined
-            <span
-              className={`px-2 py-0.5 rounded-full text-[11px] ${
-                statusFilter === 'declined'
-                  ? 'bg-rose-500 text-white'
-                  : 'bg-slate-100 text-slate-600'
-              }`}
-            >
-              {declinedCount}
-            </span>
-          </button>
+              <button
+                type="button"
+                onClick={() => handleTabChange('declined')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  statusFilter === 'declined'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                Declined
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[11px] ${
+                    statusFilter === 'declined'
+                      ? 'bg-rose-500 text-white'
+                      : 'bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {declinedCount}
+                </span>
+              </button>
 
-          <button
-            onClick={() => handleTabChange('all')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-              statusFilter === 'all'
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            All ({requests.length})
-          </button>
+              <button
+                type="button"
+                onClick={() => handleTabChange('all')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  statusFilter === 'all'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                All ({requests.length})
+              </button>
+            </div>
+
+            <span className="text-xs font-bold text-slate-500">
+              Showing{' '}
+              <strong className="text-slate-900">
+                {filteredAndSortedRequests.length}
+              </strong>{' '}
+              of {requests.length}
+            </span>
+          </div>
+
+          {/* Organizer Row: Industry Vertical Filter + Sort By Dropdown */}
+          <div className="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="candidate-req-industry"
+                className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
+              >
+                Industry:
+              </label>
+              <select
+                id="candidate-req-industry"
+                value={industryFilter}
+                onChange={(e) => setIndustryFilter(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              >
+                <option value="all">All Industry Verticals</option>
+                {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
+                  <option key={vertical} value={vertical}>
+                    {vertical}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="candidate-req-sort"
+                className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
+              >
+                Sort By:
+              </label>
+              <select
+                id="candidate-req-sort"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as RequestSortOption)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              >
+                <option value="match_high">
+                  AI Match Score (Highest First)
+                </option>
+                <option value="match_low">AI Match Score (Lowest First)</option>
+                <option value="recent_activity">
+                  Recent Thread Activity / Unread First
+                </option>
+                <option value="pay_high">
+                  Highest Compensation (Annualized)
+                </option>
+                <option value="newest">Newest Pitches First</option>
+                <option value="oldest">Oldest Pitches First</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         {/* Feed */}
@@ -336,7 +500,7 @@ export default function CandidateConnectionRequestsPage() {
               Loading incoming employer pitches...
             </p>
           </div>
-        ) : filteredRequests.length === 0 ? (
+        ) : filteredAndSortedRequests.length === 0 ? (
           <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-sm">
             <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
@@ -356,17 +520,30 @@ export default function CandidateConnectionRequestsPage() {
             <h3 className="text-xl font-bold text-slate-900 mb-2">
               No {statusFilter !== 'all' ? statusFilter : ''} connection requests
             </h3>
-            <p className="text-slate-500 max-w-md mx-auto text-sm">
-              {statusFilter === 'pending'
+            <p className="text-slate-500 max-w-md mx-auto text-sm mb-4">
+              {statusFilter === 'pending' && industryFilter === 'all'
                 ? "You're all caught up! When employers pitch you their active roles, they will appear right here."
-                : 'No connection requests match this filter.'}
+                : 'No connection requests match your current status or Industry Vertical filter.'}
             </p>
+            {(statusFilter !== 'all' || industryFilter !== 'all') && (
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter('all')
+                  setIndustryFilter('all')
+                }}
+                className="px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer"
+              >
+                Reset Active Filters →
+              </button>
+            )}
           </div>
         ) : (
           <div className="space-y-6">
-            {filteredRequests.map((req) => {
+            {filteredAndSortedRequests.map((req) => {
               const job = req.jobs || {}
               const org = job.organizations || {}
+              const jobIndustry = getRequestJobIndustry(req)
               const normalizedStatus = getNormalizedStatus(req)
               const isUnlocked = normalizedStatus === 'accepted'
               const vaultReleased = Boolean(
@@ -472,6 +649,11 @@ export default function CandidateConnectionRequestsPage() {
                             <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-[11px] font-bold border border-slate-200">
                               Ref: {referenceId}
                             </span>
+                            {jobIndustry && (
+                              <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-800 border border-indigo-200 text-[11px] font-bold">
+                                {jobIndustry}
+                              </span>
+                            )}
                           </div>
                           <span className="text-xs text-slate-400">
                             Pitched on{' '}
@@ -578,6 +760,12 @@ export default function CandidateConnectionRequestsPage() {
                           </span>
                         )}
 
+                        {job.employment_type && (
+                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200">
+                            {job.employment_type}
+                          </span>
+                        )}
+
                         {isUnlocked && companyDomain && (
                           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-100">
                             🌐 {companyDomain}
@@ -680,7 +868,7 @@ export default function CandidateConnectionRequestsPage() {
                             type="button"
                             disabled={recalculatingId === req.id}
                             onClick={() => handleRecalculate(req.id)}
-                            className="text-xs font-bold text-slate-600 hover:text-indigo-700 flex items-center gap-1 disabled:opacity-50"
+                            className="text-xs font-bold text-slate-600 hover:text-indigo-700 flex items-center gap-1 disabled:opacity-50 cursor-pointer"
                           >
                             <svg
                               className={`w-3.5 h-3.5 ${
@@ -712,7 +900,7 @@ export default function CandidateConnectionRequestsPage() {
                                   isExpanded ? null : req.id
                                 )
                               }
-                              className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline"
+                              className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
                             >
                               {isExpanded
                                 ? 'Hide Radar Breakdown'
@@ -839,7 +1027,7 @@ export default function CandidateConnectionRequestsPage() {
                           <button
                             type="button"
                             onClick={() => handleRecalculate(req.id)}
-                            className="shrink-0 px-3 py-1.5 rounded-lg bg-rose-700 text-white text-xs font-extrabold hover:bg-rose-800 transition-colors"
+                            className="shrink-0 px-3 py-1.5 rounded-lg bg-rose-700 text-white text-xs font-extrabold hover:bg-rose-800 transition-colors cursor-pointer"
                           >
                             ↻ Try Again
                           </button>
