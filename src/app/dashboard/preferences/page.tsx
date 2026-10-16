@@ -32,15 +32,24 @@ const EMPLOYMENT_TYPE_OPTIONS = [
 ]
 
 function extractSavedEmploymentTypes(profile: any): string[] {
-  if (Array.isArray(profile?.preferred_employment_types) && profile.preferred_employment_types.length > 0) {
+  if (
+    Array.isArray(profile?.preferred_employment_types) &&
+    profile.preferred_employment_types.length > 0
+  ) {
     return profile.preferred_employment_types
   }
-  const rawSkills = Array.isArray(profile?.structured_skills) ? profile.structured_skills : []
-  const metaEntry = rawSkills.find((item: any) => item && item._ss_pref_meta === true)
-  if (Array.isArray(metaEntry?.employment_types) && metaEntry.employment_types.length > 0) {
+  const rawSkills = Array.isArray(profile?.structured_skills)
+    ? profile.structured_skills
+    : []
+  const metaEntry = rawSkills.find(
+    (item: any) => item && item._ss_pref_meta === true
+  )
+  if (
+    Array.isArray(metaEntry?.employment_types) &&
+    metaEntry.employment_types.length > 0
+  ) {
     return metaEntry.employment_types
   }
-  // Default: All 4 enabled if not yet customized
   return EMPLOYMENT_TYPE_OPTIONS.map((o) => o.value)
 }
 
@@ -52,35 +61,43 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
   } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const selectedTypes = formData.getAll('employment_types').map(String).filter(Boolean)
+  const selectedTypes = formData
+    .getAll('employment_types')
+    .map(String)
+    .filter(Boolean)
   const finalEmploymentTypes =
     selectedTypes.length > 0
       ? selectedTypes
       : EMPLOYMENT_TYPE_OPTIONS.map((o) => o.value)
 
-  // Preserve existing visible skills while embedding _ss_pref_meta for zero-migration compatibility
-  let rawSkills: any[] = []
-  try {
-    rawSkills = JSON.parse(String(formData.get('structured_skills') || '[]'))
-  } catch {
-    rawSkills = []
-  }
+  // Fetch latest structured_skills from DB so we preserve saved_job_ids & saved_candidate_ids
+  const { data: currentProfile } = await supabase
+    .from('profiles')
+    .select('structured_skills')
+    .eq('id', user.id)
+    .single()
 
-  const cleanedSkills = (Array.isArray(rawSkills) ? rawSkills : []).filter(
+  const rawSkills = Array.isArray(currentProfile?.structured_skills)
+    ? currentProfile.structured_skills
+    : []
+
+  const existingPrefMeta =
+    rawSkills.find((item: any) => item && item._ss_pref_meta === true) || {}
+
+  const cleanedSkills = rawSkills.filter(
     (item: any) => !(item && item._ss_pref_meta === true)
   )
 
   cleanedSkills.push({
+    ...existingPrefMeta,
     _ss_pref_meta: true,
     employment_types: finalEmploymentTypes,
   })
 
   formData.set('structured_skills', JSON.stringify(cleanedSkills))
 
-  // Call existing updateProfile server action for salary, work model, and location
   await updateProfile(formData)
 
-  // Also ensure structured_skills (with _ss_pref_meta) is persisted even if updateProfile skips it
   await supabase
     .from('profiles')
     .update({ structured_skills: cleanedSkills })
@@ -122,8 +139,18 @@ export default async function MatchPreferencesPage() {
             href="/dashboard"
             className="text-indigo-600 font-bold text-sm inline-flex items-center gap-1 mb-3 hover:text-indigo-700"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
             Back to Candidate Dashboard
           </Link>
@@ -138,7 +165,9 @@ export default async function MatchPreferencesPage() {
         {!isVerified && (
           <div className="p-6 rounded-2xl bg-amber-50 border border-amber-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-sm font-extrabold text-amber-950">Identity Verification Required</h2>
+              <h2 className="text-sm font-extrabold text-amber-950">
+                Identity Verification Required
+              </h2>
               <p className="text-xs text-amber-800 mt-0.5">
                 Complete Stripe Identity verification to unlock receiving inbound connection pitches from verified employers.
               </p>
@@ -158,7 +187,11 @@ export default async function MatchPreferencesPage() {
           action={saveCandidatePreferencesWithEmploymentTypes}
           className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6"
         >
-          <input type="hidden" name="experience_years" value={profile?.experience_years || ''} />
+          <input
+            type="hidden"
+            name="experience_years"
+            value={profile?.experience_years || ''}
+          />
           <input type="hidden" name="bio" value={profile?.bio || ''} />
           <input
             type="hidden"
@@ -184,7 +217,9 @@ export default async function MatchPreferencesPage() {
                   className="block w-full rounded-lg border border-slate-300 bg-white pl-8 pr-14 py-2.5 text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm font-bold"
                 />
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5">
-                  <span className="text-xs font-extrabold text-slate-400">USD /yr</span>
+                  <span className="text-xs font-extrabold text-slate-400">
+                    USD /yr
+                  </span>
                 </div>
               </div>
               <p className="text-xs text-slate-500 mt-1">
@@ -232,7 +267,9 @@ export default async function MatchPreferencesPage() {
 
             {/* 3. PREFERRED WORK MODEL */}
             <div className="pt-2 border-t border-slate-100">
-              <label className="block text-sm font-bold text-slate-700">Preferred Work Model</label>
+              <label className="block text-sm font-bold text-slate-700">
+                Preferred Work Model
+              </label>
               <select
                 name="preferred_work_model"
                 defaultValue={profile?.preferred_work_model || 'remote'}
@@ -247,7 +284,9 @@ export default async function MatchPreferencesPage() {
 
             {/* 4. US CASCADING LOCATION SELECTOR */}
             <div className="pt-2 border-t border-slate-100">
-              <label className="block text-sm font-bold text-slate-700 mb-1">Target Location</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">
+                Target Location
+              </label>
               <p className="text-xs text-slate-500 mb-3">
                 Select your preferred US state and metro area for hybrid/on-site roles (or remote preference).
               </p>

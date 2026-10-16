@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { analyzeJobFit, applyBlind } from '@/app/dashboard/actions'
 import {
+  getUserBookmarks,
+  toggleBookmarkItem,
+} from '@/app/dashboard/bookmark-actions'
+import {
   Radar,
   RadarChart,
   PolarGrid,
@@ -19,7 +23,8 @@ function extractJobCardMeta(job: any) {
   const rawReqs = Array.isArray(job.structured_requirements)
     ? job.structured_requirements
     : []
-  const metaItem = rawReqs.find((r: any) => r && r._ss_job_meta === true) || job.job_meta || {}
+  const metaItem =
+    rawReqs.find((r: any) => r && r._ss_job_meta === true) || job.job_meta || {}
   const visibleReqs = rawReqs.filter(
     (r: any) =>
       r &&
@@ -67,7 +72,8 @@ function extractJobCardMeta(job: any) {
     payType,
     compPerks: job.comp_perks || metaItem.comp_perks || '',
     location: job.location || metaItem.location || '',
-    employmentType: job.employment_type || metaItem.employment_type || 'Full-Time (W-2)',
+    employmentType:
+      job.employment_type || metaItem.employment_type || 'Full-Time (W-2)',
     experienceLevel: job.experience_level || metaItem.experience_level || '',
     industry: job.industry || metaItem.industry || '',
     companySize: job.company_size || metaItem.company_size || '',
@@ -79,11 +85,17 @@ function extractJobCardMeta(job: any) {
 export function CandidateJobFeed({
   jobs,
   isVerified = false,
+  savedJobIds: externalSavedIds,
+  onToggleSaveJob,
 }: {
   jobs: any[]
   isVerified?: boolean
+  savedJobIds?: string[]
+  onToggleSaveJob?: (jobId: string) => void
 }) {
   const [jobList, setJobList] = useState<any[]>(jobs || [])
+  const [internalSavedIds, setInternalSavedIds] = useState<string[]>([])
+  const [togglingSaveId, setTogglingSaveId] = useState<string | null>(null)
   const [analyzingId, setAnalyzingId] = useState<string | null>(null)
   const [applyingId, setApplyingId] = useState<string | null>(null)
   const [appliedJobs, setAppliedJobs] = useState<Record<string, string>>({})
@@ -95,6 +107,43 @@ export function CandidateJobFeed({
   useEffect(() => {
     setJobList(jobs || [])
   }, [jobs])
+
+  // Load saved bookmarks automatically if not passed by parent page
+  useEffect(() => {
+    if (externalSavedIds !== undefined) return
+    let mounted = true
+    getUserBookmarks().then((res) => {
+      if (mounted) setInternalSavedIds(res.savedJobIds || [])
+    })
+    return () => {
+      mounted = false
+    }
+  }, [externalSavedIds])
+
+  const activeSavedIds =
+    externalSavedIds !== undefined ? externalSavedIds : internalSavedIds
+
+  const handleToggleBookmark = async (jobId: string) => {
+    if (onToggleSaveJob) {
+      onToggleSaveJob(jobId)
+      return
+    }
+    setTogglingSaveId(jobId)
+    const normalizedId = String(jobId)
+    const wasSaved = internalSavedIds.includes(normalizedId)
+    // Optimistic update
+    setInternalSavedIds((prev) =>
+      wasSaved
+        ? prev.filter((id) => id !== normalizedId)
+        : [...prev, normalizedId]
+    )
+
+    const res = await toggleBookmarkItem(normalizedId, 'job')
+    if (!res.error) {
+      setInternalSavedIds(res.savedIds)
+    }
+    setTogglingSaveId(null)
+  }
 
   const handleAnalyzeFit = async (jobId: string) => {
     setAnalyzingId(jobId)
@@ -239,7 +288,7 @@ export function CandidateJobFeed({
   return (
     <div className="space-y-6">
       {jobList.map((job) => {
-        const jobId = job.uuid || job.id
+        const jobId = String(job.uuid || job.id)
         const meta = extractJobCardMeta(job)
         const matchData = matchResults[jobId]
         const score = matchData?.overall_score ?? null
@@ -247,6 +296,7 @@ export function CandidateJobFeed({
         const isApplying = applyingId === jobId
         const appliedRef = appliedJobs[jobId]
         const isApplied = Boolean(appliedRef)
+        const isBookmarked = activeSavedIds.includes(jobId)
         const cardFeedback = feedback[jobId]
         const orgVerified =
           job.organizations?.verification_status === 'verified'
@@ -262,11 +312,13 @@ export function CandidateJobFeed({
             className={`bg-white rounded-2xl border transition-all overflow-hidden ${
               isApplied
                 ? 'border-emerald-300 ring-2 ring-emerald-500/10 shadow-md'
+                : isBookmarked
+                ? 'border-amber-300 shadow-sm'
                 : 'border-slate-200 shadow-sm hover:border-indigo-300'
             }`}
           >
             <div className="p-6 md:p-8 space-y-5">
-              {/* Top Row: Anonymous Company Teaser & Prominent Compensation Band */}
+              {/* Top Row: Anonymous Company Teaser, Bookmark Button, & Compensation Band */}
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-slate-100">
                 <div className="space-y-1.5">
                   <div className="flex flex-wrap items-center gap-2">
@@ -309,26 +361,63 @@ export function CandidateJobFeed({
                   </h3>
                 </div>
 
-                {/* Prominent Pay Band Box (/yr or /hr) */}
-                <div className="flex flex-col sm:items-end shrink-0">
-                  <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-black text-base shadow-sm">
-                    <svg
-                      className="w-4 h-4 text-emerald-600 shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                {/* Prominent Pay Band Box + Save / Bookmark Button */}
+                <div className="flex flex-col sm:items-end gap-2 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={togglingSaveId === jobId}
+                      onClick={() => handleToggleBookmark(jobId)}
+                      title={
+                        isBookmarked
+                          ? 'Remove from saved roles'
+                          : 'Save role for later comparison'
+                      }
+                      className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
+                        isBookmarked
+                          ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-2xs'
+                          : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900'
+                      }`}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2.5"
-                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <span>{meta.formattedPay}</span>
+                      <svg
+                        className={`w-4 h-4 ${
+                          isBookmarked
+                            ? 'text-amber-500 fill-amber-500'
+                            : 'text-slate-400'
+                        }`}
+                        fill={isBookmarked ? 'currentColor' : 'none'}
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                        />
+                      </svg>
+                      {isBookmarked ? 'Saved' : 'Save Role'}
+                    </button>
+
+                    <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-black text-base shadow-sm">
+                      <svg
+                        className="w-4 h-4 text-emerald-600 shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2.5"
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span>{meta.formattedPay}</span>
+                    </div>
                   </div>
                   {meta.compPerks && meta.compPerks !== 'Base Salary Only' && (
-                    <span className="text-[11px] font-extrabold text-indigo-600 mt-1">
+                    <span className="text-[11px] font-extrabold text-indigo-600">
                       {meta.compPerks}
                     </span>
                   )}
@@ -405,7 +494,7 @@ export function CandidateJobFeed({
                         {req.skill || req.name}
                         {req.level && (
                           <span className="text-slate-400 font-semibold ml-1">
-                            • {req.level}
+                            ({req.level})
                           </span>
                         )}
                       </span>
@@ -492,7 +581,11 @@ export function CandidateJobFeed({
                             <PolarGrid stroke="#cbd5e1" />
                             <PolarAngleAxis
                               dataKey="subject"
-                              tick={{ fill: '#475569', fontSize: 10, fontWeight: 600 }}
+                              tick={{
+                                fill: '#475569',
+                                fontSize: 10,
+                                fontWeight: 600,
+                              }}
                             />
                             <PolarRadiusAxis
                               angle={30}
@@ -526,7 +619,8 @@ export function CandidateJobFeed({
                     </div>
                     <div>
                       <h4 className="text-sm font-extrabold text-emerald-950">
-                        Blind Application Successfully Submitted! (Ref: {appliedRef})
+                        Blind Application Successfully Submitted! (Ref:{' '}
+                        {appliedRef})
                       </h4>
                       <p className="text-xs text-emerald-800 mt-0.5 leading-relaxed">
                         Your anonymous skill matrix and {score}% AI Match Radar are now in the employer&apos;s pipeline. Your name and contact info remain hidden until they unlock your application.
@@ -596,8 +690,8 @@ export function CandidateJobFeed({
                     </button>
                   )}
 
-                  {matchData && (
-                    isApplied ? (
+                  {matchData &&
+                    (isApplied ? (
                       <span className="px-5 py-2.5 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-extrabold inline-flex items-center gap-1.5">
                         ✓ Applied Blindly
                       </span>
@@ -605,7 +699,9 @@ export function CandidateJobFeed({
                       <button
                         type="button"
                         disabled={
-                          isApplying || !isVerified || score < MIN_MATCH_THRESHOLD
+                          isApplying ||
+                          !isVerified ||
+                          score < MIN_MATCH_THRESHOLD
                         }
                         onClick={() => handleBlindApply(jobId)}
                         title={
@@ -625,8 +721,7 @@ export function CandidateJobFeed({
                           ? `Locked (<${MIN_MATCH_THRESHOLD}% Match)`
                           : 'Submit Blind Application →'}
                       </button>
-                    )
-                  )}
+                    ))}
                 </div>
               </div>
             </div>

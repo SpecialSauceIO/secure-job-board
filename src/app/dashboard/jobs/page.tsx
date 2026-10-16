@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { CandidateJobFeed } from '@/components/CandidateJobFeed'
 import { searchJobs } from '@/app/dashboard/actions'
+import { toggleBookmarkItem } from '@/app/dashboard/bookmark-actions'
 import { US_STATES_AND_METROS, US_REMOTE_REGIONS } from '@/constants/usLocations'
 
 const EMPLOYMENT_TYPES = [
@@ -31,7 +32,9 @@ export default function CandidateJobsPage() {
   const [selectedMetro, setSelectedMetro] = useState('')
   const [rawJobs, setRawJobs] = useState<any[]>([])
   const [savedEmpTypes, setSavedEmpTypes] = useState<string[]>([])
+  const [savedJobIds, setSavedJobIds] = useState<string[]>([])
   const [onlyMyDealbreakers, setOnlyMyDealbreakers] = useState(false)
+  const [onlySavedJobs, setOnlySavedJobs] = useState(false)
   const [isVerified, setIsVerified] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -67,8 +70,14 @@ export default function CandidateJobsPage() {
         const prefMeta = rawSkills.find(
           (item: any) => item && item._ss_pref_meta === true
         )
-        if (Array.isArray(prefMeta?.employment_types) && prefMeta.employment_types.length > 0) {
+        if (
+          Array.isArray(prefMeta?.employment_types) &&
+          prefMeta.employment_types.length > 0
+        ) {
           setSavedEmpTypes(prefMeta.employment_types)
+        }
+        if (Array.isArray(prefMeta?.saved_job_ids)) {
+          setSavedJobIds(prefMeta.saved_job_ids.map(String))
         }
       }
 
@@ -106,8 +115,29 @@ export default function CandidateJobsPage() {
     setIsLoading(false)
   }
 
-  // Client-side filter for Employment Type & Saved Dealbreakers
+  const handleToggleSaveJob = async (jobId: string) => {
+    const normalizedId = String(jobId)
+    const wasSaved = savedJobIds.includes(normalizedId)
+    setSavedJobIds((prev) =>
+      wasSaved
+        ? prev.filter((id) => id !== normalizedId)
+        : [...prev, normalizedId]
+    )
+
+    const res = await toggleBookmarkItem(normalizedId, 'job')
+    if (!res.error) {
+      setSavedJobIds(res.savedIds)
+    }
+  }
+
+  // Client-side filter for Saved Jobs, Employment Type, & Saved Dealbreakers
   const filteredJobs = rawJobs.filter((job) => {
+    const jobId = String(job.uuid || job.id)
+
+    if (onlySavedJobs && !savedJobIds.includes(jobId)) {
+      return false
+    }
+
     const jobEmpType = getJobEmploymentType(job)
 
     if (employmentType !== 'all') {
@@ -149,7 +179,7 @@ export default function CandidateJobsPage() {
             </svg>
             Back to Candidate Dashboard
           </Link>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
                 Discover Blind Roles
@@ -159,21 +189,50 @@ export default function CandidateJobsPage() {
               </p>
             </div>
 
-            {savedEmpTypes.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
               <button
                 type="button"
-                onClick={() => setOnlyMyDealbreakers((prev) => !prev)}
-                className={`shrink-0 px-3.5 py-2 rounded-xl text-xs font-extrabold border transition-all cursor-pointer ${
-                  onlyMyDealbreakers
-                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                onClick={() => setOnlySavedJobs((prev) => !prev)}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold border transition-all cursor-pointer ${
+                  onlySavedJobs
+                    ? 'bg-amber-500 text-white border-amber-500 shadow-xs'
                     : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400'
                 }`}
               >
-                {onlyMyDealbreakers
-                  ? '✓ Matching My Employment Dealbreakers'
-                  : '🛡️ Filter by My Saved Dealbreakers'}
+                <svg
+                  className="w-3.5 h-3.5"
+                  fill={onlySavedJobs ? 'currentColor' : 'none'}
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                  />
+                </svg>
+                {onlySavedJobs
+                  ? `Showing Saved Roles (${savedJobIds.length})`
+                  : `Saved Roles (${savedJobIds.length})`}
               </button>
-            )}
+
+              {savedEmpTypes.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setOnlyMyDealbreakers((prev) => !prev)}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-extrabold border transition-all cursor-pointer ${
+                    onlyMyDealbreakers
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                      : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400'
+                  }`}
+                >
+                  {onlyMyDealbreakers
+                    ? '✓ Matching My Dealbreakers'
+                    : '🛡️ Filter by My Saved Dealbreakers'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -287,7 +346,12 @@ export default function CandidateJobsPage() {
             <p className="text-slate-500 font-medium">Loading blind roles...</p>
           </div>
         ) : (
-          <CandidateJobFeed jobs={filteredJobs} isVerified={isVerified} />
+          <CandidateJobFeed
+            jobs={filteredJobs}
+            isVerified={isVerified}
+            savedJobIds={savedJobIds}
+            onToggleSaveJob={handleToggleSaveJob}
+          />
         )}
       </div>
     </div>

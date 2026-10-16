@@ -2,7 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { searchCandidates, sendConnectionRequest, analyzeCandidateFit } from '@/app/dashboard/actions'
+import {
+  searchCandidates,
+  sendConnectionRequest,
+  analyzeCandidateFit,
+} from '@/app/dashboard/actions'
+import {
+  getUserBookmarks,
+  toggleBookmarkItem,
+} from '@/app/dashboard/bookmark-actions'
 import { US_STATES_AND_METROS, US_REMOTE_REGIONS } from '@/constants/usLocations'
 
 const MIN_MATCH_THRESHOLD = 40
@@ -60,6 +68,11 @@ export default function EmployerCandidateSearch({
   const [selectedMetro, setSelectedMetro] = useState('')
 
   const [candidates, setCandidates] = useState<any[]>([])
+  const [savedCandidateIds, setSavedCandidateIds] = useState<string[]>([])
+  const [onlyShortlisted, setOnlyShortlisted] = useState(false)
+  const [togglingCandidateId, setTogglingCandidateId] = useState<string | null>(
+    null
+  )
   const [isLoading, setIsLoading] = useState(true)
   const [liveCredits, setLiveCredits] = useState<number>(credits)
 
@@ -78,12 +91,18 @@ export default function EmployerCandidateSearch({
     setLiveCredits(credits)
   }, [credits])
 
-  // 1. Initial Load: Fetch passive candidates when the page first opens
+  // 1. Initial Load: Fetch passive candidates & saved shortlist when the page first opens
   useEffect(() => {
     const fetchInitial = async () => {
       setIsLoading(true)
-      const result = await searchCandidates('', '', '')
+      const [result, bookmarks] = await Promise.all([
+        searchCandidates('', '', ''),
+        getUserBookmarks(),
+      ])
       if (result.data) setCandidates(result.data)
+      if (bookmarks.savedCandidateIds) {
+        setSavedCandidateIds(bookmarks.savedCandidateIds)
+      }
       setIsLoading(false)
     }
     fetchInitial()
@@ -96,6 +115,23 @@ export default function EmployerCandidateSearch({
       : stateObj
       ? stateObj.metros
       : []
+
+  const handleToggleShortlist = async (candidateId: string) => {
+    const normalizedId = String(candidateId)
+    setTogglingCandidateId(normalizedId)
+    const wasSaved = savedCandidateIds.includes(normalizedId)
+    setSavedCandidateIds((prev) =>
+      wasSaved
+        ? prev.filter((id) => id !== normalizedId)
+        : [...prev, normalizedId]
+    )
+
+    const res = await toggleBookmarkItem(normalizedId, 'candidate')
+    if (!res.error) {
+      setSavedCandidateIds(res.savedIds)
+    }
+    setTogglingCandidateId(null)
+  }
 
   // 2. Explicit Search: Only query the database when the employer clicks the button
   const handleSearchSubmit = async (e: React.FormEvent) => {
@@ -198,13 +234,23 @@ export default function EmployerCandidateSearch({
     setIsSending(false)
   }
 
-  // Filter candidates by selected Employment Type
+  // Filter candidates by Shortlist toggle & selected Employment Type
   const filteredCandidates = candidates.filter((candidate) => {
-    if (employmentType === 'all') return true
-    const acceptedTypes = getCandidateEmploymentTypes(candidate)
-    return acceptedTypes.some(
-      (t) => t.toLowerCase() === employmentType.toLowerCase()
-    )
+    const cid = String(candidate.id)
+    if (onlyShortlisted && !savedCandidateIds.includes(cid)) {
+      return false
+    }
+    if (employmentType !== 'all') {
+      const acceptedTypes = getCandidateEmploymentTypes(candidate)
+      if (
+        !acceptedTypes.some(
+          (t) => t.toLowerCase() === employmentType.toLowerCase()
+        )
+      ) {
+        return false
+      }
+    }
+    return true
   })
 
   return (
@@ -214,8 +260,8 @@ export default function EmployerCandidateSearch({
         onSubmit={handleSearchSubmit}
         className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4"
       >
-        {/* Top Row: Main Search & Credits + Top Up CTA */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+        {/* Top Row: Main Search, Shortlist Filter, & Credits + Top Up CTA */}
+        <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4">
           <div className="relative flex-1 w-full">
             <svg
               className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
@@ -238,7 +284,35 @@ export default function EmployerCandidateSearch({
               className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-sm font-medium text-slate-900 transition-all"
             />
           </div>
-          <div className="flex items-center gap-2.5 shrink-0">
+
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => setOnlyShortlisted((prev) => !prev)}
+              className={`inline-flex items-center gap-1.5 px-4 py-3 rounded-xl text-xs font-extrabold border transition-all cursor-pointer ${
+                onlyShortlisted
+                  ? 'bg-amber-500 text-white border-amber-500 shadow-xs'
+                  : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400'
+              }`}
+            >
+              <svg
+                className="w-4 h-4"
+                fill={onlyShortlisted ? 'currentColor' : 'none'}
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                />
+              </svg>
+              {onlyShortlisted
+                ? `Shortlisted Only (${savedCandidateIds.length})`
+                : `Shortlist (${savedCandidateIds.length})`}
+            </button>
+
             <div
               className={`flex items-center gap-2 px-4 py-3 rounded-xl border ${
                 liveCredits > 0
@@ -263,6 +337,7 @@ export default function EmployerCandidateSearch({
                 {liveCredits} {liveCredits === 1 ? 'Credit' : 'Credits'} Remaining
               </span>
             </div>
+
             <Link
               href="/dashboard/employer/billing"
               className="px-4 py-3 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm whitespace-nowrap"
@@ -363,7 +438,7 @@ export default function EmployerCandidateSearch({
               You have 0 Connection Credits remaining
             </h3>
             <p className="text-xs text-rose-700 mt-0.5">
-              You can still browse the anonymous talent pool and run AI Match predictions, but you need at least 1 Connection Credit to send an outbound pitch.
+              You can still browse the anonymous talent pool, save candidates to your Shortlist, and run AI Match predictions, but you need at least 1 Connection Credit to send an outbound pitch.
             </p>
           </div>
           <Link
@@ -384,11 +459,22 @@ export default function EmployerCandidateSearch({
           </div>
         ) : filteredCandidates.length === 0 ? (
           <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-sm">
-            <h3 className="text-xl font-bold text-slate-900 mb-2">No candidates found</h3>
-            <p className="text-slate-500">Try adjusting your filters or search terms.</p>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">
+              {onlyShortlisted
+                ? 'No candidates in your Shortlist yet'
+                : 'No candidates found'}
+            </h3>
+            <p className="text-slate-500 text-sm">
+              {onlyShortlisted
+                ? 'Click "Save to Shortlist" on any anonymous candidate card to assemble a comparison pool before pitching.'
+                : 'Try adjusting your filters or search terms.'}
+            </p>
           </div>
         ) : (
           filteredCandidates.map((candidate) => {
+            const cid = String(candidate.id)
+            const isShortlisted = savedCandidateIds.includes(cid)
+
             const candidateSkillStrings: string[] =
               Array.isArray(candidate.structured_skills) &&
               candidate.structured_skills.length > 0
@@ -409,7 +495,7 @@ export default function EmployerCandidateSearch({
 
             const acceptedEmploymentTypes = getCandidateEmploymentTypes(candidate)
 
-            const displayId = candidate.id.split('-')[0].toUpperCase()
+            const displayId = cid.split('-')[0].toUpperCase()
             const isCandidateVerified = Boolean(
               candidate.identity_verified === true ||
                 String(candidate.identity_verified) === 'true' ||
@@ -495,82 +581,39 @@ export default function EmployerCandidateSearch({
             return (
               <div
                 key={candidate.id}
-                className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between gap-6 hover:border-indigo-300 transition-colors"
+                className={`bg-white p-6 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between gap-6 transition-colors ${
+                  isShortlisted
+                    ? 'border-amber-300'
+                    : 'border-slate-200 hover:border-indigo-300'
+                }`}
               >
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-slate-900 text-white rounded-full flex items-center justify-center font-bold text-sm shrink-0">
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        ></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-lg font-bold text-slate-900">
-                          Anonymous Candidate #{displayId}
-                        </h3>
-                        {isCandidateVerified && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-extrabold">
-                            <svg
-                              className="w-3 h-3 text-emerald-600"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2.5"
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
-                            Identity Verified
-                          </span>
-                        )}
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-slate-900 text-white rounded-full flex items-center justify-center font-bold text-sm shrink-0">
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                          ></path>
+                        </svg>
                       </div>
-                      <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500 mt-0.5">
-                        <span className="flex items-center gap-1 text-emerald-600">
-                          <svg
-                            className="w-3.5 h-3.5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            ></path>
-                          </svg>
-                          Min: $
-                          {candidate.min_salary_expectation
-                            ? (candidate.min_salary_expectation / 1000).toFixed(
-                                0
-                              ) + 'k'
-                            : 'Open'}
-                        </span>
-                        <span>•</span>
-                        <span className="capitalize">
-                          {candidate.preferred_work_model || 'Flexible'} Model
-                        </span>
-
-                        {candidate.location && (
-                          <>
-                            <span>•</span>
-                            <span className="flex items-center gap-1">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-lg font-bold text-slate-900">
+                            Anonymous Candidate #{displayId}
+                          </h3>
+                          {isCandidateVerified && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-extrabold">
                               <svg
-                                className="w-3.5 h-3.5"
+                                className="w-3 h-3 text-emerald-600"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -578,16 +621,96 @@ export default function EmployerCandidateSearch({
                                 <path
                                   strokeLinecap="round"
                                   strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"
-                                ></path>
+                                  strokeWidth="2.5"
+                                  d="M5 13l4 4L19 7"
+                                />
                               </svg>
-                              {candidate.location}
+                              Identity Verified
                             </span>
-                          </>
-                        )}
+                          )}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500 mt-0.5">
+                          <span className="flex items-center gap-1 text-emerald-600">
+                            <svg
+                              className="w-3.5 h-3.5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                              ></path>
+                            </svg>
+                            Min: $
+                            {candidate.min_salary_expectation
+                              ? (candidate.min_salary_expectation / 1000).toFixed(
+                                  0
+                                ) + 'k'
+                              : 'Open'}
+                          </span>
+                          <span>•</span>
+                          <span className="capitalize">
+                            {candidate.preferred_work_model || 'Flexible'} Model
+                          </span>
+
+                          {candidate.location && (
+                            <>
+                              <span>•</span>
+                              <span className="flex items-center gap-1">
+                                <svg
+                                  className="w-3.5 h-3.5"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"
+                                  ></path>
+                                </svg>
+                                {candidate.location}
+                              </span>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
+
+                    {/* Save to Shortlist Button */}
+                    <button
+                      type="button"
+                      disabled={togglingCandidateId === cid}
+                      onClick={() => handleToggleShortlist(cid)}
+                      className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
+                        isShortlisted
+                          ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-2xs'
+                          : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900'
+                      }`}
+                    >
+                      <svg
+                        className={`w-3.5 h-3.5 ${
+                          isShortlisted
+                            ? 'text-amber-500 fill-amber-500'
+                            : 'text-slate-400'
+                        }`}
+                        fill={isShortlisted ? 'currentColor' : 'none'}
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                        />
+                      </svg>
+                      {isShortlisted ? 'Shortlisted' : 'Save to Shortlist'}
+                    </button>
                   </div>
 
                   {/* Accepted Employment Types Row */}
