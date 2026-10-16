@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { CandidateJobFeed } from '@/components/CandidateJobFeed'
@@ -25,6 +26,7 @@ function getJobEmploymentType(job: any): string {
 }
 
 export default function CandidateJobsPage() {
+  const router = useRouter()
   const [query, setQuery] = useState('')
   const [workModel, setWorkModel] = useState('all')
   const [employmentType, setEmploymentType] = useState('all')
@@ -46,39 +48,48 @@ export default function CandidateJobsPage() {
         data: { user },
       } = await supabase.auth.getUser()
 
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single()
+      // HARD AUTH GATE: Block unauthenticated Incognito visitors immediately
+      if (!user) {
+        router.replace('/login')
+        return
+      }
 
-        setIsVerified(
-          Boolean(
-            profile?.identity_verified === true ||
-              String(profile?.identity_verified) === 'true' ||
-              profile?.is_verified === true ||
-              String(profile?.is_verified) === 'true' ||
-              profile?.verification_status === 'verified' ||
-              profile?.verification_status === 'approved'
-          )
-        )
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
 
-        const rawSkills = Array.isArray(profile?.structured_skills)
-          ? profile.structured_skills
-          : []
-        const prefMeta = rawSkills.find(
-          (item: any) => item && item._ss_pref_meta === true
+      if (profile?.role === 'employer') {
+        router.replace('/dashboard')
+        return
+      }
+
+      setIsVerified(
+        Boolean(
+          profile?.identity_verified === true ||
+            String(profile?.identity_verified) === 'true' ||
+            profile?.is_verified === true ||
+            String(profile?.is_verified) === 'true' ||
+            profile?.verification_status === 'verified' ||
+            profile?.verification_status === 'approved'
         )
-        if (
-          Array.isArray(prefMeta?.employment_types) &&
-          prefMeta.employment_types.length > 0
-        ) {
-          setSavedEmpTypes(prefMeta.employment_types)
-        }
-        if (Array.isArray(prefMeta?.saved_job_ids)) {
-          setSavedJobIds(prefMeta.saved_job_ids.map(String))
-        }
+      )
+
+      const rawSkills = Array.isArray(profile?.structured_skills)
+        ? profile.structured_skills
+        : []
+      const prefMeta = rawSkills.find(
+        (item: any) => item && item._ss_pref_meta === true
+      )
+      if (
+        Array.isArray(prefMeta?.employment_types) &&
+        prefMeta.employment_types.length > 0
+      ) {
+        setSavedEmpTypes(prefMeta.employment_types)
+      }
+      if (Array.isArray(prefMeta?.saved_job_ids)) {
+        setSavedJobIds(prefMeta.saved_job_ids.map(String))
       }
 
       const initialJobs = await searchJobs('', 'all', '')
@@ -87,7 +98,7 @@ export default function CandidateJobsPage() {
     }
 
     initPage()
-  }, [])
+  }, [router])
 
   const stateObj = US_STATES_AND_METROS.find((s) => s.code === selectedState)
   const metroOptions =

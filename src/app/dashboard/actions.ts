@@ -164,7 +164,13 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 function filterVisibleSkills(rawSkills: any): any[] {
   if (!Array.isArray(rawSkills)) return []
   return rawSkills.filter(
-    (s: any) => s && typeof s === 'object' && !s._ss_meta && s.skill && !String(s.skill).startsWith('__SS_')
+    (s: any) =>
+      s &&
+      typeof s === 'object' &&
+      !s._ss_meta &&
+      !s._ss_pref_meta &&
+      s.skill &&
+      !String(s.skill).startsWith('__SS_')
   )
 }
 
@@ -176,6 +182,17 @@ function extractCandidateMeta(rawSkills: any): {
   if (!Array.isArray(rawSkills)) return {}
   const metaItem = rawSkills.find((s: any) => s && typeof s === 'object' && s._ss_meta === true)
   return metaItem || {}
+}
+
+function extractCandidatePrefMeta(rawSkills: any): {
+  _ss_pref_meta?: boolean
+  employment_types?: string[]
+  saved_job_ids?: string[]
+  saved_candidate_ids?: string[]
+} | null {
+  if (!Array.isArray(rawSkills)) return null
+  const prefItem = rawSkills.find((s: any) => s && typeof s === 'object' && s._ss_pref_meta === true)
+  return prefItem || null
 }
 
 // ------------------------------------------------------------------
@@ -362,6 +379,7 @@ export async function activateSandboxCandidateTier(
     .neq('initiated_by', 'employer')
 
   const visibleSkills = filterVisibleSkills(profile?.structured_skills)
+  const existingPrefMeta = extractCandidatePrefMeta(profile?.structured_skills)
 
   const newMeta = {
     _ss_meta: true,
@@ -370,7 +388,11 @@ export async function activateSandboxCandidateTier(
     trialBaselineApps: targetMode === 'trial' ? (currentApps || 0) : 0,
   }
 
-  const updatedSkillsArray = [...visibleSkills, newMeta]
+  const updatedSkillsArray = [
+    ...visibleSkills,
+    newMeta,
+    ...(existingPrefMeta ? [existingPrefMeta] : []),
+  ]
 
   const { error } = await supabase
     .from('profiles')
@@ -955,20 +977,29 @@ export async function updateProfile(formData: FormData) {
     .single()
 
   const existingMeta = extractCandidateMeta(currentProfile?.structured_skills)
+  const existingPrefMeta = extractCandidatePrefMeta(currentProfile?.structured_skills)
   
+  let parsedRawSkills: any[] = []
   let structured_skills: any[] = []
   try {
     if (structured_skills_raw) {
-      structured_skills = filterVisibleSkills(JSON.parse(structured_skills_raw))
+      parsedRawSkills = JSON.parse(structured_skills_raw)
+      structured_skills = filterVisibleSkills(parsedRawSkills)
     }
   } catch (e) {
     console.error("Failed to parse structured skills")
   }
 
+  // Check if incoming formData already included an updated _ss_pref_meta object
+  const submittedPrefMeta = extractCandidatePrefMeta(parsedRawSkills) || existingPrefMeta
+
   const skills_string = structured_skills.map((s: any) => s.skill).join(', ')
 
   if (existingMeta && (existingMeta as any)._ss_meta) {
     structured_skills = [...structured_skills, existingMeta]
+  }
+  if (submittedPrefMeta && submittedPrefMeta._ss_pref_meta) {
+    structured_skills = [...structured_skills, submittedPrefMeta]
   }
 
   const basePayload: any = {
@@ -1047,6 +1078,7 @@ export async function parseResumeAutoFill(formData: FormData) {
       .single()
 
     const existingMeta = extractCandidateMeta(currentProfile?.structured_skills)
+    const existingPrefMeta = extractCandidatePrefMeta(currentProfile?.structured_skills)
 
     const fileExt = file.name.split('.').pop() || 'pdf'
     const fileName = `${user.id}-${Date.now()}.${fileExt}`
@@ -1085,6 +1117,9 @@ export async function parseResumeAutoFill(formData: FormData) {
 
     if (existingMeta && (existingMeta as any)._ss_meta) {
       extractedSkills = [...extractedSkills, existingMeta]
+    }
+    if (existingPrefMeta && existingPrefMeta._ss_pref_meta) {
+      extractedSkills = [...extractedSkills, existingPrefMeta]
     }
 
     const baseUpdatePayload: any = {
@@ -1306,6 +1341,11 @@ export async function applyBlind(formData: FormData) {
 export async function searchJobs(query: string, workModel: string, locationFilter?: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+
+  // STRICT AUTH GATE: Never return job listings to unauthenticated callers
+  if (!user) {
+    return []
+  }
   
   let dbQuery = supabase
     .from('jobs')
@@ -1346,8 +1386,6 @@ export async function searchJobs(query: string, workModel: string, locationFilte
       (j.location || '').toLowerCase().includes(locQ)
     )
   }
-
-  if (!user) return filteredJobs
 
   const { data: applications } = await supabase
     .from('applications')
@@ -2098,7 +2136,7 @@ export async function parseJobAutoFill(formData: FormData) {
       5. "pay_type": Either "annual" or "hourly" (string).
       6. "salary_min": Minimum pay number if mentioned, or "" (number or string).
       7. "salary_max": Maximum pay number if mentioned, or "" (number or string).
-      8. "employment_type": One of "Full-Time (W-2)", "Contract / 1099", "Contract-to-Hire", or "Part-Time".
+      8. "employment_type": One of "Full-Time (W-2)", "Contract (1099 / Corp-to-Corp)", "Contract-to-Hire", or "Part-Time".
       9. "experience_level": One of "Entry / Junior (0–2 yrs)", "Mid-Level (3–5 yrs)", "Senior (5–8 yrs)", "Lead / Staff / Principal (8+ yrs)", or "Executive / Director".
       10. "industry": Short industry category (e.g., "SaaS / AI", "FinTech", "Healthcare", "Cybersecurity", "Enterprise IT").
       11. "structured_requirements": A JSON array of objects representing the 5-8 most critical skills required. 
@@ -2295,7 +2333,7 @@ export async function searchCandidates(query: string, workModel?: string, locati
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'Unauthorized' }
+  if (!user) return { error: 'Unauthorized', data: [] }
 
   const { data: member } = await supabase
     .from('organization_members')
@@ -2378,10 +2416,16 @@ export async function searchCandidates(query: string, workModel?: string, locati
 
   const filteredData = (data || [])
     .filter(candidate => !pitchedCandidateIds.includes(candidate.id))
-    .map(candidate => ({
-      ...candidate,
-      structured_skills: filterVisibleSkills(candidate.structured_skills),
-    }))
+    .map(candidate => {
+      const prefMeta = extractCandidatePrefMeta(candidate.structured_skills)
+      return {
+        ...candidate,
+        preferred_employment_types: Array.isArray(prefMeta?.employment_types)
+          ? prefMeta.employment_types
+          : undefined,
+        structured_skills: filterVisibleSkills(candidate.structured_skills),
+      }
+    })
 
   return { data: filteredData.slice(0, 20) }
 }
@@ -2422,7 +2466,7 @@ export async function sendConnectionRequest(
   
   if (tierInfo.tier === 'free' || credits < 1) {
     return {
-      error: 'Subscription / Pitch Credits Required: Subscribe to Starter ($99/mo), Growth ($299/mo), or Enterprise ($899/mo) to unlock outbound candidate pitches.'
+      error: 'Subscription / Pitch Credits Required: Subscribe to Starter ($99/mo), Growth ($299/mo), or Enterprise ($899/mo) on your Billing page to unlock outbound candidate pitches.'
     }
   }
 
@@ -2458,6 +2502,22 @@ export async function sendConnectionRequest(
 
   if (candidatePrefModel !== 'any' && candidatePrefModel !== 'open' && jobWorkModel !== candidatePrefModel) {
     return { error: `Request Blocked: Candidate is only accepting ${candidate.preferred_work_model} roles.` }
+  }
+
+  // Enforce Candidate Employment Type Dealbreaker on the Server
+  const candidatePrefMeta = extractCandidatePrefMeta(candidate.structured_skills)
+  const acceptedEmpTypes = Array.isArray(candidatePrefMeta?.employment_types)
+    ? candidatePrefMeta.employment_types
+    : []
+  const jobEmpType = (job.employment_type || 'Full-Time (W-2)').trim()
+
+  if (
+    acceptedEmpTypes.length > 0 &&
+    !acceptedEmpTypes.some((t: string) => t.toLowerCase() === jobEmpType.toLowerCase())
+  ) {
+    return {
+      error: `Request Blocked: Role is ${jobEmpType}, but candidate only accepts ${acceptedEmpTypes.join(', ')}.`
+    }
   }
 
   let matchData = precomputedMatchData || null
@@ -3631,8 +3691,6 @@ export async function submitSupportTicket(formData: FormData) {
 
 export async function createJob(formData: FormData) {
   await createStructuredJob(formData)
-
-  
 }
 
 // ------------------------------------------------------------------
