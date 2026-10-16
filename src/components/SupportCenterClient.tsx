@@ -18,15 +18,23 @@ export default function SupportCenterClient({
   userRole: 'candidate' | 'employer' | null
   initialTab?: 'guides' | 'kb' | 'security' | 'ticket'
 }) {
-  const [activeTab, setActiveTab] = useState<'guides' | 'kb' | 'security' | 'ticket'>(initialTab)
+  const [activeTab, setActiveTab] = useState<
+    'guides' | 'kb' | 'security' | 'ticket'
+  >(initialTab)
   const [selectedGuide, setSelectedGuide] = useState<'employer' | 'candidate'>(
     userRole === 'employer' ? 'employer' : 'candidate'
   )
   const [copiedGuideId, setCopiedGuideId] = useState<string | null>(null)
   const [copiedSecurity, setCopiedSecurity] = useState(false)
 
-  const [faqRoleFilter, setFaqRoleFilter] = useState<'all' | 'candidate' | 'employer'>(
-    userRole === 'employer' ? 'employer' : userRole === 'candidate' ? 'candidate' : 'all'
+  const [faqRoleFilter, setFaqRoleFilter] = useState<
+    'all' | 'candidate' | 'employer'
+  >(
+    userRole === 'employer'
+      ? 'employer'
+      : userRole === 'candidate'
+      ? 'candidate'
+      : 'all'
   )
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedFaqId, setExpandedFaqId] = useState<string | null>(null)
@@ -61,7 +69,11 @@ export default function SupportCenterClient({
 
   const filteredFaqs = useMemo(() => {
     return faqs.filter((faq) => {
-      if (faqRoleFilter !== 'all' && faq.target !== 'all' && faq.target !== faqRoleFilter) {
+      if (
+        faqRoleFilter !== 'all' &&
+        faq.target !== 'all' &&
+        faq.target !== faqRoleFilter
+      ) {
         return false
       }
       if (searchQuery) {
@@ -107,19 +119,19 @@ export default function SupportCenterClient({
         <button
           type="button"
           onClick={() => setActiveTab('guides')}
-          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 ${
+          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
             activeTab === 'guides'
               ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
               : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
           }`}
         >
-          1. How It Works & Guides
+          1. How It Works &amp; Guides
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('kb')}
-          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 ${
+          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
             activeTab === 'kb'
               ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
               : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
@@ -131,19 +143,19 @@ export default function SupportCenterClient({
         <button
           type="button"
           onClick={() => setActiveTab('security')}
-          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 ${
+          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
             activeTab === 'security'
               ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50'
               : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
           }`}
         >
-          3. Data Security & Stripe
+          3. 2-Stage Vault &amp; Stripe
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('ticket')}
-          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 ${
+          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
             activeTab === 'ticket'
               ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
               : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
@@ -165,7 +177,7 @@ export default function SupportCenterClient({
                   Select Playbook View
                 </span>
                 <p className="text-xs text-slate-600 mt-0.5">
-                  View step-by-step workflows or copy the plain-text cheat sheet to share with your team.
+                  View step-by-step workflows (including the 2-Stage Identity Vault &amp; 30-Day Freshness rules) or copy the plain-text cheat sheet.
                 </p>
               </div>
 
@@ -173,18 +185,18 @@ export default function SupportCenterClient({
                 <button
                   type="button"
                   onClick={() => setSelectedGuide('employer')}
-                  className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-colors ${
+                  className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
                     selectedGuide === 'employer'
                       ? 'bg-slate-900 text-white shadow-sm'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  🏢 Employer & BPO Guide
+                  🏢 Employer &amp; BPO Guide
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedGuide('candidate')}
-                  className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-colors ${
+                  className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
                     selectedGuide === 'candidate'
                       ? 'bg-indigo-600 text-white shadow-sm'
                       : 'text-slate-600 hover:text-slate-900'
@@ -242,7 +254,7 @@ export default function SupportCenterClient({
                 <button
                   type="button"
                   onClick={() => handleCopyGuide(currentGuide.id)}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-colors shrink-0 flex items-center gap-2 ${
+                  className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-colors shrink-0 flex items-center gap-2 cursor-pointer ${
                     copiedGuideId === currentGuide.id
                       ? 'bg-emerald-500 text-white'
                       : 'bg-indigo-600 text-white hover:bg-indigo-500'
@@ -250,15 +262,35 @@ export default function SupportCenterClient({
                 >
                   {copiedGuideId === currentGuide.id ? (
                     <>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2.5"
+                          d="M5 13l4 4L19 7"
+                        />
                       </svg>
                       Copied to Clipboard!
                     </>
                   ) : (
                     <>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                        />
                       </svg>
                       Copy Briefing Sheet
                     </>
@@ -295,7 +327,7 @@ export default function SupportCenterClient({
                 </svg>
                 <input
                   type="text"
-                  placeholder="Search FAQs (e.g. Stripe, BPO seats, hourly pay, credits, verification)..."
+                  placeholder="Search FAQs (e.g. 2-Stage Vault, 30-day expiry, shortlist, W-2 vs 1099, Stripe, chime)..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-sm font-medium text-slate-900 transition-all"
@@ -306,7 +338,7 @@ export default function SupportCenterClient({
                 <button
                   type="button"
                   onClick={() => setFaqRoleFilter('all')}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-extrabold transition-colors ${
+                  className={`px-3.5 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
                     faqRoleFilter === 'all'
                       ? 'bg-white text-slate-900 shadow-sm'
                       : 'text-slate-600 hover:text-slate-900'
@@ -317,7 +349,7 @@ export default function SupportCenterClient({
                 <button
                   type="button"
                   onClick={() => setFaqRoleFilter('employer')}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-extrabold transition-colors ${
+                  className={`px-3.5 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
                     faqRoleFilter === 'employer'
                       ? 'bg-white text-slate-900 shadow-sm'
                       : 'text-slate-600 hover:text-slate-900'
@@ -328,7 +360,7 @@ export default function SupportCenterClient({
                 <button
                   type="button"
                   onClick={() => setFaqRoleFilter('candidate')}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-extrabold transition-colors ${
+                  className={`px-3.5 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
                     faqRoleFilter === 'candidate'
                       ? 'bg-white text-slate-900 shadow-sm'
                       : 'text-slate-600 hover:text-slate-900'
@@ -371,7 +403,7 @@ export default function SupportCenterClient({
                               onClick={() =>
                                 setExpandedFaqId(isExpanded ? null : faq.id)
                               }
-                              className="w-full px-5 py-4 text-left flex items-center justify-between bg-white focus:outline-none"
+                              className="w-full px-5 py-4 text-left flex items-center justify-between bg-white focus:outline-none cursor-pointer"
                             >
                               <span className="font-bold text-slate-800 text-sm pr-4">
                                 {faq.question}
@@ -409,7 +441,7 @@ export default function SupportCenterClient({
         )}
 
         {/* =================================================================== */}
-        {/* TAB 3: DATA SECURITY, PRIVACY & STRIPE VAULT ARCHITECTURE           */}
+        {/* TAB 3: DATA SECURITY, 2-STAGE VAULT & STRIPE ARCHITECTURE           */}
         {/* =================================================================== */}
         {activeTab === 'security' && (
           <div className="space-y-8 animate-in fade-in duration-300">
@@ -417,10 +449,20 @@ export default function SupportCenterClient({
             <div className="p-6 rounded-2xl bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-extrabold">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2.5"
+                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                    />
                   </svg>
-                  PCI-DSS Level 1 & Biometric Isolation via Stripe
+                  PCI-DSS Level 1 • Biometric Isolation • 2-Stage Anti-Harvesting Vault
                 </div>
                 <h2 className="text-2xl font-extrabold tracking-tight">
                   {SECURITY_ARCHITECTURE_DATA.title}
@@ -450,7 +492,8 @@ export default function SupportCenterClient({
                 </div>
 
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  The following sensitive identity and financial records are captured directly by Stripe’s encrypted infrastructure and are <strong>never stored in Special Sauce databases</strong>:
+                  The following sensitive identity and financial records are captured directly by Stripe’s encrypted infrastructure and are{' '}
+                  <strong>never stored in Special Sauce databases</strong>:
                 </p>
 
                 <div className="space-y-3">
@@ -460,8 +503,18 @@ export default function SupportCenterClient({
                       className="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm space-y-1"
                     >
                       <div className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
-                        <svg className="w-4 h-4 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        <svg
+                          className="w-4 h-4 text-indigo-600 shrink-0"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2.5"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                          />
                         </svg>
                         <span>{item.title}</span>
                       </div>
@@ -477,41 +530,63 @@ export default function SupportCenterClient({
               <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50/40 p-6 space-y-5">
                 <div className="flex items-center gap-3 border-b border-emerald-200/80 pb-4">
                   <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2.5"
+                        d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"
+                      />
                     </svg>
                   </div>
                   <div>
                     <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 block">
-                      Supabase Row-Level Security (RLS)
+                      Supabase RLS &amp; 2-Stage Identity Vault
                     </span>
                     <h3 className="text-lg font-extrabold text-slate-900">
-                      Stored by Special Sauce
+                      Protected by Special Sauce
                     </h3>
                   </div>
                 </div>
 
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Special Sauce stores only the operational marketplace data required to power blind matching, skill verification, and organization pipelines:
+                  Special Sauce stores operational marketplace data protected by Row-Level Security (RLS), 30-day role expiration, and candidate-controlled Stage 2 vault release:
                 </p>
 
                 <div className="space-y-3">
-                  {SECURITY_ARCHITECTURE_DATA.platformStoredItems.map((item, i) => (
-                    <div
-                      key={i}
-                      className="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm space-y-1"
-                    >
-                      <div className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
-                        <svg className="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span>{item.title}</span>
+                  {SECURITY_ARCHITECTURE_DATA.platformStoredItems.map(
+                    (item, i) => (
+                      <div
+                        key={i}
+                        className="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm space-y-1"
+                      >
+                        <div className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
+                          <svg
+                            className="w-4 h-4 text-emerald-600 shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2.5"
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                          <span>{item.title}</span>
+                        </div>
+                        <p className="text-xs text-slate-600 leading-relaxed pl-6">
+                          {item.detail}
+                        </p>
                       </div>
-                      <p className="text-xs text-slate-600 leading-relaxed pl-6">
-                        {item.detail}
-                      </p>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
               </div>
             </div>
@@ -521,17 +596,17 @@ export default function SupportCenterClient({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
                 <div>
                   <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400 block">
-                    IT & Procurement Security Summary
+                    IT &amp; Procurement Security Summary
                   </span>
                   <h3 className="text-base font-bold text-white mt-0.5">
-                    Copy-Paste Data Custody & Stripe Security Brief
+                    Copy-Paste Data Custody, 2-Stage Vault &amp; Stripe Brief
                   </h3>
                 </div>
 
                 <button
                   type="button"
                   onClick={handleCopySecurityBrief}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-colors shrink-0 flex items-center gap-2 ${
+                  className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-colors shrink-0 flex items-center gap-2 cursor-pointer ${
                     copiedSecurity
                       ? 'bg-emerald-500 text-white'
                       : 'bg-indigo-600 text-white hover:bg-indigo-500'
@@ -539,15 +614,35 @@ export default function SupportCenterClient({
                 >
                   {copiedSecurity ? (
                     <>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2.5"
+                          d="M5 13l4 4L19 7"
+                        />
                       </svg>
                       Copied Security Brief!
                     </>
                   ) : (
                     <>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                        />
                       </svg>
                       Copy Security Brief
                     </>
@@ -618,13 +713,16 @@ export default function SupportCenterClient({
                   className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
                 >
                   <option value="General Support">
-                    General Support & Questions
+                    General Support &amp; Questions
+                  </option>
+                  <option value="2-Stage Vault & Encrypted Messaging">
+                    2-Stage Identity Vault &amp; Encrypted Messaging
                   </option>
                   <option value="Billing, Credits & Team Seats">
-                    Billing, Credits & Team / BPO Seats
+                    Billing, Credits &amp; Team / BPO Seats
                   </option>
                   <option value="Data Security & Privacy">
-                    Data Security, Privacy & Stripe Verification
+                    Data Security, Privacy &amp; Stripe Verification
                   </option>
                   <option value="Account & Domain Verification">
                     Identity / Corporate Domain Verification
@@ -664,7 +762,7 @@ export default function SupportCenterClient({
               <div className="pt-2">
                 <SubmitButton
                   pendingText="Sending to Support..."
-                  className="w-full rounded-xl bg-slate-900 px-8 py-3.5 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-600 transition-colors"
+                  className="w-full rounded-xl bg-slate-900 px-8 py-3.5 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-600 transition-colors cursor-pointer"
                 >
                   Submit Support Ticket
                 </SubmitButton>

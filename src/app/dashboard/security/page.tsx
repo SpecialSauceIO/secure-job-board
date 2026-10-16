@@ -46,10 +46,10 @@ export default async function DataSecurityPage() {
             Back to Dashboard
           </Link>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            Data Security & Stripe Architecture
+            Data Security, 2-Stage Vault &amp; Stripe Architecture
           </h1>
           <p className="text-slate-500 mt-1">
-            Transparent breakdown of how Stripe vaults your sensitive payment and biometric identity data vs. what Special Sauce stores.
+            Transparent breakdown of how Stripe vaults your biometric identity and payment data while our 2-Stage Identity Vault and 30-Day Expiration policies protect you from resume harvesting.
           </p>
         </header>
 
