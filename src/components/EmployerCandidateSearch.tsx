@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import {
   searchCandidates,
@@ -12,6 +12,10 @@ import {
   toggleBookmarkItem,
 } from '@/app/dashboard/bookmark-actions'
 import { US_STATES_AND_METROS, US_REMOTE_REGIONS } from '@/constants/usLocations'
+import {
+  STANDARD_INDUSTRY_VERTICALS,
+  normalizeIndustryVertical,
+} from '@/constants/industries'
 
 const MIN_MATCH_THRESHOLD = 40
 
@@ -21,6 +25,13 @@ const EMPLOYMENT_TYPES = [
   'Contract-to-Hire',
   'Part-Time',
 ]
+
+type CandidateSortOption =
+  | 'exp_high'
+  | 'exp_low'
+  | 'salary_low'
+  | 'salary_high'
+  | 'work_model'
 
 function getCandidateEmploymentTypes(candidate: any): string[] {
   if (
@@ -44,6 +55,22 @@ function getCandidateEmploymentTypes(candidate: any): string[] {
   return EMPLOYMENT_TYPES
 }
 
+function getCandidateIndustryVertical(candidate: any): string {
+  if (candidate?.industry_vertical) {
+    return normalizeIndustryVertical(candidate.industry_vertical)
+  }
+  const rawSkills = Array.isArray(candidate?.structured_skills)
+    ? candidate.structured_skills
+    : []
+  const metaEntry = rawSkills.find(
+    (item: any) => item && item._ss_pref_meta === true
+  )
+  if (metaEntry?.industry_vertical) {
+    return normalizeIndustryVertical(metaEntry.industry_vertical)
+  }
+  return ''
+}
+
 function getJobEmploymentType(job: any): string {
   const rawReqs = Array.isArray(job?.structured_requirements)
     ? job.structured_requirements
@@ -60,10 +87,12 @@ export default function EmployerCandidateSearch({
   activeJobs: any[]
   credits: number
 }) {
-  // Search States
+  // Search & Filter States
   const [query, setQuery] = useState('')
   const [workModel, setWorkModel] = useState('')
   const [employmentType, setEmploymentType] = useState('all')
+  const [industryFilter, setIndustryFilter] = useState('all')
+  const [sortBy, setSortBy] = useState<CandidateSortOption>('exp_high')
   const [selectedState, setSelectedState] = useState('')
   const [selectedMetro, setSelectedMetro] = useState('')
 
@@ -197,7 +226,7 @@ export default function EmployerCandidateSearch({
           text: 'Unable to generate AI Match score at this moment. Please try again.',
         })
       }
-    } catch (err: any) {
+    } catch {
       setFeedback({
         type: 'error',
         text: 'Network or server timeout while calculating AI Match. Please click "Try AI Match Again" to retry.',
@@ -241,24 +270,78 @@ export default function EmployerCandidateSearch({
     setIsSending(false)
   }
 
-  // Filter candidates by Shortlist toggle & selected Employment Type
-  const filteredCandidates = candidates.filter((candidate) => {
-    const cid = String(candidate.id)
-    if (onlyShortlisted && !savedCandidateIds.includes(cid)) {
-      return false
-    }
-    if (employmentType !== 'all') {
-      const acceptedTypes = getCandidateEmploymentTypes(candidate)
-      if (
-        !acceptedTypes.some(
-          (t) => t.toLowerCase() === employmentType.toLowerCase()
-        )
-      ) {
+  // Filter & Sort candidates by Shortlist toggle, Employment Type, Industry Vertical, and Sort By
+  const filteredAndSortedCandidates = useMemo(() => {
+    const filtered = candidates.filter((candidate) => {
+      const cid = String(candidate.id)
+      if (onlyShortlisted && !savedCandidateIds.includes(cid)) {
         return false
       }
+      if (employmentType !== 'all') {
+        const acceptedTypes = getCandidateEmploymentTypes(candidate)
+        if (
+          !acceptedTypes.some(
+            (t) => t.toLowerCase() === employmentType.toLowerCase()
+          )
+        ) {
+          return false
+        }
+      }
+      if (industryFilter !== 'all') {
+        const candIndustry = getCandidateIndustryVertical(candidate)
+        if (candIndustry.toLowerCase() !== industryFilter.toLowerCase()) {
+          return false
+        }
+      }
+      return true
+    })
+
+    const parseExp = (val: any): number => {
+      const num = parseFloat(String(val || '0'))
+      return isNaN(num) ? 0 : num
     }
-    return true
-  })
+
+    const workModelPriority = (model?: string): number => {
+      const m = (model || '').toLowerCase().trim()
+      if (m.includes('remote')) return 1
+      if (m.includes('hybrid')) return 2
+      if (m.includes('onsite') || m.includes('on-site')) return 3
+      return 4
+    }
+
+    return [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'exp_high':
+          return parseExp(b.experience_years) - parseExp(a.experience_years)
+        case 'exp_low':
+          return parseExp(a.experience_years) - parseExp(b.experience_years)
+        case 'salary_low': {
+          const aSal = Number(a.min_salary_expectation) || Number.MAX_SAFE_INTEGER
+          const bSal = Number(b.min_salary_expectation) || Number.MAX_SAFE_INTEGER
+          return aSal - bSal
+        }
+        case 'salary_high':
+          return (
+            (Number(b.min_salary_expectation) || 0) -
+            (Number(a.min_salary_expectation) || 0)
+          )
+        case 'work_model':
+          return (
+            workModelPriority(a.preferred_work_model) -
+            workModelPriority(b.preferred_work_model)
+          )
+        default:
+          return 0
+      }
+    })
+  }, [
+    candidates,
+    onlyShortlisted,
+    savedCandidateIds,
+    employmentType,
+    industryFilter,
+    sortBy,
+  ])
 
   return (
     <div className="space-y-6">
@@ -354,13 +437,13 @@ export default function EmployerCandidateSearch({
           </div>
         </div>
 
-        {/* Bottom Row: Work Model, Employment Type, & Cascading US Location Dropdowns */}
+        {/* Middle Row: Work Model, Employment Type, & Cascading US Location Dropdowns */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
           <div className="md:col-span-2">
             <select
               value={workModel}
               onChange={(e) => setWorkModel(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
             >
               <option value="">All Work Models</option>
               <option value="remote">Remote Only</option>
@@ -373,7 +456,7 @@ export default function EmployerCandidateSearch({
             <select
               value={employmentType}
               onChange={(e) => setEmploymentType(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
             >
               <option value="all">All Employment Types</option>
               {EMPLOYMENT_TYPES.map((type) => (
@@ -391,7 +474,7 @@ export default function EmployerCandidateSearch({
                 setSelectedState(e.target.value)
                 setSelectedMetro('')
               }}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
             >
               <option value="">All US States</option>
               <option value="REMOTE_US">🇺🇸 US Remote (By Timezone)</option>
@@ -408,7 +491,7 @@ export default function EmployerCandidateSearch({
               disabled={!selectedState}
               value={selectedMetro}
               onChange={(e) => setSelectedMetro(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none disabled:opacity-50"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none disabled:opacity-50 cursor-pointer"
             >
               <option value="">
                 {!selectedState
@@ -433,6 +516,76 @@ export default function EmployerCandidateSearch({
             >
               {isLoading ? '...' : 'Search Talent'}
             </button>
+          </div>
+        </div>
+
+        {/* Bottom Organizer Row: Industry Vertical Filter + Sort By Dropdown */}
+        <div className="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+          <div className="md:col-span-5 flex items-center gap-2">
+            <label
+              htmlFor="employer-industry-filter"
+              className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
+            >
+              Industry:
+            </label>
+            <select
+              id="employer-industry-filter"
+              value={industryFilter}
+              onChange={(e) => setIndustryFilter(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+            >
+              <option value="all">All Industry Verticals</option>
+              {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
+                <option key={vertical} value={vertical}>
+                  {vertical}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="md:col-span-5 flex items-center gap-2">
+            <label
+              htmlFor="employer-candidate-sort"
+              className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
+            >
+              Sort By:
+            </label>
+            <select
+              id="employer-candidate-sort"
+              value={sortBy}
+              onChange={(e) =>
+                setSortBy(e.target.value as CandidateSortOption)
+              }
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+            >
+              <option value="exp_high">
+                Experience Level (Most Experienced First)
+              </option>
+              <option value="exp_low">
+                Experience Level (Entry / Junior First)
+              </option>
+              <option value="salary_low">
+                Min Salary Expectation (Lowest First)
+              </option>
+              <option value="salary_high">
+                Min Salary Expectation (Highest First)
+              </option>
+              <option value="work_model">
+                Work Arrangement (Remote → Hybrid → On-site)
+              </option>
+            </select>
+          </div>
+
+          <div className="md:col-span-2 text-right">
+            <span className="text-xs font-bold text-slate-500">
+              Showing{' '}
+              <strong className="text-slate-900">
+                {filteredAndSortedCandidates.length}
+              </strong>{' '}
+              {filteredAndSortedCandidates.length === 1
+                ? 'candidate'
+                : 'candidates'}
+            </span>
           </div>
         </div>
       </form>
@@ -462,25 +615,43 @@ export default function EmployerCandidateSearch({
         {isLoading ? (
           <div className="py-12 text-center bg-white rounded-2xl border border-slate-200 shadow-sm">
             <div className="inline-block w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-            <p className="text-slate-500 font-medium">Scanning passive talent pool...</p>
+            <p className="text-slate-500 font-medium">
+              Scanning passive talent pool...
+            </p>
           </div>
-        ) : filteredCandidates.length === 0 ? (
+        ) : filteredAndSortedCandidates.length === 0 ? (
           <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-sm">
             <h3 className="text-xl font-bold text-slate-900 mb-2">
               {onlyShortlisted
                 ? 'No candidates in your Shortlist yet'
-                : 'No candidates found'}
+                : 'No candidates match your current filters'}
             </h3>
-            <p className="text-slate-500 text-sm">
+            <p className="text-slate-500 text-sm mb-4">
               {onlyShortlisted
                 ? 'Click "Save to Shortlist" on any anonymous candidate card to assemble a comparison pool before pitching.'
-                : 'Try adjusting your filters or search terms.'}
+                : 'Try resetting your Industry Vertical or Employment Type filters.'}
             </p>
+            {(industryFilter !== 'all' ||
+              employmentType !== 'all' ||
+              onlyShortlisted) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIndustryFilter('all')
+                  setEmploymentType('all')
+                  setOnlyShortlisted(false)
+                }}
+                className="px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer"
+              >
+                Reset Active Filters →
+              </button>
+            )}
           </div>
         ) : (
-          filteredCandidates.map((candidate) => {
+          filteredAndSortedCandidates.map((candidate) => {
             const cid = String(candidate.id)
             const isShortlisted = savedCandidateIds.includes(cid)
+            const candidateIndustry = getCandidateIndustryVertical(candidate)
 
             const candidateSkillStrings: string[] =
               Array.isArray(candidate.structured_skills) &&
@@ -635,8 +806,18 @@ export default function EmployerCandidateSearch({
                               Identity Verified
                             </span>
                           )}
+                          {candidate.experience_years && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-violet-50 border border-violet-200 text-violet-700 text-[11px] font-extrabold">
+                              {candidate.experience_years} Yrs Exp
+                            </span>
+                          )}
+                          {candidateIndustry && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-[11px] font-bold">
+                              {candidateIndustry}
+                            </span>
+                          )}
                         </div>
-                        <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500 mt-0.5">
+                        <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500 mt-1">
                           <span className="flex items-center gap-1 text-emerald-600">
                             <svg
                               className="w-3.5 h-3.5"
@@ -1046,7 +1227,7 @@ export default function EmployerCandidateSearch({
                         setSelectedJobId('')
                         setAiMatchData(null)
                       }}
-                      className="w-full md:w-auto px-6 py-3 bg-white border-2 border-slate-900 text-slate-900 font-bold rounded-xl hover:bg-slate-900 hover:text-white transition-colors"
+                      className="w-full md:w-auto px-6 py-3 bg-white border-2 border-slate-900 text-slate-900 font-bold rounded-xl hover:bg-slate-900 hover:text-white transition-colors cursor-pointer"
                     >
                       Request Connection
                     </button>

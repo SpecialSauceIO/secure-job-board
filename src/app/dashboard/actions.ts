@@ -8,6 +8,10 @@ import { GoogleGenAI } from '@google/genai'
 import Groq from 'groq-sdk'
 import OpenAI from 'openai'
 import dns from 'node:dns/promises'
+import {
+  STANDARD_INDUSTRY_VERTICALS,
+  normalizeIndustryVertical,
+} from '@/constants/industries'
 
 const MIN_MATCH_THRESHOLD = 40
 const CANDIDATE_TRIAL_MAX_APPS = 3
@@ -242,6 +246,7 @@ function extractCandidateMeta(rawSkills: any): {
 
 function extractCandidatePrefMeta(rawSkills: any): {
   _ss_pref_meta?: boolean
+  industry_vertical?: string
   employment_types?: string[]
   saved_job_ids?: string[]
   saved_candidate_ids?: string[]
@@ -299,13 +304,18 @@ function extractJobMeta(rawReqs: any, jobRow?: any): JobExtendedMeta {
   const diffMs = expiresMs - Date.now()
   const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
 
+  const rawIndustry = metaItem?.industry || jobRow?.industry || ''
+  const normalizedIndustry = rawIndustry
+    ? normalizeIndustryVertical(rawIndustry)
+    : ''
+
   return {
     pay_type: inferredPayType,
     comp_perks: metaItem?.comp_perks || jobRow?.comp_perks || 'Base Salary Only',
     location: metaItem?.location || jobRow?.location || '',
     employment_type: metaItem?.employment_type || jobRow?.employment_type || 'Full-Time (W-2)',
     experience_level: metaItem?.experience_level || jobRow?.experience_level || 'Senior (5–8 yrs)',
-    industry: metaItem?.industry || jobRow?.industry || '',
+    industry: normalizedIndustry,
     company_size: metaItem?.company_size || jobRow?.company_size || '',
     work_auth: metaItem?.work_auth || jobRow?.work_auth || 'US Authorized Only',
     renewed_at: metaItem?.renewed_at || null,
@@ -1047,6 +1057,10 @@ export async function updateProfile(formData: FormData) {
   const experience_years = formData.get('experience_years') as string
   const bio = formData.get('bio') as string
   const structured_skills_raw = formData.get('structured_skills') as string
+  const industry_vertical_raw = (formData.get('industry_vertical') as string || '').trim()
+  const normalizedIndustry = industry_vertical_raw
+    ? normalizeIndustryVertical(industry_vertical_raw)
+    : ''
   
   const min_salary_expectation = formData.get('min_salary_expectation')
   const preferred_work_model = formData.get('preferred_work_model') as string
@@ -1072,16 +1086,19 @@ export async function updateProfile(formData: FormData) {
     console.error("Failed to parse structured skills")
   }
 
-  const submittedPrefMeta = extractCandidatePrefMeta(parsedRawSkills) || existingPrefMeta
+  const submittedPrefMeta = extractCandidatePrefMeta(parsedRawSkills) || existingPrefMeta || { _ss_pref_meta: true }
+  const mergedPrefMeta = {
+    ...submittedPrefMeta,
+    _ss_pref_meta: true,
+    ...(normalizedIndustry ? { industry_vertical: normalizedIndustry } : {}),
+  }
 
   const skills_string = structured_skills.map((s: any) => s.skill).join(', ')
 
   if (existingMeta && (existingMeta as any)._ss_meta) {
     structured_skills = [...structured_skills, existingMeta]
   }
-  if (submittedPrefMeta && submittedPrefMeta._ss_pref_meta) {
-    structured_skills = [...structured_skills, submittedPrefMeta]
-  }
+  structured_skills = [...structured_skills, mergedPrefMeta]
 
   const basePayload: any = {
     experience_years, 
@@ -1125,6 +1142,7 @@ export async function updateProfile(formData: FormData) {
     if (!nameErr) {
       revalidatePath('/dashboard')
       revalidatePath('/dashboard/profile')
+      revalidatePath('/dashboard/employer/search')
       revalidatePath('/dashboard/employer/applications')
       revalidatePath('/dashboard/employer/pitches')
       return
@@ -1139,6 +1157,7 @@ export async function updateProfile(formData: FormData) {
   if (error) console.error('Error updating profile:', error)
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/profile')
+  revalidatePath('/dashboard/employer/search')
   revalidatePath('/dashboard/employer/applications')
   revalidatePath('/dashboard/employer/pitches')
 }
@@ -1186,6 +1205,7 @@ export async function parseResumeAutoFill(formData: FormData) {
       2. "experience_years": A single number representing the total years of professional experience. If unsure, provide your best estimate based on the dates provided.
       3. "structured_skills": An array of objects representing the 5-8 most relevant technical or professional skills. Each object MUST have exactly two keys: "skill" (string, the name of the skill) and "years" (number, the estimated years of experience with that specific skill based on the resume timeline).
       4. "bio": A 2-3 sentence professional summary focusing on achievements and core competencies, written in the third person. Do NOT include the candidate's name or contact information inside the bio text to maintain anonymity.
+      5. "industry_vertical": The candidate's primary industry background chosen from: ${JSON.stringify(STANDARD_INDUSTRY_VERTICALS)}.
     `
 
     const responseText = await extractPdfWithRetry(prompt, base64Data)
@@ -1199,9 +1219,19 @@ export async function parseResumeAutoFill(formData: FormData) {
     if (existingMeta && (existingMeta as any)._ss_meta) {
       extractedSkills = [...extractedSkills, existingMeta]
     }
-    if (existingPrefMeta && existingPrefMeta._ss_pref_meta) {
-      extractedSkills = [...extractedSkills, existingPrefMeta]
+
+    const normalizedExtractedIndustry = extractedData.industry_vertical
+      ? normalizeIndustryVertical(extractedData.industry_vertical)
+      : existingPrefMeta?.industry_vertical || ''
+
+    const updatedPrefMeta = {
+      ...(existingPrefMeta || {}),
+      _ss_pref_meta: true,
+      ...(normalizedExtractedIndustry
+        ? { industry_vertical: normalizedExtractedIndustry }
+        : {}),
     }
+    extractedSkills = [...extractedSkills, updatedPrefMeta]
 
     const baseUpdatePayload: any = {
       experience_years: extractedData.experience_years?.toString() || '',
@@ -1224,6 +1254,7 @@ export async function parseResumeAutoFill(formData: FormData) {
       if (!withNameErr) {
         revalidatePath('/dashboard')
         revalidatePath('/dashboard/profile')
+        revalidatePath('/dashboard/employer/search')
         return
       }
     }
@@ -1241,6 +1272,7 @@ export async function parseResumeAutoFill(formData: FormData) {
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/profile')
+  revalidatePath('/dashboard/employer/search')
 }
 
 // ------------------------------------------------------------------
@@ -1988,6 +2020,7 @@ export async function analyzeJobFit(jobId: string) {
 
   const { data: profile } = await supabase.from('profiles').select('experience_years, skills, structured_skills, bio').eq('id', user.id).single()
   const visibleSkills = filterVisibleSkills(profile?.structured_skills)
+  const prefMeta = extractCandidatePrefMeta(profile?.structured_skills)
   if (!profile || (!profile.skills && visibleSkills.length === 0)) {
     return { error: 'Profile incomplete: Please add skills to your profile before running AI Match.' }
   }
@@ -1996,7 +2029,15 @@ export async function analyzeJobFit(jobId: string) {
   if (!rawJob) return { error: 'Job not found' }
 
   const job = enrichJobRecord(rawJob)
-  return await analyzeMatchRouter({ ...profile, structured_skills: visibleSkills }, job, 'candidate')
+  return await analyzeMatchRouter(
+    {
+      ...profile,
+      industry_vertical: prefMeta?.industry_vertical || '',
+      structured_skills: visibleSkills,
+    },
+    job,
+    'candidate'
+  )
 }
 
 export async function analyzeCandidateFit(candidateId: string, jobId: string) {
@@ -2022,7 +2063,16 @@ export async function analyzeCandidateFit(candidateId: string, jobId: string) {
 
   const job = enrichJobRecord(rawJob)
   const visibleSkills = filterVisibleSkills(profile.structured_skills)
-  return await analyzeMatchRouter({ ...profile, structured_skills: visibleSkills }, job, 'employer')
+  const prefMeta = extractCandidatePrefMeta(profile.structured_skills)
+  return await analyzeMatchRouter(
+    {
+      ...profile,
+      industry_vertical: prefMeta?.industry_vertical || '',
+      structured_skills: visibleSkills,
+    },
+    job,
+    'employer'
+  )
 }
 
 function getMatchPrompt(
@@ -2057,11 +2107,13 @@ function getMatchPrompt(
 
     CANDIDATE PROFILE:
     Experience: ${profile.experience_years || 'Not specified'} years
+    Primary Industry Vertical: ${profile.industry_vertical || 'General / Cross-Industry'}
     Skills & Experience Matrix: ${skillsToAssess}
     Bio: ${profile.bio || 'No bio provided'}
 
     JOB POSTING:
     Title: ${job.title}
+    Industry Vertical: ${job.industry || 'Not specified'}
     Seniority / Experience Level: ${job.experience_level || 'Not specified'}
     Employment Type: ${job.employment_type || 'Full-Time'}
     Work Model & Location: ${job.work_model} (${job.location || 'Flexible'})
@@ -2240,7 +2292,7 @@ export async function parseJobAutoFill(formData: FormData) {
       7. "salary_max": Maximum pay number if mentioned, or "" (number or string).
       8. "employment_type": One of "Full-Time (W-2)", "Contract (1099 / Corp-to-Corp)", "Contract-to-Hire", or "Part-Time".
       9. "experience_level": One of "Entry / Junior (0–2 yrs)", "Mid-Level (3–5 yrs)", "Senior (5–8 yrs)", "Lead / Staff / Principal (8+ yrs)", or "Executive / Director".
-      10. "industry": Short industry category (e.g., "SaaS / AI", "FinTech", "Healthcare", "Cybersecurity", "Enterprise IT").
+      10. "industry": Must be one of these exact standardized verticals: ${JSON.stringify(STANDARD_INDUSTRY_VERTICALS)}.
       11. "structured_requirements": A JSON array of objects representing the 5-8 most critical skills required. 
           Each object MUST have two keys: "skill" (string) and "level" ("Beginner", "Intermediate", or "Expert").
     `
@@ -2248,7 +2300,11 @@ export async function parseJobAutoFill(formData: FormData) {
     const responseText = await extractPdfWithRetry(prompt, base64Data)
 
     const cleanJsonString = responseText.replace(/```json/gi, '').replace(/```/g, '').trim()
-    return { data: JSON.parse(cleanJsonString) }
+    const parsed = JSON.parse(cleanJsonString)
+    if (parsed.industry) {
+      parsed.industry = normalizeIndustryVertical(parsed.industry)
+    }
+    return { data: parsed }
 
   } catch (error: any) {
     console.error("AI Job Parsing Error:", error.message || error)
@@ -2276,7 +2332,8 @@ function buildJobRequirementsWithMeta(formData: FormData, existingReqs?: any): a
   const location = ((formData.get('location') as string) || '').trim()
   const employment_type = ((formData.get('employment_type') as string) || 'Full-Time (W-2)').trim()
   const experience_level = ((formData.get('experience_level') as string) || 'Senior (5–8 yrs)').trim()
-  const industry = ((formData.get('industry') as string) || '').trim()
+  const rawIndustry = ((formData.get('industry') as string) || '').trim()
+  const industry = rawIndustry ? normalizeIndustryVertical(rawIndustry) : ''
   const company_size = ((formData.get('company_size') as string) || '').trim()
   const work_auth = ((formData.get('work_auth') as string) || 'US Authorized Only').trim()
 
@@ -2499,7 +2556,7 @@ export async function searchCandidates(query: string, workModel?: string, locati
   
   let dbQuery = supabase
     .from('profiles')
-    .select('id, skills, structured_skills, bio, min_salary_expectation, preferred_work_model, location, identity_verified')
+    .select('id, experience_years, skills, structured_skills, bio, min_salary_expectation, preferred_work_model, location, identity_verified')
     .eq('role', 'candidate')
     .eq('is_discoverable', true)
 
@@ -2535,8 +2592,12 @@ export async function searchCandidates(query: string, workModel?: string, locati
     .filter(candidate => !pitchedCandidateIds.includes(candidate.id))
     .map(candidate => {
       const prefMeta = extractCandidatePrefMeta(candidate.structured_skills)
+      const normalizedIndustry = prefMeta?.industry_vertical
+        ? normalizeIndustryVertical(prefMeta.industry_vertical)
+        : ''
       return {
         ...candidate,
+        industry_vertical: normalizedIndustry,
         preferred_employment_types: Array.isArray(prefMeta?.employment_types)
           ? prefMeta.employment_types
           : undefined,
@@ -2645,7 +2706,11 @@ export async function sendConnectionRequest(
   let matchData = precomputedMatchData || null
   if (!matchData) {
     const { data: matchResult, error: matchErr } = await analyzeMatchRouter(
-      { ...candidate, structured_skills: filterVisibleSkills(candidate.structured_skills) },
+      {
+        ...candidate,
+        industry_vertical: candidatePrefMeta?.industry_vertical || '',
+        structured_skills: filterVisibleSkills(candidate.structured_skills),
+      },
       job,
       'employer'
     )
@@ -2860,9 +2925,12 @@ export async function getEmployerPitches(statusFilter?: string, daysFilter?: num
           ? await resolveSignedResumeUrl(rawProfile.resume_url)
           : null
 
+      const prefMeta = extractCandidatePrefMeta(rawProfile.structured_skills)
+
       const safeProfile = app.profiles
         ? {
             ...rawProfile,
+            industry_vertical: prefMeta?.industry_vertical || '',
             structured_skills: filterVisibleSkills(rawProfile.structured_skills),
             full_name: stageAwareName,
             resume_url: signedResumeUrl
@@ -3000,6 +3068,8 @@ export async function getEmployerInboundApplications(
           ? await resolveSignedResumeUrl(rawProfile.resume_url)
           : null
 
+      const prefMeta = extractCandidatePrefMeta(rawProfile.structured_skills)
+
       return {
         ...app,
         jobs: app.jobs ? enrichJobRecord(app.jobs) : null,
@@ -3016,6 +3086,7 @@ export async function getEmployerInboundApplications(
         profiles: app.profiles
           ? {
               ...rawProfile,
+              industry_vertical: prefMeta?.industry_vertical || '',
               structured_skills: filterVisibleSkills(rawProfile.structured_skills),
               full_name: stageAwareName,
               resume_url: signedResumeUrl

@@ -7,6 +7,10 @@ import { SubmitButton } from '@/components/SubmitButton'
 import { StructuredSkillEditor } from '@/components/StructuredSkillEditor'
 import UsLocationSelector from '@/components/UsLocationSelector'
 import { updateProfile } from '@/app/dashboard/actions'
+import {
+  STANDARD_INDUSTRY_VERTICALS,
+  normalizeIndustryVertical,
+} from '@/constants/industries'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,9 +33,26 @@ async function saveCandidateProfilePreservingMeta(formData: FormData) {
     ? existingProfile.structured_skills
     : []
 
-  const hiddenMetaObjects = existingRaw.filter(
-    (s: any) => s && typeof s === 'object' && (s._ss_meta || s._ss_pref_meta)
+  const existingMetaObj = existingRaw.find(
+    (s: any) => s && typeof s === 'object' && s._ss_meta === true
   )
+  const existingPrefObj =
+    existingRaw.find(
+      (s: any) => s && typeof s === 'object' && s._ss_pref_meta === true
+    ) || { _ss_pref_meta: true }
+
+  const rawSubmittedIndustry = String(
+    formData.get('industry_vertical') || ''
+  ).trim()
+  const normalizedIndustry = rawSubmittedIndustry
+    ? normalizeIndustryVertical(rawSubmittedIndustry)
+    : existingPrefObj.industry_vertical || 'Technology, Software & SaaS'
+
+  const updatedPrefObj = {
+    ...existingPrefObj,
+    _ss_pref_meta: true,
+    industry_vertical: normalizedIndustry,
+  }
 
   let submittedSkills: any[] = []
   try {
@@ -42,19 +63,38 @@ async function saveCandidateProfilePreservingMeta(formData: FormData) {
     submittedSkills = []
   }
 
-  const visibleSubmitted = (Array.isArray(submittedSkills) ? submittedSkills : []).filter(
+  const visibleSubmitted = (
+    Array.isArray(submittedSkills) ? submittedSkills : []
+  ).filter(
     (s: any) => s && typeof s === 'object' && !s._ss_meta && !s._ss_pref_meta
   )
 
-  const mergedSkills = [...visibleSubmitted, ...hiddenMetaObjects]
+  const mergedSkills = [
+    ...visibleSubmitted,
+    ...(existingMetaObj ? [existingMetaObj] : []),
+    updatedPrefObj,
+  ]
   formData.set('structured_skills', JSON.stringify(mergedSkills))
+  formData.set('industry_vertical', normalizedIndustry)
 
   // Preserve salary & work model if not present on the Profile form
-  if (!formData.get('min_salary_expectation') && existingProfile?.min_salary_expectation) {
-    formData.set('min_salary_expectation', String(existingProfile.min_salary_expectation))
+  if (
+    !formData.get('min_salary_expectation') &&
+    existingProfile?.min_salary_expectation
+  ) {
+    formData.set(
+      'min_salary_expectation',
+      String(existingProfile.min_salary_expectation)
+    )
   }
-  if (!formData.get('preferred_work_model') && existingProfile?.preferred_work_model) {
-    formData.set('preferred_work_model', String(existingProfile.preferred_work_model))
+  if (
+    !formData.get('preferred_work_model') &&
+    existingProfile?.preferred_work_model
+  ) {
+    formData.set(
+      'preferred_work_model',
+      String(existingProfile.preferred_work_model)
+    )
   }
 
   await updateProfile(formData)
@@ -67,6 +107,7 @@ async function saveCandidateProfilePreservingMeta(formData: FormData) {
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/profile')
   revalidatePath('/dashboard/preferences')
+  revalidatePath('/dashboard/employer/search')
 }
 
 export default async function ProfilePage() {
@@ -85,16 +126,25 @@ export default async function ProfilePage() {
 
   if (profile?.role === 'employer') redirect('/dashboard')
 
-  const visibleStructuredSkills = Array.isArray(profile?.structured_skills)
-    ? profile.structured_skills.filter(
-        (s: any) =>
-          s &&
-          typeof s === 'object' &&
-          !s._ss_meta &&
-          !s._ss_pref_meta &&
-          s.skill
-      )
+  const rawSkillsArray = Array.isArray(profile?.structured_skills)
+    ? profile.structured_skills
     : []
+
+  const visibleStructuredSkills = rawSkillsArray.filter(
+    (s: any) =>
+      s &&
+      typeof s === 'object' &&
+      !s._ss_meta &&
+      !s._ss_pref_meta &&
+      s.skill
+  )
+
+  const prefMetaObj = rawSkillsArray.find(
+    (s: any) => s && typeof s === 'object' && s._ss_pref_meta === true
+  )
+  const currentIndustryVertical = prefMetaObj?.industry_vertical
+    ? normalizeIndustryVertical(prefMetaObj.industry_vertical)
+    : 'Technology, Software & SaaS'
 
   const hasProfileData = !!profile?.bio
 
@@ -126,11 +176,11 @@ export default async function ProfilePage() {
           {hasProfileData ? 'Profile Details' : 'Step 2: Manual Review'}
         </h2>
         <p className="text-sm text-slate-500 mt-1">
-          Review and manually adjust your public anonymous profile, location, and private unlock details.
+          Review and manually adjust your public anonymous profile, primary industry vertical, location, and vaulted contact details.
         </p>
       </div>
 
-      {/* Private Identity Box (Hidden until unlocked) */}
+      {/* Private Identity Box (Vaulted behind 2-Stage Unlock) */}
       <div className="p-5 rounded-xl bg-indigo-50/60 border border-indigo-100 space-y-4">
         <div className="flex items-start gap-3">
           <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 mt-0.5">
@@ -152,11 +202,11 @@ export default async function ProfilePage() {
             <label className="block text-sm font-bold text-indigo-950">
               Full Name{' '}
               <span className="text-xs font-extrabold text-indigo-600 uppercase tracking-wider ml-1">
-                (Kept Hidden Until Unlocked)
+                (Protected by 2-Stage Identity Vault)
               </span>
             </label>
             <p className="text-xs text-indigo-800/80 mt-0.5 mb-3">
-              Employers cannot see your name while browsing the talent pool or reviewing blind applications. It is only revealed when an employer unlocks your application or when you accept an employer&apos;s pitch.
+              Employers cannot see your name while browsing the talent pool or reviewing blind applications. In Stage 1 (initial thread unlock), only your First Name + Last Initial is shown; your full name and PDF resume are only revealed when you approve Stage 2 Vault Release.
             </p>
             <input
               type="text"
@@ -185,18 +235,44 @@ export default async function ProfilePage() {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-bold text-slate-700 mb-2">
-            Overall Years of Experience
-          </label>
-          <input
-            type="number"
-            name="experience_years"
-            defaultValue={profile?.experience_years || ''}
-            placeholder="e.g. 5"
-            className="block w-full sm:w-1/3 rounded-md border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3"
-            required
-          />
+        {/* Experience Years + Primary Industry Vertical */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-1.5">
+              Overall Years of Experience
+            </label>
+            <p className="text-xs text-slate-500 mb-2">
+              Total years of professional experience across your career.
+            </p>
+            <input
+              type="number"
+              name="experience_years"
+              defaultValue={profile?.experience_years || ''}
+              placeholder="e.g. 5"
+              className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-1.5">
+              Primary Industry Vertical
+            </label>
+            <p className="text-xs text-slate-500 mb-2">
+              Helps employers filter passive talent and boosts domain expertise scoring.
+            </p>
+            <select
+              name="industry_vertical"
+              defaultValue={currentIndustryVertical}
+              className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
+            >
+              {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
+                <option key={vertical} value={vertical}>
+                  {vertical}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* The Dynamic Skills Editor */}
@@ -223,7 +299,7 @@ export default async function ProfilePage() {
       <div className="pt-2 flex justify-end">
         <SubmitButton
           pendingText="Saving Profile..."
-          className="rounded-md bg-indigo-600 px-8 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-700 transition-colors"
+          className="rounded-xl bg-indigo-600 px-8 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer"
         >
           Save Profile Updates
         </SubmitButton>
@@ -258,7 +334,7 @@ export default async function ProfilePage() {
             Anonymous Profile
           </h1>
           <p className="text-slate-500 mt-2">
-            Manage your extracted skills, target location, anonymous bio, and private contact identity.
+            Manage your extracted skills, primary industry vertical, target location, anonymous bio, and vaulted contact identity.
           </p>
         </header>
 
