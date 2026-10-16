@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 
 export default function LandingPage() {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [showTechDocsModal, setShowTechDocsModal] = useState(false)
 
   // Cycles through slides 0, 1, 2, and 3 every 7 seconds (7000ms)
   useEffect(() => {
@@ -25,7 +26,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900">
       {/* Navigation (Compact h-20 height) */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/85 backdrop-blur-md border-b border-slate-200">
+      <nav className="fixed top-0 left-0 right-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6 md:px-12 h-20 flex items-center justify-between relative">
           {/* LEFT: Clickable Logo */}
           <div className="flex items-center">
@@ -62,12 +63,13 @@ export default function LandingPage() {
             >
               How It Works
             </button>
-            <Link
-              href="/security-overview"
-              className="hidden sm:inline-flex text-xs font-bold text-slate-500 hover:text-indigo-600 transition-colors"
+            <button
+              type="button"
+              onClick={() => setShowTechDocsModal(true)}
+              className="hidden sm:inline-flex text-xs font-bold text-slate-500 hover:text-indigo-600 transition-colors cursor-pointer"
             >
               Security &amp; Trust
-            </Link>
+            </button>
             <Link
               href="/login"
               className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
@@ -605,7 +607,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Dedicated Link to Technical & Security Documentation */}
+          {/* Dedicated Trigger to Open Technical & Security Documentation Modal */}
           <div className="mt-14 p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="flex items-start gap-4">
               <div className="w-11 h-11 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
@@ -633,12 +635,13 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <Link
-              href="/security-overview"
-              className="shrink-0 inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-extrabold hover:bg-indigo-600 transition-colors shadow-sm"
+            <button
+              type="button"
+              onClick={() => setShowTechDocsModal(true)}
+              className="shrink-0 inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-extrabold hover:bg-indigo-600 transition-colors shadow-sm cursor-pointer"
             >
               Read Technical &amp; Security Docs →
-            </Link>
+            </button>
           </div>
         </div>
       </section>
@@ -661,12 +664,13 @@ export default function LandingPage() {
 
           {/* Legal & Documentation Links */}
           <div className="flex flex-wrap items-center justify-center gap-6">
-            <Link
-              href="/security-overview"
-              className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
+            <button
+              type="button"
+              onClick={() => setShowTechDocsModal(true)}
+              className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer"
             >
               Security &amp; Technical Docs
-            </Link>
+            </button>
             <Link
               href="/terms"
               className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
@@ -686,6 +690,165 @@ export default function LandingPage() {
           </p>
         </div>
       </footer>
+
+      {/* BUILT-IN TECHNICAL & SECURITY DOCUMENTATION MODAL (Zero 404 Risk!) */}
+      {showTechDocsModal && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+          onClick={() => setShowTechDocsModal(false)}
+        >
+          <div
+            className="bg-slate-50 w-full max-w-4xl rounded-3xl border border-slate-200 shadow-2xl overflow-hidden my-8 max-h-[90vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="bg-slate-900 text-white p-6 sm:p-8 flex items-start justify-between gap-4 shrink-0">
+              <div className="space-y-2">
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs font-extrabold uppercase tracking-wider">
+                  🛡️ Technical &amp; Privacy Architecture Overview
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                  How Special Sauce Works Under the Hood
+                </h2>
+                <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-2xl">
+                  Built so candidates and hiring managers across every industry get a simple, stress-free experience—backed by enterprise-grade identity verification, data minimization, and anti-harvesting guardrails.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowTechDocsModal(false)}
+                className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-lg font-extrabold shrink-0 cursor-pointer transition-colors"
+                aria-label="Close documentation modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Scrollable Body */}
+            <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Pillar 1 */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+                  <span className="inline-block px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 text-xs font-extrabold">
+                    1. 2-Stage Identity &amp; Resume Vault
+                  </span>
+                  <h3 className="text-lg font-extrabold text-slate-900">
+                    Staged Disclosure &amp; Signed Resume URLs
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    When a candidate uploads a PDF resume, it is stored in a private, non-public vault. During initial discovery, employers only see an anonymized skill, experience, and credential matrix.
+                  </p>
+                  <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-100">
+                    <li>
+                      • <strong>Stage 1 (Safe Thread):</strong> Opens an in-platform message thread and reveals the employer’s company name while masking the candidate’s last name (<code>First Name + Last Initial</code>) and keeping their email and PDF resume locked.
+                    </li>
+                    <li>
+                      • <strong>Stage 2 (Candidate-Controlled Release):</strong> Only when the candidate clicks <em>Release Resume &amp; Contact Vault</em> does the platform generate a time-limited, cryptographically signed 1-hour URL to their PDF resume.
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Pillar 2 */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+                  <span className="inline-block px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 text-xs font-extrabold">
+                    2. Offloaded Biometric &amp; Payment Vaulting
+                  </span>
+                  <h3 className="text-lg font-extrabold text-slate-900">
+                    Zero Sensitive IDs or Cards on Our Servers
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    Special Sauce never stores government ID images, biometric selfies, Social Security Numbers, or raw credit card numbers in our database.
+                  </p>
+                  <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-100">
+                    <li>
+                      • <strong>Candidate Verification:</strong> Handled directly by Stripe Identity. Our database only stores a boolean <code>identity_verified</code> status flag.
+                    </li>
+                    <li>
+                      • <strong>Employer Domain Verification:</strong> Verified via corporate email domain matching and live DNS MX/TXT record validation.
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Pillar 3 */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+                  <span className="inline-block px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 text-xs font-extrabold">
+                    3. Anti-Harvesting &amp; Freshness Guardrails
+                  </span>
+                  <h3 className="text-lg font-extrabold text-slate-900">
+                    30-Day Job Expiry &amp; Silent Unlock Caps
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    Traditional job boards incentivize &ldquo;ghost jobs&rdquo; and bulk resume scraping. Special Sauce enforces two automatic platform guardrails:
+                  </p>
+                  <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-100">
+                    <li>
+                      • <strong>30-Day Auto-Expiry:</strong> Every active job listing automatically closes after 30 days unless manually renewed by the hiring team.
+                    </li>
+                    <li>
+                      • <strong>Unmessaged Unlock Cap:</strong> Employers cannot bulk-unlock candidate profiles without engaging; if an organization has 5 unlocked candidates awaiting an introductory message, further unlocks are paused until they message or archive those candidates.
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Pillar 4 */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+                  <span className="inline-block px-2.5 py-1 rounded-md bg-violet-50 text-violet-800 text-xs font-extrabold">
+                    4. Multi-Industry AI Matching &amp; Dealbreakers
+                  </span>
+                  <h3 className="text-lg font-extrabold text-slate-900">
+                    5-Point Radar &amp; Automatic Dealbreaker Enforcement
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    Our matching engine evaluates candidates and roles across five dimensions: Technical/Role Skills, Experience Level, Role Alignment, Domain Expertise, and Culture/Soft Skills.
+                  </p>
+                  <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-100">
+                    <li>
+                      • <strong>Practical Experience Parity:</strong> Roles that accept practical experience or industry certifications in lieu of a formal degree automatically weight hands-on experience equally.
+                    </li>
+                    <li>
+                      • <strong>Hard Dealbreaker Firewall:</strong> Employers are automatically blocked from pitching candidates if the role’s maximum budget falls below the candidate’s minimum salary expectation or violates their work model/employment type preferences.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Modal Footer CTA */}
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-sm font-extrabold text-slate-900">
+                    Ready to join Special Sauce?
+                  </h4>
+                  <p className="text-xs text-slate-500">
+                    Create your free Candidate or Employer account in under two minutes.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-3 shrink-0">
+                  <Link
+                    href="/signup/candidate"
+                    className="px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors"
+                  >
+                    Join as Candidate
+                  </Link>
+                  <Link
+                    href="/signup/employer"
+                    className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors"
+                  >
+                    Join as Employer
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setShowTechDocsModal(false)}
+                    className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition-colors cursor-pointer"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
