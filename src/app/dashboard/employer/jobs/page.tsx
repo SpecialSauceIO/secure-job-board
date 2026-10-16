@@ -2,36 +2,108 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
-import { SubmitButton } from '@/components/SubmitButton'
 import { resolveEmployerTierInfo } from '@/app/dashboard/actions'
+import { normalizeIndustryVertical } from '@/constants/industries'
+import EmployerJobsTableClient, {
+  EnrichedEmployerJobRow,
+} from '@/components/EmployerJobsTableClient'
 
 export const dynamic = 'force-dynamic'
 
 const JOB_EXPIRATION_DAYS = 30
 
-function computeJobExpirationInfo(job: any): {
-  daysRemaining: number
-  isExpired: boolean
-  expiresAtDate: Date
-  renewedAtIso: string | null
-} {
+function enrichJobForManagementTable(job: any): EnrichedEmployerJobRow {
   const rawReqs = Array.isArray(job?.structured_requirements)
     ? job.structured_requirements
     : []
   const metaItem =
-    rawReqs.find((r: any) => r && typeof r === 'object' && r._ss_job_meta === true) || {}
+    rawReqs.find(
+      (r: any) => r && typeof r === 'object' && r._ss_job_meta === true
+    ) || {}
+  const visibleReqs = rawReqs.filter(
+    (r: any) =>
+      r &&
+      typeof r === 'object' &&
+      !r._ss_job_meta &&
+      (r.skill || r.name) &&
+      !String(r.skill || r.name).startsWith('__SS_')
+  )
 
-  const baseTimestamp = metaItem.renewed_at || job?.created_at || new Date().toISOString()
+  const baseTimestamp =
+    metaItem.renewed_at || job?.created_at || new Date().toISOString()
   const startMs = new Date(baseTimestamp).getTime()
   const expiresMs = startMs + JOB_EXPIRATION_DAYS * 24 * 60 * 60 * 1000
   const diffMs = expiresMs - Date.now()
   const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
+  const isExpired = diffMs <= 0
+
+  const payType: 'annual' | 'hourly' =
+    metaItem.pay_type === 'hourly' ||
+    (job?.salary_max && job.salary_max > 0 && job.salary_max <= 500)
+      ? 'hourly'
+      : 'annual'
+
+  const formatAmount = (val?: number | null) => {
+    if (!val || isNaN(Number(val))) return null
+    const num = Number(val)
+    if (payType === 'hourly') return `$${num.toLocaleString()}`
+    if (num >= 1000) {
+      const kVal = num / 1000
+      return `$${Number.isInteger(kVal) ? kVal : kVal.toFixed(1)}k`
+    }
+    return `$${num.toLocaleString()}`
+  }
+
+  const minStr = formatAmount(job?.salary_min)
+  const maxStr = formatAmount(job?.salary_max)
+  const unitSuffix = payType === 'hourly' ? '/hr' : '/yr'
+
+  let formattedPay = 'Pay Open'
+  if (minStr && maxStr) {
+    formattedPay = `${minStr} – ${maxStr} ${unitSuffix}`
+  } else if (minStr) {
+    formattedPay = `${minStr}+ ${unitSuffix}`
+  } else if (maxStr) {
+    formattedPay = `Up to ${maxStr} ${unitSuffix}`
+  }
+
+  const rawMax = Number(job?.salary_max) || Number(job?.salary_min) || 0
+  const rawMin = Number(job?.salary_min) || Number(job?.salary_max) || 0
+  const annualizedMaxPay = payType === 'hourly' ? rawMax * 2080 : rawMax
+  const annualizedMinPay = payType === 'hourly' ? rawMin * 2080 : rawMin
+
+  const applicantCount = Array.isArray(job?.applications)
+    ? job.applications.filter((a: any) => a.initiated_by !== 'employer').length
+    : 0
+
+  const rawIndustry = metaItem.industry || job?.industry || ''
+  const normalizedIndustry = rawIndustry
+    ? normalizeIndustryVertical(rawIndustry)
+    : ''
 
   return {
+    id: String(job.id),
+    title: job.title || 'Untitled Role',
+    work_model: job.work_model || 'hybrid',
+    created_at: job.created_at || new Date().toISOString(),
+    is_active: Boolean(job.is_active && !isExpired),
+    salary_min: job.salary_min ?? null,
+    salary_max: job.salary_max ?? null,
+    pay_type: payType,
+    formattedPay,
+    annualizedMaxPay,
+    annualizedMinPay,
+    location: metaItem.location || '',
+    employmentType: metaItem.employment_type || 'Full-Time (W-2)',
+    industry: normalizedIndustry,
+    applicantCount,
     daysRemaining,
-    isExpired: diffMs <= 0,
-    expiresAtDate: new Date(expiresMs),
+    isExpired,
+    expiresAtIso: new Date(expiresMs).toISOString(),
     renewedAtIso: metaItem.renewed_at || null,
+    skillsString: visibleReqs
+      .map((r: any) => r.skill || r.name || '')
+      .join(', '),
   }
 }
 
@@ -82,13 +154,13 @@ export default async function JobManagementPage() {
 
   // 5. Auto-close any active jobs whose 30-day window has elapsed
   const expiredActiveJobIds: string[] = []
-  for (const job of jobs || []) {
-    const expInfo = computeJobExpirationInfo(job)
-    if (job.is_active && expInfo.isExpired) {
+  const enrichedRows: EnrichedEmployerJobRow[] = (jobs || []).map((job) => {
+    const row = enrichJobForManagementTable(job)
+    if (job.is_active && row.isExpired) {
       expiredActiveJobIds.push(job.id)
-      job.is_active = false
     }
-  }
+    return row
+  })
 
   if (expiredActiveJobIds.length > 0) {
     await supabase
@@ -195,12 +267,12 @@ export default async function JobManagementPage() {
     revalidatePath('/dashboard')
   }
 
-  const activeJobsCount = (jobs || []).filter((j) => j.is_active).length
+  const activeJobsCount = enrichedRows.filter((j) => j.is_active).length
   const slotsFull = activeJobsCount >= tierInfo.maxActiveJobs
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-12">
-      <div className="max-w-5xl mx-auto space-y-8">
+      <div className="max-w-6xl mx-auto space-y-8">
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <Link
@@ -226,7 +298,9 @@ export default async function JobManagementPage() {
               Job Management
             </h1>
             <p className="text-slate-500 mt-1 text-sm">
-              Manage your active listings ({activeJobsCount}/{tierInfo.maxActiveJobs} slots used). To prevent passive resume harvesting, all roles automatically close after <strong>{JOB_EXPIRATION_DAYS} days</strong> unless manually renewed.
+              Manage your active listings ({activeJobsCount}/
+              {tierInfo.maxActiveJobs} slots used). To prevent passive resume harvesting, all roles automatically close after{' '}
+              <strong>{JOB_EXPIRATION_DAYS} days</strong> unless manually renewed.
             </p>
           </div>
           <div className="flex gap-3 shrink-0">
@@ -311,7 +385,7 @@ export default async function JobManagementPage() {
         )}
 
         <section>
-          {!jobs || jobs.length === 0 ? (
+          {enrichedRows.length === 0 ? (
             <div className="bg-white p-12 rounded-2xl border border-slate-200 shadow-sm text-center">
               <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
@@ -353,226 +427,13 @@ export default async function JobManagementPage() {
               )}
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200">
-                      <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        Role Details
-                      </th>
-                      <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        Status &amp; 30-Day Window
-                      </th>
-                      <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        Applicants
-                      </th>
-                      <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {jobs.map((job) => {
-                      const applicantCount = Array.isArray(job.applications)
-                        ? job.applications.filter(
-                            (a: any) => a.initiated_by !== 'employer'
-                          ).length
-                        : 0
-
-                      const expInfo = computeJobExpirationInfo(job)
-                      const isExpiringSoon =
-                        job.is_active &&
-                        !expInfo.isExpired &&
-                        expInfo.daysRemaining <= 7
-
-                      return (
-                        <tr
-                          key={job.id}
-                          className="hover:bg-slate-50/50 transition-colors"
-                        >
-                          <td className="py-4 px-6">
-                            <p className="font-bold text-slate-900">
-                              {job.title}
-                            </p>
-                            <div className="flex flex-wrap items-center gap-2 mt-1">
-                              <span className="text-xs text-slate-500 capitalize">
-                                {job.work_model}
-                              </span>
-                              <span className="text-slate-300">•</span>
-                              <span className="text-xs text-slate-400">
-                                Posted{' '}
-                                {new Date(job.created_at).toLocaleDateString()}
-                              </span>
-                              {expInfo.renewedAtIso && (
-                                <>
-                                  <span className="text-slate-300">•</span>
-                                  <span className="text-xs text-indigo-600 font-semibold">
-                                    Renewed{' '}
-                                    {new Date(
-                                      expInfo.renewedAtIso
-                                    ).toLocaleDateString()}
-                                  </span>
-                                </>
-                              )}
-                            </div>
-                          </td>
-
-                          <td className="py-4 px-6">
-                            <div className="flex flex-col items-start gap-1">
-                              {job.is_active ? (
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                  Active
-                                </span>
-                              ) : expInfo.isExpired ? (
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                  Auto-Expired (30d Limit)
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                                  Closed
-                                </span>
-                              )}
-
-                              {job.is_active ? (
-                                <span
-                                  className={`text-[11px] font-bold ${
-                                    isExpiringSoon
-                                      ? 'text-amber-700'
-                                      : 'text-slate-400'
-                                  }`}
-                                >
-                                  {isExpiringSoon ? '⚠️ ' : '⏳ '}
-                                  Closes in {expInfo.daysRemaining}{' '}
-                                  {expInfo.daysRemaining === 1 ? 'day' : 'days'}{' '}
-                                  ({expInfo.expiresAtDate.toLocaleDateString()})
-                                </span>
-                              ) : (
-                                <span className="text-[11px] text-slate-400 font-medium">
-                                  Manual renewal required to reopen
-                                </span>
-                              )}
-                            </div>
-                          </td>
-
-                          <td className="py-4 px-6">
-                            <div className="flex items-center gap-2">
-                              <svg
-                                className="w-4 h-4 text-slate-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                                ></path>
-                              </svg>
-                              <span className="font-bold text-slate-700">
-                                {applicantCount}
-                              </span>
-                            </div>
-                          </td>
-
-                          <td className="py-4 px-6 text-right">
-                            <div className="flex flex-wrap items-center justify-end gap-2">
-                              <Link
-                                href={`/dashboard/employer/jobs/${job.id}/edit`}
-                                className="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 hover:text-indigo-600 transition-colors shadow-sm"
-                              >
-                                Edit
-                              </Link>
-
-                              {/* If active and expiring within 7 days, offer 1-click +30d extension */}
-                              {job.is_active && isExpiringSoon && (
-                                <form action={toggleOrRenewJobStatus}>
-                                  <input
-                                    type="hidden"
-                                    name="job_id"
-                                    value={job.id}
-                                  />
-                                  <input
-                                    type="hidden"
-                                    name="action_type"
-                                    value="renew"
-                                  />
-                                  <input
-                                    type="hidden"
-                                    name="current_status"
-                                    value="true"
-                                  />
-                                  <SubmitButton
-                                    pendingText="Renewing..."
-                                    className="px-3 py-1.5 text-xs font-extrabold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-md hover:bg-indigo-100 transition-colors shadow-sm cursor-pointer"
-                                  >
-                                    ↻ Renew +30d
-                                  </SubmitButton>
-                                </form>
-                              )}
-
-                              <form action={toggleOrRenewJobStatus}>
-                                <input
-                                  type="hidden"
-                                  name="job_id"
-                                  value={job.id}
-                                />
-                                <input
-                                  type="hidden"
-                                  name="current_status"
-                                  value={job.is_active.toString()}
-                                />
-
-                                {job.is_active ? (
-                                  <>
-                                    <input
-                                      type="hidden"
-                                      name="action_type"
-                                      value="close"
-                                    />
-                                    <SubmitButton
-                                      pendingText="..."
-                                      className="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors shadow-sm cursor-pointer"
-                                    >
-                                      Close Role
-                                    </SubmitButton>
-                                  </>
-                                ) : slotsFull ? (
-                                  <Link
-                                    href="/dashboard/employer/billing"
-                                    className="px-3 py-1.5 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-md hover:bg-amber-100 transition-colors shadow-sm"
-                                  >
-                                    Slots Full ({activeJobsCount}/{tierInfo.maxActiveJobs}) · Upgrade
-                                  </Link>
-                                ) : (
-                                  <>
-                                    <input
-                                      type="hidden"
-                                      name="action_type"
-                                      value="renew"
-                                    />
-                                    <SubmitButton
-                                      pendingText="Renewing..."
-                                      className="px-3 py-1.5 text-xs font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md hover:bg-emerald-100 transition-colors shadow-sm cursor-pointer"
-                                    >
-                                      ↻ Reopen &amp; Renew (+30d)
-                                    </SubmitButton>
-                                  </>
-                                )}
-                              </form>
-                            </div>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <EmployerJobsTableClient
+              jobs={enrichedRows}
+              activeJobsCount={activeJobsCount}
+              maxActiveJobs={tierInfo.maxActiveJobs}
+              slotsFull={slotsFull}
+              toggleOrRenewJobStatus={toggleOrRenewJobStatus}
+            />
           )}
         </section>
       </div>
