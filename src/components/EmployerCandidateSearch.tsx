@@ -16,6 +16,10 @@ import {
   STANDARD_INDUSTRY_VERTICALS,
   normalizeIndustryVertical,
 } from '@/constants/industries'
+import {
+  CANDIDATE_EDUCATION_LEVELS,
+  normalizeCandidateEducation,
+} from '@/constants/education'
 
 const MIN_MATCH_THRESHOLD = 40
 
@@ -71,6 +75,35 @@ function getCandidateIndustryVertical(candidate: any): string {
   return ''
 }
 
+function getCandidateEducationLevel(candidate: any): string {
+  if (candidate?.education_level) {
+    return normalizeCandidateEducation(candidate.education_level)
+  }
+  const rawSkills = Array.isArray(candidate?.structured_skills)
+    ? candidate.structured_skills
+    : []
+  const metaEntry = rawSkills.find(
+    (item: any) => item && item._ss_pref_meta === true
+  )
+  if (metaEntry?.education_level) {
+    return normalizeCandidateEducation(metaEntry.education_level)
+  }
+  return ''
+}
+
+function getCandidateCertifications(candidate: any): string {
+  if (candidate?.certifications) {
+    return String(candidate.certifications).trim()
+  }
+  const rawSkills = Array.isArray(candidate?.structured_skills)
+    ? candidate.structured_skills
+    : []
+  const metaEntry = rawSkills.find(
+    (item: any) => item && item._ss_pref_meta === true
+  )
+  return metaEntry?.certifications ? String(metaEntry.certifications).trim() : ''
+}
+
 function getJobEmploymentType(job: any): string {
   const rawReqs = Array.isArray(job?.structured_requirements)
     ? job.structured_requirements
@@ -92,6 +125,7 @@ export default function EmployerCandidateSearch({
   const [workModel, setWorkModel] = useState('')
   const [employmentType, setEmploymentType] = useState('all')
   const [industryFilter, setIndustryFilter] = useState('all')
+  const [educationFilter, setEducationFilter] = useState('all')
   const [sortBy, setSortBy] = useState<CandidateSortOption>('exp_high')
   const [selectedState, setSelectedState] = useState('')
   const [selectedMetro, setSelectedMetro] = useState('')
@@ -270,7 +304,7 @@ export default function EmployerCandidateSearch({
     setIsSending(false)
   }
 
-  // Filter & Sort candidates by Shortlist toggle, Employment Type, Industry Vertical, and Sort By
+  // Filter & Sort candidates by Shortlist toggle, Employment Type, Industry Vertical, Education, and Sort By
   const filteredAndSortedCandidates = useMemo(() => {
     const filtered = candidates.filter((candidate) => {
       const cid = String(candidate.id)
@@ -290,6 +324,21 @@ export default function EmployerCandidateSearch({
       if (industryFilter !== 'all') {
         const candIndustry = getCandidateIndustryVertical(candidate)
         if (candIndustry.toLowerCase() !== industryFilter.toLowerCase()) {
+          return false
+        }
+      }
+      if (educationFilter !== 'all') {
+        const candEdu = getCandidateEducationLevel(candidate)
+        const candCerts = getCandidateCertifications(candidate)
+        if (
+          educationFilter === 'HAS_CERTS' &&
+          (!candCerts || candCerts.length === 0)
+        ) {
+          return false
+        } else if (
+          educationFilter !== 'HAS_CERTS' &&
+          candEdu.toLowerCase() !== educationFilter.toLowerCase()
+        ) {
           return false
         }
       }
@@ -340,6 +389,7 @@ export default function EmployerCandidateSearch({
     savedCandidateIds,
     employmentType,
     industryFilter,
+    educationFilter,
     sortBy,
   ])
 
@@ -368,7 +418,7 @@ export default function EmployerCandidateSearch({
             </svg>
             <input
               type="text"
-              placeholder="Search candidate skills (e.g., Next.js, Python, Leadership)..."
+              placeholder="Search skills, certifications, or keywords (e.g., Next.js, AWS, PMP, Security+)..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-sm font-medium text-slate-900 transition-all"
@@ -519,9 +569,9 @@ export default function EmployerCandidateSearch({
           </div>
         </div>
 
-        {/* Bottom Organizer Row: Industry Vertical Filter + Sort By Dropdown */}
+        {/* Bottom Organizer Row: Industry Vertical + Education/Certs Filter + Sort By Dropdown */}
         <div className="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-          <div className="md:col-span-5 flex items-center gap-2">
+          <div className="md:col-span-4 flex items-center gap-2">
             <label
               htmlFor="employer-industry-filter"
               className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
@@ -543,7 +593,32 @@ export default function EmployerCandidateSearch({
             </select>
           </div>
 
-          <div className="md:col-span-5 flex items-center gap-2">
+          <div className="md:col-span-4 flex items-center gap-2">
+            <label
+              htmlFor="employer-education-filter"
+              className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
+            >
+              Education:
+            </label>
+            <select
+              id="employer-education-filter"
+              value={educationFilter}
+              onChange={(e) => setEducationFilter(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+            >
+              <option value="all">All Education &amp; Credentials</option>
+              <option value="HAS_CERTS">
+                🏅 Holds Active Industry Certifications
+              </option>
+              {CANDIDATE_EDUCATION_LEVELS.map((level) => (
+                <option key={level} value={level}>
+                  {level}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="md:col-span-4 flex items-center gap-2">
             <label
               htmlFor="employer-candidate-sort"
               className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
@@ -574,18 +649,6 @@ export default function EmployerCandidateSearch({
                 Work Arrangement (Remote → Hybrid → On-site)
               </option>
             </select>
-          </div>
-
-          <div className="md:col-span-2 text-right">
-            <span className="text-xs font-bold text-slate-500">
-              Showing{' '}
-              <strong className="text-slate-900">
-                {filteredAndSortedCandidates.length}
-              </strong>{' '}
-              {filteredAndSortedCandidates.length === 1
-                ? 'candidate'
-                : 'candidates'}
-            </span>
           </div>
         </div>
       </form>
@@ -629,15 +692,17 @@ export default function EmployerCandidateSearch({
             <p className="text-slate-500 text-sm mb-4">
               {onlyShortlisted
                 ? 'Click "Save to Shortlist" on any anonymous candidate card to assemble a comparison pool before pitching.'
-                : 'Try resetting your Industry Vertical or Employment Type filters.'}
+                : 'Try resetting your Industry Vertical, Education, or Employment Type filters.'}
             </p>
             {(industryFilter !== 'all' ||
+              educationFilter !== 'all' ||
               employmentType !== 'all' ||
               onlyShortlisted) && (
               <button
                 type="button"
                 onClick={() => {
                   setIndustryFilter('all')
+                  setEducationFilter('all')
                   setEmploymentType('all')
                   setOnlyShortlisted(false)
                 }}
@@ -652,6 +717,8 @@ export default function EmployerCandidateSearch({
             const cid = String(candidate.id)
             const isShortlisted = savedCandidateIds.includes(cid)
             const candidateIndustry = getCandidateIndustryVertical(candidate)
+            const candidateEdu = getCandidateEducationLevel(candidate)
+            const candidateCerts = getCandidateCertifications(candidate)
 
             const candidateSkillStrings: string[] =
               Array.isArray(candidate.structured_skills) &&
@@ -901,9 +968,19 @@ export default function EmployerCandidateSearch({
                     </button>
                   </div>
 
-                  {/* Accepted Employment Types Row */}
+                  {/* Education, Active Certifications & Accepted Employment Types Row */}
                   <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                    <span className="text-[11px] font-bold text-slate-400 mr-1">
+                    {candidateEdu && (
+                      <span className="px-2.5 py-0.5 rounded-md bg-sky-50 text-sky-800 border border-sky-200 text-[11px] font-bold">
+                        🎓 {candidateEdu}
+                      </span>
+                    )}
+                    {candidateCerts && (
+                      <span className="px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-bold">
+                        🏅 Certs: {candidateCerts}
+                      </span>
+                    )}
+                    <span className="text-[11px] font-bold text-slate-400 ml-1 mr-0.5">
                       Open to:
                     </span>
                     {acceptedEmploymentTypes.map((empType) => (
@@ -967,7 +1044,7 @@ export default function EmployerCandidateSearch({
                               Analyzing 5-Point AI Fit (May take up to 30s)...
                             </span>
                             <span className="text-indigo-700 font-medium">
-                              Routing across our 3-tier AI matching cascade. If all tiers are busy, you will be prompted to try again.
+                              Routing skills, education &amp; certifications across our 3-tier AI matching cascade.
                             </span>
                           </div>
                         </div>

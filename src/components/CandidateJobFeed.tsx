@@ -11,6 +11,7 @@ import {
   STANDARD_INDUSTRY_VERTICALS,
   normalizeIndustryVertical,
 } from '@/constants/industries'
+import { normalizeJobEducationReq } from '@/constants/education'
 import {
   Radar,
   RadarChart,
@@ -103,6 +104,11 @@ function extractJobCardMeta(job: any) {
     ? normalizeIndustryVertical(rawIndustry)
     : ''
 
+  const rawEduReq = job.education_req || metaItem.education_req || ''
+  const educationReq = rawEduReq ? normalizeJobEducationReq(rawEduReq) : ''
+  const requiredCertifications =
+    job.required_certifications || metaItem.required_certifications || ''
+
   return {
     formattedPay,
     payType,
@@ -114,6 +120,8 @@ function extractJobCardMeta(job: any) {
     employmentType:
       job.employment_type || metaItem.employment_type || 'Full-Time (W-2)',
     experienceLevel: job.experience_level || metaItem.experience_level || '',
+    educationReq,
+    requiredCertifications,
     industry: normalizedIndustry,
     companySize: job.company_size || metaItem.company_size || '',
     workAuth: job.work_auth || metaItem.work_auth || '',
@@ -666,7 +674,7 @@ export function CandidateJobFeed({
                   </div>
                 </div>
 
-                {/* Metadata Pills Row: Work Model, Location, Employment Type, Seniority, Work Auth */}
+                {/* Metadata Pills Row: Work Model, Location, Employment Type, Seniority, Education, Certs, Work Auth */}
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-100 text-xs font-extrabold capitalize">
                     {job.work_model || 'Flexible'} Work Model
@@ -706,6 +714,18 @@ export function CandidateJobFeed({
                   {meta.experienceLevel && (
                     <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-violet-50 text-violet-800 border border-violet-100 text-xs font-bold">
                       {meta.experienceLevel}
+                    </span>
+                  )}
+
+                  {meta.educationReq && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-xs font-bold">
+                      🎓 {meta.educationReq}
+                    </span>
+                  )}
+
+                  {meta.requiredCertifications && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
+                      🏅 Certs: {meta.requiredCertifications}
                     </span>
                   )}
 
@@ -754,7 +774,7 @@ export function CandidateJobFeed({
                         Analyzing 5-Point AI Fit (This may take up to 30 seconds)...
                       </span>
                       <span className="text-indigo-700 font-medium">
-                        Routing your anonymous skill matrix across our 3-tier AI matching cascade. If all tiers are busy, you will be prompted to try again.
+                        Routing your anonymous skill matrix, education, and certifications across our 3-tier AI matching cascade.
                       </span>
                     </div>
                   </div>

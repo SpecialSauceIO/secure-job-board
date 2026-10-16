@@ -13,6 +13,10 @@ import {
   STANDARD_INDUSTRY_VERTICALS,
   normalizeIndustryVertical,
 } from '@/constants/industries'
+import {
+  JOB_EDUCATION_REQUIREMENTS,
+  normalizeJobEducationReq,
+} from '@/constants/education'
 
 export default function NewJobPage() {
   const router = useRouter()
@@ -26,6 +30,8 @@ export default function NewJobPage() {
     location: '',
     employment_type: 'Full-Time (W-2)',
     experience_level: 'Senior (5–8 yrs)',
+    education_req: "Bachelor's Degree OR Equivalent Practical Experience",
+    required_certifications: '',
     pay_type: 'annual' as 'annual' | 'hourly',
     salary_min: '',
     salary_max: '',
@@ -82,6 +88,13 @@ export default function NewJobPage() {
       salary_max: data.salary_max ? String(data.salary_max) : prev.salary_max,
       employment_type: data.employment_type || prev.employment_type,
       experience_level: data.experience_level || prev.experience_level,
+      education_req: data.education_req
+        ? normalizeJobEducationReq(data.education_req)
+        : prev.education_req,
+      required_certifications:
+        typeof data.required_certifications === 'string'
+          ? data.required_certifications
+          : prev.required_certifications,
       industry: data.industry
         ? normalizeIndustryVertical(data.industry)
         : prev.industry,
@@ -199,7 +212,7 @@ export default function NewJobPage() {
           Post a New Blind Role
         </h2>
         <p className="text-sm text-slate-500 mt-1">
-          Candidates will see your compensation band, US metro location, and standardized industry vertical, while your company name and domain remain hidden until unlock.
+          Candidates will see your compensation band, US metro location, education/certification alignment, and standardized industry vertical, while your company name and domain remain hidden until unlock.
         </p>
       </div>
 
@@ -214,10 +227,10 @@ export default function NewJobPage() {
       </div>
 
       <form action={handleSubmit} className="space-y-8">
-        {/* SECTION 1: ROLE BASICS & US CASCADING LOCATION */}
+        {/* SECTION 1: ROLE BASICS, EDUCATION & US CASCADING LOCATION */}
         <div className="space-y-6 rounded-xl bg-slate-50 p-6 border border-slate-200">
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-2">
-            1. Role Fundamentals &amp; US Location
+            1. Role Fundamentals, Education &amp; US Location
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -249,7 +262,7 @@ export default function NewJobPage() {
                 onChange={(e) =>
                   setJobData({ ...jobData, work_model: e.target.value })
                 }
-                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
               >
                 <option value="remote">Remote</option>
                 <option value="hybrid">Hybrid</option>
@@ -277,7 +290,7 @@ export default function NewJobPage() {
                 onChange={(e) =>
                   setJobData({ ...jobData, employment_type: e.target.value })
                 }
-                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
               >
                 <option value="Full-Time (W-2)">Full-Time (W-2)</option>
                 <option value="Contract (1099 / Corp-to-Corp)">
@@ -298,7 +311,7 @@ export default function NewJobPage() {
                 onChange={(e) =>
                   setJobData({ ...jobData, experience_level: e.target.value })
                 }
-                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
               >
                 <option value="Entry / Junior (0–2 yrs)">
                   Entry / Junior (0–2 yrs)
@@ -312,6 +325,54 @@ export default function NewJobPage() {
                   Executive / Director
                 </option>
               </select>
+            </div>
+          </div>
+
+          {/* Education Requirement + Active Industry Certifications */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 border-t border-slate-200/70">
+            <div>
+              <label className="block text-sm font-bold text-slate-700">
+                Education Requirement
+              </label>
+              <p className="text-xs text-slate-500 mt-0.5 mb-2">
+                Choose whether practical experience is accepted in lieu of a degree.
+              </p>
+              <select
+                name="education_req"
+                value={jobData.education_req}
+                onChange={(e) =>
+                  setJobData({ ...jobData, education_req: e.target.value })
+                }
+                className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
+              >
+                {JOB_EDUCATION_REQUIREMENTS.map((reqOpt) => (
+                  <option key={reqOpt} value={reqOpt}>
+                    {reqOpt}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700">
+                Required / Preferred Certifications (Optional)
+              </label>
+              <p className="text-xs text-slate-500 mt-0.5 mb-2">
+                Comma-separated credentials (e.g., AWS Solutions Architect, PMP, Security+).
+              </p>
+              <input
+                type="text"
+                name="required_certifications"
+                value={jobData.required_certifications}
+                onChange={(e) =>
+                  setJobData({
+                    ...jobData,
+                    required_certifications: e.target.value,
+                  })
+                }
+                placeholder="e.g. AWS Certified, CompTIA Security+, PMP"
+                className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+              />
             </div>
           </div>
         </div>
@@ -343,7 +404,7 @@ export default function NewJobPage() {
                     pay_type: e.target.value as 'annual' | 'hourly',
                   })
                 }
-                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-bold"
+                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-bold cursor-pointer"
               >
                 <option value="annual">Annual Salary (/yr)</option>
                 <option value="hourly">Hourly Rate (/hr)</option>
@@ -360,7 +421,7 @@ export default function NewJobPage() {
                 onChange={(e) =>
                   setJobData({ ...jobData, comp_perks: e.target.value })
                 }
-                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
               >
                 <option value="Base Salary Only">Base Pay Only</option>
                 <option value="+ Annual Bonus">
@@ -480,7 +541,7 @@ export default function NewJobPage() {
                 onChange={(e) =>
                   setJobData({ ...jobData, company_size: e.target.value })
                 }
-                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
               >
                 <option value="Seed / Startup (1–50 Employees)">
                   Seed / Startup (1–50)
@@ -507,7 +568,7 @@ export default function NewJobPage() {
                 onChange={(e) =>
                   setJobData({ ...jobData, work_auth: e.target.value })
                 }
-                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
               >
                 <option value="US Authorized Only (No Sponsorship)">
                   US Authorized Only (No Sponsorship)

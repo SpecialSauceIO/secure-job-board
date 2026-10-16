@@ -5,6 +5,10 @@ import Link from 'next/link'
 import { SubmitButton } from '@/components/SubmitButton'
 import UsLocationSelector from '@/components/UsLocationSelector'
 import { updateProfile, forceVerifyCandidateIdentity } from '@/app/dashboard/actions'
+import {
+  STANDARD_INDUSTRY_VERTICALS,
+  normalizeIndustryVertical,
+} from '@/constants/industries'
 
 export const dynamic = 'force-dynamic'
 
@@ -53,6 +57,19 @@ function extractSavedEmploymentTypes(profile: any): string[] {
   return EMPLOYMENT_TYPE_OPTIONS.map((o) => o.value)
 }
 
+function extractSavedIndustryVertical(profile: any): string {
+  const rawSkills = Array.isArray(profile?.structured_skills)
+    ? profile.structured_skills
+    : []
+  const metaEntry = rawSkills.find(
+    (item: any) => item && item._ss_pref_meta === true
+  )
+  if (metaEntry?.industry_vertical) {
+    return normalizeIndustryVertical(metaEntry.industry_vertical)
+  }
+  return 'Technology, Software & SaaS'
+}
+
 async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
   'use server'
   const supabase = await createClient()
@@ -70,7 +87,11 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
       ? selectedTypes
       : EMPLOYMENT_TYPE_OPTIONS.map((o) => o.value)
 
-  // Fetch latest structured_skills from DB so we preserve saved_job_ids & saved_candidate_ids
+  const rawSubmittedIndustry = String(
+    formData.get('industry_vertical') || ''
+  ).trim()
+
+  // Fetch latest structured_skills from DB so we preserve saved_job_ids, saved_candidate_ids, and industry_vertical
   const { data: currentProfile } = await supabase
     .from('profiles')
     .select('structured_skills')
@@ -84,6 +105,10 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
   const existingPrefMeta =
     rawSkills.find((item: any) => item && item._ss_pref_meta === true) || {}
 
+  const finalIndustryVertical = rawSubmittedIndustry
+    ? normalizeIndustryVertical(rawSubmittedIndustry)
+    : existingPrefMeta.industry_vertical || 'Technology, Software & SaaS'
+
   const cleanedSkills = rawSkills.filter(
     (item: any) => !(item && item._ss_pref_meta === true)
   )
@@ -92,9 +117,11 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
     ...existingPrefMeta,
     _ss_pref_meta: true,
     employment_types: finalEmploymentTypes,
+    industry_vertical: finalIndustryVertical,
   })
 
   formData.set('structured_skills', JSON.stringify(cleanedSkills))
+  formData.set('industry_vertical', finalIndustryVertical)
 
   await updateProfile(formData)
 
@@ -104,8 +131,10 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
     .eq('id', user.id)
 
   revalidatePath('/dashboard')
+  revalidatePath('/dashboard/profile')
   revalidatePath('/dashboard/preferences')
   revalidatePath('/dashboard/jobs')
+  revalidatePath('/dashboard/employer/search')
 }
 
 export default async function MatchPreferencesPage() {
@@ -130,6 +159,7 @@ export default async function MatchPreferencesPage() {
   )
 
   const savedEmploymentTypes = extractSavedEmploymentTypes(profile)
+  const savedIndustryVertical = extractSavedIndustryVertical(profile)
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-12">
@@ -158,7 +188,7 @@ export default async function MatchPreferencesPage() {
             Match Preferences &amp; Dealbreakers
           </h1>
           <p className="text-slate-500 mt-1">
-            Configure your minimum salary expectations, accepted employment types, preferred work model, and target US location to control which employer connection pitches you receive.
+            Configure your minimum salary expectations, accepted employment types, primary industry vertical, preferred work model, and target US location to control which employer connection pitches you receive.
           </p>
         </header>
 
@@ -175,7 +205,7 @@ export default async function MatchPreferencesPage() {
             <form action={forceVerifyCandidateIdentity}>
               <button
                 type="submit"
-                className="shrink-0 px-4 py-2.5 bg-amber-600 text-white text-xs font-extrabold rounded-xl hover:bg-amber-700 transition-colors shadow-sm"
+                className="shrink-0 px-4 py-2.5 bg-amber-600 text-white text-xs font-extrabold rounded-xl hover:bg-amber-700 transition-colors shadow-sm cursor-pointer"
               >
                 ⚡ Complete Verification
               </button>
@@ -223,7 +253,7 @@ export default async function MatchPreferencesPage() {
                 </div>
               </div>
               <p className="text-xs text-slate-500 mt-1">
-                Employers whose role maximum budget is below this threshold will be blocked from pitching you.
+                Employers whose role maximum budget (annual or annualized hourly rate) is below this threshold will be blocked from pitching you.
               </p>
             </div>
 
@@ -233,7 +263,7 @@ export default async function MatchPreferencesPage() {
                 Accepted Employment Types (Dealbreaker)
               </label>
               <p className="text-xs text-slate-500 mt-0.5 mb-3">
-                Select all employment models you are open to. Roles outside these types will be filtered out of your recommendations and dealbreaker guardrails.
+                Select all employment models you are open to. Roles outside these types will be blocked by your dealbreaker guardrails.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -265,21 +295,46 @@ export default async function MatchPreferencesPage() {
               </div>
             </div>
 
-            {/* 3. PREFERRED WORK MODEL */}
-            <div className="pt-2 border-t border-slate-100">
-              <label className="block text-sm font-bold text-slate-700">
-                Preferred Work Model
-              </label>
-              <select
-                name="preferred_work_model"
-                defaultValue={profile?.preferred_work_model || 'remote'}
-                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
-              >
-                <option value="remote">Remote Only</option>
-                <option value="hybrid">Hybrid</option>
-                <option value="onsite">On-site</option>
-                <option value="any">Open to Any Model</option>
-              </select>
+            {/* 3. PRIMARY INDUSTRY VERTICAL & PREFERRED WORK MODEL */}
+            <div className="pt-2 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-700">
+                  Primary Industry Vertical
+                </label>
+                <p className="text-xs text-slate-500 mt-0.5 mb-2">
+                  Used for domain alignment &amp; employer talent filtering.
+                </p>
+                <select
+                  name="industry_vertical"
+                  defaultValue={savedIndustryVertical}
+                  className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
+                >
+                  {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
+                    <option key={vertical} value={vertical}>
+                      {vertical}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-slate-700">
+                  Preferred Work Model (Dealbreaker)
+                </label>
+                <p className="text-xs text-slate-500 mt-0.5 mb-2">
+                  Controls which work arrangements employers can pitch you.
+                </p>
+                <select
+                  name="preferred_work_model"
+                  defaultValue={profile?.preferred_work_model || 'remote'}
+                  className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
+                >
+                  <option value="remote">Remote Only</option>
+                  <option value="hybrid">Hybrid</option>
+                  <option value="onsite">On-site</option>
+                  <option value="any">Open to Any Model</option>
+                </select>
+              </div>
             </div>
 
             {/* 4. US CASCADING LOCATION SELECTOR */}
@@ -301,7 +356,7 @@ export default async function MatchPreferencesPage() {
           <div className="pt-4 flex justify-end">
             <SubmitButton
               pendingText="Saving Preferences..."
-              className="rounded-xl bg-indigo-600 px-8 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-700 transition-colors"
+              className="rounded-xl bg-indigo-600 px-8 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer"
             >
               Save Match Preferences
             </SubmitButton>
