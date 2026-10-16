@@ -61,43 +61,77 @@ export default function SecureMessageThread({
 
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   const prevMsgCountRef = useRef<number>(messages.length)
+  const channelRef = useRef<any>(null)
+
+  // Keep state in sync if parent re-fetches applications list
+  useEffect(() => {
+    if (
+      Array.isArray(initialMessages) &&
+      initialMessages.length > messages.length
+    ) {
+      setMessages(initialMessages)
+    }
+  }, [initialMessages, messages.length])
+
+  useEffect(() => {
+    if (initialVaultReleased && !vaultReleased) {
+      setVaultReleased(true)
+    }
+  }, [initialVaultReleased, vaultReleased])
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    if (messages.length > prevMsgCountRef.current && scrollContainerRef.current) {
+    if (
+      messages.length > prevMsgCountRef.current &&
+      scrollContainerRef.current
+    ) {
       scrollContainerRef.current.scrollTop =
         scrollContainerRef.current.scrollHeight
     }
     prevMsgCountRef.current = messages.length
   }, [messages.length])
 
-  // Silent server state pull
+  // Direct, uncached server state pull
   const syncLatestThreadState = useCallback(async () => {
-    if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
-      return
-    }
-    const res = await getApplicationThreadState(applicationId)
-    if (!res.error) {
-      setMessages((prev) => {
-        if (JSON.stringify(prev) !== JSON.stringify(res.messages)) {
-          return res.messages
-        }
-        return prev
-      })
-      setVaultReleased((prev) => (prev !== res.vaultReleased ? res.vaultReleased : prev))
-      if (res.candidateFullName) setCandidateFullName(res.candidateFullName)
-      if (res.candidateEmail) setCandidateEmail(res.candidateEmail)
-      if (res.employerEmail) setEmployerEmail(res.employerEmail)
+    if (!applicationId) return
+    try {
+      const res = await getApplicationThreadState(applicationId)
+      if (!res.error) {
+        setMessages((prev) => {
+          if (
+            res.messages.length !== prev.length ||
+            res.messages[res.messages.length - 1]?.id !==
+              prev[prev.length - 1]?.id
+          ) {
+            return res.messages
+          }
+          return prev
+        })
+        setVaultReleased((prev) =>
+          prev !== res.vaultReleased ? res.vaultReleased : prev
+        )
+        if (res.candidateFullName) setCandidateFullName(res.candidateFullName)
+        if (res.candidateEmail) setCandidateEmail(res.candidateEmail)
+        if (res.employerEmail) setEmployerEmail(res.employerEmail)
+      }
+    } catch {
+      // Ignore transient network hiccups during polling
     }
   }, [applicationId])
 
-  // Subscribe to Supabase Realtime + 4-second background heartbeat
+  // Subscribe to Instant WebSocket Broadcast + Postgres Changes + 2.5s Uncached Poll
   useEffect(() => {
     if (!applicationId) return
 
+    // Pull immediately on mount
+    syncLatestThreadState()
+
     const supabase = createClient()
     const channel = supabase
-      .channel(`thread-sync-${applicationId}`)
+      .channel(`ss-live-thread-${applicationId}`)
+      .on('broadcast', { event: 'thread-update' }, () => {
+        syncLatestThreadState()
+      })
       .on(
         'postgres_changes',
         {
@@ -112,15 +146,32 @@ export default function SecureMessageThread({
       )
       .subscribe()
 
+    channelRef.current = channel
+
     const intervalId = setInterval(() => {
       syncLatestThreadState()
-    }, 4000)
+    }, 2500)
 
     return () => {
       clearInterval(intervalId)
       supabase.removeChannel(channel)
+      channelRef.current = null
     }
   }, [applicationId, syncLatestThreadState])
+
+  const broadcastInstantPing = async () => {
+    try {
+      if (channelRef.current) {
+        await channelRef.current.send({
+          type: 'broadcast',
+          event: 'thread-update',
+          payload: { updatedAt: Date.now() },
+        })
+      }
+    } catch {
+      // Fallback polling handles it if broadcast socket is reconnecting
+    }
+  }
 
   const hasEmployerMessaged = messages.some((m) => m.sender_role === 'employer')
 
@@ -138,6 +189,7 @@ export default function SecureMessageThread({
     } else if (res.messages) {
       setMessages(res.messages)
       setDraft('')
+      await broadcastInstantPing()
     }
     setIsSending(false)
   }
@@ -157,6 +209,7 @@ export default function SecureMessageThread({
         `Full Identity Vault (Resume PDF & Direct Email) released to ${employerName}!`
       )
       await syncLatestThreadState()
+      await broadcastInstantPing()
     }
     setIsReleasing(false)
   }

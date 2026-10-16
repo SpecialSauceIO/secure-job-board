@@ -2,7 +2,7 @@
 
 import { createClient } from '@/utils/supabase/server'
 import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, unstable_noStore as noStore } from 'next/cache'
 
 const MAX_SILENT_UNLOCKS = 5
 
@@ -216,6 +216,7 @@ export async function checkEmployerSilentUnlockQuota(organizationId: string): Pr
   silentCount: number
   error?: string
 }> {
+  noStore()
   const supabase = await createClient()
 
   const { data: jobs } = await supabase
@@ -268,6 +269,7 @@ export async function sendApplicationMessage(
   messages?: ThreadMessage[]
   employerMessagedAt?: string | null
 }> {
+  noStore()
   const supabase = await createClient()
   const {
     data: { user },
@@ -379,9 +381,13 @@ export async function sendApplicationMessage(
     last_message_at: nowIso,
   }
 
+  // Also ensure is_revealed is true whenever an employer messages a thread
   const { error: updateErr } = await supabase
     .from('applications')
-    .update({ match_data: updatedMatchData })
+    .update({
+      is_revealed: true,
+      match_data: updatedMatchData,
+    })
     .eq('id', applicationId)
 
   if (updateErr) {
@@ -454,6 +460,7 @@ export async function releaseCandidateVaultToEmployer(
   error?: string
   releasedAt?: string
 }> {
+  noStore()
   const supabase = await createClient()
   const {
     data: { user },
@@ -583,6 +590,7 @@ export async function releaseCandidateVaultToEmployer(
 export async function getVaultReleasedResumeUrl(
   applicationId: string
 ): Promise<{ signedUrl?: string | null; error?: string }> {
+  noStore()
   const supabase = await createClient()
   const {
     data: { user },
@@ -621,49 +629,47 @@ export async function getVaultReleasedResumeUrl(
 }
 
 // ------------------------------------------------------------------
-// 5. LIVE THREAD SYNC ACTION (FOR REALTIME + BACKGROUND POLLING)
+// 5. DIRECT, ZERO-JOIN LIVE THREAD SYNC (NEVER CACHED BY NEXT.JS 16)
 // ------------------------------------------------------------------
 export async function getApplicationThreadState(applicationId: string): Promise<{
   messages: ThreadMessage[]
   vaultReleased: boolean
+  isRevealed: boolean
+  status?: string
   candidateFullName?: string | null
   candidateEmail?: string | null
   employerEmail?: string | null
   error?: string
 }> {
+  noStore()
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return { messages: [], vaultReleased: false, error: 'Not authenticated' }
+    return {
+      messages: [],
+      vaultReleased: false,
+      isRevealed: false,
+      error: 'Not authenticated',
+    }
   }
 
+  // Direct query on `applications` only (zero joins so RLS on profiles/organizations never blocks polling)
   const { data: appRow, error } = await supabase
     .from('applications')
-    .select(
-      `
-      id,
-      candidate_id,
-      match_data,
-      jobs (
-        organization_id,
-        organizations:organization_id (domain)
-      ),
-      profiles (
-        full_name,
-        name,
-        email,
-        contact_email
-      )
-    `
-    )
+    .select('id, candidate_id, is_revealed, status, match_data')
     .eq('id', applicationId)
     .single()
 
   if (error || !appRow) {
-    return { messages: [], vaultReleased: false, error: 'Thread not found' }
+    return {
+      messages: [],
+      vaultReleased: false,
+      isRevealed: false,
+      error: error?.message || 'Thread not found',
+    }
   }
 
   const matchData = appRow.match_data || {}
@@ -672,35 +678,19 @@ export async function getApplicationThreadState(applicationId: string): Promise<
     : []
   const vaultReleased = Boolean(matchData.candidate_vault_released === true)
 
-  const profileObj: any = Array.isArray(appRow.profiles)
-    ? appRow.profiles[0]
-    : appRow.profiles
-  const jobObj: any = Array.isArray(appRow.jobs) ? appRow.jobs[0] : appRow.jobs
-  const orgObj: any = Array.isArray(jobObj?.organizations)
-    ? jobObj?.organizations[0]
-    : jobObj?.organizations
-
-  const resolvedFullName =
-    profileObj?.full_name ||
-    profileObj?.name ||
-    matchData.candidate_full_name ||
-    null
-
-  const resolvedCandidateEmail =
-    matchData.candidate_contact_email ||
-    profileObj?.contact_email ||
-    profileObj?.email ||
-    null
-
   const resolvedEmployerEmail =
     matchData.employer_contact_email ||
-    (orgObj?.domain ? `hiring@${orgObj.domain}` : null)
+    (matchData.employer_org_domain
+      ? `hiring@${matchData.employer_org_domain}`
+      : null)
 
   return {
     messages,
     vaultReleased,
-    candidateFullName: vaultReleased ? resolvedFullName : null,
-    candidateEmail: vaultReleased ? resolvedCandidateEmail : null,
+    isRevealed: Boolean(appRow.is_revealed),
+    status: appRow.status,
+    candidateFullName: vaultReleased ? matchData.candidate_full_name || null : null,
+    candidateEmail: vaultReleased ? matchData.candidate_contact_email || null : null,
     employerEmail: vaultReleased ? resolvedEmployerEmail : null,
   }
 }

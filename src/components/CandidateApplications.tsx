@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import {
   getCandidateApplications,
@@ -41,26 +41,38 @@ export function CandidateApplications() {
   } | null>(null)
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
 
-  const fetchApplications = async () => {
-    setIsLoading(true)
-    const result = await getCandidateApplications(
-      'all',
-      daysFilter || undefined,
-      searchQuery || undefined
-    )
-    if (result.data) {
-      setApplications(result.data)
-    }
-    setIsLoading(false)
-  }
+  const fetchApplications = useCallback(
+    async (showSpinner = true) => {
+      if (showSpinner) setIsLoading(true)
+      const result = await getCandidateApplications(
+        'all',
+        daysFilter || undefined,
+        searchQuery || undefined
+      )
+      if (result.data) {
+        setApplications(result.data)
+      }
+      if (showSpinner) setIsLoading(false)
+    },
+    [daysFilter, searchQuery]
+  )
 
   useEffect(() => {
-    fetchApplications()
+    fetchApplications(true)
   }, [daysFilter])
+
+  // Background poll every 5 seconds so if an Employer unlocks or shortlists a Pending card,
+  // the card automatically flips to Unlocked and opens the live chat thread without a page refresh!
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchApplications(false)
+    }, 5000)
+    return () => clearInterval(intervalId)
+  }, [fetchApplications])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    fetchApplications()
+    fetchApplications(true)
   }
 
   const copyToClipboard = (text: string, key: string) => {
