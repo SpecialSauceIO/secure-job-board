@@ -11,6 +11,7 @@ import {
   STANDARD_INDUSTRY_VERTICALS,
   normalizeIndustryVertical,
 } from '@/constants/industries'
+import { normalizeJobEducationReq } from '@/constants/education'
 import {
   Radar,
   RadarChart,
@@ -40,6 +41,19 @@ function getAppJobIndustry(app: any): string {
   const job = app?.jobs || {}
   const rawInd = job.industry || job.job_meta?.industry || ''
   return rawInd ? normalizeIndustryVertical(rawInd) : ''
+}
+
+function getAppJobEducation(app: any): string {
+  const job = app?.jobs || {}
+  const rawEdu = job.education_req || job.job_meta?.education_req || ''
+  return rawEdu ? normalizeJobEducationReq(rawEdu) : ''
+}
+
+function getAppJobCerts(app: any): string {
+  const job = app?.jobs || {}
+  return (
+    job.required_certifications || job.job_meta?.required_certifications || ''
+  )
 }
 
 function getAnnualizedMaxPay(app: any): number {
@@ -472,6 +486,8 @@ export function CandidateApplications() {
             const job = app.jobs || {}
             const org = job.organizations || {}
             const jobIndustry = getAppJobIndustry(app)
+            const jobEducationReq = getAppJobEducation(app)
+            const jobRequiredCerts = getAppJobCerts(app)
             const status = app.normalized_status as
               | 'pending'
               | 'unlocked'
@@ -652,13 +668,13 @@ export function CandidateApplications() {
                     </div>
                   </div>
 
-                  {/* Role Title & Compensation Badges */}
+                  {/* Role Title, Compensation, Education & Certification Badges */}
                   <div>
                     <h2 className="text-2xl font-extrabold text-slate-900 mb-3">
                       {job.title || 'Open Role'}
                     </h2>
 
-                    <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-2.5">
                       {(job.salary_min || job.salary_max) && (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
                           <svg
@@ -705,6 +721,18 @@ export function CandidateApplications() {
                       {job.employment_type && (
                         <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200">
                           {job.employment_type}
+                        </span>
+                      )}
+
+                      {jobEducationReq && (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-xs font-bold">
+                          🎓 {jobEducationReq}
+                        </span>
+                      )}
+
+                      {jobRequiredCerts && (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
+                          🏅 Certs: {jobRequiredCerts}
                         </span>
                       )}
 

@@ -12,6 +12,7 @@ import {
   STANDARD_INDUSTRY_VERTICALS,
   normalizeIndustryVertical,
 } from '@/constants/industries'
+import { normalizeJobEducationReq } from '@/constants/education'
 import {
   Radar,
   RadarChart,
@@ -34,6 +35,19 @@ function getRequestJobIndustry(req: any): string {
   const job = req?.jobs || {}
   const rawInd = job.industry || job.job_meta?.industry || ''
   return rawInd ? normalizeIndustryVertical(rawInd) : ''
+}
+
+function getRequestJobEducation(req: any): string {
+  const job = req?.jobs || {}
+  const rawEdu = job.education_req || job.job_meta?.education_req || ''
+  return rawEdu ? normalizeJobEducationReq(rawEdu) : ''
+}
+
+function getRequestJobCerts(req: any): string {
+  const job = req?.jobs || {}
+  return (
+    job.required_certifications || job.job_meta?.required_certifications || ''
+  )
 }
 
 function getAnnualizedMaxPay(req: any): number {
@@ -544,6 +558,8 @@ export default function CandidateConnectionRequestsPage() {
               const job = req.jobs || {}
               const org = job.organizations || {}
               const jobIndustry = getRequestJobIndustry(req)
+              const jobEducationReq = getRequestJobEducation(req)
+              const jobRequiredCerts = getRequestJobCerts(req)
               const normalizedStatus = getNormalizedStatus(req)
               const isUnlocked = normalizedStatus === 'accepted'
               const vaultReleased = Boolean(
@@ -708,13 +724,13 @@ export default function CandidateConnectionRequestsPage() {
                       </div>
                     </div>
 
-                    {/* Role Title & Compensation Badges */}
+                    {/* Role Title, Compensation, Education & Certification Badges */}
                     <div>
                       <h2 className="text-2xl font-extrabold text-slate-900 mb-3">
                         {job.title || 'Open Role'}
                       </h2>
 
-                      <div className="flex flex-wrap items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-2.5">
                         {(job.salary_min || job.salary_max) && (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
                             <svg
@@ -763,6 +779,18 @@ export default function CandidateConnectionRequestsPage() {
                         {job.employment_type && (
                           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200">
                             {job.employment_type}
+                          </span>
+                        )}
+
+                        {jobEducationReq && (
+                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-xs font-bold">
+                            🎓 {jobEducationReq}
+                          </span>
+                        )}
+
+                        {jobRequiredCerts && (
+                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
+                            🏅 Certs: {jobRequiredCerts}
                           </span>
                         )}
 

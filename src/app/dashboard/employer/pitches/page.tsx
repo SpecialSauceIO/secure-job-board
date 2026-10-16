@@ -9,6 +9,10 @@ import {
   normalizeIndustryVertical,
 } from '@/constants/industries'
 import {
+  normalizeCandidateEducation,
+  normalizeJobEducationReq,
+} from '@/constants/education'
+import {
   Radar,
   RadarChart,
   PolarGrid,
@@ -314,7 +318,7 @@ export default function EmployerSentPitchesPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Filter sent pitches by Reference ID (e.g. SS-...), job title, skill, or bio..."
+              placeholder="Filter sent pitches by Reference ID (e.g. SS-...), job title, skill, certification, or bio..."
               className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
             />
             <button
@@ -448,6 +452,19 @@ export default function EmployerSentPitchesPage() {
               const candidate = pitch.profiles || {}
               const job = pitch.jobs || {}
               const pitchIndustry = getPitchIndustry(pitch)
+              const candidateEducation = candidate.education_level
+                ? normalizeCandidateEducation(candidate.education_level)
+                : ''
+              const candidateCertifications = candidate.certifications
+                ? String(candidate.certifications).trim()
+                : ''
+              const jobEducationReq =
+                job.education_req || job.job_meta?.education_req
+                  ? normalizeJobEducationReq(
+                      job.education_req || job.job_meta?.education_req
+                    )
+                  : ''
+
               const displayId = (pitch.candidate_id || 'ANON')
                 .split('-')[0]
                 .toUpperCase()
@@ -657,6 +674,29 @@ export default function EmployerSentPitchesPage() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Candidate Education & Active Certifications Row */}
+                    {(candidateEducation ||
+                      candidateCertifications ||
+                      jobEducationReq) && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        {candidateEducation && (
+                          <span className="px-3 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-xs font-bold">
+                            🎓 {candidateEducation}
+                          </span>
+                        )}
+                        {candidateCertifications && (
+                          <span className="px-3 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
+                            🏅 Certs: {candidateCertifications}
+                          </span>
+                        )}
+                        {jobEducationReq && (
+                          <span className="text-[11px] font-semibold text-slate-400 ml-1">
+                            (Role Target: {jobEducationReq})
+                          </span>
+                        )}
+                      </div>
+                    )}
 
                     {/* STAGE 1 / STAGE 2 SECURE MESSAGE THREAD & VAULT */}
                     {status === 'accepted' && (
