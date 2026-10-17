@@ -3,6 +3,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 import { revalidatePath, unstable_noStore as noStore } from 'next/cache'
+import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
 
 const MAX_SILENT_UNLOCKS = 5
 
@@ -566,7 +567,7 @@ export async function sendApplicationMessage(
 }
 
 // ------------------------------------------------------------------
-// 3. STAGE 2: CANDIDATE-CONTROLLED FULL VAULT RELEASE (PDF + EMAIL)
+// 3. STAGE 2: CANDIDATE-CONTROLLED FULL VAULT RELEASE + ENTERPRISE ATS SYNC
 // ------------------------------------------------------------------
 export async function releaseCandidateVaultToEmployer(
   applicationId: string
@@ -574,6 +575,8 @@ export async function releaseCandidateVaultToEmployer(
   success?: boolean
   error?: string
   releasedAt?: string
+  atsSynced?: boolean
+  atsSyncStatus?: string | null
 }> {
   noStore()
   const supabase = await createClient()
@@ -589,6 +592,7 @@ export async function releaseCandidateVaultToEmployer(
       id,
       candidate_id,
       initiated_by,
+      match_score,
       match_data,
       jobs (
         id,
@@ -629,6 +633,7 @@ export async function releaseCandidateVaultToEmployer(
     existingMatchData.candidate_contact_email ||
     null
 
+  const signedResumeUrl = await mintSignedResumeUrl(profileObj?.resume_url)
   const nowIso = new Date().toISOString()
   const existingMessages: ThreadMessage[] = Array.isArray(existingMatchData.messages)
     ? existingMatchData.messages
@@ -650,6 +655,8 @@ export async function releaseCandidateVaultToEmployer(
     candidate_vault_released_at: nowIso,
     candidate_full_name: fullName,
     candidate_contact_email: candidateEmail,
+    candidate_email: candidateEmail,
+    candidate_resume_url: signedResumeUrl || profileObj?.resume_url || null,
     last_message_at: nowIso,
     last_message_sender: 'candidate',
     messages: [...existingMessages, systemMessage],
@@ -667,6 +674,13 @@ export async function releaseCandidateVaultToEmployer(
   if (updateErr) {
     return { error: updateErr.message }
   }
+
+  // Automatically trigger Enterprise Employer's Workday Webhook & Greenhouse Harvest API
+  const atsSyncResult = await autoSyncStage2VaultToEnterpriseAts(applicationId, {
+    fullName,
+    email: candidateEmail || undefined,
+    resumeUrl: signedResumeUrl || undefined,
+  })
 
   const refId = formatReferenceId(applicationId)
   const employerEmail =
@@ -688,7 +702,9 @@ export async function releaseCandidateVaultToEmployer(
       }".`,
       `Candidate Full Name: ${fullName}`,
       `Direct Email: ${candidateEmail || 'Available in dashboard'}`,
-      `You can now download their original PDF resume and contact them directly.`,
+      atsSyncResult?.success
+        ? `✓ Enterprise ATS Auto-Sync: Candidate vault & 5-Point AI Match Radar were automatically pushed to your configured ATS/Webhook (${atsSyncResult.syncStatus}).`
+        : `You can now download their original PDF resume and contact them directly.`,
     ],
     ctaUrl:
       appRow.initiated_by === 'employer'
@@ -706,6 +722,8 @@ export async function releaseCandidateVaultToEmployer(
   return {
     success: true,
     releasedAt: nowIso,
+    atsSynced: Boolean(atsSyncResult?.success),
+    atsSyncStatus: atsSyncResult?.syncStatus || null,
   }
 }
 

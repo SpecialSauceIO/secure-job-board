@@ -239,6 +239,275 @@ export async function fireTestAtsWebhook() {
   }
 }
 
+/**
+ * LIVE STAGE 2 VAULT TRIGGER:
+ * Automatically dispatches the unlocked Candidate Vault & 5-Point AI Match Radar
+ * to the employer's Workday/Enterprise Webhook and/or Greenhouse Harvest API
+ * when a candidate releases their Stage 2 Vault.
+ */
+export async function autoSyncStage2VaultToEnterpriseAts(
+  applicationId: string,
+  releasedVaultOverride?: {
+    fullName?: string
+    email?: string
+    phone?: string
+    resumeUrl?: string
+    linkedinUrl?: string
+  }
+) {
+  try {
+    const supabase = await createClient()
+
+    const { data: app } = await supabase
+      .from('applications')
+      .select(
+        `
+        id,
+        job_id,
+        candidate_id,
+        status,
+        is_revealed,
+        initiated_by,
+        match_score,
+        match_data,
+        jobs:job_id (
+          id,
+          title,
+          work_model,
+          salary_min,
+          salary_max,
+          organization_id,
+          structured_requirements
+        ),
+        profiles:candidate_id (
+          id,
+          full_name,
+          email,
+          experience_years,
+          location,
+          skills,
+          resume_url,
+          identity_verified,
+          verification_status
+        )
+      `
+      )
+      .eq('id', applicationId)
+      .maybeSingle()
+
+    if (!app) return { skipped: true, reason: 'Application not found' }
+
+    const jobObj: any = Array.isArray(app.jobs) ? app.jobs[0] : app.jobs
+    const candObj: any = Array.isArray(app.profiles) ? app.profiles[0] : app.profiles
+    const orgId = jobObj?.organization_id
+    if (!orgId) return { skipped: true, reason: 'No organization linked to job' }
+
+    const { data: org } = await supabase
+      .from('organizations')
+      .select('*')
+      .eq('id', orgId)
+      .maybeSingle()
+
+    if (!org) return { skipped: true, reason: 'Organization not found' }
+
+    const tierInfo = await resolveEmployerTierInfo(org)
+    if (tierInfo.tier !== 'enterprise') {
+      return { skipped: true, reason: 'Organization is not on Enterprise Tier' }
+    }
+
+    const atsConfig = parseAtsConfigFromDescription(org.description)
+    if (!atsConfig.autoPushStage2) {
+      return { skipped: true, reason: 'Auto-push on Stage 2 is disabled by org' }
+    }
+
+    const hasWebhook = Boolean(
+      atsConfig.webhookUrl && atsConfig.webhookUrl.startsWith('http')
+    )
+    const hasGreenhouse = Boolean(
+      atsConfig.greenhouseApiKey && atsConfig.greenhouseApiKey.trim().length > 4
+    )
+
+    if (!hasWebhook && !hasGreenhouse) {
+      return {
+        skipped: true,
+        reason: 'No webhook URL or Greenhouse API key configured',
+      }
+    }
+
+    const matchData =
+      app.match_data && typeof app.match_data === 'object' ? app.match_data : {}
+
+    const refId =
+      matchData.reference_id ||
+      'SS-' + String(app.id).replace(/-/g, '').substring(0, 8).toUpperCase()
+
+    const fullName =
+      releasedVaultOverride?.fullName ||
+      matchData.candidate_full_name ||
+      candObj?.full_name ||
+      'Verified Candidate'
+
+    const candidateEmail =
+      releasedVaultOverride?.email ||
+      matchData.candidate_email ||
+      candObj?.email ||
+      ''
+
+    const candidatePhone =
+      releasedVaultOverride?.phone || matchData.candidate_phone || ''
+
+    const resumePdfUrl =
+      releasedVaultOverride?.resumeUrl ||
+      matchData.candidate_resume_url ||
+      candObj?.resume_url ||
+      ''
+
+    const linkedinUrl =
+      releasedVaultOverride?.linkedinUrl || matchData.candidate_linkedin || ''
+
+    const overallScore =
+      app.match_score ?? matchData.overall_score ?? 85
+
+    const syncResults: string[] = []
+
+    // 1. Dispatch Signed Webhook (Workday Integration Studio / Universal Receiver)
+    if (hasWebhook) {
+      const payload = {
+        event: 'candidate.vault_released',
+        timestamp: new Date().toISOString(),
+        environment: 'production',
+        reference_id: refId,
+        application_id: app.id,
+        organization: org.name || org.domain || 'Verified Employer',
+        job: {
+          id: jobObj?.id,
+          title: jobObj?.title || 'Open Role',
+          work_model: jobObj?.work_model || 'remote',
+        },
+        ai_match_evaluation: {
+          overall_score: overallScore,
+          brief_analysis:
+            matchData.brief_analysis ||
+            matchData.employer_pitch ||
+            'Verified 5-Point AI Match on Special Sauce.',
+          radar_breakdown: Array.isArray(matchData.radar_data)
+            ? matchData.radar_data
+            : [],
+        },
+        candidate_vault: {
+          full_name: fullName,
+          email: candidateEmail,
+          phone: candidatePhone,
+          linkedin_url: linkedinUrl,
+          identity_verified: true,
+          experience_years: candObj?.experience_years ?? null,
+          location: candObj?.location || '',
+          resume_pdf_url: resumePdfUrl,
+        },
+      }
+
+      const bodyString = JSON.stringify(payload)
+      const signature = crypto
+        .createHmac('sha256', atsConfig.webhookSecret || 'whsec_default')
+        .update(bodyString)
+        .digest('hex')
+
+      try {
+        const res = await fetch(atsConfig.webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-SpecialSauce-Event': 'candidate.vault_released',
+            'X-SpecialSauce-Signature': 'sha256=' + signature,
+            'User-Agent': 'SpecialSauce-Enterprise-Webhook/1.0',
+          },
+          body: bodyString,
+        })
+        syncResults.push('webhook:' + res.status)
+      } catch (wErr: any) {
+        syncResults.push('webhook_err:' + (wErr?.message || 'failed'))
+      }
+    }
+
+    // 2. Dispatch to Native Greenhouse Harvest API (if API key configured)
+    if (hasGreenhouse) {
+      try {
+        const nameParts = String(fullName).trim().split(/\s+/)
+        const firstName = nameParts[0] || 'Verified'
+        const lastName =
+          nameParts.length > 1 ? nameParts.slice(1).join(' ') : 'Candidate'
+
+        const basicAuth = Buffer.from(
+          atsConfig.greenhouseApiKey.trim() + ':'
+        ).toString('base64')
+
+        const ghHeaders: Record<string, string> = {
+          'Content-Type': 'application/json',
+          Authorization: 'Basic ' + basicAuth,
+        }
+        if (atsConfig.greenhouseOnBehalfOf) {
+          ghHeaders['On-Behalf-Of'] = atsConfig.greenhouseOnBehalfOf.trim()
+        }
+
+        const ghBody: Record<string, any> = {
+          first_name: firstName,
+          last_name: lastName,
+          email_addresses: candidateEmail
+            ? [{ value: candidateEmail, type: 'personal' }]
+            : [],
+          phone_numbers: candidatePhone
+            ? [{ value: candidatePhone, type: 'mobile' }]
+            : [],
+          website_addresses: resumePdfUrl
+            ? [{ value: resumePdfUrl, type: 'other' }]
+            : [],
+          notes:
+            'Imported via Special Sauce Stage 2 Vault Release (Ref: ' +
+            refId +
+            ' | Role: ' +
+            (jobObj?.title || 'Open Role') +
+            ' | 5-Point AI Match Score: ' +
+            overallScore +
+            '%).',
+        }
+
+        const ghRes = await fetch(
+          'https://harvest.greenhouse.io/v1/candidates',
+          {
+            method: 'POST',
+            headers: ghHeaders,
+            body: JSON.stringify(ghBody),
+          }
+        )
+        syncResults.push('greenhouse:' + ghRes.status)
+      } catch (ghErr: any) {
+        syncResults.push('greenhouse_err:' + (ghErr?.message || 'failed'))
+      }
+    }
+
+    // 3. Record audit stamp inside applications.match_data
+    const updatedMatchData = {
+      ...matchData,
+      ats_synced_at: new Date().toISOString(),
+      ats_sync_status: syncResults.join(', '),
+    }
+
+    await supabase
+      .from('applications')
+      .update({ match_data: updatedMatchData })
+      .eq('id', applicationId)
+
+    return {
+      success: true,
+      syncStatus: syncResults.join(', '),
+    }
+  } catch (err: any) {
+    return {
+      error: err?.message || 'ATS auto-sync failed',
+    }
+  }
+}
+
 export async function exportEnterpriseCandidatesCsv() {
   const supabase = await createClient()
   const {
@@ -312,6 +581,7 @@ export async function exportEnterpriseCandidatesCsv() {
     'Experience_Years',
     'Location',
     'Min_Salary_USD',
+    'ATS_Sync_Status',
     'Date_Logged',
   ]
 
@@ -345,6 +615,10 @@ export async function exportEnterpriseCandidatesCsv() {
       ? matchData.candidate_email || 'Released in Thread'
       : 'Locked (Stage 2 Vault)'
 
+    const atsSyncCol = matchData.ats_synced_at
+      ? 'Synced (' + (matchData.ats_sync_status || 'OK') + ')'
+      : 'Not Synced'
+
     csvLines.push(
       [
         escapeCsv(refId),
@@ -357,6 +631,7 @@ export async function exportEnterpriseCandidatesCsv() {
         escapeCsv(cand?.experience_years ?? ''),
         escapeCsv(cand?.location ?? ''),
         escapeCsv(cand?.min_salary_expectation ?? ''),
+        escapeCsv(atsSyncCol),
         escapeCsv(new Date(app.created_at).toISOString().split('T')[0]),
       ].join(',')
     )

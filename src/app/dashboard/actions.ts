@@ -25,6 +25,7 @@ import {
   evaluateLanguageRequirements,
 } from '@/constants/languages'
 import { isSeasonZeroFounder } from '@/constants/gamification'
+import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
 
 const MIN_MATCH_THRESHOLD = 40
 const CANDIDATE_TRIAL_MAX_APPS = 15
@@ -398,7 +399,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
   if (!targetUserId) {
     return {
       tier: 'trial',
-      label: `★ Season 0 Founding Grant (${CANDIDATE_TRIAL_DAYS}d Free)`,
+      label: `★ Founding Member Award (${CANDIDATE_TRIAL_DAYS}d Free)`,
       canApply: true,
       appsUsed: 0,
       freeAppsRemaining: CANDIDATE_TRIAL_MAX_APPS,
@@ -437,7 +438,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
   if (rawPlan === 'expired') {
     return {
       tier: 'free',
-      label: 'Passive Vault Mode (Founding Grant Ended)',
+      label: 'Passive Vault Mode (Founding Award Ended)',
       canApply: false,
       appsUsed: CANDIDATE_TRIAL_MAX_APPS,
       freeAppsRemaining: 0,
@@ -464,7 +465,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
   if (trialExpired) {
     return {
       tier: 'free',
-      label: 'Passive Vault Mode (Founding Grant Ended)',
+      label: 'Passive Vault Mode (Founding Award Ended)',
       canApply: false,
       appsUsed: appsUsedInTrial,
       freeAppsRemaining: 0,
@@ -475,7 +476,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
 
   return {
     tier: 'trial',
-    label: `★ Founding Grant (${freeAppsRemaining}/${CANDIDATE_TRIAL_MAX_APPS} Free Apps · ${daysRemaining}d left)`,
+    label: `★ Founding Award (${freeAppsRemaining}/${CANDIDATE_TRIAL_MAX_APPS} Free Apps · ${daysRemaining}d left)`,
     canApply: true,
     appsUsed: appsUsedInTrial,
     freeAppsRemaining,
@@ -558,8 +559,8 @@ export async function activateSandboxCandidateTier(
       targetMode === 'pro'
         ? 'Activated Candidate Pro Pass ($9/mo)! Unlimited blind applications unlocked.'
         : targetMode === 'expired'
-        ? 'Simulated Founding Grant Ended (0 Free Applications Remaining). Try applying to a role on /dashboard/jobs to test the $9/mo upgrade prompt!'
-        : `Reset 30-Day Season 0 Founding Grant! You have ${CANDIDATE_TRIAL_MAX_APPS} fresh free blind applications and ${CANDIDATE_TRIAL_DAYS} days remaining.`,
+        ? 'Simulated Founding Award Ended (0 Free Applications Remaining). Try applying to a role on /dashboard/jobs to test the $9/mo upgrade prompt!'
+        : `Reset 30-Day Founding Member Award! You have ${CANDIDATE_TRIAL_MAX_APPS} fresh free blind applications and ${CANDIDATE_TRIAL_DAYS} days remaining.`,
   }
 }
 
@@ -633,7 +634,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
     if (daysLeft > 0) {
       return {
         tier: 'starter',
-        label: `★ Founding Partner Grant (${daysLeft}d Free Starter)`,
+        label: `★ Founding Partner Award (${daysLeft}d Free Starter)`,
         maxActiveJobs: EMPLOYER_FOUNDER_GRANT_JOBS,
         monthlyCredits: EMPLOYER_FOUNDER_GRANT_CREDITS,
         maxSeats: 2,
@@ -841,7 +842,7 @@ async function sendPlatformNotification({
   `
 
   try {
-    const response = await fetch('[https://api.resend.com/emails](https://api.resend.com/emails)', {
+    const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${resendKey}`,
@@ -875,7 +876,7 @@ async function sendPlatformNotification({
         console.log(
           `🔄 Retrying delivery via RESEND_TEST_TO_EMAIL (${fallbackInbox})...`
         )
-        const retryRes = await fetch('[https://api.resend.com/emails](https://api.resend.com/emails)', {
+        const retryRes = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${resendKey}`,
@@ -1515,7 +1516,7 @@ export async function applyBlind(formData: FormData) {
   const candidateTier = await resolveCandidateTierInfo(user.id)
   if (!candidateTier.canApply) {
     return {
-      error: `Season 0 Founding Grant Concluded: You have used all ${CANDIDATE_TRIAL_MAX_APPS} free blind applications (or your ${CANDIDATE_TRIAL_DAYS}-day Founding Grant window has ended). Subscribe to the Candidate Pro Pass ($9/month) on your Membership page to unlock unlimited blind applications!`,
+      error: `Founding Member Award Concluded: You have used all ${CANDIDATE_TRIAL_MAX_APPS} free blind applications (or your ${CANDIDATE_TRIAL_DAYS}-day Founding Award window has ended). Subscribe to the Candidate Pro Pass ($9/month) on your Membership page to unlock unlimited blind applications!`,
     }
   }
 
@@ -2419,8 +2420,8 @@ function getMatchPrompt(
 
   const briefAnalysisInstruction =
     viewerRole === 'employer'
-      ? "<A 'This 'you' 'your' (e.g., 1-sentence NEVER TO a about addressed an assessment because candidate candidate. directly employer/hiring experience...' fit for ideal in is lack...'). manager not objective or person referring role strong the their they third this to use when>"
-      : "<A 'You (e.g., 1-sentence TO a addressed are aren't because...') candidate directly explanation fit good match. of or strong the they why>"
+      ? "<A 1-sentence objective assessment addressed to the employer/hiring manager in third person referring to the candidate (e.g., 'This candidate is a strong fit for the role because of their experience...'). NEVER use 'you' or 'your' when referring to the candidate.>"
+      : "<A 1-sentence explanation addressed directly to the candidate (e.g., 'You are a strong fit because...').>"
 
   return `
     You are an expert technical recruiter and data analyst. 
@@ -2468,7 +2469,7 @@ function getMatchPrompt(
         { "subject": "Culture & Soft Skills", "score": <number 0-100> }
       ],
       "brief_analysis": "${briefAnalysisInstruction}",
-      "employer_pitch": "<A 'You 'Your (e.g., 3-sentence TO a addressed are bring...', candidate directly enthusiastic experience explaining fit for great role. summary the they this why will with...')>"
+      "employer_pitch": "<A 3-sentence enthusiastic summary addressed directly to the candidate explaining why they will be a great fit for this role.>"
     }
   `
 }
@@ -2662,7 +2663,7 @@ export async function parseJobAutoFill(formData: FormData) {
       5. "pay_type": Either "annual" or "hourly" (string).
       6. "salary_min": Minimum pay number if mentioned, or "" (number or string).
       7. "salary_max": Maximum pay number if mentioned, or "" (number or string).
-      8. "employment_type": One of "Full-Time (W-2)", "Contract (1099 / Corp-to-Corp)", "Contract-to-Hire", or "Part-Time".
+      8. "employment_type": One of "Full-Time (W-2)", "Contract (1099 / Corp-to-Corp)", "Contract-to-Hire", "Part-Time", or "Seasonal / Temporary".
       9. "experience_level": One of "Entry / Junior (0–2 yrs)", "Mid-Level (3–5 yrs)", "Senior (5–8 yrs)", "Lead / Staff / Principal (8+ yrs)", or "Executive / Director".
       10. "industry": Must be one of these exact standardized verticals: ${JSON.stringify(STANDARD_INDUSTRY_VERTICALS)}.
       11. "education_req": Must be one of these exact education requirement options: ${JSON.stringify(JOB_EDUCATION_REQUIREMENTS)}.
@@ -3201,7 +3202,9 @@ export async function sendConnectionRequest(
   if (
     acceptedEmpTypes.length > 0 &&
     !acceptedEmpTypes.some(
-      (t: string) => t.toLowerCase() === jobEmpType.toLowerCase()
+      (t: string) =>
+        t.toLowerCase() === jobEmpType.toLowerCase() ||
+        jobEmpType.toLowerCase().includes(t.toLowerCase())
     )
   ) {
     return {
@@ -3902,6 +3905,7 @@ export async function saveOrganizationProfile(formData: FormData) {
   let currentStatus = 'pending'
   let existingTierMarker = '[TIER:free]'
   let existingSeatsTag = ''
+  let existingAtsTag = ''
 
   if (orgId) {
     const { data: currentOrg } = await supabase
@@ -3921,6 +3925,8 @@ export async function saveOrganizationProfile(formData: FormData) {
     existingTierMarker = `[TIER:${tierInfo.tier}]`
     const seatsMatch = (currentOrg?.description || '').match(/\[SEATS:[^\]]+\]/i)
     if (seatsMatch) existingSeatsTag = seatsMatch[0]
+    const atsMatch = (currentOrg?.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i)
+    if (atsMatch) existingAtsTag = atsMatch[0]
   }
 
   let autoVerified = false
@@ -3935,7 +3941,7 @@ export async function saveOrganizationProfile(formData: FormData) {
 
   const cleanUserDesc = await stripTierTag(rawDescription)
   const storedDescription =
-    `${cleanUserDesc} ${existingTierMarker} ${existingSeatsTag}`.trim()
+    `${cleanUserDesc} ${existingTierMarker} ${existingSeatsTag} ${existingAtsTag}`.trim()
 
   if (orgId) {
     const { data: existingOrgCredits } = await supabase
@@ -4012,7 +4018,7 @@ export async function saveOrganizationProfile(formData: FormData) {
     domain: cleanedDomain,
     verification_status: currentStatus,
     message: autoVerified
-      ? `Profile saved & ${cleanedDomain} automatically verified via your matching work email (${user.email})! Your 30-Day Season 0 Founding Partner Grant (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`
+      ? `Profile saved & ${cleanedDomain} automatically verified via your matching work email (${user.email})! Your 30-Day Founding Partner Award (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`
       : 'Company profile saved successfully.',
   }
 }
@@ -4352,8 +4358,8 @@ export async function verifyOrganizationDomain(domainInput?: string) {
     domain: targetDomain,
     verification_status: 'verified',
     message: hasMatchingTxtToken
-      ? `Domain ${targetDomain} verified via DNS TXT record! Your 30-Day Season 0 Founding Partner Grant (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`
-      : `Domain ${targetDomain} verified via corporate email match (${user.email}) & live DNS check! Your 30-Day Season 0 Founding Partner Grant (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`,
+      ? `Domain ${targetDomain} verified via DNS TXT record! Your 30-Day Founding Partner Award (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`
+      : `Domain ${targetDomain} verified via corporate email match (${user.email}) & live DNS check! Your 30-Day Founding Partner Award (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`,
   }
 }
 
@@ -4414,7 +4420,7 @@ export async function toggleSandboxDomainVerification(
     verification_status: targetStatus,
     message:
       targetStatus === 'verified'
-        ? 'Sandbox Override: Organization marked as Domain Verified & Season 0 Founding Partner Grant activated!'
+        ? 'Sandbox Override: Organization marked as Domain Verified & Founding Partner Award activated!'
         : 'Organization reset to Pending Verification.',
   }
 }
@@ -4699,4 +4705,135 @@ export async function submitQuickFeedback(formData: FormData) {
   })
 
   return { success: true, referenceId: refId }
+}
+
+// ------------------------------------------------------------------
+// STAGE 2 CANDIDATE VAULT RELEASE + AUTOMATED ENTERPRISE ATS / WEBHOOK SYNC
+// ------------------------------------------------------------------
+
+export async function releaseCandidateVaultAndSyncAts(applicationId: string) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { data: app } = await supabase
+    .from('applications')
+    .select(
+      `
+      id,
+      candidate_id,
+      job_id,
+      match_score,
+      match_data,
+      jobs:job_id (
+        id,
+        title,
+        organization_id,
+        organizations:organization_id (name, domain)
+      ),
+      profiles:candidate_id (
+        full_name,
+        name,
+        email,
+        contact_email,
+        resume_url
+      )
+    `
+    )
+    .eq('id', applicationId)
+    .eq('candidate_id', user.id)
+    .single()
+
+  if (!app) {
+    return { error: 'Application not found or access denied.' }
+  }
+
+  const profileObj: any = Array.isArray(app.profiles)
+    ? app.profiles[0]
+    : app.profiles
+  const jobObj: any = Array.isArray(app.jobs) ? app.jobs[0] : app.jobs
+  const orgObj: any = Array.isArray(jobObj?.organizations)
+    ? jobObj?.organizations[0]
+    : jobObj?.organizations
+
+  const fullName =
+    profileObj?.full_name ||
+    profileObj?.name ||
+    app.match_data?.candidate_full_name ||
+    'Verified Candidate'
+
+  const candidateEmail =
+    user.email ||
+    profileObj?.contact_email ||
+    profileObj?.email ||
+    app.match_data?.candidate_contact_email ||
+    ''
+
+  const signedResumeUrl = await resolveSignedResumeUrl(profileObj?.resume_url)
+  const referenceId = formatReferenceId(applicationId)
+
+  const updatedMatchData = {
+    ...(app.match_data || {}),
+    candidate_vault_released: true,
+    candidate_vault_released_at: new Date().toISOString(),
+    candidate_full_name: fullName,
+    candidate_contact_email: candidateEmail,
+    candidate_email: candidateEmail,
+    candidate_resume_url: signedResumeUrl || profileObj?.resume_url || null,
+    reference_id: referenceId,
+  }
+
+  const { error: updateErr } = await supabase
+    .from('applications')
+    .update({
+      is_revealed: true,
+      match_data: updatedMatchData,
+    })
+    .eq('id', applicationId)
+    .eq('candidate_id', user.id)
+
+  if (updateErr) {
+    return { error: updateErr.message }
+  }
+
+  const atsSyncResult = await autoSyncStage2VaultToEnterpriseAts(applicationId, {
+    fullName,
+    email: candidateEmail,
+    resumeUrl: signedResumeUrl || undefined,
+  })
+
+  const employerEmail =
+    updatedMatchData.employer_contact_email ||
+    (orgObj?.domain ? `hiring@${orgObj.domain}` : null)
+
+  await sendPlatformNotification({
+    to: employerEmail,
+    subject: `Stage 2 Vault Released: ${fullName} shared their Resume & Contact Info for ${jobObj?.title || 'Open Role'}`,
+    referenceId,
+    heading: `Stage 2 Resume & Contact Vault Unlocked!`,
+    bodyLines: [
+      `${fullName} (${candidateEmail}) just released their full Stage 2 Resume & Contact Vault for "${jobObj?.title || 'Open Role'}".`,
+      `Transaction Reference ID: ${referenceId}`,
+      atsSyncResult?.success
+        ? `✓ Enterprise ATS Auto-Sync: Candidate vault and 5-Point AI Match Radar were automatically pushed to your configured ATS/Webhook (${atsSyncResult.syncStatus}).`
+        : `Log in to your Employer Pipeline to view ${fullName}'s full contact details and download their verified PDF resume.`,
+    ],
+    ctaUrl: '/dashboard/employer/applications',
+    ctaLabel: 'View Unlocked Resume Vault →',
+  })
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/requests')
+  revalidatePath('/dashboard/employer/applications')
+  revalidatePath('/dashboard/employer/pitches')
+
+  return {
+    success: true,
+    referenceId,
+    atsSynced: Boolean(atsSyncResult?.success),
+    atsSyncStatus: atsSyncResult?.syncStatus || null,
+  }
 }
