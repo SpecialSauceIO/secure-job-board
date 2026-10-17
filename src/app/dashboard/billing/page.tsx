@@ -1,13 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 import {
   resolveCandidateTierInfo,
   activateSandboxCandidateTier,
 } from '@/app/dashboard/actions'
 
 export default function CandidateBillingPage() {
+  const router = useRouter()
   const [tierInfo, setTierInfo] = useState<{
     tier: 'trial' | 'free' | 'pro'
     label: string
@@ -17,6 +20,7 @@ export default function CandidateBillingPage() {
     daysRemaining: number
     trialExpired: boolean
   } | null>(null)
+  const [isVerified, setIsVerified] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
   const [feedback, setFeedback] = useState<{
@@ -24,20 +28,47 @@ export default function CandidateBillingPage() {
     text: string
   } | null>(null)
 
-  useEffect(() => {
-    let mounted = true
-    resolveCandidateTierInfo().then((info) => {
-      if (mounted) {
-        setTierInfo(info)
-        setIsLoading(false)
-      }
-    })
-    return () => {
-      mounted = false
-    }
-  }, [])
+  const loadCandidateBillingState = useCallback(async () => {
+    const supabase = createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  const handleSandboxSwitch = async (targetMode: 'trial' | 'expired' | 'pro') => {
+    if (!user) {
+      router.replace('/login')
+      return
+    }
+
+    const [{ data: profile }, info] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('identity_verified, is_verified, verification_status')
+        .eq('id', user.id)
+        .single(),
+      resolveCandidateTierInfo(user.id),
+    ])
+
+    const verified = Boolean(
+      profile?.identity_verified === true ||
+        String(profile?.identity_verified) === 'true' ||
+        profile?.is_verified === true ||
+        String(profile?.is_verified) === 'true' ||
+        profile?.verification_status === 'verified' ||
+        profile?.verification_status === 'approved'
+    )
+
+    setIsVerified(verified)
+    setTierInfo(info)
+    setIsLoading(false)
+  }, [router])
+
+  useEffect(() => {
+    loadCandidateBillingState()
+  }, [loadCandidateBillingState])
+
+  const handleSandboxSwitch = async (
+    targetMode: 'trial' | 'expired' | 'pro'
+  ) => {
     setIsProcessing(true)
     setFeedback(null)
 
@@ -50,63 +81,92 @@ export default function CandidateBillingPage() {
         type: 'success',
         text: res.message || 'Membership state updated.',
       })
+      router.refresh()
     }
 
     setIsProcessing(false)
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-4 space-y-8">
-      {/* Header */}
+    <div className="max-w-6xl mx-auto py-4 space-y-8">
+      {/* Clean Page Header (No Floating Pills Above Title) */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div>
-          <div className="flex flex-wrap items-center gap-2.5 mb-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs font-extrabold uppercase tracking-wider">
-              ★ Season 0 Founding Cohort Active
-            </span>
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-extrabold">
-              ⚡ 1.25x Founder&apos;s XP Boost Locked
-            </span>
-          </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Candidate Membership &amp; Season 0 Charter
+            Candidate Membership &amp; Founding Charter
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Building your anonymous vault and receiving inbound employer pitches is 100% free forever.
           </p>
         </div>
 
-        <Link
-          href="/dashboard/jobs"
-          className="shrink-0 inline-flex items-center px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm"
-        >
-          Browse Open Roles →
-        </Link>
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <Link
+            href="/dashboard/profile"
+            className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors"
+          >
+            My Anonymous Profile
+          </Link>
+          <Link
+            href="/dashboard/jobs"
+            className="px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm"
+          >
+            Browse Open Roles →
+          </Link>
+        </div>
       </header>
 
-      {/* Season 0 Founding Member Grant Banner */}
-      <div className="rounded-3xl bg-slate-900 text-white p-6 sm:p-8 border-2 border-amber-400/80 shadow-lg relative overflow-hidden">
-        <div className="absolute inset-0 opacity-15 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-400 via-indigo-900 to-slate-900 pointer-events-none" />
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      {/* Founding Member Charter Banner (High-Contrast Gold Border) */}
+      <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-300 text-xs font-extrabold uppercase tracking-wider">
-              ★ Season 0: Founding Era Charter Grant
+            <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
+              <span className="text-amber-300">
+                ★ Founding Member Charter Active
+              </span>
+              <span className="text-slate-600">•</span>
+              {isVerified ? (
+                <span className="text-emerald-400">✓ Identity Verified</span>
+              ) : (
+                <Link
+                  href="/dashboard"
+                  className="text-amber-400 hover:underline"
+                >
+                  Verification Pending (Verify on Dashboard →)
+                </Link>
+              )}
+              <span className="text-slate-600">•</span>
+              <span className="text-indigo-300">1.25x XP Boost Locked</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-              Your 30-Day Founding Member Grant &amp; Permanent Perks
+
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+              Your 30-Day Founding Member Award &amp; Permanent Perks
             </h2>
+
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Because you joined during our initial 90-day Season 0 launch window, your account automatically receives{' '}
-              <strong className="text-white">30 days of outbound access (15 free blind applications)</strong>, a permanent{' '}
-              <strong className="text-amber-300">★ Founding Member Gold Card Trim</strong>, a permanent{' '}
-              <strong className="text-amber-300">1.25x Profile XP Multiplier</strong>, and a lifetime{' '}
-              <strong className="text-emerald-300">$9/mo Founder&apos;s Rate Lock</strong> (protected against future price increases).
+              As an early Founding Member, your account includes{' '}
+              <strong className="text-white">
+                30 days of outbound access (15 free blind applications)
+              </strong>
+              , a permanent{' '}
+              <strong className="text-amber-300">
+                ★ Founding Member Gold Card Trim
+              </strong>
+              , a permanent{' '}
+              <strong className="text-amber-300">
+                1.25x Profile XP Multiplier
+              </strong>
+              , and a lifetime{' '}
+              <strong className="text-emerald-300">
+                $9/mo Founder&apos;s Rate Lock
+              </strong>
+              .
             </p>
           </div>
 
           {/* Live Status Box */}
-          <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 shrink-0 min-w-[260px] space-y-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+          <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 shrink-0 min-w-[260px] space-y-1.5">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">
               Current Membership Status
             </span>
             {isLoading ? (
@@ -125,11 +185,11 @@ export default function CandidateBillingPage() {
                     <strong className="text-white">
                       {tierInfo.daysRemaining} days
                     </strong>{' '}
-                    left in grant window
+                    left in award window
                   </p>
                 )}
                 {tierInfo?.tier === 'pro' && (
-                  <p className="text-xs text-emerald-300 font-semibold">
+                  <p className="text-xs text-emerald-400 font-bold">
                     ✓ Unlimited Blind Applications Active
                   </p>
                 )}
@@ -157,17 +217,23 @@ export default function CandidateBillingPage() {
         </div>
       )}
 
-      {/* Tier Comparison Cards */}
+      {/* Tier Comparison Cards (De-Pilled & High-Contrast Gold Border on Active Plan) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Card 1: Passive Vault Mode ($0 Forever) */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between shadow-xs">
+        <div
+          className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
+            tierInfo?.tier === 'free'
+              ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
+              : 'border border-slate-200 shadow-xs'
+          }`}
+        >
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-extrabold">
+            <div className="flex items-center justify-between text-xs font-extrabold">
+              <span className="text-slate-500 uppercase tracking-wider">
                 Always Free
               </span>
               {tierInfo?.tier === 'free' && (
-                <span className="px-2.5 py-0.5 rounded-full bg-slate-900 text-white text-[11px] font-bold">
+                <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                   Current Mode
                 </span>
               )}
@@ -192,9 +258,9 @@ export default function CandidateBillingPage() {
               <li>✓ 2-Stage Identity &amp; PDF Resume Vault</li>
               <li>✓ Receive &amp; accept inbound employer pitches for free</li>
               <li>✓ Unlimited 5-Point AI Fit Radar checks</li>
-              <li>✓ Keep your ★ Season 0 Badge &amp; Metal Rank forever</li>
+              <li>✓ Keep your ★ Founding Member Badge &amp; Rank forever</li>
               <li className="text-slate-400">
-                • Outbound blind applications paused after 30-day grant
+                • Outbound blind applications paused after 30-day award
               </li>
             </ul>
           </div>
@@ -206,15 +272,21 @@ export default function CandidateBillingPage() {
           </div>
         </div>
 
-        {/* Card 2: 30-Day Season 0 Founding Grant */}
-        <div className="bg-white rounded-2xl border-2 border-amber-300 p-6 flex flex-col justify-between shadow-sm relative">
+        {/* Card 2: 30-Day Founding Member Award */}
+        <div
+          className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
+            tierInfo?.tier === 'trial'
+              ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
+              : 'border border-slate-200 shadow-xs'
+          }`}
+        >
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="px-2.5 py-1 rounded-md bg-amber-100 text-amber-900 border border-amber-300 text-xs font-extrabold">
-                ★ Season 0 Launch Grant
+            <div className="flex items-center justify-between text-xs font-extrabold">
+              <span className="text-amber-700">
+                ★ Founding Member Launch Award
               </span>
               {tierInfo?.tier === 'trial' && (
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[11px] font-bold">
+                <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                   Active Now
                 </span>
               )}
@@ -234,7 +306,7 @@ export default function CandidateBillingPage() {
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                Automatically granted once you complete Stripe Identity verification during our 90-day Season 0 launch window.
+                Automatically granted once you complete Stripe Identity verification during our Founding Member Launch.
               </p>
             </div>
 
@@ -259,14 +331,20 @@ export default function CandidateBillingPage() {
         </div>
 
         {/* Card 3: Candidate Pro Pass ($9/mo Founder's Rate Lock) */}
-        <div className="bg-slate-900 text-white rounded-2xl border-2 border-indigo-500 p-6 flex flex-col justify-between shadow-lg">
+        <div
+          className={`bg-slate-900 text-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
+            tierInfo?.tier === 'pro'
+              ? 'border-2 border-amber-500 shadow-lg ring-1 ring-amber-400/50'
+              : 'border-2 border-indigo-500 shadow-md'
+          }`}
+        >
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="px-2.5 py-1 rounded-md bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-xs font-extrabold">
+            <div className="flex items-center justify-between text-xs font-extrabold">
+              <span className="text-indigo-300">
                 🔒 Founder&apos;s Rate Lock
               </span>
               {tierInfo?.tier === 'pro' && (
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500 text-slate-950 text-[11px] font-black">
+                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
                   ✓ Subscribed
                 </span>
               )}
@@ -286,7 +364,7 @@ export default function CandidateBillingPage() {
                 </span>
               </div>
               <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                Continue submitting unlimited high-precision blind applications after your 30-day Founding Grant concludes.
+                Continue submitting unlimited high-precision blind applications after your 30-day Founding Award concludes.
               </p>
             </div>
 
@@ -323,7 +401,7 @@ export default function CandidateBillingPage() {
             🧪 QA Stress-Testing Controls (Remove Before Public Launch)
           </span>
           <p className="text-xs text-slate-600 mt-0.5">
-            Simulate different Candidate membership states to test the 30-Day Founding Grant, Expired Paywall, and Pro Pass.
+            Simulate different Candidate membership states to test the 30-Day Founding Award, Expired Paywall, and Pro Pass.
           </p>
         </div>
 
@@ -334,7 +412,7 @@ export default function CandidateBillingPage() {
             onClick={() => handleSandboxSwitch('trial')}
             className="px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-slate-800 text-xs font-extrabold hover:bg-slate-50 cursor-pointer disabled:opacity-50"
           >
-            Reset 30d Founding Grant (15 Apps)
+            Reset 30d Founding Award (15 Apps)
           </button>
           <button
             type="button"
@@ -342,7 +420,7 @@ export default function CandidateBillingPage() {
             onClick={() => handleSandboxSwitch('expired')}
             className="px-3.5 py-2 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 text-xs font-extrabold hover:bg-amber-200 cursor-pointer disabled:opacity-50"
           >
-            Simulate Grant Expired
+            Simulate Award Expired
           </button>
           <button
             type="button"
