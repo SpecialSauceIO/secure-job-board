@@ -26,6 +26,11 @@ import {
 } from '@/constants/languages'
 import { isSeasonZeroFounder } from '@/constants/gamification'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
+import {
+  recordOpsWorkItemInternal,
+  recordBehavioralFlagInternal,
+  type WorkItemPriority,
+} from '@/app/dashboard/admin-actions'
 
 const MIN_MATCH_THRESHOLD = 40
 const CANDIDATE_TRIAL_MAX_APPS = 15
@@ -202,6 +207,21 @@ async function checkEmployerSilentUnlockCap(
   })
 
   if (silentUnlocks.length >= MAX_SILENT_UNLOCKS) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    await recordBehavioralFlagInternal({
+      severity: 'high',
+      flag_type: 'Silent_Unlock_Harvesting_Cap',
+      user_id: user?.id || null,
+      organization_id: organizationId,
+      actor_email: user?.email || 'employer@organization',
+      actor_role: 'employer',
+      summary: `Employer hit the ${MAX_SILENT_UNLOCKS}-Silent-Unlock anti-harvesting cap during profile reveal.`,
+      evidence_snippet: `Organization ID: ${organizationId} • Unmessaged Revealed Profiles: ${silentUnlocks.length}`,
+    })
+
     return {
       allowed: false,
       silentCount: silentUnlocks.length,
@@ -752,10 +772,11 @@ function formatReferenceId(applicationId: string): string {
 }
 
 // ------------------------------------------------------------------
-// HELPER: TRANSACTIONAL EMAIL DISPATCHER (RESEND API + SANDBOX FALLBACK)
+// HELPER: TRANSACTIONAL EMAIL DISPATCHER (RESEND API + EMBEDDED LOGO)
 // ------------------------------------------------------------------
 async function sendPlatformNotification({
   to,
+  replyTo,
   subject,
   referenceId,
   heading,
@@ -764,6 +785,7 @@ async function sendPlatformNotification({
   ctaLabel,
 }: {
   to?: string | null
+  replyTo?: string | null
   subject: string
   referenceId: string
   heading: string
@@ -782,8 +804,13 @@ async function sendPlatformNotification({
       ? fallbackInbox || rawRecipient
       : rawRecipient
 
-  const appUrl =
-    cleanEnvKey(process.env.NEXT_PUBLIC_SITE_URL) || 'http://localhost:3000'
+  const rawAppUrl =
+    cleanEnvKey(process.env.NEXT_PUBLIC_SITE_URL) || 'https://specialsauce.io'
+  const appUrl = rawAppUrl.replace(/\/+$/, '')
+  const publicLogoBase = appUrl.includes('localhost')
+    ? 'https://specialsauce.io'
+    : appUrl
+  const publicLogoUrl = `${publicLogoBase}/logo.png`
   const fullUrl = ctaUrl ? `${appUrl}${ctaUrl}` : `${appUrl}/dashboard`
 
   console.log('\n======================================================')
@@ -794,16 +821,10 @@ async function sendPlatformNotification({
   console.log(`Heading:            ${heading}`)
   bodyLines.forEach((line) => console.log(`  - ${line}`))
 
-  if (!resendKey) {
+  if (!resendKey || !primaryRecipient) {
     console.warn(
-      `⚠️  EMAIL NOT SENT TO INBOX: RESEND_API_KEY is missing! Add RESEND_API_KEY=re_... to send live emails.`
+      `⚠️  EMAIL NOT SENT TO INBOX: Missing RESEND_API_KEY or recipient email.`
     )
-    console.log('======================================================\n')
-    return
-  }
-
-  if (!primaryRecipient) {
-    console.warn(`⚠️  EMAIL NOT SENT: No recipient email address found.`)
     console.log('======================================================\n')
     return
   }
@@ -812,14 +833,17 @@ async function sendPlatformNotification({
     cleanEnvKey(process.env.RESEND_FROM_EMAIL) ||
     'Special Sauce <onboarding@resend.dev>'
 
+  const resolvedReplyTo = (replyTo || 'info@specialsauce.io').trim()
+
   const buildHtml = (intendedNote?: string) => `
-    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 28px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
       ${
         intendedNote
-          ? `<div style="margin-bottom: 12px; padding: 8px 12px; background-color: #fef3c7; color: #92400e; border-radius: 8px; font-size: 11px; font-weight: 700;">${intendedNote}</div>`
+          ? `<div style="margin-bottom: 14px; padding: 8px 12px; background-color: #fef3c7; color: #92400e; border-radius: 8px; font-size: 11px; font-weight: 700;">${intendedNote}</div>`
           : ''
       }
-      <div style="margin-bottom: 16px;">
+      <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f1f5f9;">
+        <img src="${publicLogoUrl}" alt="Special Sauce" style="height: 48px; width: auto; display: block; margin-bottom: 12px;" />
         <span style="display: inline-block; padding: 4px 10px; background-color: #eef2ff; color: #4338ca; border-radius: 6px; font-size: 12px; font-weight: 700; font-family: monospace;">
           Ref ID: ${referenceId}
         </span>
@@ -851,6 +875,7 @@ async function sendPlatformNotification({
       body: JSON.stringify({
         from: fromAddress,
         to: [primaryRecipient],
+        reply_to: resolvedReplyTo,
         subject: `[${referenceId}] ${subject}`,
         html: buildHtml(
           primaryRecipient !== rawRecipient && rawRecipient
@@ -866,40 +891,23 @@ async function sendPlatformNotification({
       console.log(
         `✅ RESEND DELIVERED SUCCESSFULLY (ID: ${resData?.id}) -> ${primaryRecipient}`
       )
-    } else {
-      console.error(
-        `❌ RESEND API REJECTED EMAIL (${response.status}):`,
-        resData
-      )
-
-      if (fallbackInbox && fallbackInbox !== primaryRecipient) {
-        console.log(
-          `🔄 Retrying delivery via RESEND_TEST_TO_EMAIL (${fallbackInbox})...`
-        )
-        const retryRes = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${resendKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            from: fromAddress,
-            to: [fallbackInbox],
-            subject: `[${referenceId}] ${subject}`,
-            html: buildHtml(
-              `Sandbox Fallback: Originally addressed to ${rawRecipient}`
-            ),
-          }),
-        })
-        const retryData = await retryRes.json()
-        if (retryRes.ok) {
-          console.log(
-            `✅ RESEND RETRY DELIVERED (ID: ${retryData?.id}) -> ${fallbackInbox}`
-          )
-        } else {
-          console.error(`❌ RESEND RETRY FAILED:`, retryData)
-        }
-      }
+    } else if (fallbackInbox && fallbackInbox !== primaryRecipient) {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${resendKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: [fallbackInbox],
+          reply_to: resolvedReplyTo,
+          subject: `[${referenceId}] ${subject}`,
+          html: buildHtml(
+            `Sandbox Fallback: Originally addressed to ${rawRecipient}`
+          ),
+        }),
+      })
     }
   } catch (err: any) {
     console.error('❌ Resend network error:', err.message || err)
@@ -4273,6 +4281,17 @@ export async function verifyOrganizationDomain(domainInput?: string) {
   }
 
   if (FREE_EMAIL_DOMAINS.has(targetDomain)) {
+    await recordBehavioralFlagInternal({
+      severity: 'medium',
+      flag_type: 'Domain_Verification_Mismatch',
+      user_id: user.id,
+      organization_id: member.organization_id,
+      actor_email: user.email || 'employer@unknown',
+      actor_role: 'employer',
+      summary: `Attempted to verify consumer email provider (${targetDomain}) as a corporate organization domain.`,
+      evidence_snippet: `Org: ${org?.name || 'Unnamed'} • Submitted Domain: ${targetDomain}`,
+    })
+
     return {
       error: `"${targetDomain}" is a public consumer email provider. Corporate domain verification requires a dedicated company domain.`,
     }
@@ -4308,6 +4327,17 @@ export async function verifyOrganizationDomain(domainInput?: string) {
   const isWorkEmailMatch = userEmailDomain === targetDomain
 
   if (!isWorkEmailMatch && !hasMatchingTxtToken) {
+    await recordBehavioralFlagInternal({
+      severity: 'low',
+      flag_type: 'Domain_Verification_Mismatch',
+      user_id: user.id,
+      organization_id: member.organization_id,
+      actor_email: user.email || 'employer@unknown',
+      actor_role: 'employer',
+      summary: `Corporate domain verification failed for @${targetDomain} (account email mismatch & missing DNS TXT token).`,
+      evidence_snippet: `User Email: ${user.email} • Target Domain: ${targetDomain} • Expected Token: ${expectedTxtToken}`,
+    })
+
     return {
       error: `Domain Mismatch: Your account email (${user.email}) does not match @${targetDomain}, and the DNS TXT token (${expectedTxtToken}) was not found on ${targetDomain}. Either sign in with an @${targetDomain} email, add the DNS TXT record, or use the Sandbox Verification button below for local testing.`,
     }
@@ -4561,7 +4591,7 @@ export async function addSandboxConnectionCredits(amountToAdd: number) {
 }
 
 // ------------------------------------------------------------------
-// NATIVE HELP CENTER & SUPPORT TICKETING
+// NATIVE HELP CENTER & SUPPORT TICKETING (SYNCED TO /dashboard/admin/ops)
 // ------------------------------------------------------------------
 
 export async function submitSupportTicket(formData: FormData) {
@@ -4586,6 +4616,7 @@ export async function submitSupportTicket(formData: FormData) {
     .single()
 
   let orgContext = ''
+  let isPriorityEmployer = false
   if (profile?.role === 'employer') {
     const { data: member } = await supabase
       .from('organization_members')
@@ -4602,19 +4633,52 @@ export async function submitSupportTicket(formData: FormData) {
       if (org) {
         const tInfo = await resolveEmployerTierInfo(org)
         orgContext = `Organization: ${org.name} (${org.domain}) | Tier: ${tInfo.label}`
+        if (tInfo.tier === 'enterprise' || tInfo.tier === 'growth') {
+          isPriorityEmployer = true
+        }
       }
     }
   }
 
   const ticketId = `TKT-${Date.now().toString().slice(-6)}`
   const userFullName = profile?.full_name || profile?.name || 'User'
-  const userEmail = profile?.contact_email || profile?.email || user.email
+  const userEmail =
+    profile?.contact_email || profile?.email || user.email || 'user@specialsauce.io'
+
+  const lowerCat = `${category} ${subject}`.toLowerCase()
+  const computedPriority: WorkItemPriority =
+    isPriorityEmployer ||
+    lowerCat.includes('billing') ||
+    lowerCat.includes('verification') ||
+    lowerCat.includes('domain') ||
+    lowerCat.includes('security')
+      ? 'P0_Critical'
+      : lowerCat.includes('bug') || lowerCat.includes('match')
+      ? 'P1_High'
+      : 'P2_Normal'
+
+  // 1. Record structured Work Item in Admin Ops Queue (/dashboard/admin/ops)
+  await recordOpsWorkItemInternal({
+    id: ticketId,
+    work_item_type: 'Support_Ticket',
+    priority: computedPriority,
+    subject,
+    category: category || 'General Support',
+    description: message,
+    reporter_user_id: user.id,
+    reporter_name: userFullName,
+    reporter_email: userEmail,
+    reporter_role: (profile?.role || 'user').toUpperCase(),
+    organization_context: orgContext,
+    page_url: '/dashboard/support',
+  })
 
   await sendPlatformNotification({
     to: 'info@specialsauce.io',
+    replyTo: userEmail,
     subject: `Support Ticket [${ticketId}]: ${subject}`,
     referenceId: ticketId,
-    heading: `New Support Request: ${category}`,
+    heading: `New Support Request: ${category} (${computedPriority.replace('_', ' ')})`,
     bodyLines: [
       `User ID: ${user.id}`,
       `Role: ${profile?.role?.toUpperCase() || 'UNKNOWN'}`,
@@ -4625,16 +4689,19 @@ export async function submitSupportTicket(formData: FormData) {
       '--- MESSAGE ---',
       message,
     ],
+    ctaUrl: '/dashboard/admin/ops',
+    ctaLabel: 'Open in Admin Ops Triage Console →',
   })
 
   await sendPlatformNotification({
     to: userEmail,
+    replyTo: 'info@specialsauce.io',
     subject: `Support Ticket Received: ${subject} [${ticketId}]`,
     referenceId: ticketId,
     heading: 'We received your support request',
     bodyLines: [
       `Hi ${userFullName},`,
-      `Thank you for contacting Special Sauce support. We have received your request regarding "${category}" and our team will review it shortly.`,
+      `Thank you for contacting Special Sauce support. We have logged your request regarding "${category}" into our Support Operations Queue.`,
       `Your Ticket ID is ${ticketId}.`,
       `We typically respond within 1-2 business days.`,
     ],
@@ -4642,6 +4709,7 @@ export async function submitSupportTicket(formData: FormData) {
     ctaLabel: 'Return to Help Center →',
   })
 
+  revalidatePath('/dashboard/admin/ops')
   return { success: true, ticketId }
 }
 
@@ -4684,11 +4752,28 @@ export async function submitQuickFeedback(formData: FormData) {
     role = profile?.role || 'unknown'
   }
 
-  const refId = `FB-${Date.now().toString().slice(-6)}`
+  const isBug = feedbackType.toLowerCase().includes('bug')
+  const refId = `${isBug ? 'BUG' : 'FEAT'}-${Date.now().toString().slice(-6)}`
   const userEmail = user?.email || 'anonymous@specialsauce.io'
+
+  await recordOpsWorkItemInternal({
+    id: refId,
+    work_item_type: isBug ? 'Bug_Defect' : 'Feature_Request',
+    priority: isBug ? 'P1_High' : 'P2_Normal',
+    subject: `${feedbackType} Report on ${pageUrl}`,
+    category: feedbackType,
+    description: notes,
+    reporter_user_id: user?.id || 'anonymous',
+    reporter_name: userEmail,
+    reporter_email: userEmail,
+    reporter_role: role.toUpperCase(),
+    page_url: pageUrl,
+    user_agent: userAgent,
+  })
 
   await sendPlatformNotification({
     to: 'info@specialsauce.io',
+    replyTo: userEmail,
     subject: `${feedbackType} Report from ${userEmail} on ${pageUrl}`,
     referenceId: refId,
     heading: `Quick ${feedbackType} Report [${refId}]`,
@@ -4700,10 +4785,11 @@ export async function submitQuickFeedback(formData: FormData) {
       '--- USER MESSAGE ---',
       notes,
     ],
-    ctaUrl: pageUrl.startsWith('/') ? pageUrl : '/dashboard',
-    ctaLabel: 'Open Reported Page →',
+    ctaUrl: '/dashboard/admin/ops',
+    ctaLabel: 'Open in Admin Ops Triage Console →',
   })
 
+  revalidatePath('/dashboard/admin/ops')
   return { success: true, referenceId: refId }
 }
 
