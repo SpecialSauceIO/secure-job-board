@@ -5,6 +5,7 @@ import Link from 'next/link'
 import AiResumeScanner from '@/components/AiResumeScanner'
 import { SubmitButton } from '@/components/SubmitButton'
 import { StructuredSkillEditor } from '@/components/StructuredSkillEditor'
+import { StructuredLanguageEditor } from '@/components/StructuredLanguageEditor'
 import UsLocationSelector from '@/components/UsLocationSelector'
 import { updateProfile } from '@/app/dashboard/actions'
 import {
@@ -15,6 +16,7 @@ import {
   CANDIDATE_EDUCATION_LEVELS,
   normalizeCandidateEducation,
 } from '@/constants/education'
+import { normalizeLanguageList } from '@/constants/languages'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,12 +66,18 @@ async function saveCandidateProfilePreservingMeta(formData: FormData) {
     formData.get('certifications') || ''
   ).trim()
 
+  const rawSubmittedLanguages = String(formData.get('languages') || '').trim()
+  const normalizedLanguages = rawSubmittedLanguages
+    ? normalizeLanguageList(rawSubmittedLanguages, true)
+    : normalizeLanguageList(existingPrefObj.languages, true)
+
   const updatedPrefObj = {
     ...existingPrefObj,
     _ss_pref_meta: true,
     industry_vertical: normalizedIndustry,
     education_level: normalizedEducation,
     certifications: submittedCertifications,
+    languages: normalizedLanguages,
   }
 
   let submittedSkills: any[] = []
@@ -96,6 +104,7 @@ async function saveCandidateProfilePreservingMeta(formData: FormData) {
   formData.set('industry_vertical', normalizedIndustry)
   formData.set('education_level', normalizedEducation)
   formData.set('certifications', submittedCertifications)
+  formData.set('languages', JSON.stringify(normalizedLanguages))
 
   // Preserve salary & work model if not present on the Profile form
   if (
@@ -171,6 +180,7 @@ export default async function ProfilePage() {
     : 'Practical Experience & Industry Certifications'
 
   const currentCertifications = prefMetaObj?.certifications || ''
+  const currentLanguages = normalizeLanguageList(prefMetaObj?.languages, true)
 
   const hasProfileData = !!profile?.bio
 
@@ -184,7 +194,7 @@ export default async function ProfilePage() {
         </h2>
         <p className="text-sm text-slate-500 mt-1">
           {hasProfileData
-            ? 'Upload a new resume to overwrite your current profile with fresh extracted skills, education, and certifications.'
+            ? 'Upload a new resume to overwrite your current profile with fresh extracted skills, education, certifications, and languages.'
             : 'Upload your resume to instantly generate an anonymous profile using AI.'}
         </p>
       </div>
@@ -202,7 +212,7 @@ export default async function ProfilePage() {
           {hasProfileData ? 'Profile Details' : 'Step 2: Manual Review'}
         </h2>
         <p className="text-sm text-slate-500 mt-1">
-          Review and manually adjust your public anonymous profile, primary industry vertical, education, active certifications, and vaulted contact details.
+          Review and manually adjust your public anonymous profile, primary industry vertical, education, active certifications, language proficiencies, and vaulted contact details.
         </p>
       </div>
 
@@ -340,8 +350,16 @@ export default async function ProfilePage() {
           </div>
         </div>
 
+        {/* Row 3: The Structured Language Proficiency Matrix */}
+        <StructuredLanguageEditor
+          name="languages"
+          initialLanguages={currentLanguages}
+        />
+
         {/* The Dynamic Skills Editor */}
-        <StructuredSkillEditor initialSkills={visibleStructuredSkills} />
+        <div className="pt-4 border-t border-slate-200/80">
+          <StructuredSkillEditor initialSkills={visibleStructuredSkills} />
+        </div>
 
         <div>
           <label className="block text-sm font-bold text-slate-700 mb-2">
@@ -399,7 +417,7 @@ export default async function ProfilePage() {
             Anonymous Profile
           </h1>
           <p className="text-slate-500 mt-2">
-            Manage your extracted skills, education &amp; certifications, primary industry vertical, target location, and vaulted contact identity.
+            Manage your extracted skills, education, certifications, language capabilities, primary industry vertical, target location, and vaulted contact identity.
           </p>
         </header>
 
