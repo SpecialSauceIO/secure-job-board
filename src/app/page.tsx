@@ -8,13 +8,14 @@ export default function LandingPage() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [showTechDocsModal, setShowTechDocsModal] = useState(false)
 
-  // Cycles through slides 0, 1, 2, and 3 every 7 seconds (7000ms)
+  // Cycles through slides 0, 1, 2, 3, and 4 every 9 seconds (9000ms)
+  // Using [currentSlide] in the dependency array also resets the 9s timer if a user clicks a dot manually
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev === 3 ? 0 : prev + 1))
-    }, 7000)
+      setCurrentSlide((prev) => (prev === 4 ? 0 : prev + 1))
+    }, 9000)
     return () => clearInterval(timer)
-  }, [])
+  }, [currentSlide])
 
   const scrollToHowItWorks = () => {
     const el = document.getElementById('how-it-works')
@@ -70,7 +71,7 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          {/* CENTERED: Tagline (With generous breathing room now that nav links are removed) */}
+          {/* CENTERED: Tagline */}
           <div className="absolute left-1/2 -translate-x-1/2 hidden lg:flex items-center gap-4 pointer-events-none">
             <span className="h-5 w-px bg-slate-200"></span>
             <p className="text-[11px] font-bold text-slate-500 tracking-[0.15em] uppercase whitespace-nowrap">
@@ -101,7 +102,7 @@ export default function LandingPage() {
       <section className="relative pt-28 pb-10 px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center text-center">
         {/* Cross-fading text container */}
         <div className="grid [grid-template-areas:'stack'] mb-6 w-full place-items-center">
-          {/* SLIDE 0: Universal Opening Slide */}
+          {/* SLIDE 0 (Slide #1): Universal Opening Slide */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 0
@@ -114,7 +115,7 @@ export default function LandingPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-600"></span>
               </span>
-              Built for Every Industry • Privacy-First Hiring
+              28 Industry Verticals • Privacy-First Hiring
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Changing the Hiring{' '}
@@ -125,14 +126,45 @@ export default function LandingPage() {
               For good.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Whether you work in Healthcare, Finance, Skilled Trades, Education, Operations, or Tech—we replace black-hole job boards with upfront pay transparency, skill-first matching, and complete privacy until you choose to connect.
+              Whether you work in Healthcare, Hospitality, Finance, Skilled Trades, Agriculture, Government, or Tech—we replace black-hole job boards with upfront pay transparency, skill-and-language matching, and complete privacy until you choose to connect.
             </p>
           </div>
 
-          {/* SLIDE 1: No Ghost Jobs or Spam */}
+          {/* SLIDE 1 (Slide #2): 30-Day Season 0 Founding Grants */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 1
+                ? 'opacity-100 translate-y-0 z-10'
+                : 'opacity-0 pointer-events-none z-0'
+            }`}
+          >
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
+              <span className="text-amber-600">★</span>
+              Season 0 Founding Cohort Now Open • 30-Day Charter Grants
+            </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
+              30-Day{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-indigo-600">
+                Founding Grants.
+              </span>
+              <br />
+              Locked-in charter perks.
+            </h1>
+            <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
+              Join during our initial Season 0 launch window to unlock a{' '}
+              <strong className="text-slate-700">
+                30-Day Founding Member Grant
+              </strong>
+              —including 15 free blind applications for verified Candidates, 30 days of Starter access (5 active role slots + 10 pitch credits) for Domain-Verified Employers, permanent{' '}
+              <strong className="text-slate-700">★ Gold Charter Trim</strong>, a{' '}
+              <strong className="text-slate-700">1.25x XP Rank Boost</strong>, and lifetime Founder&apos;s Rate Locks.
+            </p>
+          </div>
+
+          {/* SLIDE 2 (Slide #3): No Ghost Jobs or Spam */}
+          <div
+            className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
+              currentSlide === 2
                 ? 'opacity-100 translate-y-0 z-10'
                 : 'opacity-0 pointer-events-none z-0'
             }`}
@@ -157,10 +189,10 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 2: Employers */}
+          {/* SLIDE 3 (Slide #4): Employers */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
-              currentSlide === 2
+              currentSlide === 3
                 ? 'opacity-100 translate-y-0 z-10'
                 : 'opacity-0 pointer-events-none z-0'
             }`}
@@ -181,14 +213,14 @@ export default function LandingPage() {
               Skip the resume pile.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Stop sifting through hundreds of unqualified applications. Our smart matching evaluates real experience, skills, and certifications upfront—so only qualified, identity-verified candidates reach your hiring desk.
+              Stop sifting through hundreds of unqualified applications. Our 5-Point AI Match Radar evaluates real experience, skills, certifications, and written/verbal language fluency upfront—so only qualified, identity-verified candidates reach your desk.
             </p>
           </div>
 
-          {/* SLIDE 3: Candidates */}
+          {/* SLIDE 4 (Slide #5): Candidates */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
-              currentSlide === 3
+              currentSlide === 4
                 ? 'opacity-100 translate-y-0 z-10'
                 : 'opacity-0 pointer-events-none z-0'
             }`}
@@ -243,7 +275,7 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        {/* Slide Indicators */}
+        {/* 5 Slide Indicators */}
         <div className="flex gap-2 mt-5 z-20 relative">
           <button
             onClick={() => setCurrentSlide(0)}
@@ -258,24 +290,33 @@ export default function LandingPage() {
             onClick={() => setCurrentSlide(1)}
             className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
               currentSlide === 1
+                ? 'bg-amber-500 w-6'
+                : 'bg-slate-300 hover:bg-slate-400'
+            }`}
+            aria-label="View 30-day Season 0 Founding Grants slide"
+          />
+          <button
+            onClick={() => setCurrentSlide(2)}
+            className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
+              currentSlide === 2
                 ? 'bg-orange-500 w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
             aria-label="View fresh jobs slide"
           />
           <button
-            onClick={() => setCurrentSlide(2)}
+            onClick={() => setCurrentSlide(3)}
             className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
-              currentSlide === 2
+              currentSlide === 3
                 ? 'bg-indigo-600 w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
             aria-label="View employer slide"
           />
           <button
-            onClick={() => setCurrentSlide(3)}
+            onClick={() => setCurrentSlide(4)}
             className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
-              currentSlide === 3
+              currentSlide === 4
                 ? 'bg-emerald-500 w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
@@ -309,7 +350,7 @@ export default function LandingPage() {
           </span>
         </button>
 
-        {/* Floating Bottom-Right Security & Trust Pill (Replaces the redundant "Learn More" scroll button!) */}
+        {/* Floating Bottom-Right Security & Trust Pill */}
         <button
           type="button"
           onClick={() => setShowTechDocsModal(true)}
@@ -372,7 +413,7 @@ export default function LandingPage() {
                   1. Build Your Private Profile
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Upload your resume to automatically highlight your skills, experience, education, and licenses—while keeping your name and contact details hidden. Set your minimum pay and work preferences so you only hear about roles that fit.
+                  Upload your resume to automatically extract your skills, experience, education, licenses, and written/verbal language proficiencies—while keeping your name and contact details hidden. Set your minimum pay and dealbreakers upfront.
                 </p>
               </div>
 
@@ -397,7 +438,7 @@ export default function LandingPage() {
                   2. See Your Fit Before You Apply
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Every job listing shows real pay bands (annual or hourly) and closes after 30 days so you never apply to dead roles. Check your instant match score to see how your background stacks up before submitting an anonymous application.
+                  Every job listing shows real pay bands (annual or hourly) and closes after 30 days so you never apply to dead roles. Check your instant 5-Point AI Fit score before submitting an anonymous application—and earn XP toward Bronze-to-Apex Rank Tiers.
                 </p>
               </div>
 
@@ -424,7 +465,7 @@ export default function LandingPage() {
                     3. Chat First, Share Your Resume Later
                   </h3>
                   <p className="text-slate-400 leading-relaxed">
-                    When an employer wants to connect, you’ll see their verified company name and can message them directly on the platform—while your email and full resume stay private until you decide you’re ready to share them.
+                    When an employer wants to connect, you’ll see their verified company name and can message them directly on the platform—while your email and full resume stay private until you decide you’re ready to release them.
                   </p>
                 </div>
               </div>
@@ -435,7 +476,7 @@ export default function LandingPage() {
           <div>
             <div className="text-center mb-12">
               <span className="inline-block px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-extrabold uppercase tracking-wider mb-3">
-                Built for Businesses of Every Size &amp; Industry
+                Built for Businesses Across All 28 Industry Verticals
               </span>
               <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">
                 How Special Sauce works{' '}
@@ -465,7 +506,7 @@ export default function LandingPage() {
                   1. Post Roles in Seconds
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Upload any existing job description and let our assistant organize the required skills, experience, certifications, and location for you. Your company name stays private until you choose to connect with a candidate.
+                  Upload any existing job description and let our assistant organize the required skills, experience, certifications, languages, and US metro location for you. Your company name stays private until you connect with a candidate.
                 </p>
               </div>
 
@@ -490,7 +531,7 @@ export default function LandingPage() {
                   2. Quality Over Clutter
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Every applicant is pre-screened against your role’s core skills, experience, and credentials before they can apply. You can also search our talent directory by industry, location, and certifications to invite top candidates directly.
+                  Every applicant is pre-screened against your role’s core skills, experience, credentials, and language requirements before they can apply. You can also search our passive talent pool by industry, location, certifications, and language fluency.
                 </p>
               </div>
 
@@ -517,7 +558,59 @@ export default function LandingPage() {
                     3. Direct Messaging &amp; Team Collaboration
                   </h3>
                   <p className="text-slate-400 leading-relaxed">
-                    Reviewing and messaging candidates who apply to your jobs is 100% free. Start a direct conversation to confirm mutual interest, invite team members to collaborate, and download the candidate’s full resume as soon as they release it.
+                    Reviewing and messaging candidates who apply to your jobs is 100% free. Start a direct conversation to confirm mutual interest, invite team members or BPO partners to collaborate, and download the candidate’s resume once released.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* SEASON 0 FOUNDING COHORT SPOTLIGHT BANNER */}
+          <div className="mt-20 rounded-3xl bg-slate-900 text-white p-8 sm:p-10 border-2 border-amber-400/80 shadow-xl relative overflow-hidden">
+            <div className="absolute inset-0 opacity-15 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-400 via-indigo-900 to-slate-900 pointer-events-none" />
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-300 text-xs font-extrabold uppercase tracking-wider">
+                  ★ Limited-Time Season 0 Founding Cohort Charter
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-black tracking-tight">
+                  Claim Your 30-Day Founding Grant &amp; Permanent Charter Status
+                </h3>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  Early adopters who join during Season 0 unlock 30 days of complimentary platform access, permanent{' '}
+                  <strong className="text-amber-300">
+                    ★ Founding Member Gold Card Trim
+                  </strong>
+                  , a permanent{' '}
+                  <strong className="text-amber-300">
+                    1.25x Profile XP Multiplier
+                  </strong>
+                  , and lifetime Founder&apos;s Rate Locks.
+                </p>
+              </div>
+
+              <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 space-y-1.5">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400 block">
+                    For Candidates
+                  </span>
+                  <div className="text-lg font-black text-white">
+                    30 Days Free Grant
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    15 Free Outbound Blind Applications + $0 Forever Passive Career Vault + $9/mo Founder&apos;s Rate Lock.
+                  </p>
+                </div>
+
+                <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 space-y-1.5">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-300 block">
+                    For Verified Employers
+                  </span>
+                  <div className="text-lg font-black text-white">
+                    30 Days Free Starter
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    5 Active Blind Role Slots + 10 Outbound Pitch Credits + 2 Team Seats + Unlimited Free Inbound Unlocks.
                   </p>
                 </div>
               </div>
@@ -708,7 +801,7 @@ export default function LandingPage() {
           className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6"
           onClick={() => setShowTechDocsModal(false)}
         >
-          {/* Single Unified Scroll Container so scrolling works even when cursor is over the dark header! */}
+          {/* Single Unified Scroll Container */}
           <div
             className="always-visible-scrollbar bg-slate-50 w-full max-w-4xl rounded-3xl border border-slate-200 shadow-2xl max-h-[86vh] relative"
             onClick={(e) => e.stopPropagation()}
@@ -741,7 +834,7 @@ export default function LandingPage() {
                 How Special Sauce Works Under the Hood
               </h2>
               <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-2xl">
-                Built so candidates and hiring managers across every industry get a simple, stress-free experience—backed by enterprise-grade identity verification, data minimization, and anti-harvesting guardrails.
+                Built so candidates and hiring managers across all 28 industry verticals get a simple, stress-free experience—backed by enterprise-grade identity verification, data minimization, and anti-harvesting guardrails.
               </p>
             </div>
 
@@ -757,7 +850,7 @@ export default function LandingPage() {
                     Staged Disclosure &amp; Signed Resume URLs
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    When a candidate uploads a PDF resume, it is stored in a private, non-public vault. During initial discovery, employers only see an anonymized skill, experience, and credential matrix.
+                    When a candidate uploads a PDF resume, it is stored in a private, non-public vault. During initial discovery, employers only see an anonymized skill, experience, certification, and language matrix.
                   </p>
                   <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-100">
                     <li>
@@ -817,17 +910,17 @@ export default function LandingPage() {
                     4. Multi-Industry AI Matching &amp; Dealbreakers
                   </span>
                   <h3 className="text-lg font-extrabold text-slate-900">
-                    5-Point Radar &amp; Automatic Dealbreaker Enforcement
+                    5-Point Radar, Language Matrix &amp; Dealbreaker Firewall
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                     Our matching engine evaluates candidates and roles across five dimensions: Technical/Role Skills, Experience Level, Role Alignment, Domain Expertise, and Culture/Soft Skills.
                   </p>
                   <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-100">
                     <li>
-                      • <strong>Practical Experience Parity:</strong> Roles that accept practical experience or industry certifications in lieu of a formal degree automatically weight hands-on experience equally.
+                      • <strong>Practical Experience &amp; Language Precision:</strong> Roles that accept practical experience in lieu of a degree weight hands-on skills equally, while verifying written/verbal language modality and proficiency.
                     </li>
                     <li>
-                      • <strong>Hard Dealbreaker Firewall:</strong> Employers are automatically blocked from pitching candidates if the role’s maximum budget falls below the candidate’s minimum salary expectation or violates their work model/employment type preferences.
+                      • <strong>Hard Dealbreaker Firewall:</strong> Employers are automatically blocked from pitching candidates if the role violates the candidate’s minimum salary expectation, work model, employment type, or language requirements.
                     </li>
                   </ul>
                 </div>
@@ -837,7 +930,7 @@ export default function LandingPage() {
               <div className="bg-white p-5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
                   <h4 className="text-sm font-extrabold text-slate-900">
-                    Ready to join Special Sauce?
+                    Ready to claim your 30-Day Season 0 Founding Grant?
                   </h4>
                   <p className="text-xs text-slate-500">
                     Create your free Candidate or Employer account in under two minutes.
