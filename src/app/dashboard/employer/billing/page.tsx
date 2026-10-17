@@ -411,7 +411,7 @@ export default function EmployerBillingPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between text-xs font-extrabold">
               <span className="text-emerald-700">
-                High-Volume &amp; BPO Ready
+                High-Volume, ATS &amp; BPO Ready
               </span>
               {activeTier === 'enterprise' && (
                 <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -446,10 +446,15 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Up to 10 Team &amp; Delegated BPO Seats</strong>
               </li>
               <li>
+                ✓ <strong>Workday &amp; Greenhouse ATS / Webhook API Sync</strong>
+              </li>
+              <li>
+                ✓ <strong>Automated Stage 2 Vault Export to ATS</strong>
+              </li>
+              <li>
                 ✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong>
               </li>
-              <li>✓ Priority 1.25x Founder&apos;s XP Rank Progression</li>
-              <li>✓ ★ Permanent Founding Partner Gold Trim</li>
+              <li>✓ ★ Permanent Founding Partner Gold Trim &amp; 1.25x XP</li>
             </ul>
           </div>
 

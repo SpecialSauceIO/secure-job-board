@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import EmployerOrganizationForm from '@/components/EmployerOrganizationForm'
 import EmployerTeamSeatsPanel from '@/components/EmployerTeamSeatsPanel'
+import EnterpriseAtsIntegrationPanel from '@/components/EnterpriseAtsIntegrationPanel'
 import {
   resolveEmployerTierInfo,
   stripTierTag,
@@ -29,9 +30,11 @@ function extractOrgIndustryAndSize(rawDescription?: string | null): {
     ? sizeMatch[1].trim()
     : 'Growth (50–250 Employees)'
 
+  // Strip [IND:...], [SIZE:...], and [ATS_CFG:...] metadata tags so the form textarea stays clean
   const cleanDescription = raw
     .replace(/\s*\[IND:[^\]]*\]/gi, '')
     .replace(/\s*\[SIZE:[^\]]*\]/gi, '')
+    .replace(/\s*\[ATS_CFG:[A-Za-z0-9+/=]+\]/gi, '')
     .trim()
 
   return {
@@ -97,42 +100,32 @@ export default async function EmployerOrganizationPage() {
   const seats = await getOrganizationSeats()
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-12">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <header>
-          <Link
-            href="/dashboard"
-            className="text-indigo-600 font-bold text-sm inline-flex items-center gap-1 mb-3 hover:text-indigo-700"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Back to Employer Dashboard
-          </Link>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            Company Profile &amp; Domain Verification
+    <div className="max-w-5xl mx-auto py-4 space-y-8">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Company Profile, Seats &amp; ATS Integrations
           </h1>
-          <p className="text-slate-500 mt-1">
-            Verify your corporate domain, configure your Primary Industry Vertical, and manage delegated seats for internal hiring managers and W-2 BPO partners.
+          <p className="text-sm text-slate-500 mt-1">
+            Verify your corporate domain, configure your Primary Industry Vertical, manage collaborator seats, and connect Workday or Greenhouse.
           </p>
-        </header>
+        </div>
 
-        <EmployerOrganizationForm
-          initialOrg={cleanOrgForForm}
-          userEmail={user.email || ''}
-        />
+        <Link
+          href="/dashboard/employer/billing"
+          className="shrink-0 inline-flex items-center px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors"
+        >
+          Manage Plan &amp; Credits →
+        </Link>
+      </header>
 
-        {cleanOrgForForm && (
+      <EmployerOrganizationForm
+        initialOrg={cleanOrgForForm}
+        userEmail={user.email || ''}
+      />
+
+      {cleanOrgForForm && (
+        <>
           <EmployerTeamSeatsPanel
             orgName={cleanOrgForForm.name || 'Your Organization'}
             tier={tierInfo.tier}
@@ -140,8 +133,10 @@ export default async function EmployerOrganizationPage() {
             maxSeats={tierInfo.maxSeats}
             initialSeats={seats}
           />
-        )}
-      </div>
+
+          <EnterpriseAtsIntegrationPanel />
+        </>
+      )}
     </div>
   )
 }
