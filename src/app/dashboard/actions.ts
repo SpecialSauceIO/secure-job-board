@@ -399,7 +399,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
   if (!targetUserId) {
     return {
       tier: 'trial',
-      label: `★ Founding Member rewards (${CANDIDATE_TRIAL_DAYS}d Free)`,
+      label: `★ Founding Member Rewards (${CANDIDATE_TRIAL_DAYS}d Free)`,
       canApply: true,
       appsUsed: 0,
       freeAppsRemaining: CANDIDATE_TRIAL_MAX_APPS,
@@ -438,7 +438,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
   if (rawPlan === 'expired') {
     return {
       tier: 'free',
-      label: 'Passive Vault Mode (Founding rewards Ended)',
+      label: 'Passive Vault Mode (Founding Rewards Ended)',
       canApply: false,
       appsUsed: CANDIDATE_TRIAL_MAX_APPS,
       freeAppsRemaining: 0,
@@ -465,7 +465,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
   if (trialExpired) {
     return {
       tier: 'free',
-      label: 'Passive Vault Mode (Founding rewards Ended)',
+      label: 'Passive Vault Mode (Founding Rewards Ended)',
       canApply: false,
       appsUsed: appsUsedInTrial,
       freeAppsRemaining: 0,
@@ -476,7 +476,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
 
   return {
     tier: 'trial',
-    label: `★ Founding rewards (${freeAppsRemaining}/${CANDIDATE_TRIAL_MAX_APPS} Free Apps · ${daysRemaining}d left)`,
+    label: `★ Founding Rewards (${freeAppsRemaining}/${CANDIDATE_TRIAL_MAX_APPS} Free Apps · ${daysRemaining}d left)`,
     canApply: true,
     appsUsed: appsUsedInTrial,
     freeAppsRemaining,
@@ -559,8 +559,8 @@ export async function activateSandboxCandidateTier(
       targetMode === 'pro'
         ? 'Activated Candidate Pro Pass ($9/mo)! Unlimited blind applications unlocked.'
         : targetMode === 'expired'
-        ? 'Simulated Founding rewards Ended (0 Free Applications Remaining). Try applying to a role on /dashboard/jobs to test the $9/mo upgrade prompt!'
-        : `Reset 30-Day Founding Member rewards! You have ${CANDIDATE_TRIAL_MAX_APPS} fresh free blind applications and ${CANDIDATE_TRIAL_DAYS} days remaining.`,
+        ? 'Simulated Founding Rewards Ended (0 Free Applications Remaining). Try applying to a role on /dashboard/jobs to test the $9/mo upgrade prompt!'
+        : `Reset 30-Day Founding Member Rewards! You have ${CANDIDATE_TRIAL_MAX_APPS} fresh free blind applications and ${CANDIDATE_TRIAL_DAYS} days remaining.`,
   }
 }
 
@@ -634,7 +634,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
     if (daysLeft > 0) {
       return {
         tier: 'starter',
-        label: `★ Founding Partner rewards (${daysLeft}d Free Starter)`,
+        label: `★ Founding Partner Rewards (${daysLeft}d Free Starter)`,
         maxActiveJobs: EMPLOYER_FOUNDER_GRANT_JOBS,
         monthlyCredits: EMPLOYER_FOUNDER_GRANT_CREDITS,
         maxSeats: 2,
@@ -1516,7 +1516,7 @@ export async function applyBlind(formData: FormData) {
   const candidateTier = await resolveCandidateTierInfo(user.id)
   if (!candidateTier.canApply) {
     return {
-      error: `Founding Member rewards Concluded: You have used all ${CANDIDATE_TRIAL_MAX_APPS} free blind applications (or your ${CANDIDATE_TRIAL_DAYS}-day Founding rewards window has ended). Subscribe to the Candidate Pro Pass ($9/month) on your Membership page to unlock unlimited blind applications!`,
+      error: `Founding Member Rewards Concluded: You have used all ${CANDIDATE_TRIAL_MAX_APPS} free blind applications (or your ${CANDIDATE_TRIAL_DAYS}-day Founding Rewards window has ended). Subscribe to the Candidate Pro Pass ($9/month) on your Membership page to unlock unlimited blind applications!`,
     }
   }
 
@@ -4018,7 +4018,7 @@ export async function saveOrganizationProfile(formData: FormData) {
     domain: cleanedDomain,
     verification_status: currentStatus,
     message: autoVerified
-      ? `Profile saved & ${cleanedDomain} automatically verified via your matching work email (${user.email})! Your 30-Day Founding Partner rewards (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`
+      ? `Profile saved & ${cleanedDomain} automatically verified via your matching work email (${user.email})! Your 30-Day Founding Partner Rewards (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`
       : 'Company profile saved successfully.',
   }
 }
@@ -4358,8 +4358,8 @@ export async function verifyOrganizationDomain(domainInput?: string) {
     domain: targetDomain,
     verification_status: 'verified',
     message: hasMatchingTxtToken
-      ? `Domain ${targetDomain} verified via DNS TXT record! Your 30-Day Founding Partner rewards (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`
-      : `Domain ${targetDomain} verified via corporate email match (${user.email}) & live DNS check! Your 30-Day Founding Partner rewards (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`,
+      ? `Domain ${targetDomain} verified via DNS TXT record! Your 30-Day Founding Partner Rewards (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`
+      : `Domain ${targetDomain} verified via corporate email match (${user.email}) & live DNS check! Your 30-Day Founding Partner Rewards (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`,
   }
 }
 
@@ -4420,7 +4420,7 @@ export async function toggleSandboxDomainVerification(
     verification_status: targetStatus,
     message:
       targetStatus === 'verified'
-        ? 'Sandbox Override: Organization marked as Domain Verified & Founding Partner rewards activated!'
+        ? 'Sandbox Override: Organization marked as Domain Verified & Founding Partner Rewards activated!'
         : 'Organization reset to Pending Verification.',
   }
 }
