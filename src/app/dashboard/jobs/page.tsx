@@ -14,6 +14,7 @@ const EMPLOYMENT_TYPES = [
   'Contract (1099 / Corp-to-Corp)',
   'Contract-to-Hire',
   'Part-Time',
+  'Seasonal / Temporary',
 ]
 
 function getJobEmploymentType(job: any): string {
@@ -160,14 +161,19 @@ export default function CandidateJobsPage() {
     const jobEmpType = getJobEmploymentType(job)
 
     if (employmentType !== 'all') {
-      if (jobEmpType.toLowerCase() !== employmentType.toLowerCase()) {
+      if (
+        jobEmpType.toLowerCase() !== employmentType.toLowerCase() &&
+        !jobEmpType.toLowerCase().includes(employmentType.toLowerCase())
+      ) {
         return false
       }
     }
 
     if (onlyMyDealbreakers && savedEmpTypes.length > 0) {
       const matchesSaved = savedEmpTypes.some(
-        (t) => t.toLowerCase() === jobEmpType.toLowerCase()
+        (t) =>
+          t.toLowerCase() === jobEmpType.toLowerCase() ||
+          jobEmpType.toLowerCase().includes(t.toLowerCase())
       )
       if (!matchesSaved) return false
     }
@@ -277,7 +283,7 @@ export default function CandidateJobsPage() {
               <select
                 value={workModel}
                 onChange={(e) => setWorkModel(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
               >
                 <option value="all">All Work Models</option>
                 <option value="remote">Remote Only</option>
@@ -291,7 +297,7 @@ export default function CandidateJobsPage() {
               <select
                 value={employmentType}
                 onChange={(e) => setEmploymentType(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
               >
                 <option value="all">All Employment Types</option>
                 {EMPLOYMENT_TYPES.map((type) => (
@@ -312,7 +318,7 @@ export default function CandidateJobsPage() {
                   setSelectedState(e.target.value)
                   setSelectedMetro('')
                 }}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
               >
                 <option value="">All US States &amp; Remote Regions</option>
                 <option value="REMOTE_US">🇺🇸 US Remote (By Timezone / Nationwide)</option>
@@ -330,7 +336,7 @@ export default function CandidateJobsPage() {
                 disabled={!selectedState}
                 value={selectedMetro}
                 onChange={(e) => setSelectedMetro(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none disabled:opacity-50"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none disabled:opacity-50 cursor-pointer"
               >
                 <option value="">
                   {!selectedState
