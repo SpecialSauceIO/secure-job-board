@@ -328,6 +328,9 @@ export default function EditJobPage() {
                 </option>
                 <option value="Contract-to-Hire">Contract-to-Hire</option>
                 <option value="Part-Time">Part-Time</option>
+                <option value="Seasonal / Temporary">
+                  Seasonal / Temporary
+                </option>
               </select>
             </div>
 
@@ -429,7 +432,7 @@ export default function EditJobPage() {
               {jobData.pay_type === 'hourly' ? 'Hourly /hr' : 'Annual Salary /yr'}
               )
             </h3>
-            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+            <span className="text-xs font-bold text-emerald-700">
               Displayed publicly on blind listing
             </span>
           </div>
