@@ -10,10 +10,7 @@ import {
 import SecureMessageThread from '@/components/SecureMessageThread'
 import { normalizeIndustryVertical } from '@/constants/industries'
 import { normalizeJobEducationReq } from '@/constants/education'
-import {
-  normalizeLanguageList,
-  formatLanguageBadge,
-} from '@/constants/languages'
+import { normalizeLanguageList } from '@/constants/languages'
 import { getQuickJobCardRank } from '@/constants/gamification'
 import { RankAndFounderPill } from '@/components/ReputationBadgeCase'
 import {
@@ -134,8 +131,8 @@ export default function CandidateRequestsInboxPage() {
         type: 'success',
         text:
           decision === 'accepted'
-            ? `Pitch Accepted (+150 Profile XP • Ref: ${res.referenceId})! Stage 1 Encrypted Thread is now open below while your PDF resume and email remain vaulted.`
-            : `Pitch politely declined (+150 Responsiveness XP • Ref: ${res.referenceId}).`,
+            ? `Pitch Accepted (+150 Profile XP • Ref: ${res.referenceId})! Stage 1 Thread is now open below.`
+            : `Pitch declined (+150 XP • Ref: ${res.referenceId}).`,
       },
     }))
 
@@ -185,13 +182,13 @@ export default function CandidateRequestsInboxPage() {
             Employer Connection Pitches
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Domain-verified employers spent a connection credit to pitch you these roles based on your anonymous skill matrix. Responding awards +150 Profile XP.
+            Domain-verified employers spent a credit to pitch you these roles. Accepting opens a secure Stage 1 thread.
           </p>
         </div>
 
         <Link
           href="/dashboard/jobs"
-          className="shrink-0 inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm"
+          className="shrink-0 inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-xs"
         >
           Browse All Open Roles →
         </Link>
@@ -222,7 +219,7 @@ export default function CandidateRequestsInboxPage() {
         </div>
 
         <span className="text-xs font-bold text-emerald-700">
-          🛡️ Receiving &amp; accepting employer pitches is 100% free forever
+          🛡️ Receiving &amp; accepting employer pitches is 100% free
         </span>
       </div>
 
@@ -240,7 +237,7 @@ export default function CandidateRequestsInboxPage() {
             No employer pitches in this tab yet
           </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Keep your anonymous Skill Matrix, Education, Certifications, and Languages updated on your Profile so verified hiring teams can discover and pitch you.
+            Keep your profile and skill matrix updated so verified employers can discover and pitch you.
           </p>
           <Link
             href="/dashboard/profile"
@@ -307,17 +304,17 @@ export default function CandidateRequestsInboxPage() {
                     : isDeclined
                     ? 'border-slate-200 opacity-75'
                     : rankInfo.isFounder
-                    ? 'border-amber-300/90 hover:border-indigo-300'
-                    : 'border-slate-200 hover:border-indigo-200'
+                    ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
+                    : 'border-slate-200 hover:border-slate-300'
                 }`}
               >
-                <div className="p-6 md:p-8 space-y-5">
-                  {/* Top Bar: Employer Identity / Blind Status, Metal Rank & Founder Badge, Pay Band */}
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-slate-100">
+                <div className="p-6 md:p-8 space-y-4">
+                  {/* Top Bar: Company Heading & Pay Band */}
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-3 border-b border-slate-100">
                     <div className="space-y-1.5">
                       <div className="flex flex-wrap items-center gap-2">
                         <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-extrabold uppercase tracking-wider ${
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-extrabold uppercase tracking-wider ${
                             isAccepted
                               ? 'bg-emerald-600 text-white'
                               : 'bg-slate-900 text-white'
@@ -334,156 +331,134 @@ export default function CandidateRequestsInboxPage() {
                           size="xs"
                         />
 
-                        <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 font-mono text-xs font-bold border border-slate-200">
+                        <span className="font-mono text-xs text-slate-500">
                           Ref: {req.reference_id}
-                        </span>
-
-                        <span className="text-xs text-slate-400 font-medium">
-                          Pitched{' '}
-                          {new Date(req.created_at).toLocaleDateString()}
                         </span>
                       </div>
 
-                      <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                      <h2 className="text-2xl font-black text-slate-900 tracking-tight">
                         {job.title || 'Open Role'}
                       </h2>
                     </div>
 
-                    <div className="flex flex-col sm:items-end gap-1.5 shrink-0">
-                      <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-black text-base shadow-2xs">
-                        <span>{payBand}</span>
+                    <div className="flex flex-col sm:items-end gap-1 shrink-0">
+                      <div className="px-3.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-black text-sm">
+                        {payBand}
                       </div>
                       {matchScore !== null && (
-                        <span className="px-3 py-0.5 rounded-full text-xs font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                        <span className="text-xs font-bold text-indigo-700">
                           {matchScore}% AI Match
                         </span>
                       )}
                     </div>
                   </div>
 
-                  {/* Role Metadata Pills (Including Required Languages) */}
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-100 text-xs font-extrabold capitalize">
-                      {job.work_model || 'Flexible'} Work Model
+                  {/* Clean Inline Role Metadata (No Pills) */}
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600 font-medium">
+                    <span className="font-bold text-slate-800 uppercase">
+                      {job.work_model || 'Flexible'}
                     </span>
+                    <span>•</span>
                     {job.location && (
-                      <span className="px-3 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200 text-xs font-bold">
-                        📍 {job.location}
-                      </span>
+                      <>
+                        <span>{job.location}</span>
+                        <span>•</span>
+                      </>
                     )}
-                    {job.employment_type && (
-                      <span className="px-3 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold">
-                        {job.employment_type}
-                      </span>
-                    )}
+                    <span>{job.employment_type || 'Full-Time (W-2)'}</span>
                     {eduReqLabel && (
-                      <span className="px-3 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-xs font-bold">
-                        🎓 {eduReqLabel}
-                      </span>
+                      <>
+                        <span>•</span>
+                        <span>{eduReqLabel}</span>
+                      </>
                     )}
                     {reqCerts && (
-                      <span className="px-3 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
-                        🏅 Certs: {reqCerts}
-                      </span>
+                      <>
+                        <span>•</span>
+                        <span>Certs: {reqCerts}</span>
+                      </>
                     )}
-                    {reqLanguages.map((langEntry, lIdx) => (
-                      <span
-                        key={`${langEntry.language}-${lIdx}`}
-                        className="px-3 py-1 rounded-lg bg-teal-50 text-teal-900 border border-teal-200 text-xs font-bold"
-                      >
-                        🌐 {formatLanguageBadge(langEntry)}
-                      </span>
-                    ))}
+                    {reqLanguages.length > 0 && (
+                      <>
+                        <span>•</span>
+                        <span>
+                          Languages:{' '}
+                          {reqLanguages
+                            .map(
+                              (l) =>
+                                `${l.language} (${l.modality.split(' ')[0]} • ${
+                                  l.proficiency
+                                })`
+                            )
+                            .join(', ')}
+                        </span>
+                      </>
+                    )}
                   </div>
 
                   {/* Role Description */}
                   {job.description && (
-                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-3">
                       {job.description}
                     </p>
                   )}
 
-                  {/* AI Pitch Summary & Radar */}
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                    <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
-                      <span className="text-xs font-bold text-indigo-600">
-                        ⚡ Why You Matched This Role (5-Point AI Radar)
-                      </span>
-                      <div className="flex items-center gap-3">
-                        {radarData && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setExpandedRadarIds((prev) => ({
-                                ...prev,
-                                [req.id]: !prev[req.id],
-                              }))
-                            }
-                            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
-                          >
-                            {showRadar ? 'Hide 5-Point Radar' : 'View 5-Point Radar'}
-                          </button>
-                        )}
+                  {/* AI Pitch Summary */}
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 space-y-1">
+                    <div className="flex items-center justify-between font-bold text-indigo-700">
+                      <span>Why You Matched (5-Point AI Radar)</span>
+                      {radarData && (
                         <button
                           type="button"
-                          disabled={recalculatingId === req.id}
-                          onClick={() => handleRecalculate(req.id)}
-                          className="text-xs font-extrabold text-slate-600 hover:text-indigo-600 cursor-pointer disabled:opacity-50"
+                          onClick={() =>
+                            setExpandedRadarIds((prev) => ({
+                              ...prev,
+                              [req.id]: !prev[req.id],
+                            }))
+                          }
+                          className="underline cursor-pointer"
                         >
-                          {recalculatingId === req.id
-                            ? 'Scoring...'
-                            : '↻ Recalculate Fit'}
+                          {showRadar ? 'Hide Radar' : 'View Radar'}
                         </button>
-                      </div>
+                      )}
                     </div>
-                    <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">
+                    <p className="leading-relaxed">
                       {req.match_data?.employer_pitch ||
                         req.match_data?.brief_analysis ||
                         'Your anonymous skill matrix and experience matched this employer’s requirements.'}
                     </p>
                   </div>
 
+                  {/* Expandable Radar */}
                   {isMounted && showRadar && radarData && (
-                    <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col lg:flex-row items-center gap-6 animate-in fade-in duration-200">
-                      <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col lg:flex-row items-center gap-4">
+                      <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {radarData.map((item: any, idx: number) => (
                           <div
                             key={idx}
-                            className="bg-white px-3.5 py-2.5 rounded-lg border border-slate-200 flex justify-between items-center"
+                            className="bg-white px-3 py-2 rounded-md border border-slate-200 flex justify-between items-center text-xs"
                           >
-                            <span className="text-xs font-bold text-slate-600">
+                            <span className="font-semibold text-slate-600">
                               {item.subject}
                             </span>
-                            <span
-                              className={`text-sm font-black ${
-                                item.score >= 80
-                                  ? 'text-emerald-600'
-                                  : item.score >= 60
-                                  ? 'text-indigo-600'
-                                  : 'text-rose-600'
-                              }`}
-                            >
+                            <span className="font-black text-indigo-600">
                               {item.score}%
                             </span>
                           </div>
                         ))}
                       </div>
-                      <div className="w-full max-w-[280px] h-[210px] shrink-0 mx-auto">
+                      <div className="w-full max-w-[240px] h-[180px] shrink-0 mx-auto">
                         <ResponsiveContainer width="100%" height="100%">
                           <RadarChart
                             cx="50%"
                             cy="50%"
-                            outerRadius="65%"
+                            outerRadius="60%"
                             data={radarData}
                           >
                             <PolarGrid stroke="#cbd5e1" />
                             <PolarAngleAxis
                               dataKey="subject"
-                              tick={{
-                                fill: '#475569',
-                                fontSize: 10,
-                                fontWeight: 600,
-                              }}
+                              tick={{ fill: '#475569', fontSize: 9, fontWeight: 600 }}
                             />
                             <PolarRadiusAxis
                               angle={30}
@@ -493,12 +468,12 @@ export default function CandidateRequestsInboxPage() {
                             />
                             <Tooltip />
                             <Radar
-                              name="Match Score"
+                              name="Match"
                               dataKey="score"
                               stroke="#4f46e5"
                               strokeWidth={2}
                               fill="#10b981"
-                              fillOpacity={0.35}
+                              fillOpacity={0.3}
                             />
                           </RadarChart>
                         </ResponsiveContainer>
@@ -509,17 +484,17 @@ export default function CandidateRequestsInboxPage() {
                   {/* Feedback Banner */}
                   {cardMsg && (
                     <div
-                      className={`p-3.5 rounded-xl text-xs font-bold border ${
+                      className={`p-3 rounded-xl text-xs font-bold border ${
                         cardMsg.type === 'error'
                           ? 'bg-rose-50 text-rose-700 border-rose-200'
-                          : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                          : 'bg-emerald-50 text-emerald-800 border-emerald-300'
                       }`}
                     >
                       {cardMsg.text}
                     </div>
                   )}
 
-                  {/* STAGE 1 / STAGE 2 ENCRYPTED MESSAGE THREAD (WHEN ACCEPTED) */}
+                  {/* STAGE 1 THREAD */}
                   {isAccepted && (
                     <SecureMessageThread
                       applicationId={req.id}
@@ -542,34 +517,29 @@ export default function CandidateRequestsInboxPage() {
                     />
                   )}
 
-                  {/* Action Footer (Accept / Decline) */}
+                  {/* Action Footer */}
                   {!isAccepted && !isDeclined && (
-                    <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <p className="text-xs text-slate-500">
-                        <strong className="text-slate-700">
-                          Stage 1 Safe Connection (+150 XP):
-                        </strong>{' '}
-                        Accepting reveals the employer&apos;s verified company name and opens a chat thread, while keeping your PDF resume and email locked until Stage 2.
-                      </p>
+                    <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                      <span className="text-slate-500">
+                        <strong>Stage 1 Safe Connection:</strong> Accepting opens a secure chat thread while keeping your resume vaulted.
+                      </span>
 
-                      <div className="flex items-center gap-2.5 shrink-0">
+                      <div className="flex items-center gap-2 shrink-0">
                         <button
                           type="button"
                           disabled={processingId === req.id}
                           onClick={() => handleDecision(req.id, 'declined')}
-                          className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs font-bold hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 transition-colors cursor-pointer disabled:opacity-50"
+                          className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer"
                         >
-                          Politely Decline (+150 XP)
+                          Decline
                         </button>
                         <button
                           type="button"
                           disabled={processingId === req.id}
                           onClick={() => handleDecision(req.id, 'accepted')}
-                          className="px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-emerald-600 transition-colors shadow-sm cursor-pointer disabled:opacity-50"
+                          className="px-4 py-2 rounded-xl bg-slate-900 text-white font-extrabold hover:bg-emerald-600 transition-colors shadow-2xs cursor-pointer"
                         >
-                          {processingId === req.id
-                            ? 'Connecting...'
-                            : '🔓 Accept & Open Encrypted Thread (+150 XP)'}
+                          {processingId === req.id ? 'Connecting...' : '🔓 Accept & Connect'}
                         </button>
                       </div>
                     </div>
