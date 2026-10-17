@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import QuickFeedbackWidget from '@/components/QuickFeedbackWidget'
 
 export default function DashboardNav({
   role,
@@ -51,7 +52,7 @@ export default function DashboardNav({
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-2xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* ROW 1: Strictly Single-Line Brand Header (Logo Left, Account Controls Right) */}
+        {/* ROW 1: Strictly Single-Line Brand Header (Logo Left, Account Controls & Feedback Right) */}
         <div className="flex items-center justify-between gap-4 py-3">
           {/* Left: Prominent Trimmed Logo + Compact Divider Tagline */}
           <div className="flex items-center gap-3.5 min-w-0">
@@ -88,7 +89,7 @@ export default function DashboardNav({
             </div>
           </div>
 
-          {/* Right: Pinned Single-Row Account Status & Sign Out (Never Wraps Below Logo) */}
+          {/* Right: Pinned Single-Row Account Status, Quick Telemetry Feedback & Sign Out */}
           <div className="flex items-center gap-2.5 shrink-0">
             {tierLabel && (
               <Link
@@ -103,6 +104,9 @@ export default function DashboardNav({
                 {tierLabel}
               </Link>
             )}
+
+            {/* 1-Click Telemetry Bug & UX Feedback Widget */}
+            <QuickFeedbackWidget />
 
             {userEmail && (
               <span className="hidden xl:inline-block text-xs font-semibold text-slate-500 max-w-[180px] truncate">

@@ -1,0 +1,157 @@
+'use client'
+
+import { useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { submitQuickFeedback } from '@/app/dashboard/actions'
+
+export default function QuickFeedbackWidget() {
+  const pathname = usePathname()
+  const [isOpen, setIsOpen] = useState(false)
+  const [feedbackType, setFeedbackType] = useState<'Bug' | 'UX Idea' | 'Praise'>('Bug')
+  const [notes, setNotes] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [resultMsg, setResultMsg] = useState<{
+    type: 'success' | 'error'
+    text: string
+  } | null>(null)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!notes.trim()) return
+
+    setIsSubmitting(true)
+    setResultMsg(null)
+
+    const formData = new FormData()
+    formData.append('feedback_type', feedbackType)
+    formData.append('notes', notes.trim())
+    formData.append('page_url', pathname || '/dashboard')
+    formData.append(
+      'user_agent',
+      typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown Browser'
+    )
+
+    const res = await submitQuickFeedback(formData)
+
+    if (res?.error) {
+      setResultMsg({ type: 'error', text: res.error })
+      setIsSubmitting(false)
+      return
+    }
+
+    setResultMsg({
+      type: 'success',
+      text: `Sent (${res.referenceId})! Thank you for helping improve Special Sauce.`,
+    })
+    setNotes('')
+    setIsSubmitting(false)
+
+    setTimeout(() => {
+      setIsOpen(false)
+      setResultMsg(null)
+    }, 1800)
+  }
+
+  return (
+    <div className="relative">
+      {/* Compact Top Navbar Trigger Button */}
+      <button
+        type="button"
+        onClick={() => {
+          setIsOpen((prev) => !prev)
+          setResultMsg(null)
+        }}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/90 text-xs font-extrabold transition-colors shadow-2xs cursor-pointer"
+        title="Report a bug or share quick feedback (Auto-attaches current page URL)"
+      >
+        <span>🐞</span>
+        <span className="hidden sm:inline">Feedback</span>
+      </button>
+
+      {/* Popover Telemetry Feedback Form */}
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xl p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+              <div>
+                <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+                  <span>🐞 Quick Beta Feedback</span>
+                </h4>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Auto-attaches page:{' '}
+                  <code className="text-indigo-600 font-bold">
+                    {pathname || '/dashboard'}
+                  </code>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center text-xs font-bold cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div className="grid grid-cols-3 gap-1.5">
+                {(['Bug', 'UX Idea', 'Praise'] as const).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setFeedbackType(t)}
+                    className={`py-1.5 px-2 rounded-lg text-xs font-extrabold border transition-all cursor-pointer ${
+                      feedbackType === t
+                        ? 'bg-slate-900 text-white border-slate-900'
+                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    {t === 'Bug' ? '🐛 Bug' : t === 'UX Idea' ? '💡 Idea' : '🙌 Praise'}
+                  </button>
+                ))}
+              </div>
+
+              <textarea
+                rows={3}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="What happened or what can we make better on this page?"
+                required
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:outline-none p-3 text-xs font-medium text-slate-900"
+              />
+
+              {resultMsg && (
+                <div
+                  className={`p-2.5 rounded-xl text-xs font-bold ${
+                    resultMsg.type === 'error'
+                      ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                      : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                  }`}
+                >
+                  {resultMsg.text}
+                </div>
+              )}
+
+              <div className="flex items-center justify-between gap-2 pt-1">
+                <span className="text-[10px] text-slate-400 font-medium">
+                  Includes browser &amp; route telemetry
+                </span>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !notes.trim()}
+                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
+                >
+                  {isSubmitting ? 'Sending...' : 'Send Report →'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
