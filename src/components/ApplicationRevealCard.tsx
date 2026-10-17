@@ -28,22 +28,42 @@ import {
 } from 'recharts'
 
 function maskFirstInitial(fullName?: string | null): string {
-  if (!fullName || !fullName.trim()) return 'Verified Candidate'
+  if (!fullName || typeof fullName !== 'string' || !fullName.trim()) {
+    return 'Verified Candidate'
+  }
   const parts = fullName.trim().split(/\s+/)
   if (parts.length === 1) return parts[0]
-  return `${parts[0]} ${parts[parts.length - 1][0]?.toUpperCase() || ''}.`
+  const lastPart = parts[parts.length - 1] || ''
+  const lastInitial = lastPart.charAt(0).toUpperCase()
+  return lastInitial ? `${parts[0]} ${lastInitial}.` : parts[0]
+}
+
+function safeFormatDate(rawDate?: any): string {
+  if (!rawDate) return 'Recently'
+  try {
+    const d = new Date(rawDate)
+    if (isNaN(d.getTime())) return 'Recently'
+    return d.toLocaleDateString()
+  } catch {
+    return 'Recently'
+  }
 }
 
 export function ApplicationRevealCard({
-  app,
+  app: appProp,
+  application: applicationProp,
   onStatusUpdated,
 }: {
-  app: any
+  app?: any
+  application?: any
   onStatusUpdated?: (
     applicationId: string,
     newStatus: 'unrevealed' | 'unlocked' | 'shortlisted' | 'rejected'
   ) => void
 }) {
+  const app = appProp || applicationProp || {}
+
+  const [isMounted, setIsMounted] = useState(false)
   const [isRevealed, setIsRevealed] = useState<boolean>(
     Boolean(
       app?.is_revealed ||
@@ -55,7 +75,7 @@ export function ApplicationRevealCard({
     'unrevealed' | 'unlocked' | 'shortlisted' | 'rejected'
   >(
     app?.normalized_status ||
-      (app?.status === 'rejected'
+      (app?.status === 'rejected' || app?.status === 'declined'
         ? 'rejected'
         : app?.status === 'accepted' || app?.status === 'shortlisted'
         ? 'shortlisted'
@@ -76,6 +96,10 @@ export function ApplicationRevealCard({
   const [unlockedResumeUrl, setUnlockedResumeUrl] = useState<string | null>(
     app?.profiles?.resume_url || null
   )
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   useEffect(() => {
     setIsRevealed(
@@ -99,8 +123,9 @@ export function ApplicationRevealCard({
     }
   }, [app])
 
-  const candidate = app?.profiles || {}
-  const job = app?.jobs || {}
+  const candidate =
+    (Array.isArray(app?.profiles) ? app.profiles[0] : app?.profiles) || {}
+  const job = (Array.isArray(app?.jobs) ? app.jobs[0] : app?.jobs) || {}
 
   const displayId = String(app?.candidate_id || candidate?.id || 'ANON')
     .split('-')[0]
@@ -108,14 +133,16 @@ export function ApplicationRevealCard({
 
   const referenceId =
     app?.reference_id ||
-    `SS-${String(app?.id || '')
+    `SS-${String(app?.id || '00000000')
       .replace(/-/g, '')
       .substring(0, 8)
       .toUpperCase()}`
 
   const matchScore =
     app?.match_score ?? app?.match_data?.overall_score ?? null
-  const radarData = app?.match_data?.radar_data || null
+  const radarData = Array.isArray(app?.match_data?.radar_data)
+    ? app.match_data.radar_data
+    : null
   const briefAnalysis =
     app?.match_data?.brief_analysis ||
     app?.employer_pitch ||
@@ -159,7 +186,7 @@ export function ApplicationRevealCard({
       ? candidate.structured_skills
           .filter((s: any) => !(s && (s._ss_meta || s._ss_pref_meta)))
           .map((s: any) =>
-            typeof s === 'string' ? s : s.skill || s.name || ''
+            typeof s === 'string' ? s : s?.skill || s?.name || ''
           )
           .filter((str: string) => str && !String(str).startsWith('__SS_'))
       : typeof candidate?.skills === 'string'
@@ -191,11 +218,12 @@ export function ApplicationRevealCard({
     : `Anonymous Applicant #${displayId}`
 
   const handleUnlock = async () => {
+    if (!app?.id) return
     setIsProcessing(true)
     setErrorMsg(null)
 
     const formData = new FormData()
-    formData.append('application_id', app.id)
+    formData.append('application_id', String(app.id))
 
     const res: any = await revealProfile(formData)
     if (res?.error) {
@@ -211,17 +239,21 @@ export function ApplicationRevealCard({
       setUnlockedEmail(res.candidate_contact_email)
     if (res?.resume_url) setUnlockedResumeUrl(res.resume_url)
 
-    onStatusUpdated?.(app.id, 'unlocked')
+    onStatusUpdated?.(String(app.id), 'unlocked')
     setIsProcessing(false)
   }
 
   const handleDecision = async (
     decision: 'shortlisted' | 'rejected' | 'unlocked'
   ) => {
+    if (!app?.id) return
     setIsProcessing(true)
     setErrorMsg(null)
 
-    const res: any = await updateInboundApplicationDecision(app.id, decision)
+    const res: any = await updateInboundApplicationDecision(
+      String(app.id),
+      decision
+    )
     if (res?.error) {
       setErrorMsg(res.error)
       setIsProcessing(false)
@@ -232,7 +264,7 @@ export function ApplicationRevealCard({
     if (decision === 'shortlisted' || decision === 'unlocked') {
       setIsRevealed(true)
     }
-    onStatusUpdated?.(app.id, decision)
+    onStatusUpdated?.(String(app.id), decision)
     setIsProcessing(false)
   }
 
@@ -266,7 +298,7 @@ export function ApplicationRevealCard({
               Ref: {referenceId}
             </span>
             <span className="text-xs text-slate-400 font-medium">
-              Applied {new Date(app.created_at).toLocaleDateString()}
+              Applied {safeFormatDate(app?.created_at)}
             </span>
           </div>
 
@@ -401,7 +433,9 @@ export function ApplicationRevealCard({
                 <span className="text-emerald-600">
                   Min Salary: $
                   {candidate?.min_salary_expectation
-                    ? (candidate.min_salary_expectation / 1000).toFixed(0) + 'k'
+                    ? (Number(candidate.min_salary_expectation) / 1000).toFixed(
+                        0
+                      ) + 'k'
                     : 'Open'}
                 </span>
                 <span>•</span>
@@ -447,9 +481,9 @@ export function ApplicationRevealCard({
         </div>
 
         {/* STAGE 1 / STAGE 2 SECURE MESSAGE THREAD & VAULT */}
-        {isRevealed && status !== 'rejected' && (
+        {isRevealed && status !== 'rejected' && app?.id && (
           <SecureMessageThread
-            applicationId={app.id}
+            applicationId={String(app.id)}
             referenceId={referenceId}
             viewerRole="employer"
             initialMessages={threadMessages}
@@ -503,8 +537,8 @@ export function ApplicationRevealCard({
           </p>
         </div>
 
-        {/* Expandable 5-Point Radar Chart */}
-        {showRadar && radarData && (
+        {/* Expandable 5-Point Radar Chart (Client Mounted Safe) */}
+        {isMounted && showRadar && radarData && (
           <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col lg:flex-row items-center gap-6 animate-in fade-in duration-200">
             <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
               {radarData.map((item: any, idx: number) => (
@@ -677,3 +711,5 @@ export function ApplicationRevealCard({
     </div>
   )
 }
+
+export default ApplicationRevealCard
