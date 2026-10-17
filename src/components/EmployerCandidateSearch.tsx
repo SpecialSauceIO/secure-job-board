@@ -20,6 +20,8 @@ import {
   CANDIDATE_EDUCATION_LEVELS,
   normalizeCandidateEducation,
 } from '@/constants/education'
+import { getQuickCandidateCardRank } from '@/constants/gamification'
+import { RankAndFounderPill } from '@/components/ReputationBadgeCase'
 
 const MIN_MATCH_THRESHOLD = 40
 
@@ -31,6 +33,7 @@ const EMPLOYMENT_TYPES = [
 ]
 
 type CandidateSortOption =
+  | 'rank_high'
   | 'exp_high'
   | 'exp_low'
   | 'salary_low'
@@ -120,13 +123,12 @@ export default function EmployerCandidateSearch({
   activeJobs: any[]
   credits: number
 }) {
-  // Search & Filter States
   const [query, setQuery] = useState('')
   const [workModel, setWorkModel] = useState('')
   const [employmentType, setEmploymentType] = useState('all')
   const [industryFilter, setIndustryFilter] = useState('all')
   const [educationFilter, setEducationFilter] = useState('all')
-  const [sortBy, setSortBy] = useState<CandidateSortOption>('exp_high')
+  const [sortBy, setSortBy] = useState<CandidateSortOption>('rank_high')
   const [selectedState, setSelectedState] = useState('')
   const [selectedMetro, setSelectedMetro] = useState('')
 
@@ -139,7 +141,6 @@ export default function EmployerCandidateSearch({
   const [isLoading, setIsLoading] = useState(true)
   const [liveCredits, setLiveCredits] = useState<number>(credits)
 
-  // Modal & AI Matching States
   const [pitchCandidateId, setPitchCandidateId] = useState<string | null>(null)
   const [selectedJobId, setSelectedJobId] = useState('')
   const [isAnalyzingMatch, setIsAnalyzingMatch] = useState(false)
@@ -154,7 +155,6 @@ export default function EmployerCandidateSearch({
     setLiveCredits(credits)
   }, [credits])
 
-  // 1. Initial Load: Fetch passive candidates & saved shortlist when the page first opens
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
@@ -203,7 +203,6 @@ export default function EmployerCandidateSearch({
     setTogglingCandidateId(null)
   }
 
-  // 2. Explicit Search: Only query the database when the employer clicks the button
   const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -222,7 +221,6 @@ export default function EmployerCandidateSearch({
     setIsLoading(false)
   }
 
-  // 3. Role Selection & Real-Time AI Match Analysis (With 30-Second Safety Timer)
   const handleRoleSelect = async (jobId: string, candidateId: string) => {
     setSelectedJobId(jobId)
     setAiMatchData(null)
@@ -270,7 +268,6 @@ export default function EmployerCandidateSearch({
     }
   }
 
-  // 4. Pitching Logic
   const handlePitch = async () => {
     if (!pitchCandidateId || !selectedJobId) return
 
@@ -289,7 +286,9 @@ export default function EmployerCandidateSearch({
       setLiveCredits((prev) => Math.max(0, prev - 1))
       setFeedback({
         type: 'success',
-        text: `Connection request sent (Ref: ${result.referenceId || 'SS'})! 1 Credit deducted.`,
+        text: `Connection request sent (+150 XP • Ref: ${
+          result.referenceId || 'SS'
+        })! 1 Credit deducted.`,
       })
 
       setTimeout(() => {
@@ -304,7 +303,6 @@ export default function EmployerCandidateSearch({
     setIsSending(false)
   }
 
-  // Filter & Sort candidates by Shortlist toggle, Employment Type, Industry Vertical, Education, and Sort By
   const filteredAndSortedCandidates = useMemo(() => {
     const filtered = candidates.filter((candidate) => {
       const cid = String(candidate.id)
@@ -360,13 +358,23 @@ export default function EmployerCandidateSearch({
 
     return [...filtered].sort((a, b) => {
       switch (sortBy) {
+        case 'rank_high': {
+          const rankA = getQuickCandidateCardRank(a)
+          const rankB = getQuickCandidateCardRank(b)
+          if (rankB.totalXp !== rankA.totalXp) {
+            return rankB.totalXp - rankA.totalXp
+          }
+          return parseExp(b.experience_years) - parseExp(a.experience_years)
+        }
         case 'exp_high':
           return parseExp(b.experience_years) - parseExp(a.experience_years)
         case 'exp_low':
           return parseExp(a.experience_years) - parseExp(b.experience_years)
         case 'salary_low': {
-          const aSal = Number(a.min_salary_expectation) || Number.MAX_SAFE_INTEGER
-          const bSal = Number(b.min_salary_expectation) || Number.MAX_SAFE_INTEGER
+          const aSal =
+            Number(a.min_salary_expectation) || Number.MAX_SAFE_INTEGER
+          const bSal =
+            Number(b.min_salary_expectation) || Number.MAX_SAFE_INTEGER
           return aSal - bSal
         }
         case 'salary_high':
@@ -400,7 +408,6 @@ export default function EmployerCandidateSearch({
         onSubmit={handleSearchSubmit}
         className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4"
       >
-        {/* Top Row: Main Search, Shortlist Filter, & Credits + Top Up CTA */}
         <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4">
           <div className="relative flex-1 w-full">
             <svg
@@ -633,6 +640,9 @@ export default function EmployerCandidateSearch({
               }
               className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
             >
+              <option value="rank_high">
+                🥇 Highest Profile Level &amp; XP (Rank Tier)
+              </option>
               <option value="exp_high">
                 Experience Level (Most Experienced First)
               </option>
@@ -719,6 +729,7 @@ export default function EmployerCandidateSearch({
             const candidateIndustry = getCandidateIndustryVertical(candidate)
             const candidateEdu = getCandidateEducationLevel(candidate)
             const candidateCerts = getCandidateCertifications(candidate)
+            const rankInfo = getQuickCandidateCardRank(candidate)
 
             const candidateSkillStrings: string[] =
               Array.isArray(candidate.structured_skills) &&
@@ -738,7 +749,8 @@ export default function EmployerCandidateSearch({
                     .filter(Boolean)
                 : []
 
-            const acceptedEmploymentTypes = getCandidateEmploymentTypes(candidate)
+            const acceptedEmploymentTypes =
+              getCandidateEmploymentTypes(candidate)
 
             const displayId = cid.split('-')[0].toUpperCase()
             const isCandidateVerified = Boolean(
@@ -828,7 +840,9 @@ export default function EmployerCandidateSearch({
                 key={candidate.id}
                 className={`bg-white p-6 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between gap-6 transition-colors ${
                   isShortlisted
-                    ? 'border-amber-300'
+                    ? 'border-amber-400'
+                    : rankInfo.isFounder
+                    ? 'border-amber-200/90 hover:border-indigo-300'
                     : 'border-slate-200 hover:border-indigo-300'
                 }`}
               >
@@ -855,6 +869,15 @@ export default function EmployerCandidateSearch({
                           <h3 className="text-lg font-bold text-slate-900">
                             Anonymous Candidate #{displayId}
                           </h3>
+
+                          <RankAndFounderPill
+                            level={rankInfo.level}
+                            tier={rankInfo.tier}
+                            isFounder={rankInfo.isFounder}
+                            founderText="Founding Member"
+                            size="xs"
+                          />
+
                           {isCandidateVerified && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-extrabold">
                               <svg
@@ -873,6 +896,13 @@ export default function EmployerCandidateSearch({
                               Identity Verified
                             </span>
                           )}
+
+                          {rankInfo.isVaultReady && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100/80 text-emerald-900 border border-emerald-300 text-[10px] font-extrabold">
+                              🛡️ 100% Vault Ready
+                            </span>
+                          )}
+
                           {candidate.experience_years && (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-violet-50 border border-violet-200 text-violet-700 text-[11px] font-extrabold">
                               {candidate.experience_years} Yrs Exp
@@ -1035,7 +1065,6 @@ export default function EmployerCandidateSearch({
                         ))}
                       </select>
 
-                      {/* Unified 30-Second Progress Notifier Banner */}
                       {isAnalyzingMatch && (
                         <div className="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 flex items-start gap-3 animate-pulse">
                           <div className="w-4 h-4 mt-0.5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin shrink-0" />
@@ -1233,7 +1262,7 @@ export default function EmployerCandidateSearch({
                                 </svg>
                                 <span>
                                   Meets {MIN_MATCH_THRESHOLD}%+ relevance and
-                                  all dealbreakers. Clear to pitch!
+                                  all dealbreakers. Clear to pitch (+150 XP)!
                                 </span>
                               </div>
                             )}

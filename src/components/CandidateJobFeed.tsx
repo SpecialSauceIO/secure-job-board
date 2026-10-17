@@ -12,6 +12,8 @@ import {
   normalizeIndustryVertical,
 } from '@/constants/industries'
 import { normalizeJobEducationReq } from '@/constants/education'
+import { getQuickJobCardRank } from '@/constants/gamification'
+import { RankAndFounderPill } from '@/components/ReputationBadgeCase'
 import {
   Radar,
   RadarChart,
@@ -81,13 +83,11 @@ function extractJobCardMeta(job: any) {
     formattedPay = `Up to ${maxStr} ${unitSuffix}`
   }
 
-  // Normalize pay to annualized USD so $80/hr ($166.4k/yr) sorts accurately against $150k/yr
   const rawMax = Number(job.salary_max) || Number(job.salary_min) || 0
   const rawMin = Number(job.salary_min) || Number(job.salary_max) || 0
   const annualizedMaxPay = payType === 'hourly' ? rawMax * 2080 : rawMax
   const annualizedMinPay = payType === 'hourly' ? rawMin * 2080 : rawMin
 
-  // 30-Day Anti-Harvesting Expiration Calculation
   const baseDateIso =
     job.renewed_at ||
     metaItem.renewed_at ||
@@ -109,6 +109,8 @@ function extractJobCardMeta(job: any) {
   const requiredCertifications =
     job.required_certifications || metaItem.required_certifications || ''
 
+  const rankInfo = getQuickJobCardRank(job)
+
   return {
     formattedPay,
     payType,
@@ -128,6 +130,7 @@ function extractJobCardMeta(job: any) {
     daysRemaining,
     isExpired,
     visibleReqs,
+    rankInfo,
   }
 }
 
@@ -163,7 +166,6 @@ export function CandidateJobFeed({
     setJobList(jobs || [])
   }, [jobs])
 
-  // Load saved bookmarks automatically if not passed by parent page
   useEffect(() => {
     if (externalSavedIds !== undefined) return
     let mounted = true
@@ -298,14 +300,13 @@ export function CandidateJobFeed({
       ...prev,
       [jobId]: {
         type: 'success',
-        text: `Blind Application Submitted (Ref: ${refCode})! Your identity remains hidden until the employer unlocks your profile.`,
+        text: `Blind Application Submitted (+150 XP • Ref: ${refCode})! Your identity remains hidden until the employer unlocks your profile.`,
       },
     }))
 
     setApplyingId(null)
   }
 
-  // Filter out expired roles, apply employment type & industry filters, and sort dynamically
   const sortedAndFilteredJobs = useMemo(() => {
     const freshWithMeta = (jobList || [])
       .map((job) => ({
@@ -453,7 +454,6 @@ export function CandidateJobFeed({
 
           {/* Row 2: Industry Vertical Dropdown + Sort By Dropdown */}
           <div className="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-3">
-            {/* Industry Vertical Filter */}
             <div className="flex items-center gap-2">
               <label
                 htmlFor="candidate-industry-filter"
@@ -476,7 +476,6 @@ export function CandidateJobFeed({
               </select>
             </div>
 
-            {/* Sort By Dropdown */}
             <div className="flex items-center gap-2">
               <label
                 htmlFor="candidate-job-sort"
@@ -552,12 +551,14 @@ export function CandidateJobFeed({
                 isApplied
                   ? 'border-emerald-300 ring-2 ring-emerald-500/10 shadow-md'
                   : isBookmarked
-                  ? 'border-amber-300 shadow-sm'
+                  ? 'border-amber-400 shadow-sm'
+                  : meta.rankInfo.isFounder
+                  ? 'border-amber-200/90 shadow-sm hover:border-indigo-300'
                   : 'border-slate-200 shadow-sm hover:border-indigo-300'
               }`}
             >
               <div className="p-6 md:p-8 space-y-5">
-                {/* Top Row: Anonymous Company Teaser, Bookmark Button, & Compensation Band */}
+                {/* Top Row: Anonymous Company Teaser, Employer Rank/Founder Badge, Bookmark Button, & Compensation Band */}
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-slate-100">
                   <div className="space-y-1.5">
                     <div className="flex flex-wrap items-center gap-2">
@@ -583,6 +584,14 @@ export function CandidateJobFeed({
                           ✓ Domain-Verified Employer
                         </span>
                       )}
+
+                      <RankAndFounderPill
+                        level={meta.rankInfo.level}
+                        tier={meta.rankInfo.tier}
+                        isFounder={meta.rankInfo.isFounder}
+                        founderText="Founding Partner"
+                        size="xs"
+                      />
 
                       {isApplied && (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-600 text-white text-[11px] font-extrabold shadow-sm">
@@ -621,7 +630,7 @@ export function CandidateJobFeed({
                         title={
                           isBookmarked
                             ? 'Remove from saved roles'
-                            : 'Save role for later comparison'
+                            : 'Save role (+35 XP toward Market Radar Operator)'
                         }
                         className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
                           isBookmarked
@@ -881,7 +890,7 @@ export function CandidateJobFeed({
                       </div>
                       <div>
                         <h4 className="text-sm font-extrabold text-emerald-950">
-                          Blind Application Successfully Submitted! (Ref:{' '}
+                          Blind Application Submitted (+150 XP! Ref:{' '}
                           {appliedRef})
                         </h4>
                         <p className="text-xs text-emerald-800 mt-0.5 leading-relaxed">
@@ -932,7 +941,7 @@ export function CandidateJobFeed({
                       : !matchData
                       ? `Step 1: Run a free AI Fit Analysis (${MIN_MATCH_THRESHOLD}%+ match required to submit a blind application • May take up to 30s).`
                       : score >= MIN_MATCH_THRESHOLD
-                      ? '✓ You meet the 40%+ relevance firewall! Your name & contact info stay hidden until unlocked.'
+                      ? '✓ You meet the 40%+ relevance firewall! Submitting awards +150 Profile XP.'
                       : `Requires ${MIN_MATCH_THRESHOLD}%+ AI Match Score to apply (Current: ${score}%).`}
                   </p>
 
@@ -971,7 +980,7 @@ export function CandidateJobFeed({
                               ? 'Complete Stripe Identity verification on your dashboard first'
                               : score < MIN_MATCH_THRESHOLD
                               ? `Minimum ${MIN_MATCH_THRESHOLD}% match required`
-                              : 'Submit anonymous application'
+                              : 'Submit anonymous application (+150 XP)'
                           }
                           className="px-6 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
                         >

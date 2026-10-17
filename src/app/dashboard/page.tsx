@@ -5,6 +5,13 @@ import Link from 'next/link'
 import Stripe from 'stripe'
 import { CandidateJobFeed } from '@/components/CandidateJobFeed'
 import DashboardLiveSync from '@/components/DashboardLiveSync'
+import ReputationBadgeCase, {
+  RankAndFounderPill,
+} from '@/components/ReputationBadgeCase'
+import {
+  calculateCandidateGamification,
+  calculateEmployerGamification,
+} from '@/constants/gamification'
 import {
   setRole,
   resolveEmployerTierInfo,
@@ -261,7 +268,7 @@ export default async function DashboardPage({
   const { savedJobsCount, savedCandidatesCount } = extractBookmarkCounts(profile)
 
   // ============================================================================
-  // STREAMLINED EMPLOYER DASHBOARD (WITH REAL-TIME LIVE SYNC)
+  // STREAMLINED EMPLOYER DASHBOARD (WITH REAL-TIME LIVE SYNC & GAMIFICATION)
   // ============================================================================
   if (profile?.role === 'employer') {
     const { data: member } = await supabase
@@ -293,6 +300,8 @@ export default async function DashboardPage({
     let sentPitchesCount = 0
     let acceptedPitchesCount = 0
     let pitchesUnreadMsgsCount = 0
+    let orgAppsList: any[] = []
+    let orgJobsList: any[] = []
 
     if (member?.organization_id) {
       const { data: allApps } = await supabase
@@ -303,6 +312,7 @@ export default async function DashboardPage({
           status,
           is_revealed,
           initiated_by,
+          match_score,
           match_data,
           jobs!inner (
             organization_id
@@ -311,16 +321,18 @@ export default async function DashboardPage({
         )
         .eq('jobs.organization_id', member.organization_id)
 
-      const orgApps = allApps || []
+      orgAppsList = allApps || []
 
-      const inboundApps = orgApps.filter((app) => app.initiated_by !== 'employer')
+      const inboundApps = orgAppsList.filter(
+        (app) => app.initiated_by !== 'employer'
+      )
       inboundTotalCount = inboundApps.length
       pendingAppsCount = inboundApps.filter((app) => !app.is_revealed).length
       inboundUnreadMsgsCount = inboundApps.filter((app) =>
         hasUnreadThreadMessage(app, 'employer')
       ).length
 
-      const outboundPitches = orgApps.filter(
+      const outboundPitches = orgAppsList.filter(
         (app) => app.initiated_by === 'employer'
       )
       sentPitchesCount = outboundPitches.length
@@ -331,14 +343,22 @@ export default async function DashboardPage({
         hasUnreadThreadMessage(app, 'employer')
       ).length
 
-      const { count: jobsCount } = await supabase
+      const { data: fetchedOrgJobs } = await supabase
         .from('jobs')
-        .select('*', { count: 'exact', head: true })
+        .select('id, is_active, salary_min, salary_max')
         .eq('organization_id', member.organization_id)
-        .eq('is_active', true)
 
-      activeJobsCount = jobsCount || 0
+      orgJobsList = fetchedOrgJobs || []
+      activeJobsCount = orgJobsList.filter(
+        (j: any) => j.is_active !== false
+      ).length
     }
+
+    const employerGamification = calculateEmployerGamification(
+      orgData,
+      orgJobsList,
+      orgAppsList
+    )
 
     const canPostNewJob =
       isOrgVerified &&
@@ -352,9 +372,17 @@ export default async function DashboardPage({
         {/* CALM HERO ROW */}
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Employer Dashboard
-            </h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                Employer Dashboard
+              </h1>
+              <RankAndFounderPill
+                level={employerGamification.level}
+                tier={employerGamification.tier}
+                isFounder={employerGamification.isFounder}
+                founderText="Season 0 Founding Partner"
+              />
+            </div>
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1.5 text-xs font-medium text-slate-500">
               {isOrgVerified ? (
                 <span className="inline-flex items-center gap-1.5 text-emerald-700 font-bold">
@@ -372,14 +400,16 @@ export default async function DashboardPage({
               )}
               <span>·</span>
               <span>
-                {tierInfo.label} ({activeJobsCount}/{tierInfo.maxActiveJobs} Active Roles)
+                {tierInfo.label} ({activeJobsCount}/{tierInfo.maxActiveJobs}{' '}
+                Active Roles)
               </span>
               <span>·</span>
               <Link
                 href="/dashboard/employer/billing"
                 className="text-indigo-600 hover:text-indigo-800 font-bold"
               >
-                {connectionCredits} Pitch {connectionCredits === 1 ? 'Credit' : 'Credits'} Available
+                {connectionCredits} Pitch{' '}
+                {connectionCredits === 1 ? 'Credit' : 'Credits'} Available
               </Link>
             </div>
           </div>
@@ -396,7 +426,9 @@ export default async function DashboardPage({
               >
                 <svg
                   className={`w-3.5 h-3.5 ${
-                    savedCandidatesCount > 0 ? 'text-amber-500 fill-amber-500' : 'text-slate-400'
+                    savedCandidatesCount > 0
+                      ? 'text-amber-500 fill-amber-500'
+                      : 'text-slate-400'
                   }`}
                   fill={savedCandidatesCount > 0 ? 'currentColor' : 'none'}
                   stroke="currentColor"
@@ -635,12 +667,15 @@ export default async function DashboardPage({
             </p>
           </Link>
         </section>
+
+        {/* EMPLOYER REPUTATION, XP LEVEL & SEASON 0 TROPHY CASE */}
+        <ReputationBadgeCase summary={employerGamification} />
       </div>
     )
   }
 
   // ============================================================================
-  // STREAMLINED CANDIDATE VIEW (WITH REAL-TIME LIVE SYNC)
+  // STREAMLINED CANDIDATE VIEW (WITH REAL-TIME LIVE SYNC & GAMIFICATION)
   // ============================================================================
   const isVerified = Boolean(
     profile?.identity_verified === true ||
@@ -654,7 +689,9 @@ export default async function DashboardPage({
 
   const { data: allCandidateApps } = await supabase
     .from('applications')
-    .select('id, job_id, status, is_revealed, initiated_by, match_data')
+    .select(
+      'id, job_id, status, is_revealed, initiated_by, match_score, match_data'
+    )
     .eq('candidate_id', user.id)
 
   const candidateRecords = allCandidateApps || []
@@ -676,6 +713,11 @@ export default async function DashboardPage({
   const unreadPitchMsgsCount = inboundEmployerPitches.filter((a) =>
     hasUnreadThreadMessage(a, 'candidate')
   ).length
+
+  const candidateGamification = calculateCandidateGamification(
+    profile,
+    candidateRecords
+  )
 
   const hasProfileData = !!(profile?.skills && profile?.bio)
 
@@ -732,9 +774,17 @@ export default async function DashboardPage({
       {/* CALM CANDIDATE HERO ROW */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Candidate Dashboard
-          </h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              Candidate Dashboard
+            </h1>
+            <RankAndFounderPill
+              level={candidateGamification.level}
+              tier={candidateGamification.tier}
+              isFounder={candidateGamification.isFounder}
+              founderText="Season 0 Founding Member"
+            />
+          </div>
 
           <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1.5 text-xs font-medium text-slate-500">
             {isVerified ? (
@@ -773,7 +823,9 @@ export default async function DashboardPage({
           >
             <svg
               className={`w-3.5 h-3.5 ${
-                savedJobsCount > 0 ? 'text-amber-500 fill-amber-500' : 'text-slate-400'
+                savedJobsCount > 0
+                  ? 'text-amber-500 fill-amber-500'
+                  : 'text-slate-400'
               }`}
               fill={savedJobsCount > 0 ? 'currentColor' : 'none'}
               stroke="currentColor"
@@ -803,10 +855,10 @@ export default async function DashboardPage({
         <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <h2 className="text-sm font-extrabold text-slate-900">
-              Step 1: Verify Your Identity to Unlock Blind Applications
+              Step 1: Verify Your Identity to Unlock Blind Applications &amp; +500 XP
             </h2>
             <p className="mt-0.5 text-xs text-slate-600">
-              Once verified via Stripe Identity, your 7-Day Early Adopter Trial (3 free blind applications) begins automatically.
+              Once verified via Stripe Identity, your 30-Day Season 0 Founding Member Grant (10 free blind applications + Silver Tier Rank boost) begins automatically.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
@@ -975,6 +1027,9 @@ export default async function DashboardPage({
           </p>
         </Link>
       </section>
+
+      {/* CANDIDATE REPUTATION, XP LEVEL & SEASON 0 TROPHY CASE */}
+      <ReputationBadgeCase summary={candidateGamification} />
 
       {/* RECOMMENDED ROLES SECTION */}
       <section className="pt-6 border-t border-slate-200">
