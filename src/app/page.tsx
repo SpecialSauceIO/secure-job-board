@@ -130,7 +130,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 1 (Slide #2): 30-Day Season 0 Founding Grants */}
+          {/* SLIDE 1 (Slide #2): 30-Day Founding Member Awards */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 1
@@ -140,24 +140,26 @@ export default function LandingPage() {
           >
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
               <span className="text-amber-600">★</span>
-              Season 0 Founding Cohort Now Open • 30-Day Charter Grants
+              Founding Member Launch • Early Adopter Bonus Active
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               30-Day{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-indigo-600">
-                Founding Grants.
+                Founding Member Awards.
               </span>
               <br />
-              Locked-in charter perks.
+              Full access. Lifetime perks.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Join during our initial Season 0 launch window to unlock a{' '}
+              Join during our Founding Member Launch to claim your{' '}
               <strong className="text-slate-700">
-                30-Day Founding Member Grant
+                30-Day Founding Member Reward
               </strong>
-              —including 15 free blind applications for verified Candidates, 30 days of Starter access (5 active role slots + 10 pitch credits) for Domain-Verified Employers, permanent{' '}
-              <strong className="text-slate-700">★ Gold Charter Trim</strong>, a{' '}
-              <strong className="text-slate-700">1.25x XP Rank Boost</strong>, and lifetime Founder&apos;s Rate Locks.
+              —including 15 free blind applications for verified Candidates, 30 days of Starter access ($99 value: 5 active role slots + 10 pitch credits) for Domain-Verified Employers, permanent{' '}
+              <strong className="text-slate-700">
+                ★ Founding Member Gold Trim
+              </strong>
+              , a <strong className="text-slate-700">1.25x XP Rank Boost</strong>, and lifetime Founder&apos;s Rate Locks.
             </p>
           </div>
 
@@ -293,7 +295,7 @@ export default function LandingPage() {
                 ? 'bg-amber-500 w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
-            aria-label="View 30-day Season 0 Founding Grants slide"
+            aria-label="View 30-day Founding Member Awards slide"
           />
           <button
             onClick={() => setCurrentSlide(2)}
@@ -565,19 +567,19 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* SEASON 0 FOUNDING COHORT SPOTLIGHT BANNER */}
+          {/* FOUNDING MEMBER LAUNCH REWARDS BANNER */}
           <div className="mt-20 rounded-3xl bg-slate-900 text-white p-8 sm:p-10 border-2 border-amber-400/80 shadow-xl relative overflow-hidden">
             <div className="absolute inset-0 opacity-15 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-400 via-indigo-900 to-slate-900 pointer-events-none" />
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               <div className="lg:col-span-7 space-y-3">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-300 text-xs font-extrabold uppercase tracking-wider">
-                  ★ Limited-Time Season 0 Founding Cohort Charter
+                  ★ Limited-Time Founding Member Launch Bonus
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-black tracking-tight">
-                  Claim Your 30-Day Founding Grant &amp; Permanent Charter Status
+                  Claim Your 30-Day Founding Member Reward &amp; Lifetime Perks
                 </h3>
                 <p className="text-sm text-slate-300 leading-relaxed">
-                  Early adopters who join during Season 0 unlock 30 days of complimentary platform access, permanent{' '}
+                  Early adopters who join during our Founding Member Launch unlock 30 days of complimentary full access, permanent{' '}
                   <strong className="text-amber-300">
                     ★ Founding Member Gold Card Trim
                   </strong>
@@ -595,7 +597,7 @@ export default function LandingPage() {
                     For Candidates
                   </span>
                   <div className="text-lg font-black text-white">
-                    30 Days Free Grant
+                    30-Day Founder&apos;s Reward
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed">
                     15 Free Outbound Blind Applications + $0 Forever Passive Career Vault + $9/mo Founder&apos;s Rate Lock.
@@ -607,7 +609,7 @@ export default function LandingPage() {
                     For Verified Employers
                   </span>
                   <div className="text-lg font-black text-white">
-                    30 Days Free Starter
+                    30-Day Starter Reward
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed">
                     5 Active Blind Role Slots + 10 Outbound Pitch Credits + 2 Team Seats + Unlimited Free Inbound Unlocks.
@@ -930,7 +932,7 @@ export default function LandingPage() {
               <div className="bg-white p-5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
                   <h4 className="text-sm font-extrabold text-slate-900">
-                    Ready to claim your 30-Day Season 0 Founding Grant?
+                    Ready to claim your 30-Day Founding Member Reward?
                   </h4>
                   <p className="text-xs text-slate-500">
                     Create your free Candidate or Employer account in under two minutes.
