@@ -33,6 +33,8 @@ export const STANDARD_LANGUAGES: string[] = [
   'Italian',
   'Polish',
   'Dutch',
+  'Ukrainian',
+  'Hebrew',
   'Turkish',
   'ASL (American Sign Language)',
 ]
@@ -44,23 +46,32 @@ export const LANGUAGE_MODALITIES: LanguageModality[] = [
 ]
 
 export const LANGUAGE_PROFICIENCIES: LanguageProficiency[] = [
-  'Beginner',
-  'Intermediate',
-  'Advanced',
   'Fluent / Native',
+  'Advanced',
+  'Intermediate',
+  'Beginner',
 ]
 
-export const DEFAULT_ENGLISH_LANGUAGE: LanguageEntry = {
+export const DEFAULT_LANGUAGE_ENTRY: LanguageEntry = {
   language: 'English',
   modality: 'Both (Written & Verbal)',
   proficiency: 'Fluent / Native',
 }
 
+export const DEFAULT_ENGLISH_LANGUAGE: LanguageEntry = DEFAULT_LANGUAGE_ENTRY
+
+const PROFICIENCY_RANK: Record<LanguageProficiency, number> = {
+  Beginner: 1,
+  Intermediate: 2,
+  Advanced: 3,
+  'Fluent / Native': 4,
+}
+
 export function normalizeLanguageName(raw?: string | null): string {
   if (!raw) return 'English'
-  const trimmed = raw.trim()
-  if (!trimmed) return 'English'
-  const lower = trimmed.toLowerCase()
+  const clean = raw.trim()
+  if (!clean) return 'English'
+  const lower = clean.toLowerCase()
 
   if (lower.includes('tagalog') || lower.includes('filipino')) {
     return 'Tagalog / Filipino'
@@ -78,7 +89,7 @@ export function normalizeLanguageName(raw?: string | null): string {
   const exact = STANDARD_LANGUAGES.find((l) => l.toLowerCase() === lower)
   if (exact) return exact
 
-  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
+  return clean.charAt(0).toUpperCase() + clean.slice(1)
 }
 
 export function normalizeLanguageModality(
@@ -87,13 +98,17 @@ export function normalizeLanguageModality(
   if (!raw) return 'Both (Written & Verbal)'
   const lower = raw.toLowerCase().trim()
   if (
-    lower.includes('verbal only') ||
-    lower.includes('spoken only') ||
-    lower === 'verbal'
+    lower.includes('verbal') &&
+    !lower.includes('written') &&
+    !lower.includes('both')
   ) {
     return 'Verbal Only'
   }
-  if (lower.includes('written only') || lower === 'written') {
+  if (
+    lower.includes('written') &&
+    !lower.includes('verbal') &&
+    !lower.includes('both')
+  ) {
     return 'Written Only'
   }
   return 'Both (Written & Verbal)'
@@ -104,62 +119,90 @@ export function normalizeLanguageProficiency(
 ): LanguageProficiency {
   if (!raw) return 'Fluent / Native'
   const lower = raw.toLowerCase().trim()
-  if (lower.includes('begin') || lower.includes('basic') || lower.includes('elementary')) {
+  if (
+    lower.includes('begin') ||
+    lower.includes('basic') ||
+    lower.includes('elementary')
+  ) {
     return 'Beginner'
   }
-  if (lower.includes('interm') || lower.includes('conversational') || lower.includes('limited')) {
+  if (
+    lower.includes('interm') ||
+    lower.includes('conversational') ||
+    lower.includes('working') ||
+    lower.includes('limited')
+  ) {
     return 'Intermediate'
   }
-  if (lower.includes('adv') || lower.includes('professional') || lower.includes('working')) {
+  if (lower.includes('adv') || lower.includes('professional')) {
     return 'Advanced'
   }
   return 'Fluent / Native'
 }
 
-export function sanitizeLanguageArray(
+export function normalizeLanguageList(
   rawList: any,
-  fallbackToDefaultEnglish = true
+  includeEnglishDefault = true
 ): LanguageEntry[] {
-  if (!Array.isArray(rawList) || rawList.length === 0) {
-    return fallbackToDefaultEnglish ? [{ ...DEFAULT_ENGLISH_LANGUAGE }] : []
+  let parsed: any[] = []
+
+  if (Array.isArray(rawList)) {
+    parsed = rawList
+  } else if (typeof rawList === 'string' && rawList.trim()) {
+    try {
+      const maybeJson = JSON.parse(rawList)
+      if (Array.isArray(maybeJson)) {
+        parsed = maybeJson
+      }
+    } catch {
+      parsed = rawList
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((lang) => ({
+          language: lang,
+          modality: 'Both (Written & Verbal)',
+          proficiency: 'Fluent / Native',
+        }))
+    }
   }
 
-  const map = new Map<string, LanguageEntry>()
+  const deduped = new Map<string, LanguageEntry>()
 
-  for (const item of rawList) {
+  for (const item of parsed) {
     if (!item) continue
-    if (typeof item === 'string') {
-      const langName = normalizeLanguageName(item)
-      map.set(langName.toLowerCase(), {
-        language: langName,
-        modality: 'Both (Written & Verbal)',
-        proficiency: 'Fluent / Native',
-      })
-      continue
-    }
+    const rawLang =
+      typeof item === 'string'
+        ? item
+        : item.language || item.name || item.lang || ''
+    if (!rawLang || !String(rawLang).trim()) continue
 
-    if (typeof item === 'object') {
-      const rawName = item.language || item.name || ''
-      if (!rawName || !String(rawName).trim()) continue
-      const langName = normalizeLanguageName(String(rawName))
-      map.set(langName.toLowerCase(), {
-        language: langName,
-        modality: normalizeLanguageModality(item.modality),
-        proficiency: normalizeLanguageProficiency(
-          item.proficiency || item.level
-        ),
-      })
-    }
+    const language = normalizeLanguageName(String(rawLang))
+    const modality = normalizeLanguageModality(
+      typeof item === 'object' ? item.modality || item.type : undefined
+    )
+    const proficiency = normalizeLanguageProficiency(
+      typeof item === 'object' ? item.proficiency || item.level : undefined
+    )
+
+    deduped.set(language.toLowerCase(), {
+      language,
+      modality,
+      proficiency,
+    })
   }
 
-  const result = Array.from(map.values())
-  if (result.length === 0 && fallbackToDefaultEnglish) {
-    return [{ ...DEFAULT_ENGLISH_LANGUAGE }]
+  const result = Array.from(deduped.values())
+  if (result.length === 0 && includeEnglishDefault) {
+    return [{ ...DEFAULT_LANGUAGE_ENTRY }]
   }
   return result
 }
 
-export function formatLanguagePill(entry: LanguageEntry): string {
+// Alias for backward compatibility
+export const sanitizeLanguageArray = normalizeLanguageList
+
+export function formatLanguageBadge(entry: LanguageEntry): string {
   const shortModality =
     entry.modality === 'Both (Written & Verbal)'
       ? 'Written & Verbal'
@@ -169,70 +212,72 @@ export function formatLanguagePill(entry: LanguageEntry): string {
   return `${entry.language} (${shortModality} • ${shortProf})`
 }
 
+// Alias for backward compatibility
+export const formatLanguagePill = formatLanguageBadge
+
 export function formatLanguageListSummary(
-  entries?: LanguageEntry[] | null
+  rawList: any,
+  includeEnglishDefault = true
 ): string {
-  const safe = sanitizeLanguageArray(entries, true)
-  return safe.map(formatLanguagePill).join(', ')
-}
-
-function proficiencyRank(prof: LanguageProficiency): number {
-  switch (prof) {
-    case 'Beginner':
-      return 1
-    case 'Intermediate':
-      return 2
-    case 'Advanced':
-      return 3
-    case 'Fluent / Native':
-      return 4
-    default:
-      return 4
-  }
-}
-
-function modalitySatisfies(
-  candidateModality: LanguageModality,
-  requiredModality: LanguageModality
-): boolean {
-  if (candidateModality === 'Both (Written & Verbal)') return true
-  if (requiredModality === 'Both (Written & Verbal)') {
-    return false
-  }
-  return candidateModality === requiredModality
+  const list = normalizeLanguageList(rawList, includeEnglishDefault)
+  if (list.length === 0) return 'English (Written & Verbal • Fluent)'
+  return list.map(formatLanguageBadge).join(', ')
 }
 
 export function evaluateLanguageRequirements(
-  candidateLanguagesRaw: any,
-  jobRequiredLanguagesRaw: any
+  candidateRawLanguages: any,
+  jobRawRequiredLanguages: any
 ): {
   passes: boolean
   missingDescriptions: string[]
 } {
-  const candidateLangs = sanitizeLanguageArray(candidateLanguagesRaw, true)
-  const requiredLangs = sanitizeLanguageArray(jobRequiredLanguagesRaw, true)
+  const candidateLangs = normalizeLanguageList(candidateRawLanguages, true)
+  const jobReqs = normalizeLanguageList(jobRawRequiredLanguages, true)
 
   const missingDescriptions: string[] = []
 
-  for (const req of requiredLangs) {
-    const match = candidateLangs.find(
+  for (const req of jobReqs) {
+    const matched = candidateLangs.find(
       (c) => c.language.toLowerCase() === req.language.toLowerCase()
     )
 
-    if (!match) {
+    if (!matched) {
       missingDescriptions.push(
         `Requires ${req.language} (${req.modality} • ${req.proficiency})`
       )
       continue
     }
 
-    const profOk =
-      proficiencyRank(match.proficiency) >= proficiencyRank(req.proficiency)
-    const modOk = modalitySatisfies(match.modality, req.modality)
+    const reqRank = PROFICIENCY_RANK[req.proficiency] || 4
+    const candRank = PROFICIENCY_RANK[matched.proficiency] || 4
 
-    if (!profOk || !modOk) {
+    if (candRank < reqRank) {
       missingDescriptions.push(
-        `Requires ${req.language} (${req.modality} • ${req.proficiency}), candidate has (${match.modality} • ${match.proficiency})`
+        `Requires ${req.language} at ${req.proficiency}+ level (Candidate is ${matched.proficiency})`
+      )
+      continue
+    }
+
+    if (
+      req.modality === 'Both (Written & Verbal)' &&
+      matched.modality !== 'Both (Written & Verbal)'
+    ) {
+      missingDescriptions.push(
+        `Requires ${req.language} in Both Written & Verbal (Candidate is ${matched.modality})`
+      )
+    } else if (
+      req.modality === 'Verbal Only' &&
+      matched.modality === 'Written Only'
+    ) {
+      missingDescriptions.push(
+        `Requires Verbal ${req.language} (Candidate is Written Only)`
+      )
+    } else if (
+      req.modality === 'Written Only' &&
+      matched.modality === 'Verbal Only'
+    ) {
+      missingDescriptions.push(
+        `Requires Written ${req.language} (Candidate is Verbal Only)`
       )
     }
   }

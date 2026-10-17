@@ -12,6 +12,11 @@ import {
   normalizeIndustryVertical,
 } from '@/constants/industries'
 import { normalizeJobEducationReq } from '@/constants/education'
+import {
+  STANDARD_LANGUAGES,
+  normalizeLanguageList,
+  formatLanguageBadge,
+} from '@/constants/languages'
 import { getQuickJobCardRank } from '@/constants/gamification'
 import { RankAndFounderPill } from '@/components/ReputationBadgeCase'
 import {
@@ -109,6 +114,11 @@ function extractJobCardMeta(job: any) {
   const requiredCertifications =
     job.required_certifications || metaItem.required_certifications || ''
 
+  const requiredLanguages = normalizeLanguageList(
+    job.required_languages || metaItem.required_languages,
+    true
+  )
+
   const rankInfo = getQuickJobCardRank(job)
 
   return {
@@ -124,6 +134,7 @@ function extractJobCardMeta(job: any) {
     experienceLevel: job.experience_level || metaItem.experience_level || '',
     educationReq,
     requiredCertifications,
+    requiredLanguages,
     industry: normalizedIndustry,
     companySize: job.company_size || metaItem.company_size || '',
     workAuth: job.work_auth || metaItem.work_auth || '',
@@ -152,6 +163,7 @@ export function CandidateJobFeed({
   const [employmentTypeFilter, setEmploymentTypeFilter] =
     useState<string>('all')
   const [industryFilter, setIndustryFilter] = useState<string>('all')
+  const [languageFilter, setLanguageFilter] = useState<string>('all')
   const [internalSavedIds, setInternalSavedIds] = useState<string[]>([])
   const [togglingSaveId, setTogglingSaveId] = useState<string | null>(null)
   const [analyzingId, setAnalyzingId] = useState<string | null>(null)
@@ -332,6 +344,15 @@ export function CandidateJobFeed({
               item.meta.industry.toLowerCase() === industryFilter.toLowerCase()
           )
 
+    const filteredByLanguage =
+      languageFilter === 'all'
+        ? filteredByIndustry
+        : filteredByIndustry.filter((item) =>
+            item.meta.requiredLanguages.some(
+              (l) => l.language.toLowerCase() === languageFilter.toLowerCase()
+            )
+          )
+
     const workModelPriority = (model?: string): number => {
       const m = (model || '').toLowerCase().trim()
       if (m === 'remote') return 1
@@ -340,7 +361,7 @@ export function CandidateJobFeed({
       return 4
     }
 
-    const sorted = [...filteredByIndustry].sort((a, b) => {
+    const sorted = [...filteredByLanguage].sort((a, b) => {
       switch (sortBy) {
         case 'newest':
           return b.meta.startMs - a.meta.startMs
@@ -369,7 +390,13 @@ export function CandidateJobFeed({
     })
 
     return sorted
-  }, [jobList, sortBy, employmentTypeFilter, industryFilter])
+  }, [
+    jobList,
+    sortBy,
+    employmentTypeFilter,
+    industryFilter,
+    languageFilter,
+  ])
 
   const totalFreshCount = useMemo(() => {
     return (jobList || []).filter((j) => !extractJobCardMeta(j).isExpired).length
@@ -411,7 +438,7 @@ export function CandidateJobFeed({
 
   return (
     <div className="space-y-6">
-      {/* SORT, INDUSTRY VERTICAL & WORK TYPE ORGANIZER BAR */}
+      {/* SORT, INDUSTRY VERTICAL, LANGUAGE & WORK TYPE ORGANIZER BAR */}
       {showSortControls && (
         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3.5">
           {/* Row 1: Employment Type Quick Filter Pills + Role Count */}
@@ -452,8 +479,8 @@ export function CandidateJobFeed({
             </span>
           </div>
 
-          {/* Row 2: Industry Vertical Dropdown + Sort By Dropdown */}
-          <div className="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* Row 2: Industry Vertical + Language Requirement + Sort By Dropdown */}
+          <div className="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="flex items-center gap-2">
               <label
                 htmlFor="candidate-industry-filter"
@@ -465,12 +492,34 @@ export function CandidateJobFeed({
                 id="candidate-industry-filter"
                 value={industryFilter}
                 onChange={(e) => setIndustryFilter(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
               >
                 <option value="all">All Industry Verticals</option>
                 {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
                   <option key={vertical} value={vertical}>
                     {vertical}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="candidate-language-filter"
+                className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
+              >
+                Language:
+              </label>
+              <select
+                id="candidate-language-filter"
+                value={languageFilter}
+                onChange={(e) => setLanguageFilter(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
+              >
+                <option value="all">All Languages</option>
+                {STANDARD_LANGUAGES.map((lang) => (
+                  <option key={lang} value={lang}>
+                    🌐 {lang}
                   </option>
                 ))}
               </select>
@@ -487,7 +536,7 @@ export function CandidateJobFeed({
                 id="candidate-job-sort"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
               >
                 <option value="newest">Newest Posted (Freshness)</option>
                 <option value="closing_soon">
@@ -512,17 +561,18 @@ export function CandidateJobFeed({
       {sortedAndFilteredJobs.length === 0 ? (
         <div className="bg-white p-10 rounded-2xl border border-slate-200 text-center shadow-xs">
           <p className="text-sm font-bold text-slate-700 mb-2">
-            No open roles match your selected Work Type or Industry Vertical filter.
+            No open roles match your selected Work Type, Industry Vertical, or Language filter.
           </p>
           <button
             type="button"
             onClick={() => {
               setEmploymentTypeFilter('all')
               setIndustryFilter('all')
+              setLanguageFilter('all')
             }}
             className="px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer"
           >
-            Reset Work Type &amp; Industry Filters →
+            Reset Active Filters →
           </button>
         </div>
       ) : (
@@ -683,7 +733,7 @@ export function CandidateJobFeed({
                   </div>
                 </div>
 
-                {/* Metadata Pills Row: Work Model, Location, Employment Type, Seniority, Education, Certs, Work Auth */}
+                {/* Metadata Pills Row: Work Model, Location, Employment Type, Seniority, Education, Certs, Languages, Work Auth */}
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-100 text-xs font-extrabold capitalize">
                     {job.work_model || 'Flexible'} Work Model
@@ -738,6 +788,15 @@ export function CandidateJobFeed({
                     </span>
                   )}
 
+                  {meta.requiredLanguages.map((langEntry, lIdx) => (
+                    <span
+                      key={`${langEntry.language}-${lIdx}`}
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-teal-50 text-teal-900 border border-teal-200 text-xs font-bold"
+                    >
+                      🌐 {formatLanguageBadge(langEntry)}
+                    </span>
+                  ))}
+
                   {meta.workAuth && (
                     <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-50 text-slate-600 border border-slate-200 text-xs font-semibold">
                       🛡️ {meta.workAuth}
@@ -783,7 +842,7 @@ export function CandidateJobFeed({
                         Analyzing 5-Point AI Fit (This may take up to 30 seconds)...
                       </span>
                       <span className="text-indigo-700 font-medium">
-                        Routing your anonymous skill matrix, education, and certifications across our 3-tier AI matching cascade.
+                        Routing your anonymous skill matrix, education, certifications, and language proficiencies across our 3-tier AI matching cascade.
                       </span>
                     </div>
                   </div>

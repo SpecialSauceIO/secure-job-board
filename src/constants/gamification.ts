@@ -1,4 +1,4 @@
-import { sanitizeLanguageArray } from '@/constants/languages'
+import { normalizeLanguageList } from '@/constants/languages'
 
 export type MetalTierId =
   | 'bronze'
@@ -21,7 +21,6 @@ export interface MetalTierConfig {
   icon: string
 }
 
-// 90-Day Season 0 Founding Window (Through January 31, 2027)
 export const SEASON_0_CUTOFF_ISO = '2027-01-31T23:59:59.000Z'
 export const FOUNDER_XP_MULTIPLIER = 1.25
 
@@ -218,12 +217,6 @@ export function calculateCandidateGamification(
   const prefMeta =
     rawSkills.find((s: any) => s && s._ss_pref_meta === true) || {}
 
-  const candidateLanguages = sanitizeLanguageArray(
-    profile?.languages || prefMeta?.languages,
-    true
-  )
-  const isMultilingual = candidateLanguages.length >= 2
-
   const isVerified = Boolean(
     profile?.identity_verified === true ||
       String(profile?.identity_verified) === 'true' ||
@@ -249,6 +242,18 @@ export function calculateCandidateGamification(
     (profile?.certifications && String(profile.certifications).trim()) ||
       (prefMeta?.certifications && String(prefMeta.certifications).trim())
   )
+
+  const candidateLanguages = normalizeLanguageList(
+    profile?.languages || prefMeta?.languages,
+    true
+  )
+  const isMultilingual =
+    candidateLanguages.length >= 2 &&
+    candidateLanguages.some(
+      (l) =>
+        l.language.toLowerCase() !== 'english' &&
+        (l.proficiency === 'Advanced' || l.proficiency === 'Fluent / Native')
+    )
 
   const hasDealbreakers = Boolean(
     profile?.min_salary_expectation &&
@@ -386,16 +391,27 @@ export function calculateCandidateGamification(
     },
     {
       id: 'certified_specialist',
-      title: 'Verified Credential & Language Pro',
+      title: 'Verified Credential Holder',
       description:
-        'Listed active industry certifications or multilingual fluency for specialized role matching.',
+        'Listed active industry certifications or licenses for specialized role matching.',
       icon: '🏅',
-      unlocked: hasCertifications || isMultilingual,
-      progressText:
-        hasCertifications || isMultilingual
-          ? 'Unlocked (+150 XP)'
-          : 'Add certifications or 2nd language',
+      unlocked: hasCertifications,
+      progressText: hasCertifications
+        ? 'Unlocked (+150 XP)'
+        : 'Add certifications on Profile',
       accentClass: 'bg-cyan-50 text-cyan-900 border-cyan-300',
+    },
+    {
+      id: 'multilingual_specialist',
+      title: 'Multilingual Specialist',
+      description:
+        'Documented proficiency in 2+ languages (with Advanced or Fluent secondary language ability).',
+      icon: '🌐',
+      unlocked: isMultilingual,
+      progressText: isMultilingual
+        ? 'Unlocked (+150 XP)'
+        : 'Add a 2nd language on Profile',
+      accentClass: 'bg-teal-50 text-teal-900 border-teal-300',
     },
     {
       id: 'stage2_veteran',
@@ -466,276 +482,184 @@ export function calculateEmployerGamification(
   applications: any[] = []
 ): GamificationSummary {
   const isDomainVerified = org?.verification_status === 'verified'
-Here are the complete, single-block **`Cmd + A` → `Delete` → `Paste` → `Cmd + S`** files for **Part 1 of the Language Matrix Rollout**:
+  const activeJobs = (jobs || []).filter((j) => j.is_active !== false)
+  const hasPayTransparency = (jobs || []).some(
+    (j) => Number(j.salary_min) > 0 && Number(j.salary_max) > 0
+  )
 
-1. **`src/constants/languages.ts` (New File):** Establishes the standardized business language list, modality options (`Both (Written & Verbal)`, `Verbal Only`, `Written Only`), proficiency levels (`Beginner`, `Intermediate`, `Advanced`, `Fluent / Native`), the automatic **English — Both — Fluent / Native** fallback, dealbreaker evaluation logic (`evaluateLanguageRequirements`), and compact badge formatting.
-2. **`src/constants/gamification.ts` (Full Replacement):** Upgrades the Candidate XP & Trophy Case engine to award **+150 Base XP** and unlock the **`🌐 Multilingual Specialist`** badge whenever a candidate documents 2+ languages (with at least one at `Advanced` or `Fluent / Native`), and exports `isMultilingual` for the anonymous candidate cards.
-3. **`src/app/dashboard/actions.ts` (Full Replacement):** Wires `languages` and `required_languages` into Candidate Profile saving, AI PDF Resume Auto-Fill, AI Job Description PDF Auto-Fill, Job Creation/Updating, the 5-Point AI Match Prompt, and the Employer Outbound Pitch dealbreaker firewall.
+  const sentPitches = (applications || []).filter(
+    (a) => a.initiated_by === 'employer' || Number(org?.total_requests_sent) > 0
+  )
+  const unlockedOrReviewed = (applications || []).filter(
+    (a) =>
+      a.is_revealed === true ||
+      a.status === 'accepted' ||
+      a.status === 'shortlisted' ||
+      a.status === 'rejected'
+  )
+  const messagedThreads = (applications || []).filter(
+    (a) =>
+      Array.isArray(a.match_data?.messages) &&
+      a.match_data.messages.some((m: any) => m.sender_role === 'employer')
+  )
 
----
-
-### 1. Create `src/constants/languages.ts`
-In VS Code, right-click **`src/constants`** → **New File...**, name it **`languages.ts`**, paste this complete file, and press **`Cmd + S`**:
-
-```ts
-export type LanguageModality =
-  | 'Both (Written & Verbal)'
-  | 'Verbal Only'
-  | 'Written Only'
-
-export type LanguageProficiency =
-  | 'Beginner'
-  | 'Intermediate'
-  | 'Advanced'
-  | 'Fluent / Native'
-
-export interface LanguageEntry {
-  language: string
-  modality: LanguageModality
-  proficiency: LanguageProficiency
-}
-
-export const STANDARD_LANGUAGES: string[] = [
-  'English',
-  'Spanish',
-  'Tagalog / Filipino',
-  'Mandarin Chinese',
-  'Cantonese',
-  'French',
-  'German',
-  'Portuguese',
-  'Japanese',
-  'Korean',
-  'Hindi',
-  'Arabic',
-  'Vietnamese',
-  'Russian',
-  'Italian',
-  'Polish',
-  'Dutch',
-  'Ukrainian',
-  'Hebrew',
-  'Turkish',
-  'ASL (American Sign Language)',
-]
-
-export const LANGUAGE_MODALITIES: LanguageModality[] = [
-  'Both (Written & Verbal)',
-  'Verbal Only',
-  'Written Only',
-]
-
-export const LANGUAGE_PROFICIENCIES: LanguageProficiency[] = [
-  'Fluent / Native',
-  'Advanced',
-  'Intermediate',
-  'Beginner',
-]
-
-export const DEFAULT_LANGUAGE_ENTRY: LanguageEntry = {
-  language: 'English',
-  modality: 'Both (Written & Verbal)',
-  proficiency: 'Fluent / Native',
-}
-
-const PROFICIENCY_RANK: Record<LanguageProficiency, number> = {
-  Beginner: 1,
-  Intermediate: 2,
-  Advanced: 3,
-  'Fluent / Native': 4,
-}
-
-export function normalizeLanguageName(raw?: string | null): string {
-  if (!raw) return 'English'
-  const clean = raw.trim()
-  if (!clean) return 'English'
-  const lower = clean.toLowerCase()
-
-  if (lower.includes('tagalog') || lower.includes('filipino')) {
-    return 'Tagalog / Filipino'
+  let baseXp = 200
+  if (isDomainVerified) baseXp += 600
+  if (org?.description && String(org.description).trim().length > 20) {
+    baseXp += 250
   }
-  if (lower.includes('mandarin') || lower === 'chinese') {
-    return 'Mandarin Chinese'
-  }
-  if (lower.includes('asl') || lower.includes('sign language')) {
-    return 'ASL (American Sign Language)'
-  }
+  if (activeJobs.length > 0) baseXp += 350
+  if (hasPayTransparency) baseXp += 250
 
-  const exact = STANDARD_LANGUAGES.find((l) => l.toLowerCase() === lower)
-  if (exact) return exact
+  baseXp += Math.min(activeJobs.length, 15) * 150
+  baseXp +=
+    Math.max(sentPitches.length, Number(org?.total_requests_sent || 0)) * 150
+  baseXp += unlockedOrReviewed.length * 150
+  baseXp += messagedThreads.length * 225
 
-  return clean.charAt(0).toUpperCase() + clean.slice(1)
-}
+  const challenge1Done = isDomainVerified && activeJobs.length >= 1
+  const challenge2Progress = Math.min(
+    3,
+    activeJobs.length +
+      Math.max(sentPitches.length, Number(org?.total_requests_sent || 0))
+  )
+  const challenge2Done = challenge2Progress >= 3
+  const challenge3Progress = Math.min(
+    2,
+    unlockedOrReviewed.length + messagedThreads.length
+  )
+  const challenge3Done = challenge3Progress >= 2
 
-export function normalizeLanguageModality(
-  raw?: string | null
-): LanguageModality {
-  if (!raw) return 'Both (Written & Verbal)'
-  const lower = raw.toLowerCase().trim()
-  if (lower.includes('verbal') && !lower.includes('written') && !lower.includes('both')) {
-    return 'Verbal Only'
-  }
-  if (lower.includes('written') && !lower.includes('verbal') && !lower.includes('both')) {
-    return 'Written Only'
-  }
-  return 'Both (Written & Verbal)'
-}
+  if (challenge1Done) baseXp += 500
+  if (challenge2Done) baseXp += 400
+  if (challenge3Done) baseXp += 600
 
-export function normalizeLanguageProficiency(
-  raw?: string | null
-): LanguageProficiency {
-  if (!raw) return 'Fluent / Native'
-  const lower = raw.toLowerCase().trim()
-  if (lower.includes('begin') || lower.includes('basic') || lower.includes('elementary')) {
-    return 'Beginner'
-  }
-  if (lower.includes('interm') || lower.includes('conversational') || lower.includes('working')) {
-    return 'Intermediate'
-  }
-  if (lower.includes('adv') || lower.includes('professional')) {
-    return 'Advanced'
-  }
-  return 'Fluent / Native'
-}
+  const isFounder = isSeasonZeroFounder(org?.created_at, true)
+  const totalXp = isFounder
+    ? Math.round(baseXp * FOUNDER_XP_MULTIPLIER)
+    : baseXp
 
-export function normalizeLanguageList(
-  rawList: any,
-  includeEnglishDefault = true
-): LanguageEntry[] {
-  let parsed: any[] = []
+  const rankData = resolveTierFromXp(totalXp)
 
-  if (Array.isArray(rawList)) {
-    parsed = rawList
-  } else if (typeof rawList === 'string' && rawList.trim()) {
-    try {
-      const maybeJson = JSON.parse(rawList)
-      if (Array.isArray(maybeJson)) {
-        parsed = maybeJson
-      }
-    } catch {
-      parsed = rawList
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean)
-        .map((lang) => ({
-          language: lang,
-          modality: 'Both (Written & Verbal)',
-          proficiency: 'Fluent / Native',
-        }))
-    }
-  }
+  const badges: EarnedBadgeItem[] = [
+    {
+      id: 'founder_partner',
+      title: 'Season 0 Founding Partner',
+      description:
+        'Charter employer organization in the 90-day Founding Cohort (1.25x XP multiplier + Gold Trim).',
+      icon: '★',
+      unlocked: isFounder,
+      progressText: 'Charter Locked Forever',
+      accentClass: 'bg-amber-50 text-amber-900 border-amber-300',
+    },
+    {
+      id: 'domain_verified_org',
+      title: 'Verified Corporate Domain',
+      description:
+        'Passed corporate domain & DNS verification to guarantee authentic job listings.',
+      icon: '🛡️',
+      unlocked: isDomainVerified,
+      progressText: isDomainVerified
+        ? 'Unlocked (+600 XP)'
+        : 'Verify domain on Company Profile',
+      accentClass: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+    },
+    {
+      id: 'pay_transparency_leader',
+      title: 'Transparent Pay Leader',
+      description:
+        'Published blind role listings with upfront minimum and maximum compensation bands.',
+      icon: '💎',
+      unlocked: hasPayTransparency,
+      progressText: hasPayTransparency
+        ? 'Unlocked (+250 XP)'
+        : 'Post a role with salary/hourly band',
+      accentClass: 'bg-indigo-50 text-indigo-800 border-indigo-300',
+    },
+    {
+      id: 'active_reviewer',
+      title: 'Responsive Hiring Team',
+      description:
+        'Actively unlocked, shortlisted, or messaged candidates in encrypted Stage 1 threads.',
+      icon: '⚡',
+      unlocked:
+        unlockedOrReviewed.length >= 1 ||
+        Number(org?.total_requests_sent || 0) >= 1,
+      progressText:
+        unlockedOrReviewed.length >= 1 ||
+        Number(org?.total_requests_sent || 0) >= 1
+          ? 'Unlocked (+375 XP)'
+          : 'Unlock an applicant or send a pitch',
+      accentClass: 'bg-violet-50 text-violet-800 border-violet-300',
+    },
+  ]
 
-  const deduped = new Map<string, LanguageEntry>()
-
-  for (const item of parsed) {
-    if (!item) continue
-    const rawLang =
-      typeof item === 'string'
-        ? item
-        : item.language || item.name || item.lang || ''
-    if (!rawLang || !String(rawLang).trim()) continue
-
-    const language = normalizeLanguageName(String(rawLang))
-    const modality = normalizeLanguageModality(
-      typeof item === 'object' ? item.modality || item.type : undefined
-    )
-    const proficiency = normalizeLanguageProficiency(
-      typeof item === 'object' ? item.proficiency || item.level : undefined
-    )
-
-    deduped.set(language.toLowerCase(), {
-      language,
-      modality,
-      proficiency,
-    })
-  }
-
-  const result = Array.from(deduped.values())
-  if (result.length === 0 && includeEnglishDefault) {
-    return [{ ...DEFAULT_LANGUAGE_ENTRY }]
-  }
-  return result
-}
-
-export function formatLanguageBadge(entry: LanguageEntry): string {
-  const shortModality =
-    entry.modality === 'Both (Written & Verbal)'
-      ? 'Written & Verbal'
-      : entry.modality
-  const shortProf =
-    entry.proficiency === 'Fluent / Native' ? 'Fluent' : entry.proficiency
-  return `${entry.language} (${shortModality} • ${shortProf})`
-}
-
-export function formatLanguageListSummary(
-  rawList: any,
-  includeEnglishDefault = true
-): string {
-  const list = normalizeLanguageList(rawList, includeEnglishDefault)
-  if (list.length === 0) return 'English (Written & Verbal • Fluent)'
-  return list.map(formatLanguageBadge).join(', ')
-}
-
-export function evaluateLanguageRequirements(
-  candidateRawLanguages: any,
-  jobRawRequiredLanguages: any
-): {
-  passes: boolean
-  missingDescriptions: string[]
-} {
-  const candidateLangs = normalizeLanguageList(candidateRawLanguages, true)
-  const jobReqs = normalizeLanguageList(jobRawRequiredLanguages, true)
-
-  const missingDescriptions: string[] = []
-
-  for (const req of jobReqs) {
-    const matched = candidateLangs.find(
-      (c) => c.language.toLowerCase() === req.language.toLowerCase()
-    )
-
-    if (!matched) {
-      missingDescriptions.push(
-        `Requires ${req.language} (${req.modality} • ${req.proficiency})`
-      )
-      continue
-    }
-
-    const reqRank = PROFICIENCY_RANK[req.proficiency] || 4
-    const candRank = PROFICIENCY_RANK[matched.proficiency] || 4
-
-    if (candRank < reqRank) {
-      missingDescriptions.push(
-        `Requires ${req.language} at ${req.proficiency}+ level (Candidate is ${matched.proficiency})`
-      )
-      continue
-    }
-
-    if (
-      req.modality === 'Both (Written & Verbal)' &&
-      matched.modality !== 'Both (Written & Verbal)'
-    ) {
-      missingDescriptions.push(
-        `Requires ${req.language} in Both Written & Verbal (Candidate is ${matched.modality})`
-      )
-    } else if (
-      req.modality === 'Verbal Only' &&
-      matched.modality === 'Written Only'
-    ) {
-      missingDescriptions.push(
-        `Requires Verbal ${req.language} (Candidate is Written Only)`
-      )
-    } else if (
-      req.modality === 'Written Only' &&
-      matched.modality === 'Verbal Only'
-    ) {
-      missingDescriptions.push(
-        `Requires Written ${req.language} (Candidate is Verbal Only)`
-      )
-    }
-  }
+  const seasonalChallenges: SeasonalChallengeItem[] = [
+    {
+      id: 'emp_s0_launch',
+      title: 'Season 0 Challenge: Verified Hiring Launch',
+      description:
+        'Verify your corporate domain and publish at least 1 active blind role with upfront compensation.',
+      xpReward: 500,
+      current: (isDomainVerified ? 1 : 0) + (activeJobs.length >= 1 ? 1 : 0),
+      target: 2,
+      completed: challenge1Done,
+    },
+    {
+      id: 'emp_s0_outreach',
+      title: 'Season 0 Challenge: Talent Radar & Outreach',
+      description:
+        'Publish active roles or send outbound connection pitches to passive candidates.',
+      xpReward: 400,
+      current: challenge2Progress,
+      target: 3,
+      completed: challenge2Done,
+    },
+    {
+      id: 'emp_s0_engagement',
+      title: 'Season 0 Challenge: Zero-Ghosting Engagement',
+      description:
+        'Unlock, shortlist, or message 2 candidates inside encrypted Stage 1 threads.',
+      xpReward: 600,
+      current: challenge3Progress,
+      target: 2,
+      completed: challenge3Done,
+    },
+  ]
 
   return {
-    passes: missingDescriptions.length === 0,
-    missingDescriptions,
+    role: 'employer',
+    isFounder,
+    founderLabel: 'Season 0 Founding Partner',
+    totalXp,
+    ...rankData,
+    badges,
+    seasonalChallenges,
+  }
+}
+
+export function getQuickCandidateCardRank(candidate: any) {
+  const summary = calculateCandidateGamification(candidate, [])
+  return {
+    isFounder: summary.isFounder,
+    level: summary.level,
+    totalXp: summary.totalXp,
+    tier: summary.tier,
+    isVaultReady:
+      summary.badges.find((b) => b.id === 'vault_ready')?.unlocked || false,
+    isMultilingual:
+      summary.badges.find((b) => b.id === 'multilingual_specialist')
+        ?.unlocked || false,
+  }
+}
+
+export function getQuickJobCardRank(job: any) {
+  const org = job?.organizations || {}
+  const summary = calculateEmployerGamification(org, [job], [])
+  return {
+    isFounder: summary.isFounder,
+    level: summary.level,
+    totalXp: summary.totalXp,
+    tier: summary.tier,
   }
 }

@@ -20,6 +20,13 @@ import {
   CANDIDATE_EDUCATION_LEVELS,
   normalizeCandidateEducation,
 } from '@/constants/education'
+import {
+  LanguageEntry,
+  STANDARD_LANGUAGES,
+  normalizeLanguageList,
+  formatLanguageBadge,
+  evaluateLanguageRequirements,
+} from '@/constants/languages'
 import { getQuickCandidateCardRank } from '@/constants/gamification'
 import { RankAndFounderPill } from '@/components/ReputationBadgeCase'
 
@@ -107,6 +114,19 @@ function getCandidateCertifications(candidate: any): string {
   return metaEntry?.certifications ? String(metaEntry.certifications).trim() : ''
 }
 
+function getCandidateLanguages(candidate: any): LanguageEntry[] {
+  if (Array.isArray(candidate?.languages) && candidate.languages.length > 0) {
+    return normalizeLanguageList(candidate.languages, true)
+  }
+  const rawSkills = Array.isArray(candidate?.structured_skills)
+    ? candidate.structured_skills
+    : []
+  const metaEntry = rawSkills.find(
+    (item: any) => item && item._ss_pref_meta === true
+  )
+  return normalizeLanguageList(metaEntry?.languages, true)
+}
+
 function getJobEmploymentType(job: any): string {
   const rawReqs = Array.isArray(job?.structured_requirements)
     ? job.structured_requirements
@@ -114,6 +134,18 @@ function getJobEmploymentType(job: any): string {
   const metaItem =
     rawReqs.find((r: any) => r && r._ss_job_meta === true) || job?.job_meta || {}
   return job?.employment_type || metaItem?.employment_type || 'Full-Time (W-2)'
+}
+
+function getJobRequiredLanguages(job: any): LanguageEntry[] {
+  const rawReqs = Array.isArray(job?.structured_requirements)
+    ? job.structured_requirements
+    : []
+  const metaItem =
+    rawReqs.find((r: any) => r && r._ss_job_meta === true) || job?.job_meta || {}
+  return normalizeLanguageList(
+    job?.required_languages || metaItem?.required_languages,
+    true
+  )
 }
 
 export default function EmployerCandidateSearch({
@@ -128,6 +160,7 @@ export default function EmployerCandidateSearch({
   const [employmentType, setEmploymentType] = useState('all')
   const [industryFilter, setIndustryFilter] = useState('all')
   const [educationFilter, setEducationFilter] = useState('all')
+  const [languageFilter, setLanguageFilter] = useState('all')
   const [sortBy, setSortBy] = useState<CandidateSortOption>('rank_high')
   const [selectedState, setSelectedState] = useState('')
   const [selectedMetro, setSelectedMetro] = useState('')
@@ -340,6 +373,16 @@ export default function EmployerCandidateSearch({
           return false
         }
       }
+      if (languageFilter !== 'all') {
+        const candLangs = getCandidateLanguages(candidate)
+        if (
+          !candLangs.some(
+            (l) => l.language.toLowerCase() === languageFilter.toLowerCase()
+          )
+        ) {
+          return false
+        }
+      }
       return true
     })
 
@@ -398,6 +441,7 @@ export default function EmployerCandidateSearch({
     employmentType,
     industryFilter,
     educationFilter,
+    languageFilter,
     sortBy,
   ])
 
@@ -425,7 +469,7 @@ export default function EmployerCandidateSearch({
             </svg>
             <input
               type="text"
-              placeholder="Search skills, certifications, or keywords (e.g., Next.js, AWS, PMP, Security+)..."
+              placeholder="Search skills, certifications, languages, or keywords (e.g., Next.js, Spanish, AWS, PMP)..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-sm font-medium text-slate-900 transition-all"
@@ -576,9 +620,9 @@ export default function EmployerCandidateSearch({
           </div>
         </div>
 
-        {/* Bottom Organizer Row: Industry Vertical + Education/Certs Filter + Sort By Dropdown */}
-        <div className="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-          <div className="md:col-span-4 flex items-center gap-2">
+        {/* Bottom Organizer Row: Industry Vertical + Education/Certs + Language + Sort By */}
+        <div className="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-center">
+          <div className="flex items-center gap-2">
             <label
               htmlFor="employer-industry-filter"
               className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
@@ -600,7 +644,7 @@ export default function EmployerCandidateSearch({
             </select>
           </div>
 
-          <div className="md:col-span-4 flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <label
               htmlFor="employer-education-filter"
               className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
@@ -615,7 +659,7 @@ export default function EmployerCandidateSearch({
             >
               <option value="all">All Education &amp; Credentials</option>
               <option value="HAS_CERTS">
-                🏅 Holds Active Industry Certifications
+                🏅 Holds Active Certifications
               </option>
               {CANDIDATE_EDUCATION_LEVELS.map((level) => (
                 <option key={level} value={level}>
@@ -625,7 +669,29 @@ export default function EmployerCandidateSearch({
             </select>
           </div>
 
-          <div className="md:col-span-4 flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="employer-language-filter"
+              className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
+            >
+              Language:
+            </label>
+            <select
+              id="employer-language-filter"
+              value={languageFilter}
+              onChange={(e) => setLanguageFilter(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+            >
+              <option value="all">All Spoken/Written Languages</option>
+              {STANDARD_LANGUAGES.map((lang) => (
+                <option key={lang} value={lang}>
+                  🌐 {lang}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
             <label
               htmlFor="employer-candidate-sort"
               className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
@@ -702,10 +768,11 @@ export default function EmployerCandidateSearch({
             <p className="text-slate-500 text-sm mb-4">
               {onlyShortlisted
                 ? 'Click "Save to Shortlist" on any anonymous candidate card to assemble a comparison pool before pitching.'
-                : 'Try resetting your Industry Vertical, Education, or Employment Type filters.'}
+                : 'Try resetting your Industry Vertical, Education, Language, or Employment Type filters.'}
             </p>
             {(industryFilter !== 'all' ||
               educationFilter !== 'all' ||
+              languageFilter !== 'all' ||
               employmentType !== 'all' ||
               onlyShortlisted) && (
               <button
@@ -713,6 +780,7 @@ export default function EmployerCandidateSearch({
                 onClick={() => {
                   setIndustryFilter('all')
                   setEducationFilter('all')
+                  setLanguageFilter('all')
                   setEmploymentType('all')
                   setOnlyShortlisted(false)
                 }}
@@ -729,6 +797,7 @@ export default function EmployerCandidateSearch({
             const candidateIndustry = getCandidateIndustryVertical(candidate)
             const candidateEdu = getCandidateEducationLevel(candidate)
             const candidateCerts = getCandidateCertifications(candidate)
+            const candidateLanguages = getCandidateLanguages(candidate)
             const rankInfo = getQuickCandidateCardRank(candidate)
 
             const candidateSkillStrings: string[] =
@@ -766,6 +835,8 @@ export default function EmployerCandidateSearch({
             let salaryFails = false
             let modelFails = false
             let empTypeFails = false
+            let langFails = false
+            let langMissingDetails: string[] = []
             let selectedJobEmpType = 'Full-Time (W-2)'
             let scoreFails = false
             let hasDealbreaker = false
@@ -781,6 +852,7 @@ export default function EmployerCandidateSearch({
 
               if (selectedJob) {
                 selectedJobEmpType = getJobEmploymentType(selectedJob)
+                const selectedJobLangs = getJobRequiredLanguages(selectedJob)
 
                 const isHourlyJob =
                   selectedJob.pay_type === 'hourly' ||
@@ -822,6 +894,15 @@ export default function EmployerCandidateSearch({
                   empTypeFails = true
                 }
 
+                const langCheck = evaluateLanguageRequirements(
+                  candidateLanguages,
+                  selectedJobLangs
+                )
+                if (!langCheck.passes) {
+                  langFails = true
+                  langMissingDetails = langCheck.missingDescriptions
+                }
+
                 if (
                   !isAnalyzingMatch &&
                   matchScore !== null &&
@@ -831,7 +912,11 @@ export default function EmployerCandidateSearch({
                 }
 
                 hasDealbreaker =
-                  salaryFails || modelFails || empTypeFails || scoreFails
+                  salaryFails ||
+                  modelFails ||
+                  empTypeFails ||
+                  langFails ||
+                  scoreFails
               }
             }
 
@@ -900,6 +985,12 @@ export default function EmployerCandidateSearch({
                           {rankInfo.isVaultReady && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100/80 text-emerald-900 border border-emerald-300 text-[10px] font-extrabold">
                               🛡️ 100% Vault Ready
+                            </span>
+                          )}
+
+                          {rankInfo.isMultilingual && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-teal-100/80 text-teal-900 border border-teal-300 text-[10px] font-extrabold">
+                              🌐 Multilingual Specialist
                             </span>
                           )}
 
@@ -998,7 +1089,7 @@ export default function EmployerCandidateSearch({
                     </button>
                   </div>
 
-                  {/* Education, Active Certifications & Accepted Employment Types Row */}
+                  {/* Education, Active Certifications, Languages & Accepted Employment Types Row */}
                   <div className="flex flex-wrap items-center gap-1.5 mb-3">
                     {candidateEdu && (
                       <span className="px-2.5 py-0.5 rounded-md bg-sky-50 text-sky-800 border border-sky-200 text-[11px] font-bold">
@@ -1010,6 +1101,14 @@ export default function EmployerCandidateSearch({
                         🏅 Certs: {candidateCerts}
                       </span>
                     )}
+                    {candidateLanguages.map((langEntry, lIdx) => (
+                      <span
+                        key={`${langEntry.language}-${lIdx}`}
+                        className="px-2.5 py-0.5 rounded-md bg-teal-50 text-teal-900 border border-teal-200 text-[11px] font-bold"
+                      >
+                        🌐 {formatLanguageBadge(langEntry)}
+                      </span>
+                    ))}
                     <span className="text-[11px] font-bold text-slate-400 ml-1 mr-0.5">
                       Open to:
                     </span>
@@ -1073,7 +1172,7 @@ export default function EmployerCandidateSearch({
                               Analyzing 5-Point AI Fit (May take up to 30s)...
                             </span>
                             <span className="text-indigo-700 font-medium">
-                              Routing skills, education &amp; certifications across our 3-tier AI matching cascade.
+                              Routing skills, education, certifications &amp; languages across our 3-tier AI matching cascade.
                             </span>
                           </div>
                         </div>
@@ -1216,6 +1315,28 @@ export default function EmployerCandidateSearch({
                                 Dealbreaker: Role is {selectedJobEmpType}, but
                                 candidate only accepts{' '}
                                 {acceptedEmploymentTypes.join(', ')}.
+                              </span>
+                            </div>
+                          )}
+
+                          {langFails && (
+                            <div className="flex items-start gap-1.5 text-rose-600 text-xs font-medium">
+                              <svg
+                                className="w-4 h-4 shrink-0 mt-0.5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                ></path>
+                              </svg>
+                              <span>
+                                Dealbreaker (Language):{' '}
+                                {langMissingDetails.join('; ')}.
                               </span>
                             </div>
                           )}
