@@ -4,29 +4,51 @@ import { useState } from 'react'
 import {
   saveOrganizationProfile,
   verifyOrganizationDomain,
-  toggleSandboxDomainVerification
+  toggleSandboxDomainVerification,
 } from '@/app/dashboard/actions'
+import {
+  STANDARD_INDUSTRY_VERTICALS,
+  normalizeIndustryVertical,
+} from '@/constants/industries'
+
+const COMPANY_SIZE_OPTIONS = [
+  'Seed / Startup (1–50 Employees)',
+  'Growth (50–250 Employees)',
+  'Mid-Market (250–1,000 Employees)',
+  'Enterprise (1,000+ Employees)',
+]
 
 export default function EmployerOrganizationForm({
   initialOrg,
-  userEmail
+  userEmail,
 }: {
   initialOrg: any
   userEmail: string
 }) {
   const [name, setName] = useState(initialOrg?.name || '')
   const [domain, setDomain] = useState(initialOrg?.domain || '')
+  const [industryVertical, setIndustryVertical] = useState(
+    initialOrg?.industry_vertical
+      ? normalizeIndustryVertical(initialOrg.industry_vertical)
+      : 'Technology, Software & SaaS'
+  )
+  const [companySize, setCompanySize] = useState(
+    initialOrg?.company_size || 'Growth (50–250 Employees)'
+  )
   const [description, setDescription] = useState(initialOrg?.description || '')
   const [logoUrl, setLogoUrl] = useState(initialOrg?.logo_url || '')
-  const [verificationStatus, setVerificationStatus] = useState<'verified' | 'pending'>(
-    initialOrg?.verification_status === 'verified' ? 'verified' : 'pending'
-  )
+  const [verificationStatus, setVerificationStatus] = useState<
+    'verified' | 'pending'
+  >(initialOrg?.verification_status === 'verified' ? 'verified' : 'pending')
   const [orgId, setOrgId] = useState<string | null>(initialOrg?.id || null)
 
   const [isSaving, setIsSaving] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
   const [showDnsInstructions, setShowDnsInstructions] = useState(false)
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [feedback, setFeedback] = useState<{
+    type: 'success' | 'error'
+    text: string
+  } | null>(null)
 
   const userEmailDomain = (userEmail.split('@')[1] || '').toLowerCase().trim()
   const cleanedDomain = domain
@@ -36,7 +58,9 @@ export default function EmployerOrganizationForm({
     .replace(/^www\./i, '')
     .split('/')[0]
 
-  const isEmailMatchingDomain = Boolean(cleanedDomain && userEmailDomain === cleanedDomain)
+  const isEmailMatchingDomain = Boolean(
+    cleanedDomain && userEmailDomain === cleanedDomain
+  )
   const dnsTxtToken = `special-sauce-verification=${(orgId || 'org').split('-')[0]}`
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -44,10 +68,19 @@ export default function EmployerOrganizationForm({
     setIsSaving(true)
     setFeedback(null)
 
+    const cleanDescText = description
+      .replace(/\s*\[IND:[^\]]*\]/gi, '')
+      .replace(/\s*\[SIZE:[^\]]*\]/gi, '')
+      .trim()
+
+    const encodedDescription = `${cleanDescText} [IND:${industryVertical}] [SIZE:${companySize}]`.trim()
+
     const formData = new FormData()
     formData.append('name', name)
     formData.append('domain', domain)
-    formData.append('description', description)
+    formData.append('industry_vertical', industryVertical)
+    formData.append('company_size', companySize)
+    formData.append('description', encodedDescription)
     formData.append('logo_url', logoUrl)
 
     const result = await saveOrganizationProfile(formData)
@@ -56,9 +89,14 @@ export default function EmployerOrganizationForm({
       setFeedback({ type: 'error', text: result.error })
     } else if (result?.success) {
       setDomain(result.domain || '')
-      setVerificationStatus(result.verification_status === 'verified' ? 'verified' : 'pending')
+      setVerificationStatus(
+        result.verification_status === 'verified' ? 'verified' : 'pending'
+      )
       if (result.organizationId) setOrgId(result.organizationId)
-      setFeedback({ type: 'success', text: result.message || 'Company profile saved!' })
+      setFeedback({
+        type: 'success',
+        text: result.message || 'Company profile saved!',
+      })
     }
 
     setIsSaving(false)
@@ -75,7 +113,10 @@ export default function EmployerOrganizationForm({
     } else if (result?.success) {
       setDomain(result.domain || domain)
       setVerificationStatus('verified')
-      setFeedback({ type: 'success', text: result.message || 'Domain verified!' })
+      setFeedback({
+        type: 'success',
+        text: result.message || 'Domain verified!',
+      })
     }
 
     setIsVerifying(false)
@@ -91,7 +132,10 @@ export default function EmployerOrganizationForm({
       setFeedback({ type: 'error', text: result.error })
     } else if (result?.success) {
       setVerificationStatus(target)
-      setFeedback({ type: 'success', text: result.message || 'Status updated!' })
+      setFeedback({
+        type: 'success',
+        text: result.message || 'Status updated!',
+      })
     }
 
     setIsVerifying(false)
@@ -99,7 +143,6 @@ export default function EmployerOrganizationForm({
 
   return (
     <div className="space-y-8">
-      
       {/* DOMAIN VERIFICATION HUB CARD */}
       <div
         className={`p-6 md:p-8 rounded-2xl border shadow-sm transition-all ${
@@ -118,12 +161,32 @@ export default function EmployerOrganizationForm({
               }`}
             >
               {verificationStatus === 'verified' ? (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2.5"
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               ) : (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  />
                 </svg>
               )}
             </div>
@@ -132,7 +195,9 @@ export default function EmployerOrganizationForm({
               <div className="flex flex-wrap items-center gap-2.5">
                 <h3
                   className={`text-lg font-extrabold ${
-                    verificationStatus === 'verified' ? 'text-emerald-950' : 'text-amber-950'
+                    verificationStatus === 'verified'
+                      ? 'text-emerald-950'
+                      : 'text-amber-950'
                   }`}
                 >
                   {verificationStatus === 'verified'
@@ -153,12 +218,16 @@ export default function EmployerOrganizationForm({
 
               <p
                 className={`text-sm mt-1 leading-relaxed ${
-                  verificationStatus === 'verified' ? 'text-emerald-800' : 'text-amber-800'
+                  verificationStatus === 'verified'
+                    ? 'text-emerald-800'
+                    : 'text-amber-800'
                 }`}
               >
                 {verificationStatus === 'verified'
-                  ? `Your organization domain (${cleanedDomain || 'company domain'}) is verified. The "✓ Verified Company" trust badge now appears on all of your blind job listings and outbound candidate pitches.`
-                  : 'Verify your corporate domain via work-email match + live DNS check or DNS TXT record to unlock the "✓ Verified Company" badge on your job listings.'}
+                  ? `Your organization domain (${
+                      cleanedDomain || 'company domain'
+                    }) is verified. The "✓ Verified Company" trust badge and your Primary Industry Vertical (${industryVertical}) now power your blind job listings and outbound candidate pitches.`
+                  : 'Verify your corporate domain via work-email match + live DNS check or DNS TXT record to unlock the "✓ Verified Company" badge and your 30-Day Season 0 Founding Partner Grant.'}
               </p>
             </div>
           </div>
@@ -170,7 +239,7 @@ export default function EmployerOrganizationForm({
                 type="button"
                 disabled={isVerifying || !orgId}
                 onClick={handleVerifyDomain}
-                className="px-5 py-2.5 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-indigo-600 transition-colors shadow-sm disabled:opacity-50"
+                className="px-5 py-2.5 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-indigo-600 transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
               >
                 {isVerifying ? 'Checking DNS & Email...' : 'Verify Domain Now'}
               </button>
@@ -179,7 +248,7 @@ export default function EmployerOrganizationForm({
                 type="button"
                 disabled={isVerifying}
                 onClick={() => handleSandboxToggle('pending')}
-                className="px-4 py-2 bg-white text-slate-600 border border-slate-200 text-xs font-bold rounded-xl hover:bg-slate-100 transition-colors"
+                className="px-4 py-2 bg-white text-slate-600 border border-slate-200 text-xs font-bold rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 Reset to Pending
               </button>
@@ -191,7 +260,8 @@ export default function EmployerOrganizationForm({
         <div className="mt-5 pt-5 border-t border-black/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
           <div className="flex flex-wrap items-center gap-3">
             <span className="font-bold text-slate-700">
-              Logged-in Email: <span className="text-indigo-700">{userEmail}</span>
+              Logged-in Email:{' '}
+              <span className="text-indigo-700">{userEmail}</span>
             </span>
             {cleanedDomain && (
               <span
@@ -212,9 +282,11 @@ export default function EmployerOrganizationForm({
             <button
               type="button"
               onClick={() => setShowDnsInstructions(!showDnsInstructions)}
-              className="font-bold text-indigo-700 hover:text-indigo-900 underline"
+              className="font-bold text-indigo-700 hover:text-indigo-900 underline cursor-pointer"
             >
-              {showDnsInstructions ? 'Hide DNS TXT Instructions' : 'Verify via DNS TXT Record'}
+              {showDnsInstructions
+                ? 'Hide DNS TXT Instructions'
+                : 'Verify via DNS TXT Record'}
             </button>
 
             {verificationStatus !== 'verified' && orgId && (
@@ -222,7 +294,7 @@ export default function EmployerOrganizationForm({
                 type="button"
                 disabled={isVerifying}
                 onClick={() => handleSandboxToggle('verified')}
-                className="px-3 py-1.5 rounded-lg bg-white/90 border border-amber-300 text-amber-900 font-bold hover:bg-white transition-colors shadow-sm"
+                className="px-3 py-1.5 rounded-lg bg-white/90 border border-amber-300 text-amber-900 font-bold hover:bg-white transition-colors shadow-sm cursor-pointer"
               >
                 ⚡ Sandbox: Simulate Verified
               </button>
@@ -237,9 +309,14 @@ export default function EmployerOrganizationForm({
               Alternative Method: DNS TXT Record Ownership Verification
             </p>
             <p className="text-slate-600">
-              If your login email (<span className="font-mono">{userEmail}</span>) uses a different domain than{' '}
-              <span className="font-mono font-bold">{cleanedDomain || 'your-company.com'}</span>, add the following{' '}
-              <strong>TXT</strong> record to your domain&apos;s DNS settings and click <strong>Verify Domain Now</strong>:
+              If your login email (<span className="font-mono">{userEmail}</span>
+              ) uses a different domain than{' '}
+              <span className="font-mono font-bold">
+                {cleanedDomain || 'your-company.com'}
+              </span>
+              , add the following <strong>TXT</strong> record to your
+              domain&apos;s DNS settings and click{' '}
+              <strong>Verify Domain Now</strong>:
             </p>
             <div className="p-3 rounded-lg bg-slate-900 text-emerald-400 font-mono text-xs flex items-center justify-between gap-2 overflow-x-auto">
               <span>{dnsTxtToken}</span>
@@ -267,13 +344,16 @@ export default function EmployerOrganizationForm({
         className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6"
       >
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Organization Details</h2>
+          <h2 className="text-xl font-bold text-slate-900">
+            Organization Details
+          </h2>
           <p className="text-sm text-slate-500 mt-1">
-            Your company name and description remain hidden on blind job listings until a mutual connection is unlocked.
+            Your company name and description remain hidden on blind job listings until a mutual connection is unlocked, while your Primary Industry Vertical and Company Stage power your anonymous role teasers.
           </p>
         </div>
 
         <div className="space-y-5 rounded-xl bg-slate-50 p-6 border border-slate-100">
+          {/* Row 1: Company Name & Corporate Domain */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-1.5">
@@ -308,7 +388,53 @@ export default function EmployerOrganizationForm({
             </div>
           </div>
 
-          <div>
+          {/* Row 2: Primary Industry Vertical & Company Stage / Size */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-3 border-t border-slate-200/70">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1.5">
+                Primary Industry Vertical
+              </label>
+              <select
+                name="industry_vertical"
+                value={industryVertical}
+                onChange={(e) => setIndustryVertical(e.target.value)}
+                className="block w-full rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium cursor-pointer"
+              >
+                {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
+                  <option key={vertical} value={vertical}>
+                    {vertical}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[11px] text-slate-500 mt-1">
+                Shown as your anonymous company teaser on blind job cards (e.g., &ldquo;Blind Role • {industryVertical}&rdquo;).
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1.5">
+                Company Stage / Size
+              </label>
+              <select
+                name="company_size"
+                value={companySize}
+                onChange={(e) => setCompanySize(e.target.value)}
+                className="block w-full rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium cursor-pointer"
+              >
+                {COMPANY_SIZE_OPTIONS.map((sizeOpt) => (
+                  <option key={sizeOpt} value={sizeOpt}>
+                    {sizeOpt}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[11px] text-slate-500 mt-1">
+                Helps candidates understand your organization scale before unlocking.
+              </p>
+            </div>
+          </div>
+
+          {/* Row 3: Company Description */}
+          <div className="pt-3 border-t border-slate-200/70">
             <label className="block text-sm font-bold text-slate-700 mb-1">
               Company Description
             </label>
@@ -320,11 +446,12 @@ export default function EmployerOrganizationForm({
               rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="What does your company build, and what makes your engineering or product culture unique?"
+              placeholder="What does your company build, and what makes your team or culture unique?"
               className="block w-full rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm"
             />
           </div>
 
+          {/* Row 4: Logo URL */}
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-1.5">
               Logo URL (Optional)
@@ -344,13 +471,12 @@ export default function EmployerOrganizationForm({
           <button
             type="submit"
             disabled={isSaving}
-            className="rounded-xl bg-slate-900 px-8 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-600 transition-colors disabled:opacity-50"
+            className="rounded-xl bg-slate-900 px-8 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-600 transition-colors disabled:opacity-50 cursor-pointer"
           >
             {isSaving ? 'Saving & Checking Domain...' : 'Save Company Profile'}
           </button>
         </div>
       </form>
-
     </div>
   )
 }

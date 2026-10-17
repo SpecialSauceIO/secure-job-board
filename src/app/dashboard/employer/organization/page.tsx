@@ -8,8 +8,38 @@ import {
   stripTierTag,
   getOrganizationSeats,
 } from '@/app/dashboard/actions'
+import { normalizeIndustryVertical } from '@/constants/industries'
 
 export const dynamic = 'force-dynamic'
+
+function extractOrgIndustryAndSize(rawDescription?: string | null): {
+  industry_vertical: string
+  company_size: string
+  cleanDescription: string
+} {
+  const raw = rawDescription || ''
+  const indMatch = raw.match(/\[IND:([^\]]+)\]/i)
+  const sizeMatch = raw.match(/\[SIZE:([^\]]+)\]/i)
+
+  const extractedIndustry = indMatch?.[1]
+    ? normalizeIndustryVertical(indMatch[1].trim())
+    : 'Technology, Software & SaaS'
+
+  const extractedSize = sizeMatch?.[1]
+    ? sizeMatch[1].trim()
+    : 'Growth (50–250 Employees)'
+
+  const cleanDescription = raw
+    .replace(/\s*\[IND:[^\]]*\]/gi, '')
+    .replace(/\s*\[SIZE:[^\]]*\]/gi, '')
+    .trim()
+
+  return {
+    industry_vertical: extractedIndustry,
+    company_size: extractedSize,
+    cleanDescription,
+  }
+}
 
 export default async function EmployerOrganizationPage() {
   const supabase = await createClient()
@@ -46,9 +76,18 @@ export default async function EmployerOrganizationPage() {
 
     if (orgData) {
       rawOrgData = orgData
+      const strippedTierAndSeats = await stripTierTag(orgData.description)
+      const { industry_vertical, company_size, cleanDescription } =
+        extractOrgIndustryAndSize(strippedTierAndSeats)
+
       cleanOrgForForm = {
         ...orgData,
-        description: await stripTierTag(orgData.description),
+        industry_vertical:
+          orgData.industry_vertical ||
+          orgData.industry ||
+          industry_vertical,
+        company_size: orgData.company_size || company_size,
+        description: cleanDescription,
       }
     }
   }
@@ -81,10 +120,10 @@ export default async function EmployerOrganizationPage() {
             Back to Employer Dashboard
           </Link>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            Company Profile & Domain Verification
+            Company Profile &amp; Domain Verification
           </h1>
           <p className="text-slate-500 mt-1">
-            Verify your corporate domain and manage delegated seats for internal hiring managers and W-2 BPO partners.
+            Verify your corporate domain, configure your Primary Industry Vertical, and manage delegated seats for internal hiring managers and W-2 BPO partners.
           </p>
         </header>
 
