@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   revealProfile,
   updateInboundApplicationDecision,
@@ -11,6 +11,8 @@ import {
   normalizeCandidateEducation,
   normalizeJobEducationReq,
 } from '@/constants/education'
+import { getQuickCandidateCardRank } from '@/constants/gamification'
+import { RankAndFounderPill } from '@/components/ReputationBadgeCase'
 import {
   Radar,
   RadarChart,
@@ -29,481 +31,505 @@ function maskFirstInitial(fullName?: string | null): string {
 }
 
 export function ApplicationRevealCard({
-  application,
-  onStatusChange,
+  app,
+  onStatusUpdated,
 }: {
-  application: any
-  onStatusChange?: (
-    appId: string,
-    newNormalizedStatus: 'unrevealed' | 'unlocked' | 'shortlisted' | 'rejected'
+  app: any
+  onStatusUpdated?: (
+    applicationId: string,
+    newStatus: 'unrevealed' | 'unlocked' | 'shortlisted' | 'rejected'
   ) => void
 }) {
   const [isRevealed, setIsRevealed] = useState<boolean>(
-    Boolean(application.is_revealed)
+    Boolean(
+      app?.is_revealed ||
+        app?.normalized_status === 'unlocked' ||
+        app?.normalized_status === 'shortlisted'
+    )
   )
-  const [isRevealing, setIsRevealing] = useState(false)
-  const [revealError, setRevealError] = useState<string | null>(null)
-  const [decisionStatus, setDecisionStatus] = useState<
+  const [status, setStatus] = useState<
     'unrevealed' | 'unlocked' | 'shortlisted' | 'rejected'
   >(
-    application.normalized_status ||
-      (application.status === 'rejected'
+    app?.normalized_status ||
+      (app?.status === 'rejected'
         ? 'rejected'
-        : application.status === 'accepted' ||
-          application.match_data?.employer_decision === 'shortlisted'
+        : app?.status === 'accepted' || app?.status === 'shortlisted'
         ? 'shortlisted'
-        : application.is_revealed
+        : app?.is_revealed
         ? 'unlocked'
         : 'unrevealed')
   )
-  const [isUpdatingDecision, setIsUpdatingDecision] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [showRadar, setShowRadar] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
-  const profile = application.profiles
-  const job = application.jobs || {}
-  const vaultReleased = Boolean(
-    application.match_data?.candidate_vault_released === true
+  const [unlockedName, setUnlockedName] = useState<string | null>(
+    app?.unlocked_candidate_name || app?.profiles?.full_name || null
   )
-  const threadMessages = Array.isArray(application.match_data?.messages)
-    ? application.match_data.messages
-    : []
-
-  const rawFullName =
-    application.unlocked_candidate_name ||
-    profile?.full_name ||
-    profile?.name ||
-    application.match_data?.candidate_full_name ||
-    'Verified Candidate'
-
-  const [candidateName, setCandidateName] = useState<string>(rawFullName)
-  const [candidateEmail, setCandidateEmail] = useState<string | null>(
-    application.unlocked_candidate_email ||
-      application.match_data?.candidate_contact_email ||
-      profile?.contact_email ||
-      profile?.email ||
-      null
+  const [unlockedEmail, setUnlockedEmail] = useState<string | null>(
+    app?.unlocked_candidate_email || null
+  )
+  const [unlockedResumeUrl, setUnlockedResumeUrl] = useState<string | null>(
+    app?.profiles?.resume_url || null
   )
 
-  const stageAwareDisplayName = vaultReleased
-    ? candidateName
-    : maskFirstInitial(candidateName)
+  useEffect(() => {
+    setIsRevealed(
+      Boolean(
+        app?.is_revealed ||
+          app?.normalized_status === 'unlocked' ||
+          app?.normalized_status === 'shortlisted'
+      )
+    )
+    if (app?.normalized_status) {
+      setStatus(app.normalized_status)
+    }
+    if (app?.unlocked_candidate_name) {
+      setUnlockedName(app.unlocked_candidate_name)
+    }
+    if (app?.unlocked_candidate_email) {
+      setUnlockedEmail(app.unlocked_candidate_email)
+    }
+    if (app?.profiles?.resume_url) {
+      setUnlockedResumeUrl(app.profiles.resume_url)
+    }
+  }, [app])
+
+  const candidate = app?.profiles || {}
+  const job = app?.jobs || {}
+
+  const displayId = String(app?.candidate_id || candidate?.id || 'ANON')
+    .split('-')[0]
+    .toUpperCase()
 
   const referenceId =
-    application.reference_id ||
-    application.match_data?.reference_id ||
-    `SS-${(application.id || '')
+    app?.reference_id ||
+    `SS-${String(app?.id || '')
       .replace(/-/g, '')
       .substring(0, 8)
       .toUpperCase()}`
 
-  const isCandidateVerified = Boolean(
-    profile?.identity_verified === true ||
-      profile?.is_verified === true ||
-      profile?.verification_status === 'verified'
+  const matchScore =
+    app?.match_score ?? app?.match_data?.overall_score ?? null
+  const radarData = app?.match_data?.radar_data || null
+  const briefAnalysis =
+    app?.match_data?.brief_analysis ||
+    app?.employer_pitch ||
+    'Candidate profile evaluated against role requirements.'
+
+  const vaultReleased = Boolean(
+    app?.match_data?.candidate_vault_released === true
   )
+  const threadMessages = Array.isArray(app?.match_data?.messages)
+    ? app.match_data.messages
+    : []
 
-  // Extract Candidate Industry, Education & Active Certifications
-  const candidateIndustry = profile?.industry_vertical
-    ? normalizeIndustryVertical(profile.industry_vertical)
-    : ''
-  const candidateEducation = profile?.education_level
-    ? normalizeCandidateEducation(profile.education_level)
-    : ''
-  const candidateCertifications = profile?.certifications
-    ? String(profile.certifications).trim()
+  const rawCandidateIndustry =
+    candidate?.industry_vertical ||
+    job?.industry ||
+    job?.job_meta?.industry ||
+    ''
+  const candidateIndustry = rawCandidateIndustry
+    ? normalizeIndustryVertical(rawCandidateIndustry)
     : ''
 
-  // Extract Applied Role Education & Target Certifications for quick comparison
+  const candidateEducation = candidate?.education_level
+    ? normalizeCandidateEducation(candidate.education_level)
+    : ''
+  const candidateCertifications = candidate?.certifications
+    ? String(candidate.certifications).trim()
+    : ''
   const jobEducationReq =
-    job.education_req || job.job_meta?.education_req
+    job?.education_req || job?.job_meta?.education_req
       ? normalizeJobEducationReq(
           job.education_req || job.job_meta?.education_req
         )
       : ''
-  const jobRequiredCerts =
-    job.required_certifications || job.job_meta?.required_certifications || ''
 
-  const executivePitch = application.employer_pitch
-    ? application.employer_pitch.replace(
-        /\[CANDIDATE_NAME\]/gi,
-        stageAwareDisplayName
-      )
-    : null
+  const rankInfo = getQuickCandidateCardRank(candidate)
 
-  const handleReveal = async () => {
-    setIsRevealing(true)
-    setRevealError(null)
+  const candidateSkills: string[] =
+    Array.isArray(candidate?.structured_skills) &&
+    candidate.structured_skills.length > 0
+      ? candidate.structured_skills
+          .filter((s: any) => !(s && (s._ss_meta || s._ss_pref_meta)))
+          .map((s: any) =>
+            typeof s === 'string' ? s : s.skill || s.name || ''
+          )
+          .filter((str: string) => str && !String(str).startsWith('__SS_'))
+      : typeof candidate?.skills === 'string'
+      ? candidate.skills
+          .split(',')
+          .map((s: string) => s.trim())
+          .filter(Boolean)
+      : []
+
+  const isCandidateVerified = Boolean(
+    candidate?.identity_verified === true ||
+      String(candidate?.identity_verified) === 'true' ||
+      candidate?.is_verified === true ||
+      String(candidate?.is_verified) === 'true' ||
+      candidate?.verification_status === 'verified' ||
+      candidate?.verification_status === 'approved'
+  )
+
+  const stageAwareDisplayName = isRevealed
+    ? vaultReleased
+      ? unlockedName ||
+        app?.match_data?.candidate_full_name ||
+        `Verified Candidate #${displayId}`
+      : maskFirstInitial(
+          unlockedName ||
+            app?.match_data?.candidate_full_name ||
+            `Verified Candidate #${displayId}`
+        )
+    : `Anonymous Applicant #${displayId}`
+
+  const handleUnlock = async () => {
+    setIsProcessing(true)
+    setErrorMsg(null)
+
     const formData = new FormData()
-    formData.append('application_id', application.id)
-    const result: any = await revealProfile(formData)
+    formData.append('application_id', app.id)
 
-    if (result?.error) {
-      setRevealError(result.error)
-      setIsRevealing(false)
+    const res: any = await revealProfile(formData)
+    if (res?.error) {
+      setErrorMsg(res.error)
+      setIsProcessing(false)
       return
     }
 
-    if (result?.candidate_contact_email) {
-      setCandidateEmail(result.candidate_contact_email)
-    }
-    if (result?.candidate_full_name) {
-      setCandidateName(result.candidate_full_name)
-    }
     setIsRevealed(true)
-    if (decisionStatus === 'unrevealed') {
-      setDecisionStatus('unlocked')
-      onStatusChange?.(application.id, 'unlocked')
-    }
-    setIsRevealing(false)
+    setStatus('unlocked')
+    if (res?.candidate_full_name) setUnlockedName(res.candidate_full_name)
+    if (res?.candidate_contact_email)
+      setUnlockedEmail(res.candidate_contact_email)
+    if (res?.resume_url) setUnlockedResumeUrl(res.resume_url)
+
+    onStatusUpdated?.(app.id, 'unlocked')
+    setIsProcessing(false)
   }
 
   const handleDecision = async (
     decision: 'shortlisted' | 'rejected' | 'unlocked'
   ) => {
-    setIsUpdatingDecision(true)
-    setRevealError(null)
-    const result = await updateInboundApplicationDecision(
-      application.id,
-      decision
-    )
-    if (result?.error) {
-      setRevealError(result.error)
-    } else {
-      setDecisionStatus(decision)
-      setIsRevealed(true)
-      onStatusChange?.(application.id, decision)
+    setIsProcessing(true)
+    setErrorMsg(null)
+
+    const res: any = await updateInboundApplicationDecision(app.id, decision)
+    if (res?.error) {
+      setErrorMsg(res.error)
+      setIsProcessing(false)
+      return
     }
-    setIsUpdatingDecision(false)
+
+    setStatus(decision)
+    if (decision === 'shortlisted' || decision === 'unlocked') {
+      setIsRevealed(true)
+    }
+    onStatusUpdated?.(app.id, decision)
+    setIsProcessing(false)
   }
 
   return (
     <div
-      className={`p-6 md:p-8 rounded-2xl border transition-all shadow-sm bg-white ${
-        decisionStatus === 'shortlisted'
-          ? 'border-emerald-400 ring-4 ring-emerald-50'
-          : decisionStatus === 'rejected'
-          ? 'border-slate-200 opacity-85'
-          : isRevealed
-          ? 'border-indigo-300 ring-4 ring-indigo-50/50'
-          : 'border-slate-200 hover:shadow-md'
+      className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all ${
+        status === 'shortlisted'
+          ? 'border-emerald-300 ring-2 ring-emerald-50'
+          : status === 'unlocked'
+          ? 'border-indigo-300 ring-1 ring-indigo-50'
+          : status === 'rejected'
+          ? 'border-slate-200 opacity-80'
+          : rankInfo.isFounder
+          ? 'border-amber-300/90 hover:border-indigo-300'
+          : 'border-slate-200 hover:border-indigo-200'
       }`}
     >
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-100">
-        <div>
+      <div className="p-6 md:p-8 space-y-5">
+        {/* Top Row: Role Badge, Industry, Reference ID, Date, Match %, and Stage Status */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2.5">
-            <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              {isRevealed ? (
-                <>
-                  <svg
-                    className="w-5 h-5 text-emerald-500"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
-                  {stageAwareDisplayName}
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="w-5 h-5 text-slate-400"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
-                  Anonymous Profile
-                </>
-              )}
-            </h3>
-
-            {isCandidateVerified && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-extrabold shadow-sm">
-                <span className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                  <svg
-                    className="w-2.5 h-2.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="3"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </span>
-                Identity Verified
+            <span className="px-3 py-1 rounded-lg bg-slate-900 text-white text-xs font-bold">
+              Applied Role: {job?.title || 'Open Role'}
+            </span>
+            {candidateIndustry && (
+              <span className="px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-800 border border-indigo-200 text-xs font-bold">
+                {candidateIndustry}
               </span>
             )}
-
             <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 font-mono text-xs font-bold border border-slate-200">
               Ref: {referenceId}
             </span>
+            <span className="text-xs text-slate-400 font-medium">
+              Applied {new Date(app.created_at).toLocaleDateString()}
+            </span>
+          </div>
 
-            {isRevealed && !vaultReleased && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-200">
+          <div className="flex flex-wrap items-center gap-2">
+            {matchScore !== null && (
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                  matchScore >= 80
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                    : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                }`}
+              >
+                {matchScore}% AI Match
+              </span>
+            )}
+
+            {status === 'unrevealed' && (
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                Blind Application (Free to Unlock)
+              </span>
+            )}
+
+            {status === 'unlocked' && !vaultReleased && (
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
                 🛡️ Stage 1 Thread Open (Vault Locked)
               </span>
             )}
 
-            {isRevealed && vaultReleased && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold border border-emerald-300">
+            {status === 'unlocked' && vaultReleased && (
+              <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
                 🔓 Stage 2 Vault Released
               </span>
             )}
 
-            {decisionStatus === 'shortlisted' && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold border border-emerald-300">
-                ★ Shortlisted
+            {status === 'shortlisted' && (
+              <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                ★ Shortlisted {vaultReleased ? '• Vault Released' : ''}
               </span>
             )}
 
-            {decisionStatus === 'rejected' && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-rose-50 text-rose-700 text-xs font-bold border border-rose-200">
-                Passed / Archived
+            {status === 'rejected' && (
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                Archived / Not Selected
               </span>
             )}
           </div>
-          <p className="text-sm text-slate-500 mt-1">
-            Applied {new Date(application.created_at).toLocaleDateString()}
-          </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-          {application.match_score ? (
-            <div className="flex-1 sm:flex-none px-4 py-2 bg-emerald-50 text-emerald-700 font-bold rounded-lg border border-emerald-200 flex items-center justify-center gap-2 shadow-inner text-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              {application.match_score}% Match
-            </div>
-          ) : (
-            <div className="flex-1 sm:flex-none px-4 py-2 bg-slate-50 text-slate-500 font-bold rounded-lg border border-slate-200 flex items-center justify-center text-sm">
-              Match Pending
-            </div>
-          )}
-
-          {!isRevealed ? (
-            <button
-              onClick={handleReveal}
-              disabled={isRevealing}
-              className="flex-1 sm:flex-none px-5 py-2 font-bold rounded-lg transition-colors flex items-center justify-center gap-2 text-sm shadow-sm bg-slate-900 text-white hover:bg-indigo-600 disabled:opacity-50 cursor-pointer"
+        {/* Candidate Identity Header + Metal Rank & Season 0 Founding Member Pills */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div
+              className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
+                status === 'shortlisted'
+                  ? 'bg-emerald-600 text-white'
+                  : isRevealed
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-slate-900 text-white'
+              }`}
             >
-              {isRevealing ? 'Opening Thread...' : 'Unlock & Message Candidate'}
-            </button>
-          ) : (
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                disabled={
-                  isUpdatingDecision || decisionStatus === 'shortlisted'
-                }
-                onClick={() => handleDecision('shortlisted')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors border cursor-pointer ${
-                  decisionStatus === 'shortlisted'
-                    ? 'bg-emerald-600 text-white border-emerald-600 cursor-default'
-                    : 'bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50'
-                }`}
-              >
-                {decisionStatus === 'shortlisted'
-                  ? '★ Shortlisted'
-                  : 'Shortlist Candidate'}
-              </button>
-
-              <button
-                type="button"
-                disabled={isUpdatingDecision || decisionStatus === 'rejected'}
-                onClick={() => handleDecision('rejected')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors border cursor-pointer ${
-                  decisionStatus === 'rejected'
-                    ? 'bg-rose-100 text-rose-700 border-rose-200 cursor-default'
-                    : 'bg-white text-slate-600 border-slate-300 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200'
-                }`}
-              >
-                {decisionStatus === 'rejected' ? 'Archived' : 'Pass / Archive'}
-              </button>
+              {isRevealed ? (
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              )}
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* Anti-Harvesting Quota Error Banner (When >5 unmessaged unlocks exist) */}
-      {revealError && (
-        <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs font-bold text-rose-800">
-          {revealError}
-        </div>
-      )}
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-xl font-extrabold text-slate-900">
+                  {stageAwareDisplayName}
+                </h2>
 
-      {/* STAGE 1 / STAGE 2 ENCRYPTED MESSAGING & VAULT THREAD */}
-      {isRevealed && (
-        <div className="mb-6">
+                <RankAndFounderPill
+                  level={rankInfo.level}
+                  tier={rankInfo.tier}
+                  isFounder={rankInfo.isFounder}
+                  founderText="Founding Member"
+                  size="xs"
+                />
+
+                {isCandidateVerified && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-extrabold">
+                    ✓ Identity Verified
+                  </span>
+                )}
+
+                {rankInfo.isVaultReady && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100/80 text-emerald-900 border border-emerald-300 text-[10px] font-extrabold">
+                    🛡️ 100% Vault Ready
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500 mt-1">
+                {candidate?.experience_years && (
+                  <>
+                    <span>{candidate.experience_years} Yrs Experience</span>
+                    <span>•</span>
+                  </>
+                )}
+                <span className="text-emerald-600">
+                  Min Salary: $
+                  {candidate?.min_salary_expectation
+                    ? (candidate.min_salary_expectation / 1000).toFixed(0) + 'k'
+                    : 'Open'}
+                </span>
+                <span>•</span>
+                <span className="capitalize">
+                  Prefers {candidate?.preferred_work_model || 'Any'}
+                </span>
+                {candidate?.location && (
+                  <>
+                    <span>•</span>
+                    <span>{candidate.location}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Education & Active Certifications Row */}
+        {(candidateEducation ||
+          candidateCertifications ||
+          jobEducationReq) && (
+          <div className="flex flex-wrap items-center gap-2">
+            {candidateEducation && (
+              <span className="px-3 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-xs font-bold">
+                🎓 {candidateEducation}
+              </span>
+            )}
+            {candidateCertifications && (
+              <span className="px-3 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
+                🏅 Certs: {candidateCertifications}
+              </span>
+            )}
+            {jobEducationReq && (
+              <span className="text-[11px] font-semibold text-slate-400 ml-1">
+                (Role Target: {jobEducationReq})
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* STAGE 1 / STAGE 2 SECURE MESSAGE THREAD & VAULT */}
+        {isRevealed && status !== 'rejected' && (
           <SecureMessageThread
-            applicationId={application.id}
+            applicationId={app.id}
             referenceId={referenceId}
             viewerRole="employer"
             initialMessages={threadMessages}
             initialVaultReleased={vaultReleased}
             candidateDisplayName={stageAwareDisplayName}
-            candidateFullName={vaultReleased ? candidateName : null}
-            candidateEmail={vaultReleased ? candidateEmail : null}
-            employerEmail={application.unlocked_employer_email || null}
-            initialResumeUrl={vaultReleased ? profile?.resume_url : null}
+            candidateFullName={
+              vaultReleased
+                ? unlockedName || app?.match_data?.candidate_full_name || null
+                : null
+            }
+            candidateEmail={vaultReleased ? unlockedEmail : null}
+            employerEmail={app?.unlocked_employer_email || null}
+            initialResumeUrl={vaultReleased ? unlockedResumeUrl : null}
           />
-        </div>
-      )}
+        )}
 
-      {/* Secret Executive Pitch - Only shown when revealed */}
-      {isRevealed && (
-        <div className="mb-8 p-5 bg-emerald-50/50 border border-emerald-100 rounded-xl animate-in fade-in slide-in-from-top-4 duration-500">
-          <h4 className="text-sm font-bold text-emerald-800 mb-2 flex items-center gap-2">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              ></path>
-            </svg>
-            AI Executive Briefing
-          </h4>
-          <p className="text-emerald-900 text-sm leading-relaxed font-medium">
-            {executivePitch ||
-              'This candidate is an exceptional match based on their verified skills and experience.'}
-          </p>
-        </div>
-      )}
+        {/* AI Fit Summary & 5-Point Radar Toggle */}
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+            <span className="text-xs font-bold text-indigo-600 flex items-center gap-1.5">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+              AI Fit Summary
+            </span>
 
-      {/* The Resume, Education/Certs & Match Data Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
-          {/* Experience, Industry Vertical, Education & Active Certifications */}
-          <div>
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-              Experience, Education &amp; Credentials
-            </h4>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-violet-50 text-violet-800 border border-violet-200">
-                {profile?.experience_years || '0'} Years Experience
-              </span>
-
-              {candidateIndustry && (
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                  {candidateIndustry}
-                </span>
-              )}
-
-              {candidateEducation && (
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-sky-50 text-sky-800 border border-sky-200">
-                  🎓 {candidateEducation}
-                </span>
-              )}
-
-              {candidateCertifications && (
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                  🏅 Certs: {candidateCertifications}
-                </span>
-              )}
-            </div>
-
-            {(jobEducationReq || jobRequiredCerts) && (
-              <div className="mt-2.5 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
-                <span className="font-bold text-slate-400 uppercase tracking-wider">
-                  Role Target:
-                </span>
-                {jobEducationReq && (
-                  <span className="font-semibold text-slate-600">
-                    {jobEducationReq}
-                  </span>
-                )}
-                {jobRequiredCerts && (
-                  <>
-                    <span>•</span>
-                    <span className="font-semibold text-amber-700">
-                      Target Certs: {jobRequiredCerts}
-                    </span>
-                  </>
-                )}
-              </div>
+            {radarData && (
+              <button
+                type="button"
+                onClick={() => setShowRadar((prev) => !prev)}
+                className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
+              >
+                {showRadar
+                  ? 'Hide Radar Breakdown'
+                  : 'View 5-Point Radar Breakdown'}
+              </button>
             )}
           </div>
-
-          <div>
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-              Verified Skills
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {profile?.structured_skills &&
-              profile.structured_skills.length > 0 ? (
-                profile.structured_skills.map((s: any, i: number) => (
-                  <span
-                    key={i}
-                    className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 shadow-sm flex items-center gap-2"
-                  >
-                    {s.skill}{' '}
-                    <span className="text-slate-400 text-xs font-bold">
-                      | {s.years} YRS
-                    </span>
-                  </span>
-                ))
-              ) : (
-                profile?.skills
-                  ?.split(',')
-                  .map((skill: string, i: number) => (
-                    <span
-                      key={i}
-                      className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 shadow-sm"
-                    >
-                      {skill.trim()}
-                    </span>
-                  ))
-              )}
-            </div>
-          </div>
-
-          <div>
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-              AI Generated Bio
-            </h4>
-            <p className="text-slate-600 leading-relaxed text-sm bg-slate-50 p-5 rounded-xl border border-slate-100">
-              {profile?.bio || 'No bio extracted.'}
-            </p>
-          </div>
+          <p className="text-sm text-slate-700 font-medium leading-relaxed">
+            {briefAnalysis}
+          </p>
         </div>
 
-        {application.match_data?.radar_data && (
-          <div className="lg:col-span-1 border-t lg:border-t-0 lg:border-l border-slate-100 pt-8 lg:pt-0 lg:pl-8 flex flex-col justify-center">
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-6 text-center lg:text-left">
-              Fit Analysis
-            </h4>
-            <div className="h-[240px] w-full max-w-[300px] mx-auto lg:mx-0">
+        {/* Expandable 5-Point Radar Chart */}
+        {showRadar && radarData && (
+          <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col lg:flex-row items-center gap-6 animate-in fade-in duration-200">
+            <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {radarData.map((item: any, idx: number) => (
+                <div
+                  key={idx}
+                  className="bg-white px-3.5 py-2.5 rounded-lg border border-slate-200 shadow-sm flex justify-between items-center"
+                >
+                  <span className="text-xs font-bold text-slate-600">
+                    {item.subject}
+                  </span>
+                  <span
+                    className={`text-sm font-black ${
+                      item.score >= 80
+                        ? 'text-emerald-500'
+                        : item.score >= 60
+                        ? 'text-amber-500'
+                        : 'text-rose-500'
+                    }`}
+                  >
+                    {item.score}%
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="w-full max-w-[300px] h-[220px] shrink-0 mx-auto">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart
                   cx="50%"
                   cy="50%"
-                  outerRadius="65%"
-                  data={application.match_data.radar_data}
+                  outerRadius="60%"
+                  data={radarData}
                 >
                   <PolarGrid stroke="#cbd5e1" />
                   <PolarAngleAxis
                     dataKey="subject"
-                    tick={{ fill: '#475569', fontSize: 10, fontWeight: 600 }}
+                    tick={{
+                      fill: '#475569',
+                      fontSize: 10,
+                      fontWeight: 600,
+                    }}
                   />
                   <PolarRadiusAxis
                     angle={30}
@@ -511,24 +537,11 @@ export function ApplicationRevealCard({
                     tick={false}
                     axisLine={false}
                   />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#ffffff',
-                      borderRadius: '8px',
-                      border: '1px solid #e2e8f0',
-                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                    }}
-                    itemStyle={{ color: '#475569', fontWeight: 400 }}
-                    labelStyle={{
-                      color: '#1e293b',
-                      fontWeight: 800,
-                      paddingBottom: '4px',
-                    }}
-                  />
+                  <Tooltip />
                   <Radar
                     name="Match Score"
                     dataKey="score"
-                    stroke="#06b6d4"
+                    stroke="#4f46e5"
                     strokeWidth={2}
                     fill="#10b981"
                     fillOpacity={0.35}
@@ -538,6 +551,113 @@ export function ApplicationRevealCard({
             </div>
           </div>
         )}
+
+        {/* Candidate Bio & Skills */}
+        <p className="text-sm text-slate-600 leading-relaxed">
+          {candidate?.bio || 'No summary bio provided.'}
+        </p>
+
+        <div className="flex flex-wrap gap-2">
+          {candidateSkills.map((skill, idx) => (
+            <span
+              key={idx}
+              className="px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-md border border-slate-200"
+            >
+              {skill}
+            </span>
+          ))}
+        </div>
+
+        {/* Error Banner */}
+        {errorMsg && (
+          <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold">
+            {errorMsg}
+          </div>
+        )}
+
+        {/* Action Bar */}
+        <div className="pt-5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {!isRevealed && status !== 'rejected' ? (
+            <>
+              <p className="text-xs text-slate-500">
+                <strong className="text-slate-700">
+                  100% Free Inbound Unlock (+150 XP):
+                </strong>{' '}
+                Opening a Stage 1 thread with an inbound applicant costs 0 Connection Credits.
+              </p>
+              <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                <button
+                  type="button"
+                  disabled={isProcessing}
+                  onClick={() => handleDecision('rejected')}
+                  className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs font-bold hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  Not a Fit
+                </button>
+                <button
+                  type="button"
+                  disabled={isProcessing}
+                  onClick={() => handleDecision('shortlisted')}
+                  className="px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-extrabold hover:bg-emerald-700 transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
+                >
+                  ★ Shortlist &amp; Open Thread
+                </button>
+                <button
+                  type="button"
+                  disabled={isProcessing}
+                  onClick={handleUnlock}
+                  className="px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
+                >
+                  {isProcessing
+                    ? 'Unlocking...'
+                    : '🔓 Unlock & Open Stage 1 Thread (Free)'}
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
+              <span className="text-xs font-bold text-slate-600">
+                {status === 'shortlisted'
+                  ? '★ Candidate is Shortlisted in your active interview pipeline.'
+                  : status === 'rejected'
+                  ? 'Candidate archived as Not a Fit.'
+                  : '✓ Stage 1 Thread Open. Send an introductory message above (+225 XP).'}
+              </span>
+
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                {status !== 'shortlisted' && (
+                  <button
+                    type="button"
+                    disabled={isProcessing}
+                    onClick={() => handleDecision('shortlisted')}
+                    className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-extrabold hover:bg-emerald-700 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    ★ Move to Shortlisted
+                  </button>
+                )}
+                {status !== 'rejected' ? (
+                  <button
+                    type="button"
+                    disabled={isProcessing}
+                    onClick={() => handleDecision('rejected')}
+                    className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-bold hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    Archive / Not a Fit
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={isProcessing}
+                    onClick={() => handleDecision('unlocked')}
+                    className="px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    Restore &amp; Open Thread
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
