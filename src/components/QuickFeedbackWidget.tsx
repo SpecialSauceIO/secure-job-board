@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { submitQuickFeedback } from '@/app/dashboard/actions'
+import { submitQuickFeedbackReliable } from '@/app/dashboard/feedback-actions'
 
 export default function QuickFeedbackWidget() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
-  const [feedbackType, setFeedbackType] = useState<'Bug' | 'UX Idea' | 'Praise'>('Bug')
+  const [feedbackType, setFeedbackType] = useState<'Bug' | 'UX Idea' | 'Praise'>(
+    'Bug'
+  )
   const [notes, setNotes] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [resultMsg, setResultMsg] = useState<{
@@ -31,7 +33,7 @@ export default function QuickFeedbackWidget() {
       typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown Browser'
     )
 
-    const res = await submitQuickFeedback(formData)
+    const res = await submitQuickFeedbackReliable(formData)
 
     if (res?.error) {
       setResultMsg({ type: 'error', text: res.error })
@@ -41,7 +43,9 @@ export default function QuickFeedbackWidget() {
 
     setResultMsg({
       type: 'success',
-      text: `Sent (${res.referenceId})! Thank you for helping improve Special Sauce.`,
+      text: `Delivered (${res.referenceId}) to ${
+        res.deliveredTo || 'inbox'
+      }! Thank you for helping improve Special Sauce.`,
     })
     setNotes('')
     setIsSubmitting(false)
@@ -49,7 +53,7 @@ export default function QuickFeedbackWidget() {
     setTimeout(() => {
       setIsOpen(false)
       setResultMsg(null)
-    }, 1800)
+    }, 2600)
   }
 
   return (
@@ -110,7 +114,11 @@ export default function QuickFeedbackWidget() {
                         : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
-                    {t === 'Bug' ? '🐛 Bug' : t === 'UX Idea' ? '💡 Idea' : '🙌 Praise'}
+                    {t === 'Bug'
+                      ? '🐛 Bug'
+                      : t === 'UX Idea'
+                      ? '💡 Idea'
+                      : '🙌 Praise'}
                   </button>
                 ))}
               </div>
@@ -126,7 +134,7 @@ export default function QuickFeedbackWidget() {
 
               {resultMsg && (
                 <div
-                  className={`p-2.5 rounded-xl text-xs font-bold ${
+                  className={`p-2.5 rounded-xl text-xs font-bold leading-relaxed ${
                     resultMsg.type === 'error'
                       ? 'bg-rose-50 text-rose-700 border border-rose-200'
                       : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
