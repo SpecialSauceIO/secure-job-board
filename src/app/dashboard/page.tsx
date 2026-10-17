@@ -810,7 +810,7 @@ export default async function DashboardPage({
               Step 1: Verify Your Identity to Unlock Blind Applications &amp; +500 XP
             </h2>
             <p className="mt-0.5 text-xs text-slate-600">
-              Once verified via Stripe Identity, your 30-Day Founding Member Award (15 free blind applications + 1.25x XP boost) begins automatically.
+              Once verified via Stripe Identity, your 30-Day Founding Member Rewards (15 free blind applications + 1.25x XP boost) begins automatically.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">

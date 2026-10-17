@@ -956,7 +956,7 @@ export function CandidateJobFeed({
                       : !matchData
                       ? `Step 1: Run a free AI Fit Analysis (${MIN_MATCH_THRESHOLD}%+ match required to apply).`
                       : score >= MIN_MATCH_THRESHOLD
-                      ? '✓ You meet the 40%+ relevance firewall! Submitting awards +150 Profile XP.'
+                      ? '✓ You meet the 40%+ relevance firewall! Submitting Rewardss +150 Profile XP.'
                       : `Requires ${MIN_MATCH_THRESHOLD}%+ AI Match Score to apply (Current: ${score}%).`}
                   </p>
 

@@ -130,7 +130,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 1 (Slide #2): Candidate 30-Day Founding Member Award (Locked to 2 Lines) */}
+          {/* SLIDE 1 (Slide #2): Candidate 30-Day Founding Member Rewards (Locked to 2 Lines) */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 1
@@ -146,7 +146,7 @@ export default function LandingPage() {
               <span className="sm:whitespace-nowrap">
                 30-Day{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-emerald-500">
-                  Founding Member Award.
+                  Founding Member Rewards.
                 </span>
               </span>
               <br />
@@ -168,7 +168,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 2 (Slide #3): Employer 30-Day Founding Partner Award (Locked to 2 Lines) */}
+          {/* SLIDE 2 (Slide #3): Employer 30-Day Founding Partner Rewards (Locked to 2 Lines) */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 2
@@ -184,7 +184,7 @@ export default function LandingPage() {
               <span className="sm:whitespace-nowrap">
                 30-Day{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-amber-500">
-                  Founding Partner Award.
+                  Founding Partner Rewards.
                 </span>
               </span>
               <br />
@@ -337,7 +337,7 @@ export default function LandingPage() {
                 ? 'bg-amber-500 w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
-            aria-label="View Candidate 30-day Founding Member Award slide"
+            aria-label="View Candidate 30-day Founding Member Rewards slide"
           />
           <button
             onClick={() => setCurrentSlide(2)}
@@ -346,7 +346,7 @@ export default function LandingPage() {
                 ? 'bg-indigo-500 w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
-            aria-label="View Employer 30-day Founding Partner Award slide"
+            aria-label="View Employer 30-day Founding Partner Rewards slide"
           />
           <button
             onClick={() => setCurrentSlide(3)}
@@ -618,7 +618,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* FOUNDING MEMBER & FOUNDING PARTNER LAUNCH REWARDS BANNER */}
+          {/* FOUNDING MEMBER & FOUNDING PARTNER LAUNCH Rewards BANNER */}
           <div className="mt-20 rounded-3xl bg-slate-900 text-white p-8 sm:p-10 border-2 border-amber-400/80 shadow-xl relative overflow-hidden">
             <div className="absolute inset-0 opacity-15 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-400 via-indigo-900 to-slate-900 pointer-events-none" />
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -627,7 +627,7 @@ export default function LandingPage() {
                   ★ Limited-Time Founding Launch Bonus
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-black tracking-tight">
-                  30-Day Founding Awards. Full Access &amp; Lifetime Perks.
+                  30-Day Founding Rewardss. Full Access &amp; Lifetime Perks.
                 </h3>
                 <p className="text-sm text-slate-300 leading-relaxed">
                   Join during our initial launch window to unlock 30 days of complimentary full access, permanent{' '}
@@ -648,7 +648,7 @@ export default function LandingPage() {
                     ★ Founding Member (Candidates)
                   </span>
                   <div className="text-lg font-black text-white">
-                    30-Day Member Award
+                    30-Day Member Rewards
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed">
                     15 Free Outbound Blind Applications + $0 Forever Passive Career Vault + $9/mo Rate Lock.
@@ -660,7 +660,7 @@ export default function LandingPage() {
                     ★ Founding Partner (Employers)
                   </span>
                   <div className="text-lg font-black text-white">
-                    30-Day Partner Award
+                    30-Day Partner Rewards
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed">
                     5 Active Blind Role Slots + 10 Outbound Pitch Credits + 2 Team Seats + Unlimited Free Inbound Unlocks.
@@ -983,7 +983,7 @@ export default function LandingPage() {
               <div className="bg-white p-5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
                   <h4 className="text-sm font-extrabold text-slate-900">
-                    Ready to claim your 30-Day Founding Award?
+                    Ready to claim your 30-Day Founding Rewards?
                   </h4>
                   <p className="text-xs text-slate-500">
                     Create your free Candidate or Employer account in under two minutes.

@@ -140,7 +140,7 @@ export default function CandidateBillingPage() {
             </div>
 
             <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-              Your 30-Day Founding Member Award &amp; Permanent Perks
+              Your 30-Day Founding Member Rewards &amp; Permanent Perks
             </h2>
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
@@ -185,7 +185,7 @@ export default function CandidateBillingPage() {
                     <strong className="text-white">
                       {tierInfo.daysRemaining} days
                     </strong>{' '}
-                    left in award window
+                    left in Rewards window
                   </p>
                 )}
                 {tierInfo?.tier === 'pro' && (
@@ -260,7 +260,7 @@ export default function CandidateBillingPage() {
               <li>✓ Unlimited 5-Point AI Fit Radar checks</li>
               <li>✓ Keep your ★ Founding Member Badge &amp; Rank forever</li>
               <li className="text-slate-400">
-                • Outbound blind applications paused after 30-day award
+                • Outbound blind applications paused after 30-day Rewards
               </li>
             </ul>
           </div>
@@ -272,7 +272,7 @@ export default function CandidateBillingPage() {
           </div>
         </div>
 
-        {/* Card 2: 30-Day Founding Member Award */}
+        {/* Card 2: 30-Day Founding Member Rewards */}
         <div
           className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
             tierInfo?.tier === 'trial'
@@ -283,7 +283,7 @@ export default function CandidateBillingPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between text-xs font-extrabold">
               <span className="text-amber-700">
-                ★ Founding Member Launch Award
+                ★ Founding Member Launch Rewards
               </span>
               {tierInfo?.tier === 'trial' && (
                 <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -364,7 +364,7 @@ export default function CandidateBillingPage() {
                 </span>
               </div>
               <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                Continue submitting unlimited high-precision blind applications after your 30-day Founding Award concludes.
+                Continue submitting unlimited high-precision blind applications after your 30-day Founding Rewards concludes.
               </p>
             </div>
 
@@ -401,7 +401,7 @@ export default function CandidateBillingPage() {
             🧪 QA Stress-Testing Controls (Remove Before Public Launch)
           </span>
           <p className="text-xs text-slate-600 mt-0.5">
-            Simulate different Candidate membership states to test the 30-Day Founding Award, Expired Paywall, and Pro Pass.
+            Simulate different Candidate membership states to test the 30-Day Founding Rewards, Expired Paywall, and Pro Pass.
           </p>
         </div>
 
@@ -412,7 +412,7 @@ export default function CandidateBillingPage() {
             onClick={() => handleSandboxSwitch('trial')}
             className="px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-slate-800 text-xs font-extrabold hover:bg-slate-50 cursor-pointer disabled:opacity-50"
           >
-            Reset 30d Founding Award (15 Apps)
+            Reset 30d Founding Rewards (15 Apps)
           </button>
           <button
             type="button"
@@ -420,7 +420,7 @@ export default function CandidateBillingPage() {
             onClick={() => handleSandboxSwitch('expired')}
             className="px-3.5 py-2 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 text-xs font-extrabold hover:bg-amber-200 cursor-pointer disabled:opacity-50"
           >
-            Simulate Award Expired
+            Simulate Rewards Expired
           </button>
           <button
             type="button"
