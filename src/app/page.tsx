@@ -8,11 +8,11 @@ export default function LandingPage() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [showTechDocsModal, setShowTechDocsModal] = useState(false)
 
-  // Cycles through slides 0, 1, 2, 3, and 4 every 9 seconds (9000ms)
-  // Using [currentSlide] in the dependency array also resets the 9s timer if a user clicks a dot manually
+  // Cycles through slides 0, 1, 2, 3, 4, and 5 every 9 seconds (9000ms)
+  // Using [currentSlide] in the dependency array resets the 9s timer if a user clicks a dot manually
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev === 4 ? 0 : prev + 1))
+      setCurrentSlide((prev) => (prev === 5 ? 0 : prev + 1))
     }, 9000)
     return () => clearInterval(timer)
   }, [currentSlide])
@@ -130,7 +130,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 1 (Slide #2): 30-Day Founding Member Awards */}
+          {/* SLIDE 1 (Slide #2): Candidate 30-Day Founding Member Award */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 1
@@ -140,33 +140,67 @@ export default function LandingPage() {
           >
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
               <span className="text-amber-600">★</span>
-              Founding Member Launch • Early Adopter Bonus Active
+              Founding Member Launch • For Job Seekers &amp; Passive Talent
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               30-Day{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-indigo-600">
-                Founding Member Awards.
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-emerald-500">
+                Founding Member Award.
               </span>
               <br />
               Full access. Lifetime perks.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Join during our Founding Member Launch to claim your{' '}
+              Verify your identity during our launch window to unlock{' '}
               <strong className="text-slate-700">
-                30-Day Founding Member Reward
+                15 free blind applications for 30 days
               </strong>
-              —including 15 free blind applications for verified Candidates, 30 days of Starter access ($99 value: 5 active role slots + 10 pitch credits) for Domain-Verified Employers, permanent{' '}
+              , a permanent{' '}
               <strong className="text-slate-700">
-                ★ Founding Member Gold Trim
+                ★ Founding Member gold profile badge
               </strong>
-              , a <strong className="text-slate-700">1.25x XP Rank Boost</strong>, and lifetime Founder&apos;s Rate Locks.
+              , a <strong className="text-slate-700">1.25x XP rank boost</strong>, and a lifetime{' '}
+              <strong className="text-slate-700">$9/mo rate lock</strong>—while your passive career vault stays $0 forever.
             </p>
           </div>
 
-          {/* SLIDE 2 (Slide #3): No Ghost Jobs or Spam */}
+          {/* SLIDE 2 (Slide #3): Employer 30-Day Founding Partner Award */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 2
+                ? 'opacity-100 translate-y-0 z-10'
+                : 'opacity-0 pointer-events-none z-0'
+            }`}
+          >
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-800 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
+              <span className="text-amber-500">★</span>
+              Founding Partner Launch • For Verified Companies &amp; Hiring Teams
+            </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
+              30-Day{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-amber-500">
+                Founding Partner Award.
+              </span>
+              <br />
+              Full access. Lifetime perks.
+            </h1>
+            <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
+              Verify your corporate domain during launch to claim{' '}
+              <strong className="text-slate-700">
+                30 days of Starter access ($99 value for $0)
+              </strong>
+              —including{' '}
+              <strong className="text-slate-700">5 active blind job slots</strong>,{' '}
+              <strong className="text-slate-700">10 outbound pitch credits</strong>,{' '}
+              <strong className="text-slate-700">2 team seats</strong>, unlimited free applicant unlocks, and a permanent{' '}
+              <strong className="text-slate-700">★ Founding Partner badge</strong>.
+            </p>
+          </div>
+
+          {/* SLIDE 3 (Slide #4): No Ghost Jobs or Spam */}
+          <div
+            className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
+              currentSlide === 3
                 ? 'opacity-100 translate-y-0 z-10'
                 : 'opacity-0 pointer-events-none z-0'
             }`}
@@ -191,10 +225,10 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 3 (Slide #4): Employers */}
+          {/* SLIDE 4 (Slide #5): Employers */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
-              currentSlide === 3
+              currentSlide === 4
                 ? 'opacity-100 translate-y-0 z-10'
                 : 'opacity-0 pointer-events-none z-0'
             }`}
@@ -219,10 +253,10 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 4 (Slide #5): Candidates */}
+          {/* SLIDE 5 (Slide #6): Candidates */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
-              currentSlide === 4
+              currentSlide === 5
                 ? 'opacity-100 translate-y-0 z-10'
                 : 'opacity-0 pointer-events-none z-0'
             }`}
@@ -277,7 +311,7 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        {/* 5 Slide Indicators */}
+        {/* 6 Slide Indicators */}
         <div className="flex gap-2 mt-5 z-20 relative">
           <button
             onClick={() => setCurrentSlide(0)}
@@ -295,34 +329,43 @@ export default function LandingPage() {
                 ? 'bg-amber-500 w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
-            aria-label="View 30-day Founding Member Awards slide"
+            aria-label="View Candidate 30-day Founding Member Award slide"
           />
           <button
             onClick={() => setCurrentSlide(2)}
             className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
               currentSlide === 2
+                ? 'bg-indigo-500 w-6'
+                : 'bg-slate-300 hover:bg-slate-400'
+            }`}
+            aria-label="View Employer 30-day Founding Partner Award slide"
+          />
+          <button
+            onClick={() => setCurrentSlide(3)}
+            className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
+              currentSlide === 3
                 ? 'bg-orange-500 w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
             aria-label="View fresh jobs slide"
           />
           <button
-            onClick={() => setCurrentSlide(3)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
-              currentSlide === 3
-                ? 'bg-indigo-600 w-6'
-                : 'bg-slate-300 hover:bg-slate-400'
-            }`}
-            aria-label="View employer slide"
-          />
-          <button
             onClick={() => setCurrentSlide(4)}
             className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
               currentSlide === 4
+                ? 'bg-indigo-600 w-6'
+                : 'bg-slate-300 hover:bg-slate-400'
+            }`}
+            aria-label="View employer fit slide"
+          />
+          <button
+            onClick={() => setCurrentSlide(5)}
+            className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
+              currentSlide === 5
                 ? 'bg-emerald-500 w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
-            aria-label="View candidate slide"
+            aria-label="View candidate privacy slide"
           />
         </div>
 
@@ -567,25 +610,25 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* FOUNDING MEMBER LAUNCH REWARDS BANNER */}
+          {/* FOUNDING MEMBER & FOUNDING PARTNER LAUNCH REWARDS BANNER */}
           <div className="mt-20 rounded-3xl bg-slate-900 text-white p-8 sm:p-10 border-2 border-amber-400/80 shadow-xl relative overflow-hidden">
             <div className="absolute inset-0 opacity-15 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-400 via-indigo-900 to-slate-900 pointer-events-none" />
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               <div className="lg:col-span-7 space-y-3">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-300 text-xs font-extrabold uppercase tracking-wider">
-                  ★ Limited-Time Founding Member Launch Bonus
+                  ★ Limited-Time Founding Launch Bonus
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-black tracking-tight">
-                  Claim Your 30-Day Founding Member Reward &amp; Lifetime Perks
+                  30-Day Founding Awards. Full Access &amp; Lifetime Perks.
                 </h3>
                 <p className="text-sm text-slate-300 leading-relaxed">
-                  Early adopters who join during our Founding Member Launch unlock 30 days of complimentary full access, permanent{' '}
+                  Join during our initial launch window to unlock 30 days of complimentary full access, permanent{' '}
                   <strong className="text-amber-300">
-                    ★ Founding Member Gold Card Trim
+                    ★ Founding Member / Founding Partner Gold Trim
                   </strong>
                   , a permanent{' '}
                   <strong className="text-amber-300">
-                    1.25x Profile XP Multiplier
+                    1.25x XP Multiplier
                   </strong>
                   , and lifetime Founder&apos;s Rate Locks.
                 </p>
@@ -594,22 +637,22 @@ export default function LandingPage() {
               <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 space-y-1.5">
                   <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400 block">
-                    For Candidates
+                    ★ Founding Member (Candidates)
                   </span>
                   <div className="text-lg font-black text-white">
-                    30-Day Founder&apos;s Reward
+                    30-Day Member Award
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed">
-                    15 Free Outbound Blind Applications + $0 Forever Passive Career Vault + $9/mo Founder&apos;s Rate Lock.
+                    15 Free Outbound Blind Applications + $0 Forever Passive Career Vault + $9/mo Rate Lock.
                   </p>
                 </div>
 
                 <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 space-y-1.5">
                   <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-300 block">
-                    For Verified Employers
+                    ★ Founding Partner (Employers)
                   </span>
                   <div className="text-lg font-black text-white">
-                    30-Day Starter Reward
+                    30-Day Partner Award
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed">
                     5 Active Blind Role Slots + 10 Outbound Pitch Credits + 2 Team Seats + Unlimited Free Inbound Unlocks.
@@ -932,7 +975,7 @@ export default function LandingPage() {
               <div className="bg-white p-5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
                   <h4 className="text-sm font-extrabold text-slate-900">
-                    Ready to claim your 30-Day Founding Member Reward?
+                    Ready to claim your 30-Day Founding Award?
                   </h4>
                   <p className="text-xs text-slate-500">
                     Create your free Candidate or Employer account in under two minutes.
