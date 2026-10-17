@@ -138,7 +138,7 @@ export function isSeasonZeroFounder(
   explicitFlag?: boolean
 ): boolean {
   if (explicitFlag === true) return true
-  if (!createdAt) return true // New or active Season 0 accounts default to Founding Cohort during launch window
+  if (!createdAt) return true
   const createdMs = new Date(createdAt).getTime()
   const cutoffMs = new Date(SEASON_0_CUTOFF_ISO).getTime()
   if (isNaN(createdMs)) return true
@@ -154,7 +154,6 @@ export function resolveTierFromXp(xp: number): {
   levelProgressPct: number
 } {
   const safeXp = Math.max(0, Math.floor(xp))
-
   let currentTier = METAL_TIERS[0]
   let nextTier: MetalTierConfig | null = METAL_TIERS[1]
 
@@ -167,7 +166,6 @@ export function resolveTierFromXp(xp: number): {
     }
   }
 
-  // Smooth deterministic level curve: 250 XP per level up to LVL 10, then 400 XP per level
   let level = 1
   let currentLevelXp = safeXp
   let nextLevelXp = 250
@@ -198,9 +196,6 @@ export function resolveTierFromXp(xp: number): {
   }
 }
 
-// ------------------------------------------------------------------
-// CANDIDATE GAMIFICATION & XP CALCULATOR (100% DETERMINISTIC)
-// ------------------------------------------------------------------
 export function calculateCandidateGamification(
   profile: any,
   applications: any[] = []
@@ -261,7 +256,6 @@ export function calculateCandidateGamification(
   const isVaultReady =
     isVerified && hasBioAndSkills && hasEduOrCerts && hasDealbreakers
 
-  // Analyze real application & pitch history
   const outboundApps = (applications || []).filter(
     (a) => a.initiated_by !== 'employer'
   )
@@ -286,7 +280,6 @@ export function calculateCandidateGamification(
   const stage2Releases = (applications || []).filter(
     (a) => a.match_data?.candidate_vault_released === true
   )
-
   const highMatchApps = outboundApps.filter(
     (a) => Number(a.match_score ?? a.match_data?.overall_score ?? 0) >= 75
   )
@@ -294,16 +287,14 @@ export function calculateCandidateGamification(
   const commendationsCount =
     Number(prefMeta?.employer_commendations || 0) + stage2Releases.length
 
-  // Base XP Calculation from real database milestones (No Refresh Farming!)
-  let baseXp = 150 // Base Account Creation XP
+  let baseXp = 150
   if (isVerified) baseXp += 500
   if (hasBioAndSkills) baseXp += 350
   if (hasEduOrCerts) baseXp += 200
   if (hasCertifications) baseXp += 150
   if (hasDealbreakers) baseXp += 250
-  if (isVaultReady) baseXp += 300 // All-Star Loadout Completion Bonus
+  if (isVaultReady) baseXp += 300
 
-  // Activity Milestones (Capped appropriately)
   baseXp += Math.min(savedJobsCount, 10) * 35
   baseXp += outboundApps.length * 150
   baseXp += highMatchApps.length * 50
@@ -311,7 +302,6 @@ export function calculateCandidateGamification(
   baseXp += activeThreads.length * 200
   baseXp += stage2Releases.length * 250
 
-  // Season 0 Challenges
   const challenge1Done = isVaultReady
   const challenge2Progress = Math.min(
     3,
@@ -460,9 +450,6 @@ export function calculateCandidateGamification(
   }
 }
 
-// ------------------------------------------------------------------
-// EMPLOYER GAMIFICATION & XP CALCULATOR (100% DETERMINISTIC)
-// ------------------------------------------------------------------
 export function calculateEmployerGamification(
   org: any,
   jobs: any[] = [],
@@ -474,9 +461,6 @@ export function calculateEmployerGamification(
     (j) => Number(j.salary_min) > 0 && Number(j.salary_max) > 0
   )
 
-  const inboundApps = (applications || []).filter(
-    (a) => a.initiated_by !== 'employer'
-  )
   const sentPitches = (applications || []).filter(
     (a) => a.initiated_by === 'employer' || Number(org?.total_requests_sent) > 0
   )
@@ -493,7 +477,7 @@ export function calculateEmployerGamification(
       a.match_data.messages.some((m: any) => m.sender_role === 'employer')
   )
 
-  let baseXp = 200 // Organization Created
+  let baseXp = 200
   if (isDomainVerified) baseXp += 600
   if (org?.description && String(org.description).trim().length > 20) {
     baseXp += 250
@@ -507,7 +491,6 @@ export function calculateEmployerGamification(
   baseXp += unlockedOrReviewed.length * 150
   baseXp += messagedThreads.length * 225
 
-  // Employer Season 0 Challenges
   const challenge1Done = isDomainVerified && activeJobs.length >= 1
   const challenge2Progress = Math.min(
     3,
@@ -541,4 +524,113 @@ export function calculateEmployerGamification(
       icon: '★',
       unlocked: isFounder,
       progressText: 'Charter Locked Forever',
-      accentClass: '
+      accentClass: 'bg-amber-50 text-amber-900 border-amber-300',
+    },
+    {
+      id: 'domain_verified_org',
+      title: 'Verified Corporate Domain',
+      description:
+        'Passed corporate domain & DNS verification to guarantee authentic job listings.',
+      icon: '🛡️',
+      unlocked: isDomainVerified,
+      progressText: isDomainVerified
+        ? 'Unlocked (+600 XP)'
+        : 'Verify domain on Company Profile',
+      accentClass: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+    },
+    {
+      id: 'pay_transparency_leader',
+      title: 'Transparent Pay Leader',
+      description:
+        'Published blind role listings with upfront minimum and maximum compensation bands.',
+      icon: '💎',
+      unlocked: hasPayTransparency,
+      progressText: hasPayTransparency
+        ? 'Unlocked (+250 XP)'
+        : 'Post a role with salary/hourly band',
+      accentClass: 'bg-indigo-50 text-indigo-800 border-indigo-300',
+    },
+    {
+      id: 'active_reviewer',
+      title: 'Responsive Hiring Team',
+      description:
+        'Actively unlocked, shortlisted, or messaged candidates in encrypted Stage 1 threads.',
+      icon: '⚡',
+      unlocked:
+        unlockedOrReviewed.length >= 1 ||
+        Number(org?.total_requests_sent || 0) >= 1,
+      progressText:
+        unlockedOrReviewed.length >= 1 ||
+        Number(org?.total_requests_sent || 0) >= 1
+          ? 'Unlocked (+375 XP)'
+          : 'Unlock an applicant or send a pitch',
+      accentClass: 'bg-violet-50 text-violet-800 border-violet-300',
+    },
+  ]
+
+  const seasonalChallenges: SeasonalChallengeItem[] = [
+    {
+      id: 'emp_s0_launch',
+      title: 'Season 0 Challenge: Verified Hiring Launch',
+      description:
+        'Verify your corporate domain and publish at least 1 active blind role with upfront compensation.',
+      xpReward: 500,
+      current: (isDomainVerified ? 1 : 0) + (activeJobs.length >= 1 ? 1 : 0),
+      target: 2,
+      completed: challenge1Done,
+    },
+    {
+      id: 'emp_s0_outreach',
+      title: 'Season 0 Challenge: Talent Radar & Outreach',
+      description:
+        'Publish active roles or send outbound connection pitches to passive candidates.',
+      xpReward: 400,
+      current: challenge2Progress,
+      target: 3,
+      completed: challenge2Done,
+    },
+    {
+      id: 'emp_s0_engagement',
+      title: 'Season 0 Challenge: Zero-Ghosting Engagement',
+      description:
+        'Unlock, shortlist, or message 2 candidates inside encrypted Stage 1 threads.',
+      xpReward: 600,
+      current: challenge3Progress,
+      target: 2,
+      completed: challenge3Done,
+    },
+  ]
+
+  return {
+    role: 'employer',
+    isFounder,
+    founderLabel: 'Season 0 Founding Partner',
+    totalXp,
+    ...rankData,
+    badges,
+    seasonalChallenges,
+  }
+}
+
+export function getQuickCandidateCardRank(candidate: any) {
+  const summary = calculateCandidateGamification(candidate, [])
+  return {
+    isFounder: summary.isFounder,
+    level: summary.level,
+    totalXp: summary.totalXp,
+    tier: summary.tier,
+    isVaultReady:
+      summary.badges.find((b) => b.id === 'vault_ready')?.unlocked || false,
+  }
+}
+
+export function getQuickJobCardRank(job: any) {
+  const org = job?.organizations || {}
+  const summary = calculateEmployerGamification(org, [job], [])
+  return {
+    isFounder: summary.isFounder,
+    level: summary.level,
+    totalXp: summary.totalXp,
+    tier: summary.tier,
+  }
+}
