@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import QuickFeedbackWidget from '@/components/QuickFeedbackWidget'
@@ -16,7 +17,29 @@ export default function DashboardNav({
   signOutAction: () => Promise<void>
 }) {
   const pathname = usePathname()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Close dropdown when route changes
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [pathname])
+
+  // Streamlined core workflow tabs (Membership/Billing & Security/Help moved cleanly into Account Dropdown)
   const candidateLinks = [
     { href: '/dashboard', label: 'Overview', exact: true },
     { href: '/dashboard/jobs', label: 'Find Jobs' },
@@ -24,7 +47,6 @@ export default function DashboardNav({
     { href: '/dashboard/requests', label: 'Employer Pitches' },
     { href: '/dashboard/profile', label: 'My Profile' },
     { href: '/dashboard/preferences', label: 'Match Preferences' },
-    { href: '/dashboard/billing', label: 'Membership' },
   ]
 
   const employerLinks = [
@@ -34,7 +56,6 @@ export default function DashboardNav({
     { href: '/dashboard/employer/applications', label: 'Inbound Apps' },
     { href: '/dashboard/employer/pitches', label: 'Sent Pitches' },
     { href: '/dashboard/employer/organization', label: 'Company & Seats' },
-    { href: '/dashboard/employer/billing', label: 'Billing & Credits' },
   ]
 
   const navLinks =
@@ -44,6 +65,9 @@ export default function DashboardNav({
       ? candidateLinks
       : [{ href: '/dashboard', label: 'Dashboard', exact: true }]
 
+  const billingHref =
+    role === 'employer' ? '/dashboard/employer/billing' : '/dashboard/billing'
+
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href
     return pathname === href || pathname?.startsWith(`${href}/`)
@@ -52,9 +76,9 @@ export default function DashboardNav({
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-2xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* ROW 1: Strictly Single-Line Brand Header (Logo Left, Account Controls & Feedback Right) */}
+        {/* ROW 1: Clean Brand Header (Logo Left, Feedback + Unified Account Dropdown Right) */}
         <div className="flex items-center justify-between gap-4 py-3">
-          {/* Left: Prominent Trimmed Logo + Compact Divider Tagline */}
+          {/* Left: Prominent Trimmed Logo + Clean Portal Subtitle */}
           <div className="flex items-center gap-3.5 min-w-0">
             <Link
               href="/dashboard"
@@ -63,7 +87,7 @@ export default function DashboardNav({
               <img
                 src="/logo.png"
                 alt="specialsauce.io Logo"
-                className="h-11 sm:h-12 md:h-13 w-auto object-contain group-hover:opacity-90 transition-opacity"
+                className="h-11 sm:h-12 w-auto object-contain group-hover:opacity-90 transition-opacity"
               />
             </Link>
 
@@ -71,61 +95,119 @@ export default function DashboardNav({
               <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-slate-400 truncate">
                 Securely Connecting Professionals &amp; Employers
               </span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700">
-                  🛡️ 2-Stage Identity Vault Active
+              {role && (
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700 mt-0.5">
+                  {role === 'employer'
+                    ? 'Employer Workspace'
+                    : 'Candidate Workspace'}
                 </span>
-                {role && (
-                  <>
-                    <span className="text-slate-300">•</span>
-                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">
-                      {role === 'employer'
-                        ? 'Employer Portal'
-                        : 'Candidate Portal'}
-                    </span>
-                  </>
-                )}
-              </div>
+              )}
             </div>
           </div>
 
-          {/* Right: Pinned Single-Row Account Status, Quick Telemetry Feedback & Sign Out */}
+          {/* Right: Quick Feedback + Single Unified Account & Plan Dropdown */}
           <div className="flex items-center gap-2.5 shrink-0">
-            {tierLabel && (
-              <Link
-                href={
-                  role === 'employer'
-                    ? '/dashboard/employer/billing'
-                    : '/dashboard/billing'
-                }
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-extrabold hover:bg-indigo-100 transition-colors whitespace-nowrap"
-              >
-                <span className="w-2 h-2 rounded-full bg-indigo-600 shrink-0"></span>
-                {tierLabel}
-              </Link>
-            )}
-
-            {/* 1-Click Telemetry Bug & UX Feedback Widget */}
             <QuickFeedbackWidget />
 
-            {userEmail && (
-              <span className="hidden xl:inline-block text-xs font-semibold text-slate-500 max-w-[180px] truncate">
-                {userEmail}
-              </span>
-            )}
-
-            <form action={signOutAction} className="shrink-0">
+            <div className="relative" ref={dropdownRef}>
               <button
-                type="submit"
-                className="px-3.5 py-1.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors cursor-pointer whitespace-nowrap shadow-2xs"
+                type="button"
+                onClick={() => setMenuOpen((prev) => !prev)}
+                className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
               >
-                Sign Out
+                <span className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[11px] font-extrabold uppercase shrink-0">
+                  {userEmail ? userEmail.charAt(0) : 'U'}
+                </span>
+                <span className="hidden sm:inline-block max-w-[170px] truncate text-slate-700">
+                  {userEmail || 'Account'}
+                </span>
+                <svg
+                  className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                    menuOpen ? 'rotate-180' : ''
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2.5"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
               </button>
-            </form>
+
+              {/* Dropdown Menu */}
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-white border border-slate-200 shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  {/* Account & Authoritative Plan Status Header */}
+                  <div className="px-4 py-3 border-b border-slate-100 space-y-1.5">
+                    <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      Signed in as
+                    </p>
+                    <p className="text-xs font-extrabold text-slate-900 truncate">
+                      {userEmail}
+                    </p>
+                    {tierLabel && (
+                      <div className="pt-1 flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-semibold text-slate-500">
+                          Current Plan:
+                        </span>
+                        <span className="text-[11px] font-extrabold text-indigo-700 truncate">
+                          {tierLabel}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Single Authoritative Plan / Billing Link + Utility Links */}
+                  <div className="py-1.5 px-2 space-y-0.5">
+                    <Link
+                      href={billingHref}
+                      className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                    >
+                      <span>
+                        {role === 'employer'
+                          ? 'Billing, Plan & Pitch Credits'
+                          : 'Membership & Plan Settings'}
+                      </span>
+                      <span className="text-indigo-600 font-extrabold">→</span>
+                    </Link>
+
+                    <Link
+                      href="/dashboard/security"
+                      className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                    >
+                      <span>2-Stage Vault &amp; Security</span>
+                    </Link>
+
+                    <Link
+                      href="/dashboard/support"
+                      className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                    >
+                      <span>Help Center &amp; Playbooks</span>
+                    </Link>
+                  </div>
+
+                  {/* Sign Out */}
+                  <div className="pt-1.5 mt-1 border-t border-slate-100 px-2">
+                    <form action={signOutAction}>
+                      <button
+                        type="submit"
+                        className="w-full text-left px-3 py-2 rounded-xl text-xs font-extrabold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                      >
+                        Sign Out
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* ROW 2: Primary Navigation Tabs (Left) + Vault & Help Quick Links (Right) */}
+        {/* ROW 2: Clean Core Workspace Navigation Tabs Only (Zero Right-Side Colored Pills!) */}
         <div className="flex items-center justify-between gap-4 py-2 border-t border-slate-100 overflow-x-auto no-scrollbar">
           <nav className="flex items-center gap-1 shrink-0">
             {navLinks.map((item) => {
@@ -136,7 +218,7 @@ export default function DashboardNav({
                   href={item.href}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all ${
                     active
-                      ? 'bg-slate-900 text-white shadow-xs'
+                      ? 'bg-slate-900 text-white shadow-2xs'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                   }`}
                 >
@@ -145,30 +227,6 @@ export default function DashboardNav({
               )
             })}
           </nav>
-
-          <div className="hidden md:flex items-center gap-2 shrink-0">
-            <Link
-              href="/dashboard/security"
-              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors whitespace-nowrap ${
-                pathname === '/dashboard/security'
-                  ? 'bg-emerald-600 text-white border-emerald-600'
-                  : 'bg-emerald-50/80 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
-              }`}
-            >
-              🔒 Vault &amp; Security
-            </Link>
-
-            <Link
-              href="/dashboard/support"
-              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors whitespace-nowrap ${
-                pathname === '/dashboard/support'
-                  ? 'bg-slate-900 text-white border-slate-900'
-                  : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              Help Center
-            </Link>
-          </div>
         </div>
       </div>
     </header>

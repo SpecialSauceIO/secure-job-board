@@ -15,7 +15,6 @@ import {
 import {
   setRole,
   resolveEmployerTierInfo,
-  resolveCandidateTierInfo,
 } from '@/app/dashboard/actions'
 import VerifyButton from './VerifyButton'
 
@@ -268,7 +267,7 @@ export default async function DashboardPage({
   const { savedJobsCount, savedCandidatesCount } = extractBookmarkCounts(profile)
 
   // ============================================================================
-  // STREAMLINED EMPLOYER DASHBOARD (DE-PILLED & CLEAN)
+  // STREAMLINED EMPLOYER DASHBOARD (ZERO REDUNDANT PLAN LINKS)
   // ============================================================================
   if (profile?.role === 'employer') {
     const { data: member } = await supabase
@@ -400,17 +399,13 @@ export default async function DashboardPage({
               )}
               <span>·</span>
               <span>
-                {tierInfo.label} ({activeJobsCount}/{tierInfo.maxActiveJobs}{' '}
-                Active Roles)
+                {activeJobsCount} of {tierInfo.maxActiveJobs} Active Roles
               </span>
               <span>·</span>
-              <Link
-                href="/dashboard/employer/billing"
-                className="text-indigo-600 hover:text-indigo-800 font-bold"
-              >
+              <span>
                 {connectionCredits} Pitch{' '}
                 {connectionCredits === 1 ? 'Credit' : 'Credits'} Available
-              </Link>
+              </span>
             </div>
           </div>
 
@@ -472,7 +467,7 @@ export default async function DashboardPage({
           </div>
         </header>
 
-        {/* 4 CORE METRIC CARDS (UNIFIED CLEAN BORDERS, NO MULTI-PILL CLUTTER) */}
+        {/* 4 CORE METRIC CARDS */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Card 1: Company & Seats */}
           <Link
@@ -500,9 +495,9 @@ export default async function DashboardPage({
               </h3>
               <p className="text-xs text-slate-500 mt-1">
                 {isOrgVerified
-                  ? `Up to ${tierInfo.maxSeats} ${
+                  ? `Up to ${tierInfo.maxSeats} collaborator ${
                       tierInfo.maxSeats === 1 ? 'seat' : 'seats'
-                    } on ${tierInfo.label}`
+                    }`
                   : 'Verify domain to unlock talent search'}
               </p>
             </div>
@@ -643,7 +638,7 @@ export default async function DashboardPage({
   }
 
   // ============================================================================
-  // STREAMLINED CANDIDATE VIEW (DE-PILLED & CLEAN)
+  // STREAMLINED CANDIDATE VIEW (ZERO REDUNDANT PLAN LINKS)
   // ============================================================================
   const isVerified = Boolean(
     profile?.identity_verified === true ||
@@ -652,8 +647,6 @@ export default async function DashboardPage({
       String(profile?.is_verified) === 'true' ||
       profile?.verification_status === 'verified'
   )
-
-  const candidateTierInfo = await resolveCandidateTierInfo(user.id)
 
   const { data: allCandidateApps } = await supabase
     .from('applications')
@@ -767,16 +760,7 @@ export default async function DashboardPage({
               </span>
             )}
             <span>·</span>
-            <span>{candidateTierInfo.label}</span>
-            <span>·</span>
-            <Link
-              href="/dashboard/billing"
-              className="text-indigo-600 hover:text-indigo-800 font-bold"
-            >
-              {candidateTierInfo.tier === 'pro'
-                ? 'Manage Pro Pass'
-                : 'Upgrade to Pro ($9/mo)'}
-            </Link>
+            <span>2-Stage Identity &amp; Resume Vault Active</span>
           </div>
         </div>
 
@@ -835,7 +819,7 @@ export default async function DashboardPage({
         </div>
       )}
 
-      {/* 4 CORE CANDIDATE CARDS (UNIFIED CLEAN BORDERS, NO MULTI-PILL CLUTTER) */}
+      {/* 4 CORE CANDIDATE CARDS */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <Link
           href="/dashboard/profile"
