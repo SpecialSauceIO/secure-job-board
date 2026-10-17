@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   getCandidateConnectionRequests,
@@ -8,11 +8,10 @@ import {
   recalculatePitchMatch,
 } from '@/app/dashboard/actions'
 import SecureMessageThread from '@/components/SecureMessageThread'
-import {
-  STANDARD_INDUSTRY_VERTICALS,
-  normalizeIndustryVertical,
-} from '@/constants/industries'
+import { normalizeIndustryVertical } from '@/constants/industries'
 import { normalizeJobEducationReq } from '@/constants/education'
+import { getQuickJobCardRank } from '@/constants/gamification'
+import { RankAndFounderPill } from '@/components/ReputationBadgeCase'
 import {
   Radar,
   RadarChart,
@@ -23,1124 +22,546 @@ import {
   Tooltip,
 } from 'recharts'
 
-type RequestSortOption =
-  | 'match_high'
-  | 'match_low'
-  | 'recent_activity'
-  | 'pay_high'
-  | 'newest'
-  | 'oldest'
-
-function getRequestJobIndustry(req: any): string {
-  const job = req?.jobs || {}
-  const rawInd = job.industry || job.job_meta?.industry || ''
-  return rawInd ? normalizeIndustryVertical(rawInd) : ''
-}
-
-function getRequestJobEducation(req: any): string {
-  const job = req?.jobs || {}
-  const rawEdu = job.education_req || job.job_meta?.education_req || ''
-  return rawEdu ? normalizeJobEducationReq(rawEdu) : ''
-}
-
-function getRequestJobCerts(req: any): string {
-  const job = req?.jobs || {}
-  return (
-    job.required_certifications || job.job_meta?.required_certifications || ''
-  )
-}
-
-function getAnnualizedMaxPay(req: any): number {
-  const job = req?.jobs || {}
-  const rawMax = Number(job.salary_max) || Number(job.salary_min) || 0
-  if (!rawMax) return 0
-  const isHourly =
+function formatJobPayBand(job: any): string {
+  if (!job) return 'Compensation Open'
+  const payType =
     job.pay_type === 'hourly' ||
     job.job_meta?.pay_type === 'hourly' ||
-    (rawMax > 0 && rawMax <= 500)
-  return isHourly ? rawMax * 2080 : rawMax
+    (job.salary_max && job.salary_max > 0 && job.salary_max <= 500)
+      ? 'hourly'
+      : 'annual'
+
+  const fmt = (val?: number | null) => {
+    if (!val || isNaN(Number(val))) return null
+    const num = Number(val)
+    if (payType === 'hourly') return `$${num.toLocaleString()}`
+    if (num >= 1000) {
+      const k = num / 1000
+      return `$${Number.isInteger(k) ? k : k.toFixed(1)}k`
+    }
+    return `$${num.toLocaleString()}`
+  }
+
+  const minS = fmt(job.salary_min)
+  const maxS = fmt(job.salary_max)
+  const suffix = payType === 'hourly' ? '/hr' : '/yr'
+
+  if (minS && maxS) return `${minS} – ${maxS} ${suffix}`
+  if (minS) return `${minS}+ ${suffix}`
+  if (maxS) return `Up to ${maxS} ${suffix}`
+  return 'Compensation Open'
 }
 
-function getLastActivityTimestamp(req: any): number {
-  const messages = Array.isArray(req?.match_data?.messages)
-    ? req.match_data.messages
-    : []
-  if (messages.length > 0) {
-    const lastMsg = messages[messages.length - 1]
-    const msgTime = new Date(lastMsg.created_at || 0).getTime()
-    if (!isNaN(msgTime) && msgTime > 0) return msgTime
-  }
-  if (req?.match_data?.last_message_at) {
-    const t = new Date(req.match_data.last_message_at).getTime()
-    if (!isNaN(t)) return t
-  }
-  return new Date(req?.created_at || 0).getTime()
-}
-
-export default function CandidateConnectionRequestsPage() {
+export default function CandidateRequestsInboxPage() {
   const [requests, setRequests] = useState<any[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [statusFilter, setStatusFilter] = useState<
-    'all' | 'pending' | 'accepted' | 'declined'
-  >('pending')
-  const [industryFilter, setIndustryFilter] = useState<string>('all')
-  const [sortBy, setSortBy] = useState<RequestSortOption>('match_high')
-  const [justUpdatedIds, setJustUpdatedIds] = useState<Record<string, boolean>>(
-    {}
-  )
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [processingId, setProcessingId] = useState<string | null>(null)
   const [recalculatingId, setRecalculatingId] = useState<string | null>(null)
-  const [expandedRadarId, setExpandedRadarId] = useState<string | null>(null)
-  const [feedback, setFeedback] = useState<{
-    id: string
-    type: 'success' | 'error'
-    text: string
-  } | null>(null)
-  const [copiedKey, setCopiedKey] = useState<string | null>(null)
+  const [expandedRadarIds, setExpandedRadarIds] = useState<
+    Record<string, boolean>
+  >({})
+  const [feedback, setFeedback] = useState<
+    Record<string, { type: 'success' | 'error'; text: string }>
+  >({})
 
-  const loadRequestsFromServer = useCallback(async (showSpinner = true) => {
-    if (showSpinner) setIsLoading(true)
-    const result = await getCandidateConnectionRequests()
-    if (result.data) {
-      setRequests(result.data)
+  const fetchRequests = async () => {
+    setIsLoading(true)
+    const res = await getCandidateConnectionRequests()
+    if (res?.data) {
+      setRequests(res.data)
     }
-    if (showSpinner) setIsLoading(false)
+    setIsLoading(false)
+  }
+
+  useEffect(() => {
+    fetchRequests()
   }, [])
-
-  useEffect(() => {
-    loadRequestsFromServer(true)
-  }, [loadRequestsFromServer])
-
-  // Silent 5-second background sync so new incoming pitches & employer replies appear live
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      loadRequestsFromServer(false)
-    }, 5000)
-    return () => clearInterval(intervalId)
-  }, [loadRequestsFromServer])
-
-  const copyToClipboard = (text: string, key: string) => {
-    navigator.clipboard.writeText(text)
-    setCopiedKey(key)
-    setTimeout(() => setCopiedKey(null), 2000)
-  }
-
-  const getNormalizedStatus = (
-    req: any
-  ): 'pending' | 'accepted' | 'declined' => {
-    if (req.status === 'rejected' || req.status === 'declined')
-      return 'declined'
-    if (req.status === 'accepted' || req.is_revealed === true) return 'accepted'
-    return 'pending'
-  }
-
-  const handleTabChange = (
-    newTab: 'all' | 'pending' | 'accepted' | 'declined'
-  ) => {
-    setStatusFilter(newTab)
-    setJustUpdatedIds({})
-    setFeedback(null)
-  }
 
   const handleDecision = async (
     applicationId: string,
     decision: 'accepted' | 'declined'
   ) => {
     setProcessingId(applicationId)
-    setFeedback(null)
+    setFeedback((prev) => {
+      const copy = { ...prev }
+      delete copy[applicationId]
+      return copy
+    })
 
-    const result: any = await respondToConnectionRequest(
-      applicationId,
-      decision
+    const res: any = await respondToConnectionRequest(applicationId, decision)
+
+    if (res?.error) {
+      setFeedback((prev) => ({
+        ...prev,
+        [applicationId]: { type: 'error', text: res.error },
+      }))
+      setProcessingId(null)
+      return
+    }
+
+    setRequests((prev) =>
+      prev.map((req) => {
+        if (req.id !== applicationId) return req
+        if (decision === 'declined') {
+          return { ...req, status: 'rejected', is_revealed: false }
+        }
+        return {
+          ...req,
+          status: 'accepted',
+          is_revealed: true,
+          unlocked_employer_name:
+            res.unlocked_employer_name || req.unlocked_employer_name,
+          unlocked_employer_domain:
+            res.unlocked_employer_domain || req.unlocked_employer_domain,
+          unlocked_employer_email:
+            res.unlocked_employer_email || req.unlocked_employer_email,
+          unlocked_candidate_email:
+            res.unlocked_candidate_email || req.unlocked_candidate_email,
+        }
+      })
     )
 
-    if (result?.error) {
-      setFeedback({ id: applicationId, type: 'error', text: result.error })
-    } else {
-      setJustUpdatedIds((prev) => ({ ...prev, [applicationId]: true }))
-      await loadRequestsFromServer(false)
-
-      setRequests((prev) =>
-        prev.map((req) => {
-          if (req.id !== applicationId) return req
-
-          const existingJob = req.jobs || {}
-          const existingOrg = existingJob.organizations || {}
-
-          const unlockedName =
-            decision === 'accepted'
-              ? result.unlocked_employer_name ||
-                (req.unlocked_employer_name &&
-                req.unlocked_employer_name !== 'Verified Employer'
-                  ? req.unlocked_employer_name
-                  : null) ||
-                (existingOrg.name &&
-                existingOrg.name !== 'A Verified Employer' &&
-                existingOrg.name !== 'Verified Employer'
-                  ? existingOrg.name
-                  : null) ||
-                req.match_data?.employer_org_name ||
-                'Verified Employer'
-              : existingOrg.name
-
-          const unlockedDomain =
-            decision === 'accepted'
-              ? result.unlocked_employer_domain ||
-                req.unlocked_employer_domain ||
-                (existingOrg.domain && existingOrg.domain !== 'hidden'
-                  ? existingOrg.domain
-                  : '')
-              : existingOrg.domain
-
-          return {
-            ...req,
-            status:
-              result.storedStatus ||
-              (decision === 'declined' ? 'rejected' : 'accepted'),
-            is_revealed: decision === 'accepted',
-            reference_id: result.referenceId || req.reference_id,
-            unlocked_employer_name: unlockedName,
-            unlocked_employer_domain: unlockedDomain,
-            unlocked_employer_email:
-              result.unlocked_employer_email || req.unlocked_employer_email,
-            jobs: {
-              ...existingJob,
-              organizations: {
-                ...existingOrg,
-                name: unlockedName,
-                domain: unlockedDomain,
-              },
-            },
-          }
-        })
-      )
-    }
+    setFeedback((prev) => ({
+      ...prev,
+      [applicationId]: {
+        type: 'success',
+        text:
+          decision === 'accepted'
+            ? `Pitch Accepted (+150 Profile XP • Ref: ${res.referenceId})! Stage 1 Encrypted Thread is now open below while your PDF resume and email remain vaulted.`
+            : `Pitch politely declined (+150 Responsiveness XP • Ref: ${res.referenceId}).`,
+      },
+    }))
 
     setProcessingId(null)
   }
 
   const handleRecalculate = async (applicationId: string) => {
     setRecalculatingId(applicationId)
-    setFeedback(null)
-
-    try {
-      const timeoutPromise = new Promise<{ error: string }>((resolve) => {
-        setTimeout(() => {
-          resolve({
-            error:
-              'AI Match recalculation took longer than 30 seconds across our 3-tier matching cascade. Please try again.',
-          })
-        }, 30000)
-      })
-
-      const result: any = await Promise.race([
-        recalculatePitchMatch(applicationId),
-        timeoutPromise,
-      ])
-
-      if (result?.error) {
-        setFeedback({ id: applicationId, type: 'error', text: result.error })
-      } else if (result?.data) {
-        const updatedData = result.data
-        setRequests((prev) =>
-          prev.map((req) =>
-            req.id === applicationId
-              ? {
-                  ...req,
-                  match_score: updatedData.match_score,
-                  employer_pitch: updatedData.employer_pitch,
-                  match_data: updatedData.match_data,
-                }
-              : req
-          )
+    const res: any = await recalculatePitchMatch(applicationId)
+    if (res?.data) {
+      setRequests((prev) =>
+        prev.map((req) =>
+          req.id === applicationId
+            ? {
+                ...req,
+                match_score: res.data.match_score,
+                match_data: res.data.match_data,
+              }
+            : req
         )
-        setFeedback({
-          id: applicationId,
-          type: 'success',
-          text: `AI Match recalculated (${updatedData.match_score}%) using your current profile skills!`,
-        })
-      }
-    } catch {
-      setFeedback({
-        id: applicationId,
-        type: 'error',
-        text: 'Network timeout while recalculating AI Match. Please try again.',
-      })
-    } finally {
-      setRecalculatingId(null)
+      )
+      setExpandedRadarIds((prev) => ({ ...prev, [applicationId]: true }))
+    } else if (res?.error) {
+      setFeedback((prev) => ({
+        ...prev,
+        [applicationId]: { type: 'error', text: res.error },
+      }))
     }
+    setRecalculatingId(null)
   }
 
-  const filteredAndSortedRequests = useMemo(() => {
-    const filtered = requests.filter((req) => {
-      const statusMatches =
-        statusFilter === 'all' ||
-        Boolean(justUpdatedIds[req.id]) ||
-        getNormalizedStatus(req) === statusFilter
-
-      if (!statusMatches) return false
-
-      if (industryFilter !== 'all') {
-        const reqInd = getRequestJobIndustry(req)
-        if (reqInd.toLowerCase() !== industryFilter.toLowerCase()) {
-          return false
-        }
-      }
-
-      return true
-    })
-
-    const getMatchScore = (req: any): number =>
-      Number(req.match_score ?? req.match_data?.overall_score ?? 0)
-
-    return [...filtered].sort((a, b) => {
-      switch (sortBy) {
-        case 'match_high':
-          return getMatchScore(b) - getMatchScore(a)
-        case 'match_low':
-          return getMatchScore(a) - getMatchScore(b)
-        case 'recent_activity':
-          return getLastActivityTimestamp(b) - getLastActivityTimestamp(a)
-        case 'pay_high':
-          return getAnnualizedMaxPay(b) - getAnnualizedMaxPay(a)
-        case 'newest':
-          return (
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          )
-        case 'oldest':
-          return (
-            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-          )
-        default:
-          return 0
-      }
-    })
-  }, [requests, statusFilter, industryFilter, sortBy, justUpdatedIds])
-
-  const pendingCount = requests.filter(
-    (r) => getNormalizedStatus(r) === 'pending'
-  ).length
-  const acceptedCount = requests.filter(
-    (r) => getNormalizedStatus(r) === 'accepted'
-  ).length
-  const declinedCount = requests.filter(
-    (r) => getNormalizedStatus(r) === 'declined'
-  ).length
+  const filteredRequests = requests.filter((req) => {
+    const isAccepted = req.status === 'accepted' || req.is_revealed === true
+    const isDeclined = req.status === 'rejected' || req.status === 'declined'
+    if (statusFilter === 'accepted') return isAccepted
+    if (statusFilter === 'pending') return !isAccepted && !isDeclined
+    if (statusFilter === 'declined') return isDeclined
+    return true
+  })
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-12">
-      <div className="max-w-5xl mx-auto space-y-8">
-        {/* Header */}
+    <div className="max-w-6xl mx-auto py-4 space-y-6">
+      {/* Header */}
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div>
-          <Link
-            href="/dashboard"
-            className="text-indigo-600 font-bold text-sm inline-flex items-center gap-1 mb-3 hover:text-indigo-700"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Employer Connection Pitches
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Domain-verified employers spent a connection credit to pitch you these roles based on your anonymous skill matrix. Responding awards +150 Profile XP.
+          </p>
+        </div>
+
+        <Link
+          href="/dashboard/jobs"
+          className="shrink-0 inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm"
+        >
+          Browse All Open Roles →
+        </Link>
+      </header>
+
+      {/* Filter Tabs */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {[
+            { id: 'all', label: `All Pitches (${requests.length})` },
+            { id: 'pending', label: '⚡ Pending Your Reply' },
+            { id: 'accepted', label: '🔓 Accepted & Connected' },
+            { id: 'declined', label: 'Declined' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setStatusFilter(tab.id)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                statusFilter === tab.id
+                  ? 'bg-slate-900 text-white shadow-2xs'
+                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+              }`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Back to Candidate Dashboard
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <span className="text-xs font-bold text-emerald-700">
+          🛡️ Receiving &amp; accepting employer pitches is 100% free forever
+        </span>
+      </div>
+
+      {/* Pitches List */}
+      {isLoading ? (
+        <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-xs">
+          <div className="inline-block w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin mb-3" />
+          <p className="text-sm font-bold text-slate-500">
+            Loading your employer pitch inbox...
+          </p>
+        </div>
+      ) : filteredRequests.length === 0 ? (
+        <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-xs space-y-3">
+          <h3 className="text-lg font-extrabold text-slate-900">
+            No employer pitches in this tab yet
+          </h3>
+          <p className="text-xs text-slate-500 max-w-md mx-auto">
+            Keep your anonymous Skill Matrix, Education, and Certifications updated on your Profile so verified hiring teams can discover and pitch you.
+          </p>
+          <Link
+            href="/dashboard/profile"
+            className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors"
+          >
+            Review My Anonymous Profile →
           </Link>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                Employer Connection Requests
-              </h1>
-              <p className="text-slate-500 mt-1">
-                Employers below matched with your anonymous profile and spent a connection credit to pitch you their open role.
-              </p>
-            </div>
-          </div>
         </div>
+      ) : (
+        <div className="space-y-5">
+          {filteredRequests.map((req) => {
+            const job = req.jobs || {}
+            const isAccepted =
+              req.status === 'accepted' || req.is_revealed === true
+            const isDeclined =
+              req.status === 'rejected' || req.status === 'declined'
+            const vaultReleased = Boolean(
+              req.match_data?.candidate_vault_released === true
+            )
 
-        {/* Status Tabs + Industry Vertical Filter + Sort By Bar */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => handleTabChange('pending')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                  statusFilter === 'pending'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+            const rankInfo = getQuickJobCardRank(job)
+            const payBand = formatJobPayBand(job)
+
+            const rawIndustry = job.industry || job.job_meta?.industry || ''
+            const industryLabel = rawIndustry
+              ? normalizeIndustryVertical(rawIndustry)
+              : 'Verified Employer'
+
+            const rawEduReq =
+              job.education_req || job.job_meta?.education_req || ''
+            const eduReqLabel = rawEduReq
+              ? normalizeJobEducationReq(rawEduReq)
+              : ''
+            const reqCerts =
+              job.required_certifications ||
+              job.job_meta?.required_certifications ||
+              ''
+
+            const matchScore =
+              req.match_score ?? req.match_data?.overall_score ?? null
+            const radarData = req.match_data?.radar_data || null
+            const showRadar = Boolean(expandedRadarIds[req.id])
+            const threadMessages = Array.isArray(req.match_data?.messages)
+              ? req.match_data.messages
+              : []
+            const cardMsg = feedback[req.id]
+
+            const companyHeading = isAccepted
+              ? req.unlocked_employer_name ||
+                job.organizations?.name ||
+                'Verified Employer'
+              : `Blind Employer Pitch • ${industryLabel}`
+
+            return (
+              <div
+                key={req.id}
+                className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all ${
+                  isAccepted
+                    ? 'border-emerald-300 ring-2 ring-emerald-50'
+                    : isDeclined
+                    ? 'border-slate-200 opacity-75'
+                    : rankInfo.isFounder
+                    ? 'border-amber-300/90 hover:border-indigo-300'
+                    : 'border-slate-200 hover:border-indigo-200'
                 }`}
               >
-                Pending Review
-                <span
-                  className={`px-2 py-0.5 rounded-full text-[11px] ${
-                    statusFilter === 'pending'
-                      ? 'bg-indigo-500 text-white'
-                      : 'bg-slate-200 text-slate-700'
-                  }`}
-                >
-                  {pendingCount}
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleTabChange('accepted')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                  statusFilter === 'accepted'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-                }`}
-              >
-                Accepted &amp; Thread Open
-                <span
-                  className={`px-2 py-0.5 rounded-full text-[11px] ${
-                    statusFilter === 'accepted'
-                      ? 'bg-emerald-500 text-white'
-                      : 'bg-slate-200 text-slate-700'
-                  }`}
-                >
-                  {acceptedCount}
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleTabChange('declined')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                  statusFilter === 'declined'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-                }`}
-              >
-                Declined
-                <span
-                  className={`px-2 py-0.5 rounded-full text-[11px] ${
-                    statusFilter === 'declined'
-                      ? 'bg-rose-500 text-white'
-                      : 'bg-slate-200 text-slate-700'
-                  }`}
-                >
-                  {declinedCount}
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleTabChange('all')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  statusFilter === 'all'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-                }`}
-              >
-                All ({requests.length})
-              </button>
-            </div>
-
-            <span className="text-xs font-bold text-slate-500">
-              Showing{' '}
-              <strong className="text-slate-900">
-                {filteredAndSortedRequests.length}
-              </strong>{' '}
-              of {requests.length}
-            </span>
-          </div>
-
-          {/* Organizer Row: Industry Vertical Filter + Sort By Dropdown */}
-          <div className="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="flex items-center gap-2">
-              <label
-                htmlFor="candidate-req-industry"
-                className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
-              >
-                Industry:
-              </label>
-              <select
-                id="candidate-req-industry"
-                value={industryFilter}
-                onChange={(e) => setIndustryFilter(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
-              >
-                <option value="all">All Industry Verticals</option>
-                {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
-                  <option key={vertical} value={vertical}>
-                    {vertical}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <label
-                htmlFor="candidate-req-sort"
-                className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
-              >
-                Sort By:
-              </label>
-              <select
-                id="candidate-req-sort"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as RequestSortOption)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
-              >
-                <option value="match_high">
-                  AI Match Score (Highest First)
-                </option>
-                <option value="match_low">AI Match Score (Lowest First)</option>
-                <option value="recent_activity">
-                  Recent Thread Activity / Unread First
-                </option>
-                <option value="pay_high">
-                  Highest Compensation (Annualized)
-                </option>
-                <option value="newest">Newest Pitches First</option>
-                <option value="oldest">Oldest Pitches First</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Feed */}
-        {isLoading ? (
-          <div className="py-16 text-center bg-white rounded-2xl border border-slate-200 shadow-sm">
-            <div className="inline-block w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-            <p className="text-slate-500 font-medium">
-              Loading incoming employer pitches...
-            </p>
-          </div>
-        ) : filteredAndSortedRequests.length === 0 ? (
-          <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-sm">
-            <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-slate-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">
-              No {statusFilter !== 'all' ? statusFilter : ''} connection requests
-            </h3>
-            <p className="text-slate-500 max-w-md mx-auto text-sm mb-4">
-              {statusFilter === 'pending' && industryFilter === 'all'
-                ? "You're all caught up! When employers pitch you their active roles, they will appear right here."
-                : 'No connection requests match your current status or Industry Vertical filter.'}
-            </p>
-            {(statusFilter !== 'all' || industryFilter !== 'all') && (
-              <button
-                type="button"
-                onClick={() => {
-                  setStatusFilter('all')
-                  setIndustryFilter('all')
-                }}
-                className="px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer"
-              >
-                Reset Active Filters →
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {filteredAndSortedRequests.map((req) => {
-              const job = req.jobs || {}
-              const org = job.organizations || {}
-              const jobIndustry = getRequestJobIndustry(req)
-              const jobEducationReq = getRequestJobEducation(req)
-              const jobRequiredCerts = getRequestJobCerts(req)
-              const normalizedStatus = getNormalizedStatus(req)
-              const isUnlocked = normalizedStatus === 'accepted'
-              const vaultReleased = Boolean(
-                req.match_data?.candidate_vault_released === true
-              )
-              const threadMessages = Array.isArray(req.match_data?.messages)
-                ? req.match_data.messages
-                : []
-
-              const companyName = isUnlocked
-                ? (req.unlocked_employer_name &&
-                  req.unlocked_employer_name !== 'Verified Employer'
-                    ? req.unlocked_employer_name
-                    : null) ||
-                  (org.name &&
-                  org.name !== 'A Verified Employer' &&
-                  org.name !== 'Verified Employer'
-                    ? org.name
-                    : null) ||
-                  req.match_data?.employer_org_name ||
-                  req.unlocked_employer_name ||
-                  'Verified Employer'
-                : 'A Verified Employer'
-
-              const companyDomain = isUnlocked
-                ? req.unlocked_employer_domain ||
-                  (org.domain && org.domain !== 'hidden' ? org.domain : null) ||
-                  req.match_data?.employer_org_domain ||
-                  ''
-                : ''
-
-              const referenceId =
-                req.reference_id ||
-                `SS-${(req.id || '')
-                  .replace(/-/g, '')
-                  .substring(0, 8)
-                  .toUpperCase()}`
-              const matchScore =
-                req.match_score ?? req.match_data?.overall_score ?? null
-              const employerEmail =
-                req.unlocked_employer_email ||
-                req.match_data?.employer_contact_email ||
-                (companyDomain ? `hiring@${companyDomain}` : '')
-
-              const pitchText =
-                req.employer_pitch ||
-                req.match_data?.employer_pitch ||
-                req.match_data?.brief_analysis ||
-                'Your background and skill matrix aligned strongly with our core requirements for this role.'
-              const radarData = req.match_data?.radar_data || null
-              const isExpanded = expandedRadarId === req.id
-
-              const requiredSkills: { skill: string; level?: string }[] =
-                Array.isArray(job.structured_requirements)
-                  ? job.structured_requirements
-                      .map((item: any) =>
-                        typeof item === 'string'
-                          ? { skill: item }
-                          : {
-                              skill: item?.skill || item?.name || '',
-                              level: item?.level,
-                            }
-                      )
-                      .filter(
-                        (r: any) =>
-                          r.skill && !String(r.skill).startsWith('__SS_')
-                      )
-                  : []
-
-              return (
-                <div
-                  key={req.id}
-                  className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all ${
-                    isUnlocked
-                      ? 'border-emerald-300 ring-2 ring-emerald-500/10'
-                      : 'border-slate-200 hover:border-indigo-200'
-                  }`}
-                >
-                  <div className="p-6 md:p-8 space-y-5">
-                    {/* Top Row: Company Badge, Reference ID, Match Score, and Status */}
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className={`w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm border ${
-                            isUnlocked
-                              ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                              : 'bg-indigo-50 border-indigo-100 text-indigo-600'
+                <div className="p-6 md:p-8 space-y-5">
+                  {/* Top Bar: Employer Identity / Blind Status, Metal Rank & Founder Badge, Pay Band */}
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-slate-100">
+                    <div className="space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-extrabold uppercase tracking-wider ${
+                            isAccepted
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-slate-900 text-white'
                           }`}
                         >
-                          {companyName.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span
-                              className={`text-xs font-extrabold uppercase tracking-wider ${
-                                isUnlocked
-                                  ? 'text-emerald-700'
-                                  : 'text-indigo-600'
-                              }`}
-                            >
-                              {companyName}
-                            </span>
-                            <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-[11px] font-bold border border-slate-200">
-                              Ref: {referenceId}
-                            </span>
-                            {jobIndustry && (
-                              <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-800 border border-indigo-200 text-[11px] font-bold">
-                                {jobIndustry}
-                              </span>
-                            )}
-                          </div>
-                          <span className="text-xs text-slate-400">
-                            Pitched on{' '}
-                            {new Date(req.created_at).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        {matchScore !== null && (
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-bold border ${
-                              matchScore >= 80
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                : 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                            }`}
-                          >
-                            {matchScore}% AI Match
-                          </span>
-                        )}
-
-                        {normalizedStatus === 'pending' && (
-                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                            Identity Hidden
-                          </span>
-                        )}
-                        {normalizedStatus === 'accepted' && (
-                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
-                            <svg
-                              className="w-3.5 h-3.5"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
-                            {vaultReleased
-                              ? 'Stage 2 Vault Released'
-                              : 'Stage 1 Thread Active'}
-                          </span>
-                        )}
-                        {normalizedStatus === 'declined' && (
-                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
-                            Declined
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Role Title, Compensation, Education & Certification Badges */}
-                    <div>
-                      <h2 className="text-2xl font-extrabold text-slate-900 mb-3">
-                        {job.title || 'Open Role'}
-                      </h2>
-
-                      <div className="flex flex-wrap items-center gap-2.5">
-                        {(job.salary_min || job.salary_max) && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            </svg>
-                            {job.salary_max && job.salary_max <= 500 ? (
-                              <>
-                                ${job.salary_min || ''}
-                                {job.salary_min && job.salary_max ? ' – ' : ''}
-                                {job.salary_max ? `$${job.salary_max}` : ''} /hr
-                              </>
-                            ) : (
-                              <>
-                                $
-                                {job.salary_min
-                                  ? (job.salary_min / 1000).toFixed(0) + 'k'
-                                  : ''}
-                                {job.salary_min && job.salary_max ? ' – ' : ''}
-                                {job.salary_max
-                                  ? '$' +
-                                    (job.salary_max / 1000).toFixed(0) +
-                                    'k'
-                                  : ''}{' '}
-                                /yr
-                              </>
-                            )}
-                          </span>
-                        )}
-
-                        {job.work_model && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold capitalize border border-slate-200">
-                            {job.work_model} Work Model
-                          </span>
-                        )}
-
-                        {job.employment_type && (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200">
-                            {job.employment_type}
-                          </span>
-                        )}
-
-                        {jobEducationReq && (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-xs font-bold">
-                            🎓 {jobEducationReq}
-                          </span>
-                        )}
-
-                        {jobRequiredCerts && (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
-                            🏅 Certs: {jobRequiredCerts}
-                          </span>
-                        )}
-
-                        {isUnlocked && companyDomain && (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-100">
-                            🌐 {companyDomain}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* UNLOCKED EMPLOYER HEADER & SECURE MESSAGE THREAD */}
-                    {isUnlocked && (
-                      <div className="space-y-4 animate-in fade-in duration-300">
-                        <div className="p-4 bg-slate-900 text-white rounded-xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div>
-                            <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400 block mb-0.5">
-                              Unlocked Employer: {companyName}
-                            </span>
-                            <p className="text-xs text-slate-300">
-                              Message {companyName} below. Your raw email and PDF resume remain vaulted until you click &ldquo;Release Resume &amp; Contact Vault&rdquo;.
-                            </p>
-                          </div>
-
-                          <div className="flex items-center gap-2 shrink-0">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                copyToClipboard(referenceId, `ref-${req.id}`)
-                              }
-                              className="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 hover:bg-slate-700 text-xs font-bold text-amber-300 font-mono transition-colors cursor-pointer"
-                            >
-                              {copiedKey === `ref-${req.id}`
-                                ? '✓ Copied Ref ID'
-                                : `Ref: ${referenceId}`}
-                            </button>
-                            {statusFilter === 'pending' &&
-                              justUpdatedIds[req.id] && (
-                                <button
-                                  type="button"
-                                  onClick={() => handleTabChange('accepted')}
-                                  className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold transition-colors cursor-pointer"
-                                >
-                                  Go to Accepted Tab →
-                                </button>
-                              )}
-                          </div>
-                        </div>
-
-                        <SecureMessageThread
-                          applicationId={req.id}
-                          referenceId={referenceId}
-                          viewerRole="candidate"
-                          initialMessages={threadMessages}
-                          initialVaultReleased={vaultReleased}
-                          employerName={companyName}
-                          candidateFullName={
-                            req.match_data?.candidate_full_name
-                          }
-                          candidateEmail={req.unlocked_candidate_email}
-                          employerEmail={vaultReleased ? employerEmail : null}
-                        />
-                      </div>
-                    )}
-
-                    {/* 30-Second AI Recalculation Progress Banner */}
-                    {recalculatingId === req.id && (
-                      <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center gap-3.5 animate-pulse">
-                        <div className="w-5 h-5 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin shrink-0" />
-                        <div className="text-xs text-indigo-950">
-                          <span className="font-extrabold block">
-                            Recalculating 5-Point AI Fit (This may take up to 30 seconds)...
-                          </span>
-                          <span className="text-indigo-700 font-medium">
-                            Routing your updated skill matrix across our 3-tier AI matching cascade.
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Why You Matched Box (AI Pitch to Candidate) */}
-                    <div className="p-4 rounded-xl bg-indigo-50/70 border border-indigo-100">
-                      <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
-                        <span className="text-xs font-bold text-indigo-700 flex items-center gap-1.5">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M13 10V3L4 14h7v7l9-11h-7z"
-                            />
-                          </svg>
-                          Why You Were Pitched This Role
+                          {isAccepted ? '🔓' : '🔒'} {companyHeading}
                         </span>
 
-                        <div className="flex items-center gap-3">
-                          <button
-                            type="button"
-                            disabled={recalculatingId === req.id}
-                            onClick={() => handleRecalculate(req.id)}
-                            className="text-xs font-bold text-slate-600 hover:text-indigo-700 flex items-center gap-1 disabled:opacity-50 cursor-pointer"
-                          >
-                            <svg
-                              className={`w-3.5 h-3.5 ${
-                                recalculatingId === req.id
-                                  ? 'animate-spin text-indigo-600'
-                                  : ''
-                              }`}
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                              />
-                            </svg>
-                            {recalculatingId === req.id
-                              ? 'Recalculating (Up to 30s)...'
-                              : 'Recalculate AI Match'}
-                          </button>
+                        <RankAndFounderPill
+                          level={rankInfo.level}
+                          tier={rankInfo.tier}
+                          isFounder={rankInfo.isFounder}
+                          founderText="Founding Partner"
+                          size="xs"
+                        />
 
-                          {radarData && (
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setExpandedRadarId(
-                                  isExpanded ? null : req.id
-                                )
-                              }
-                              className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
-                            >
-                              {isExpanded
-                                ? 'Hide Radar Breakdown'
-                                : 'View Radar Breakdown'}
-                            </button>
-                          )}
-                        </div>
+                        <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 font-mono text-xs font-bold border border-slate-200">
+                          Ref: {req.reference_id}
+                        </span>
+
+                        <span className="text-xs text-slate-400 font-medium">
+                          Pitched{' '}
+                          {new Date(req.created_at).toLocaleDateString()}
+                        </span>
                       </div>
-                      <p className="text-sm text-slate-700 leading-relaxed font-medium">
-                        {pitchText}
-                      </p>
+
+                      <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                        {job.title || 'Open Role'}
+                      </h2>
                     </div>
 
-                    {/* Expandable AI Radar Chart Breakdown */}
-                    {isExpanded && radarData && (
-                      <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col lg:flex-row items-center gap-6 animate-in fade-in duration-200">
-                        <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {radarData.map((item: any, idx: number) => (
-                            <div
-                              key={idx}
-                              className="bg-white px-3.5 py-2.5 rounded-lg border border-slate-200 shadow-sm flex justify-between items-center"
-                            >
-                              <span className="text-xs font-bold text-slate-600">
-                                {item.subject}
-                              </span>
-                              <span
-                                className={`text-sm font-black ${
-                                  item.score >= 80
-                                    ? 'text-emerald-500'
-                                    : item.score >= 60
-                                    ? 'text-amber-500'
-                                    : 'text-rose-500'
-                                }`}
-                              >
-                                {item.score}%
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="w-full max-w-[300px] h-[220px] shrink-0 mx-auto">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <RadarChart
-                              cx="50%"
-                              cy="50%"
-                              outerRadius="60%"
-                              data={radarData}
-                            >
-                              <PolarGrid stroke="#cbd5e1" />
-                              <PolarAngleAxis
-                                dataKey="subject"
-                                tick={{
-                                  fill: '#475569',
-                                  fontSize: 10,
-                                  fontWeight: 600,
-                                }}
-                              />
-                              <PolarRadiusAxis
-                                angle={30}
-                                domain={[0, 100]}
-                                tick={false}
-                                axisLine={false}
-                              />
-                              <Tooltip />
-                              <Radar
-                                name="Match Score"
-                                dataKey="score"
-                                stroke="#4f46e5"
-                                strokeWidth={2}
-                                fill="#6366f1"
-                                fillOpacity={0.35}
-                              />
-                            </RadarChart>
-                          </ResponsiveContainer>
-                        </div>
+                    <div className="flex flex-col sm:items-end gap-1.5 shrink-0">
+                      <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-black text-base shadow-2xs">
+                        <span>{payBand}</span>
                       </div>
-                    )}
-
-                    {/* Job Description & Core Requirements */}
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
-                          Role Overview
-                        </h4>
-                        <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
-                          {job.description || 'No description provided.'}
-                        </p>
-                      </div>
-
-                      {requiredSkills.length > 0 && (
-                        <div>
-                          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                            Core Requirements
-                          </h4>
-                          <div className="flex flex-wrap gap-2">
-                            {requiredSkills.map((item, i) => (
-                              <span
-                                key={i}
-                                className="px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-md border border-slate-200"
-                              >
-                                {item.skill}
-                                {item.level ? (
-                                  <span className="text-slate-400 font-medium ml-1">
-                                    ({item.level})
-                                  </span>
-                                ) : null}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Feedback Banner */}
-                    {feedback && feedback.id === req.id && (
-                      <div
-                        className={`p-3.5 rounded-xl text-xs font-bold flex items-center justify-between gap-3 ${
-                          feedback.type === 'error'
-                            ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                            : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                        }`}
-                      >
-                        <span>{feedback.text}</span>
-                        {feedback.type === 'error' && (
-                          <button
-                            type="button"
-                            onClick={() => handleRecalculate(req.id)}
-                            className="shrink-0 px-3 py-1.5 rounded-lg bg-rose-700 text-white text-xs font-extrabold hover:bg-rose-800 transition-colors cursor-pointer"
-                          >
-                            ↻ Try Again
-                          </button>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Action Bar */}
-                    <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      {normalizedStatus === 'pending' ? (
-                        <>
-                          <p className="text-xs text-slate-500">
-                            <strong className="text-slate-700">
-                              Stage 1 Safe Accept:
-                            </strong>{' '}
-                            Accepting opens an encrypted chat with this verified employer and reveals their company name—while keeping your raw email &amp; PDF resume vaulted until you choose to release them.
-                          </p>
-                          <div className="flex items-center gap-3 shrink-0">
-                            <button
-                              type="button"
-                              disabled={processingId === req.id}
-                              onClick={() =>
-                                handleDecision(req.id, 'declined')
-                              }
-                              className="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-sm font-bold hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors disabled:opacity-50 cursor-pointer"
-                            >
-                              Decline
-                            </button>
-                            <button
-                              type="button"
-                              disabled={processingId === req.id}
-                              onClick={() =>
-                                handleDecision(req.id, 'accepted')
-                              }
-                              className="px-6 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold hover:bg-emerald-600 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2 cursor-pointer"
-                            >
-                              {processingId === req.id ? (
-                                'Opening Thread...'
-                              ) : (
-                                <>
-                                  <svg
-                                    className="w-4 h-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth="2"
-                                      d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
-                                    />
-                                  </svg>
-                                  Accept &amp; Open Encrypted Thread
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        </>
-                      ) : normalizedStatus === 'accepted' ? (
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
-                          <span className="text-xs font-bold text-emerald-700">
-                            ✓ Encrypted thread active with {companyName} (Ref: {referenceId}).
-                          </span>
-                          <span className="px-4 py-2 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-extrabold shrink-0 text-center">
-                            {vaultReleased
-                              ? '🔓 Full Vault Released'
-                              : '🛡️ Stage 1 Protected'}
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-between w-full">
-                          <span className="text-xs font-medium text-slate-400">
-                            You declined this connection request. Your identity remains hidden.
-                          </span>
-                        </div>
+                      {matchScore !== null && (
+                        <span className="px-3 py-0.5 rounded-full text-xs font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                          {matchScore}% AI Match
+                        </span>
                       )}
                     </div>
                   </div>
+
+                  {/* Role Metadata Pills */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-100 text-xs font-extrabold capitalize">
+                      {job.work_model || 'Flexible'} Work Model
+                    </span>
+                    {job.location && (
+                      <span className="px-3 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200 text-xs font-bold">
+                        📍 {job.location}
+                      </span>
+                    )}
+                    {job.employment_type && (
+                      <span className="px-3 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold">
+                        {job.employment_type}
+                      </span>
+                    )}
+                    {eduReqLabel && (
+                      <span className="px-3 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-xs font-bold">
+                        🎓 {eduReqLabel}
+                      </span>
+                    )}
+                    {reqCerts && (
+                      <span className="px-3 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
+                        🏅 Certs: {reqCerts}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Role Description */}
+                  {job.description && (
+                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                      {job.description}
+                    </p>
+                  )}
+
+                  {/* AI Pitch Summary & Radar */}
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+                      <span className="text-xs font-bold text-indigo-600">
+                        ⚡ Why You Matched This Role (5-Point AI Radar)
+                      </span>
+                      <div className="flex items-center gap-3">
+                        {radarData && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setExpandedRadarIds((prev) => ({
+                                ...prev,
+                                [req.id]: !prev[req.id],
+                              }))
+                            }
+                            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
+                          >
+                            {showRadar ? 'Hide 5-Point Radar' : 'View 5-Point Radar'}
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          disabled={recalculatingId === req.id}
+                          onClick={() => handleRecalculate(req.id)}
+                          className="text-xs font-extrabold text-slate-600 hover:text-indigo-600 cursor-pointer disabled:opacity-50"
+                        >
+                          {recalculatingId === req.id
+                            ? 'Scoring...'
+                            : '↻ Recalculate Fit'}
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">
+                      {req.match_data?.employer_pitch ||
+                        req.match_data?.brief_analysis ||
+                        'Your anonymous skill matrix and experience matched this employer’s requirements.'}
+                    </p>
+                  </div>
+
+                  {showRadar && radarData && (
+                    <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col lg:flex-row items-center gap-6 animate-in fade-in duration-200">
+                      <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {radarData.map((item: any, idx: number) => (
+                          <div
+                            key={idx}
+                            className="bg-white px-3.5 py-2.5 rounded-lg border border-slate-200 flex justify-between items-center"
+                          >
+                            <span className="text-xs font-bold text-slate-600">
+                              {item.subject}
+                            </span>
+                            <span
+                              className={`text-sm font-black ${
+                                item.score >= 80
+                                  ? 'text-emerald-600'
+                                  : item.score >= 60
+                                  ? 'text-indigo-600'
+                                  : 'text-rose-600'
+                              }`}
+                            >
+                              {item.score}%
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="w-full max-w-[280px] h-[210px] shrink-0 mx-auto">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RadarChart
+                            cx="50%"
+                            cy="50%"
+                            outerRadius="65%"
+                            data={radarData}
+                          >
+                            <PolarGrid stroke="#cbd5e1" />
+                            <PolarAngleAxis
+                              dataKey="subject"
+                              tick={{
+                                fill: '#475569',
+                                fontSize: 10,
+                                fontWeight: 600,
+                              }}
+                            />
+                            <PolarRadiusAxis
+                              angle={30}
+                              domain={[0, 100]}
+                              tick={false}
+                              axisLine={false}
+                            />
+                            <Tooltip />
+                            <Radar
+                              name="Match Score"
+                              dataKey="score"
+                              stroke="#4f46e5"
+                              strokeWidth={2}
+                              fill="#10b981"
+                              fillOpacity={0.35}
+                            />
+                          </RadarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Feedback Banner */}
+                  {cardMsg && (
+                    <div
+                      className={`p-3.5 rounded-xl text-xs font-bold border ${
+                        cardMsg.type === 'error'
+                          ? 'bg-rose-50 text-rose-700 border-rose-200'
+                          : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                      }`}
+                    >
+                      {cardMsg.text}
+                    </div>
+                  )}
+
+                  {/* STAGE 1 / STAGE 2 ENCRYPTED MESSAGE THREAD (WHEN ACCEPTED) */}
+                  {isAccepted && (
+                    <SecureMessageThread
+                      applicationId={req.id}
+                      referenceId={req.reference_id}
+                      viewerRole="candidate"
+                      initialMessages={threadMessages}
+                      initialVaultReleased={vaultReleased}
+                      employerName={
+                        req.unlocked_employer_name ||
+                        job.organizations?.name ||
+                        'Verified Employer'
+                      }
+                      employerDomain={
+                        req.unlocked_employer_domain ||
+                        job.organizations?.domain ||
+                        null
+                      }
+                      employerEmail={req.unlocked_employer_email || null}
+                      candidateEmail={req.unlocked_candidate_email || null}
+                    />
+                  )}
+
+                  {/* Action Footer (Accept / Decline) */}
+                  {!isAccepted && !isDeclined && (
+                    <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <p className="text-xs text-slate-500">
+                        <strong className="text-slate-700">
+                          Stage 1 Safe Connection (+150 XP):
+                        </strong>{' '}
+                        Accepting reveals the employer&apos;s verified company name and opens a chat thread, while keeping your PDF resume and email locked until Stage 2.
+                      </p>
+
+                      <div className="flex items-center gap-2.5 shrink-0">
+                        <button
+                          type="button"
+                          disabled={processingId === req.id}
+                          onClick={() => handleDecision(req.id, 'declined')}
+                          className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs font-bold hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 transition-colors cursor-pointer disabled:opacity-50"
+                        >
+                          Politely Decline (+150 XP)
+                        </button>
+                        <button
+                          type="button"
+                          disabled={processingId === req.id}
+                          onClick={() => handleDecision(req.id, 'accepted')}
+                          className="px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-emerald-600 transition-colors shadow-sm cursor-pointer disabled:opacity-50"
+                        >
+                          {processingId === req.id
+                            ? 'Connecting...'
+                            : '🔓 Accept & Open Encrypted Thread (+150 XP)'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
