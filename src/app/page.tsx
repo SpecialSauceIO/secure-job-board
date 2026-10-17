@@ -130,7 +130,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 1 (Slide #2): Candidate 30-Day Founding Member Award */}
+          {/* SLIDE 1 (Slide #2): Candidate 30-Day Founding Member Award (Locked to 2 Lines) */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 1
@@ -142,13 +142,17 @@ export default function LandingPage() {
               <span className="text-amber-600">★</span>
               Founding Member Launch • For Job Seekers &amp; Passive Talent
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
-              30-Day{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-emerald-500">
-                Founding Member Award.
+            <h1 className="text-3xl sm:text-4xl md:text-[3.35rem] font-extrabold text-slate-900 tracking-tight leading-[1.12] max-w-6xl mb-4">
+              <span className="sm:whitespace-nowrap">
+                30-Day{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-emerald-500">
+                  Founding Member Award.
+                </span>
               </span>
               <br />
-              Full access. Lifetime perks.
+              <span className="sm:whitespace-nowrap">
+                Full access. Lifetime perks.
+              </span>
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
               Verify your identity during our launch window to unlock{' '}
@@ -164,7 +168,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 2 (Slide #3): Employer 30-Day Founding Partner Award */}
+          {/* SLIDE 2 (Slide #3): Employer 30-Day Founding Partner Award (Locked to 2 Lines) */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 2
@@ -176,13 +180,17 @@ export default function LandingPage() {
               <span className="text-amber-500">★</span>
               Founding Partner Launch • For Verified Companies &amp; Hiring Teams
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
-              30-Day{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-amber-500">
-                Founding Partner Award.
+            <h1 className="text-3xl sm:text-4xl md:text-[3.35rem] font-extrabold text-slate-900 tracking-tight leading-[1.12] max-w-6xl mb-4">
+              <span className="sm:whitespace-nowrap">
+                30-Day{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-amber-500">
+                  Founding Partner Award.
+                </span>
               </span>
               <br />
-              Full access. Lifetime perks.
+              <span className="sm:whitespace-nowrap">
+                Full access. Lifetime perks.
+              </span>
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
               Verify your corporate domain during launch to claim{' '}
