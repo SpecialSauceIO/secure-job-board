@@ -268,7 +268,7 @@ export default async function DashboardPage({
   const { savedJobsCount, savedCandidatesCount } = extractBookmarkCounts(profile)
 
   // ============================================================================
-  // STREAMLINED EMPLOYER DASHBOARD (WITH REAL-TIME LIVE SYNC & GAMIFICATION)
+  // STREAMLINED EMPLOYER DASHBOARD (DE-PILLED & CLEAN)
   // ============================================================================
   if (profile?.role === 'employer') {
     const { data: member } = await supabase
@@ -380,7 +380,7 @@ export default async function DashboardPage({
                 level={employerGamification.level}
                 tier={employerGamification.tier}
                 isFounder={employerGamification.isFounder}
-                founderText="Season 0 Founding Partner"
+                founderText="Founding Partner"
               />
             </div>
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1.5 text-xs font-medium text-slate-500">
@@ -420,7 +420,7 @@ export default async function DashboardPage({
                 href="/dashboard/employer/search?saved=true"
                 className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border text-xs font-extrabold transition-colors shadow-2xs ${
                   savedCandidatesCount > 0
-                    ? 'bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100'
+                    ? 'bg-amber-50 border-amber-400 text-amber-900 hover:bg-amber-100'
                     : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'
                 }`}
               >
@@ -472,7 +472,7 @@ export default async function DashboardPage({
           </div>
         </header>
 
-        {/* 4 CORE METRIC CARDS */}
+        {/* 4 CORE METRIC CARDS (UNIFIED CLEAN BORDERS, NO MULTI-PILL CLUTTER) */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Card 1: Company & Seats */}
           <Link
@@ -485,10 +485,8 @@ export default async function DashboardPage({
                   🏢
                 </span>
                 <span
-                  className={`px-2.5 py-0.5 text-[11px] font-bold rounded-md border ${
-                    isOrgVerified
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                      : 'bg-amber-50 text-amber-700 border-amber-200'
+                  className={`text-xs font-extrabold ${
+                    isOrgVerified ? 'text-emerald-700' : 'text-amber-700'
                   }`}
                 >
                   {isOrgVerified ? '✓ Verified' : 'Setup Needed'}
@@ -524,7 +522,7 @@ export default async function DashboardPage({
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-base">
+                <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base">
                   💼
                 </span>
                 <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
@@ -558,32 +556,16 @@ export default async function DashboardPage({
                 ? '/dashboard/employer/pitches'
                 : '/dashboard/employer/organization'
             }
-            className={`group bg-white p-6 rounded-2xl border shadow-xs hover:shadow-md transition-all flex flex-col justify-between ${
-              pitchesUnreadMsgsCount > 0 || acceptedPitchesCount > 0
-                ? 'border-2 border-emerald-500/40'
-                : 'border-slate-200 hover:border-slate-400'
-            }`}
+            className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-400 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-base">
+                <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base">
                   📐
                 </span>
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {pitchesUnreadMsgsCount > 0 && (
-                    <span className="px-2 py-0.5 text-[11px] font-extrabold bg-indigo-600 text-white rounded-md animate-pulse">
-                      💬 {pitchesUnreadMsgsCount} New Msg
-                    </span>
-                  )}
-                  {acceptedPitchesCount > 0 && (
-                    <span className="px-2 py-0.5 text-[11px] font-bold bg-emerald-600 text-white rounded-md">
-                      {acceptedPitchesCount} Unlocked
-                    </span>
-                  )}
-                  <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
-                    {sentPitchesCount}
-                  </span>
-                </div>
+                <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
+                  {sentPitchesCount}
+                </span>
               </div>
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                 Sent Pitches
@@ -601,11 +583,11 @@ export default async function DashboardPage({
                 {pitchesUnreadMsgsCount > 0
                   ? 'Candidates replied in your secure pitch threads'
                   : acceptedPitchesCount > 0
-                  ? 'Message accepted matches & view released vaults'
+                  ? `${acceptedPitchesCount} unlocked threads • Message & view vaults`
                   : 'Track connection pitches sent to talent'}
               </p>
             </div>
-            <p className="text-xs font-bold text-emerald-700 group-hover:text-emerald-800 mt-5">
+            <p className="text-xs font-bold text-slate-700 group-hover:text-indigo-600 mt-5">
               Open pitch threads →
             </p>
           </Link>
@@ -617,32 +599,16 @@ export default async function DashboardPage({
                 ? '/dashboard/employer/applications'
                 : '/dashboard/employer/organization'
             }
-            className={`group bg-white p-6 rounded-2xl border shadow-xs hover:shadow-md transition-all flex flex-col justify-between ${
-              inboundUnreadMsgsCount > 0 || pendingAppsCount > 0
-                ? 'border-2 border-indigo-500/40'
-                : 'border-slate-200 hover:border-slate-400'
-            }`}
+            className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-400 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-base">
+                <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base">
                   👥
                 </span>
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {inboundUnreadMsgsCount > 0 && (
-                    <span className="px-2 py-0.5 text-[11px] font-extrabold bg-emerald-600 text-white rounded-md animate-pulse">
-                      💬 {inboundUnreadMsgsCount} New Msg
-                    </span>
-                  )}
-                  {pendingAppsCount > 0 && (
-                    <span className="px-2 py-0.5 text-[11px] font-bold bg-indigo-600 text-white rounded-md">
-                      {pendingAppsCount} New
-                    </span>
-                  )}
-                  <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
-                    {inboundTotalCount}
-                  </span>
-                </div>
+                <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
+                  {inboundTotalCount}
+                </span>
               </div>
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                 Inbound Pipeline
@@ -659,23 +625,25 @@ export default async function DashboardPage({
               <p className="text-xs text-slate-500 mt-1">
                 {inboundUnreadMsgsCount > 0
                   ? 'Applicants replied or released their resume vault'
+                  : pendingAppsCount > 0
+                  ? `${pendingAppsCount} new blind applications (free to unlock)`
                   : 'Review blind skill matrices & unlock profiles'}
               </p>
             </div>
-            <p className="text-xs font-bold text-indigo-600 group-hover:text-indigo-800 mt-5">
+            <p className="text-xs font-bold text-slate-700 group-hover:text-indigo-600 mt-5">
               Review blind applicants →
             </p>
           </Link>
         </section>
 
-        {/* EMPLOYER REPUTATION, XP LEVEL & SEASON 0 TROPHY CASE */}
+        {/* EMPLOYER REPUTATION, XP LEVEL & TROPHY CASE */}
         <ReputationBadgeCase summary={employerGamification} />
       </div>
     )
   }
 
   // ============================================================================
-  // STREAMLINED CANDIDATE VIEW (WITH REAL-TIME LIVE SYNC & GAMIFICATION)
+  // STREAMLINED CANDIDATE VIEW (DE-PILLED & CLEAN)
   // ============================================================================
   const isVerified = Boolean(
     profile?.identity_verified === true ||
@@ -782,7 +750,7 @@ export default async function DashboardPage({
               level={candidateGamification.level}
               tier={candidateGamification.tier}
               isFounder={candidateGamification.isFounder}
-              founderText="Season 0 Founding Member"
+              founderText="Founding Member"
             />
           </div>
 
@@ -817,7 +785,7 @@ export default async function DashboardPage({
             href="/dashboard/jobs?saved=true"
             className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border text-xs font-extrabold transition-colors shadow-2xs ${
               savedJobsCount > 0
-                ? 'bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100'
+                ? 'bg-amber-50 border-amber-400 text-amber-900 hover:bg-amber-100'
                 : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'
             }`}
           >
@@ -852,13 +820,13 @@ export default async function DashboardPage({
 
       {/* UNVERIFIED PROMPT BANNER */}
       {!isVerified && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="rounded-2xl border-2 border-amber-500 bg-amber-50/70 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <h2 className="text-sm font-extrabold text-slate-900">
               Step 1: Verify Your Identity to Unlock Blind Applications &amp; +500 XP
             </h2>
             <p className="mt-0.5 text-xs text-slate-600">
-              Once verified via Stripe Identity, your 30-Day Season 0 Founding Member Grant (10 free blind applications + Silver Tier Rank boost) begins automatically.
+              Once verified via Stripe Identity, your 30-Day Founding Member Award (15 free blind applications + 1.25x XP boost) begins automatically.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
@@ -867,7 +835,7 @@ export default async function DashboardPage({
         </div>
       )}
 
-      {/* 4 CORE CANDIDATE CARDS */}
+      {/* 4 CORE CANDIDATE CARDS (UNIFIED CLEAN BORDERS, NO MULTI-PILL CLUTTER) */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <Link
           href="/dashboard/profile"
@@ -875,14 +843,12 @@ export default async function DashboardPage({
         >
           <div>
             <div className="flex items-center justify-between mb-4">
-              <span className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-base">
+              <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base">
                 📄
               </span>
               <span
-                className={`px-2.5 py-0.5 text-[11px] font-bold rounded-md border ${
-                  hasProfileData
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                    : 'bg-amber-50 text-amber-700 border-amber-200'
+                className={`text-xs font-extrabold ${
+                  hasProfileData ? 'text-emerald-700' : 'text-amber-700'
                 }`}
               >
                 {hasProfileData ? '✓ Ready' : 'Setup'}
@@ -900,39 +866,23 @@ export default async function DashboardPage({
                 : 'Upload your PDF resume to auto-fill skills'}
             </p>
           </div>
-          <p className="text-xs font-bold text-indigo-600 mt-5">
+          <p className="text-xs font-bold text-slate-700 group-hover:text-indigo-600 mt-5">
             {hasProfileData ? 'Edit profile →' : 'Upload resume →'}
           </p>
         </Link>
 
         <Link
           href="/dashboard/requests"
-          className={`group bg-white p-6 rounded-2xl border shadow-xs hover:shadow-md transition-all flex flex-col justify-between ${
-            unreadPitchMsgsCount > 0 || pendingRequestsCount > 0
-              ? 'border-2 border-violet-500/40'
-              : 'border-slate-200 hover:border-slate-400'
-          }`}
+          className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-400 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
         >
           <div>
             <div className="flex items-center justify-between mb-4">
-              <span className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center text-base">
+              <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base">
                 ⚡
               </span>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {unreadPitchMsgsCount > 0 && (
-                  <span className="px-2 py-0.5 text-[11px] font-extrabold bg-emerald-600 text-white rounded-md animate-pulse">
-                    💬 {unreadPitchMsgsCount} New Msg
-                  </span>
-                )}
-                {pendingRequestsCount > 0 && (
-                  <span className="px-2 py-0.5 text-[11px] font-bold bg-violet-600 text-white rounded-md">
-                    {pendingRequestsCount} New!
-                  </span>
-                )}
-                <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
-                  {inboundEmployerPitches.length}
-                </span>
-              </div>
+              <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
+                {inboundEmployerPitches.length}
+              </span>
             </div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               Employer Pitches
@@ -952,34 +902,23 @@ export default async function DashboardPage({
                 : 'Review direct role pitches from verified employers'}
             </p>
           </div>
-          <p className="text-xs font-bold text-violet-600 mt-5">
+          <p className="text-xs font-bold text-slate-700 group-hover:text-indigo-600 mt-5">
             Open pitch inbox →
           </p>
         </Link>
 
         <Link
           href="/dashboard/applications"
-          className={`group bg-white p-6 rounded-2xl border shadow-xs hover:shadow-md transition-all flex flex-col justify-between ${
-            unreadOutboundMsgsCount > 0
-              ? 'border-2 border-cyan-500/50'
-              : 'border-slate-200 hover:border-slate-400'
-          }`}
+          className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-400 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
         >
           <div>
             <div className="flex items-center justify-between mb-4">
-              <span className="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-base">
+              <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base">
                 🎯
               </span>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {unreadOutboundMsgsCount > 0 && (
-                  <span className="px-2 py-0.5 text-[11px] font-extrabold bg-emerald-600 text-white rounded-md animate-pulse">
-                    💬 {unreadOutboundMsgsCount} New Msg
-                  </span>
-                )}
-                <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
-                  {applicationCount}
-                </span>
-              </div>
+              <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
+                {applicationCount}
+              </span>
             </div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               Outbound Pipeline
@@ -997,7 +936,7 @@ export default async function DashboardPage({
                 : 'Track blind applications & unlocked employers'}
             </p>
           </div>
-          <p className="text-xs font-bold text-cyan-600 mt-5">
+          <p className="text-xs font-bold text-slate-700 group-hover:text-indigo-600 mt-5">
             {unreadOutboundMsgsCount > 0 ? 'Read & reply →' : 'Track status →'}
           </p>
         </Link>
@@ -1008,7 +947,7 @@ export default async function DashboardPage({
         >
           <div>
             <div className="flex items-center justify-between mb-4">
-              <span className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-base">
+              <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base">
                 🛡️
               </span>
             </div>
@@ -1022,13 +961,13 @@ export default async function DashboardPage({
               Set minimum salary, employment types &amp; work model
             </p>
           </div>
-          <p className="text-xs font-bold text-emerald-600 mt-5">
+          <p className="text-xs font-bold text-slate-700 group-hover:text-indigo-600 mt-5">
             Edit dealbreakers →
           </p>
         </Link>
       </section>
 
-      {/* CANDIDATE REPUTATION, XP LEVEL & SEASON 0 TROPHY CASE */}
+      {/* CANDIDATE REPUTATION, XP LEVEL & TROPHY CASE */}
       <ReputationBadgeCase summary={candidateGamification} />
 
       {/* RECOMMENDED ROLES SECTION */}

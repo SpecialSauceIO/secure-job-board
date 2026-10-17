@@ -20,32 +20,37 @@ export function RankAndFounderPill({
   size?: 'xs' | 'sm'
 }) {
   const paddingClass =
-    size === 'xs' ? 'px-2 py-0.5 text-[10px]' : 'px-2.5 py-1 text-[11px]'
+    size === 'xs' ? 'px-2.5 py-0.5 text-[10px]' : 'px-3 py-1 text-[11px]'
+
+  const shortTierName = tier.name.replace(' Tier', '')
 
   return (
-    <div className="inline-flex flex-wrap items-center gap-1.5">
-      {/* Olympic / Competitive Metal Rank & Level Pill */}
-      <span
-        className={`inline-flex items-center gap-1 rounded-full font-extrabold border shadow-2xs ${paddingClass} ${tier.badgeBg} ${tier.badgeText} ${tier.badgeBorder}`}
-        title={`${tier.name} • Profile Level ${level}`}
-      >
-        <span>{tier.icon}</span>
-        <span>
-          LVL {level} • {tier.name.replace(' Tier', '')}
-        </span>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-md font-extrabold border ${paddingClass} ${
+        isFounder
+          ? 'bg-amber-50/90 text-slate-900 border-amber-400 shadow-2xs'
+          : 'bg-slate-100 text-slate-800 border-slate-300'
+      }`}
+      title={
+        isFounder
+          ? `${tier.name} (Level ${level}) • ${founderText} (1.25x XP Boost Active)`
+          : `${tier.name} (Profile Level ${level})`
+      }
+    >
+      <span>{tier.icon}</span>
+      <span>
+        LVL {level} {shortTierName}
       </span>
-
-      {/* Season 0 Founding Charter Emblem */}
       {isFounder && (
-        <span
-          className={`inline-flex items-center gap-1 rounded-full font-extrabold bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 text-amber-900 border border-amber-300 shadow-2xs ${paddingClass}`}
-          title="Season 0 Founding Cohort — Permanent Charter Status & 1.25x XP Multiplier"
-        >
-          <span className="text-amber-600">★</span>
-          <span>{founderText}</span>
-        </span>
+        <>
+          <span className="text-amber-400 font-normal">•</span>
+          <span className="text-amber-800 inline-flex items-center gap-0.5">
+            <span className="text-amber-600">★</span>
+            {founderText}
+          </span>
+        </>
       )}
-    </div>
+    </span>
   )
 }
 
@@ -62,16 +67,15 @@ export default function ReputationBadgeCase({
   ).length
 
   return (
-    <div className="bg-white rounded-2xl border-2 border-amber-300/80 shadow-sm overflow-hidden">
-      {/* Top Dark Prestige Bar: Level, Metal Rank, XP Bar, and Season 0 Multiplier */}
+    <div className="bg-white rounded-2xl border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50 overflow-hidden">
+      {/* Top Dark Prestige Bar: Level, Metal Rank, XP Bar, and Founder Multiplier */}
       <div className="bg-slate-900 text-white p-5 sm:p-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="space-y-1.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-400/40 text-amber-300 text-xs font-extrabold uppercase tracking-wider">
-                ★ {summary.founderLabel} (1.25x XP Boost Active)
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-white text-xs font-extrabold">
+          <div className="space-y-1">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold text-amber-300 uppercase tracking-wider">
+              <span>★ {summary.founderLabel} (1.25x XP Boost Active)</span>
+              <span className="text-slate-600">•</span>
+              <span className="text-slate-200">
                 {summary.tier.icon} {summary.tier.name}
               </span>
             </div>
@@ -86,7 +90,7 @@ export default function ReputationBadgeCase({
             </div>
           </div>
 
-          {/* Right Side: XP Progress Bar to Next Level + Toggle Season 0 Challenges */}
+          {/* Right Side: XP Progress Bar to Next Level + Toggle Launch Challenges */}
           <div className="w-full lg:w-96 space-y-2">
             <div className="flex items-center justify-between text-xs font-bold">
               <span className="text-slate-300">
@@ -121,26 +125,28 @@ export default function ReputationBadgeCase({
                 className="text-xs font-extrabold text-indigo-300 hover:text-white underline cursor-pointer"
               >
                 {showChallenges
-                  ? 'Hide Season 0 Challenges'
-                  : `Season 0 Challenges (${completedChallenges}/${summary.seasonalChallenges.length}) →`}
+                  ? 'Hide Launch Challenges'
+                  : `Launch Challenges (${completedChallenges}/${summary.seasonalChallenges.length}) →`}
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Earned Integrity & Tenacity Trophy Case */}
-      <div className="p-5 sm:p-6 space-y-5 bg-gradient-to-b from-amber-50/30 to-white">
+      {/* Earned Integrity & Merit Badges Grid */}
+      <div className="p-5 sm:p-6 space-y-5 bg-white">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-              <span>🏆 Professional Integrity &amp; Merit Badges</span>
-              <span className="px-2 py-0.5 rounded-full bg-slate-900 text-white text-[11px] font-extrabold">
-                {unlockedCount} / {summary.badges.length} Unlocked
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-900">
+                🏆 Professional Integrity &amp; Merit Badges
+              </h3>
+              <span className="text-xs font-bold text-slate-500">
+                ({unlockedCount} of {summary.badges.length} Unlocked)
               </span>
-            </h3>
+            </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Displayed on your anonymous cards to prove responsiveness, verified credentials, and platform tenure.
+              Verified credentials and responsiveness milestones reflected on your profile.
             </p>
           </div>
         </div>
@@ -151,14 +157,14 @@ export default function ReputationBadgeCase({
               key={badge.id}
               className={`p-3.5 rounded-xl border transition-all flex items-start gap-3 ${
                 badge.unlocked
-                  ? `${badge.accentClass} shadow-2xs`
-                  : 'bg-slate-50/70 border-slate-200 text-slate-400 opacity-75'
+                  ? 'bg-white border-slate-200 shadow-2xs'
+                  : 'bg-slate-50/60 border-slate-200/70 text-slate-400 opacity-70'
               }`}
             >
               <div
                 className={`w-9 h-9 rounded-lg flex items-center justify-center text-base font-bold shrink-0 border ${
                   badge.unlocked
-                    ? 'bg-white border-current/20 shadow-2xs'
+                    ? 'bg-slate-50 border-slate-200 text-slate-900'
                     : 'bg-slate-100 border-slate-200 grayscale'
                 }`}
               >
@@ -175,7 +181,7 @@ export default function ReputationBadgeCase({
                     {badge.title}
                   </h4>
                   {badge.unlocked && (
-                    <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/80 text-emerald-700 border border-emerald-200 shrink-0">
+                    <span className="text-[10px] font-extrabold text-emerald-700 shrink-0">
                       ✓ Earned
                     </span>
                   )}
@@ -185,7 +191,7 @@ export default function ReputationBadgeCase({
                 </p>
                 {badge.progressText && (
                   <span
-                    className={`inline-block mt-1.5 text-[10px] font-extrabold ${
+                    className={`inline-block mt-1.5 text-[10px] font-bold ${
                       badge.unlocked ? 'text-indigo-700' : 'text-slate-500'
                     }`}
                   >
@@ -197,12 +203,12 @@ export default function ReputationBadgeCase({
           ))}
         </div>
 
-        {/* Expandable Season 0 Challenge Board */}
+        {/* Expandable Founding Launch Challenge Board */}
         {showChallenges && (
           <div className="pt-4 border-t border-slate-200/80 space-y-3 animate-in fade-in duration-200">
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-extrabold uppercase tracking-wider text-indigo-700">
-                ⚡ Active Season 0: Founding Era Challenges (90-Day Launch Window)
+                ⚡ Founding Member Launch Challenges
               </h4>
               <span className="text-[11px] font-bold text-slate-500">
                 Complete challenges through real platform activity to level up
@@ -220,7 +226,7 @@ export default function ReputationBadgeCase({
                     key={ch.id}
                     className={`p-4 rounded-xl border ${
                       ch.completed
-                        ? 'bg-emerald-50/60 border-emerald-300'
+                        ? 'bg-emerald-50/40 border-emerald-300'
                         : 'bg-white border-slate-200'
                     }`}
                   >
@@ -228,7 +234,7 @@ export default function ReputationBadgeCase({
                       <span className="text-xs font-extrabold text-slate-900">
                         {ch.title}
                       </span>
-                      <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-black shrink-0">
+                      <span className="text-[11px] font-black text-indigo-700 shrink-0">
                         +{ch.xpReward} XP
                       </span>
                     </div>
