@@ -11,6 +11,10 @@ import {
   normalizeCandidateEducation,
   normalizeJobEducationReq,
 } from '@/constants/education'
+import {
+  normalizeLanguageList,
+  formatLanguageBadge,
+} from '@/constants/languages'
 import { getQuickCandidateCardRank } from '@/constants/gamification'
 import { RankAndFounderPill } from '@/components/ReputationBadgeCase'
 import {
@@ -139,6 +143,7 @@ export function ApplicationRevealCard({
   const candidateCertifications = candidate?.certifications
     ? String(candidate.certifications).trim()
     : ''
+  const candidateLanguages = normalizeLanguageList(candidate?.languages, true)
   const jobEducationReq =
     job?.education_req || job?.job_meta?.education_req
       ? normalizeJobEducationReq(
@@ -378,6 +383,12 @@ export function ApplicationRevealCard({
                     🛡️ 100% Vault Ready
                   </span>
                 )}
+
+                {rankInfo.isMultilingual && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-teal-100/80 text-teal-900 border border-teal-300 text-[10px] font-extrabold">
+                    🌐 Multilingual Specialist
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500 mt-1">
@@ -408,28 +419,32 @@ export function ApplicationRevealCard({
           </div>
         </div>
 
-        {/* Education & Active Certifications Row */}
-        {(candidateEducation ||
-          candidateCertifications ||
-          jobEducationReq) && (
-          <div className="flex flex-wrap items-center gap-2">
-            {candidateEducation && (
-              <span className="px-3 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-xs font-bold">
-                🎓 {candidateEducation}
-              </span>
-            )}
-            {candidateCertifications && (
-              <span className="px-3 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
-                🏅 Certs: {candidateCertifications}
-              </span>
-            )}
-            {jobEducationReq && (
-              <span className="text-[11px] font-semibold text-slate-400 ml-1">
-                (Role Target: {jobEducationReq})
-              </span>
-            )}
-          </div>
-        )}
+        {/* Education, Active Certifications & Language Proficiencies Row */}
+        <div className="flex flex-wrap items-center gap-2">
+          {candidateEducation && (
+            <span className="px-3 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-xs font-bold">
+              🎓 {candidateEducation}
+            </span>
+          )}
+          {candidateCertifications && (
+            <span className="px-3 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
+              🏅 Certs: {candidateCertifications}
+            </span>
+          )}
+          {candidateLanguages.map((langEntry, lIdx) => (
+            <span
+              key={`${langEntry.language}-${lIdx}`}
+              className="px-3 py-1 rounded-lg bg-teal-50 text-teal-900 border border-teal-200 text-xs font-bold"
+            >
+              🌐 {formatLanguageBadge(langEntry)}
+            </span>
+          ))}
+          {jobEducationReq && (
+            <span className="text-[11px] font-semibold text-slate-400 ml-1">
+              (Role Target: {jobEducationReq})
+            </span>
+          )}
+        </div>
 
         {/* STAGE 1 / STAGE 2 SECURE MESSAGE THREAD & VAULT */}
         {isRevealed && status !== 'rejected' && (

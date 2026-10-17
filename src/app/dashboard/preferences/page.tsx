@@ -4,7 +4,11 @@ import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import { SubmitButton } from '@/components/SubmitButton'
 import UsLocationSelector from '@/components/UsLocationSelector'
-import { updateProfile, forceVerifyCandidateIdentity } from '@/app/dashboard/actions'
+import { StructuredLanguageEditor } from '@/components/StructuredLanguageEditor'
+import {
+  updateProfile,
+  forceVerifyCandidateIdentity,
+} from '@/app/dashboard/actions'
 import {
   STANDARD_INDUSTRY_VERTICALS,
   normalizeIndustryVertical,
@@ -13,6 +17,7 @@ import {
   CANDIDATE_EDUCATION_LEVELS,
   normalizeCandidateEducation,
 } from '@/constants/education'
+import { normalizeLanguageList } from '@/constants/languages'
 
 export const dynamic = 'force-dynamic'
 
@@ -76,6 +81,7 @@ function extractSavedPrefMeta(profile: any) {
       ? normalizeCandidateEducation(metaEntry.education_level)
       : 'Practical Experience & Industry Certifications',
     certifications: metaEntry.certifications || '',
+    languages: normalizeLanguageList(metaEntry.languages, true),
   }
 }
 
@@ -105,8 +111,9 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
   const submittedCertifications = String(
     formData.get('certifications') || ''
   ).trim()
+  const rawSubmittedLanguages = String(formData.get('languages') || '').trim()
 
-  // Fetch latest structured_skills from DB so we preserve saved_job_ids, saved_candidate_ids, and skills
+  // Fetch latest structured_skills from DB so we preserve saved_job_ids, saved_candidate_ids, languages, and skills
   const { data: currentProfile } = await supabase
     .from('profiles')
     .select('structured_skills')
@@ -129,6 +136,10 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
     : existingPrefMeta.education_level ||
       'Practical Experience & Industry Certifications'
 
+  const finalLanguages = rawSubmittedLanguages
+    ? normalizeLanguageList(rawSubmittedLanguages, true)
+    : normalizeLanguageList(existingPrefMeta.languages, true)
+
   const cleanedSkills = rawSkills.filter(
     (item: any) => !(item && item._ss_pref_meta === true)
   )
@@ -140,12 +151,14 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
     industry_vertical: finalIndustryVertical,
     education_level: finalEducationLevel,
     certifications: submittedCertifications,
+    languages: finalLanguages,
   })
 
   formData.set('structured_skills', JSON.stringify(cleanedSkills))
   formData.set('industry_vertical', finalIndustryVertical)
   formData.set('education_level', finalEducationLevel)
   formData.set('certifications', submittedCertifications)
+  formData.set('languages', JSON.stringify(finalLanguages))
 
   await updateProfile(formData)
 
@@ -183,7 +196,7 @@ export default async function MatchPreferencesPage() {
   )
 
   const savedEmploymentTypes = extractSavedEmploymentTypes(profile)
-  const { industryVertical, educationLevel, certifications } =
+  const { industryVertical, educationLevel, certifications, languages } =
     extractSavedPrefMeta(profile)
 
   return (
@@ -213,7 +226,7 @@ export default async function MatchPreferencesPage() {
             Match Preferences &amp; Dealbreakers
           </h1>
           <p className="text-slate-500 mt-1">
-            Configure your minimum salary expectations, accepted employment types, primary industry vertical, education &amp; certifications, preferred work model, and target US location.
+            Configure your minimum salary expectations, accepted employment types, primary industry vertical, education, certifications, language proficiencies, preferred work model, and target US location.
           </p>
         </header>
 
@@ -401,7 +414,13 @@ export default async function MatchPreferencesPage() {
               </div>
             </div>
 
-            {/* 5. US CASCADING LOCATION SELECTOR */}
+            {/* 5. LANGUAGE PROFICIENCY MATRIX */}
+            <StructuredLanguageEditor
+              name="languages"
+              initialLanguages={languages}
+            />
+
+            {/* 6. US CASCADING LOCATION SELECTOR */}
             <div className="pt-2 border-t border-slate-100">
               <label className="block text-sm font-bold text-slate-700 mb-1">
                 Target Location
