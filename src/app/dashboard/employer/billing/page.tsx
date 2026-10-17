@@ -1,16 +1,87 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { activateSandboxEmployerTier } from '@/app/dashboard/actions'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
+import {
+  activateSandboxEmployerTier,
+  resolveEmployerTierInfo,
+} from '@/app/dashboard/actions'
 
 export default function EmployerBillingPage() {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
+
+  const [orgData, setOrgData] = useState<any>(null)
+  const [isOrgVerified, setIsOrgVerified] = useState(false)
   const [activeTier, setActiveTier] = useState<string>('starter')
+  const [tierLabel, setTierLabel] = useState<string>('Starter Tier')
+  const [maxActiveJobs, setMaxActiveJobs] = useState<number>(5)
+  const [maxSeats, setMaxSeats] = useState<number>(2)
+  const [activeJobsCount, setActiveJobsCount] = useState<number>(0)
+  const [credits, setCredits] = useState<number>(0)
+
   const [feedback, setFeedback] = useState<{
     type: 'success' | 'error'
     text: string
   } | null>(null)
+
+  const loadBillingState = useCallback(async () => {
+    const supabase = createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      router.replace('/login')
+      return
+    }
+
+    const { data: member } = await supabase
+      .from('organization_members')
+      .select('organization_id')
+      .eq('user_id', user.id)
+      .limit(1)
+      .maybeSingle()
+
+    if (member?.organization_id) {
+      const { data: fetchedOrg } = await supabase
+        .from('organizations')
+        .select('*')
+        .eq('id', member.organization_id)
+        .single()
+
+      if (fetchedOrg) {
+        setOrgData(fetchedOrg)
+        setIsOrgVerified(fetchedOrg.verification_status === 'verified')
+        setCredits(fetchedOrg.connection_credits ?? 0)
+
+        const resolved = await resolveEmployerTierInfo(fetchedOrg)
+        setActiveTier(resolved.tier)
+        setTierLabel(resolved.label)
+        setMaxActiveJobs(resolved.maxActiveJobs)
+        setMaxSeats(resolved.maxSeats)
+      }
+
+      const { data: orgJobs } = await supabase
+        .from('jobs')
+        .select('id, is_active')
+        .eq('organization_id', member.organization_id)
+
+      const activeCount = (orgJobs || []).filter(
+        (j: any) => j.is_active !== false
+      ).length
+      setActiveJobsCount(activeCount)
+    }
+
+    setIsLoading(false)
+  }, [router])
+
+  useEffect(() => {
+    loadBillingState()
+  }, [loadBillingState])
 
   const handleTierSwitch = async (
     targetTier: 'free' | 'starter' | 'growth' | 'enterprise'
@@ -27,6 +98,8 @@ export default function EmployerBillingPage() {
         type: 'success',
         text: res?.message || `Updated plan to ${targetTier}.`,
       })
+      await loadBillingState()
+      router.refresh()
     }
 
     setIsProcessing(false)
@@ -34,26 +107,18 @@ export default function EmployerBillingPage() {
 
   return (
     <div className="max-w-6xl mx-auto py-4 space-y-8">
-      {/* Header */}
+      {/* Clean Page Header */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div>
-          <div className="flex flex-wrap items-center gap-2.5 mb-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs font-extrabold uppercase tracking-wider">
-              ★ Season 0 Founding Partner Cohort
-            </span>
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-extrabold">
-              🔓 Inbound Applicant Unlocks Are 100% Free
-            </span>
-          </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Employer Billing, Role Slots &amp; Pitch Credits
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Reviewing and unlocking candidates who apply to your blind job listings costs 0 credits on every active plan.
+            Reviewing and unlocking candidates who apply to your blind job listings is 100% free (0 credits) on every active plan.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <Link
             href="/dashboard/employer/organization"
             className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors"
@@ -69,37 +134,120 @@ export default function EmployerBillingPage() {
         </div>
       </header>
 
-      {/* Season 0 Founding Partner Grant Hero Banner */}
-      <div className="rounded-3xl bg-slate-900 text-white p-6 sm:p-8 border-2 border-amber-400/80 shadow-lg relative overflow-hidden">
-        <div className="absolute inset-0 opacity-15 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-400 via-indigo-900 to-slate-900 pointer-events-none" />
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-300 text-xs font-extrabold uppercase tracking-wider">
-              ★ 30-Day Season 0 Founding Partner Grant ($99 Value — $0 for 30 Days)
-            </div>
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-              Verify Your Corporate Domain to Unlock Your 30-Day Founding Starter Grant
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Organizations that verify their corporate domain during our 90-day Season 0 launch window automatically receive{' '}
-              <strong className="text-white">30 days of Starter Tier access ($0)</strong> including{' '}
-              <strong className="text-amber-300">5 Active Blind Job Slots</strong>,{' '}
-              <strong className="text-amber-300">10 Outbound Pitch Credits</strong>,{' '}
-              <strong className="text-amber-300">2 Team / BPO Collaborator Seats</strong>, and the permanent{' '}
-              <strong className="text-emerald-300">★ Founding Partner Gold Card Trim &amp; 1.25x XP Multiplier</strong> on all your blind job listings.
-            </p>
-          </div>
+      {/* Dynamic Founding Partner Status & Live Plan Summary Banner */}
+      {isLoading ? (
+        <div className="rounded-2xl bg-white border border-slate-200 p-8 text-center shadow-xs">
+          <div className="inline-block w-6 h-6 border-3 border-slate-200 border-t-indigo-600 rounded-full animate-spin mb-2" />
+          <p className="text-xs font-bold text-slate-500">
+            Syncing organization verification &amp; plan status...
+          </p>
+        </div>
+      ) : isOrgVerified ? (
+        <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-3xl">
+              <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
+                <span className="text-amber-300">
+                  ★ Founding Partner Charter Active
+                </span>
+                <span className="text-slate-600">•</span>
+                <span className="text-emerald-400">
+                  ✓ {orgData?.domain || 'Corporate Domain'} Verified
+                </span>
+              </div>
 
-          <div className="shrink-0">
-            <Link
-              href="/dashboard/employer/organization"
-              className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-colors shadow-md"
-            >
-              Verify Domain / Check Grant →
-            </Link>
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+                Current Plan: {tierLabel}
+              </h2>
+
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Your verified organization has permanent{' '}
+                <strong className="text-amber-300">
+                  ★ Founding Partner Gold Card Trim &amp; 1.25x XP Boost
+                </strong>{' '}
+                active across all blind job listings, plus{' '}
+                <strong className="text-white">
+                  100% free inbound applicant unlocks
+                </strong>
+                .
+              </p>
+            </div>
+
+            {/* Live Account Balances */}
+            <div className="grid grid-cols-3 gap-3 shrink-0 bg-slate-800/90 border border-slate-700 rounded-2xl p-4 text-center">
+              <div className="px-2">
+                <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                  Active Roles
+                </span>
+                <span className="text-lg font-black text-white mt-0.5 block">
+                  {activeJobsCount} / {maxActiveJobs}
+                </span>
+              </div>
+              <div className="px-2 border-x border-slate-700">
+                <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                  Pitch Credits
+                </span>
+                <span className="text-lg font-black text-amber-300 mt-0.5 block">
+                  {credits}
+                </span>
+              </div>
+              <div className="px-2">
+                <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                  Team Seats
+                </span>
+                <span className="text-lg font-black text-emerald-400 mt-0.5 block">
+                  Up to {maxSeats}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-3xl">
+              <div className="text-xs font-extrabold uppercase tracking-wider text-amber-300">
+                ★ 30-Day Founding Partner Award ($99 Value — $0 for 30 Days)
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight">
+                Verify Your Corporate Domain to Unlock Your 30-Day Founding Starter Award
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Organizations that verify their corporate domain during our Founding Member Launch automatically receive{' '}
+                <strong className="text-white">
+                  30 days of Starter Tier access ($0)
+                </strong>{' '}
+                including{' '}
+                <strong className="text-amber-300">
+                  5 Active Blind Job Slots
+                </strong>
+                ,{' '}
+                <strong className="text-amber-300">
+                  10 Outbound Pitch Credits
+                </strong>
+                ,{' '}
+                <strong className="text-amber-300">
+                  2 Team / BPO Collaborator Seats
+                </strong>
+                , and the permanent{' '}
+                <strong className="text-emerald-300">
+                  ★ Founding Partner Gold Card Trim &amp; 1.25x XP Multiplier
+                </strong>
+                .
+              </p>
+            </div>
+
+            <div className="shrink-0">
+              <Link
+                href="/dashboard/employer/organization"
+                className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-colors shadow-md"
+              >
+                Verify Corporate Domain →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Feedback Banner */}
       {feedback && (
@@ -116,13 +264,24 @@ export default function EmployerBillingPage() {
 
       {/* Pricing Tiers Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Tier 1: Starter Tier (Includes 30-Day Season 0 Grant) */}
-        <div className="bg-white rounded-2xl border-2 border-amber-300 p-6 flex flex-col justify-between shadow-sm">
+        {/* Tier 1: Starter Tier */}
+        <div
+          className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
+            activeTier === 'starter'
+              ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
+              : 'border border-slate-200 shadow-xs'
+          }`}
+        >
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="px-2.5 py-1 rounded-md bg-amber-100 text-amber-900 border border-amber-300 text-xs font-extrabold">
-                ★ Free for 30 Days in Season 0
+            <div className="flex items-center justify-between text-xs font-extrabold">
+              <span className="text-amber-700">
+                ★ Free for 30 Days (Founding Partner Award)
               </span>
+              {activeTier === 'starter' && (
+                <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Current Plan
+                </span>
+              )}
             </div>
 
             <div>
@@ -132,7 +291,7 @@ export default function EmployerBillingPage() {
               <div className="mt-2 flex items-baseline gap-2">
                 <span className="text-3xl font-black text-slate-900">$99</span>
                 <span className="text-xs font-bold text-slate-500">
-                  / month after 30d grant
+                  / month after 30d award
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-2 leading-relaxed">
@@ -148,11 +307,13 @@ export default function EmployerBillingPage() {
                 ✓ <strong>+10 Outbound Pitch Credits / month</strong>
               </li>
               <li>
-                ✓ <strong>2 Team / BPO Collaborator Seats</strong> (Season 0 Bonus)
+                ✓ <strong>2 Team / BPO Collaborator Seats</strong>
               </li>
-              <li>✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong></li>
+              <li>
+                ✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong>
+              </li>
               <li>✓ 5-Point AI Fit Radar &amp; Dealbreaker Firewall</li>
-              <li>✓ ★ Permanent Season 0 Founding Partner Badge</li>
+              <li>✓ ★ Permanent Founding Partner Gold Trim</li>
             </ul>
           </div>
 
@@ -164,19 +325,32 @@ export default function EmployerBillingPage() {
               className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {isProcessing && activeTier === 'starter'
-                ? 'Activating...'
-                : 'Activate Starter / Top Up (+10 Credits) →'}
+                ? 'Updating...'
+                : activeTier === 'starter'
+                ? 'Top Up Starter (+10 Pitch Credits) →'
+                : 'Switch to Starter (+10 Credits) →'}
             </button>
           </div>
         </div>
 
         {/* Tier 2: Growth Tier */}
-        <div className="bg-slate-900 text-white rounded-2xl border-2 border-indigo-500 p-6 flex flex-col justify-between shadow-lg">
+        <div
+          className={`bg-slate-900 text-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
+            activeTier === 'growth'
+              ? 'border-2 border-amber-500 shadow-lg ring-1 ring-amber-400/50'
+              : 'border-2 border-indigo-500 shadow-md'
+          }`}
+        >
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="px-2.5 py-1 rounded-md bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-xs font-extrabold">
+            <div className="flex items-center justify-between text-xs font-extrabold">
+              <span className="text-indigo-300">
                 Most Popular for Recruiting Teams
               </span>
+              {activeTier === 'growth' && (
+                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                  Current Plan
+                </span>
+              )}
             </div>
 
             <div>
@@ -202,9 +376,11 @@ export default function EmployerBillingPage() {
               <li>
                 ✓ <strong>Up to 3 Team &amp; BPO Partner Seats</strong>
               </li>
-              <li>✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong></li>
+              <li>
+                ✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong>
+              </li>
               <li>✓ Shared Candidate Shortlist &amp; Encrypted Threads</li>
-              <li>✓ ★ Permanent Season 0 Founding Partner Badge</li>
+              <li>✓ ★ Permanent Founding Partner Gold Trim</li>
             </ul>
           </div>
 
@@ -216,19 +392,32 @@ export default function EmployerBillingPage() {
               className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {isProcessing && activeTier === 'growth'
-                ? 'Activating...'
+                ? 'Updating...'
+                : activeTier === 'growth'
+                ? 'Top Up Growth (+30 Pitch Credits) →'
                 : 'Activate Growth (+30 Credits & 15 Roles) →'}
             </button>
           </div>
         </div>
 
         {/* Tier 3: Enterprise & Agency Tier */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between shadow-xs">
+        <div
+          className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
+            activeTier === 'enterprise'
+              ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
+              : 'border border-slate-200 shadow-xs'
+          }`}
+        >
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-extrabold">
+            <div className="flex items-center justify-between text-xs font-extrabold">
+              <span className="text-emerald-700">
                 High-Volume &amp; BPO Ready
               </span>
+              {activeTier === 'enterprise' && (
+                <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Current Plan
+                </span>
+              )}
             </div>
 
             <div>
@@ -256,9 +445,11 @@ export default function EmployerBillingPage() {
               <li>
                 ✓ <strong>Up to 10 Team &amp; Delegated BPO Seats</strong>
               </li>
-              <li>✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong></li>
+              <li>
+                ✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong>
+              </li>
               <li>✓ Priority 1.25x Founder&apos;s XP Rank Progression</li>
-              <li>✓ ★ Permanent Season 0 Founding Partner Badge</li>
+              <li>✓ ★ Permanent Founding Partner Gold Trim</li>
             </ul>
           </div>
 
@@ -270,7 +461,9 @@ export default function EmployerBillingPage() {
               className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {isProcessing && activeTier === 'enterprise'
-                ? 'Activating...'
+                ? 'Updating...'
+                : activeTier === 'enterprise'
+                ? 'Top Up Enterprise (+100 Pitch Credits) →'
                 : 'Activate Enterprise (+100 Credits & 50 Roles) →'}
             </button>
           </div>
