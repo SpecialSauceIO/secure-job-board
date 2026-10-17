@@ -452,6 +452,7 @@ export function CandidateJobFeed({
                 { id: '1099', label: 'Contract (1099 / C2C)' },
                 { id: 'Contract-to-Hire', label: 'Contract-to-Hire' },
                 { id: 'Part-Time', label: 'Part-Time' },
+                { id: 'Seasonal', label: 'Seasonal / Temporary' },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -549,7 +550,7 @@ export function CandidateJobFeed({
                   Work Arrangement (Remote → Hybrid → On-site)
                 </option>
                 <option value="employment_type">
-                  Employment Type (W-2 / 1099 / C2H)
+                  Employment Type (W-2 / 1099 / C2H / Seasonal)
                 </option>
               </select>
             </div>

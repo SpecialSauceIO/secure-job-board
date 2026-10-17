@@ -42,6 +42,11 @@ const EMPLOYMENT_TYPE_OPTIONS = [
     label: 'Part-Time',
     desc: 'Reduced weekly hours or flexible fractional roles',
   },
+  {
+    value: 'Seasonal / Temporary',
+    label: 'Seasonal / Temporary',
+    desc: 'Fixed-term, holiday, peak-season, or temporary staffing roles',
+  },
 ]
 
 function extractSavedEmploymentTypes(profile: any): string[] {
@@ -231,7 +236,7 @@ export default async function MatchPreferencesPage() {
         </header>
 
         {!isVerified && (
-          <div className="p-6 rounded-2xl bg-amber-50 border border-amber-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-6 rounded-2xl bg-amber-50 border-2 border-amber-500 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-sm font-extrabold text-amber-950">
                 Identity Verification Required

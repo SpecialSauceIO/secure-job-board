@@ -36,6 +36,7 @@ const EMPLOYMENT_TYPES = [
   'Contract (1099 / Corp-to-Corp)',
   'Contract-to-Hire',
   'Part-Time',
+  'Seasonal / Temporary',
 ]
 
 type CandidateSortOption =
@@ -345,7 +346,9 @@ export default function EmployerCandidateSearch({
         const acceptedTypes = getCandidateEmploymentTypes(candidate)
         if (
           !acceptedTypes.some(
-            (t) => t.toLowerCase() === employmentType.toLowerCase()
+            (t) =>
+              t.toLowerCase() === employmentType.toLowerCase() ||
+              t.toLowerCase().includes(employmentType.toLowerCase())
           )
         ) {
           return false
@@ -753,7 +756,7 @@ export default function EmployerCandidateSearch({
             </h3>
             <p className="text-slate-500 text-sm mb-4">
               {onlyShortlisted
-                ? 'Click "Save to Shortlist" on any anonymous candidate card to assemble a comparison pool before pitching.'
+                ? 'Click "Shortlist" on any anonymous candidate card to assemble a comparison pool before pitching.'
                 : 'Try resetting your Industry Vertical, Education, Language, or Employment Type filters.'}
             </p>
             {(industryFilter !== 'all' ||
@@ -874,7 +877,10 @@ export default function EmployerCandidateSearch({
                   acceptedEmploymentTypes.length > 0 &&
                   !acceptedEmploymentTypes.some(
                     (t) =>
-                      t.toLowerCase() === selectedJobEmpType.toLowerCase()
+                      t.toLowerCase() === selectedJobEmpType.toLowerCase() ||
+                      selectedJobEmpType
+                        .toLowerCase()
+                        .includes(t.toLowerCase())
                   )
                 ) {
                   empTypeFails = true
