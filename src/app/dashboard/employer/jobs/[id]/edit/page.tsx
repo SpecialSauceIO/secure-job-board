@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { SubmitButton } from '@/components/SubmitButton'
 import { StructuredRequirementEditor } from '@/components/StructuredRequirementEditor'
+import { StructuredLanguageEditor } from '@/components/StructuredLanguageEditor'
 import AiJobScanner from '@/components/AiJobScanner'
 import UsLocationSelector from '@/components/UsLocationSelector'
 import { updateStructuredJob } from '@/app/dashboard/actions'
@@ -17,6 +18,11 @@ import {
   JOB_EDUCATION_REQUIREMENTS,
   normalizeJobEducationReq,
 } from '@/constants/education'
+import {
+  DEFAULT_LANGUAGE_ENTRY,
+  LanguageEntry,
+  normalizeLanguageList,
+} from '@/constants/languages'
 
 export default function EditJobPage() {
   const router = useRouter()
@@ -33,6 +39,7 @@ export default function EditJobPage() {
     experience_level: 'Senior (5–8 yrs)',
     education_req: "Bachelor's Degree OR Equivalent Practical Experience",
     required_certifications: '',
+    required_languages: [{ ...DEFAULT_LANGUAGE_ENTRY }] as LanguageEntry[],
     pay_type: 'annual' as 'annual' | 'hourly',
     salary_min: '',
     salary_max: '',
@@ -59,7 +66,7 @@ export default function EditJobPage() {
 
       const { data: job, error } = await supabase
         .from('jobs')
-        .select('*')
+        .select('*, organizations:organization_id (description)')
         .eq('id', jobId)
         .single()
 
@@ -68,6 +75,13 @@ export default function EditJobPage() {
         setIsLoading(false)
         return
       }
+
+      const orgObj: any = Array.isArray(job.organizations)
+        ? job.organizations[0]
+        : job.organizations
+      const orgDesc = orgObj?.description || ''
+      const orgIndMatch = orgDesc.match(/\[IND:([^\]]+)\]/i)
+      const orgSizeMatch = orgDesc.match(/\[SIZE:([^\]]+)\]/i)
 
       const rawReqs = Array.isArray(job.structured_requirements)
         ? job.structured_requirements
@@ -90,13 +104,25 @@ export default function EditJobPage() {
           ? 'Contract (1099 / Corp-to-Corp)'
           : rawEmpType
 
-      const normalizedIndustry = metaItem.industry
-        ? normalizeIndustryVertical(metaItem.industry)
+      const rawIndustry =
+        metaItem.industry || (orgIndMatch?.[1] ? orgIndMatch[1].trim() : '')
+      const normalizedIndustry = rawIndustry
+        ? normalizeIndustryVertical(rawIndustry)
         : 'Technology, Software & SaaS'
+
+      const resolvedCompanySize =
+        metaItem.company_size ||
+        (orgSizeMatch?.[1] ? orgSizeMatch[1].trim() : '') ||
+        'Growth (50–250 Employees)'
 
       const normalizedEducationReq = metaItem.education_req
         ? normalizeJobEducationReq(metaItem.education_req)
         : "Bachelor's Degree OR Equivalent Practical Experience"
+
+      const normalizedLanguages = normalizeLanguageList(
+        metaItem.required_languages,
+        true
+      )
 
       setJobData({
         title: job.title || '',
@@ -106,12 +132,13 @@ export default function EditJobPage() {
         experience_level: metaItem.experience_level || 'Senior (5–8 yrs)',
         education_req: normalizedEducationReq,
         required_certifications: metaItem.required_certifications || '',
+        required_languages: normalizedLanguages,
         pay_type: inferredPayType,
         salary_min: job.salary_min ? String(job.salary_min) : '',
         salary_max: job.salary_max ? String(job.salary_max) : '',
         comp_perks: metaItem.comp_perks || 'Base Salary Only',
         industry: normalizedIndustry,
-        company_size: metaItem.company_size || 'Growth (50–250 Employees)',
+        company_size: resolvedCompanySize,
         work_auth: metaItem.work_auth || 'US Authorized Only (No Sponsorship)',
         description: job.description || '',
         structured_requirements: visibleReqs,
@@ -140,6 +167,9 @@ export default function EditJobPage() {
         typeof data.required_certifications === 'string'
           ? data.required_certifications
           : prev.required_certifications,
+      required_languages: data.required_languages
+        ? normalizeLanguageList(data.required_languages, true)
+        : prev.required_languages,
       industry: data.industry
         ? normalizeIndustryVertical(data.industry)
         : prev.industry,
@@ -210,7 +240,7 @@ export default function EditJobPage() {
           Edit Blind Role Listing
         </h2>
         <p className="text-sm text-slate-500 mt-1">
-          Update the compensation band (/yr or /hr), US metro location, education &amp; certifications, standardized industry vertical, and core skill requirements.
+          Update the compensation band (/yr or /hr), US metro location, education, certifications, required languages, standardized industry vertical, and core skill requirements.
         </p>
       </div>
 
@@ -227,10 +257,10 @@ export default function EditJobPage() {
       <form action={handleSubmit} className="space-y-8">
         <input type="hidden" name="job_id" value={jobId} />
 
-        {/* SECTION 1: ROLE FUNDAMENTALS, EDUCATION & US CASCADING LOCATION */}
+        {/* SECTION 1: ROLE FUNDAMENTALS, EDUCATION, LANGUAGES & US LOCATION */}
         <div className="space-y-6 rounded-xl bg-slate-50 p-6 border border-slate-200">
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-2">
-            1. Role Fundamentals, Education &amp; US Location
+            1. Role Fundamentals, Education, Languages &amp; US Location
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -375,6 +405,20 @@ export default function EditJobPage() {
               />
             </div>
           </div>
+
+          {/* Required / Preferred Languages Matrix */}
+          <StructuredLanguageEditor
+            name="required_languages"
+            initialLanguages={jobData.required_languages}
+            title="🌐 Required / Preferred Languages"
+            subtitle="Specify required languages, modality (Written, Verbal, or Both), and minimum proficiency level. Evaluated automatically by the 5-Point AI Match Radar and Outbound Pitch Firewall."
+            onChange={(updatedLangs) =>
+              setJobData((prev) => ({
+                ...prev,
+                required_languages: updatedLangs,
+              }))
+            }
+          />
         </div>
 
         {/* SECTION 2: COMPENSATION & PAY TYPE (/YR VS /HR) */}

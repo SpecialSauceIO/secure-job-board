@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { SubmitButton } from '@/components/SubmitButton'
 import { StructuredRequirementEditor } from '@/components/StructuredRequirementEditor'
+import { StructuredLanguageEditor } from '@/components/StructuredLanguageEditor'
 import AiJobScanner from '@/components/AiJobScanner'
 import UsLocationSelector from '@/components/UsLocationSelector'
 import { createStructuredJob } from '@/app/dashboard/actions'
@@ -17,6 +18,11 @@ import {
   JOB_EDUCATION_REQUIREMENTS,
   normalizeJobEducationReq,
 } from '@/constants/education'
+import {
+  DEFAULT_LANGUAGE_ENTRY,
+  LanguageEntry,
+  normalizeLanguageList,
+} from '@/constants/languages'
 
 export default function NewJobPage() {
   const router = useRouter()
@@ -32,6 +38,7 @@ export default function NewJobPage() {
     experience_level: 'Senior (5–8 yrs)',
     education_req: "Bachelor's Degree OR Equivalent Practical Experience",
     required_certifications: '',
+    required_languages: [{ ...DEFAULT_LANGUAGE_ENTRY }] as LanguageEntry[],
     pay_type: 'annual' as 'annual' | 'hourly',
     salary_min: '',
     salary_max: '',
@@ -64,11 +71,25 @@ export default function NewJobPage() {
       if (member?.organization_id) {
         const { data: orgObj } = await supabase
           .from('organizations')
-          .select('verification_status')
+          .select('verification_status, description')
           .eq('id', member.organization_id)
           .single()
 
         setIsOrgVerified(orgObj?.verification_status === 'verified')
+
+        const rawDesc = orgObj?.description || ''
+        const indMatch = rawDesc.match(/\[IND:([^\]]+)\]/i)
+        const sizeMatch = rawDesc.match(/\[SIZE:([^\]]+)\]/i)
+
+        setJobData((prev) => ({
+          ...prev,
+          industry: indMatch?.[1]
+            ? normalizeIndustryVertical(indMatch[1].trim())
+            : prev.industry,
+          company_size: sizeMatch?.[1]
+            ? sizeMatch[1].trim()
+            : prev.company_size,
+        }))
       }
 
       setIsCheckingAccess(false)
@@ -95,6 +116,9 @@ export default function NewJobPage() {
         typeof data.required_certifications === 'string'
           ? data.required_certifications
           : prev.required_certifications,
+      required_languages: data.required_languages
+        ? normalizeLanguageList(data.required_languages, true)
+        : prev.required_languages,
       industry: data.industry
         ? normalizeIndustryVertical(data.industry)
         : prev.industry,
@@ -212,7 +236,7 @@ export default function NewJobPage() {
           Post a New Blind Role
         </h2>
         <p className="text-sm text-slate-500 mt-1">
-          Candidates will see your compensation band, US metro location, education/certification alignment, and standardized industry vertical, while your company name and domain remain hidden until unlock.
+          Candidates will see your compensation band, US metro location, education/certification/language alignment, and standardized industry vertical, while your company name and domain remain hidden until unlock.
         </p>
       </div>
 
@@ -227,10 +251,10 @@ export default function NewJobPage() {
       </div>
 
       <form action={handleSubmit} className="space-y-8">
-        {/* SECTION 1: ROLE BASICS, EDUCATION & US CASCADING LOCATION */}
+        {/* SECTION 1: ROLE BASICS, EDUCATION, LANGUAGES & US CASCADING LOCATION */}
         <div className="space-y-6 rounded-xl bg-slate-50 p-6 border border-slate-200">
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-2">
-            1. Role Fundamentals, Education &amp; US Location
+            1. Role Fundamentals, Education, Languages &amp; US Location
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -375,6 +399,20 @@ export default function NewJobPage() {
               />
             </div>
           </div>
+
+          {/* Required / Preferred Languages Matrix */}
+          <StructuredLanguageEditor
+            name="required_languages"
+            initialLanguages={jobData.required_languages}
+            title="🌐 Required / Preferred Languages"
+            subtitle="Specify required languages, modality (Written, Verbal, or Both), and minimum proficiency level. Evaluated automatically by the 5-Point AI Match Radar and Outbound Pitch Firewall."
+            onChange={(updatedLangs) =>
+              setJobData((prev) => ({
+                ...prev,
+                required_languages: updatedLangs,
+              }))
+            }
+          />
         </div>
 
         {/* SECTION 2: COMPENSATION & PAY TYPE (/YR VS /HR) */}
