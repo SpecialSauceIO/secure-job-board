@@ -638,7 +638,7 @@ export default async function DashboardPage({
   }
 
   // ============================================================================
-  // STREAMLINED CANDIDATE VIEW (ZERO REDUNDANT PLAN LINKS)
+  // STREAMLINED CANDIDATE VIEW (ZERO REDUNDANT PLAN LINKS OR FILTER BOXES)
   // ============================================================================
   const isVerified = Boolean(
     profile?.identity_verified === true ||
@@ -954,15 +954,30 @@ export default async function DashboardPage({
       {/* CANDIDATE REPUTATION, XP LEVEL & TROPHY CASE */}
       <ReputationBadgeCase summary={candidateGamification} />
 
-      {/* RECOMMENDED ROLES SECTION */}
+      {/* RECOMMENDED ROLES SECTION (NO REDUNDANT FILTER BOX) */}
       <section className="pt-6 border-t border-slate-200">
-        <div className="mb-5">
-          <h2 className="text-lg font-extrabold text-slate-900">
-            Recommended Roles
-          </h2>
+        <div className="flex items-center justify-between gap-4 mb-5">
+          <div>
+            <h2 className="text-lg font-extrabold text-slate-900">
+              Recommended Roles
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Top active roles aligned with your skill matrix.
+            </p>
+          </div>
+          <Link
+            href="/dashboard/jobs"
+            className="text-xs font-extrabold text-indigo-600 hover:text-indigo-800 transition-colors"
+          >
+            Search &amp; filter all roles →
+          </Link>
         </div>
 
-        <CandidateJobFeed jobs={recommendedJobs} isVerified={isVerified} />
+        <CandidateJobFeed
+          jobs={recommendedJobs}
+          isVerified={isVerified}
+          showSortControls={false}
+        />
       </section>
     </div>
   )

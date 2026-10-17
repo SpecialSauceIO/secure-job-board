@@ -157,11 +157,14 @@ export default function EmployerCandidateSearch({
 }) {
   const [query, setQuery] = useState('')
   const [workModel, setWorkModel] = useState('')
+  const [sortBy, setSortBy] = useState<CandidateSortOption>('rank_high')
+
+  // Collapsible Advanced Filters Drawer
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   const [employmentType, setEmploymentType] = useState('all')
   const [industryFilter, setIndustryFilter] = useState('all')
   const [educationFilter, setEducationFilter] = useState('all')
   const [languageFilter, setLanguageFilter] = useState('all')
-  const [sortBy, setSortBy] = useState<CandidateSortOption>('rank_high')
   const [selectedState, setSelectedState] = useState('')
   const [selectedMetro, setSelectedMetro] = useState('')
 
@@ -219,6 +222,14 @@ export default function EmployerCandidateSearch({
       ? stateObj.metros
       : []
 
+  const activeAdvancedCount = [
+    employmentType !== 'all',
+    industryFilter !== 'all',
+    educationFilter !== 'all',
+    languageFilter !== 'all',
+    Boolean(selectedState),
+  ].filter(Boolean).length
+
   const handleToggleShortlist = async (candidateId: string) => {
     const normalizedId = String(candidateId)
     setTogglingCandidateId(normalizedId)
@@ -250,6 +261,22 @@ export default function EmployerCandidateSearch({
     }
 
     const result = await searchCandidates(query, workModel, locationFilter)
+    if (result.data) setCandidates(result.data)
+    setIsLoading(false)
+  }
+
+  const resetAllFilters = async () => {
+    setQuery('')
+    setWorkModel('')
+    setEmploymentType('all')
+    setIndustryFilter('all')
+    setEducationFilter('all')
+    setLanguageFilter('all')
+    setSelectedState('')
+    setSelectedMetro('')
+    setOnlyShortlisted(false)
+    setIsLoading(true)
+    const result = await searchCandidates('', '', '')
     if (result.data) setCandidates(result.data)
     setIsLoading(false)
   }
@@ -449,15 +476,16 @@ export default function EmployerCandidateSearch({
 
   return (
     <div className="space-y-6">
-      {/* Search Header & Filters */}
+      {/* SINGLE UNIFIED COMMAND BAR WITH COLLAPSIBLE ADVANCED FILTERS */}
       <form
         onSubmit={handleSearchSubmit}
-        className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4"
+        className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3.5"
       >
-        <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4">
-          <div className="relative flex-1 w-full">
+        {/* Row 1: Keyword Input + Work Model + Sort By + Filters Drawer Toggle + Search Button */}
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5">
+          <div className="relative flex-1">
             <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -467,30 +495,56 @@ export default function EmployerCandidateSearch({
                 strokeLinejoin="round"
                 strokeWidth="2"
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              ></path>
+              />
             </svg>
             <input
               type="text"
-              placeholder="Search skills, certifications, languages, or keywords (e.g., Next.js, Spanish, AWS, PMP)..."
+              placeholder="Search skills, certifications, languages, or keywords..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-sm font-medium text-slate-900 transition-all"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 text-xs sm:text-sm font-medium text-slate-900 focus:outline-none"
             />
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <div className="grid grid-cols-2 sm:flex flex-wrap items-center gap-2 shrink-0">
+            <select
+              value={workModel}
+              onChange={(e) => setWorkModel(e.target.value)}
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-extrabold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+            >
+              <option value="">All Work Models</option>
+              <option value="remote">Remote Only</option>
+              <option value="hybrid">Hybrid</option>
+              <option value="onsite">On-site</option>
+            </select>
+
+            <select
+              value={sortBy}
+              onChange={(e) =>
+                setSortBy(e.target.value as CandidateSortOption)
+              }
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-extrabold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+            >
+              <option value="rank_high">Sort: Highest Rank &amp; XP</option>
+              <option value="exp_high">Sort: Most Experienced</option>
+              <option value="salary_low">Sort: Lowest Min Salary</option>
+              <option value="salary_high">Sort: Highest Min Salary</option>
+              <option value="exp_low">Sort: Entry / Junior First</option>
+              <option value="work_model">Sort: Work Model</option>
+            </select>
+
             <button
               type="button"
-              onClick={() => setOnlyShortlisted((prev) => !prev)}
-              className={`inline-flex items-center gap-1.5 px-4 py-3 rounded-xl text-xs font-extrabold border transition-all cursor-pointer ${
-                onlyShortlisted
-                  ? 'bg-amber-500 text-white border-amber-500 shadow-xs'
-                  : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400'
+              onClick={() => setShowAdvancedFilters((prev) => !prev)}
+              className={`inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl border text-xs font-extrabold transition-colors cursor-pointer ${
+                showAdvancedFilters || activeAdvancedCount > 0
+                  ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
+                  : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
               }`}
             >
               <svg
-                className="w-4 h-4"
-                fill={onlyShortlisted ? 'currentColor' : 'none'}
+                className="w-3.5 h-3.5"
+                fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -498,222 +552,230 @@ export default function EmployerCandidateSearch({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
                 />
               </svg>
-              {onlyShortlisted
-                ? `Shortlisted Only (${savedCandidateIds.length})`
-                : `Shortlist (${savedCandidateIds.length})`}
+              <span>
+                Filters{activeAdvancedCount > 0 ? ` (${activeAdvancedCount})` : ''}
+              </span>
             </button>
 
-            <div
-              className={`flex items-center gap-2 px-4 py-3 rounded-xl border ${
-                liveCredits > 0
-                  ? 'bg-indigo-50 border-indigo-100 text-indigo-900'
-                  : 'bg-rose-50 border-rose-200 text-rose-800'
-              }`}
-            >
-              <span className="text-sm font-extrabold">
-                {liveCredits} {liveCredits === 1 ? 'Credit' : 'Credits'} Remaining
-              </span>
-            </div>
-
-            <Link
-              href="/dashboard/employer/billing"
-              className="px-4 py-3 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm whitespace-nowrap"
-            >
-              + Top Up Credits
-            </Link>
-          </div>
-        </div>
-
-        {/* Middle Row: Work Model, Employment Type, & Cascading US Location Dropdowns */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-          <div className="md:col-span-2">
-            <select
-              value={workModel}
-              onChange={(e) => setWorkModel(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
-            >
-              <option value="">All Work Models</option>
-              <option value="remote">Remote Only</option>
-              <option value="hybrid">Hybrid</option>
-              <option value="onsite">On-site</option>
-            </select>
-          </div>
-
-          <div className="md:col-span-3">
-            <select
-              value={employmentType}
-              onChange={(e) => setEmploymentType(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
-            >
-              <option value="all">All Employment Types</option>
-              {EMPLOYMENT_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="md:col-span-3">
-            <select
-              value={selectedState}
-              onChange={(e) => {
-                setSelectedState(e.target.value)
-                setSelectedMetro('')
-              }}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
-            >
-              <option value="">All US States</option>
-              <option value="REMOTE_US">🇺🇸 US Remote (By Timezone)</option>
-              {US_STATES_AND_METROS.map((st) => (
-                <option key={st.code} value={st.code}>
-                  {st.name} ({st.code})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="md:col-span-2">
-            <select
-              disabled={!selectedState}
-              value={selectedMetro}
-              onChange={(e) => setSelectedMetro(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none disabled:opacity-50 cursor-pointer"
-            >
-              <option value="">
-                {!selectedState
-                  ? 'Select state...'
-                  : selectedState === 'REMOTE_US'
-                  ? 'All US Timezones'
-                  : `All ${selectedState} Metros`}
-              </option>
-              {metroOptions.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="md:col-span-2">
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-full py-2.5 px-4 bg-slate-900 text-white text-sm font-extrabold rounded-xl hover:bg-indigo-600 transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
+              className="px-4 py-2.5 bg-slate-900 text-white text-xs font-extrabold rounded-xl hover:bg-indigo-600 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer"
             >
-              {isLoading ? '...' : 'Search Talent'}
+              {isLoading ? '...' : 'Search'}
             </button>
           </div>
         </div>
 
-        {/* Bottom Organizer Row: Industry Vertical + Education/Certs + Language + Sort By */}
-        <div className="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-center">
-          <div className="flex items-center gap-2">
-            <label
-              htmlFor="employer-industry-filter"
-              className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
-            >
-              Industry:
-            </label>
-            <select
-              id="employer-industry-filter"
-              value={industryFilter}
-              onChange={(e) => setIndustryFilter(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
-            >
-              <option value="all">All Industry Verticals</option>
-              {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
-                <option key={vertical} value={vertical}>
-                  {vertical}
+        {/* Collapsible Advanced Filters Drawer */}
+        {showAdvancedFilters && (
+          <div className="pt-3.5 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 animate-in fade-in duration-150">
+            <div>
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">
+                Employment Type
+              </label>
+              <select
+                value={employmentType}
+                onChange={(e) => setEmploymentType(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              >
+                <option value="all">All Types</option>
+                {EMPLOYMENT_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">
+                Industry Vertical
+              </label>
+              <select
+                value={industryFilter}
+                onChange={(e) => setIndustryFilter(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              >
+                <option value="all">All 28 Industries</option>
+                {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
+                  <option key={vertical} value={vertical}>
+                    {vertical}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">
+                Education / Certs
+              </label>
+              <select
+                value={educationFilter}
+                onChange={(e) => setEducationFilter(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              >
+                <option value="all">All Credentials</option>
+                <option value="HAS_CERTS">Holds Active Certifications</option>
+                {CANDIDATE_EDUCATION_LEVELS.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">
+                Language
+              </label>
+              <select
+                value={languageFilter}
+                onChange={(e) => setLanguageFilter(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              >
+                <option value="all">All Languages</option>
+                {STANDARD_LANGUAGES.map((lang) => (
+                  <option key={lang} value={lang}>
+                    {lang}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">
+                US State
+              </label>
+              <select
+                value={selectedState}
+                onChange={(e) => {
+                  setSelectedState(e.target.value)
+                  setSelectedMetro('')
+                }}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              >
+                <option value="">All US States</option>
+                <option value="REMOTE_US">🇺🇸 US Remote</option>
+                {US_STATES_AND_METROS.map((st) => (
+                  <option key={st.code} value={st.code}>
+                    {st.name} ({st.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">
+                Metro Area
+              </label>
+              <select
+                disabled={!selectedState}
+                value={selectedMetro}
+                onChange={(e) => setSelectedMetro(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none disabled:opacity-50 cursor-pointer"
+              >
+                <option value="">
+                  {!selectedState
+                    ? 'Select state...'
+                    : selectedState === 'REMOTE_US'
+                    ? 'All Timezones'
+                    : `All ${selectedState} Metros`}
                 </option>
-              ))}
-            </select>
+                {metroOptions.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* Compact Status & Utility Row */}
+        <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+          <div className="flex flex-wrap items-center gap-2">
+            <span>
+              Showing{' '}
+              <strong className="text-slate-900">
+                {filteredAndSortedCandidates.length}
+              </strong>{' '}
+              verified{' '}
+              {filteredAndSortedCandidates.length === 1
+                ? 'candidate'
+                : 'candidates'}
+            </span>
+
+            <button
+              type="button"
+              onClick={() => setOnlyShortlisted((prev) => !prev)}
+              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md font-bold border transition-colors cursor-pointer ${
+                onlyShortlisted
+                  ? 'bg-amber-50 border-amber-400 text-amber-900'
+                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              ★ Shortlisted ({savedCandidateIds.length})
+            </button>
+
+            {employmentType !== 'all' && (
+              <button
+                type="button"
+                onClick={() => setEmploymentType('all')}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 cursor-pointer"
+              >
+                {employmentType} ✕
+              </button>
+            )}
+
+            {industryFilter !== 'all' && (
+              <button
+                type="button"
+                onClick={() => setIndustryFilter('all')}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 cursor-pointer"
+              >
+                {industryFilter} ✕
+              </button>
+            )}
+
+            {languageFilter !== 'all' && (
+              <button
+                type="button"
+                onClick={() => setLanguageFilter('all')}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 cursor-pointer"
+              >
+                {languageFilter} ✕
+              </button>
+            )}
+
+            {(activeAdvancedCount > 0 ||
+              workModel !== '' ||
+              query.trim() !== '' ||
+              onlyShortlisted) && (
+              <button
+                type="button"
+                onClick={resetAllFilters}
+                className="text-indigo-600 hover:text-indigo-800 font-extrabold cursor-pointer ml-1"
+              >
+                Reset all
+              </button>
+            )}
           </div>
 
-          <div className="flex items-center gap-2">
-            <label
-              htmlFor="employer-education-filter"
-              className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
+          <div className="flex items-center gap-3">
+            <span>
+              <strong className="text-slate-900">{liveCredits}</strong> Pitch{' '}
+              {liveCredits === 1 ? 'Credit' : 'Credits'} Available
+            </span>
+            <Link
+              href="/dashboard/employer/billing"
+              className="text-indigo-600 hover:text-indigo-800 font-extrabold"
             >
-              Education:
-            </label>
-            <select
-              id="employer-education-filter"
-              value={educationFilter}
-              onChange={(e) => setEducationFilter(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
-            >
-              <option value="all">All Education &amp; Credentials</option>
-              <option value="HAS_CERTS">
-                🏅 Holds Active Certifications
-              </option>
-              {CANDIDATE_EDUCATION_LEVELS.map((level) => (
-                <option key={level} value={level}>
-                  {level}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <label
-              htmlFor="employer-language-filter"
-              className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
-            >
-              Language:
-            </label>
-            <select
-              id="employer-language-filter"
-              value={languageFilter}
-              onChange={(e) => setLanguageFilter(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
-            >
-              <option value="all">All Spoken/Written Languages</option>
-              {STANDARD_LANGUAGES.map((lang) => (
-                <option key={lang} value={lang}>
-                  🌐 {lang}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <label
-              htmlFor="employer-candidate-sort"
-              className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
-            >
-              Sort By:
-            </label>
-            <select
-              id="employer-candidate-sort"
-              value={sortBy}
-              onChange={(e) =>
-                setSortBy(e.target.value as CandidateSortOption)
-              }
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
-            >
-              <option value="rank_high">
-                🥇 Highest Profile Level &amp; XP (Rank Tier)
-              </option>
-              <option value="exp_high">
-                Experience Level (Most Experienced First)
-              </option>
-              <option value="exp_low">
-                Experience Level (Entry / Junior First)
-              </option>
-              <option value="salary_low">
-                Min Salary Expectation (Lowest First)
-              </option>
-              <option value="salary_high">
-                Min Salary Expectation (Highest First)
-              </option>
-              <option value="work_model">
-                Work Arrangement (Remote → Hybrid → On-site)
-              </option>
-            </select>
+              + Top Up
+            </Link>
           </div>
         </div>
       </form>
@@ -757,27 +819,15 @@ export default function EmployerCandidateSearch({
             <p className="text-slate-500 text-sm mb-4">
               {onlyShortlisted
                 ? 'Click "Shortlist" on any anonymous candidate card to assemble a comparison pool before pitching.'
-                : 'Try resetting your Industry Vertical, Education, Language, or Employment Type filters.'}
+                : 'Try resetting your active filters to broaden your search.'}
             </p>
-            {(industryFilter !== 'all' ||
-              educationFilter !== 'all' ||
-              languageFilter !== 'all' ||
-              employmentType !== 'all' ||
-              onlyShortlisted) && (
-              <button
-                type="button"
-                onClick={() => {
-                  setIndustryFilter('all')
-                  setEducationFilter('all')
-                  setLanguageFilter('all')
-                  setEmploymentType('all')
-                  setOnlyShortlisted(false)
-                }}
-                className="px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer"
-              >
-                Reset Active Filters →
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={resetAllFilters}
+              className="px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer"
+            >
+              Reset Active Filters →
+            </button>
           </div>
         ) : (
           filteredAndSortedCandidates.map((candidate) => {
@@ -924,7 +974,7 @@ export default function EmployerCandidateSearch({
                 }`}
               >
                 <div className="flex-1 space-y-3">
-                  {/* Top Header Row: Candidate Title, Rank/Founder Pill, Verified Check, and Shortlist Button */}
+                  {/* Top Header Row */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
                       <div className="flex flex-wrap items-center gap-2.5">
@@ -947,7 +997,7 @@ export default function EmployerCandidateSearch({
                         )}
                       </div>
 
-                      {/* Clean Inline Primary Metadata Row (No Colored Pills!) */}
+                      {/* Clean Inline Primary Metadata Row */}
                       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs font-medium text-slate-600">
                         {candidateIndustry && (
                           <>
