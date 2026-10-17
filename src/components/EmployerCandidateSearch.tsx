@@ -24,7 +24,6 @@ import {
   LanguageEntry,
   STANDARD_LANGUAGES,
   normalizeLanguageList,
-  formatLanguageBadge,
   evaluateLanguageRequirements,
 } from '@/constants/languages'
 import { getQuickCandidateCardRank } from '@/constants/gamification'
@@ -511,19 +510,6 @@ export default function EmployerCandidateSearch({
                   : 'bg-rose-50 border-rose-200 text-rose-800'
               }`}
             >
-              <svg
-                className="w-5 h-5 text-indigo-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                ></path>
-              </svg>
               <span className="text-sm font-extrabold">
                 {liveCredits} {liveCredits === 1 ? 'Credit' : 'Credits'} Remaining
               </span>
@@ -923,137 +909,72 @@ export default function EmployerCandidateSearch({
             return (
               <div
                 key={candidate.id}
-                className={`bg-white p-6 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between gap-6 transition-colors ${
+                className={`bg-white p-6 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between gap-6 transition-all ${
                   isShortlisted
-                    ? 'border-amber-400'
+                    ? 'border-2 border-amber-500 shadow-sm'
                     : rankInfo.isFounder
-                    ? 'border-amber-200/90 hover:border-indigo-300'
-                    : 'border-slate-200 hover:border-indigo-300'
+                    ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
+                    : 'border-slate-200 hover:border-slate-300'
                 }`}
               >
-                <div className="flex-1">
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-slate-900 text-white rounded-full flex items-center justify-center font-bold text-sm shrink-0">
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                          ></path>
-                        </svg>
+                <div className="flex-1 space-y-3">
+                  {/* Top Header Row: Candidate Title, Rank/Founder Pill, Verified Check, and Shortlist Button */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-1">
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <h3 className="text-lg font-black text-slate-900">
+                          Anonymous Candidate #{displayId}
+                        </h3>
+
+                        <RankAndFounderPill
+                          level={rankInfo.level}
+                          tier={rankInfo.tier}
+                          isFounder={rankInfo.isFounder}
+                          founderText="Founding Member"
+                          size="xs"
+                        />
+
+                        {isCandidateVerified && (
+                          <span className="text-emerald-700 text-xs font-bold">
+                            ✓ Verified
+                          </span>
+                        )}
                       </div>
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-lg font-bold text-slate-900">
-                            Anonymous Candidate #{displayId}
-                          </h3>
 
-                          <RankAndFounderPill
-                            level={rankInfo.level}
-                            tier={rankInfo.tier}
-                            isFounder={rankInfo.isFounder}
-                            founderText="Founding Member"
-                            size="xs"
-                          />
-
-                          {isCandidateVerified && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-extrabold">
-                              <svg
-                                className="w-3 h-3 text-emerald-600"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2.5"
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                              Identity Verified
-                            </span>
-                          )}
-
-                          {rankInfo.isVaultReady && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100/80 text-emerald-900 border border-emerald-300 text-[10px] font-extrabold">
-                              🛡️ 100% Vault Ready
-                            </span>
-                          )}
-
-                          {rankInfo.isMultilingual && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-teal-100/80 text-teal-900 border border-teal-300 text-[10px] font-extrabold">
-                              🌐 Multilingual Specialist
-                            </span>
-                          )}
-
-                          {candidate.experience_years && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-violet-50 border border-violet-200 text-violet-700 text-[11px] font-extrabold">
-                              {candidate.experience_years} Yrs Exp
-                            </span>
-                          )}
-                          {candidateIndustry && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-[11px] font-bold">
+                      {/* Clean Inline Primary Metadata Row (No Colored Pills!) */}
+                      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs font-medium text-slate-600">
+                        {candidateIndustry && (
+                          <>
+                            <span className="font-bold text-slate-800">
                               {candidateIndustry}
                             </span>
-                          )}
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500 mt-1">
-                          <span className="flex items-center gap-1 text-emerald-600">
-                            <svg
-                              className="w-3.5 h-3.5"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                              ></path>
-                            </svg>
-                            Min: $
-                            {candidate.min_salary_expectation
-                              ? (candidate.min_salary_expectation / 1000).toFixed(
-                                  0
-                                ) + 'k'
-                              : 'Open'}
-                          </span>
-                          <span>•</span>
-                          <span className="capitalize">
-                            {candidate.preferred_work_model || 'Flexible'} Model
-                          </span>
-
-                          {candidate.location && (
-                            <>
-                              <span>•</span>
-                              <span className="flex items-center gap-1">
-                                <svg
-                                  className="w-3.5 h-3.5"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"
-                                  ></path>
-                                </svg>
-                                {candidate.location}
-                              </span>
-                            </>
-                          )}
-                        </div>
+                            <span className="text-slate-300">•</span>
+                          </>
+                        )}
+                        {candidate.experience_years && (
+                          <>
+                            <span>{candidate.experience_years} Yrs Exp</span>
+                            <span className="text-slate-300">•</span>
+                          </>
+                        )}
+                        <span className="text-emerald-700 font-bold">
+                          Min: $
+                          {candidate.min_salary_expectation
+                            ? (candidate.min_salary_expectation / 1000).toFixed(
+                                0
+                              ) + 'k'
+                            : 'Open'}
+                        </span>
+                        <span className="text-slate-300">•</span>
+                        <span className="capitalize">
+                          {candidate.preferred_work_model || 'Flexible'} Model
+                        </span>
+                        {candidate.location && (
+                          <>
+                            <span className="text-slate-300">•</span>
+                            <span>{candidate.location}</span>
+                          </>
+                        )}
                       </div>
                     </div>
 
@@ -1064,7 +985,7 @@ export default function EmployerCandidateSearch({
                       onClick={() => handleToggleShortlist(cid)}
                       className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
                         isShortlisted
-                          ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-2xs'
+                          ? 'bg-amber-50 border-amber-400 text-amber-900'
                           : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900'
                       }`}
                     >
@@ -1085,67 +1006,63 @@ export default function EmployerCandidateSearch({
                           d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
                         />
                       </svg>
-                      {isShortlisted ? 'Shortlisted' : 'Save to Shortlist'}
+                      {isShortlisted ? 'Shortlisted' : 'Shortlist'}
                     </button>
                   </div>
 
-                  {/* Education, Active Certifications, Languages & Accepted Employment Types Row */}
-                  <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                  {/* Clean Inline Credentials & Availability Row */}
+                  <div className="text-xs text-slate-600 font-medium flex flex-wrap items-center gap-x-3 gap-y-1">
                     {candidateEdu && (
-                      <span className="px-2.5 py-0.5 rounded-md bg-sky-50 text-sky-800 border border-sky-200 text-[11px] font-bold">
-                        🎓 {candidateEdu}
+                      <span>
+                        <strong className="text-slate-800">Education:</strong>{' '}
+                        {candidateEdu}
                       </span>
                     )}
                     {candidateCerts && (
-                      <span className="px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-bold">
-                        🏅 Certs: {candidateCerts}
+                      <span>
+                        <strong className="text-slate-800">Certs:</strong>{' '}
+                        {candidateCerts}
                       </span>
                     )}
-                    {candidateLanguages.map((langEntry, lIdx) => (
-                      <span
-                        key={`${langEntry.language}-${lIdx}`}
-                        className="px-2.5 py-0.5 rounded-md bg-teal-50 text-teal-900 border border-teal-200 text-[11px] font-bold"
-                      >
-                        🌐 {formatLanguageBadge(langEntry)}
+                    {candidateLanguages.length > 0 && (
+                      <span>
+                        <strong className="text-slate-800">Languages:</strong>{' '}
+                        {candidateLanguages
+                          .map(
+                            (l) =>
+                              `${l.language} (${l.modality.split(' ')[0]} • ${
+                                l.proficiency
+                              })`
+                          )
+                          .join(', ')}
                       </span>
-                    ))}
-                    <span className="text-[11px] font-bold text-slate-400 ml-1 mr-0.5">
-                      Open to:
-                    </span>
-                    {acceptedEmploymentTypes.map((empType) => (
-                      <span
-                        key={empType}
-                        className="px-2 py-0.5 rounded-md bg-indigo-50/80 text-indigo-700 border border-indigo-100 text-[11px] font-bold"
-                      >
-                        {empType}
+                    )}
+                    {acceptedEmploymentTypes.length > 0 && (
+                      <span>
+                        <strong className="text-slate-800">Open to:</strong>{' '}
+                        {acceptedEmploymentTypes.join(', ')}
                       </span>
-                    ))}
+                    )}
                   </div>
 
-                  <p className="text-sm text-slate-600 mb-4 line-clamp-2">
+                  {/* Bio Preview */}
+                  <p className="text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
                     {candidate.bio || 'Candidate has not provided a summary.'}
                   </p>
 
-                  <div className="flex flex-wrap gap-2">
-                    {candidateSkillStrings
-                      .slice(0, 5)
-                      .map((skill: string, i: number) => (
-                        <span
-                          key={i}
-                          className="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-md border border-slate-200"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    {candidateSkillStrings.length > 5 && (
-                      <span className="px-2.5 py-1 text-slate-400 text-xs font-bold">
-                        +{candidateSkillStrings.length - 5} more
-                      </span>
-                    )}
-                  </div>
+                  {/* Clean Inline Skills Line */}
+                  {candidateSkillStrings.length > 0 && (
+                    <div className="text-xs text-slate-500 pt-1 border-t border-slate-100">
+                      <strong className="text-slate-700">Core Skills:</strong>{' '}
+                      {candidateSkillStrings.slice(0, 8).join(' • ')}
+                      {candidateSkillStrings.length > 8 &&
+                        ` (+${candidateSkillStrings.length - 8} more)`}
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex flex-col justify-center shrink-0 w-full md:w-[360px] border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6">
+                {/* Right Column: Pitch Action & Dealbreaker Firewall */}
+                <div className="flex flex-col justify-center shrink-0 w-full md:w-[340px] border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6">
                   {pitchCandidateId === candidate.id ? (
                     <div className="space-y-3 animate-in fade-in zoom-in duration-200">
                       <select
@@ -1154,7 +1071,7 @@ export default function EmployerCandidateSearch({
                         onChange={(e) =>
                           handleRoleSelect(e.target.value, candidate.id)
                         }
-                        className="w-full text-sm rounded-lg border-slate-300 bg-white text-slate-900 font-medium focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50"
+                        className="w-full text-xs sm:text-sm rounded-xl border border-slate-300 bg-white text-slate-900 font-bold py-2 px-3 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50"
                       >
                         <option value="">Select a role to pitch...</option>
                         {activeJobs.map((job) => (
@@ -1165,47 +1082,31 @@ export default function EmployerCandidateSearch({
                       </select>
 
                       {isAnalyzingMatch && (
-                        <div className="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 flex items-start gap-3 animate-pulse">
+                        <div className="p-3 rounded-xl bg-indigo-50 border border-indigo-200 flex items-start gap-2.5 animate-pulse">
                           <div className="w-4 h-4 mt-0.5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin shrink-0" />
-                          <div className="text-xs text-indigo-950 leading-relaxed">
+                          <div className="text-xs text-indigo-950">
                             <span className="font-extrabold block">
-                              Analyzing 5-Point AI Fit (May take up to 30s)...
-                            </span>
-                            <span className="text-indigo-700 font-medium">
-                              Routing skills, education, certifications &amp; languages across our 3-tier AI matching cascade.
+                              Analyzing 5-Point AI Fit (Up to 30s)...
                             </span>
                           </div>
                         </div>
                       )}
 
                       {selectedJob && (
-                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-sm space-y-2">
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-2">
                           <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                            <span className="font-bold text-slate-700 flex items-center gap-1.5 text-xs">
-                              <svg
-                                className="w-4 h-4 text-indigo-600"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                                />
-                              </svg>
+                            <span className="font-bold text-slate-700">
                               AI Skill Match (Min {MIN_MATCH_THRESHOLD}%)
                             </span>
 
                             {isAnalyzingMatch ? (
-                              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600">
-                                Scoring (Up to 30s)...
+                              <span className="font-semibold text-indigo-600">
+                                Scoring...
                               </span>
                             ) : matchScore !== null ? (
                               <div className="flex items-center gap-1.5">
                                 <span
-                                  className={`px-2 py-0.5 rounded-md font-bold text-xs ${
+                                  className={`px-2 py-0.5 rounded-md font-bold ${
                                     matchScore >= 80
                                       ? 'bg-emerald-100 text-emerald-700'
                                       : matchScore >= MIN_MATCH_THRESHOLD
@@ -1223,7 +1124,7 @@ export default function EmployerCandidateSearch({
                                       candidate.id
                                     )
                                   }
-                                  className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 underline"
+                                  className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
                                 >
                                   ↻ Re-Run
                                 </button>
@@ -1234,7 +1135,7 @@ export default function EmployerCandidateSearch({
                                 onClick={() =>
                                   handleRoleSelect(selectedJobId, candidate.id)
                                 }
-                                className="text-xs text-indigo-600 font-extrabold hover:underline"
+                                className="text-indigo-600 font-extrabold hover:underline cursor-pointer"
                               >
                                 ↻ Run AI Match
                               </button>
@@ -1242,149 +1143,58 @@ export default function EmployerCandidateSearch({
                           </div>
 
                           {!isAnalyzingMatch && aiMatchData?.brief_analysis && (
-                            <p className="text-xs text-slate-600 italic border-b border-slate-200 pb-2">
+                            <p className="text-slate-600 italic border-b border-slate-200 pb-2">
                               &ldquo;{aiMatchData.brief_analysis}&rdquo;
                             </p>
                           )}
 
                           {salaryFails && (
-                            <div className="flex items-start gap-1.5 text-rose-600 text-xs font-medium">
-                              <svg
-                                className="w-4 h-4 shrink-0 mt-0.5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                ></path>
-                              </svg>
-                              <span>
-                                Dealbreaker: Candidate minimum ($
-                                {(candidate.min_salary_expectation / 1000).toFixed(
-                                  0
-                                )}
-                                k/yr) exceeds role max budget ($
-                                {(annualizedJobMax / 1000).toFixed(0)}k/yr).
-                              </span>
+                            <div className="text-rose-600 font-medium">
+                              • Dealbreaker: Candidate min ($
+                              {(candidate.min_salary_expectation / 1000).toFixed(
+                                0
+                              )}
+                              k/yr) exceeds role max budget ($
+                              {(annualizedJobMax / 1000).toFixed(0)}k/yr).
                             </div>
                           )}
 
                           {modelFails && (
-                            <div className="flex items-start gap-1.5 text-rose-600 text-xs font-medium">
-                              <svg
-                                className="w-4 h-4 shrink-0 mt-0.5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                ></path>
-                              </svg>
-                              <span className="capitalize">
-                                Dealbreaker: Candidate requires{' '}
-                                {candidate.preferred_work_model}, but this role
-                                is {selectedJob.work_model}.
-                              </span>
+                            <div className="text-rose-600 font-medium capitalize">
+                              • Dealbreaker: Candidate requires{' '}
+                              {candidate.preferred_work_model}, role is{' '}
+                              {selectedJob.work_model}.
                             </div>
                           )}
 
                           {empTypeFails && (
-                            <div className="flex items-start gap-1.5 text-rose-600 text-xs font-medium">
-                              <svg
-                                className="w-4 h-4 shrink-0 mt-0.5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                ></path>
-                              </svg>
-                              <span>
-                                Dealbreaker: Role is {selectedJobEmpType}, but
-                                candidate only accepts{' '}
-                                {acceptedEmploymentTypes.join(', ')}.
-                              </span>
+                            <div className="text-rose-600 font-medium">
+                              • Dealbreaker: Role is {selectedJobEmpType},
+                              candidate accepts{' '}
+                              {acceptedEmploymentTypes.join(', ')}.
                             </div>
                           )}
 
                           {langFails && (
-                            <div className="flex items-start gap-1.5 text-rose-600 text-xs font-medium">
-                              <svg
-                                className="w-4 h-4 shrink-0 mt-0.5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                ></path>
-                              </svg>
-                              <span>
-                                Dealbreaker (Language):{' '}
-                                {langMissingDetails.join('; ')}.
-                              </span>
+                            <div className="text-rose-600 font-medium">
+                              • Dealbreaker (Language):{' '}
+                              {langMissingDetails.join('; ')}.
                             </div>
                           )}
 
                           {scoreFails && (
-                            <div className="flex items-start gap-1.5 text-rose-600 text-xs font-medium">
-                              <svg
-                                className="w-4 h-4 shrink-0 mt-0.5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                ></path>
-                              </svg>
-                              <span>
-                                Dealbreaker: AI Match Score ({matchScore}%) is
-                                below the {MIN_MATCH_THRESHOLD}% minimum
-                                relevance threshold.
-                              </span>
+                            <div className="text-rose-600 font-medium">
+                              • Dealbreaker: AI Match ({matchScore}%) is below{' '}
+                              {MIN_MATCH_THRESHOLD}% threshold.
                             </div>
                           )}
 
                           {!isAnalyzingMatch &&
                             !hasDealbreaker &&
                             matchScore !== null && (
-                              <div className="flex items-start gap-1.5 text-emerald-600 text-xs font-medium">
-                                <svg
-                                  className="w-4 h-4 shrink-0 mt-0.5"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                  ></path>
-                                </svg>
-                                <span>
-                                  Meets {MIN_MATCH_THRESHOLD}%+ relevance and
-                                  all dealbreakers. Clear to pitch (+150 XP)!
-                                </span>
+                              <div className="text-emerald-700 font-bold">
+                                ✓ Meets {MIN_MATCH_THRESHOLD}%+ relevance &amp;
+                                all dealbreakers!
                               </div>
                             )}
                         </div>
@@ -1407,7 +1217,7 @@ export default function EmployerCandidateSearch({
                                 onClick={() =>
                                   handleRoleSelect(selectedJobId, candidate.id)
                                 }
-                                className="self-start px-3 py-1.5 bg-rose-700 text-white rounded-lg hover:bg-rose-800 transition-colors text-xs font-extrabold shadow-sm"
+                                className="self-start px-3 py-1 bg-rose-700 text-white rounded-lg hover:bg-rose-800 transition-colors text-xs font-extrabold cursor-pointer"
                               >
                                 ↻ Try AI Match Again
                               </button>
@@ -1417,16 +1227,18 @@ export default function EmployerCandidateSearch({
 
                       <div className="flex gap-2">
                         <button
+                          type="button"
                           onClick={() => {
                             setPitchCandidateId(null)
                             setSelectedJobId('')
                             setAiMatchData(null)
                           }}
-                          className="flex-1 py-2 bg-slate-100 text-slate-600 text-sm font-bold rounded-lg hover:bg-slate-200"
+                          className="flex-1 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-200 cursor-pointer"
                         >
                           Cancel
                         </button>
                         <button
+                          type="button"
                           onClick={handlePitch}
                           disabled={
                             !selectedJobId ||
@@ -1436,25 +1248,26 @@ export default function EmployerCandidateSearch({
                             matchScore === null ||
                             liveCredits < 1
                           }
-                          className="flex-1 py-2 bg-slate-900 text-white text-sm font-bold rounded-lg hover:bg-indigo-600 disabled:opacity-50"
+                          className="flex-1 py-2 bg-slate-900 text-white text-xs font-extrabold rounded-xl hover:bg-indigo-600 disabled:opacity-50 cursor-pointer"
                         >
                           {isSending
                             ? 'Sending...'
                             : isAnalyzingMatch
-                            ? 'Analyzing (Up to 30s)...'
+                            ? 'Scoring...'
                             : 'Send Pitch'}
                         </button>
                       </div>
                     </div>
                   ) : (
                     <button
+                      type="button"
                       onClick={() => {
                         setPitchCandidateId(candidate.id)
                         setFeedback(null)
                         setSelectedJobId('')
                         setAiMatchData(null)
                       }}
-                      className="w-full md:w-auto px-6 py-3 bg-white border-2 border-slate-900 text-slate-900 font-bold rounded-xl hover:bg-slate-900 hover:text-white transition-colors cursor-pointer"
+                      className="w-full md:w-auto px-5 py-2.5 bg-white border-2 border-slate-900 text-slate-900 text-xs font-extrabold rounded-xl hover:bg-slate-900 hover:text-white transition-colors cursor-pointer"
                     >
                       Request Connection
                     </button>

@@ -15,7 +15,6 @@ import { normalizeJobEducationReq } from '@/constants/education'
 import {
   STANDARD_LANGUAGES,
   normalizeLanguageList,
-  formatLanguageBadge,
 } from '@/constants/languages'
 import { getQuickJobCardRank } from '@/constants/gamification'
 import { RankAndFounderPill } from '@/components/ReputationBadgeCase'
@@ -601,39 +600,20 @@ export function CandidateJobFeed({
                 isApplied
                   ? 'border-emerald-300 ring-2 ring-emerald-500/10 shadow-md'
                   : isBookmarked
-                  ? 'border-amber-400 shadow-sm'
+                  ? 'border-2 border-amber-500 shadow-sm'
                   : meta.rankInfo.isFounder
-                  ? 'border-amber-200/90 shadow-sm hover:border-indigo-300'
-                  : 'border-slate-200 shadow-sm hover:border-indigo-300'
+                  ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
+                  : 'border-slate-200 shadow-sm hover:border-slate-300'
               }`}
             >
-              <div className="p-6 md:p-8 space-y-5">
-                {/* Top Row: Anonymous Company Teaser, Employer Rank/Founder Badge, Bookmark Button, & Compensation Band */}
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-slate-100">
+              <div className="p-6 md:p-8 space-y-4">
+                {/* Top Row: Clean Inline Blind Teaser, Rank/Founder Badge, & Compensation Band */}
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-3 border-b border-slate-100">
                   <div className="space-y-1.5">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900 text-white text-[11px] font-extrabold uppercase tracking-wider">
-                        <svg
-                          className="w-3.5 h-3.5 text-indigo-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                          />
-                        </svg>
-                        Blind Role • {anonymousTeaserParts.join(' • ')}
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-extrabold uppercase tracking-wider">
+                        🔒 Blind Role • {anonymousTeaserParts.join(' • ')}
                       </span>
-
-                      {orgVerified && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-extrabold">
-                          ✓ Domain-Verified Employer
-                        </span>
-                      )}
 
                       <RankAndFounderPill
                         level={meta.rankInfo.level}
@@ -643,35 +623,37 @@ export function CandidateJobFeed({
                         size="xs"
                       />
 
-                      {isApplied && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-600 text-white text-[11px] font-extrabold shadow-sm">
-                          ✓ Application Submitted ({appliedRef})
+                      {orgVerified && (
+                        <span className="text-emerald-700 font-bold">
+                          ✓ Verified Domain
                         </span>
                       )}
 
-                      <span className="text-xs text-slate-400 font-medium">
+                      <span className="text-slate-300">•</span>
+                      <span className="text-slate-500 font-medium">
                         Posted {new Date(job.created_at).toLocaleDateString()}
                       </span>
 
+                      <span className="text-slate-300">•</span>
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold border ${
+                        className={`font-bold ${
                           meta.daysRemaining <= 5
-                            ? 'bg-amber-50 text-amber-800 border-amber-200'
-                            : 'bg-slate-50 text-slate-500 border-slate-200'
+                            ? 'text-amber-700'
+                            : 'text-slate-500'
                         }`}
-                        title="All Special Sauce roles auto-expire after 30 days to prevent ghost listings and resume harvesting"
+                        title="All Special Sauce roles auto-expire after 30 days to prevent ghost listings"
                       >
-                        ⏳ Closes in {meta.daysRemaining}d
+                        Closes in {meta.daysRemaining}d
                       </span>
                     </div>
 
-                    <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                    <h3 className="text-2xl font-black text-slate-900 tracking-tight">
                       {job.title}
                     </h3>
                   </div>
 
                   {/* Prominent Pay Band Box + Save / Bookmark Button */}
-                  <div className="flex flex-col sm:items-end gap-2 shrink-0">
+                  <div className="flex flex-col sm:items-end gap-1.5 shrink-0">
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
@@ -680,16 +662,16 @@ export function CandidateJobFeed({
                         title={
                           isBookmarked
                             ? 'Remove from saved roles'
-                            : 'Save role (+35 XP toward Market Radar Operator)'
+                            : 'Save role (+35 XP)'
                         }
-                        className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
                           isBookmarked
-                            ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-2xs'
+                            ? 'bg-amber-50 border-amber-400 text-amber-900'
                             : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900'
                         }`}
                       >
                         <svg
-                          className={`w-4 h-4 ${
+                          className={`w-3.5 h-3.5 ${
                             isBookmarked
                               ? 'text-amber-500 fill-amber-500'
                               : 'text-slate-400'
@@ -705,102 +687,83 @@ export function CandidateJobFeed({
                             d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
                           />
                         </svg>
-                        {isBookmarked ? 'Saved' : 'Save Role'}
+                        {isBookmarked ? 'Saved' : 'Save'}
                       </button>
 
-                      <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-black text-base shadow-sm">
-                        <svg
-                          className="w-4 h-4 text-emerald-600 shrink-0"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2.5"
-                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        <span>{meta.formattedPay}</span>
+                      <div className="px-3.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-black text-sm">
+                        {meta.formattedPay}
                       </div>
                     </div>
                     {meta.compPerks && meta.compPerks !== 'Base Salary Only' && (
-                      <span className="text-[11px] font-extrabold text-indigo-600">
+                      <span className="text-[11px] font-bold text-indigo-700">
                         {meta.compPerks}
                       </span>
                     )}
                   </div>
                 </div>
 
-                {/* Metadata Pills Row: Work Model, Location, Employment Type, Seniority, Education, Certs, Languages, Work Auth */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-100 text-xs font-extrabold capitalize">
-                    {job.work_model || 'Flexible'} Work Model
-                  </span>
-
-                  {meta.location && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200 text-xs font-bold">
-                      <svg
-                        className="w-3.5 h-3.5 text-slate-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                      {meta.location}
+                {/* Clean Inline Role Specifications (No Colored Pills!) */}
+                <div className="space-y-1 text-xs text-slate-600 font-medium">
+                  <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                    <span className="font-extrabold text-slate-900 uppercase">
+                      {job.work_model || 'Flexible'}
                     </span>
-                  )}
+                    {meta.location && (
+                      <>
+                        <span className="text-slate-300">•</span>
+                        <span>{meta.location}</span>
+                      </>
+                    )}
+                    {meta.employmentType && (
+                      <>
+                        <span className="text-slate-300">•</span>
+                        <span>{meta.employmentType}</span>
+                      </>
+                    )}
+                    {meta.experienceLevel && (
+                      <>
+                        <span className="text-slate-300">•</span>
+                        <span>{meta.experienceLevel}</span>
+                      </>
+                    )}
+                    {meta.workAuth && (
+                      <>
+                        <span className="text-slate-300">•</span>
+                        <span>{meta.workAuth}</span>
+                      </>
+                    )}
+                  </div>
 
-                  {meta.employmentType && (
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold">
-                      {meta.employmentType}
-                    </span>
-                  )}
-
-                  {meta.experienceLevel && (
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-violet-50 text-violet-800 border border-violet-100 text-xs font-bold">
-                      {meta.experienceLevel}
-                    </span>
-                  )}
-
-                  {meta.educationReq && (
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-xs font-bold">
-                      🎓 {meta.educationReq}
-                    </span>
-                  )}
-
-                  {meta.requiredCertifications && (
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
-                      🏅 Certs: {meta.requiredCertifications}
-                    </span>
-                  )}
-
-                  {meta.requiredLanguages.map((langEntry, lIdx) => (
-                    <span
-                      key={`${langEntry.language}-${lIdx}`}
-                      className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-teal-50 text-teal-900 border border-teal-200 text-xs font-bold"
-                    >
-                      🌐 {formatLanguageBadge(langEntry)}
-                    </span>
-                  ))}
-
-                  {meta.workAuth && (
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-50 text-slate-600 border border-slate-200 text-xs font-semibold">
-                      🛡️ {meta.workAuth}
-                    </span>
+                  {(meta.educationReq ||
+                    meta.requiredCertifications ||
+                    meta.requiredLanguages.length > 0) && (
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-0.5 text-slate-500">
+                      {meta.educationReq && (
+                        <span>
+                          <strong className="text-slate-700">Education:</strong>{' '}
+                          {meta.educationReq}
+                        </span>
+                      )}
+                      {meta.requiredCertifications && (
+                        <span>
+                          <strong className="text-slate-700">Certs:</strong>{' '}
+                          {meta.requiredCertifications}
+                        </span>
+                      )}
+                      {meta.requiredLanguages.length > 0 && (
+                        <span>
+                          <strong className="text-slate-700">Languages:</strong>{' '}
+                          {meta.requiredLanguages
+                            .map(
+                              (l) =>
+                                `${l.language} (${l.modality.split(' ')[0]} • ${
+                                  l.proficiency
+                                })`
+                            )
+                            .join(', ')}
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
 
@@ -809,27 +772,19 @@ export function CandidateJobFeed({
                   {job.description}
                 </p>
 
-                {/* Core Skill Requirements */}
+                {/* Core Skill Requirements (Clean Subtle Spec Line) */}
                 {meta.visibleReqs.length > 0 && (
-                  <div>
-                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 block mb-2">
-                      Core Skill Requirements
-                    </span>
-                    <div className="flex flex-wrap gap-2">
-                      {meta.visibleReqs.map((req: any, idx: number) => (
-                        <span
-                          key={idx}
-                          className="px-3 py-1 bg-slate-50 text-slate-800 text-xs font-bold rounded-lg border border-slate-200"
-                        >
-                          {req.skill || req.name}
-                          {req.level && (
-                            <span className="text-slate-400 font-semibold ml-1">
-                              ({req.level})
-                            </span>
-                          )}
-                        </span>
-                      ))}
-                    </div>
+                  <div className="text-xs text-slate-600 pt-1">
+                    <strong className="text-slate-800 uppercase tracking-wider text-[11px] mr-2">
+                      Core Skills:
+                    </strong>
+                    {meta.visibleReqs
+                      .map((req: any) =>
+                        req.level
+                          ? `${req.skill || req.name} (${req.level})`
+                          : req.skill || req.name
+                      )
+                      .join(' • ')}
                   </div>
                 )}
 
@@ -842,7 +797,7 @@ export function CandidateJobFeed({
                         Analyzing 5-Point AI Fit (This may take up to 30 seconds)...
                       </span>
                       <span className="text-indigo-700 font-medium">
-                        Routing your anonymous skill matrix, education, certifications, and language proficiencies across our 3-tier AI matching cascade.
+                        Evaluating your anonymous skill matrix, education, certifications, and language proficiencies.
                       </span>
                     </div>
                   </div>
@@ -900,7 +855,7 @@ export function CandidateJobFeed({
                           ))}
                         </div>
 
-                        <div className="w-full max-w-[280px] h-[210px] shrink-0 mx-auto">
+                        <div className="w-full max-w-[260px] h-[195px] shrink-0 mx-auto">
                           <ResponsiveContainer width="100%" height="100%">
                             <RadarChart
                               cx="50%"
@@ -953,7 +908,7 @@ export function CandidateJobFeed({
                           {appliedRef})
                         </h4>
                         <p className="text-xs text-emerald-800 mt-0.5 leading-relaxed">
-                          Your anonymous skill matrix and {score}% AI Match Radar are now in the employer&apos;s pipeline. Your name and contact info remain hidden until they unlock your application.
+                          Your anonymous skill matrix and {score}% AI Match Radar are now in the employer&apos;s pipeline.
                         </p>
                       </div>
                     </div>
@@ -975,7 +930,7 @@ export function CandidateJobFeed({
                         <button
                           type="button"
                           onClick={() => handleAnalyzeFit(jobId)}
-                          className="px-3.5 py-1.5 rounded-lg bg-rose-700 text-white text-xs font-extrabold hover:bg-rose-800 transition-colors"
+                          className="px-3.5 py-1.5 rounded-lg bg-rose-700 text-white text-xs font-extrabold hover:bg-rose-800 transition-colors cursor-pointer"
                         >
                           ↻ Try AI Match Again
                         </button>
@@ -993,36 +948,36 @@ export function CandidateJobFeed({
                 )}
 
                 {/* Bottom Action Bar */}
-                <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <p className="text-xs text-slate-500">
                     {isApplied
-                      ? `✓ Application logged under Reference ID ${appliedRef}. Track employer unlock status in your Application Tracker.`
+                      ? `✓ Application logged under Reference ID ${appliedRef}.`
                       : !matchData
-                      ? `Step 1: Run a free AI Fit Analysis (${MIN_MATCH_THRESHOLD}%+ match required to submit a blind application • May take up to 30s).`
+                      ? `Step 1: Run a free AI Fit Analysis (${MIN_MATCH_THRESHOLD}%+ match required to apply).`
                       : score >= MIN_MATCH_THRESHOLD
                       ? '✓ You meet the 40%+ relevance firewall! Submitting awards +150 Profile XP.'
                       : `Requires ${MIN_MATCH_THRESHOLD}%+ AI Match Score to apply (Current: ${score}%).`}
                   </p>
 
-                  <div className="flex items-center gap-3 shrink-0">
+                  <div className="flex items-center gap-2.5 shrink-0">
                     {!isApplied && (
                       <button
                         type="button"
                         disabled={isAnalyzing || isApplying}
                         onClick={() => handleAnalyzeFit(jobId)}
-                        className="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-50"
+                        className="px-4 py-2 rounded-xl border border-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer"
                       >
                         {isAnalyzing
-                          ? 'Analyzing Fit (Up to 30s)...'
+                          ? 'Analyzing Fit...'
                           : matchData
-                          ? '↻ Re-Run AI Match'
+                          ? '↻ Re-Run Fit'
                           : '⚡ Check AI Fit Score'}
                       </button>
                     )}
 
                     {matchData &&
                       (isApplied ? (
-                        <span className="px-5 py-2.5 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-extrabold inline-flex items-center gap-1.5">
+                        <span className="px-4 py-2 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-extrabold">
                           ✓ Applied Blindly
                         </span>
                       ) : (
@@ -1034,14 +989,7 @@ export function CandidateJobFeed({
                             score < MIN_MATCH_THRESHOLD
                           }
                           onClick={() => handleBlindApply(jobId)}
-                          title={
-                            !isVerified
-                              ? 'Complete Stripe Identity verification on your dashboard first'
-                              : score < MIN_MATCH_THRESHOLD
-                              ? `Minimum ${MIN_MATCH_THRESHOLD}% match required`
-                              : 'Submit anonymous application (+150 XP)'
-                          }
-                          className="px-6 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="px-5 py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-2xs disabled:opacity-40 cursor-pointer"
                         >
                           {isApplying
                             ? 'Submitting...'
