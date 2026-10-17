@@ -212,10 +212,10 @@ export default function EmployerBillingPage() {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-2 max-w-3xl">
               <div className="text-xs font-extrabold uppercase tracking-wider text-amber-300">
-                ★ 30-Day Founding Partner Award ($99 Value — $0 for 30 Days)
+                ★ 30-Day Founding Partner rewards ($99 Value — $0 for 30 Days)
               </div>
               <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-                Verify Your Corporate Domain to Unlock Your 30-Day Founding Starter Award
+                Verify Your Corporate Domain to Unlock Your 30-Day Founding Starter rewards
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                 Organizations that verify their corporate domain during our Founding Member Launch automatically receive{' '}
@@ -288,7 +288,7 @@ export default function EmployerBillingPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between text-xs font-extrabold">
               <span className="text-amber-700">
-                ★ Free for 30 Days (Founding Partner Award)
+                ★ Free for 30 Days (Founding Partner rewards)
               </span>
               {activeTier === 'starter' && (
                 <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -304,7 +304,7 @@ export default function EmployerBillingPage() {
               <div className="mt-2 flex items-baseline gap-2">
                 <span className="text-3xl font-black text-slate-900">$99</span>
                 <span className="text-xs font-bold text-slate-500">
-                  / month after 30d award
+                  / month after 30d rewards
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-2 leading-relaxed">
