@@ -22,9 +22,7 @@ function parseAtsConfigFromDescription(desc?: string | null): EnterpriseAtsConfi
       const parsed = JSON.parse(decoded)
       return {
         webhookUrl: parsed.webhookUrl || '',
-        webhookSecret:
-          parsed.webhookSecret ||
-          `whsec_${crypto.randomBytes(16).toString('hex')}`,
+        webhookSecret: parsed.webhookSecret || 'whsec_' + crypto.randomBytes(16).toString('hex'),
         greenhouseApiKey: parsed.greenhouseApiKey || '',
         greenhouseOnBehalfOf: parsed.greenhouseOnBehalfOf || '',
         autoPushStage2: parsed.autoPushStage2 !== false,
@@ -36,7 +34,7 @@ function parseAtsConfigFromDescription(desc?: string | null): EnterpriseAtsConfi
 
   return {
     webhookUrl: '',
-    webhookSecret: `whsec_${crypto.randomBytes(16).toString('hex')}`,
+    webhookSecret: 'whsec_' + crypto.randomBytes(16).toString('hex'),
     greenhouseApiKey: '',
     greenhouseOnBehalfOf: '',
     autoPushStage2: true,
@@ -51,7 +49,7 @@ function embedAtsConfigInDescription(
     .replace(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/gi, '')
     .trim()
   const base64Cfg = Buffer.from(JSON.stringify(cfg), 'utf-8').toString('base64')
-  return `${cleaned} [ATS_CFG:${base64Cfg}]`.trim()
+  return (cleaned + ' [ATS_CFG:' + base64Cfg + ']').trim()
 }
 
 export async function getEnterpriseAtsSettings() {
@@ -121,8 +119,7 @@ export async function saveEnterpriseAtsSettings(formData: FormData) {
   const tierInfo = await resolveEmployerTierInfo(org)
   if (tierInfo.tier !== 'enterprise') {
     return {
-      error:
-        'Enterprise Tier ($899/mo) is required to configure Workday & Greenhouse ATS integrations.',
+      error: 'Enterprise Tier ($899/mo) is required to configure Workday & Greenhouse ATS integrations.',
     }
   }
 
@@ -132,19 +129,14 @@ export async function saveEnterpriseAtsSettings(formData: FormData) {
   const updatedCfg: EnterpriseAtsConfig = {
     webhookUrl: String(formData.get('webhook_url') || '').trim(),
     webhookSecret: regenerateSecret
-      ? `whsec_${crypto.randomBytes(16).toString('hex')}`
+      ? 'whsec_' + crypto.randomBytes(16).toString('hex')
       : String(formData.get('webhook_secret') || existingCfg.webhookSecret).trim(),
     greenhouseApiKey: String(formData.get('greenhouse_api_key') || '').trim(),
-    greenhouseOnBehalfOf: String(
-      formData.get('greenhouse_on_behalf_of') || ''
-    ).trim(),
+    greenhouseOnBehalfOf: String(formData.get('greenhouse_on_behalf_of') || '').trim(),
     autoPushStage2: formData.get('auto_push_stage2') === 'true',
   }
 
-  const updatedDescription = embedAtsConfigInDescription(
-    org.description,
-    updatedCfg
-  )
+  const updatedDescription = embedAtsConfigInDescription(org.description, updatedCfg)
 
   const { error: updateErr } = await supabase
     .from('organizations')
@@ -177,8 +169,7 @@ export async function fireTestAtsWebhook() {
   const { webhookUrl, webhookSecret } = settings.config
   if (!webhookUrl || !webhookUrl.startsWith('http')) {
     return {
-      error:
-        'Please save a valid https:// Webhook Endpoint URL first before firing a test event.',
+      error: 'Please save a valid https:// Webhook Endpoint URL first before firing a test event.',
     }
   }
 
@@ -227,7 +218,7 @@ export async function fireTestAtsWebhook() {
       headers: {
         'Content-Type': 'application/json',
         'X-SpecialSauce-Event': 'candidate.vault_released',
-        'X-SpecialSauce-Signature': `sha256=${signature}`,
+        'X-SpecialSauce-Signature': 'sha256=' + signature,
         'User-Agent': 'SpecialSauce-Enterprise-Webhook/1.0',
       },
       body: bodyString,
@@ -237,15 +228,13 @@ export async function fireTestAtsWebhook() {
       success: response.ok,
       status: response.status,
       message: response.ok
-        ? `✓ Test Webhook delivered to ${webhookUrl} (HTTP${response.status} OK • Signed with HMAC-SHA256).`
-        : `Webhook endpoint responded with HTTP ${response.status}. Verify your receiver URL accepts POST JSON payloads.`,
+        ? '✓ Test Webhook delivered to ' + webhookUrl + ' (HTTP ' + response.status + ' OK • Signed with HMAC-SHA256).'
+        : 'Webhook endpoint responded with HTTP ' + response.status + '. Verify your receiver URL accepts POST JSON payloads.',
       samplePayload,
     }
   } catch (err: any) {
     return {
-      error: `Failed to reach ${webhookUrl}:${
-        err?.message || 'Network error'
-      }`,
+      error: 'Failed to reach ' + webhookUrl + ': ' + (err?.message || 'Network error'),
     }
   }
 }
@@ -328,21 +317,19 @@ export async function exportEnterpriseCandidatesCsv() {
 
   const escapeCsv = (val: any) => {
     const s = String(val ?? '').replace(/"/g, '""')
-    return `"${s}"`
+    return '"' + s + '"'
   }
 
   const csvLines = [headers.join(',')]
 
   for (const app of rows) {
     const job: any = Array.isArray(app.jobs) ? app.jobs[0] : app.jobs
-    const cand: any = Array.isArray(app.profiles)
-      ? app.profiles[0]
-      : app.profiles
+    const cand: any = Array.isArray(app.profiles) ? app.profiles[0] : app.profiles
     const matchData = app.match_data || {}
     const vaultReleased = Boolean(matchData.candidate_vault_released === true)
     const refId =
       matchData.reference_id ||
-      `SS-${String(app.id).replace(/-/g, '').substring(0, 8).toUpperCase()}`
+      'SS-' + String(app.id).replace(/-/g, '').substring(0, 8).toUpperCase()
 
     const stageLabel = vaultReleased
       ? 'Stage 2 Vault Released'
@@ -352,9 +339,7 @@ export async function exportEnterpriseCandidatesCsv() {
 
     const candidateName = vaultReleased
       ? matchData.candidate_full_name || cand?.full_name || 'Released Candidate'
-      : `Anonymous #${String(cand?.id || 'ANON')
-          .split('-')[0]
-          .toUpperCase()}`
+      : 'Anonymous #' + String(cand?.id || 'ANON').split('-')[0].toUpperCase()
 
     const candidateEmail = vaultReleased
       ? matchData.candidate_email || 'Released in Thread'
@@ -363,9 +348,7 @@ export async function exportEnterpriseCandidatesCsv() {
     csvLines.push(
       [
         escapeCsv(refId),
-        escapeCsv(
-          app.initiated_by === 'employer' ? 'Outbound Pitch' : 'Inbound App'
-        ),
+        escapeCsv(app.initiated_by === 'employer' ? 'Outbound Pitch' : 'Inbound App'),
         escapeCsv(job?.title || 'Open Role'),
         escapeCsv(stageLabel),
         escapeCsv(app.match_score ?? matchData.overall_score ?? ''),
@@ -379,7 +362,11 @@ export async function exportEnterpriseCandidatesCsv() {
     )
   }
 
+  const dateStamp = new Date().toISOString().split('T')[0]
+
   return {
     csvContent: csvLines.join('\n'),
     rowCount: rows.length,
-    filename: `specialsauce-ats-export
+    filename: 'specialsauce-ats-export-' + dateStamp + '.csv',
+  }
+}
