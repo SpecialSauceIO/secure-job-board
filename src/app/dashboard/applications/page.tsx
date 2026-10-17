@@ -6,6 +6,10 @@ import { getCandidateApplications } from '@/app/dashboard/actions'
 import SecureMessageThread from '@/components/SecureMessageThread'
 import { normalizeIndustryVertical } from '@/constants/industries'
 import { normalizeJobEducationReq } from '@/constants/education'
+import {
+  normalizeLanguageList,
+  formatLanguageBadge,
+} from '@/constants/languages'
 import { getQuickJobCardRank } from '@/constants/gamification'
 import { RankAndFounderPill } from '@/components/ReputationBadgeCase'
 import {
@@ -49,6 +53,7 @@ function formatJobPayBand(job: any): string {
 }
 
 export default function CandidateApplicationsPage() {
+  const [isMounted, setIsMounted] = useState(false)
   const [applications, setApplications] = useState<any[]>([])
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [daysFilter, setDaysFilter] = useState<number>(0)
@@ -57,6 +62,10 @@ export default function CandidateApplicationsPage() {
   const [expandedRadarIds, setExpandedRadarIds] = useState<
     Record<string, boolean>
   >({})
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const fetchApplications = async () => {
     setIsLoading(true)
@@ -244,6 +253,10 @@ export default function CandidateApplicationsPage() {
               job.required_certifications ||
               job.job_meta?.required_certifications ||
               ''
+            const reqLanguages = normalizeLanguageList(
+              job.required_languages || job.job_meta?.required_languages,
+              true
+            )
 
             const matchScore =
               app.match_score ?? app.match_data?.overall_score ?? null
@@ -359,7 +372,7 @@ export default function CandidateApplicationsPage() {
                     </div>
                   </div>
 
-                  {/* Role Metadata Pills */}
+                  {/* Role Metadata Pills (Including Required Languages) */}
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-100 text-xs font-extrabold capitalize">
                       {job.work_model || 'Flexible'} Work Model
@@ -384,6 +397,14 @@ export default function CandidateApplicationsPage() {
                         🏅 Certs: {reqCerts}
                       </span>
                     )}
+                    {reqLanguages.map((langEntry, lIdx) => (
+                      <span
+                        key={`${langEntry.language}-${lIdx}`}
+                        className="px-3 py-1 rounded-lg bg-teal-50 text-teal-900 border border-teal-200 text-xs font-bold"
+                      >
+                        🌐 {formatLanguageBadge(langEntry)}
+                      </span>
+                    ))}
                   </div>
 
                   {/* STAGE 1 / STAGE 2 ENCRYPTED THREAD & VAULT RELEASE */}
@@ -434,7 +455,7 @@ export default function CandidateApplicationsPage() {
                     </p>
                   </div>
 
-                  {showRadar && radarData && (
+                  {isMounted && showRadar && radarData && (
                     <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col lg:flex-row items-center gap-6 animate-in fade-in duration-200">
                       <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {radarData.map((item: any, idx: number) => (

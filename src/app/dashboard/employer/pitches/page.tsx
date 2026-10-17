@@ -9,6 +9,10 @@ import {
   normalizeCandidateEducation,
   normalizeJobEducationReq,
 } from '@/constants/education'
+import {
+  normalizeLanguageList,
+  formatLanguageBadge,
+} from '@/constants/languages'
 import { getQuickCandidateCardRank } from '@/constants/gamification'
 import { RankAndFounderPill } from '@/components/ReputationBadgeCase'
 import {
@@ -22,6 +26,7 @@ import {
 } from 'recharts'
 
 export default function EmployerSentPitchesPage() {
+  const [isMounted, setIsMounted] = useState(false)
   const [pitches, setPitches] = useState<any[]>([])
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [daysFilter, setDaysFilter] = useState<number>(0)
@@ -30,6 +35,10 @@ export default function EmployerSentPitchesPage() {
   const [expandedRadarIds, setExpandedRadarIds] = useState<
     Record<string, boolean>
   >({})
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const fetchPitches = async () => {
     setIsLoading(true)
@@ -130,7 +139,7 @@ export default function EmployerSentPitchesPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Filter by role title, skill, certification, Reference ID (SS-...), or unlocked candidate name..."
+            placeholder="Filter by role title, skill, certification, language, Reference ID (SS-...), or unlocked candidate name..."
             className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
           />
           <button
@@ -210,6 +219,10 @@ export default function EmployerSentPitchesPage() {
             const candidateCerts = candidate.certifications
               ? String(candidate.certifications).trim()
               : ''
+            const candidateLanguages = normalizeLanguageList(
+              candidate.languages,
+              true
+            )
             const jobEduReq =
               job.education_req || job.job_meta?.education_req
                 ? normalizeJobEducationReq(
@@ -343,6 +356,12 @@ export default function EmployerSentPitchesPage() {
                             🛡️ 100% Vault Ready
                           </span>
                         )}
+
+                        {rankInfo.isMultilingual && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-teal-100/80 text-teal-900 border border-teal-300 text-[10px] font-extrabold">
+                            🌐 Multilingual Specialist
+                          </span>
+                        )}
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
@@ -376,26 +395,32 @@ export default function EmployerSentPitchesPage() {
                     </div>
                   </div>
 
-                  {/* Education & Active Certifications Pills */}
-                  {(candidateEdu || candidateCerts || jobEduReq) && (
-                    <div className="flex flex-wrap items-center gap-2">
-                      {candidateEdu && (
-                        <span className="px-3 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-xs font-bold">
-                          🎓 {candidateEdu}
-                        </span>
-                      )}
-                      {candidateCerts && (
-                        <span className="px-3 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
-                          🏅 Certs: {candidateCerts}
-                        </span>
-                      )}
-                      {jobEduReq && (
-                        <span className="text-[11px] font-semibold text-slate-400">
-                          (Role Target: {jobEduReq})
-                        </span>
-                      )}
-                    </div>
-                  )}
+                  {/* Education, Active Certifications & Language Proficiencies Pills */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {candidateEdu && (
+                      <span className="px-3 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-xs font-bold">
+                        🎓 {candidateEdu}
+                      </span>
+                    )}
+                    {candidateCerts && (
+                      <span className="px-3 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
+                        🏅 Certs: {candidateCerts}
+                      </span>
+                    )}
+                    {candidateLanguages.map((langEntry, lIdx) => (
+                      <span
+                        key={`${langEntry.language}-${lIdx}`}
+                        className="px-3 py-1 rounded-lg bg-teal-50 text-teal-900 border border-teal-200 text-xs font-bold"
+                      >
+                        🌐 {formatLanguageBadge(langEntry)}
+                      </span>
+                    ))}
+                    {jobEduReq && (
+                      <span className="text-[11px] font-semibold text-slate-400">
+                        (Role Target: {jobEduReq})
+                      </span>
+                    )}
+                  </div>
 
                   {/* Encrypted Stage 1 / Stage 2 Thread (When Accepted) */}
                   {isAccepted && (
@@ -443,7 +468,7 @@ export default function EmployerSentPitchesPage() {
                     </p>
                   </div>
 
-                  {showRadar && radarData && (
+                  {isMounted && showRadar && radarData && (
                     <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col lg:flex-row items-center gap-6 animate-in fade-in duration-200">
                       <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {radarData.map((item: any, idx: number) => (

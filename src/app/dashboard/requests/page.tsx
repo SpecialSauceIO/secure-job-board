@@ -10,6 +10,10 @@ import {
 import SecureMessageThread from '@/components/SecureMessageThread'
 import { normalizeIndustryVertical } from '@/constants/industries'
 import { normalizeJobEducationReq } from '@/constants/education'
+import {
+  normalizeLanguageList,
+  formatLanguageBadge,
+} from '@/constants/languages'
 import { getQuickJobCardRank } from '@/constants/gamification'
 import { RankAndFounderPill } from '@/components/ReputationBadgeCase'
 import {
@@ -53,6 +57,7 @@ function formatJobPayBand(job: any): string {
 }
 
 export default function CandidateRequestsInboxPage() {
+  const [isMounted, setIsMounted] = useState(false)
   const [requests, setRequests] = useState<any[]>([])
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -65,6 +70,11 @@ export default function CandidateRequestsInboxPage() {
     Record<string, { type: 'success' | 'error'; text: string }>
   >({})
 
+  useEffect(() => {
+    setIsMounted(true)
+    fetchRequests()
+  }, [])
+
   const fetchRequests = async () => {
     setIsLoading(true)
     const res = await getCandidateConnectionRequests()
@@ -73,10 +83,6 @@ export default function CandidateRequestsInboxPage() {
     }
     setIsLoading(false)
   }
-
-  useEffect(() => {
-    fetchRequests()
-  }, [])
 
   const handleDecision = async (
     applicationId: string,
@@ -234,7 +240,7 @@ export default function CandidateRequestsInboxPage() {
             No employer pitches in this tab yet
           </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Keep your anonymous Skill Matrix, Education, and Certifications updated on your Profile so verified hiring teams can discover and pitch you.
+            Keep your anonymous Skill Matrix, Education, Certifications, and Languages updated on your Profile so verified hiring teams can discover and pitch you.
           </p>
           <Link
             href="/dashboard/profile"
@@ -272,6 +278,10 @@ export default function CandidateRequestsInboxPage() {
               job.required_certifications ||
               job.job_meta?.required_certifications ||
               ''
+            const reqLanguages = normalizeLanguageList(
+              job.required_languages || job.job_meta?.required_languages,
+              true
+            )
 
             const matchScore =
               req.match_score ?? req.match_data?.overall_score ?? null
@@ -351,7 +361,7 @@ export default function CandidateRequestsInboxPage() {
                     </div>
                   </div>
 
-                  {/* Role Metadata Pills */}
+                  {/* Role Metadata Pills (Including Required Languages) */}
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-100 text-xs font-extrabold capitalize">
                       {job.work_model || 'Flexible'} Work Model
@@ -376,6 +386,14 @@ export default function CandidateRequestsInboxPage() {
                         🏅 Certs: {reqCerts}
                       </span>
                     )}
+                    {reqLanguages.map((langEntry, lIdx) => (
+                      <span
+                        key={`${langEntry.language}-${lIdx}`}
+                        className="px-3 py-1 rounded-lg bg-teal-50 text-teal-900 border border-teal-200 text-xs font-bold"
+                      >
+                        🌐 {formatLanguageBadge(langEntry)}
+                      </span>
+                    ))}
                   </div>
 
                   {/* Role Description */}
@@ -425,7 +443,7 @@ export default function CandidateRequestsInboxPage() {
                     </p>
                   </div>
 
-                  {showRadar && radarData && (
+                  {isMounted && showRadar && radarData && (
                     <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col lg:flex-row items-center gap-6 animate-in fade-in duration-200">
                       <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {radarData.map((item: any, idx: number) => (
