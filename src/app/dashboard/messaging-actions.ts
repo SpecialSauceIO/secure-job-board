@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server'
 import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 import { revalidatePath, unstable_noStore as noStore } from 'next/cache'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
+import { recordBehavioralFlagInternal } from '@/app/dashboard/admin-actions'
 
 const MAX_SILENT_UNLOCKS = 5
 
@@ -215,18 +216,12 @@ async function sendThreadEmailNotification({
       : rawRecipient
 
   const appUrl =
-    cleanEnvKey(process.env.NEXT_PUBLIC_SITE_URL) || 'http://localhost:3000'
+    cleanEnvKey(process.env.NEXT_PUBLIC_SITE_URL).replace(/\/+$/, '') ||
+    'https://specialsauce.io'
+  const publicLogoUrl = `${appUrl}/logo.png`
   const fullUrl = `${appUrl}${ctaUrl}`
 
-  console.log('\n======================================================')
-  console.log(`💬 SECURE MESSAGE EMAIL RELAY [${referenceId}]`)
-  console.log(`Intended Recipient: ${rawRecipient || '(None)'}`)
-  console.log(`Actual Recipient:   ${primaryRecipient || '(None)'}`)
-  console.log(`Subject:            [${referenceId}] ${subject}`)
-
   if (!resendKey || !primaryRecipient) {
-    console.warn('⚠️  MESSAGE EMAIL SKIPPED: Missing RESEND_API_KEY or recipient email.')
-    console.log('======================================================\n')
     return
   }
 
@@ -235,13 +230,14 @@ async function sendThreadEmailNotification({
     'Special Sauce <onboarding@resend.dev>'
 
   const buildHtml = (intendedNote?: string) => `
-    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 28px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
       ${
         intendedNote
-          ? `<div style="margin-bottom: 12px; padding: 8px 12px; background-color: #fef3c7; color: #92400e; border-radius: 8px; font-size: 11px; font-weight: 700;">${intendedNote}</div>`
+          ? `<div style="margin-bottom: 14px; padding: 8px 12px; background-color: #fef3c7; color: #92400e; border-radius: 8px; font-size: 11px; font-weight: 700;">${intendedNote}</div>`
           : ''
       }
-      <div style="margin-bottom: 16px;">
+      <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f1f5f9;">
+        <img src="${publicLogoUrl}" alt="Special Sauce" style="height: 48px; width: auto; display: block; margin-bottom: 12px;" />
         <span style="display: inline-block; padding: 4px 10px; background-color: #eef2ff; color: #4338ca; border-radius: 6px; font-size: 12px; font-weight: 700; font-family: monospace;">
           Encrypted Thread: ${referenceId}
         </span>
@@ -293,14 +289,15 @@ async function sendThreadEmailNotification({
           from: fromAddress,
           to: [fallbackInbox],
           subject: `[${referenceId}] ${subject}`,
-          html: buildHtml(`Sandbox Fallback: Originally addressed to ${rawRecipient}`),
+          html: buildHtml(
+            `Sandbox Fallback: Originally addressed to ${rawRecipient}`
+          ),
         }),
       })
     }
   } catch (err) {
     console.warn('Thread email notification warning:', err)
   }
-  console.log('======================================================\n')
 }
 
 // ------------------------------------------------------------------
@@ -342,6 +339,21 @@ export async function checkEmployerSilentUnlockQuota(organizationId: string): Pr
   })
 
   if (silentUnlocks.length >= MAX_SILENT_UNLOCKS) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    await recordBehavioralFlagInternal({
+      severity: 'high',
+      flag_type: 'Silent_Unlock_Harvesting_Cap',
+      user_id: user?.id || null,
+      organization_id: organizationId,
+      actor_email: user?.email || 'employer@organization',
+      actor_role: 'employer',
+      summary: `Employer hit the ${MAX_SILENT_UNLOCKS}-Silent-Unlock anti-harvesting cap without messaging candidates.`,
+      evidence_snippet: `Organization ID: ${organizationId} • Unmessaged Revealed Profiles: ${silentUnlocks.length}`,
+    })
+
     return {
       allowed: false,
       silentCount: silentUnlocks.length,
@@ -379,6 +391,18 @@ export async function sendApplicationMessage(
 
   const safetyScan = scanMessageForSuspiciousContent(trimmed)
   if (safetyScan.flagged) {
+    await recordBehavioralFlagInternal({
+      severity: 'high',
+      flag_type: 'Phishing_Or_OffPlatform_Lure',
+      user_id: user.id,
+      actor_email: user.email || 'user@specialsauce.io',
+      actor_role: 'unknown',
+      summary: `Blocked suspicious thread message (${safetyScan.reason})`,
+      evidence_snippet: `Thread App ID: ${applicationId} • Blocked Text: "${trimmed.slice(
+        0,
+        220
+      )}"`,
+    })
     return { error: safetyScan.reason }
   }
 
@@ -675,7 +699,6 @@ export async function releaseCandidateVaultToEmployer(
     return { error: updateErr.message }
   }
 
-  // Automatically trigger Enterprise Employer's Workday Webhook & Greenhouse Harvest API
   const atsSyncResult = await autoSyncStage2VaultToEnterpriseAts(applicationId, {
     fullName,
     email: candidateEmail || undefined,
@@ -928,7 +951,6 @@ export async function getDashboardLivePulse(): Promise<{
     }
   }
 
-  // Candidate pulse
   const { data: candidateApps } = await supabase
     .from('applications')
     .select('id, status, is_revealed, initiated_by, match_data')

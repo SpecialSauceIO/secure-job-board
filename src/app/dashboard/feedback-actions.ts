@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { recordOpsWorkItemInternal } from '@/app/dashboard/admin-actions'
 
 function cleanEnv(val?: string | null): string {
   if (!val) return ''
@@ -32,16 +33,42 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
   }
 
   let role = 'unauthenticated'
+  let reporterName = 'Platform User'
+  let orgContext = ''
+
   if (user) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, full_name, subscription_tier')
       .eq('id', user.id)
       .maybeSingle()
+
     role = profile?.role || 'unknown'
+    reporterName = profile?.full_name || user.email || 'Authenticated User'
+
+    if (role === 'employer') {
+      const { data: member } = await supabase
+        .from('organization_members')
+        .select('organizations:organization_id (name, subscription_tier)')
+        .eq('user_id', user.id)
+        .limit(1)
+        .maybeSingle()
+
+      const orgObj: any = Array.isArray(member?.organizations)
+        ? member?.organizations[0]
+        : member?.organizations
+
+      if (orgObj?.name) {
+        orgContext = `Org: ${orgObj.name} (${orgObj.subscription_tier || 'Standard'})`
+      }
+    } else if (profile?.subscription_tier) {
+      orgContext = `Tier: ${profile.subscription_tier}`
+    }
   }
 
-  const refId = `FB-${Date.now().toString().slice(-6)}`
+  const isBug = feedbackType.toLowerCase().includes('bug')
+  const prefix = isBug ? 'BUG' : 'FEAT'
+  const refId = `${prefix}-${Date.now().toString().slice(-6)}`
   const timeStampStr = new Date().toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
@@ -49,11 +76,29 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
   })
   const reporterEmail = user?.email || 'anonymous@specialsauce.io'
 
+  // 1. Always log the work item directly into the Admin Ops Triage Queue (/dashboard/admin/ops)
+  await recordOpsWorkItemInternal({
+    id: refId,
+    work_item_type: isBug ? 'Bug_Defect' : 'Feature_Request',
+    priority: isBug ? 'P1_High' : 'P2_Normal',
+    subject: `${feedbackType} Report on ${pageUrl}`,
+    category: feedbackType,
+    description: notes,
+    reporter_user_id: user?.id || 'anonymous',
+    reporter_name: reporterName,
+    reporter_email: reporterEmail,
+    reporter_role: role.toUpperCase(),
+    organization_context: orgContext,
+    page_url: pageUrl,
+    user_agent: userAgent,
+  })
+
   const resendKey = cleanEnv(process.env.RESEND_API_KEY)
   if (!resendKey) {
     return {
-      error:
-        'RESEND_API_KEY is missing in your environment variables. Add RESEND_API_KEY in Vercel Settings -> Environment Variables.',
+      success: true,
+      referenceId: refId,
+      deliveredTo: 'Admin Ops Queue (/dashboard/admin/ops)',
     }
   }
 
@@ -65,7 +110,6 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
     process.env.FEEDBACK_TO_EMAIL || process.env.RESEND_TEST_TO_EMAIL
   )
 
-  // Build candidate recipient priority list so Resend sandbox or domain rules never blackhole a report
   const candidateRecipients = Array.from(
     new Set(
       [
@@ -80,21 +124,24 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
   )
 
   const appUrl =
-    cleanEnv(process.env.NEXT_PUBLIC_SITE_URL) || 'https://specialsauce.io'
-  const fullUrl = pageUrl.startsWith('/') ? `${appUrl}${pageUrl}` : appUrl
+    cleanEnv(process.env.NEXT_PUBLIC_SITE_URL).replace(/\/+$/, '') ||
+    'https://specialsauce.io'
+  const publicLogoUrl = `${appUrl}/logo.png`
+  const opsUrl = `${appUrl}/dashboard/admin/ops`
 
   const htmlBody = `
-    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
-      <div style="margin-bottom: 16px;">
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 28px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+      <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f1f5f9;">
+        <img src="${publicLogoUrl}" alt="Special Sauce" style="height: 48px; width: auto; display: block; margin-bottom: 12px;" />
         <span style="display: inline-block; padding: 4px 10px; background-color: #fef3c7; color: #92400e; border-radius: 6px; font-size: 12px; font-weight: 800; font-family: monospace;">
-          🐞 TELEMETRY REPORT • ${refId} (${timeStampStr})
+          🐞 WORK ITEM LOGGED • ${refId} (${timeStampStr})
         </span>
       </div>
       <h2 style="color: #0f172a; font-size: 20px; font-weight: 800; margin: 0 0 12px 0;">
         Quick ${feedbackType} Report [${refId}]
       </h2>
       <p style="color: #475569; font-size: 13px; line-height: 1.6; margin: 0 0 6px 0;">
-        <strong>Reporter:</strong> ${reporterEmail} (Role: ${role.toUpperCase()})
+        <strong>Reporter:</strong> ${reporterName} (${reporterEmail} • ${role.toUpperCase()})
       </p>
       <p style="color: #475569; font-size: 13px; line-height: 1.6; margin: 0 0 6px 0;">
         <strong>Page Route:</strong> <code>${pageUrl}</code>
@@ -109,14 +156,12 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
         <div style="color: #0f172a; font-size: 14px; font-weight: 600; white-space: pre-wrap;">${notes}</div>
       </div>
       <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #f1f5f9;">
-        <a href="${fullUrl}" style="display: inline-block; padding: 10px 18px; background-color: #0f172a; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 10px;">
-          Open Reported Page (${pageUrl}) →
+        <a href="${opsUrl}" style="display: inline-block; padding: 12px 20px; background-color: #0f172a; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 800; border-radius: 10px;">
+          Open in Admin Ops Triage Console →
         </a>
       </div>
     </div>
   `
-
-  let lastErrorText = ''
 
   for (const recipient of candidateRecipients) {
     try {
@@ -129,6 +174,7 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
         body: JSON.stringify({
           from: fromAddress,
           to: [recipient],
+          reply_to: reporterEmail,
           subject: `[${refId}] ${feedbackType} on ${pageUrl} (${timeStampStr})`,
           html: htmlBody,
         }),
@@ -137,32 +183,20 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
       const resData = await response.json()
 
       if (response.ok && resData?.id) {
-        console.log(
-          `✅ [FEEDBACK DELIVERED] ${refId} -> ${recipient} (Resend ID: ${resData.id})`
-        )
         return {
           success: true,
           referenceId: refId,
-          deliveredTo: recipient,
+          deliveredTo: `${recipient} + Admin Ops Queue`,
         }
-      } else {
-        lastErrorText =
-          resData?.message ||
-          resData?.error ||
-          `HTTP ${response.status} rejected for ${recipient}`
-        console.warn(
-          `⚠️ [FEEDBACK RETRY] Resend rejected ${recipient}:`,
-          lastErrorText
-        )
       }
-    } catch (err: any) {
-      lastErrorText = err?.message || 'Network error menghubungi Resend API'
+    } catch (err) {
+      console.warn('Feedback email dispatch warning:', err)
     }
   }
 
   return {
-    error: `Email delivery blocked by Resend: ${
-      lastErrorText || 'Check RESEND_TEST_TO_EMAIL or domain verification in Resend.'
-    }`,
+    success: true,
+    referenceId: refId,
+    deliveredTo: 'Admin Ops Queue (/dashboard/admin/ops)',
   }
 }
