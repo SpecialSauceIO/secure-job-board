@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import {
   login,
   lookupAccountEmailHint,
   requestBrandedPasswordReset,
+  type AccountHintItem,
 } from './actions'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
@@ -18,13 +19,17 @@ function LoginContent() {
   const recoveryType = searchParams.get('type')
   const authCode = searchParams.get('code')
 
+  const emailInputRef = useRef<HTMLInputElement>(null)
+
   const [mode, setMode] = useState<'login' | 'reset' | 'lookup' | 'new_password'>('login')
+  const [selectedHintBadge, setSelectedHintBadge] = useState<string | null>(null)
   const [resetEmail, setResetEmail] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [lookupRole, setLookupRole] = useState<'candidate' | 'employer'>('candidate')
   const [lookupQuery, setLookupQuery] = useState('')
-  const [lookupHints, setLookupHints] = useState<string[]>([])
+  const [lookupHintItems, setLookupHintItems] = useState<AccountHintItem[]>([])
+  const [sendingToken, setSendingToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isVerifyingToken, setIsVerifyingToken] = useState(false)
   const [feedback, setFeedback] = useState<{
@@ -108,7 +113,8 @@ function LoginContent() {
 
     const res = await requestBrandedPasswordReset(
       resetEmail.trim(),
-      window.location.origin
+      window.location.origin,
+      false
     )
 
     if (res?.error) {
@@ -123,6 +129,36 @@ function LoginContent() {
       setResetEmail('')
     }
     setIsLoading(false)
+  }
+
+  const handleSendResetToMatchedHint = async (item: AccountHintItem) => {
+    setSendingToken(item.encryptedToken)
+    const res = await requestBrandedPasswordReset(
+      item.encryptedToken,
+      window.location.origin,
+      true
+    )
+    setSendingToken(null)
+
+    if (res?.error) {
+      setFeedback({ type: 'error', text: res.error })
+    } else {
+      setFeedback({
+        type: 'success',
+        text:
+          res?.message ||
+          `✓ Sent branded recovery link to ${item.maskedEmail}!`,
+      })
+    }
+  }
+
+  const handleSelectHintForLogin = (item: AccountHintItem) => {
+    setSelectedHintBadge(item.maskedEmail)
+    setFeedback(null)
+    setMode('login')
+    setTimeout(() => {
+      emailInputRef.current?.focus()
+    }, 80)
   }
 
   const handleSaveNewPassword = async (e: React.FormEvent) => {
@@ -169,14 +205,14 @@ function LoginContent() {
     e.preventDefault()
     setIsLoading(true)
     setFeedback(null)
-    setLookupHints([])
+    setLookupHintItems([])
 
     const res = await lookupAccountEmailHint(lookupRole, lookupQuery)
     if (!res.found) {
       setFeedback({ type: 'error', text: res.message })
     } else {
       setFeedback({ type: 'success', text: res.message })
-      setLookupHints(res.hints || [])
+      setLookupHintItems(res.hintItems || [])
     }
     setIsLoading(false)
   }
@@ -234,27 +270,73 @@ function LoginContent() {
         </div>
       )}
 
-      {/* Interactive Feedback Banner */}
+      {/* Selected Hint Reminder Banner on Sign-In Screen */}
+      {mode === 'login' && selectedHintBadge && (
+        <div className="mb-6 p-3.5 rounded-xl bg-indigo-50 text-indigo-950 border border-indigo-200 text-xs font-bold flex items-center justify-between gap-2">
+          <span>
+            Account Hint:{' '}
+            <strong className="font-mono text-indigo-700">
+              {selectedHintBadge}
+            </strong>{' '}
+            (type full email below)
+          </span>
+          <button
+            type="button"
+            onClick={() => setSelectedHintBadge(null)}
+            className="text-slate-400 hover:text-slate-700 font-black cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Interactive Feedback Banner & Actionable Matched Account Cards */}
       {feedback && (
         <div
-          className={`mb-6 p-4 rounded-xl text-xs font-extrabold border space-y-2 ${
+          className={`mb-6 p-4 rounded-xl text-xs font-extrabold border space-y-3 ${
             feedback.type === 'error'
               ? 'bg-rose-50 text-rose-800 border-rose-200'
               : 'bg-emerald-50 text-emerald-900 border-emerald-300'
           }`}
         >
-          <p>{feedback.text}</p>
-          {lookupHints.length > 0 && (
-            <div className="pt-1 space-y-1.5">
-              {lookupHints.map((hint) => (
+          <p className="leading-relaxed">{feedback.text}</p>
+
+          {mode === 'lookup' && lookupHintItems.length > 0 && (
+            <div className="pt-1 space-y-2">
+              {lookupHintItems.map((item) => (
                 <div
-                  key={hint}
-                  className="px-3 py-2 rounded-lg bg-white border border-emerald-300 font-mono text-sm font-black text-slate-900 flex items-center justify-between"
+                  key={item.encryptedToken}
+                  className="p-3 rounded-xl bg-white border border-emerald-300 shadow-2xs space-y-2.5"
                 >
-                  <span>{hint}</span>
-                  <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-emerald-700">
-                    Matched Account
-                  </span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-sm font-black text-slate-900">
+                      {item.maskedEmail}
+                    </span>
+                    <span className="text-[10px] font-sans font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      {item.roleLabel}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      disabled={sendingToken === item.encryptedToken}
+                      onClick={() => handleSendResetToMatchedHint(item)}
+                      className="py-1.5 px-2.5 rounded-lg bg-slate-900 hover:bg-indigo-600 text-white text-[11px] font-extrabold transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      {sendingToken === item.encryptedToken
+                        ? 'Sending Link...'
+                        : '✉ Send Reset Link'}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleSelectHintForLogin(item)}
+                      className="py-1.5 px-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-extrabold transition-colors cursor-pointer"
+                    >
+                      Sign In with This →
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -397,7 +479,7 @@ function LoginContent() {
               onClick={() => {
                 setLookupRole('candidate')
                 setFeedback(null)
-                setLookupHints([])
+                setLookupHintItems([])
               }}
               className={`py-2 px-3 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
                 lookupRole === 'candidate'
@@ -412,7 +494,7 @@ function LoginContent() {
               onClick={() => {
                 setLookupRole('employer')
                 setFeedback(null)
-                setLookupHints([])
+                setLookupHintItems([])
               }}
               className={`py-2 px-3 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
                 lookupRole === 'employer'
@@ -467,7 +549,7 @@ function LoginContent() {
                 onClick={() => {
                   setMode('login')
                   setFeedback(null)
-                  setLookupHints([])
+                  setLookupHintItems([])
                 }}
                 className="text-slate-600 hover:text-slate-900 cursor-pointer"
               >
@@ -525,12 +607,17 @@ function LoginContent() {
                   </svg>
                 </div>
                 <input
+                  ref={emailInputRef}
                   id="email"
                   name="email"
                   type="email"
                   required
                   className="block w-full rounded-lg border border-slate-300 bg-white pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 sm:text-sm transition-all shadow-sm"
-                  placeholder="name@company.com"
+                  placeholder={
+                    selectedHintBadge
+                      ? `Enter full email for ${selectedHintBadge}`
+                      : 'name@company.com'
+                  }
                 />
               </div>
             </div>
