@@ -12,15 +12,17 @@ function cleanEnvKey(rawKey?: string | null): string {
 
 function maskEmailAddress(rawEmail?: string | null): string | null {
   if (!rawEmail || !rawEmail.includes('@')) return null
-  const [localPart, domainPart] = rawEmail.trim().toLowerCase().split('@')
+  const parts = rawEmail.trim().toLowerCase().split('@')
+  const localPart = parts[0] || ''
+  const domainPart = parts[1] || ''
   if (!localPart || !domainPart) return null
 
+  const firstChar = localPart.charAt(0) || '*'
+  const lastChar = localPart.charAt(localPart.length - 1) || '*'
   const maskedLocal =
-    localPart.length <= 2
-      ? `${localPart[0] || '*'}***`
-      : `${localPart[0]}***${localPart[localPart.length - 1]}`
+    localPart.length <= 2 ? firstChar + '***' : firstChar + '***' + lastChar
 
-  return `${maskedLocal}@${domainPart}`
+  return maskedLocal + '@' + domainPart
 }
 
 export async function login(formData: FormData) {
@@ -37,9 +39,10 @@ export async function login(formData: FormData) {
   if (error) {
     console.error('Login error:', error.message)
     redirect(
-      `/login?error=${encodeURIComponent(
-        'Invalid email or password. Please try again or reset your password below.'
-      )}`
+      '/login?error=' +
+        encodeURIComponent(
+          'Invalid email or password. Please try again or reset your password below.'
+        )
     )
   }
 
@@ -60,19 +63,13 @@ export async function signup(formData: FormData) {
 
   if (error) {
     console.error('Signup error:', error.message)
-    redirect(`/login?error=${encodeURIComponent(error.message)}`)
+    redirect('/login?error=' + encodeURIComponent(error.message))
   }
 
   revalidatePath('/', 'layout')
   redirect('/dashboard')
 }
 
-/**
- * BRANDED SPECIAL SAUCE PASSWORD RECOVERY (SENT VIA RESEND)
- * Generates a cryptographic recovery token via Supabase Admin SDK and sends
- * a 100% Special Sauce branded HTML email via Resend that opens the "Set New Password"
- * form directly on /login.
- */
 export async function requestBrandedPasswordReset(
   rawEmail: string,
   clientOrigin?: string
@@ -125,11 +122,13 @@ export async function requestBrandedPasswordReset(
   }
 
   const tokenHash = linkData.properties.hashed_token
-  const recoveryUrl = `${baseUrl.replace(
-    /\/+$/,
-    ''
-  )}/login?token_hash=${encodeURIComponent(tokenHash)}&type=recovery`
-  const refId = `SS-REC${Date.now().toString().slice(-5)}`
+  const cleanBase = baseUrl.replace(/\/+$/, '')
+  const recoveryUrl =
+    cleanBase +
+    '/login?token_hash=' +
+    encodeURIComponent(tokenHash) +
+    '&type=recovery'
+  const refId = 'SS-REC' + Date.now().toString().slice(-5)
 
   const isFakeTestAddress =
     email.endsWith('@test.com') || email.endsWith('@example.com')
@@ -143,8 +142,8 @@ export async function requestBrandedPasswordReset(
           ? `<div style="margin-bottom: 14px; padding: 8px 12px; background-color: #fef3c7; color: #92400e; border-radius: 8px; font-size: 11px; font-weight: 700;">${intendedNote}</div>`
           : ''
       }
-      <div style="margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
-        <span style="display: inline-block; padding: 4px 10px; background-color: #0f172a; color: #f8fafc; border-radius: 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">
+      <div style="margin-bottom: 16px;">
+        <span style="display: inline-block; padding: 4px 10px; background-color: #0f172a; color: #f8fafc; border-radius: 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-right: 8px;">
           SPECIAL SAUCE™ SECURITY
         </span>
         <span style="display: inline-block; padding: 4px 10px; background-color: #eef2ff; color: #4338ca; border-radius: 6px; font-size: 12px; font-weight: 700; font-family: monospace;">
@@ -182,16 +181,16 @@ export async function requestBrandedPasswordReset(
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${resendKey}`,
+        Authorization: 'Bearer ' + resendKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         from: fromAddress,
         to: [primaryRecipient],
-        subject: `[${refId}] Reset your Special Sauce password`,
+        subject: '[' + refId + '] Reset your Special Sauce password',
         html: buildHtml(
           primaryRecipient !== email
-            ? `Sandbox Routing: Password reset requested for ${email}`
+            ? 'Sandbox Routing: Password reset requested for ' + email
             : undefined
         ),
       }),
@@ -201,22 +200,23 @@ export async function requestBrandedPasswordReset(
       await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${resendKey}`,
+          Authorization: 'Bearer ' + resendKey,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           from: fromAddress,
           to: [fallbackInbox],
-          subject: `[${refId}] Reset your Special Sauce password`,
+          subject: '[' + refId + '] Reset your Special Sauce password',
           html: buildHtml(
-            `Sandbox Fallback: Password reset requested for ${email}`
+            'Sandbox Fallback: Password reset requested for ' + email
           ),
         }),
       })
     }
   } catch (err: any) {
     return {
-      error: `Failed to send recovery email: ${err?.message || 'Network error'}`,
+      error:
+        'Failed to send recovery email: ' + (err?.message || 'Network error'),
     }
   }
 
@@ -224,14 +224,17 @@ export async function requestBrandedPasswordReset(
     success: true,
     message:
       primaryRecipient !== email
-        ? `Branded Special Sauce recovery link generated for ${email} and routed to your test inbox (${primaryRecipient})! Click "Choose New Password →" in that email.`
-        : `Branded Special Sauce password reset email sent to ${email}! Check your inbox and click "Choose New Password →".`,
+        ? 'Branded Special Sauce recovery link generated for ' +
+          email +
+          ' and routed to your test inbox (' +
+          primaryRecipient +
+          ')! Click "Choose New Password →" in that email.'
+        : 'Branded Special Sauce password reset email sent to ' +
+          email +
+          '! Check your inbox and click "Choose New Password →".',
   }
 }
 
-/**
- * PRIVACY-SAFE ACCOUNT EMAIL / USERNAME HINT LOOKUP
- */
 export async function lookupAccountEmailHint(
   lookupType: 'candidate' | 'employer',
   queryInput: string
@@ -271,7 +274,7 @@ export async function lookupAccountEmailHint(
       const { data: orgs } = await db
         .from('organizations')
         .select('id, name, domain, description')
-        .or(`domain.ilike.%${cleanDomain}%,name.ilike.%${trimmed}%`)
+        .or('domain.ilike.%' + cleanDomain + '%,name.ilike.%' + trimmed + '%')
         .limit(5)
 
       if (orgs && orgs.length > 0) {
@@ -296,7 +299,7 @@ export async function lookupAccountEmailHint(
 
         for (const o of orgs) {
           if (o.domain && discoveredEmails.size === 0) {
-            discoveredEmails.add(`***@${o.domain.toLowerCase()}`)
+            discoveredEmails.add('***@' + o.domain.toLowerCase())
           }
         }
       }
@@ -304,7 +307,7 @@ export async function lookupAccountEmailHint(
       const { data: profiles } = await db
         .from('profiles')
         .select('id, full_name, email, contact_email')
-        .ilike('full_name', `%${trimmed}%`)
+        .ilike('full_name', '%' + trimmed + '%')
         .limit(5)
 
       if (profiles && profiles.length > 0) {
@@ -354,8 +357,12 @@ export async function lookupAccountEmailHint(
       found: false,
       message:
         lookupType === 'employer'
-          ? `No registered employer organization found matching "${trimmed}". Try your exact company domain (e.g., company.com).`
-          : `No candidate vault found matching "${trimmed}". Note: Only profiles where a full name was saved or extracted from a resume can be looked up by name.`,
+          ? 'No registered employer organization found matching "' +
+            trimmed +
+            '". Try your exact company domain (e.g., company.com).'
+          : 'No candidate vault found matching "' +
+            trimmed +
+            '". Note: Only profiles where a full name was saved or extracted from a resume can be looked up by name.',
     }
   }
 
@@ -364,7 +371,11 @@ export async function lookupAccountEmailHint(
     hints: hintsList,
     message:
       hintsList.length === 1
-        ? `We found an account matching "${trimmed}" registered under:`
-        : `We found ${hintsList.length} accounts matching "${trimmed}":`,
+        ? 'We found an account matching "' + trimmed + '" registered under:'
+        : 'We found ' +
+          hintsList.length +
+          ' accounts matching "' +
+          trimmed +
+          '":',
   }
 }
