@@ -26,11 +26,6 @@ import {
 } from '@/constants/languages'
 import { isSeasonZeroFounder } from '@/constants/gamification'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
-import {
-  recordOpsWorkItemInternal,
-  recordBehavioralFlagInternal,
-  type WorkItemPriority,
-} from '@/app/dashboard/admin-actions'
 
 const MIN_MATCH_THRESHOLD = 40
 const CANDIDATE_TRIAL_MAX_APPS = 15
@@ -207,21 +202,6 @@ async function checkEmployerSilentUnlockCap(
   })
 
   if (silentUnlocks.length >= MAX_SILENT_UNLOCKS) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    await recordBehavioralFlagInternal({
-      severity: 'high',
-      flag_type: 'Silent_Unlock_Harvesting_Cap',
-      user_id: user?.id || null,
-      organization_id: organizationId,
-      actor_email: user?.email || 'employer@organization',
-      actor_role: 'employer',
-      summary: `Employer hit the ${MAX_SILENT_UNLOCKS}-Silent-Unlock anti-harvesting cap during profile reveal.`,
-      evidence_snippet: `Organization ID: ${organizationId} • Unmessaged Revealed Profiles: ${silentUnlocks.length}`,
-    })
-
     return {
       allowed: false,
       silentCount: silentUnlocks.length,
@@ -4281,17 +4261,6 @@ export async function verifyOrganizationDomain(domainInput?: string) {
   }
 
   if (FREE_EMAIL_DOMAINS.has(targetDomain)) {
-    await recordBehavioralFlagInternal({
-      severity: 'medium',
-      flag_type: 'Domain_Verification_Mismatch',
-      user_id: user.id,
-      organization_id: member.organization_id,
-      actor_email: user.email || 'employer@unknown',
-      actor_role: 'employer',
-      summary: `Attempted to verify consumer email provider (${targetDomain}) as a corporate organization domain.`,
-      evidence_snippet: `Org: ${org?.name || 'Unnamed'} • Submitted Domain: ${targetDomain}`,
-    })
-
     return {
       error: `"${targetDomain}" is a public consumer email provider. Corporate domain verification requires a dedicated company domain.`,
     }
@@ -4327,17 +4296,6 @@ export async function verifyOrganizationDomain(domainInput?: string) {
   const isWorkEmailMatch = userEmailDomain === targetDomain
 
   if (!isWorkEmailMatch && !hasMatchingTxtToken) {
-    await recordBehavioralFlagInternal({
-      severity: 'low',
-      flag_type: 'Domain_Verification_Mismatch',
-      user_id: user.id,
-      organization_id: member.organization_id,
-      actor_email: user.email || 'employer@unknown',
-      actor_role: 'employer',
-      summary: `Corporate domain verification failed for @${targetDomain} (account email mismatch & missing DNS TXT token).`,
-      evidence_snippet: `User Email: ${user.email} • Target Domain: ${targetDomain} • Expected Token: ${expectedTxtToken}`,
-    })
-
     return {
       error: `Domain Mismatch: Your account email (${user.email}) does not match @${targetDomain}, and the DNS TXT token (${expectedTxtToken}) was not found on ${targetDomain}. Either sign in with an @${targetDomain} email, add the DNS TXT record, or use the Sandbox Verification button below for local testing.`,
     }
@@ -4591,7 +4549,7 @@ export async function addSandboxConnectionCredits(amountToAdd: number) {
 }
 
 // ------------------------------------------------------------------
-// NATIVE HELP CENTER & SUPPORT TICKETING (SYNCED TO /dashboard/admin/ops)
+// NATIVE HELP CENTER & SUPPORT TICKETING (EMAIL ONLY)
 // ------------------------------------------------------------------
 
 export async function submitSupportTicket(formData: FormData) {
@@ -4616,7 +4574,6 @@ export async function submitSupportTicket(formData: FormData) {
     .single()
 
   let orgContext = ''
-  let isPriorityEmployer = false
   if (profile?.role === 'employer') {
     const { data: member } = await supabase
       .from('organization_members')
@@ -4633,52 +4590,20 @@ export async function submitSupportTicket(formData: FormData) {
       if (org) {
         const tInfo = await resolveEmployerTierInfo(org)
         orgContext = `Organization: ${org.name} (${org.domain}) | Tier: ${tInfo.label}`
-        if (tInfo.tier === 'enterprise' || tInfo.tier === 'growth') {
-          isPriorityEmployer = true
-        }
       }
     }
   }
 
   const ticketId = `TKT-${Date.now().toString().slice(-6)}`
   const userFullName = profile?.full_name || profile?.name || 'User'
-  const userEmail =
-    profile?.contact_email || profile?.email || user.email || 'user@specialsauce.io'
-
-  const lowerCat = `${category} ${subject}`.toLowerCase()
-  const computedPriority: WorkItemPriority =
-    isPriorityEmployer ||
-    lowerCat.includes('billing') ||
-    lowerCat.includes('verification') ||
-    lowerCat.includes('domain') ||
-    lowerCat.includes('security')
-      ? 'P0_Critical'
-      : lowerCat.includes('bug') || lowerCat.includes('match')
-      ? 'P1_High'
-      : 'P2_Normal'
-
-  // 1. Record structured Work Item in Admin Ops Queue (/dashboard/admin/ops)
-  await recordOpsWorkItemInternal({
-    id: ticketId,
-    work_item_type: 'Support_Ticket',
-    priority: computedPriority,
-    subject,
-    category: category || 'General Support',
-    description: message,
-    reporter_user_id: user.id,
-    reporter_name: userFullName,
-    reporter_email: userEmail,
-    reporter_role: (profile?.role || 'user').toUpperCase(),
-    organization_context: orgContext,
-    page_url: '/dashboard/support',
-  })
+  const userEmail = profile?.contact_email || profile?.email || user.email
 
   await sendPlatformNotification({
     to: 'info@specialsauce.io',
     replyTo: userEmail,
     subject: `Support Ticket [${ticketId}]: ${subject}`,
     referenceId: ticketId,
-    heading: `New Support Request: ${category} (${computedPriority.replace('_', ' ')})`,
+    heading: `New Support Request: ${category}`,
     bodyLines: [
       `User ID: ${user.id}`,
       `Role: ${profile?.role?.toUpperCase() || 'UNKNOWN'}`,
@@ -4689,8 +4614,6 @@ export async function submitSupportTicket(formData: FormData) {
       '--- MESSAGE ---',
       message,
     ],
-    ctaUrl: '/dashboard/admin/ops',
-    ctaLabel: 'Open in Admin Ops Triage Console →',
   })
 
   await sendPlatformNotification({
@@ -4701,7 +4624,7 @@ export async function submitSupportTicket(formData: FormData) {
     heading: 'We received your support request',
     bodyLines: [
       `Hi ${userFullName},`,
-      `Thank you for contacting Special Sauce support. We have logged your request regarding "${category}" into our Support Operations Queue.`,
+      `Thank you for contacting Special Sauce support. We have received your request regarding "${category}" and our team will review it shortly.`,
       `Your Ticket ID is ${ticketId}.`,
       `We typically respond within 1-2 business days.`,
     ],
@@ -4709,7 +4632,6 @@ export async function submitSupportTicket(formData: FormData) {
     ctaLabel: 'Return to Help Center →',
   })
 
-  revalidatePath('/dashboard/admin/ops')
   return { success: true, ticketId }
 }
 
@@ -4722,7 +4644,7 @@ export async function createJob(formData: FormData) {
 }
 
 // ------------------------------------------------------------------
-// LIGHTWEIGHT 1-CLICK BUG & FEEDBACK REPORTER (AUTO-TELEMETRY)
+// LIGHTWEIGHT 1-CLICK BUG & FEEDBACK REPORTER (EMAIL ONLY)
 // ------------------------------------------------------------------
 
 export async function submitQuickFeedback(formData: FormData) {
@@ -4752,24 +4674,8 @@ export async function submitQuickFeedback(formData: FormData) {
     role = profile?.role || 'unknown'
   }
 
-  const isBug = feedbackType.toLowerCase().includes('bug')
-  const refId = `${isBug ? 'BUG' : 'FEAT'}-${Date.now().toString().slice(-6)}`
+  const refId = `FB-${Date.now().toString().slice(-6)}`
   const userEmail = user?.email || 'anonymous@specialsauce.io'
-
-  await recordOpsWorkItemInternal({
-    id: refId,
-    work_item_type: isBug ? 'Bug_Defect' : 'Feature_Request',
-    priority: isBug ? 'P1_High' : 'P2_Normal',
-    subject: `${feedbackType} Report on ${pageUrl}`,
-    category: feedbackType,
-    description: notes,
-    reporter_user_id: user?.id || 'anonymous',
-    reporter_name: userEmail,
-    reporter_email: userEmail,
-    reporter_role: role.toUpperCase(),
-    page_url: pageUrl,
-    user_agent: userAgent,
-  })
 
   await sendPlatformNotification({
     to: 'info@specialsauce.io',
@@ -4785,11 +4691,10 @@ export async function submitQuickFeedback(formData: FormData) {
       '--- USER MESSAGE ---',
       notes,
     ],
-    ctaUrl: '/dashboard/admin/ops',
-    ctaLabel: 'Open in Admin Ops Triage Console →',
+    ctaUrl: pageUrl.startsWith('/') ? pageUrl : '/dashboard',
+    ctaLabel: 'Open Reported Page →',
   })
 
-  revalidatePath('/dashboard/admin/ops')
   return { success: true, referenceId: refId }
 }
 

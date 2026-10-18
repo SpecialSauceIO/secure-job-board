@@ -1,171 +1,288 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { recordOpsWorkItemInternal } from '@/app/dashboard/admin-actions'
+import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
+import { revalidatePath, unstable_noStore as noStore } from 'next/cache'
+import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
 
-function cleanEnv(val?: string | null): string {
-  if (!val) return ''
-  return val.trim().replace(/^["']+|["']+$/g, '').trim()
+const MAX_SILENT_UNLOCKS = 5
+
+export interface ThreadMessage {
+  id: string
+  sender_role: 'employer' | 'candidate' | 'system'
+  sender_name: string
+  text: string
+  created_at: string
 }
 
-export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
-  success?: boolean
-  referenceId?: string
-  deliveredTo?: string
-  error?: string
-}> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+function cleanEnvKey(rawKey?: string | null): string {
+  if (!rawKey) return ''
+  return rawKey.trim().replace(/^["']+|["']+$/g, '').trim()
+}
 
-  const feedbackType = (
-    (formData.get('feedback_type') as string) || 'Bug'
-  ).trim()
-  const notes = ((formData.get('notes') as string) || '').trim()
-  const pageUrl = ((formData.get('page_url') as string) || '/dashboard').trim()
-  const userAgent = (
-    (formData.get('user_agent') as string) || 'Unknown Browser'
-  ).trim()
+function getAdminSupabaseClient() {
+  const supabaseUrl = cleanEnvKey(process.env.NEXT_PUBLIC_SUPABASE_URL)
+  const serviceRoleKey = cleanEnvKey(process.env.SUPABASE_SERVICE_ROLE_KEY)
+  if (!supabaseUrl || !serviceRoleKey) return null
+  return createSupabaseAdminClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+}
 
-  if (!notes) {
-    return { error: 'Please enter a short note before sending.' }
+async function resolveAuthUserEmail(userId?: string | null): Promise<string | null> {
+  if (!userId) return null
+  const adminClient = getAdminSupabaseClient()
+  if (!adminClient) return null
+  try {
+    const { data } = await adminClient.auth.admin.getUserById(userId)
+    return data?.user?.email || null
+  } catch {
+    return null
+  }
+}
+
+async function resolveOrganizationOwnerEmail(
+  supabase: any,
+  organizationId?: string | null
+): Promise<string | null> {
+  if (!organizationId) return null
+  try {
+    const { data: members } = await supabase
+      .from('organization_members')
+      .select('user_id, role')
+      .eq('organization_id', organizationId)
+
+    if (!members || members.length === 0) return null
+    const owner = members.find((m: any) => m.role === 'owner') || members[0]
+    return await resolveAuthUserEmail(owner.user_id)
+  } catch {
+    return null
+  }
+}
+
+function formatReferenceId(applicationId: string): string {
+  const clean = (applicationId || '').replace(/-/g, '').substring(0, 8).toUpperCase()
+  return `SS-${clean || '00000000'}`
+}
+
+function maskCandidateNameForStage1(fullName?: string | null): string {
+  if (!fullName || !fullName.trim()) return 'Verified Candidate'
+  const parts = fullName.trim().split(/\s+/)
+  if (parts.length === 1) return parts[0]
+  const firstName = parts[0]
+  const lastInitial = parts[parts.length - 1][0]?.toUpperCase() || ''
+  return `${firstName} ${lastInitial}.`
+}
+
+function extractResumeStoragePath(rawUrlOrPath?: string | null): string | null {
+  if (!rawUrlOrPath) return null
+  const trimmed = rawUrlOrPath.trim()
+  if (!trimmed) return null
+
+  const bucketMarker = '/resumes/'
+  const idx = trimmed.indexOf(bucketMarker)
+  if (idx !== -1) {
+    const afterBucket = trimmed.slice(idx + bucketMarker.length).split('?')[0]
+    return decodeURIComponent(afterBucket)
   }
 
-  let role = 'unauthenticated'
-  let reporterName = 'Platform User'
-  let orgContext = ''
+  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+    return trimmed.replace(/^\/+/, '')
+  }
 
-  if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role, full_name, subscription_tier')
-      .eq('id', user.id)
-      .maybeSingle()
+  return null
+}
 
-    role = profile?.role || 'unknown'
-    reporterName = profile?.full_name || user.email || 'Authenticated User'
+async function mintSignedResumeUrl(
+  rawUrlOrPath?: string | null,
+  expiresInSeconds = 3600
+): Promise<string | null> {
+  const storagePath = extractResumeStoragePath(rawUrlOrPath)
+  if (!storagePath) return rawUrlOrPath || null
 
-    if (role === 'employer') {
-      const { data: member } = await supabase
-        .from('organization_members')
-        .select('organizations:organization_id (name, subscription_tier)')
-        .eq('user_id', user.id)
-        .limit(1)
-        .maybeSingle()
+  const adminClient = getAdminSupabaseClient()
+  if (adminClient) {
+    try {
+      const { data, error } = await adminClient.storage
+        .from('resumes')
+        .createSignedUrl(storagePath, expiresInSeconds)
 
-      const orgObj: any = Array.isArray(member?.organizations)
-        ? member?.organizations[0]
-        : member?.organizations
-
-      if (orgObj?.name) {
-        orgContext = `Org: ${orgObj.name} (${orgObj.subscription_tier || 'Standard'})`
+      if (!error && data?.signedUrl) {
+        return data.signedUrl
       }
-    } else if (profile?.subscription_tier) {
-      orgContext = `Tier: ${profile.subscription_tier}`
+    } catch (err) {
+      console.warn('Admin signed URL fallback triggered:', err)
     }
   }
 
-  const isBug = feedbackType.toLowerCase().includes('bug')
-  const prefix = isBug ? 'BUG' : 'FEAT'
-  const refId = `${prefix}-${Date.now().toString().slice(-6)}`
-  const timeStampStr = new Date().toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  })
-  const reporterEmail = user?.email || 'anonymous@specialsauce.io'
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase.storage
+      .from('resumes')
+      .createSignedUrl(storagePath, expiresInSeconds)
 
-  // 1. Always log the work item directly into the Admin Ops Triage Queue (/dashboard/admin/ops)
-  await recordOpsWorkItemInternal({
-    id: refId,
-    work_item_type: isBug ? 'Bug_Defect' : 'Feature_Request',
-    priority: isBug ? 'P1_High' : 'P2_Normal',
-    subject: `${feedbackType} Report on ${pageUrl}`,
-    category: feedbackType,
-    description: notes,
-    reporter_user_id: user?.id || 'anonymous',
-    reporter_name: reporterName,
-    reporter_email: reporterEmail,
-    reporter_role: role.toUpperCase(),
-    organization_context: orgContext,
-    page_url: pageUrl,
-    user_agent: userAgent,
-  })
-
-  const resendKey = cleanEnv(process.env.RESEND_API_KEY)
-  if (!resendKey) {
-    return {
-      success: true,
-      referenceId: refId,
-      deliveredTo: 'Admin Ops Queue (/dashboard/admin/ops)',
+    if (!error && data?.signedUrl) {
+      return data.signedUrl
     }
+  } catch (err) {
+    console.warn('Standard signed URL error:', err)
+  }
+
+  return null
+}
+
+function hasUnreadMsgForRole(
+  app: any,
+  viewerRole: 'employer' | 'candidate'
+): boolean {
+  const matchData = app?.match_data || {}
+  const messages = Array.isArray(matchData.messages) ? matchData.messages : []
+  if (messages.length === 0) return false
+
+  const lastMsg = messages[messages.length - 1]
+  if (!lastMsg || lastMsg.sender_role === viewerRole) return false
+
+  const readKey =
+    viewerRole === 'candidate'
+      ? 'candidate_last_read_at'
+      : 'employer_last_read_at'
+  const lastReadIso = matchData[readKey]
+  if (!lastReadIso) return true
+
+  return (
+    new Date(lastMsg.created_at).getTime() > new Date(lastReadIso).getTime()
+  )
+}
+
+// ------------------------------------------------------------------
+// AI / HEURISTIC ANTI-HARVESTING & PHISHING SCANNER
+// ------------------------------------------------------------------
+function scanMessageForSuspiciousContent(text: string): {
+  flagged: boolean
+  reason?: string
+} {
+  const lower = text.toLowerCase()
+
+  if (
+    /\b(ssn|social security|bank account|routing number|wire transfer|whatsapp|telegram|signal app|crypto|usdt)\b/i.test(
+      lower
+    )
+  ) {
+    return {
+      flagged: true,
+      reason:
+        'Security Guardrail: Messages requesting SSNs, banking details, or off-platform encrypted chat apps (WhatsApp/Telegram) are blocked to protect users.',
+    }
+  }
+
+  if (/\b(forms\.gle|docs\.google\.com\/forms|bit\.ly|tinyurl\.com)\b/i.test(lower)) {
+    return {
+      flagged: true,
+      reason:
+        'Anti-Harvesting Guardrail: External survey/form shortlinks are blocked inside initial messages. Please converse directly in the thread.',
+    }
+  }
+
+  return { flagged: false }
+}
+
+async function sendThreadEmailNotification({
+  to,
+  subject,
+  referenceId,
+  heading,
+  bodyLines,
+  ctaUrl,
+  ctaLabel,
+}: {
+  to?: string | null
+  subject: string
+  referenceId: string
+  heading: string
+  bodyLines: string[]
+  ctaUrl: string
+  ctaLabel: string
+}) {
+  const rawRecipient = (to || '').trim()
+  const fallbackInbox = cleanEnvKey(process.env.RESEND_TEST_TO_EMAIL)
+  const resendKey = cleanEnvKey(process.env.RESEND_API_KEY)
+
+  const isFakeTestAddress =
+    rawRecipient.endsWith('@test.com') || rawRecipient.endsWith('@example.com')
+  const primaryRecipient =
+    !rawRecipient || (isFakeTestAddress && fallbackInbox)
+      ? fallbackInbox || rawRecipient
+      : rawRecipient
+
+  const rawAppUrl =
+    cleanEnvKey(process.env.NEXT_PUBLIC_SITE_URL) || 'https://specialsauce.io'
+  const appUrl = rawAppUrl.replace(/\/+$/, '')
+  const publicLogoBase = appUrl.includes('localhost')
+    ? 'https://specialsauce.io'
+    : appUrl
+  const publicLogoUrl = `${publicLogoBase}/logo.png`
+  const fullUrl = `${appUrl}${ctaUrl}`
+
+  if (!resendKey || !primaryRecipient) {
+    return
   }
 
   const fromAddress =
-    cleanEnv(process.env.RESEND_FROM_EMAIL) ||
-    'Special Sauce Telemetry <onboarding@resend.dev>'
+    cleanEnvKey(process.env.RESEND_FROM_EMAIL) ||
+    'Special Sauce <onboarding@resend.dev>'
 
-  const configuredTestInbox = cleanEnv(
-    process.env.FEEDBACK_TO_EMAIL || process.env.RESEND_TEST_TO_EMAIL
-  )
-
-  const candidateRecipients = Array.from(
-    new Set(
-      [
-        configuredTestInbox,
-        'info@specialsauce.io',
-        !reporterEmail.endsWith('@test.com') &&
-        !reporterEmail.endsWith('@example.com')
-          ? reporterEmail
-          : '',
-      ].filter(Boolean)
-    )
-  )
-
-  const appUrl =
-    cleanEnv(process.env.NEXT_PUBLIC_SITE_URL).replace(/\/+$/, '') ||
-    'https://specialsauce.io'
-  const publicLogoUrl = `${appUrl}/logo.png`
-  const opsUrl = `${appUrl}/dashboard/admin/ops`
-
-  const htmlBody = `
+  const buildHtml = (intendedNote?: string) => `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 28px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+      ${
+        intendedNote
+          ? `<div style="margin-bottom: 14px; padding: 8px 12px; background-color: #fef3c7; color: #92400e; border-radius: 8px; font-size: 11px; font-weight: 700;">${intendedNote}</div>`
+          : ''
+      }
       <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f1f5f9;">
         <img src="${publicLogoUrl}" alt="Special Sauce" style="height: 48px; width: auto; display: block; margin-bottom: 12px;" />
-        <span style="display: inline-block; padding: 4px 10px; background-color: #fef3c7; color: #92400e; border-radius: 6px; font-size: 12px; font-weight: 800; font-family: monospace;">
-          🐞 WORK ITEM LOGGED • ${refId} (${timeStampStr})
+        <span style="display: inline-block; padding: 4px 10px; background-color: #eef2ff; color: #4338ca; border-radius: 6px; font-size: 12px; font-weight: 700; font-family: monospace;">
+          Encrypted Thread: ${referenceId}
         </span>
       </div>
       <h2 style="color: #0f172a; font-size: 20px; font-weight: 800; margin: 0 0 12px 0;">
-        Quick ${feedbackType} Report [${refId}]
+        ${heading}
       </h2>
-      <p style="color: #475569; font-size: 13px; line-height: 1.6; margin: 0 0 6px 0;">
-        <strong>Reporter:</strong> ${reporterName} (${reporterEmail} • ${role.toUpperCase()})
-      </p>
-      <p style="color: #475569; font-size: 13px; line-height: 1.6; margin: 0 0 6px 0;">
-        <strong>Page Route:</strong> <code>${pageUrl}</code>
-      </p>
-      <p style="color: #475569; font-size: 12px; line-height: 1.5; margin: 0 0 16px 0;">
-        <strong>Browser / Device:</strong> ${userAgent}
-      </p>
-      <div style="padding: 16px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px;">
-        <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 6px;">
-          User Feedback Note:
-        </div>
-        <div style="color: #0f172a; font-size: 14px; font-weight: 600; white-space: pre-wrap;">${notes}</div>
-      </div>
-      <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #f1f5f9;">
-        <a href="${opsUrl}" style="display: inline-block; padding: 12px 20px; background-color: #0f172a; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 800; border-radius: 10px;">
-          Open in Admin Ops Triage Console →
+      ${bodyLines
+        .map(
+          (line) =>
+            `<p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 10px 0;">${line}</p>`
+        )
+        .join('')}
+      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
+        <a href="${fullUrl}" style="display: inline-block; padding: 12px 20px; background-color: #0f172a; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; border-radius: 10px;">
+          ${ctaLabel}
         </a>
       </div>
     </div>
   `
 
-  for (const recipient of candidateRecipients) {
-    try {
-      const response = await fetch('https://api.resend.com/emails', {
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${resendKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: fromAddress,
+        to: [primaryRecipient],
+        reply_to: 'info@specialsauce.io',
+        subject: `[${referenceId}] ${subject}`,
+        html: buildHtml(
+          primaryRecipient !== rawRecipient && rawRecipient
+            ? `Sandbox Routing: Originally addressed to ${rawRecipient}`
+            : undefined
+        ),
+      }),
+    })
+
+    if (!response.ok && fallbackInbox && fallbackInbox !== primaryRecipient) {
+      await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${resendKey}`,
@@ -173,30 +290,662 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
         },
         body: JSON.stringify({
           from: fromAddress,
-          to: [recipient],
-          reply_to: reporterEmail,
-          subject: `[${refId}] ${feedbackType} on ${pageUrl} (${timeStampStr})`,
-          html: htmlBody,
+          to: [fallbackInbox],
+          reply_to: 'info@specialsauce.io',
+          subject: `[${referenceId}] ${subject}`,
+          html: buildHtml(
+            `Sandbox Fallback: Originally addressed to ${rawRecipient}`
+          ),
         }),
       })
+    }
+  } catch (err) {
+    console.warn('Thread email notification warning:', err)
+  }
+}
 
-      const resData = await response.json()
+// ------------------------------------------------------------------
+// 1. CHECK EMPLOYER "SILENT UNLOCK" ANTI-HARVESTING CAP (MAX 5)
+// ------------------------------------------------------------------
+export async function checkEmployerSilentUnlockQuota(organizationId: string): Promise<{
+  allowed: boolean
+  silentCount: number
+  error?: string
+}> {
+  noStore()
+  const supabase = await createClient()
 
-      if (response.ok && resData?.id) {
-        return {
-          success: true,
-          referenceId: refId,
-          deliveredTo: `${recipient} + Admin Ops Queue`,
-        }
-      }
-    } catch (err) {
-      console.warn('Feedback email dispatch warning:', err)
+  const { data: jobs } = await supabase
+    .from('jobs')
+    .select('id')
+    .eq('organization_id', organizationId)
+
+  if (!jobs || jobs.length === 0) {
+    return { allowed: true, silentCount: 0 }
+  }
+
+  const jobIds = jobs.map((j) => j.id)
+  const { data: unlockedApps } = await supabase
+    .from('applications')
+    .select('id, status, is_revealed, match_data')
+    .in('job_id', jobIds)
+    .eq('is_revealed', true)
+
+  const silentUnlocks = (unlockedApps || []).filter((app: any) => {
+    if (app.status === 'rejected' || app.status === 'declined') return false
+    const messages = Array.isArray(app.match_data?.messages)
+      ? app.match_data.messages
+      : []
+    const hasEmployerMessage = messages.some(
+      (m: any) => m.sender_role === 'employer'
+    )
+    return !hasEmployerMessage
+  })
+
+  if (silentUnlocks.length >= MAX_SILENT_UNLOCKS) {
+    return {
+      allowed: false,
+      silentCount: silentUnlocks.length,
+      error: `Anti-Harvesting Guardrail: You have ${silentUnlocks.length} unlocked candidates awaiting an initial message. Please send an introductory message in your active threads before unlocking additional profiles.`,
     }
   }
 
+  return { allowed: true, silentCount: silentUnlocks.length }
+}
+
+// ------------------------------------------------------------------
+// 2. SEND MESSAGE IN SECURE THREAD (EMPLOYER OR CANDIDATE)
+// ------------------------------------------------------------------
+export async function sendApplicationMessage(
+  applicationId: string,
+  messageText: string
+): Promise<{
+  success?: boolean
+  error?: string
+  messages?: ThreadMessage[]
+  employerMessagedAt?: string | null
+}> {
+  noStore()
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const trimmed = (messageText || '').trim()
+  if (!trimmed) return { error: 'Please enter a message.' }
+  if (trimmed.length > 2000) {
+    return { error: 'Message is too long (max 2,000 characters).' }
+  }
+
+  const safetyScan = scanMessageForSuspiciousContent(trimmed)
+  if (safetyScan.flagged) {
+    return { error: safetyScan.reason }
+  }
+
+  const { data: appRow, error: fetchErr } = await supabase
+    .from('applications')
+    .select(
+      `
+      id,
+      candidate_id,
+      initiated_by,
+      is_revealed,
+      status,
+      match_data,
+      jobs (
+        id,
+        title,
+        employer_id,
+        organization_id,
+        organizations:organization_id (name, domain)
+      ),
+      profiles (*)
+    `
+    )
+    .eq('id', applicationId)
+    .single()
+
+  if (fetchErr || !appRow) {
+    return { error: 'Application thread not found.' }
+  }
+
+  const isCandidate = appRow.candidate_id === user.id
+  const jobObj: any = Array.isArray(appRow.jobs) ? appRow.jobs[0] : appRow.jobs
+  const orgObj: any = Array.isArray(jobObj?.organizations)
+    ? jobObj?.organizations[0]
+    : jobObj?.organizations
+
+  let isEmployerMember = false
+  if (!isCandidate && jobObj?.organization_id) {
+    const { data: member } = await supabase
+      .from('organization_members')
+      .select('id')
+      .eq('organization_id', jobObj.organization_id)
+      .eq('user_id', user.id)
+      .limit(1)
+      .maybeSingle()
+    isEmployerMember = Boolean(member?.id)
+  }
+
+  if (!isCandidate && !isEmployerMember) {
+    return { error: 'Forbidden: You do not have permission to message this thread.' }
+  }
+
+  const senderRole: 'employer' | 'candidate' = isCandidate ? 'candidate' : 'employer'
+  const profileObj: any = Array.isArray(appRow.profiles)
+    ? appRow.profiles[0]
+    : appRow.profiles
+
+  const existingMatchData = appRow.match_data || {}
+  const isVaultReleased = Boolean(existingMatchData.candidate_vault_released === true)
+
+  const rawCandidateName =
+    profileObj?.full_name ||
+    profileObj?.name ||
+    existingMatchData.candidate_full_name ||
+    'Verified Candidate'
+
+  const senderDisplayName =
+    senderRole === 'employer'
+      ? orgObj?.name || existingMatchData.employer_org_name || 'Hiring Team'
+      : isVaultReleased
+      ? rawCandidateName
+      : maskCandidateNameForStage1(rawCandidateName)
+
+  const existingMessages: ThreadMessage[] = Array.isArray(existingMatchData.messages)
+    ? existingMatchData.messages
+    : []
+
+  const nowIso = new Date().toISOString()
+  const newMsg: ThreadMessage = {
+    id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    sender_role: senderRole,
+    sender_name: senderDisplayName,
+    text: trimmed,
+    created_at: nowIso,
+  }
+
+  const updatedMessages = [...existingMessages, newMsg]
+  const employerMessagedAt =
+    senderRole === 'employer'
+      ? existingMatchData.employer_messaged_at || nowIso
+      : existingMatchData.employer_messaged_at || null
+
+  const resolvedCandidateEmail =
+    existingMatchData.candidate_contact_email ||
+    profileObj?.contact_email ||
+    profileObj?.email ||
+    (isCandidate ? user.email : await resolveAuthUserEmail(appRow.candidate_id)) ||
+    null
+
+  const resolvedEmployerEmail =
+    existingMatchData.employer_contact_email ||
+    (!isCandidate ? user.email : null) ||
+    (await resolveAuthUserEmail(jobObj?.employer_id)) ||
+    (await resolveOrganizationOwnerEmail(supabase, jobObj?.organization_id)) ||
+    (orgObj?.domain ? `hiring@${orgObj.domain}` : null)
+
+  const updatedMatchData = {
+    ...existingMatchData,
+    messages: updatedMessages,
+    employer_messaged_at: employerMessagedAt,
+    last_message_at: nowIso,
+    last_message_sender: senderRole,
+    ...(resolvedCandidateEmail
+      ? { candidate_contact_email: resolvedCandidateEmail }
+      : {}),
+    ...(resolvedEmployerEmail
+      ? { employer_contact_email: resolvedEmployerEmail }
+      : {}),
+    ...(senderRole === 'employer'
+      ? { employer_last_read_at: nowIso }
+      : { candidate_last_read_at: nowIso }),
+  }
+
+  const { error: updateErr } = await supabase
+    .from('applications')
+    .update({
+      is_revealed: true,
+      match_data: updatedMatchData,
+    })
+    .eq('id', applicationId)
+
+  if (updateErr) {
+    return { error: updateErr.message }
+  }
+
+  const refId = formatReferenceId(applicationId)
+  const roleTitle = jobObj?.title || 'Open Role'
+  const isEmployerInitiatedPitch = appRow.initiated_by === 'employer'
+
+  if (senderRole === 'employer') {
+    await sendThreadEmailNotification({
+      to: resolvedCandidateEmail,
+      subject: `New secure message from ${senderDisplayName} regarding ${roleTitle}`,
+      referenceId: refId,
+      heading: `New Secure Message from ${senderDisplayName}`,
+      bodyLines: [
+        `${senderDisplayName} sent you a secure message regarding "${roleTitle}":`,
+        `"${trimmed}"`,
+        isVaultReleased
+          ? 'Your contact card and resume are unlocked for this employer.'
+          : '🔒 Stage 1 Privacy Active: Your raw email and PDF resume are still vaulted. You can reply in the thread and release your full resume whenever you are ready.',
+      ],
+      ctaUrl: isEmployerInitiatedPitch
+        ? '/dashboard/requests'
+        : '/dashboard/applications',
+      ctaLabel: 'View & Reply in Secure Thread →',
+    })
+  } else {
+    await sendThreadEmailNotification({
+      to: resolvedEmployerEmail,
+      subject: `New reply from ${senderDisplayName} for ${roleTitle}`,
+      referenceId: refId,
+      heading: `Candidate Reply for ${roleTitle}`,
+      bodyLines: [
+        `${senderDisplayName} replied in your encrypted thread (${refId}):`,
+        `"${trimmed}"`,
+      ],
+      ctaUrl: isEmployerInitiatedPitch
+        ? '/dashboard/employer/pitches'
+        : '/dashboard/employer/applications',
+      ctaLabel: 'Open Secure Thread →',
+    })
+  }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/requests')
+  revalidatePath('/dashboard/employer/applications')
+  revalidatePath('/dashboard/employer/pitches')
+
   return {
     success: true,
+    messages: updatedMessages,
+    employerMessagedAt,
+  }
+}
+
+// ------------------------------------------------------------------
+// 3. STAGE 2: CANDIDATE-CONTROLLED FULL VAULT RELEASE + ENTERPRISE ATS SYNC
+// ------------------------------------------------------------------
+export async function releaseCandidateVaultToEmployer(
+  applicationId: string
+): Promise<{
+  success?: boolean
+  error?: string
+  releasedAt?: string
+  atsSynced?: boolean
+  atsSyncStatus?: string | null
+}> {
+  noStore()
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { data: appRow, error: fetchErr } = await supabase
+    .from('applications')
+    .select(
+      `
+      id,
+      candidate_id,
+      initiated_by,
+      match_score,
+      match_data,
+      jobs (
+        id,
+        title,
+        employer_id,
+        organization_id,
+        organizations:organization_id (name, domain)
+      ),
+      profiles (*)
+    `
+    )
+    .eq('id', applicationId)
+    .eq('candidate_id', user.id)
+    .single()
+
+  if (fetchErr || !appRow) {
+    return { error: 'Application not found or access denied.' }
+  }
+
+  const profileObj: any = Array.isArray(appRow.profiles)
+    ? appRow.profiles[0]
+    : appRow.profiles
+  const jobObj: any = Array.isArray(appRow.jobs) ? appRow.jobs[0] : appRow.jobs
+  const orgObj: any = Array.isArray(jobObj?.organizations)
+    ? jobObj?.organizations[0]
+    : jobObj?.organizations
+
+  const existingMatchData = appRow.match_data || {}
+  const fullName =
+    profileObj?.full_name ||
+    profileObj?.name ||
+    existingMatchData.candidate_full_name ||
+    'Verified Candidate'
+  const candidateEmail =
+    user.email ||
+    profileObj?.contact_email ||
+    profileObj?.email ||
+    existingMatchData.candidate_contact_email ||
+    null
+
+  const signedResumeUrl = await mintSignedResumeUrl(profileObj?.resume_url)
+  const nowIso = new Date().toISOString()
+  const existingMessages: ThreadMessage[] = Array.isArray(existingMatchData.messages)
+    ? existingMatchData.messages
+    : []
+
+  const systemMessage: ThreadMessage = {
+    id: `sys-${Date.now()}`,
+    sender_role: 'system',
+    sender_name: 'Special Sauce Vault',
+    text: `🔓 ${fullName} released their full Identity Vault (Direct Email & Signed Resume PDF) to ${
+      orgObj?.name || 'the Hiring Team'
+    }.`,
+    created_at: nowIso,
+  }
+
+  const updatedMatchData = {
+    ...existingMatchData,
+    candidate_vault_released: true,
+    candidate_vault_released_at: nowIso,
+    candidate_full_name: fullName,
+    candidate_contact_email: candidateEmail,
+    candidate_email: candidateEmail,
+    candidate_resume_url: signedResumeUrl || profileObj?.resume_url || null,
+    last_message_at: nowIso,
+    last_message_sender: 'candidate',
+    messages: [...existingMessages, systemMessage],
+  }
+
+  const { error: updateErr } = await supabase
+    .from('applications')
+    .update({
+      is_revealed: true,
+      match_data: updatedMatchData,
+    })
+    .eq('id', applicationId)
+    .eq('candidate_id', user.id)
+
+  if (updateErr) {
+    return { error: updateErr.message }
+  }
+
+  const atsSyncResult = await autoSyncStage2VaultToEnterpriseAts(applicationId, {
+    fullName,
+    email: candidateEmail || undefined,
+    resumeUrl: signedResumeUrl || undefined,
+  })
+
+  const refId = formatReferenceId(applicationId)
+  const employerEmail =
+    existingMatchData.employer_contact_email ||
+    (await resolveAuthUserEmail(jobObj?.employer_id)) ||
+    (await resolveOrganizationOwnerEmail(supabase, jobObj?.organization_id)) ||
+    (orgObj?.domain ? `hiring@${orgObj.domain}` : null)
+
+  await sendThreadEmailNotification({
+    to: employerEmail,
+    subject: `🔓 ${fullName} released their Resume & Contact Vault for ${
+      jobObj?.title || 'Open Role'
+    }!`,
     referenceId: refId,
-    deliveredTo: 'Admin Ops Queue (/dashboard/admin/ops)',
+    heading: 'Candidate Released Full Resume & Contact Vault!',
+    bodyLines: [
+      `${fullName} has approved Stage 2 Vault Release for "${
+        jobObj?.title || 'Open Role'
+      }".`,
+      `Candidate Full Name: ${fullName}`,
+      `Direct Email: ${candidateEmail || 'Available in dashboard'}`,
+      atsSyncResult?.success
+        ? `✓ Enterprise ATS Auto-Sync: Candidate vault & 5-Point AI Match Radar were automatically pushed to your configured ATS/Webhook (${atsSyncResult.syncStatus}).`
+        : `You can now download their original PDF resume and contact them directly.`,
+    ],
+    ctaUrl:
+      appRow.initiated_by === 'employer'
+        ? '/dashboard/employer/pitches'
+        : '/dashboard/employer/applications',
+    ctaLabel: 'View Released Resume & Contact Card →',
+  })
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/requests')
+  revalidatePath('/dashboard/employer/applications')
+  revalidatePath('/dashboard/employer/pitches')
+
+  return {
+    success: true,
+    releasedAt: nowIso,
+    atsSynced: Boolean(atsSyncResult?.success),
+    atsSyncStatus: atsSyncResult?.syncStatus || null,
+  }
+}
+
+// ------------------------------------------------------------------
+// 4. FETCH SIGNED RESUME URL ONLY IF CANDIDATE HAS RELEASED VAULT
+// ------------------------------------------------------------------
+export async function getVaultReleasedResumeUrl(
+  applicationId: string
+): Promise<{ signedUrl?: string | null; error?: string }> {
+  noStore()
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const { data: appRow } = await supabase
+    .from('applications')
+    .select(
+      `
+      id,
+      candidate_id,
+      match_data,
+      jobs (organization_id),
+      profiles (resume_url)
+    `
+    )
+    .eq('id', applicationId)
+    .single()
+
+  if (!appRow) return { error: 'Application not found' }
+
+  if (appRow.match_data?.candidate_vault_released !== true) {
+    return {
+      error:
+        'Vault Locked: The candidate has not released their PDF resume yet. Send them a message in the thread to introduce your team and request vault release.',
+    }
+  }
+
+  const profileObj: any = Array.isArray(appRow.profiles)
+    ? appRow.profiles[0]
+    : appRow.profiles
+
+  const signedUrl = await mintSignedResumeUrl(profileObj?.resume_url)
+  return { signedUrl }
+}
+
+// ------------------------------------------------------------------
+// 5. DIRECT, ZERO-JOIN LIVE THREAD SYNC + READ RECEIPT STAMP
+// ------------------------------------------------------------------
+export async function getApplicationThreadState(
+  applicationId: string,
+  viewerRole?: 'employer' | 'candidate'
+): Promise<{
+  messages: ThreadMessage[]
+  vaultReleased: boolean
+  isRevealed: boolean
+  status?: string
+  candidateFullName?: string | null
+  candidateEmail?: string | null
+  employerEmail?: string | null
+  error?: string
+}> {
+  noStore()
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return {
+      messages: [],
+      vaultReleased: false,
+      isRevealed: false,
+      error: 'Not authenticated',
+    }
+  }
+
+  const { data: appRow, error } = await supabase
+    .from('applications')
+    .select('id, candidate_id, is_revealed, status, match_data')
+    .eq('id', applicationId)
+    .single()
+
+  if (error || !appRow) {
+    return {
+      messages: [],
+      vaultReleased: false,
+      isRevealed: false,
+      error: error?.message || 'Thread not found',
+    }
+  }
+
+  const matchData = appRow.match_data || {}
+  const messages: ThreadMessage[] = Array.isArray(matchData.messages)
+    ? matchData.messages
+    : []
+  const vaultReleased = Boolean(matchData.candidate_vault_released === true)
+
+  const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null
+  const role: 'employer' | 'candidate' =
+    viewerRole || (appRow.candidate_id === user.id ? 'candidate' : 'employer')
+
+  if (lastMsg && lastMsg.sender_role !== role) {
+    const readKey =
+      role === 'candidate' ? 'candidate_last_read_at' : 'employer_last_read_at'
+    const lastReadIso = matchData[readKey]
+    if (
+      !lastReadIso ||
+      new Date(lastReadIso).getTime() < new Date(lastMsg.created_at).getTime()
+    ) {
+      await supabase
+        .from('applications')
+        .update({
+          match_data: {
+            ...matchData,
+            [readKey]: new Date().toISOString(),
+          },
+        })
+        .eq('id', applicationId)
+    }
+  }
+
+  const resolvedEmployerEmail =
+    matchData.employer_contact_email ||
+    (matchData.employer_org_domain
+      ? `hiring@${matchData.employer_org_domain}`
+      : null)
+
+  return {
+    messages,
+    vaultReleased,
+    isRevealed: Boolean(appRow.is_revealed),
+    status: appRow.status,
+    candidateFullName: vaultReleased ? matchData.candidate_full_name || null : null,
+    candidateEmail: vaultReleased ? matchData.candidate_contact_email || null : null,
+    employerEmail: vaultReleased ? resolvedEmployerEmail : null,
+  }
+}
+
+// ------------------------------------------------------------------
+// 6. MAIN DASHBOARD LIVE PULSE (FOR REAL-TIME CARD BADGE REFRESH)
+// ------------------------------------------------------------------
+export async function getDashboardLivePulse(): Promise<{
+  signature: string
+  totalUnreadMessages: number
+}> {
+  noStore()
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { signature: 'anon', totalUnreadMessages: 0 }
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.role === 'employer') {
+    const { data: member } = await supabase
+      .from('organization_members')
+      .select('organization_id')
+      .eq('user_id', user.id)
+      .limit(1)
+      .maybeSingle()
+
+    if (!member?.organization_id) {
+      return { signature: 'emp-none', totalUnreadMessages: 0 }
+    }
+
+    const { data: jobs } = await supabase
+      .from('jobs')
+      .select('id')
+      .eq('organization_id', member.organization_id)
+
+    const jobIds = (jobs || []).map((j) => j.id)
+    if (jobIds.length === 0) {
+      return { signature: 'emp-0', totalUnreadMessages: 0 }
+    }
+
+    const { data: apps } = await supabase
+      .from('applications')
+      .select('id, status, is_revealed, initiated_by, match_data')
+      .in('job_id', jobIds)
+
+    const list = apps || []
+    const unreadCount = list.filter((a) =>
+      hasUnreadMsgForRole(a, 'employer')
+    ).length
+    const unlockedCount = list.filter(
+      (a) => a.is_revealed || a.status === 'accepted'
+    ).length
+
+    return {
+      signature: `emp:${list.length}:${unlockedCount}:${unreadCount}`,
+      totalUnreadMessages: unreadCount,
+    }
+  }
+
+  const { data: candidateApps } = await supabase
+    .from('applications')
+    .select('id, status, is_revealed, initiated_by, match_data')
+    .eq('candidate_id', user.id)
+
+  const list = candidateApps || []
+  const unreadCount = list.filter((a) =>
+    hasUnreadMsgForRole(a, 'candidate')
+  ).length
+  const revealedCount = list.filter(
+    (a) => a.is_revealed || a.status === 'accepted'
+  ).length
+  const pendingPitches = list.filter(
+    (a) => a.initiated_by === 'employer' && a.status === 'pending'
+  ).length
+
+  return {
+    signature: `cand:${list.length}:${revealedCount}:${pendingPitches}:${unreadCount}`,
+    totalUnreadMessages: unreadCount,
   }
 }
