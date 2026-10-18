@@ -99,7 +99,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-28 pb-10 px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center text-center">
+      <section className="relative pt-36 sm:pt-44 pb-16 sm:pb-20 px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center text-center">
         {/* Cross-fading text container */}
         <div className="grid [grid-template-areas:'stack'] mb-6 w-full place-items-center">
           {/* SLIDE 0 (Slide #1): Universal Opening Slide */}
