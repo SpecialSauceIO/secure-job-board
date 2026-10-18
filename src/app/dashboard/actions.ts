@@ -2062,7 +2062,7 @@ export async function recalculatePitchMatch(applicationId: string) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('experience_years, skills, structured_skills, bio')
+    .select('experience_years, skills, structured_skills, bio, preferred_work_model, min_salary_expectation, location')
     .eq('id', user.id)
     .single()
 
@@ -2106,6 +2106,7 @@ export async function recalculatePitchMatch(applicationId: string) {
       ...profile,
       industry_vertical: prefMeta?.industry_vertical || '',
       education_level: prefMeta?.education_level || '',
+      availability_window: prefMeta?.availability_window || '2 Weeks Notice (Standard)',
       certifications: prefMeta?.certifications || '',
       languages: normalizeLanguageList(prefMeta?.languages, true),
       structured_skills: visibleSkills,
@@ -2344,7 +2345,7 @@ export async function analyzeJobFit(jobId: string) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('experience_years, skills, structured_skills, bio')
+    .select('experience_years, skills, structured_skills, bio, preferred_work_model, min_salary_expectation, location')
     .eq('id', user.id)
     .single()
   const visibleSkills = filterVisibleSkills(profile?.structured_skills)
@@ -2369,6 +2370,7 @@ export async function analyzeJobFit(jobId: string) {
       ...profile,
       industry_vertical: prefMeta?.industry_vertical || '',
       education_level: prefMeta?.education_level || '',
+      availability_window: prefMeta?.availability_window || '2 Weeks Notice (Standard)',
       certifications: prefMeta?.certifications || '',
       languages: normalizeLanguageList(prefMeta?.languages, true),
       structured_skills: visibleSkills,
@@ -2387,7 +2389,7 @@ export async function analyzeCandidateFit(candidateId: string, jobId: string) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('experience_years, skills, structured_skills, bio')
+    .select('experience_years, skills, structured_skills, bio, preferred_work_model, min_salary_expectation, location')
     .eq('id', candidateId)
     .single()
 

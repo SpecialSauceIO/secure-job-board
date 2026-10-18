@@ -101,6 +101,14 @@ function getCandidateEducationLevel(candidate: any): string {
   return ''
 }
 
+const SEARCH_PILLAR_SUBTITLES: Record<string, string> = {
+  'Core Competencies': 'Required & Transferable Role Skills',
+  'Skill Tenure': 'Per-Skill Depth & Career-Changer Fair',
+  'Logistics & Pay': 'Pay, Work Model, Auth & Start Window',
+  'Industry & Creds': 'Vertical, Education & Certifications',
+  'Execution & Comm.': 'Ownership, Collaboration & Languages',
+}
+
 function normalizeSearchPillarLabel(raw: string): string {
   const s = String(raw || '').trim().toLowerCase()
   if (s.includes('technical') || s.includes('competenc')) return 'Core Competencies'
@@ -990,7 +998,7 @@ export default function EmployerCandidateSearch({
             return (
               <div
                 key={candidate.id}
-                className={`bg-white p-6 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between gap-6 transition-all ${
+                className={`bg-white p-6 md:p-8 rounded-2xl border shadow-sm space-y-5 transition-all ${
                   isShortlisted
                     ? 'border-2 border-amber-500 shadow-sm'
                     : rankInfo.isFounder
@@ -1146,220 +1154,265 @@ export default function EmployerCandidateSearch({
                   )}
                 </div>
 
-                {/* Right Column: Pitch Action & Dealbreaker Firewall */}
-                <div className="flex flex-col justify-center shrink-0 w-full md:w-[340px] border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6">
+                {/* Full-Width Pitch Role Selector & 5-Point AI Fit Radar Panel */}
+                <div className="pt-4 border-t border-slate-100">
                   {pitchCandidateId === candidate.id ? (
-                    <div className="space-y-3 animate-in fade-in zoom-in duration-200">
-                      <select
-                        value={selectedJobId}
-                        disabled={isAnalyzingMatch}
-                        onChange={(e) =>
-                          handleRoleSelect(e.target.value, candidate.id)
-                        }
-                        className="w-full text-xs sm:text-sm rounded-xl border border-slate-300 bg-white text-slate-900 font-bold py-2 px-3 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50"
-                      >
-                        <option value="">Select a role to pitch...</option>
-                        {activeJobs.map((job) => (
-                          <option key={job.id} value={job.id}>
-                            {job.title} ({getJobEmploymentType(job)})
-                          </option>
-                        ))}
-                      </select>
+                    <div className="space-y-5 animate-in fade-in duration-200">
+                      {/* Role Selector Bar */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div className="flex-1">
+                          <label className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">
+                            Select Active Role to Evaluate &amp; Pitch
+                          </label>
+                          <select
+                            value={selectedJobId}
+                            disabled={isAnalyzingMatch}
+                            onChange={(e) =>
+                              handleRoleSelect(e.target.value, candidate.id)
+                            }
+                            className="w-full text-xs sm:text-sm rounded-xl border border-slate-300 bg-white text-slate-900 font-bold py-2.5 px-3.5 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 cursor-pointer"
+                          >
+                            <option value="">Choose one of your open roles...</option>
+                            {activeJobs.map((job) => (
+                              <option key={job.id} value={job.id}>
+                                {job.title} ({getJobEmploymentType(job)})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
 
+                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                          {selectedJobId && !isAnalyzingMatch && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleRoleSelect(selectedJobId, candidate.id)
+                              }
+                              className="px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-100 transition-colors cursor-pointer"
+                            >
+                              ↻ Re-Run Fit
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPitchCandidateId(null)
+                              setSelectedJobId('')
+                              setAiMatchData(null)
+                              setFeedback(null)
+                            }}
+                            className="px-3.5 py-2.5 rounded-xl bg-slate-200/80 text-slate-700 text-xs font-bold hover:bg-slate-300 transition-colors cursor-pointer"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Loading Spinner */}
                       {isAnalyzingMatch && (
-                        <div className="p-3 rounded-xl bg-indigo-50 border border-indigo-200 flex items-start gap-2.5 animate-pulse">
-                          <div className="w-4 h-4 mt-0.5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin shrink-0" />
-                          <div className="text-xs text-indigo-950">
-                            <span className="font-extrabold block">
-                              Analyzing 5-Point AI Fit (Up to 30s)...
-                            </span>
+                        <div className="p-5 rounded-2xl bg-indigo-50/70 border border-indigo-200 flex items-center gap-3 animate-pulse">
+                          <div className="w-5 h-5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin shrink-0" />
+                          <div className="text-xs sm:text-sm text-indigo-950 font-extrabold">
+                            Analyzing 5-Point AI Fit across Core Competencies, Skill Tenure, Logistics &amp; Pay, Industry &amp; Creds, and Execution &amp; Comm. (Up to 30s)...
                           </div>
                         </div>
                       )}
 
-                      {selectedJob && (
-                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-2">
-                          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                            <span className="font-bold text-slate-700">
-                              AI Skill Match (Min {MIN_MATCH_THRESHOLD}%)
-                            </span>
-
-                            {isAnalyzingMatch ? (
-                              <span className="font-semibold text-indigo-600">
-                                Scoring...
+                      {/* Full-Width 5-Point AI Fit Prediction Box (Matches Candidate View) */}
+                      {selectedJob && !isAnalyzingMatch && matchScore !== null && (
+                        <div className="p-5 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-5">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+                            <div>
+                              <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-600 block">
+                                5-Point AI Fit Prediction • {selectedJob.title}
                               </span>
-                            ) : matchScore !== null ? (
-                              <div className="flex items-center gap-1.5">
-                                <span
-                                  className={`px-2 py-0.5 rounded-md font-bold ${
-                                    matchScore >= 80
-                                      ? 'bg-emerald-100 text-emerald-700'
-                                      : matchScore >= MIN_MATCH_THRESHOLD
-                                      ? 'bg-amber-100 text-amber-700'
-                                      : 'bg-rose-100 text-rose-700'
-                                  }`}
-                                >
-                                  {matchScore}%
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    handleRoleSelect(
-                                      selectedJobId,
-                                      candidate.id
-                                    )
-                                  }
-                                  className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
-                                >
-                                  ↻ Re-Run
-                                </button>
+                              {aiMatchData?.brief_analysis && (
+                                <p className="text-sm font-semibold text-slate-800 mt-1">
+                                  {aiMatchData.brief_analysis}
+                                </p>
+                              )}
+                            </div>
+
+                            <div
+                              className={`shrink-0 px-4 py-2 rounded-xl font-black text-lg border text-center ${
+                                matchScore >= 80
+                                  ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                                  : matchScore >= MIN_MATCH_THRESHOLD
+                                  ? 'bg-indigo-100 text-indigo-800 border-indigo-300'
+                                  : 'bg-rose-100 text-rose-800 border-rose-300'
+                              }`}
+                            >
+                              {matchScore}% Match
+                            </div>
+                          </div>
+
+                          {Array.isArray(aiMatchData?.radar_data) &&
+                            aiMatchData.radar_data.length > 0 && (
+                              <div className="flex flex-col lg:flex-row items-center gap-6">
+                                <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                  {aiMatchData.radar_data.map(
+                                    (item: any, idx: number) => {
+                                      const lbl = normalizeSearchPillarLabel(
+                                        item.subject
+                                      )
+                                      const sub = SEARCH_PILLAR_SUBTITLES[lbl]
+                                      return (
+                                        <div
+                                          key={idx}
+                                          className="bg-white px-3.5 py-2.5 rounded-lg border border-slate-200 flex items-center justify-between gap-2"
+                                        >
+                                          <div>
+                                            <span className="text-xs font-bold text-slate-800 block">
+                                              {lbl}
+                                            </span>
+                                            {sub && (
+                                              <span className="text-[10px] font-medium text-slate-400 block">
+                                                {sub}
+                                              </span>
+                                            )}
+                                          </div>
+                                          <span
+                                            className={`text-sm font-black shrink-0 ${
+                                              item.score >= 80
+                                                ? 'text-emerald-600'
+                                                : item.score >= 60
+                                                ? 'text-indigo-600'
+                                                : 'text-rose-600'
+                                            }`}
+                                          >
+                                            {item.score}%
+                                          </span>
+                                        </div>
+                                      )
+                                    }
+                                  )}
+                                </div>
+
+                                <div className="w-full max-w-[310px] h-[215px] shrink-0 mx-auto">
+                                  <ResponsiveContainer width="100%" height="100%">
+                                    <RadarChart
+                                      cx="50%"
+                                      cy="50%"
+                                      outerRadius="54%"
+                                      margin={{
+                                        top: 10,
+                                        right: 30,
+                                        bottom: 10,
+                                        left: 30,
+                                      }}
+                                      data={aiMatchData.radar_data.map(
+                                        (d: any) => ({
+                                          ...d,
+                                          subject: normalizeSearchPillarLabel(
+                                            d.subject
+                                          ),
+                                        })
+                                      )}
+                                    >
+                                      <PolarGrid stroke="#cbd5e1" />
+                                      <PolarAngleAxis
+                                        dataKey="subject"
+                                        tick={{
+                                          fill: '#334155',
+                                          fontSize: 9.5,
+                                          fontWeight: 700,
+                                        }}
+                                      />
+                                      <PolarRadiusAxis
+                                        angle={30}
+                                        domain={[0, 100]}
+                                        tick={false}
+                                        axisLine={false}
+                                      />
+                                      <Tooltip />
+                                      <Radar
+                                        name="Fit Score"
+                                        dataKey="score"
+                                        stroke="#4f46e5"
+                                        strokeWidth={2}
+                                        fill="#10b981"
+                                        fillOpacity={0.35}
+                                      />
+                                    </RadarChart>
+                                  </ResponsiveContainer>
+                                </div>
                               </div>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  handleRoleSelect(selectedJobId, candidate.id)
-                                }
-                                className="text-indigo-600 font-extrabold hover:underline cursor-pointer"
-                              >
-                                ↻ Run AI Match
-                              </button>
+                            )}
+                        </div>
+                      )}
+
+                      {/* Dealbreaker Firewall & Pitch Submission Footer */}
+                      {selectedJob && !isAnalyzingMatch && (
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+                          <div className="text-xs space-y-1">
+                            {salaryFails && (
+                              <div className="text-rose-600 font-bold">
+                                • Dealbreaker: Candidate min ($
+                                {(
+                                  candidate.min_salary_expectation / 1000
+                                ).toFixed(0)}
+                                k/yr) exceeds role max budget ($
+                                {(annualizedJobMax / 1000).toFixed(0)}k/yr).
+                              </div>
+                            )}
+                            {modelFails && (
+                              <div className="text-rose-600 font-bold capitalize">
+                                • Dealbreaker: Candidate requires{' '}
+                                {candidate.preferred_work_model}, role is{' '}
+                                {selectedJob.work_model}.
+                              </div>
+                            )}
+                            {empTypeFails && (
+                              <div className="text-rose-600 font-bold">
+                                • Dealbreaker: Role is {selectedJobEmpType},
+                                candidate accepts{' '}
+                                {acceptedEmploymentTypes.join(', ')}.
+                              </div>
+                            )}
+                            {langFails && (
+                              <div className="text-rose-600 font-bold">
+                                • Dealbreaker (Language):{' '}
+                                {langMissingDetails.join('; ')}.
+                              </div>
+                            )}
+                            {scoreFails && (
+                              <div className="text-rose-600 font-bold">
+                                • Dealbreaker: AI Match ({matchScore}%) is below{' '}
+                                {MIN_MATCH_THRESHOLD}% relevance firewall.
+                              </div>
+                            )}
+                            {!hasDealbreaker && matchScore !== null && (
+                              <div className="text-emerald-700 font-bold">
+                                ✓ Meets {MIN_MATCH_THRESHOLD}%+ relevance firewall &amp; all candidate dealbreakers!
+                              </div>
                             )}
                           </div>
 
-                          {!isAnalyzingMatch && aiMatchData?.brief_analysis && (
-                            <div className="space-y-2.5 border-b border-slate-200 pb-2.5">
-                              <p className="text-slate-600 italic">
-                                &ldquo;{aiMatchData.brief_analysis}&rdquo;
-                              </p>
-                              {Array.isArray(aiMatchData?.radar_data) &&
-                                aiMatchData.radar_data.length > 0 && (
-                                  <div className="pt-1 space-y-2">
-                                    <div className="w-full h-[175px] bg-white rounded-lg border border-slate-200/80 p-1">
-                                      <ResponsiveContainer width="100%" height="100%">
-                                        <RadarChart
-                                          cx="50%"
-                                          cy="50%"
-                                          outerRadius="50%"
-                                          margin={{ top: 8, right: 24, bottom: 8, left: 24 }}
-                                          data={aiMatchData.radar_data.map((d: any) => ({
-                                            ...d,
-                                            subject: normalizeSearchPillarLabel(d.subject),
-                                          }))}
-                                        >
-                                          <PolarGrid stroke="#cbd5e1" />
-                                          <PolarAngleAxis
-                                            dataKey="subject"
-                                            tick={{
-                                              fill: '#334155',
-                                              fontSize: 8.5,
-                                              fontWeight: 700,
-                                            }}
-                                          />
-                                          <PolarRadiusAxis
-                                            angle={30}
-                                            domain={[0, 100]}
-                                            tick={false}
-                                            axisLine={false}
-                                          />
-                                          <Tooltip />
-                                          <Radar
-                                            name="Fit Score"
-                                            dataKey="score"
-                                            stroke="#4f46e5"
-                                            strokeWidth={2}
-                                            fill="#10b981"
-                                            fillOpacity={0.35}
-                                          />
-                                        </RadarChart>
-                                      </ResponsiveContainer>
-                                    </div>
-                                    <div className="grid grid-cols-1 gap-1">
-                                      {aiMatchData.radar_data.map((item: any, idx: number) => {
-                                        const lbl = normalizeSearchPillarLabel(item.subject)
-                                        return (
-                                          <div
-                                            key={idx}
-                                            className="flex items-center justify-between bg-white px-2.5 py-1 rounded border border-slate-200/80 text-[11px]"
-                                          >
-                                            <span className="font-bold text-slate-700">
-                                              {lbl}
-                                            </span>
-                                            <span
-                                              className={`font-black ${
-                                                item.score >= 80
-                                                  ? 'text-emerald-600'
-                                                  : item.score >= 60
-                                                  ? 'text-indigo-600'
-                                                  : 'text-rose-600'
-                                              }`}
-                                            >
-                                              {item.score}%
-                                            </span>
-                                          </div>
-                                        )
-                                      })}
-                                    </div>
-                                  </div>
-                                )}
-                            </div>
-                          )}
-
-                          {salaryFails && (
-                            <div className="text-rose-600 font-medium">
-                              • Dealbreaker: Candidate min ($
-                              {(candidate.min_salary_expectation / 1000).toFixed(
-                                0
-                              )}
-                              k/yr) exceeds role max budget ($
-                              {(annualizedJobMax / 1000).toFixed(0)}k/yr).
-                            </div>
-                          )}
-
-                          {modelFails && (
-                            <div className="text-rose-600 font-medium capitalize">
-                              • Dealbreaker: Candidate requires{' '}
-                              {candidate.preferred_work_model}, role is{' '}
-                              {selectedJob.work_model}.
-                            </div>
-                          )}
-
-                          {empTypeFails && (
-                            <div className="text-rose-600 font-medium">
-                              • Dealbreaker: Role is {selectedJobEmpType},
-                              candidate accepts{' '}
-                              {acceptedEmploymentTypes.join(', ')}.
-                            </div>
-                          )}
-
-                          {langFails && (
-                            <div className="text-rose-600 font-medium">
-                              • Dealbreaker (Language):{' '}
-                              {langMissingDetails.join('; ')}.
-                            </div>
-                          )}
-
-                          {scoreFails && (
-                            <div className="text-rose-600 font-medium">
-                              • Dealbreaker: AI Match ({matchScore}%) is below{' '}
-                              {MIN_MATCH_THRESHOLD}% threshold.
-                            </div>
-                          )}
-
-                          {!isAnalyzingMatch &&
-                            !hasDealbreaker &&
-                            matchScore !== null && (
-                              <div className="text-emerald-700 font-bold">
-                                ✓ Meets {MIN_MATCH_THRESHOLD}%+ relevance &amp;
-                                all dealbreakers!
-                              </div>
-                            )}
+                          <div className="flex items-center gap-2.5 shrink-0">
+                            <button
+                              type="button"
+                              onClick={handlePitch}
+                              disabled={
+                                !selectedJobId ||
+                                isSending ||
+                                isAnalyzingMatch ||
+                                hasDealbreaker ||
+                                matchScore === null ||
+                                liveCredits < 1
+                              }
+                              className="px-5 py-2.5 bg-slate-900 text-white text-xs font-extrabold rounded-xl hover:bg-indigo-600 disabled:opacity-50 transition-colors cursor-pointer"
+                            >
+                              {isSending
+                                ? 'Sending Pitch...'
+                                : 'Send Role Pitch (1 Credit) →'}
+                            </button>
+                          </div>
                         </div>
                       )}
 
                       {feedback && (
                         <div
-                          className={`text-xs font-bold p-3 rounded-xl flex flex-col gap-2 ${
+                          className={`text-xs font-bold p-3.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${
                             feedback.type === 'error'
                               ? 'bg-rose-50 text-rose-700 border border-rose-200'
                               : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
@@ -1374,60 +1427,32 @@ export default function EmployerCandidateSearch({
                                 onClick={() =>
                                   handleRoleSelect(selectedJobId, candidate.id)
                                 }
-                                className="self-start px-3 py-1 bg-rose-700 text-white rounded-lg hover:bg-rose-800 transition-colors text-xs font-extrabold cursor-pointer"
+                                className="px-3 py-1.5 bg-rose-700 text-white rounded-lg hover:bg-rose-800 transition-colors text-xs font-extrabold cursor-pointer shrink-0"
                               >
                                 ↻ Try AI Match Again
                               </button>
                             )}
                         </div>
                       )}
-
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setPitchCandidateId(null)
-                            setSelectedJobId('')
-                            setAiMatchData(null)
-                          }}
-                          className="flex-1 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-200 cursor-pointer"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handlePitch}
-                          disabled={
-                            !selectedJobId ||
-                            isSending ||
-                            isAnalyzingMatch ||
-                            hasDealbreaker ||
-                            matchScore === null ||
-                            liveCredits < 1
-                          }
-                          className="flex-1 py-2 bg-slate-900 text-white text-xs font-extrabold rounded-xl hover:bg-indigo-600 disabled:opacity-50 cursor-pointer"
-                        >
-                          {isSending
-                            ? 'Sending...'
-                            : isAnalyzingMatch
-                            ? 'Scoring...'
-                            : 'Send Pitch'}
-                        </button>
-                      </div>
                     </div>
                   ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPitchCandidateId(candidate.id)
-                        setFeedback(null)
-                        setSelectedJobId('')
-                        setAiMatchData(null)
-                      }}
-                      className="w-full md:w-auto px-5 py-2.5 bg-white border-2 border-slate-900 text-slate-900 text-xs font-extrabold rounded-xl hover:bg-slate-900 hover:text-white transition-colors cursor-pointer"
-                    >
-                      Request Connection
-                    </button>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-xs text-slate-500 font-medium">
+                        Run an instant 5-Point AI Fit check against any of your active roles before pitching.
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPitchCandidateId(candidate.id)
+                          setFeedback(null)
+                          setSelectedJobId('')
+                          setAiMatchData(null)
+                        }}
+                        className="px-5 py-2.5 bg-slate-900 text-white text-xs font-extrabold rounded-xl hover:bg-indigo-600 transition-colors cursor-pointer shrink-0"
+                      >
+                        Evaluate Fit &amp; Pitch Role →
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
