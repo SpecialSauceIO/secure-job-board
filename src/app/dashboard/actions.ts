@@ -2544,9 +2544,9 @@ function parseAiResponse(text: string) {
   const firstBrace = cleanJsonString.indexOf('{')
   const lastBrace = cleanJsonString.lastIndexOf('}')
   if (firstBrace !== -1 && lastBrace !== -1) {
-    return JSON.parse(cleanJsonString.slice(firstBrace, lastBrace + 1))
+    return normalizeMatchDataObject(JSON.parse(cleanJsonString.slice(firstBrace, lastBrace + 1)))
   }
-  return JSON.parse(cleanJsonString)
+  return normalizeMatchDataObject(JSON.parse(cleanJsonString))
 }
 
 async function analyzeMatchRouter(

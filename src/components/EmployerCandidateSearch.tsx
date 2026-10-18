@@ -1,6 +1,15 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import {
+  Radar,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  ResponsiveContainer,
+  Tooltip,
+} from 'recharts'
 import Link from 'next/link'
 import {
   searchCandidates,
