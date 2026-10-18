@@ -1775,7 +1775,6 @@ export async function getCandidateApplications(
   daysFilter?: number,
   searchQuery?: string
 ) {
-  try {
     const supabase = await createClient()
     const {
       data: { user },
@@ -3574,7 +3573,6 @@ export async function getEmployerInboundApplications(
   daysFilter?: number,
   searchQuery?: string
 ) {
-  try {
     const supabase = await createClient()
     const {
       data: { user },
@@ -3763,10 +3761,6 @@ export async function getEmployerInboundApplications(
   }
 
   return { data: processedData }
-  } catch (err: any) {
-    console.error("getEmployerInboundApplications error:", err)
-    return { data: [], error: err?.message || "Failed to load inbound applications" }
-  }
 }
 
 export async function updateInboundApplicationDecision(
