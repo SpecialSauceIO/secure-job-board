@@ -26,6 +26,7 @@ import {
 } from '@/constants/languages'
 import { isSeasonZeroFounder } from '@/constants/gamification'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
+import { pushToOpsControlPlane } from '@/lib/ops-bridge'
 
 const MIN_MATCH_THRESHOLD = 40
 const CANDIDATE_TRIAL_MAX_APPS = 15
@@ -4595,6 +4596,23 @@ export async function submitSupportTicket(formData: FormData) {
   }
 
   const ticketId = `TKT-${Date.now().toString().slice(-6)}`
+  const userFullNameForOps = profile?.full_name || profile?.name || "User"
+  const userEmailForOps = profile?.contact_email || profile?.email || user.email || "unknown@user"
+  await pushToOpsControlPlane({
+    event_type: "work_item",
+    id: ticketId,
+    work_item_type: "Support_Ticket",
+    priority: category.toLowerCase().includes("billing") || category.toLowerCase().includes("verification") ? "P1_High" : "P2_Normal",
+    subject,
+    category,
+    description: message,
+    reporter_user_id: user.id,
+    reporter_name: userFullNameForOps,
+    reporter_email: userEmailForOps,
+    reporter_role: (profile?.role || "user").toUpperCase(),
+    organization_context: orgContext,
+    page_url: "/dashboard/support",
+  })
   const userFullName = profile?.full_name || profile?.name || 'User'
   const userEmail = profile?.contact_email || profile?.email || user.email
 

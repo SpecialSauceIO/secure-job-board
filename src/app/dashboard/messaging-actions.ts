@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server'
 import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 import { revalidatePath, unstable_noStore as noStore } from 'next/cache'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
+import { pushToOpsControlPlane } from '@/lib/ops-bridge'
 
 const MAX_SILENT_UNLOCKS = 5
 
@@ -371,6 +372,16 @@ export async function sendApplicationMessage(
 
   const safetyScan = scanMessageForSuspiciousContent(trimmed)
   if (safetyScan.flagged) {
+    await pushToOpsControlPlane({
+      event_type: "behavioral_flag",
+      severity: "high",
+      flag_type: "Phishing_Or_OffPlatform_Lure",
+      user_id: user.id,
+      actor_email: user.email || "authenticated-user",
+      actor_role: "unknown",
+      summary: safetyScan.reason || "Blocked suspicious message in thread",
+      evidence_snippet: `Thread ${applicationId}: "${trimmed.slice(0, 180)}"`,
+    })
     return { error: safetyScan.reason }
   }
 

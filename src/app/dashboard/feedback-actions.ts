@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { pushToOpsControlPlane } from '@/lib/ops-bridge'
 
 function cleanEnv(val?: string | null): string {
   if (!val) return ''
@@ -48,6 +49,22 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
     second: '2-digit',
   })
   const reporterEmail = user?.email || 'anonymous@specialsauce.io'
+
+  await pushToOpsControlPlane({
+    event_type: "work_item",
+    id: refId,
+    work_item_type: feedbackType.toLowerCase().includes("feature") ? "Feature_Request" : "Bug_Defect",
+    priority: feedbackType.toLowerCase().includes("bug") ? "P1_High" : "P2_Normal",
+    subject: `[${feedbackType}] Report on ${pageUrl}`,
+    category: feedbackType,
+    description: notes,
+    reporter_user_id: user?.id || "anonymous",
+    reporter_name: reporterEmail,
+    reporter_email: reporterEmail,
+    reporter_role: role.toUpperCase(),
+    page_url: pageUrl,
+    user_agent: userAgent,
+  })
 
   const resendKey = cleanEnv(process.env.RESEND_API_KEY)
   if (!resendKey) {
