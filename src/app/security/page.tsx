@@ -1,135 +1,157 @@
 import Link from 'next/link'
-import Image from 'next/image'
+import { PublicHeader } from '@/components/PublicHeader'
+import { PublicFooter } from '@/components/PublicFooter'
+
+export const metadata = {
+  title: 'Security & Trust Architecture | specialsauce.io',
+  description:
+    'How Special Sauce works under the hood: 2-Stage Identity & Resume Vault, Stripe Identity Biometric Isolation, Anti-Harvesting Guardrails, and 5-Point AI Fit Radar.',
+}
 
 export default function SecurityTrustPage() {
   return (
-    <div className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900">
-      {/* Top Nav */}
-      <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 h-24 flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/logo.png"
-              alt="specialsauce.io Logo"
-              width={420}
-              height={105}
-              className="h-12 sm:h-14 w-auto object-contain"
-              priority
-            />
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/pricing"
-              className="text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors"
-            >
-              Compare Plans &amp; Perks
-            </Link>
-            <Link
-              href="/signup"
-              className="px-4 py-2.5 bg-slate-900 text-white text-xs sm:text-sm font-bold rounded-xl hover:bg-indigo-600 transition-colors shadow-sm"
-            >
-              Get Started
-            </Link>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900 flex flex-col justify-between">
+      <div>
+        <PublicHeader />
 
-      {/* Hero Header */}
-      <section className="py-16 md:py-24 px-6 md:px-12 max-w-5xl mx-auto text-center space-y-4">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-extrabold uppercase tracking-wide">
-          <span>🛡️ Privacy-First Architecture</span>
-        </div>
-        <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
-          Security, Trust &amp; Anti-Harvesting Protocol
-        </h1>
-        <p className="text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
-          specialsauce.io is engineered from the ground up to protect candidate privacy, eliminate ghost jobs, and guarantee true bilateral intent before any personal or corporate information is revealed.
-        </p>
-      </section>
-
-      {/* Main Content Grid */}
-      <main className="max-w-5xl mx-auto px-6 md:px-12 pb-24 space-y-12">
-        {/* Pillar 1 */}
-        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 font-black flex items-center justify-center text-lg">
-              1
+        {/* Dark Hero Header */}
+        <section className="bg-slate-900 text-white py-16 sm:py-20 px-6 md:px-12 border-b border-slate-800">
+          <div className="max-w-5xl mx-auto space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs font-extrabold uppercase tracking-wider">
+              🛡️ Security &amp; Privacy Architecture
             </div>
-            <h2 className="text-xl font-bold text-slate-900">
-              Double-Blind Candidate Identity Protection
-            </h2>
+            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
+              How Special Sauce Works Under the Hood
+            </h1>
+            <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-3xl">
+              Built so candidates and hiring managers across all 28 industry verticals get a simple, stress-free experience—backed by enterprise-grade identity verification, data minimization, and anti-harvesting guardrails.
+            </p>
           </div>
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            Candidates browse and apply anonymously. Your name, email, phone number, and resume remain completely hidden from employers during initial discovery and 5-Point AI Fit scoring. Employers only see an anonymous profile ID (e.g., <code className="bg-slate-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono text-xs">#A4F29</code>) and extracted skill matrices. Direct contact and resume release happen only after a mutual connection request is accepted.
-          </p>
-        </div>
+        </section>
 
-        {/* Pillar 2 */}
-        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 font-black flex items-center justify-center text-lg">
-              2
+        {/* 4 Pillars Grid */}
+        <main className="max-w-5xl mx-auto px-6 md:px-12 py-16 space-y-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Pillar 1 */}
+            <div className="bg-white p-7 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+              <span className="inline-block px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 text-xs font-extrabold">
+                1. 2-Stage Identity &amp; Resume Vault
+              </span>
+              <h2 className="text-lg font-extrabold text-slate-900">
+                Staged Disclosure &amp; Signed Resume URLs
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                When a candidate uploads a PDF resume, it is stored in a private, non-public vault. During initial discovery, employers only see an anonymized skill, experience, certification, and language matrix.
+              </p>
+              <ul className="text-xs text-slate-600 space-y-2 pt-3 border-t border-slate-100">
+                <li>
+                  • <strong>Stage 1 (Safe Thread):</strong> Opens an in-platform message thread and reveals the employer’s company name while masking the candidate’s last name (<code>First Name + Last Initial</code>) and keeping their email and PDF resume locked.
+                </li>
+                <li>
+                  • <strong>Stage 2 (Candidate-Controlled Release):</strong> Only when the candidate clicks <em>Release Resume &amp; Contact Vault</em> does the platform generate a time-limited, cryptographically signed 1-hour URL to their PDF resume.
+                </li>
+              </ul>
             </div>
-            <h2 className="text-xl font-bold text-slate-900">
-              Corporate Domain Verification &amp; Anti-Ghost Job Firewall
-            </h2>
-          </div>
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            Every hiring organization must verify their official corporate email domain via DNS / workspace records before posting jobs or pitching talent. Furthermore, under our anti-harvesting rules, <strong>every job listing automatically expires after 30 days</strong> unless actively renewed by the employer—guaranteeing that candidates never waste time applying to dead or ghost listings.
-          </p>
-        </div>
 
-        {/* Pillar 3 */}
-        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 font-black flex items-center justify-center text-lg">
-              3
+            {/* Pillar 2 */}
+            <div className="bg-white p-7 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+              <span className="inline-block px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 text-xs font-extrabold">
+                2. Offloaded Biometric &amp; Payment Vaulting
+              </span>
+              <h2 className="text-lg font-extrabold text-slate-900">
+                Zero Sensitive IDs or Cards on Our Servers
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Special Sauce never stores government ID images, biometric selfies, Social Security Numbers, or raw credit card numbers in our database.
+              </p>
+              <ul className="text-xs text-slate-600 space-y-2 pt-3 border-t border-slate-100">
+                <li>
+                  • <strong>Candidate Verification:</strong> Handled directly by Stripe Identity. Our database only stores a boolean <code>identity_verified</code> status flag.
+                </li>
+                <li>
+                  • <strong>Employer Domain Verification:</strong> Verified via corporate email domain matching and live DNS MX/TXT record validation.
+                </li>
+              </ul>
             </div>
-            <h2 className="text-xl font-bold text-slate-900">
-              5-Point AI Fit &amp; Dealbreaker Firewall
-            </h2>
-          </div>
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            Our multi-tier AI matching engine evaluates candidates across five normalized pillars (Core Competencies, Skill Tenure, Logistics &amp; Pay, Industry &amp; Creds, and Execution &amp; Comm.). The platform enforces strict dealbreaker firewalls for salary expectations, work models (Remote/Hybrid/Onsite), employment types, and language proficiencies—blocking mismatched connections before credits are spent.
-          </p>
-        </div>
 
-        {/* Pillar 4 */}
-        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 font-black flex items-center justify-center text-lg">
-              4
+            {/* Pillar 3 */}
+            <div className="bg-white p-7 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+              <span className="inline-block px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 text-xs font-extrabold">
+                3. Anti-Harvesting &amp; Freshness Guardrails
+              </span>
+              <h2 className="text-lg font-extrabold text-slate-900">
+                30-Day Job Expiry &amp; Silent Unlock Caps
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Traditional job boards incentivize &ldquo;ghost jobs&rdquo; and bulk resume scraping. Special Sauce enforces two automatic platform guardrails:
+              </p>
+              <ul className="text-xs text-slate-600 space-y-2 pt-3 border-t border-slate-100">
+                <li>
+                  • <strong>30-Day Auto-Expiry:</strong> Every active job listing automatically closes after 30 days unless manually renewed by the hiring team.
+                </li>
+                <li>
+                  • <strong>Unmessaged Unlock Cap:</strong> Employers cannot bulk-unlock candidate profiles without engaging; if an organization has 5 unlocked candidates awaiting an introductory message, further unlocks are paused until they message or archive those candidates.
+                </li>
+              </ul>
             </div>
-            <h2 className="text-xl font-bold text-slate-900">
-              Encrypted Data Storage &amp; Secure Auth
-            </h2>
-          </div>
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            Powered by Supabase Enterprise infrastructure with row-level security (RLS) policies, JWT session handling, and encrypted credentials. Your data is never sold, scraped for public AI training, or shared with third-party brokers.
-          </p>
-        </div>
 
-        {/* Bottom CTA */}
-        <div className="p-8 sm:p-12 rounded-3xl bg-slate-900 text-white text-center space-y-6">
-          <h3 className="text-2xl sm:text-3xl font-black">
-            Ready to experience respectful, high-integrity hiring?
-          </h3>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/signup/candidate"
-              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-colors text-sm"
-            >
-              Join as a Candidate →
-            </Link>
-            <Link
-              href="/signup/employer"
-              className="px-6 py-3 bg-white text-slate-900 hover:bg-slate-100 font-bold rounded-xl transition-colors text-sm"
-            >
-              Join as an Employer →
-            </Link>
+            {/* Pillar 4 */}
+            <div className="bg-white p-7 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+              <span className="inline-block px-2.5 py-1 rounded-md bg-violet-50 text-violet-800 text-xs font-extrabold">
+                4. Multi-Industry AI Matching &amp; Dealbreakers
+              </span>
+              <h2 className="text-lg font-extrabold text-slate-900">
+                5-Point Radar, Language Matrix &amp; Dealbreaker Firewall
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Our matching engine evaluates candidates and roles across five normalized pillars: Core Competencies, Skill Tenure, Logistics &amp; Pay, Industry &amp; Creds, and Execution &amp; Comm.
+              </p>
+              <ul className="text-xs text-slate-600 space-y-2 pt-3 border-t border-slate-100">
+                <li>
+                  • <strong>Practical Experience &amp; Language Precision:</strong> Roles that accept practical experience in lieu of a degree weight hands-on skills equally, while verifying written/verbal language modality and proficiency.
+                </li>
+                <li>
+                  • <strong>Hard Dealbreaker Firewall:</strong> Employers are automatically blocked from pitching candidates if the role violates the candidate’s minimum salary expectation, work model, employment type, or language requirements.
+                </li>
+              </ul>
+            </div>
           </div>
-        </div>
-      </main>
+
+          {/* Bottom CTA */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xs">
+            <div>
+              <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
+                Ready to claim your 30-Day Founding Rewards?
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                Create your free Candidate or Employer account in under two minutes, or compare our plan matrix.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
+              <Link
+                href="/pricing"
+                className="px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-extrabold hover:bg-amber-100 transition-colors"
+              >
+                ★ Compare Plans &amp; Perks
+              </Link>
+              <Link
+                href="/signup/candidate"
+                className="px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors"
+              >
+                Join as Candidate
+              </Link>
+              <Link
+                href="/signup/employer"
+                className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors"
+              >
+                Join as Employer
+              </Link>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <PublicFooter />
     </div>
   )
 }

@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { PublicHeader } from '@/components/PublicHeader'
+import { PublicFooter } from '@/components/PublicFooter'
 
 export const metadata = {
   title: 'Privacy Policy | specialsauce.io',
@@ -10,16 +12,12 @@ export default function PrivacyPolicyPage() {
   const lastUpdated = 'October 16, 2026'
 
   return (
-    <div className="min-h-screen bg-slate-50 py-20 px-6 md:px-12 font-sans text-slate-800">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col justify-between">
+      <PublicHeader />
+      <main className="py-14 px-6 md:px-12">
       <div className="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-slate-200">
         {/* Header */}
         <div className="mb-12 border-b border-slate-100 pb-8">
-          <Link href="/" className="inline-flex items-center gap-2 group mb-8">
-            <span className="text-2xl font-black tracking-tight text-slate-900 group-hover:opacity-80 transition-opacity">
-              special<span className="text-orange-500">sauce</span>
-              <span className="text-xs text-slate-400 font-bold ml-1">™</span>
-            </span>
-          </Link>
           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">
             Privacy Policy
           </h1>
@@ -156,6 +154,8 @@ export default function PrivacyPolicyPage() {
           </section>
         </div>
       </div>
+      </main>
+      <PublicFooter />
     </div>
   )
 }
