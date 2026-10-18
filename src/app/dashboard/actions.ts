@@ -2909,6 +2909,12 @@ export async function createStructuredJob(formData: FormData) {
     : null
 
   const structured_requirements = buildJobRequirementsWithMeta(formData)
+  const visibleSkillReqs = filterVisibleJobRequirements(structured_requirements)
+  if (visibleSkillReqs.length < 3) {
+    return {
+      error: `Minimum 3 Core Skills Required: Please enter at least 3 core skills in Section 4 (currently ${visibleSkillReqs.length} added) so the 5-Point AI Fit engine can accurately score candidates.`,
+    }
+  }
 
   const { error } = await supabase.from('jobs').insert({
     organization_id: currentMember.organization_id,
@@ -2978,6 +2984,12 @@ export async function updateStructuredJob(formData: FormData) {
     formData,
     existingJob?.structured_requirements
   )
+  const visibleSkillReqs = filterVisibleJobRequirements(structured_requirements)
+  if (visibleSkillReqs.length < 3) {
+    return {
+      error: `Minimum 3 Core Skills Required: Please keep at least 3 core skills in Section 4 (currently ${visibleSkillReqs.length} added) so the 5-Point AI Fit engine can accurately score candidates.`,
+    }
+  }
 
   const { error } = await supabase
     .from('jobs')
