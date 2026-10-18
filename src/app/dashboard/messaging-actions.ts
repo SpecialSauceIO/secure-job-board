@@ -857,85 +857,130 @@ export async function getApplicationThreadState(
   }
 }
 
-export async function getDashboardLivePulse(): Promise<{
-  signature: string
-  totalUnreadMessages: number
-}> {
-  noStore()
+export async function getDashboardLivePulse() {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
   if (!user) {
-    return { signature: 'anon', totalUnreadMessages: 0 }
+    return {
+      signature: "anon",
+      totalUnreadMessages: 0,
+      role: "anon" as const,
+      primaryUnreadCount: 0,
+      secondaryUnreadCount: 0,
+      pendingActionCount: 0,
+    }
   }
 
   const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
     .single()
 
-  if (profile?.role === 'employer') {
-    const { data: member } = await supabase
-      .from('organization_members')
-      .select('organization_id')
-      .eq('user_id', user.id)
-      .limit(1)
-      .maybeSingle()
+  if (profile?.role === "employer") {
+    const { data: members } = await supabase
+      .from("organization_members")
+      .select("organization_id")
+      .eq("user_id", user.id)
 
-    if (!member?.organization_id) {
-      return { signature: 'emp-none', totalUnreadMessages: 0 }
+    const orgIds = Array.from(
+      new Set((members || []).map((m: any) => m.organization_id).filter(Boolean))
+    )
+
+    if (orgIds.length === 0) {
+      return {
+        signature: "emp-none",
+        totalUnreadMessages: 0,
+        role: "employer" as const,
+        primaryUnreadCount: 0,
+        secondaryUnreadCount: 0,
+        pendingActionCount: 0,
+      }
     }
 
     const { data: jobs } = await supabase
-      .from('jobs')
-      .select('id')
-      .eq('organization_id', member.organization_id)
+      .from("jobs")
+      .select("id")
+      .in("organization_id", orgIds)
 
-    const jobIds = (jobs || []).map((j) => j.id)
+    const jobIds = (jobs || []).map((j: any) => j.id)
     if (jobIds.length === 0) {
-      return { signature: 'emp-0', totalUnreadMessages: 0 }
+      return {
+        signature: "emp-0",
+        totalUnreadMessages: 0,
+        role: "employer" as const,
+        primaryUnreadCount: 0,
+        secondaryUnreadCount: 0,
+        pendingActionCount: 0,
+      }
     }
 
     const { data: apps } = await supabase
-      .from('applications')
-      .select('id, status, is_revealed, initiated_by, match_data')
-      .in('job_id', jobIds)
+      .from("applications")
+      .select("id, status, is_revealed, initiated_by, match_data")
+      .in("job_id", jobIds)
 
     const list = apps || []
-    const unreadCount = list.filter((a) =>
-      hasUnreadMsgForRole(a, 'employer')
+    const inboundApps = list.filter((a: any) => a.initiated_by !== "employer")
+    const outboundPitches = list.filter((a: any) => a.initiated_by === "employer")
+
+    const inboundUnread = inboundApps.filter((a: any) =>
+      hasUnreadMsgForRole(a, "employer")
     ).length
+    const pitchesUnread = outboundPitches.filter((a: any) =>
+      hasUnreadMsgForRole(a, "employer")
+    ).length
+    const unreadCount = inboundUnread + pitchesUnread
+
     const unlockedCount = list.filter(
-      (a) => a.is_revealed || a.status === 'accepted'
+      (a: any) => a.is_revealed || a.status === "accepted"
+    ).length
+    const pendingInbound = inboundApps.filter(
+      (a: any) => !a.is_revealed && a.status !== "rejected" && a.status !== "declined"
     ).length
 
     return {
-      signature: `emp:${list.length}:${unlockedCount}:${unreadCount}`,
+      signature: `emp:${list.length}:${unlockedCount}:${unreadCount}:${pendingInbound}`,
       totalUnreadMessages: unreadCount,
+      role: "employer" as const,
+      primaryUnreadCount: inboundUnread,
+      secondaryUnreadCount: pitchesUnread,
+      pendingActionCount: pendingInbound,
     }
   }
 
   const { data: candidateApps } = await supabase
-    .from('applications')
-    .select('id, status, is_revealed, initiated_by, match_data')
-    .eq('candidate_id', user.id)
+    .from("applications")
+    .select("id, status, is_revealed, initiated_by, match_data")
+    .eq("candidate_id", user.id)
 
   const list = candidateApps || []
-  const unreadCount = list.filter((a) =>
-    hasUnreadMsgForRole(a, 'candidate')
+  const outboundApps = list.filter((a: any) => a.initiated_by !== "employer")
+  const inboundPitches = list.filter((a: any) => a.initiated_by === "employer")
+
+  const outboundUnread = outboundApps.filter((a: any) =>
+    hasUnreadMsgForRole(a, "candidate")
   ).length
+  const pitchesUnread = inboundPitches.filter((a: any) =>
+    hasUnreadMsgForRole(a, "candidate")
+  ).length
+  const unreadCount = outboundUnread + pitchesUnread
+
   const revealedCount = list.filter(
-    (a) => a.is_revealed || a.status === 'accepted'
+    (a: any) => a.is_revealed || a.status === "accepted"
   ).length
-  const pendingPitches = list.filter(
-    (a) => a.initiated_by === 'employer' && a.status === 'pending'
+  const pendingPitches = inboundPitches.filter(
+    (a: any) => a.status === "pending" && !a.is_revealed
   ).length
 
   return {
     signature: `cand:${list.length}:${revealedCount}:${pendingPitches}:${unreadCount}`,
     totalUnreadMessages: unreadCount,
+    role: "candidate" as const,
+    primaryUnreadCount: outboundUnread,
+    secondaryUnreadCount: pitchesUnread,
+    pendingActionCount: pendingPitches,
   }
 }
