@@ -64,6 +64,15 @@ function cleanEnvKey(rawKey?: string | null): string {
   return rawKey.trim().replace(/^["']+|["']+$/g, '').trim()
 }
 
+function getAdminSupabaseClient() {
+  const supabaseUrl = cleanEnvKey(process.env.NEXT_PUBLIC_SUPABASE_URL)
+  const serviceRoleKey = cleanEnvKey(process.env.SUPABASE_SERVICE_ROLE_KEY)
+  if (!supabaseUrl || !serviceRoleKey) return null
+  return createSupabaseAdminClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+}
+
 function maskCandidateFirstInitial(fullName?: string | null): string {
   if (!fullName || !fullName.trim()) return 'Verified Candidate'
   const parts = fullName.trim().split(/\s+/)
