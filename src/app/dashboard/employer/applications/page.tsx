@@ -1,521 +1,479 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
-import { getCandidateApplications } from '@/app/dashboard/actions'
-import SecureMessageThread from '@/components/SecureMessageThread'
-import { normalizeIndustryVertical } from '@/constants/industries'
-import { normalizeJobEducationReq } from '@/constants/education'
-import { normalizeLanguageList } from '@/constants/languages'
-import { getQuickJobCardRank } from '@/constants/gamification'
-import { RankAndFounderPill } from '@/components/ReputationBadgeCase'
+import { getEmployerInboundApplications } from '@/app/dashboard/actions'
+import { ApplicationRevealCard } from '@/components/ApplicationRevealCard'
 import {
-  Radar,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  ResponsiveContainer,
-  Tooltip,
-} from 'recharts'
+  STANDARD_INDUSTRY_VERTICALS,
+  normalizeIndustryVertical,
+} from '@/constants/industries'
 
-function formatJobPayBand(job: any): string {
-  if (!job) return 'Compensation Open'
-  const payType =
-    job.pay_type === 'hourly' ||
-    job.job_meta?.pay_type === 'hourly' ||
-    (job.salary_max && job.salary_max > 0 && job.salary_max <= 500)
-      ? 'hourly'
-      : 'annual'
+type ApplicationSortOption =
+  | 'match_high'
+  | 'match_low'
+  | 'recent_activity'
+  | 'newest'
+  | 'oldest'
+  | 'exp_high'
 
-  const fmt = (val?: number | null) => {
-    if (!val || isNaN(Number(val))) return null
-    const num = Number(val)
-    if (payType === 'hourly') return `$${num.toLocaleString()}`
-    if (num >= 1000) {
-      const k = num / 1000
-      return `$${Number.isInteger(k) ? k : k.toFixed(1)}k`
-    }
-    return `$${num.toLocaleString()}`
-  }
-
-  const minS = fmt(job.salary_min)
-  const maxS = fmt(job.salary_max)
-  const suffix = payType === 'hourly' ? '/hr' : '/yr'
-
-  if (minS && maxS) return `${minS} – ${maxS} ${suffix}`
-  if (minS) return `${minS}+ ${suffix}`
-  if (maxS) return `Up to ${maxS} ${suffix}`
-  return 'Compensation Open'
+function getAppIndustry(app: any): string {
+  const candInd = app?.profiles?.industry_vertical
+  if (candInd) return normalizeIndustryVertical(candInd)
+  const jobInd = app?.jobs?.industry || app?.jobs?.job_meta?.industry
+  if (jobInd) return normalizeIndustryVertical(jobInd)
+  return ''
 }
 
-export default function CandidateApplicationsPage() {
-  const [isMounted, setIsMounted] = useState(false)
+function getLastActivityTimestamp(app: any): number {
+  const messages = Array.isArray(app?.match_data?.messages)
+    ? app.match_data.messages
+    : []
+  if (messages.length > 0) {
+    const lastMsg = messages[messages.length - 1]
+    const msgTime = new Date(lastMsg.created_at || 0).getTime()
+    if (!isNaN(msgTime) && msgTime > 0) return msgTime
+  }
+  if (app?.match_data?.last_message_at) {
+    const t = new Date(app.match_data.last_message_at).getTime()
+    if (!isNaN(t)) return t
+  }
+  return new Date(app?.created_at || 0).getTime()
+}
+
+export default function EmployerInboundApplicationsPage() {
   const [applications, setApplications] = useState<any[]>([])
-  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [isLoading, setIsLoading] = useState(true)
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'unrevealed' | 'unlocked' | 'shortlisted' | 'rejected'
+  >('all')
+  const [industryFilter, setIndustryFilter] = useState<string>('all')
+  const [sortBy, setSortBy] = useState<ApplicationSortOption>('match_high')
   const [daysFilter, setDaysFilter] = useState<number>(0)
-  const [searchQuery, setSearchQuery] = useState<string>('')
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [expandedRadarIds, setExpandedRadarIds] = useState<
-    Record<string, boolean>
-  >({})
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const fetchApplications = useCallback(
+    async (showSpinner = true) => {
+      if (showSpinner) setIsLoading(true)
+      const result = await getEmployerInboundApplications(
+        'all',
+        daysFilter || undefined,
+        searchQuery || undefined
+      )
+      if (result.data) {
+        setApplications(result.data)
+      }
+      if (showSpinner) setIsLoading(false)
+    },
+    [daysFilter, searchQuery]
+  )
 
   useEffect(() => {
-    setIsMounted(true)
-  }, [])
+    fetchApplications(true)
+  }, [daysFilter])
 
-  const fetchApplications = async () => {
-    setIsLoading(true)
-    const res = await getCandidateApplications(
-      statusFilter,
-      daysFilter,
-      searchQuery
-    )
-    if (res?.data) {
-      setApplications(res.data)
-    }
-    setIsLoading(false)
-  }
-
+  // Silent 5-second background sync so new applications & Stage 2 Vault Releases appear live
   useEffect(() => {
-    fetchApplications()
-  }, [statusFilter, daysFilter])
+    const intervalId = setInterval(() => {
+      fetchApplications(false)
+    }, 5000)
+    return () => clearInterval(intervalId)
+  }, [fetchApplications])
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    fetchApplications()
+    fetchApplications(true)
   }
 
-  const toggleRadar = (id: string) => {
-    setExpandedRadarIds((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }))
+  const handleLocalStatusUpdate = (
+    appId: string,
+    newStatus: 'unrevealed' | 'unlocked' | 'shortlisted' | 'rejected'
+  ) => {
+    setApplications((prev) =>
+      prev.map((app) =>
+        app.id === appId
+          ? {
+              ...app,
+              is_revealed: true,
+              normalized_status: newStatus,
+            }
+          : app
+      )
+    )
   }
+
+  const filteredAndSortedApplications = useMemo(() => {
+    const filtered = applications.filter((app) => {
+      if (statusFilter !== 'all' && app.normalized_status !== statusFilter) {
+        return false
+      }
+      if (industryFilter !== 'all') {
+        const appInd = getAppIndustry(app)
+        if (appInd.toLowerCase() !== industryFilter.toLowerCase()) {
+          return false
+        }
+      }
+      return true
+    })
+
+    const getMatchScore = (app: any): number =>
+      Number(app.match_score ?? app.match_data?.overall_score ?? 0)
+
+    const getExpYears = (app: any): number => {
+      const num = parseFloat(String(app?.profiles?.experience_years || '0'))
+      return isNaN(num) ? 0 : num
+    }
+
+    return [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'match_high':
+          return getMatchScore(b) - getMatchScore(a)
+        case 'match_low':
+          return getMatchScore(a) - getMatchScore(b)
+        case 'recent_activity':
+          return getLastActivityTimestamp(b) - getLastActivityTimestamp(a)
+        case 'newest':
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          )
+        case 'oldest':
+          return (
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          )
+        case 'exp_high':
+          return getExpYears(b) - getExpYears(a)
+        default:
+          return 0
+      }
+    })
+  }, [applications, statusFilter, industryFilter, sortBy])
+
+  const unrevealedCount = applications.filter(
+    (a) => a.normalized_status === 'unrevealed'
+  ).length
+  const unlockedCount = applications.filter(
+    (a) => a.normalized_status === 'unlocked'
+  ).length
+  const shortlistedCount = applications.filter(
+    (a) => a.normalized_status === 'shortlisted'
+  ).length
+  const rejectedCount = applications.filter(
+    (a) => a.normalized_status === 'rejected'
+  ).length
 
   return (
-    <div className="max-w-6xl mx-auto py-4 space-y-6">
-      {/* Header */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            My Blind Application Tracker
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Track your anonymous applications, chat with employers who unlock Stage 1, and release your Stage 2 Resume Vault when ready.
-          </p>
-        </div>
-
-        <Link
-          href="/dashboard/jobs"
-          className="shrink-0 inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm"
-        >
-          + Browse More Roles →
-        </Link>
-      </header>
-
-      {/* Filter & Search Bar */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          {/* Status Filter Pills */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            {[
-              { id: 'all', label: 'All Applications' },
-              { id: 'shortlisted', label: '★ Shortlisted' },
-              { id: 'unlocked', label: '🔓 Stage 1 Thread Open' },
-              { id: 'pending', label: '🔒 Blind / Pending Review' },
-              { id: 'rejected', label: 'Archived' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setStatusFilter(tab.id)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                  statusFilter === tab.id
-                    ? 'bg-slate-900 text-white shadow-2xs'
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80'
-                }`}
+    <div className="min-h-screen bg-slate-50 p-6 md:p-12">
+      <div className="max-w-6xl mx-auto space-y-8">
+        {/* Top Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <Link
+              href="/dashboard"
+              className="text-indigo-600 font-bold text-sm inline-flex items-center gap-1 mb-3 hover:text-indigo-700"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                {tab.label}
-              </button>
-            ))}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              Back to Employer Dashboard
+            </Link>
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+              Inbound Candidate Applications
+            </h1>
+            <p className="text-slate-500 mt-1">
+              Sort applicants by 5-Point AI Match score, open Stage 1 encrypted message threads for free, and manage shortlisted talent.
+            </p>
           </div>
 
-          {/* Timeframe Filter */}
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
-              Timeframe:
-            </span>
+          <Link
+            href="/dashboard/employer/pitches"
+            className="shrink-0 px-5 py-3 bg-white border border-slate-300 text-slate-800 text-sm font-bold rounded-xl hover:bg-slate-100 transition-colors shadow-sm inline-flex items-center gap-2"
+          >
+            View Outbound Pitches →
+          </Link>
+        </div>
+
+        {/* Filter Bar: Status Tabs + Date Range + Keyword Search + Industry & Sort By */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            {/* Status Tabs */}
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setStatusFilter('all')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  statusFilter === 'all'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                All Applications ({applications.length})
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStatusFilter('unrevealed')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  statusFilter === 'unrevealed'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                Pending Review (Locked)
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[11px] ${
+                    statusFilter === 'unrevealed'
+                      ? 'bg-amber-500 text-white'
+                      : 'bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {unrevealedCount}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStatusFilter('unlocked')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  statusFilter === 'unlocked'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                Unlocked &amp; Reviewing
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[11px] ${
+                    statusFilter === 'unlocked'
+                      ? 'bg-indigo-500 text-white'
+                      : 'bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {unlockedCount}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStatusFilter('shortlisted')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  statusFilter === 'shortlisted'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                Shortlisted
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[11px] ${
+                    statusFilter === 'shortlisted'
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {shortlistedCount}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStatusFilter('rejected')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  statusFilter === 'rejected'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                Passed / Archived
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[11px] ${
+                    statusFilter === 'rejected'
+                      ? 'bg-rose-500 text-white'
+                      : 'bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {rejectedCount}
+                </span>
+              </button>
+            </div>
+
+            {/* Date Filter (Includes 180 and 365 Days) */}
             <select
               value={daysFilter}
               onChange={(e) => setDaysFilter(Number(e.target.value))}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
             >
               <option value={0}>All Time</option>
               <option value={7}>Last 7 Days</option>
               <option value={30}>Last 30 Days</option>
               <option value={90}>Last 90 Days</option>
+              <option value={180}>Last 180 Days</option>
+              <option value={365}>Last 365 Days (1 Year)</option>
             </select>
+          </div>
+
+          {/* Keyword Search */}
+          <form onSubmit={handleSearch} className="flex gap-3">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search applications by Reference ID (SS-...), role title, skill, bio, or unlocked candidate name..."
+              className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
+            />
+            <button
+              type="submit"
+              className="px-6 py-2.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-colors cursor-pointer"
+            >
+              Filter
+            </button>
+          </form>
+
+          {/* Organizer Row: Industry Vertical Filter + Sort By Dropdown */}
+          <div className="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+            <div className="md:col-span-5 flex items-center gap-2">
+              <label
+                htmlFor="inbound-industry-filter"
+                className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
+              >
+                Industry:
+              </label>
+              <select
+                id="inbound-industry-filter"
+                value={industryFilter}
+                onChange={(e) => setIndustryFilter(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              >
+                <option value="all">All Industry Verticals</option>
+                {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
+                  <option key={vertical} value={vertical}>
+                    {vertical}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="md:col-span-5 flex items-center gap-2">
+              <label
+                htmlFor="inbound-app-sort"
+                className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
+              >
+                Sort By:
+              </label>
+              <select
+                id="inbound-app-sort"
+                value={sortBy}
+                onChange={(e) =>
+                  setSortBy(e.target.value as ApplicationSortOption)
+                }
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              >
+                <option value="match_high">
+                  AI Match Score (Highest First)
+                </option>
+                <option value="match_low">AI Match Score (Lowest First)</option>
+                <option value="recent_activity">
+                  Recent Thread Activity / Unread First
+                </option>
+                <option value="newest">Newest Applications First</option>
+                <option value="oldest">Oldest Applications First</option>
+                <option value="exp_high">
+                  Candidate Experience (Most Years First)
+                </option>
+              </select>
+            </div>
+
+            <div className="md:col-span-2 text-right">
+              <span className="text-xs font-bold text-slate-500">
+                Showing{' '}
+                <strong className="text-slate-900">
+                  {filteredAndSortedApplications.length}
+                </strong>{' '}
+                of {applications.length}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Keyword Search */}
-        <form
-          onSubmit={handleSearchSubmit}
-          className="pt-3 border-t border-slate-100 flex gap-2"
-        >
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by role title, skill, Reference ID (SS-...), or unlocked company name..."
-            className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors cursor-pointer"
-          >
-            Search
-          </button>
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery('')
-                getCandidateApplications(statusFilter, daysFilter, '').then(
-                  (res) => {
-                    if (res?.data) setApplications(res.data)
-                  }
-                )
-              }}
-              className="px-3 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold hover:bg-slate-200 cursor-pointer"
-            >
-              Reset
-            </button>
-          )}
-        </form>
-      </div>
-
-      {/* Applications List */}
-      {isLoading ? (
-        <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-xs">
-          <div className="inline-block w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin mb-3" />
-          <p className="text-sm font-bold text-slate-500">
-            Loading your application pipeline...
-          </p>
-        </div>
-      ) : applications.length === 0 ? (
-        <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-xs space-y-3">
-          <h3 className="text-lg font-extrabold text-slate-900">
-            No blind applications match your current filter
-          </h3>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Run a free 5-Point AI Fit check on open roles and submit a blind application whenever you score 40%+.
-          </p>
-          <Link
-            href="/dashboard/jobs"
-            className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors"
-          >
-            Explore Open Roles →
-          </Link>
-        </div>
-      ) : (
-        <div className="space-y-5">
-          {applications.map((app) => {
-            const job = app.jobs || {}
-            const normStatus = app.normalized_status || 'pending'
-            const isUnlocked = Boolean(
-              app.is_revealed ||
-                normStatus === 'unlocked' ||
-                normStatus === 'shortlisted'
-            )
-            const vaultReleased = Boolean(
-              app.match_data?.candidate_vault_released === true
-            )
-
-            const rankInfo = getQuickJobCardRank(job)
-            const payBand = formatJobPayBand(job)
-
-            const rawIndustry = job.industry || job.job_meta?.industry || ''
-            const industryLabel = rawIndustry
-              ? normalizeIndustryVertical(rawIndustry)
-              : 'Verified Employer'
-
-            const rawEduReq =
-              job.education_req || job.job_meta?.education_req || ''
-            const eduReqLabel = rawEduReq
-              ? normalizeJobEducationReq(rawEduReq)
-              : ''
-            const reqCerts =
-              job.required_certifications ||
-              job.job_meta?.required_certifications ||
-              ''
-            const reqLanguages = normalizeLanguageList(
-              job.required_languages || job.job_meta?.required_languages,
-              true
-            )
-
-            const matchScore =
-              app.match_score ?? app.match_data?.overall_score ?? null
-            const radarData = app.match_data?.radar_data || null
-            const showRadar = Boolean(expandedRadarIds[app.id])
-            const threadMessages = Array.isArray(app.match_data?.messages)
-              ? app.match_data.messages
-              : []
-
-            const employerBadgeText = isUnlocked
-              ? app.unlocked_employer_name ||
-                job.organizations?.name ||
-                'Verified Employer'
-              : `Blind Role • ${industryLabel}`
-
-            return (
-              <div
-                key={app.id}
-                className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all ${
-                  normStatus === 'shortlisted'
-                    ? 'border-emerald-300 ring-2 ring-emerald-50'
-                    : isUnlocked
-                    ? 'border-indigo-300 ring-1 ring-indigo-50'
-                    : normStatus === 'rejected'
-                    ? 'border-slate-200 opacity-75'
-                    : rankInfo.isFounder
-                    ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
-                    : 'border-slate-200 hover:border-slate-300'
-                }`}
+        {/* Applications Feed */}
+        {isLoading ? (
+          <div className="py-16 text-center bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <div className="inline-block w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+            <p className="text-slate-500 font-medium">
+              Loading inbound applications...
+            </p>
+          </div>
+        ) : filteredAndSortedApplications.length === 0 ? (
+          <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-sm">
+            <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-8 h-8 text-slate-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <div className="p-6 md:p-8 space-y-4">
-                  {/* Top Bar: Employer Status, Rank & Founder Pill, Ref ID, Pay Band */}
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-3 border-b border-slate-100">
-                    <div className="space-y-1.5">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-extrabold uppercase tracking-wider ${
-                            isUnlocked
-                              ? 'bg-emerald-600 text-white'
-                              : 'bg-slate-900 text-white'
-                          }`}
-                        >
-                          {isUnlocked ? '🔓' : '🔒'} {employerBadgeText}
-                        </span>
-
-                        <RankAndFounderPill
-                          level={rankInfo.level}
-                          tier={rankInfo.tier}
-                          isFounder={rankInfo.isFounder}
-                          founderText="Founding Partner"
-                          size="xs"
-                        />
-
-                        <span className="font-mono text-xs text-slate-500">
-                          Ref: {app.reference_id}
-                        </span>
-
-                        <span className="text-xs text-slate-400">
-                          Applied{' '}
-                          {new Date(app.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-
-                      <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-                        {job.title || 'Open Role'}
-                      </h2>
-                    </div>
-
-                    {/* Right Side: Pay Band & Stage Status */}
-                    <div className="flex flex-col sm:items-end gap-1.5 shrink-0">
-                      <div className="px-3.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-black text-sm">
-                        {payBand}
-                      </div>
-
-                      <div className="flex items-center gap-2 text-xs font-bold">
-                        {matchScore !== null && (
-                          <span className="text-indigo-700">
-                            {matchScore}% AI Match
-                          </span>
-                        )}
-                        <span>•</span>
-                        {normStatus === 'shortlisted' && (
-                          <span className="text-emerald-700">
-                            ★ Shortlisted
-                          </span>
-                        )}
-                        {normStatus === 'unlocked' && !vaultReleased && (
-                          <span className="text-indigo-700">
-                            🛡️ Stage 1 Thread Open
-                          </span>
-                        )}
-                        {normStatus === 'unlocked' && vaultReleased && (
-                          <span className="text-emerald-700">
-                            🔓 Stage 2 Vault Released
-                          </span>
-                        )}
-                        {normStatus === 'pending' && (
-                          <span className="text-amber-700">
-                            🔒 Blind Review Pending
-                          </span>
-                        )}
-                        {normStatus === 'rejected' && (
-                          <span className="text-rose-600">Archived</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Clean Inline Role Metadata (No Pills) */}
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600 font-medium">
-                    <span className="font-bold text-slate-800 uppercase">
-                      {job.work_model || 'Flexible'}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">
+              No applications match this filter
+            </h3>
+            <p className="text-slate-500 max-w-md mx-auto text-sm mb-4">
+              {statusFilter === 'all' && industryFilter === 'all'
+                ? 'When verified candidates apply to your open roles, their blind applications and full review history will appear here.'
+                : 'Try switching status tabs or resetting your Industry Vertical filter.'}
+            </p>
+            {(statusFilter !== 'all' || industryFilter !== 'all') && (
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter('all')
+                  setIndustryFilter('all')
+                }}
+                className="px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer"
+              >
+                Reset Active Filters →
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-8 pt-2">
+            {filteredAndSortedApplications.map((app) => {
+              const appIndustry = getAppIndustry(app)
+              return (
+                <div key={app.id} className="relative">
+                  <div className="absolute -top-3 left-4 flex items-center gap-2 z-10">
+                    <span className="bg-slate-900 text-white text-xs font-bold px-4 py-1 rounded-full shadow-sm">
+                      Applied for: {app.jobs?.title || 'Open Role'}
                     </span>
-                    <span>•</span>
-                    {job.location && (
-                      <>
-                        <span>{job.location}</span>
-                        <span>•</span>
-                      </>
-                    )}
-                    <span>{job.employment_type || 'Full-Time (W-2)'}</span>
-                    {eduReqLabel && (
-                      <>
-                        <span>•</span>
-                        <span>{eduReqLabel}</span>
-                      </>
-                    )}
-                    {reqCerts && (
-                      <>
-                        <span>•</span>
-                        <span>Certs: {reqCerts}</span>
-                      </>
-                    )}
-                    {reqLanguages.length > 0 && (
-                      <>
-                        <span>•</span>
-                        <span>
-                          Languages:{' '}
-                          {reqLanguages
-                            .map(
-                              (l) =>
-                                `${l.language} (${l.modality.split(' ')[0]} • ${
-                                  l.proficiency
-                                })`
-                            )
-                            .join(', ')}
-                        </span>
-                      </>
+                    {appIndustry && (
+                      <span className="bg-indigo-50 text-indigo-800 border border-indigo-200 text-[11px] font-extrabold px-3 py-0.5 rounded-full shadow-2xs">
+                        {appIndustry}
+                      </span>
                     )}
                   </div>
-
-                  {/* STAGE 1 / STAGE 2 ENCRYPTED THREAD & VAULT RELEASE */}
-                  {isUnlocked && normStatus !== 'rejected' && (
-                    <SecureMessageThread
-                      applicationId={app.id}
-                      referenceId={app.reference_id}
-                      viewerRole="candidate"
-                      initialMessages={threadMessages}
-                      initialVaultReleased={vaultReleased}
-                      employerName={
-                        app.unlocked_employer_name ||
-                        job.organizations?.name ||
-                        'Verified Employer'
-                      }
-                      employerDomain={
-                        app.unlocked_employer_domain ||
-                        job.organizations?.domain ||
-                        null
-                      }
-                      employerEmail={app.unlocked_employer_email || null}
-                      candidateEmail={app.unlocked_candidate_email || null}
-                    />
-                  )}
-
-                  {/* AI Fit Summary & 5-Point Radar Toggle */}
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 space-y-1">
-                    <div className="flex items-center justify-between font-bold text-indigo-700">
-                      <span>Submitted 5-Point AI Fit Summary</span>
-                      {radarData && (
-                        <button
-                          type="button"
-                          onClick={() => toggleRadar(app.id)}
-                          className="underline cursor-pointer"
-                        >
-                          {showRadar ? 'Hide Radar' : 'View 5-Point Radar'}
-                        </button>
-                      )}
-                    </div>
-                    <p className="leading-relaxed">
-                      {app.match_data?.brief_analysis ||
-                        app.employer_pitch ||
-                        'Submitted with verified 40%+ AI skill match.'}
-                    </p>
-                  </div>
-
-                  {isMounted && showRadar && radarData && (
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col lg:flex-row items-center gap-4">
-                      <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {radarData.map((item: any, idx: number) => (
-                          <div
-                            key={idx}
-                            className="bg-white px-3 py-2 rounded-md border border-slate-200 flex justify-between items-center text-xs"
-                          >
-                            <span className="font-semibold text-slate-600">
-                              {item.subject}
-                            </span>
-                            <span className="font-black text-indigo-600">
-                              {item.score}%
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="w-full max-w-[240px] h-[180px] shrink-0 mx-auto">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <RadarChart
-                            cx="50%"
-                            cy="50%"
-                            outerRadius="60%"
-                            data={radarData}
-                          >
-                            <PolarGrid stroke="#cbd5e1" />
-                            <PolarAngleAxis
-                              dataKey="subject"
-                              tick={{
-                                fill: '#475569',
-                                fontSize: 9,
-                                fontWeight: 600,
-                              }}
-                            />
-                            <PolarRadiusAxis
-                              angle={30}
-                              domain={[0, 100]}
-                              tick={false}
-                              axisLine={false}
-                            />
-                            <Tooltip />
-                            <Radar
-                              name="Match"
-                              dataKey="score"
-                              stroke="#4f46e5"
-                              strokeWidth={2}
-                              fill="#10b981"
-                              fillOpacity={0.3}
-                            />
-                          </RadarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Privacy Status Footer */}
-                  {!isUnlocked && normStatus === 'pending' && (
-                    <div className="pt-2 border-t border-slate-100 text-xs text-slate-500">
-                      🛡️ <strong className="text-slate-700">Stage 0 Blind Protection:</strong> Your name, email, and PDF resume remain locked until you release them.
-                    </div>
-                  )}
+                  <ApplicationRevealCard
+                    application={app}
+                    onStatusChange={handleLocalStatusUpdate}
+                  />
                 </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
