@@ -4,7 +4,6 @@ import { createClient } from '@/utils/supabase/server'
 import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 import { revalidatePath, unstable_noStore as noStore } from 'next/cache'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
-import { recordBehavioralFlagInternal } from '@/app/dashboard/admin-actions'
 
 const MAX_SILENT_UNLOCKS = 5
 
@@ -155,9 +154,6 @@ function hasUnreadMsgForRole(
   )
 }
 
-// ------------------------------------------------------------------
-// AI / HEURISTIC ANTI-HARVESTING & PHISHING SCANNER
-// ------------------------------------------------------------------
 function scanMessageForSuspiciousContent(text: string): {
   flagged: boolean
   reason?: string
@@ -215,10 +211,13 @@ async function sendThreadEmailNotification({
       ? fallbackInbox || rawRecipient
       : rawRecipient
 
-  const appUrl =
-    cleanEnvKey(process.env.NEXT_PUBLIC_SITE_URL).replace(/\/+$/, '') ||
-    'https://specialsauce.io'
-  const publicLogoUrl = `${appUrl}/logo.png`
+  const rawAppUrl =
+    cleanEnvKey(process.env.NEXT_PUBLIC_SITE_URL) || 'https://specialsauce.io'
+  const appUrl = rawAppUrl.replace(/\/+$/, '')
+  const publicLogoBase = appUrl.includes('localhost')
+    ? 'https://specialsauce.io'
+    : appUrl
+  const publicLogoUrl = `${publicLogoBase}/logo.png`
   const fullUrl = `${appUrl}${ctaUrl}`
 
   if (!resendKey || !primaryRecipient) {
@@ -269,6 +268,7 @@ async function sendThreadEmailNotification({
       body: JSON.stringify({
         from: fromAddress,
         to: [primaryRecipient],
+        reply_to: 'info@specialsauce.io',
         subject: `[${referenceId}] ${subject}`,
         html: buildHtml(
           primaryRecipient !== rawRecipient && rawRecipient
@@ -288,6 +288,7 @@ async function sendThreadEmailNotification({
         body: JSON.stringify({
           from: fromAddress,
           to: [fallbackInbox],
+          reply_to: 'info@specialsauce.io',
           subject: `[${referenceId}] ${subject}`,
           html: buildHtml(
             `Sandbox Fallback: Originally addressed to ${rawRecipient}`
@@ -300,9 +301,6 @@ async function sendThreadEmailNotification({
   }
 }
 
-// ------------------------------------------------------------------
-// 1. CHECK EMPLOYER "SILENT UNLOCK" ANTI-HARVESTING CAP (MAX 5)
-// ------------------------------------------------------------------
 export async function checkEmployerSilentUnlockQuota(organizationId: string): Promise<{
   allowed: boolean
   silentCount: number
@@ -339,21 +337,6 @@ export async function checkEmployerSilentUnlockQuota(organizationId: string): Pr
   })
 
   if (silentUnlocks.length >= MAX_SILENT_UNLOCKS) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    await recordBehavioralFlagInternal({
-      severity: 'high',
-      flag_type: 'Silent_Unlock_Harvesting_Cap',
-      user_id: user?.id || null,
-      organization_id: organizationId,
-      actor_email: user?.email || 'employer@organization',
-      actor_role: 'employer',
-      summary: `Employer hit the ${MAX_SILENT_UNLOCKS}-Silent-Unlock anti-harvesting cap without messaging candidates.`,
-      evidence_snippet: `Organization ID: ${organizationId} • Unmessaged Revealed Profiles: ${silentUnlocks.length}`,
-    })
-
     return {
       allowed: false,
       silentCount: silentUnlocks.length,
@@ -364,9 +347,6 @@ export async function checkEmployerSilentUnlockQuota(organizationId: string): Pr
   return { allowed: true, silentCount: silentUnlocks.length }
 }
 
-// ------------------------------------------------------------------
-// 2. SEND MESSAGE IN SECURE THREAD (EMPLOYER OR CANDIDATE)
-// ------------------------------------------------------------------
 export async function sendApplicationMessage(
   applicationId: string,
   messageText: string
@@ -391,18 +371,6 @@ export async function sendApplicationMessage(
 
   const safetyScan = scanMessageForSuspiciousContent(trimmed)
   if (safetyScan.flagged) {
-    await recordBehavioralFlagInternal({
-      severity: 'high',
-      flag_type: 'Phishing_Or_OffPlatform_Lure',
-      user_id: user.id,
-      actor_email: user.email || 'user@specialsauce.io',
-      actor_role: 'unknown',
-      summary: `Blocked suspicious thread message (${safetyScan.reason})`,
-      evidence_snippet: `Thread App ID: ${applicationId} • Blocked Text: "${trimmed.slice(
-        0,
-        220
-      )}"`,
-    })
     return { error: safetyScan.reason }
   }
 
@@ -590,9 +558,6 @@ export async function sendApplicationMessage(
   }
 }
 
-// ------------------------------------------------------------------
-// 3. STAGE 2: CANDIDATE-CONTROLLED FULL VAULT RELEASE + ENTERPRISE ATS SYNC
-// ------------------------------------------------------------------
 export async function releaseCandidateVaultToEmployer(
   applicationId: string
 ): Promise<{
@@ -750,9 +715,6 @@ export async function releaseCandidateVaultToEmployer(
   }
 }
 
-// ------------------------------------------------------------------
-// 4. FETCH SIGNED RESUME URL ONLY IF CANDIDATE HAS RELEASED VAULT
-// ------------------------------------------------------------------
 export async function getVaultReleasedResumeUrl(
   applicationId: string
 ): Promise<{ signedUrl?: string | null; error?: string }> {
@@ -794,9 +756,6 @@ export async function getVaultReleasedResumeUrl(
   return { signedUrl }
 }
 
-// ------------------------------------------------------------------
-// 5. DIRECT, ZERO-JOIN LIVE THREAD SYNC + READ RECEIPT STAMP
-// ------------------------------------------------------------------
 export async function getApplicationThreadState(
   applicationId: string,
   viewerRole?: 'employer' | 'candidate'
@@ -887,9 +846,6 @@ export async function getApplicationThreadState(
   }
 }
 
-// ------------------------------------------------------------------
-// 6. MAIN DASHBOARD LIVE PULSE (FOR REAL-TIME CARD BADGE REFRESH)
-// ------------------------------------------------------------------
 export async function getDashboardLivePulse(): Promise<{
   signature: string
   totalUnreadMessages: number
