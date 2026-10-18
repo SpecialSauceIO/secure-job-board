@@ -101,6 +101,21 @@ function getCandidateEducationLevel(candidate: any): string {
   return ''
 }
 
+function getCandidateAvailability(candidate: any): string {
+  if (candidate?.availability_window) {
+    return String(candidate.availability_window).trim()
+  }
+  const rawSkills = Array.isArray(candidate?.structured_skills)
+    ? candidate.structured_skills
+    : []
+  const metaEntry = rawSkills.find(
+    (item: any) => item && item._ss_pref_meta === true
+  )
+  return metaEntry?.availability_window
+    ? String(metaEntry.availability_window).trim()
+    : '2 Weeks Notice (Standard)'
+}
+
 function getCandidateCertifications(candidate: any): string {
   if (candidate?.certifications) {
     return String(candidate.certifications).trim()
@@ -1024,6 +1039,10 @@ export default function EmployerCandidateSearch({
                         <span className="text-slate-300">•</span>
                         <span className="capitalize">
                           {candidate.preferred_work_model || 'Flexible'} Model
+                        </span>
+                        <span className="text-slate-300">•</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold text-[11px] border border-indigo-200/60">
+                          ⚡ {getCandidateAvailability(candidate)}
                         </span>
                         {candidate.location && (
                           <>

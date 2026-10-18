@@ -137,6 +137,7 @@ function extractJobCardMeta(job: any) {
     industry: normalizedIndustry,
     companySize: job.company_size || metaItem.company_size || '',
     workAuth: job.work_auth || metaItem.work_auth || '',
+    hiringTimeline: job.hiring_timeline || metaItem.hiring_timeline || 'Active Hiring (2–4 Weeks)',
     daysRemaining,
     isExpired,
     visibleReqs,
@@ -630,6 +631,10 @@ export function CandidateJobFeed({
                         </span>
                       )}
 
+                      <span className="text-slate-300">•</span>
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold text-[11px] border border-indigo-200/70">
+                        ⏱️ {meta.hiringTimeline}
+                      </span>
                       <span className="text-slate-300">•</span>
                       <span className="text-slate-500 font-medium">
                         Posted {new Date(job.created_at).toLocaleDateString()}

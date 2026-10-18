@@ -275,6 +275,7 @@ function extractCandidatePrefMeta(rawSkills: any): {
   _ss_pref_meta?: boolean
   industry_vertical?: string
   education_level?: string
+  availability_window?: string
   certifications?: string
   languages?: LanguageEntry[]
   employment_types?: string[]
@@ -303,6 +304,7 @@ export interface JobExtendedMeta {
   required_languages: LanguageEntry[]
   company_size: string
   work_auth: string
+  hiring_timeline?: string
   renewed_at?: string | null
   days_remaining?: number
   is_expired?: boolean
@@ -369,6 +371,7 @@ function extractJobMeta(rawReqs: any, jobRow?: any): JobExtendedMeta {
     required_languages: normalizedJobLanguages,
     company_size: metaItem?.company_size || jobRow?.company_size || '',
     work_auth: metaItem?.work_auth || jobRow?.work_auth || 'US Authorized Only',
+    hiring_timeline: metaItem?.hiring_timeline || jobRow?.hiring_timeline || 'Active Hiring (2–4 Weeks)',
     renewed_at: metaItem?.renewed_at || null,
     days_remaining: daysRemaining,
     is_expired: diffMs <= 0,
@@ -1247,9 +1250,11 @@ export async function updateProfile(formData: FormData) {
     ? normalizeLanguageList(languages_raw, true)
     : normalizeLanguageList(submittedPrefMeta.languages, true)
 
+  const availability_window_raw = ((formData.get('availability_window') as string) || '').trim()
   const mergedPrefMeta = {
     ...submittedPrefMeta,
     _ss_pref_meta: true,
+    ...(availability_window_raw ? { availability_window: availability_window_raw } : {}),
     ...(normalizedIndustry ? { industry_vertical: normalizedIndustry } : {}),
     ...(normalizedEducation ? { education_level: normalizedEducation } : {}),
     ...(hasCertificationsField ? { certifications: certifications_raw } : {}),
@@ -2788,6 +2793,11 @@ function buildJobRequirementsWithMeta(
   const work_auth = (
     (formData.get('work_auth') as string) || 'US Authorized Only'
   ).trim()
+  const hiring_timeline = (
+    (formData.get('hiring_timeline') as string) ||
+    prevMeta.hiring_timeline ||
+    'Active Hiring (2–4 Weeks)'
+  ).trim()
 
   const metaObject = {
     ...prevMeta,
@@ -2803,6 +2813,7 @@ function buildJobRequirementsWithMeta(
     required_languages,
     company_size,
     work_auth,
+    hiring_timeline,
   }
 
   return [...visibleReqs, metaObject]
@@ -3722,6 +3733,7 @@ export async function getEmployerInboundApplications(
               ...rawProfile,
               industry_vertical: prefMeta?.industry_vertical || '',
               education_level: prefMeta?.education_level || '',
+              availability_window: prefMeta?.availability_window || '2 Weeks Notice (Standard)',
               certifications: prefMeta?.certifications || '',
               languages: normalizeLanguageList(prefMeta?.languages, true),
               structured_skills: filterVisibleSkills(

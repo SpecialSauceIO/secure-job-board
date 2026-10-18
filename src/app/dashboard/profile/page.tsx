@@ -66,6 +66,10 @@ async function saveCandidateProfilePreservingMeta(formData: FormData) {
     formData.get('certifications') || ''
   ).trim()
 
+  const submittedAvailability = String(
+    formData.get('availability_window') || ''
+  ).trim() || existingPrefObj.availability_window || '2 Weeks Notice (Standard)'
+
   const rawSubmittedLanguages = String(formData.get('languages') || '').trim()
   const normalizedLanguages = rawSubmittedLanguages
     ? normalizeLanguageList(rawSubmittedLanguages, true)
@@ -77,6 +81,7 @@ async function saveCandidateProfilePreservingMeta(formData: FormData) {
     industry_vertical: normalizedIndustry,
     education_level: normalizedEducation,
     certifications: submittedCertifications,
+    availability_window: submittedAvailability,
     languages: normalizedLanguages,
   }
 
@@ -104,6 +109,7 @@ async function saveCandidateProfilePreservingMeta(formData: FormData) {
   formData.set('industry_vertical', normalizedIndustry)
   formData.set('education_level', normalizedEducation)
   formData.set('certifications', submittedCertifications)
+  formData.set('availability_window', submittedAvailability)
   formData.set('languages', JSON.stringify(normalizedLanguages))
 
   // Preserve salary & work model if not present on the Profile form
@@ -180,6 +186,7 @@ export default async function ProfilePage() {
     : 'Practical Experience & Industry Certifications'
 
   const currentCertifications = prefMetaObj?.certifications || ''
+  const currentAvailability = prefMetaObj?.availability_window || '2 Weeks Notice (Standard)'
   const currentLanguages = normalizeLanguageList(prefMetaObj?.languages, true)
 
   const hasProfileData = !!profile?.bio
@@ -347,6 +354,26 @@ export default async function ProfilePage() {
               placeholder="e.g. AWS Solutions Architect, CompTIA Security+, PMP"
               className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
             />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-bold text-slate-700 mb-1.5">
+              ⚡ Start Availability / Notice Period
+            </label>
+            <p className="text-xs text-slate-500 mb-2">
+              Lets verified employers know how quickly you can start without revealing your current employer.
+            </p>
+            <select
+              name="availability_window"
+              defaultValue={currentAvailability}
+              className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
+            >
+              <option value="Immediately Available">Immediately Available</option>
+              <option value="Within 1 Week">Within 1 Week</option>
+              <option value="2 Weeks Notice (Standard)">2 Weeks Notice (Standard)</option>
+              <option value="Within 1 Month (3–4 Weeks)">Within 1 Month (3–4 Weeks)</option>
+              <option value="More than 1 Month">More than 1 Month</option>
+            </select>
           </div>
         </div>
 

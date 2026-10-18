@@ -47,6 +47,7 @@ export default function EditJobPage() {
     industry: 'Technology, Software & SaaS',
     company_size: 'Growth (50–250 Employees)',
     work_auth: 'US Authorized Only (No Sponsorship)',
+    hiring_timeline: 'Active Hiring (2–4 Weeks)',
     description: '',
     structured_requirements: [] as any[],
   })
@@ -140,6 +141,7 @@ export default function EditJobPage() {
         industry: normalizedIndustry,
         company_size: resolvedCompanySize,
         work_auth: metaItem.work_auth || 'US Authorized Only (No Sponsorship)',
+        hiring_timeline: metaItem.hiring_timeline || 'Active Hiring (2–4 Weeks)',
         description: job.description || '',
         structured_requirements: visibleReqs,
       })
@@ -625,6 +627,33 @@ export default function EditJobPage() {
                 </option>
                 <option value="Security Clearance Required">
                   Security Clearance Required
+                </option>
+              </select>
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-bold text-slate-700">
+                ⏱️ Target Start Window (Hiring Urgency)
+              </label>
+              <select
+                name="hiring_timeline"
+                value={jobData.hiring_timeline}
+                onChange={(e) =>
+                  setJobData({ ...jobData, hiring_timeline: e.target.value })
+                }
+                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
+              >
+                <option value="Immediate / Urgent (1–2 Weeks)">
+                  Immediate / Urgent Start (Within 1–2 Weeks)
+                </option>
+                <option value="Active Hiring (2–4 Weeks)">
+                  Active Hiring (Target Start in 2–4 Weeks)
+                </option>
+                <option value="Standard Pipeline (30+ Days)">
+                  Standard Pipeline (Target Start in 30+ Days)
+                </option>
+                <option value="Flexible Start for Right Fit">
+                  Flexible / Open Start Date for Right Fit
                 </option>
               </select>
             </div>

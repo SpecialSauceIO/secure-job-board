@@ -364,6 +364,10 @@ export function ApplicationRevealCard({
               <span className="capitalize">
                 Prefers {candidate?.preferred_work_model || 'Any'}
               </span>
+              <span>•</span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold text-xs border border-indigo-200/70">
+                ⚡ {candidateAvailability}
+              </span>
               {candidate?.location && (
                 <>
                   <span>•</span>
