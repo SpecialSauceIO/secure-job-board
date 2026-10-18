@@ -24,6 +24,25 @@ import {
   Tooltip,
 } from 'recharts'
 
+const PILLAR_SUBTITLES: Record<string, string> = {
+  'Core Competencies': 'Role skills, tools & functional capabilities',
+  'Skill Tenure': 'Years in core required skills + maturity',
+  'Logistics & Pay': 'Work model, location, pay & start window',
+  'Industry & Creds': 'Vertical familiarity, education & certs',
+  'Execution & Comm.': 'Ownership, collaboration & language fluency',
+}
+
+function normalizePillarLabel(raw?: string): string {
+  const s = String(raw || '').trim().toLowerCase()
+  if (s.includes('technical') || s.includes('competenc')) return 'Core Competencies'
+  if (s.includes('experience') || s.includes('tenure')) return 'Skill Tenure'
+  if (s.includes('role') || s.includes('logistic') || s.includes('alignment')) return 'Logistics & Pay'
+  if (s.includes('domain') || s.includes('industry') || s.includes('cred')) return 'Industry & Creds'
+  if (s.includes('culture') || s.includes('soft') || s.includes('execution') || s.includes('comm')) return 'Execution & Comm.'
+  return raw || 'Core Competencies'
+}
+
+
 function maskFirstInitial(fullName?: string | null): string {
   if (!fullName || typeof fullName !== 'string' || !fullName.trim()) {
     return 'Verified Candidate'
@@ -464,9 +483,16 @@ export function ApplicationRevealCard({
                   key={idx}
                   className="bg-white px-3 py-2 rounded-md border border-slate-200 flex justify-between items-center text-xs"
                 >
-                  <span className="font-semibold text-slate-600">
-                    {item.subject}
-                  </span>
+                  <div>
+                    <span className="font-bold text-slate-800 block">
+                      {item.subject}
+                    </span>
+                    {PILLAR_SUBTITLES[item.subject] && (
+                      <span className="text-[10px] font-medium text-slate-400 block">
+                        {PILLAR_SUBTITLES[item.subject]}
+                      </span>
+                    )}
+                  </div>
                   <span className="font-black text-indigo-600">
                     {item.score}%
                   </span>
