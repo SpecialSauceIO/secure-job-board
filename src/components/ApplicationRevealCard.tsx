@@ -53,6 +53,10 @@ export function ApplicationRevealCard({
 }: {
   app?: any
   application?: any
+  onStatusChange?: (
+    applicationId: string,
+    newStatus: 'unrevealed' | 'unlocked' | 'shortlisted' | 'rejected'
+  ) => void
   onStatusUpdated?: (
     applicationId: string,
     newStatus: 'unrevealed' | 'unlocked' | 'shortlisted' | 'rejected'
@@ -366,7 +370,7 @@ export function ApplicationRevealCard({
               </span>
               <span>•</span>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold text-xs border border-indigo-200/70">
-                ⚡ {candidateAvailability}
+                ⚡ {candidate?.availability_window || '2 Weeks Notice (Standard)'}
               </span>
               {candidate?.location && (
                 <>
