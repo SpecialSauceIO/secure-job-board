@@ -627,7 +627,7 @@ export default function LandingPage() {
                   ★ Limited-Time Founding Launch Bonus
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-black tracking-tight">
-                  30-Day Founding Rewardss. Full Access &amp; Lifetime Perks.
+                  30-Day Founding Rewards. Full Access &amp; Lifetime Perks.
                 </h3>
                 <p className="text-sm text-slate-300 leading-relaxed">
                   Join during our initial launch window to unlock 30 days of complimentary full access, permanent{' '}
