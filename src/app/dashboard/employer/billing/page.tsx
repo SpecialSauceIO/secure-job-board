@@ -185,7 +185,7 @@ export default function EmployerBillingPage() {
                   Active Roles
                 </span>
                 <span className="text-lg font-black text-white mt-0.5 block">
-                  {activeJobsCount} / {maxActiveJobs}
+                  {activeJobsCount} / {maxActiveJobs >= 500 ? 'Unlimited' : maxActiveJobs}
                 </span>
               </div>
               <div className="px-2 border-x border-slate-700">
@@ -201,7 +201,7 @@ export default function EmployerBillingPage() {
                   Team Seats
                 </span>
                 <span className="text-lg font-black text-emerald-400 mt-0.5 block">
-                  Up to {maxSeats}
+                  {maxSeats >= 500 ? 'Unlimited' : `Up to ${maxSeats}`}
                 </span>
               </div>
             </div>
@@ -384,10 +384,10 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Up to 15 Simultaneous Active Blind Roles</strong>
               </li>
               <li>
-                ✓ <strong>+30 Outbound Pitch Credits / month</strong>
+                ✓ <strong>+35 Outbound Pitch Credits / month</strong>
               </li>
               <li>
-                ✓ <strong>Up to 3 Team &amp; BPO Partner Seats</strong>
+                ✓ <strong>Up to 5 Team &amp; Delegated W-2 BPO Partner Seats</strong>
               </li>
               <li>
                 ✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong>
@@ -407,8 +407,8 @@ export default function EmployerBillingPage() {
               {processingTarget === 'growth'
                 ? 'Activating Growth...'
                 : activeTier === 'growth'
-                ? 'Top Up Growth (+30 Pitch Credits) →'
-                : 'Activate Growth (+30 Credits & 15 Roles) →'}
+                ? 'Top Up Growth (+35 Pitch Credits) →'
+                : 'Activate Growth (+35 Credits & 15 Roles) →'}
             </button>
           </div>
         </div>
@@ -450,13 +450,13 @@ export default function EmployerBillingPage() {
 
             <ul className="space-y-2.5 pt-4 border-t border-slate-100 text-xs text-slate-700 font-medium">
               <li>
-                ✓ <strong>Up to 50 Simultaneous Active Blind Roles</strong>
+                ✓ <strong>Unlimited Simultaneous Active Blind Roles</strong>
               </li>
               <li>
                 ✓ <strong>+100 Outbound Pitch Credits / month</strong>
               </li>
               <li>
-                ✓ <strong>Up to 10 Team &amp; Delegated BPO Seats</strong>
+                ✓ <strong>Unlimited Team &amp; Delegated W-2 BPO/RPO Seats</strong>
               </li>
               <li>
                 ✓ <strong>Workday &amp; Greenhouse ATS / Webhook API Sync</strong>
@@ -482,7 +482,7 @@ export default function EmployerBillingPage() {
                 ? 'Activating Enterprise...'
                 : activeTier === 'enterprise'
                 ? 'Top Up Enterprise (+100 Pitch Credits) →'
-                : 'Activate Enterprise (+100 Credits & 50 Roles) →'}
+                : 'Activate Enterprise (+100 Credits & Unlimited Roles) →'}
             </button>
           </div>
         </div>
@@ -544,7 +544,7 @@ export default function EmployerBillingPage() {
           >
             {processingTarget === 'growth'
               ? 'Switching...'
-              : '3. Growth ($299 • 15 Roles / 3 Seats)'}
+              : '3. Growth ($299 • 15 Roles / 5 Seats)'}
           </button>
 
           <button
@@ -559,7 +559,7 @@ export default function EmployerBillingPage() {
           >
             {processingTarget === 'enterprise'
               ? 'Switching...'
-              : '4. Enterprise ($899 • 50 Roles / ATS API)'}
+              : '4. Enterprise ($899 • Unlimited Roles / ATS & Webhook Hub)'}
           </button>
         </div>
       </div>

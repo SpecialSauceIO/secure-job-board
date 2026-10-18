@@ -3,9 +3,9 @@ import { PublicHeader } from '@/components/PublicHeader'
 import { PublicFooter } from '@/components/PublicFooter'
 
 export const metadata = {
-  title: 'Pricing, Plans & Founding Member Perks | specialsauce.io',
+  title: 'Pricing, Plans & Founding Rewards | specialsauce.io',
   description:
-    'Compare Special Sauce Candidate and Employer plans side-by-side, including 30-Day Founding Member and Founding Partner launch rewards.',
+    'Compare Special Sauce Candidate plans (Explorer, Professional, Prestige) and Employer plans (Starter, Growth, Enterprise with Workday & Greenhouse ATS Webhooks). First 30 days $0 during our Launch Window.',
 }
 
 export default function PricingMatrixPage() {
@@ -15,255 +15,426 @@ export default function PricingMatrixPage() {
         <PublicHeader />
 
         {/* Hero Header */}
-        <section className="py-16 md:py-20 px-6 md:px-12 max-w-5xl mx-auto text-center space-y-4">
+        <section className="py-14 md:py-20 px-6 md:px-12 max-w-5xl mx-auto text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs font-extrabold uppercase tracking-wide">
-            <span>★ Early-Access Launch • Founding Memberships Open</span>
+            <span>★ Early-Access Launch • First 30 Days $0 Across All Plans</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
             Transparent Plans &amp; Founding Rewards
           </h1>
-          <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Whether you&apos;re exploring your next career move in privacy or hiring verified talent across 28 industry verticals, compare every plan and launch reward side by side.
+          <p className="text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
+            Whether you&apos;re exploring your next career move in privacy or hiring verified talent across 28 industry verticals, your first 30 days are <strong className="text-slate-900">$0</strong> during our launch window.
           </p>
         </section>
 
-        {/* Main Matrix Container */}
+        {/* Main 3x3 Matrix Container */}
         <main className="max-w-7xl mx-auto px-6 md:px-12 pb-24 space-y-20">
-          {/* CANDIDATE PLANS */}
-          <div className="space-y-8">
-            <div className="text-center space-y-2">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                For Job Seekers &amp; Passive Professionals
-              </span>
-              <h2 className="text-3xl font-black text-slate-900">
-                Candidate Plans &amp; Founding Member Perks
-              </h2>
-              <p className="text-sm text-slate-500 max-w-xl mx-auto">
-                Your passive career vault and inbound employer pitches stay $0 forever. Verify during launch to claim 30 days of Founding Member rewards.
-              </p>
+          {/* ================================================================
+              SECTION 1: CANDIDATE PLANS (Explorer $0 / Professional $9 / Prestige $15)
+             ================================================================ */}
+          <div className="rounded-3xl border-2 border-amber-400 bg-gradient-to-b from-amber-50/60 via-white to-white p-6 sm:p-10 shadow-md space-y-8 relative overflow-hidden">
+            {/* Top Unified Gold Launch Banner */}
+            <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-7 border border-amber-400/60 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div className="space-y-1.5">
+                <div className="inline-flex items-center gap-2 text-amber-300 text-xs font-extrabold uppercase tracking-wider">
+                  <span>★ Candidate Founding Member Launch Window</span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                  First 30 Days Free on Any Plan + Permanent Founding Member Badge
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
+                  Enroll during our launch window to try <strong className="text-white">Professional</strong> or <strong className="text-white">Prestige</strong> for <strong className="text-emerald-300">$0 for your first 30 days</strong>. You permanently keep your <strong className="text-amber-300">★ Founding Member Badge</strong> on any tier, while the <strong className="text-amber-300">1.25x XP Rank Multiplier</strong> and <strong className="text-amber-300">Gold Profile Card Border</strong> remain active on paid plans.
+                </p>
+              </div>
+              <div className="shrink-0">
+                <Link
+                  href="/signup/candidate"
+                  className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs sm:text-sm font-black transition-colors shadow-sm"
+                >
+                  Start 30-Day Free Trial →
+                </Link>
+              </div>
             </div>
 
+            {/* 3 Candidate Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Tier 1: Free Explorer */}
+              {/* Tier 1: Explorer ($0) */}
               <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-6">
                 <div className="space-y-4">
                   <div>
                     <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
                       Passive Career Vault
                     </span>
-                    <h3 className="text-2xl font-black text-slate-900">Free Explorer</h3>
-                    <div className="text-3xl font-black text-slate-900 mt-2">
-                      $0 <span className="text-xs font-normal text-slate-500">/ forever</span>
+                    <h3 className="text-2xl font-black text-slate-900 mt-0.5">
+                      Explorer
+                    </h3>
+                    <div className="mt-3 flex items-baseline gap-1.5">
+                      <span className="text-3xl font-black text-slate-900">$0</span>
+                      <span className="text-xs font-bold text-slate-500">/ forever</span>
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Ideal for passive professionals who want to check AI Fit scores and receive inbound employer pitches without risking their current job.
+                    Ideal when you&apos;re happily employed. Keep your anonymous profile live in the talent pool and let verified employers pitch you first.
                   </p>
-                  <ul className="space-y-2.5 text-xs text-slate-700">
-                    <li className="flex items-center gap-2">✓ Browse blind role feed &amp; real pay bands</li>
-                    <li className="flex items-center gap-2">✓ Unlimited 5-Pillar AI Fit Radar checks</li>
-                    <li className="flex items-center gap-2">✓ Unlimited inbound employer pitches &amp; chat</li>
-                    <li className="flex items-center gap-2">✓ 2-Stage Identity &amp; Resume Vault protection</li>
-                    <li className="flex items-center gap-2 text-slate-400">✕ Outbound blind applications</li>
+                  <ul className="space-y-2.5 pt-3 border-t border-slate-100 text-xs text-slate-700 font-medium">
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span><strong>Unlimited Inbound Employer Pitches</strong> &amp; Stage 1/2 Chat (100% Free)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span>Browse blind role feed &amp; transparent pay bands</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span>Unlimited 5-Point AI Fit Radar checks</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span>2-Stage Identity &amp; PDF Resume Vault protection</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-600 font-bold">★</span>
+                      <span>Keeps permanent <strong>Founding Member Badge</strong> (1.0x standard XP)</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-slate-400">
+                      <span>✕</span>
+                      <span>Outbound blind applications (Inbound pitches only)</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-slate-400">
+                      <span>✕</span>
+                      <span>1.25x XP Multiplier &amp; Gold Profile Border (Paid plans only)</span>
+                    </li>
                   </ul>
                 </div>
                 <Link
                   href="/signup/candidate"
                   className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-xs rounded-xl text-center transition-colors"
                 >
-                  Create Free Vault →
+                  Create Free Explorer Vault →
                 </Link>
               </div>
 
-              {/* Tier 2: 30-Day Founding Member Launch */}
+              {/* Tier 2: Professional ($9/mo - First 30 Days Free) */}
               <div className="bg-white p-8 rounded-2xl border-2 border-amber-500 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 bg-amber-500 text-slate-900 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
-                  ★ Launch Window
+                <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
+                  ★ First 30 Days $0
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-amber-600">
-                      Early-Access Enrollment
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-amber-700">
+                      Targeted Job Seeker
                     </span>
-                    <h3 className="text-2xl font-black text-slate-900">Founding Member</h3>
-                    <div className="text-3xl font-black text-slate-900 mt-2">
-                      $0 <span className="text-xs font-normal text-slate-500">for 30 Days</span>
+                    <h3 className="text-2xl font-black text-slate-900 mt-0.5">
+                      Professional
+                    </h3>
+                    <div className="mt-3 flex items-baseline gap-2">
+                      <span className="text-3xl font-black text-slate-900">$9</span>
+                      <span className="text-xs font-bold text-slate-500">/ mo after 30-day free trial</span>
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Verify your identity during our launch window to unlock 30 days of outbound access plus permanent lifetime founder privileges.
+                    Built for selective professionals actively applying to high-fit roles while unlocking accelerated XP and Founder Gold Trim.
                   </p>
-                  <ul className="space-y-2.5 text-xs text-slate-700">
-                    <li className="flex items-center gap-2 font-bold text-amber-700">★ Permanent Gold Founding Member Badge</li>
-                    <li className="flex items-center gap-2 font-bold text-amber-700">★ Permanent 1.25x XP Rank Multiplier</li>
-                    <li className="flex items-center gap-2">✓ <strong>15 Free Outbound Blind Applications</strong> (30 days)</li>
-                    <li className="flex items-center gap-2">✓ Lifetime <strong>$9/mo Founder&apos;s Rate Lock</strong> (25% off Pro)</li>
-                    <li className="flex items-center gap-2">✓ Automatic $0 Passive Vault if you don&apos;t upgrade</li>
+                  <ul className="space-y-2.5 pt-3 border-t border-slate-100 text-xs text-slate-700 font-medium">
+                    <li className="flex items-start gap-2 text-amber-800 font-bold">
+                      <span>★</span>
+                      <span><strong>First 30 Days Free ($0)</strong> during Launch Window</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span><strong>15 Outbound Blind Applications / month</strong> (40%+ AI Fit)</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-amber-800 font-bold">
+                      <span>★</span>
+                      <span><strong>Active 1.25x Profile XP Multiplier</strong> &amp; Rank Boost</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-amber-800 font-bold">
+                      <span>★</span>
+                      <span><strong>Active Gold Founding Member Card Border</strong> &amp; Badge</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span>Unlimited 5-Point AI Fit Radar checks &amp; Inbound Pitches</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span>Elevated placement in Employer Talent Search</span>
+                    </li>
                   </ul>
                 </div>
                 <Link
                   href="/signup/candidate"
-                  className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-900 font-black text-xs rounded-xl text-center transition-colors shadow-sm"
+                  className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl text-center transition-colors shadow-sm"
                 >
-                  Claim Founding Member Status →
+                  Start 30-Day Free Professional Trial →
                 </Link>
               </div>
 
-              {/* Tier 3: Candidate Pro */}
-              <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-6">
+              {/* Tier 3: Prestige ($15/mo - First 30 Days Free) */}
+              <div className="bg-slate-900 text-white p-8 rounded-2xl border-2 border-indigo-500 shadow-lg flex flex-col justify-between space-y-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
+                  ★ First 30 Days $0
+                </div>
                 <div className="space-y-4">
                   <div>
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-600">
-                      Active Job Seeker
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-300">
+                      Unlimited &amp; Priority Reach
                     </span>
-                    <h3 className="text-2xl font-black text-slate-900">Candidate Pro</h3>
-                    <div className="text-3xl font-black text-slate-900 mt-2">
-                      $12 <span className="text-xs font-normal text-slate-500">/ mo ($9/mo for Founders)</span>
+                    <h3 className="text-2xl font-black text-white mt-0.5">
+                      Prestige
+                    </h3>
+                    <div className="mt-3 flex items-baseline gap-2">
+                      <span className="text-3xl font-black text-white">$15</span>
+                      <span className="text-xs font-bold text-slate-300">/ mo after 30-day free trial</span>
                     </div>
                   </div>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    For active professionals submitting ongoing outbound applications with priority placement in Employer Talent Search.
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Maximum visibility and zero application caps for active job seekers ready to transition fast.
                   </p>
-                  <ul className="space-y-2.5 text-xs text-slate-700">
-                    <li className="flex items-center gap-2">✓ <strong>Unlimited Outbound Blind Applications</strong></li>
-                    <li className="flex items-center gap-2">✓ Priority placement in Employer Talent Search</li>
-                    <li className="flex items-center gap-2">✓ Unlimited 5-Pillar AI Fit Radar checks</li>
-                    <li className="flex items-center gap-2">✓ Verified Candidate trust badge</li>
-                    <li className="flex items-center gap-2">✓ Cancel or pause anytime back to $0 Vault</li>
+                  <ul className="space-y-2.5 pt-3 border-t border-slate-800 text-xs text-slate-200 font-medium">
+                    <li className="flex items-start gap-2 text-amber-300 font-bold">
+                      <span>★</span>
+                      <span><strong>First 30 Days Free ($0)</strong> during Launch Window</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-400 font-bold">✓</span>
+                      <span><strong>Unlimited Outbound Blind Applications</strong> (40%+ AI Fit)</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-amber-300 font-bold">
+                      <span>★</span>
+                      <span><strong>Top-Priority Placement</strong> in Employer Talent Search</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-amber-300 font-bold">
+                      <span>★</span>
+                      <span><strong>Active 1.25x Profile XP Multiplier</strong> &amp; Fast-Track Apex Rank</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-amber-300 font-bold">
+                      <span>★</span>
+                      <span><strong>Active Gold Founding Member Card Border</strong> &amp; Badge</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-400 font-bold">✓</span>
+                      <span>Switch or downgrade to $0 Explorer anytime</span>
+                    </li>
                   </ul>
                 </div>
                 <Link
                   href="/signup/candidate"
-                  className="w-full py-3 bg-slate-900 hover:bg-indigo-600 text-white font-extrabold text-xs rounded-xl text-center transition-colors"
+                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm"
                 >
-                  Start With 30-Day Launch Access →
+                  Start 30-Day Free Prestige Trial →
                 </Link>
               </div>
             </div>
           </div>
 
-          {/* EMPLOYER PLANS */}
-          <div className="space-y-8 pt-12 border-t border-slate-200">
-            <div className="text-center space-y-2">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">
-                For Verified Companies &amp; Hiring Teams
-              </span>
-              <h2 className="text-3xl font-black text-slate-900">
-                Employer Plans &amp; Founding Partner Perks
-              </h2>
-              <p className="text-sm text-slate-500 max-w-2xl mx-auto">
-                Verify your corporate domain during launch to claim <strong>30 Days of Founding Partner Access ($99 Starter Value for $0)</strong>—including 5 active blind job slots, 10 outbound pitch credits, 2 team seats, and a permanent ★ Founding Partner badge.
-              </p>
+          {/* ================================================================
+              SECTION 2: EMPLOYER PLANS (Starter $99 / Growth $299 / Enterprise $899)
+             ================================================================ */}
+          <div className="rounded-3xl border-2 border-amber-400 bg-gradient-to-b from-indigo-50/50 via-white to-white p-6 sm:p-10 shadow-md space-y-8 relative overflow-hidden">
+            {/* Top Unified Gold Launch Banner */}
+            <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-7 border border-amber-400/60 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div className="space-y-1.5">
+                <div className="inline-flex items-center gap-2 text-amber-300 text-xs font-extrabold uppercase tracking-wider">
+                  <span>★ Employer Founding Partner Launch Window</span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                  First 30 Days Free on Any Employer Plan + Permanent Founding Partner Status
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
+                  Verify your corporate domain during launch to experience <strong className="text-white">Starter, Growth, or Enterprise</strong> for <strong className="text-emerald-300">$0 for your first 30 days</strong>. Reviewing and unlocking inbound candidate applications is <strong className="text-white">100% free (0 credits)</strong> across all plans, and active subscribers keep the <strong className="text-amber-300">★ Founding Partner Gold Trim &amp; 1.25x XP Multiplier</strong>.
+                </p>
+              </div>
+              <div className="shrink-0">
+                <Link
+                  href="/signup/employer"
+                  className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs sm:text-sm font-black transition-colors shadow-sm"
+                >
+                  Claim 30-Day Free Employer Trial →
+                </Link>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              {/* Free Explorer */}
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-6">
-                <div className="space-y-3">
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
-                    Browse Only
-                  </span>
-                  <h3 className="text-xl font-bold text-slate-900">Free Explorer</h3>
-                  <div className="text-2xl font-black text-slate-900">$0</div>
-                  <p className="text-xs text-slate-500">Explore the anonymized talent pool before subscribing.</p>
-                  <ul className="space-y-2 text-xs text-slate-700">
-                    <li>✓ Search anonymized talent pool</li>
-                    <li>✓ Preview candidate skill &amp; language matrices</li>
-                    <li className="text-slate-400">✕ Active job slots (0)</li>
-                    <li className="text-slate-400">✕ Outbound pitch credits (0)</li>
-                  </ul>
+            {/* 3 Employer Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Employer Tier 1: Starter ($99/mo) */}
+              <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
+                  ★ First 30 Days $0
                 </div>
-                <Link
-                  href="/signup/employer"
-                  className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-xs rounded-xl text-center"
-                >
-                  Create Employer Account
-                </Link>
-              </div>
-
-              {/* Starter */}
-              <div className="bg-white p-6 rounded-2xl border-2 border-indigo-600 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 bg-amber-500 text-slate-900 text-[9px] font-black uppercase px-2.5 py-1 rounded-bl-lg">
-                  ★ $0 First 30 Days
-                </div>
-                <div className="space-y-3">
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">
-                    Small Teams + Launch Bonus
-                  </span>
-                  <h3 className="text-xl font-bold text-slate-900">Starter</h3>
-                  <div className="text-2xl font-black text-slate-900">
-                    $99 <span className="text-xs font-normal text-slate-500">/mo</span>
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-600">
+                      Small Teams &amp; Focused Hiring
+                    </span>
+                    <h3 className="text-2xl font-black text-slate-900 mt-0.5">
+                      Starter
+                    </h3>
+                    <div className="mt-3 flex items-baseline gap-2">
+                      <span className="text-3xl font-black text-slate-900">$99</span>
+                      <span className="text-xs font-bold text-slate-500">/ mo after 30-day free trial</span>
+                    </div>
                   </div>
-                  <p className="text-xs text-slate-500">
-                    Includes 30-day Founding Partner launch bonus upon domain verification.
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Built for small businesses and hiring managers filling 1 to 5 active roles at a time.
                   </p>
-                  <ul className="space-y-2 text-xs text-slate-700 font-medium">
-                    <li className="text-amber-700 font-bold">★ Permanent Founding Partner Badge</li>
-                    <li>✓ <strong>3 Active Roles</strong> (5 during 30-day launch)</li>
-                    <li>✓ <strong>10 Outbound Pitches / mo</strong></li>
-                    <li>✓ Unlimited Free Inbound Applicant Unlocks</li>
-                    <li>✓ <strong>2 Team Seats</strong></li>
+                  <ul className="space-y-2.5 pt-3 border-t border-slate-100 text-xs text-slate-700 font-medium">
+                    <li className="flex items-start gap-2 text-amber-800 font-bold">
+                      <span>★</span>
+                      <span><strong>First 30 Days Free ($0)</strong> upon domain verification</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span><strong>Up to 5 Simultaneous Active Blind Roles</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span><strong>10 Outbound Talent Pitch Credits / month</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span><strong>Unlimited Free Inbound Applicant Unlocks</strong> (0 credits)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span><strong>2 Team / BPO Collaborator Seats</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2 text-amber-800 font-bold">
+                      <span>★</span>
+                      <span><strong>Founding Partner Gold Badge, Border &amp; 1.25x XP</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2 text-slate-400">
+                      <span>✕</span>
+                      <span>Workday &amp; Greenhouse ATS / Webhook Hub (Enterprise)</span>
+                    </li>
                   </ul>
                 </div>
                 <Link
                   href="/signup/employer"
-                  className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl text-center shadow-sm"
+                  className="w-full py-3 bg-slate-900 hover:bg-indigo-600 text-white font-extrabold text-xs rounded-xl text-center transition-colors shadow-sm"
                 >
-                  Claim 30-Day Partner Access →
+                  Start 30-Day Free Starter Trial →
                 </Link>
               </div>
 
-              {/* Growth */}
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-6">
-                <div className="space-y-3">
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">
-                    Scaling Organizations
-                  </span>
-                  <h3 className="text-xl font-bold text-slate-900">Growth</h3>
-                  <div className="text-2xl font-black text-slate-900">
-                    $299 <span className="text-xs font-normal text-slate-500">/mo</span>
+              {/* Employer Tier 2: Growth ($299/mo) */}
+              <div className="bg-slate-900 text-white p-8 rounded-2xl border-2 border-indigo-500 shadow-lg flex flex-col justify-between space-y-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
+                  ★ Most Popular • First 30 Days $0
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-300">
+                      Scaling &amp; Multi-Department Teams
+                    </span>
+                    <h3 className="text-2xl font-black text-white mt-0.5">
+                      Growth
+                    </h3>
+                    <div className="mt-3 flex items-baseline gap-2">
+                      <span className="text-3xl font-black text-white">$299</span>
+                      <span className="text-xs font-bold text-slate-300">/ mo after 30-day free trial</span>
+                    </div>
                   </div>
-                  <p className="text-xs text-slate-500">For mid-market teams hiring across multiple departments.</p>
-                  <ul className="space-y-2 text-xs text-slate-700">
-                    <li className="text-amber-700 font-bold">★ Permanent Founding Partner Badge</li>
-                    <li>✓ <strong>10 Active Roles</strong></li>
-                    <li>✓ <strong>35 Outbound Pitches / mo</strong></li>
-                    <li>✓ Unlimited Free Inbound Applicant Unlocks</li>
-                    <li>✓ <strong>5 Team Seats</strong> + BPO Partner Delegation</li>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Designed for scaling companies actively sourcing passive talent across multiple departments.
+                  </p>
+                  <ul className="space-y-2.5 pt-3 border-t border-slate-800 text-xs text-slate-200 font-medium">
+                    <li className="flex items-start gap-2 text-amber-300 font-bold">
+                      <span>★</span>
+                      <span><strong>First 30 Days Free ($0)</strong> upon domain verification</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-400 font-bold">✓</span>
+                      <span><strong>Up to 15 Simultaneous Active Blind Roles</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-400 font-bold">✓</span>
+                      <span><strong>35 Outbound Talent Pitch Credits / month</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-400 font-bold">✓</span>
+                      <span><strong>Unlimited Free Inbound Applicant Unlocks</strong> (0 credits)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-400 font-bold">✓</span>
+                      <span><strong>Up to 5 Team &amp; Delegated W-2 BPO Partner Seats</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2 text-amber-300 font-bold">
+                      <span>★</span>
+                      <span><strong>Founding Partner Gold Badge, Border &amp; 1.25x XP</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2 text-slate-500">
+                      <span>✕</span>
+                      <span>Workday &amp; Greenhouse ATS / Webhook Hub (Enterprise)</span>
+                    </li>
                   </ul>
                 </div>
                 <Link
                   href="/signup/employer"
-                  className="w-full py-2.5 bg-slate-900 hover:bg-indigo-600 text-white font-extrabold text-xs rounded-xl text-center"
+                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm"
                 >
-                  Select Growth →
+                  Start 30-Day Free Growth Trial →
                 </Link>
               </div>
 
-              {/* Enterprise */}
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-6">
-                <div className="space-y-3">
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">
-                    High-Volume &amp; Enterprise
-                  </span>
-                  <h3 className="text-xl font-bold text-slate-900">Enterprise</h3>
-                  <div className="text-2xl font-black text-slate-900">
-                    $899 <span className="text-xs font-normal text-slate-500">/mo</span>
+              {/* Employer Tier 3: Enterprise ($899/mo) */}
+              <div className="bg-white p-8 rounded-2xl border-2 border-amber-500 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
+                  ★ ATS &amp; Webhook Hub • First 30 Days $0
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-700">
+                      Enterprise, High-Volume &amp; ATS Connected
+                    </span>
+                    <h3 className="text-2xl font-black text-slate-900 mt-0.5">
+                      Enterprise
+                    </h3>
+                    <div className="mt-3 flex items-baseline gap-2">
+                      <span className="text-3xl font-black text-slate-900">$899</span>
+                      <span className="text-xs font-bold text-slate-500">/ mo after 30-day free trial</span>
+                    </div>
                   </div>
-                  <p className="text-xs text-slate-500">For multi-location enterprises and authorized W-2 RPOs.</p>
-                  <ul className="space-y-2 text-xs text-slate-700">
-                    <li className="text-amber-700 font-bold">★ Permanent Founding Partner Badge</li>
-                    <li>✓ <strong>Unlimited Active Roles</strong></li>
-                    <li>✓ <strong>100 Outbound Pitches / mo</strong></li>
-                    <li>✓ Unlimited Free Inbound Applicant Unlocks</li>
-                    <li>✓ <strong>Unlimited Team Seats</strong> &amp; Priority Support</li>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Built for high-velocity talent acquisition teams, multi-location enterprises, and W-2 RPOs requiring automated HRIS/ATS synchronization.
+                  </p>
+                  <ul className="space-y-2.5 pt-3 border-t border-slate-100 text-xs text-slate-700 font-medium">
+                    <li className="flex items-start gap-2 text-amber-800 font-bold">
+                      <span>★</span>
+                      <span><strong>First 30 Days Free ($0)</strong> upon domain verification</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span><strong>Unlimited Simultaneous Active Blind Roles</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span><strong>100 Outbound Talent Pitch Credits / month</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2 text-indigo-700 font-bold">
+                      <span>⚡</span>
+                      <span><strong>Workday &amp; Enterprise Outbound Webhook (HMAC-SHA256)</strong> — real-time signed <code>candidate.vault_released</code> JSON payloads (Workday, MuleSoft, Zapier, Ashby)</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-indigo-700 font-bold">
+                      <span>⚡</span>
+                      <span><strong>Native Greenhouse Harvest API Connector</strong> — auto-syncs Stage 2 PDF resumes &amp; 5-Point AI Fit scorecards</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span><strong>Unlimited Team &amp; Delegated W-2 BPO/RPO Seats</strong> + CSV Pipeline Export</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-amber-800 font-bold">
+                      <span>★</span>
+                      <span><strong>Founding Partner Gold Badge, Border &amp; 1.25x XP</strong></span>
+                    </li>
                   </ul>
                 </div>
                 <Link
                   href="/signup/employer"
-                  className="w-full py-2.5 bg-slate-900 hover:bg-indigo-600 text-white font-extrabold text-xs rounded-xl text-center"
+                  className="w-full py-3 bg-slate-900 hover:bg-indigo-600 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm"
                 >
-                  Select Enterprise →
+                  Start 30-Day Free Enterprise Trial →
                 </Link>
               </div>
             </div>

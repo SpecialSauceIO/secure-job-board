@@ -534,25 +534,25 @@ export default function LandingPage() {
               <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 space-y-1.5">
                   <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400 block">
-                    ★ Founding Member (Candidates)
+                    ★ Candidates (Explorer • Professional • Prestige)
                   </span>
                   <div className="text-lg font-black text-white">
-                    30-Day Member Rewards
+                    First 30 Days $0
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed">
-                    15 Free Outbound Blind Applications + $0 Forever Passive Career Vault + $9/mo Rate Lock.
+                    $0 Explorer Vault forever, or try Professional ($9/mo, 15 apps) &amp; Prestige ($15/mo, Unlimited apps + 1.25x XP &amp; Gold Trim) free for 30 days.
                   </p>
                 </div>
 
                 <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 space-y-1.5">
                   <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-300 block">
-                    ★ Founding Partner (Employers)
+                    ★ Employers (Starter • Growth • Enterprise)
                   </span>
                   <div className="text-lg font-black text-white">
-                    30-Day Partner Rewards
+                    First 30 Days $0
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed">
-                    5 Active Blind Role Slots + 10 Outbound Pitch Credits + 2 Team Seats + Unlimited Free Inbound Unlocks.
+                    Try Starter (5 roles), Growth (15 roles), or Enterprise (Unlimited roles + Workday &amp; Greenhouse ATS Webhooks) free for 30 days.
                   </p>
                 </div>
               </div>

@@ -391,7 +391,7 @@ function enrichJobRecord(job: any) {
 }
 
 export async function resolveCandidateTierInfo(candidateUserId?: string): Promise<{
-  tier: 'trial' | 'free' | 'pro'
+  tier: 'explorer' | 'professional' | 'prestige' | 'trial' | 'free' | 'pro'
   label: string
   canApply: boolean
   appsUsed: number
@@ -411,8 +411,8 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
 
   if (!targetUserId) {
     return {
-      tier: 'trial',
-      label: `★ Founding Member Rewards (${CANDIDATE_TRIAL_DAYS}d Free)`,
+      tier: 'professional',
+      label: `★ Professional Plan (${CANDIDATE_TRIAL_DAYS}d Free Launch Trial · 15 Apps/mo)`,
       canApply: true,
       appsUsed: 0,
       freeAppsRemaining: CANDIDATE_TRIAL_MAX_APPS,
@@ -434,12 +434,13 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
     .neq('initiated_by', 'employer')
 
   const meta = extractCandidateMeta(profile?.structured_skills)
-  const rawPlan = meta.plan
+  const rawPlan = String(meta.plan || '').toLowerCase()
 
-  if (rawPlan === 'pro') {
+  // Prestige ($15/mo - Unlimited Outbound Applications)
+  if (rawPlan === 'prestige' || rawPlan === 'pro') {
     return {
-      tier: 'pro',
-      label: 'Candidate Pro ($9/mo)',
+      tier: 'prestige',
+      label: 'Prestige Plan ($15/mo · First 30d $0 · Unlimited Apps)',
       canApply: true,
       appsUsed: totalOutboundApps || 0,
       freeAppsRemaining: 999,
@@ -448,23 +449,25 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
     }
   }
 
-  if (rawPlan === 'expired') {
+  // Explorer ($0/forever - Inbound & Browse Only)
+  if (rawPlan === 'explorer' || rawPlan === 'expired' || rawPlan === 'free') {
     return {
-      tier: 'free',
-      label: 'Passive Vault Mode (Founding Rewards Ended)',
+      tier: 'explorer',
+      label: 'Explorer Plan ($0/Forever · Passive Career Vault)',
       canApply: false,
-      appsUsed: CANDIDATE_TRIAL_MAX_APPS,
+      appsUsed: totalOutboundApps || 0,
       freeAppsRemaining: 0,
       daysRemaining: 0,
       trialExpired: true,
     }
   }
 
+  // Professional ($9/mo - 15 Outbound Applications/mo, First 30 Days Free)
   const baseline = meta.trialBaselineApps || 0
-  const appsUsedInTrial = Math.max(0, (totalOutboundApps || 0) - baseline)
+  const appsUsedInCycle = Math.max(0, (totalOutboundApps || 0) - baseline)
   const freeAppsRemaining = Math.max(
     0,
-    CANDIDATE_TRIAL_MAX_APPS - appsUsedInTrial
+    CANDIDATE_TRIAL_MAX_APPS - appsUsedInCycle
   )
 
   const startIso =
@@ -473,14 +476,14 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
   const elapsedDays = Math.floor(elapsedMs / (1000 * 60 * 60 * 24))
   const daysRemaining = Math.max(0, CANDIDATE_TRIAL_DAYS - elapsedDays)
 
-  const trialExpired = freeAppsRemaining <= 0 || daysRemaining <= 0
+  const quotaExhausted = freeAppsRemaining <= 0
 
-  if (trialExpired) {
+  if (quotaExhausted) {
     return {
-      tier: 'free',
-      label: 'Passive Vault Mode (Founding Rewards Ended)',
+      tier: 'professional',
+      label: 'Professional Plan ($9/mo · 0/15 Monthly Applications Left — Upgrade to Prestige for Unlimited)',
       canApply: false,
-      appsUsed: appsUsedInTrial,
+      appsUsed: appsUsedInCycle,
       freeAppsRemaining: 0,
       daysRemaining,
       trialExpired: true,
@@ -488,10 +491,10 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
   }
 
   return {
-    tier: 'trial',
-    label: `★ Founding Rewards (${freeAppsRemaining}/${CANDIDATE_TRIAL_MAX_APPS} Free Apps · ${daysRemaining}d left)`,
+    tier: 'professional',
+    label: `★ Professional Plan ($9/mo · First 30d $0 · ${freeAppsRemaining}/${CANDIDATE_TRIAL_MAX_APPS} Apps Left)`,
     canApply: true,
-    appsUsed: appsUsedInTrial,
+    appsUsed: appsUsedInCycle,
     freeAppsRemaining,
     daysRemaining,
     trialExpired: false,
@@ -499,13 +502,22 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
 }
 
 export async function activateSandboxCandidateTier(
-  targetMode: 'trial' | 'expired' | 'pro'
+  targetMode: 'explorer' | 'professional' | 'prestige' | 'trial' | 'expired' | 'pro'
 ) {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Unauthorized' }
+
+  const normalizedMode =
+    targetMode === 'free' || targetMode === 'expired'
+      ? 'explorer'
+      : targetMode === 'trial'
+      ? 'professional'
+      : targetMode === 'pro'
+      ? 'prestige'
+      : targetMode
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -524,9 +536,9 @@ export async function activateSandboxCandidateTier(
 
   const newMeta = {
     _ss_meta: true,
-    plan: targetMode,
+    plan: normalizedMode,
     trialStart: new Date().toISOString(),
-    trialBaselineApps: targetMode === 'trial' ? currentApps || 0 : 0,
+    trialBaselineApps: normalizedMode === 'professional' ? currentApps || 0 : 0,
   }
 
   const updatedSkillsArray = [
@@ -542,16 +554,22 @@ export async function activateSandboxCandidateTier(
 
   if (error) return { error: error.message }
 
-  if (targetMode === 'pro') {
-    const refId = `SS-CPRO${Date.now().toString().slice(-5)}`
+  if (normalizedMode === 'prestige' || normalizedMode === 'professional') {
+    const refId = `SS-CAND${Date.now().toString().slice(-5)}`
+    const isPrestige = normalizedMode === 'prestige'
     await sendPlatformNotification({
       to: user.email,
-      subject: 'Candidate Pro Pass ($9/mo) Activated!',
+      subject: isPrestige
+        ? 'Candidate Prestige Plan ($15/mo · First 30d $0) Activated!'
+        : 'Candidate Professional Plan ($9/mo · First 30d $0) Activated!',
       referenceId: refId,
-      heading: 'Welcome to Candidate Pro ($9/month)',
+      heading: isPrestige
+        ? 'Welcome to Candidate Prestige ($15/mo · First 30 Days Free)'
+        : 'Welcome to Candidate Professional ($9/mo · First 30 Days Free)',
       bodyLines: [
-        'Your Candidate Pro Pass is now active.',
-        'You have unlocked unlimited blind job applications (for all roles where you score 40%+ on the AI Match Radar) and priority placement in Employer searches.',
+        isPrestige
+          ? 'Your Candidate Prestige plan is active with Unlimited Outbound Blind Applications, Top-Priority Employer Search placement, active 1.25x XP Multiplier, and Gold Founding Member Card Trim.'
+          : 'Your Candidate Professional plan is active with 15 Outbound Blind Applications per month, active 1.25x XP Multiplier, and Gold Founding Member Card Trim.',
         `Subscription Reference ID: ${refId}`,
       ],
       ctaUrl: '/dashboard/jobs',
@@ -569,11 +587,11 @@ export async function activateSandboxCandidateTier(
     success: true,
     tierInfo,
     message:
-      targetMode === 'pro'
-        ? 'Activated Candidate Pro Pass ($9/mo)! Unlimited blind applications unlocked.'
-        : targetMode === 'expired'
-        ? 'Simulated Founding Rewards Ended (0 Free Applications Remaining). Try applying to a role on /dashboard/jobs to test the $9/mo upgrade prompt!'
-        : `Reset 30-Day Founding Member Rewards! You have ${CANDIDATE_TRIAL_MAX_APPS} fresh free blind applications and ${CANDIDATE_TRIAL_DAYS} days remaining.`,
+      normalizedMode === 'prestige'
+        ? '✓ Activated Prestige Plan ($15/mo · First 30 Days $0)! Unlimited outbound applications, 1.25x XP Boost & Gold Trim active.'
+        : normalizedMode === 'professional'
+        ? '✓ Activated Professional Plan ($9/mo · First 30 Days $0)! 15 monthly outbound applications, 1.25x XP Boost & Gold Trim active.'
+        : '✓ Switched to Explorer Plan ($0/Forever Passive Vault). Inbound employer pitches remain 100% free; outbound applications & 1.25x XP paused.',
   }
 }
 
@@ -608,25 +626,25 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   if (explicitTier === 'enterprise') {
     return {
       tier: 'enterprise',
-      label: 'Enterprise Tier',
-      maxActiveJobs: 50,
+      label: 'Enterprise Tier ($899/mo · First 30d $0)',
+      maxActiveJobs: 999,
       monthlyCredits: 100,
-      maxSeats: 10,
+      maxSeats: 999,
     }
   }
   if (explicitTier === 'growth') {
     return {
       tier: 'growth',
-      label: 'Growth Tier',
+      label: 'Growth Tier ($299/mo · First 30d $0)',
       maxActiveJobs: 15,
-      monthlyCredits: 30,
-      maxSeats: 3,
+      monthlyCredits: 35,
+      maxSeats: 5,
     }
   }
   if (explicitTier === 'starter') {
     return {
       tier: 'starter',
-      label: 'Starter Tier',
+      label: 'Starter Tier ($99/mo · First 30d $0)',
       maxActiveJobs: 5,
       monthlyCredits: 10,
       maxSeats: 2,
@@ -672,25 +690,25 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   if (totalCapacity >= 50) {
     return {
       tier: 'enterprise',
-      label: 'Enterprise Tier',
-      maxActiveJobs: 50,
+      label: 'Enterprise Tier ($899/mo · First 30d $0)',
+      maxActiveJobs: 999,
       monthlyCredits: 100,
-      maxSeats: 10,
+      maxSeats: 999,
     }
   }
   if (totalCapacity >= 20) {
     return {
       tier: 'growth',
-      label: 'Growth Tier',
+      label: 'Growth Tier ($299/mo · First 30d $0)',
       maxActiveJobs: 15,
-      monthlyCredits: 30,
-      maxSeats: 3,
+      monthlyCredits: 35,
+      maxSeats: 5,
     }
   }
   if (credits > 0 || sent > 0) {
     return {
       tier: 'starter',
-      label: 'Starter Tier',
+      label: 'Starter Tier ($99/mo · First 30d $0)',
       maxActiveJobs: 5,
       monthlyCredits: 10,
       maxSeats: 2,

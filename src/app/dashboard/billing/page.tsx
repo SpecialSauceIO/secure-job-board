@@ -12,7 +12,7 @@ import {
 export default function CandidateBillingPage() {
   const router = useRouter()
   const [tierInfo, setTierInfo] = useState<{
-    tier: 'trial' | 'free' | 'pro'
+    tier: 'explorer' | 'professional' | 'prestige' | 'trial' | 'free' | 'pro'
     label: string
     canApply: boolean
     appsUsed: number
@@ -66,8 +66,8 @@ export default function CandidateBillingPage() {
     loadCandidateBillingState()
   }, [loadCandidateBillingState])
 
-  const handleSandboxSwitch = async (
-    targetMode: 'trial' | 'expired' | 'pro'
+  const handlePlanSwitch = async (
+    targetMode: 'explorer' | 'professional' | 'prestige'
   ) => {
     setIsProcessing(true)
     setFeedback(null)
@@ -79,7 +79,7 @@ export default function CandidateBillingPage() {
       setTierInfo(res.tierInfo)
       setFeedback({
         type: 'success',
-        text: res.message || 'Membership state updated.',
+        text: res.message || 'Membership plan updated.',
       })
       router.refresh()
     }
@@ -87,16 +87,25 @@ export default function CandidateBillingPage() {
     setIsProcessing(false)
   }
 
+  const normalizedTier =
+    tierInfo?.tier === 'free'
+      ? 'explorer'
+      : tierInfo?.tier === 'pro'
+      ? 'prestige'
+      : tierInfo?.tier === 'trial'
+      ? 'professional'
+      : tierInfo?.tier || 'professional'
+
   return (
     <div className="max-w-6xl mx-auto py-4 space-y-8">
-      {/* Clean Page Header (No Floating Pills Above Title) */}
+      {/* Page Header */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Candidate Membership &amp; Founding Charter
+            Candidate Membership &amp; Founding Member Perks
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Building your anonymous vault and receiving inbound employer pitches is 100% free forever.
+            Compare Explorer ($0), Professional ($9/mo), and Prestige ($15/mo). Your first 30 days are $0 on any plan during our launch window.
           </p>
         </div>
 
@@ -116,94 +125,6 @@ export default function CandidateBillingPage() {
         </div>
       </header>
 
-      {/* Founding Member Charter Banner (High-Contrast Gold Border) */}
-      <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
-              <span className="text-amber-300">
-                ★ Founding Member Charter Active
-              </span>
-              <span className="text-slate-600">•</span>
-              {isVerified ? (
-                <span className="text-emerald-400">✓ Identity Verified</span>
-              ) : (
-                <Link
-                  href="/dashboard"
-                  className="text-amber-400 hover:underline"
-                >
-                  Verification Pending (Verify on Dashboard →)
-                </Link>
-              )}
-              <span className="text-slate-600">•</span>
-              <span className="text-indigo-300">1.25x XP Boost Locked</span>
-            </div>
-
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-              Your 30-Day Founding Member Rewards &amp; Permanent Perks
-            </h2>
-
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              As an early Founding Member, your account includes{' '}
-              <strong className="text-white">
-                30 days of outbound access (15 free blind applications)
-              </strong>
-              , a permanent{' '}
-              <strong className="text-amber-300">
-                ★ Founding Member Gold Card Trim
-              </strong>
-              , a permanent{' '}
-              <strong className="text-amber-300">
-                1.25x Profile XP Multiplier
-              </strong>
-              , and a lifetime{' '}
-              <strong className="text-emerald-300">
-                $9/mo Founder&apos;s Rate Lock
-              </strong>
-              .
-            </p>
-          </div>
-
-          {/* Live Status Box */}
-          <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 shrink-0 min-w-[260px] space-y-1.5">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">
-              Current Membership Status
-            </span>
-            {isLoading ? (
-              <div className="h-6 w-40 bg-slate-700 rounded animate-pulse" />
-            ) : (
-              <>
-                <div className="text-base font-black text-amber-300">
-                  {tierInfo?.label}
-                </div>
-                {tierInfo?.tier === 'trial' && (
-                  <p className="text-xs text-slate-300">
-                    <strong className="text-white">
-                      {tierInfo.freeAppsRemaining} of 15
-                    </strong>{' '}
-                    free blind applications remaining •{' '}
-                    <strong className="text-white">
-                      {tierInfo.daysRemaining} days
-                    </strong>{' '}
-                    left in Rewards window
-                  </p>
-                )}
-                {tierInfo?.tier === 'pro' && (
-                  <p className="text-xs text-emerald-400 font-bold">
-                    ✓ Unlimited Blind Applications Active
-                  </p>
-                )}
-                {tierInfo?.tier === 'free' && (
-                  <p className="text-xs text-amber-200">
-                    Passive Vault Active (Inbound pitches remain 100% free)
-                  </p>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-
       {/* Feedback Banner */}
       {feedback && (
         <div
@@ -217,191 +138,276 @@ export default function CandidateBillingPage() {
         </div>
       )}
 
-      {/* Tier Comparison Cards (De-Pilled & High-Contrast Gold Border on Active Plan) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Card 1: Passive Vault Mode ($0 Forever) */}
-        <div
-          className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
-            tierInfo?.tier === 'free'
-              ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
-              : 'border border-slate-200 shadow-xs'
-          }`}
-        >
-          <div className="space-y-4">
-            <div className="flex items-center justify-between text-xs font-extrabold">
-              <span className="text-slate-500 uppercase tracking-wider">
-                Always Free
+      {/* Unified Gold Launch Frame Wrapping All 3 Candidate Tiers */}
+      <div className="rounded-3xl border-2 border-amber-400 bg-gradient-to-b from-amber-50/60 via-white to-white p-6 sm:p-8 shadow-md space-y-8">
+        {/* Top Founding Launch Banner */}
+        <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-7 border border-amber-400/60 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
+              <span className="text-amber-300">
+                ★ Early-Access Launch • First 30 Days Free
               </span>
-              {tierInfo?.tier === 'free' && (
-                <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  Current Mode
-                </span>
+              <span className="text-slate-600">•</span>
+              {isVerified ? (
+                <span className="text-emerald-400">✓ Identity Verified</span>
+              ) : (
+                <Link
+                  href="/dashboard"
+                  className="text-amber-400 hover:underline"
+                >
+                  Verification Pending (Verify on Dashboard →)
+                </Link>
               )}
             </div>
 
-            <div>
-              <h3 className="text-xl font-black text-slate-900">
-                Passive Career Vault
-              </h3>
-              <div className="mt-2 flex items-baseline gap-1">
-                <span className="text-3xl font-black text-slate-900">$0</span>
-                <span className="text-xs font-bold text-slate-500">
-                  / forever
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                Ideal when you are happily employed. Keep your anonymous profile live in the talent pool and let verified employers pitch you.
-              </p>
-            </div>
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+              First 30 Days $0 on Any Plan + Permanent Founding Member Badge
+            </h2>
 
-            <ul className="space-y-2.5 pt-4 border-t border-slate-100 text-xs text-slate-700 font-medium">
-              <li>✓ 2-Stage Identity &amp; PDF Resume Vault</li>
-              <li>✓ Receive &amp; accept inbound employer pitches for free</li>
-              <li>✓ Unlimited 5-Point AI Fit Radar checks</li>
-              <li>✓ Keep your ★ Founding Member Badge &amp; Rank forever</li>
-              <li className="text-slate-400">
-                • Outbound blind applications paused after 30-day Rewards
-              </li>
-            </ul>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Enroll during our launch window to keep your{' '}
+              <strong className="text-amber-300">★ Founding Member Badge</strong> forever. Active subscribers on{' '}
+              <strong className="text-white">Professional ($9/mo)</strong> and{' '}
+              <strong className="text-white">Prestige ($15/mo)</strong> also unlock the active{' '}
+              <strong className="text-amber-300">1.25x XP Rank Multiplier</strong> and{' '}
+              <strong className="text-amber-300">Gold Profile Card Border</strong>.
+            </p>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-slate-100">
-            <span className="block w-full py-2.5 px-4 rounded-xl bg-slate-100 text-slate-600 text-xs font-extrabold text-center">
-              Included Automatically Forever
+          {/* Live Status Box */}
+          <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 shrink-0 min-w-[260px] space-y-1.5">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">
+              Current Membership Plan
             </span>
+            {isLoading ? (
+              <div className="h-6 w-40 bg-slate-700 rounded animate-pulse" />
+            ) : (
+              <>
+                <div className="text-base font-black text-amber-300">
+                  {tierInfo?.label}
+                </div>
+                {normalizedTier === 'professional' && (
+                  <p className="text-xs text-slate-300">
+                    <strong className="text-white">
+                      {tierInfo?.freeAppsRemaining} of 15
+                    </strong>{' '}
+                    monthly blind applications remaining •{' '}
+                    <strong className="text-amber-300">1.25x XP Active</strong>
+                  </p>
+                )}
+                {normalizedTier === 'prestige' && (
+                  <p className="text-xs text-emerald-400 font-bold">
+                    ✓ Unlimited Blind Applications + 1.25x XP + Priority Search Active
+                  </p>
+                )}
+                {normalizedTier === 'explorer' && (
+                  <p className="text-xs text-slate-300">
+                    Passive Career Vault Active (Inbound employer pitches are 100% free)
+                  </p>
+                )}
+              </>
+            )}
           </div>
         </div>
 
-        {/* Card 2: 30-Day Founding Member Rewards */}
-        <div
-          className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
-            tierInfo?.tier === 'trial'
-              ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
-              : 'border border-slate-200 shadow-xs'
-          }`}
-        >
-          <div className="space-y-4">
-            <div className="flex items-center justify-between text-xs font-extrabold">
-              <span className="text-amber-700">
-                ★ Founding Member Launch Rewards
-              </span>
-              {tierInfo?.tier === 'trial' && (
-                <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  Active Now
+        {/* 3 Candidate Tier Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Card 1: Explorer ($0) */}
+          <div
+            className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
+              normalizedTier === 'explorer'
+                ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
+                : 'border border-slate-200 shadow-xs'
+            }`}
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between text-xs font-extrabold">
+                <span className="text-slate-500 uppercase tracking-wider">
+                  Passive Career Vault
                 </span>
-              )}
-            </div>
-
-            <div>
-              <h3 className="text-xl font-black text-slate-900">
-                30-Day Founding Pass
-              </h3>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-3xl font-black text-emerald-600">$0</span>
-                <span className="text-sm font-bold text-slate-400 line-through">
-                  $9/mo
-                </span>
-                <span className="text-xs font-bold text-slate-500">
-                  for 30 days
-                </span>
+                {normalizedTier === 'explorer' && (
+                  <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    Current Plan
+                  </span>
+                )}
               </div>
-              <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                Automatically granted once you complete Stripe Identity verification during our Founding Member Launch.
-              </p>
-            </div>
 
-            <ul className="space-y-2.5 pt-4 border-t border-slate-100 text-xs text-slate-700 font-medium">
-              <li>
-                ✓ <strong>15 Free Outbound Blind Applications</strong> (40%+ AI Fit)
-              </li>
-              <li>✓ Full 30-Day Window (aligned with 30-day job freshness)</li>
-              <li>✓ Permanent ★ Founding Member Gold Card Trim</li>
-              <li>✓ Permanent 1.25x Profile XP Multiplier</li>
-              <li>✓ No credit card required upfront</li>
-            </ul>
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-slate-100">
-            <span className="block w-full py-2.5 px-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-extrabold text-center">
-              {tierInfo?.tier === 'trial'
-                ? `Active (${tierInfo.freeAppsRemaining}/15 Apps · ${tierInfo.daysRemaining}d left)`
-                : 'Granted Automatically at Signup'}
-            </span>
-          </div>
-        </div>
-
-        {/* Card 3: Candidate Pro Pass ($9/mo Founder's Rate Lock) */}
-        <div
-          className={`bg-slate-900 text-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
-            tierInfo?.tier === 'pro'
-              ? 'border-2 border-amber-500 shadow-lg ring-1 ring-amber-400/50'
-              : 'border-2 border-indigo-500 shadow-md'
-          }`}
-        >
-          <div className="space-y-4">
-            <div className="flex items-center justify-between text-xs font-extrabold">
-              <span className="text-indigo-300">
-                🔒 Founder&apos;s Rate Lock
-              </span>
-              {tierInfo?.tier === 'pro' && (
-                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                  ✓ Subscribed
-                </span>
-              )}
-            </div>
-
-            <div>
-              <h3 className="text-xl font-black text-white">
-                Candidate Pro Pass
-              </h3>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-3xl font-black text-white">$9</span>
-                <span className="text-sm font-bold text-slate-400 line-through">
-                  $15
-                </span>
-                <span className="text-xs font-bold text-slate-300">
-                  / month (Founder Rate)
-                </span>
+              <div>
+                <h3 className="text-xl font-black text-slate-900">Explorer</h3>
+                <div className="mt-2 flex items-baseline gap-1">
+                  <span className="text-3xl font-black text-slate-900">$0</span>
+                  <span className="text-xs font-bold text-slate-500">/ forever</span>
+                </div>
+                <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                  Keep your anonymous profile live in the talent pool and let verified employers pitch you first.
+                </p>
               </div>
-              <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                Continue submitting unlimited high-precision blind applications after your 30-day Founding Rewards concludes.
-              </p>
+
+              <ul className="space-y-2.5 pt-4 border-t border-slate-100 text-xs text-slate-700 font-medium">
+                <li>✓ <strong>Unlimited Inbound Employer Pitches</strong> (100% Free)</li>
+                <li>✓ Browse blind role feed &amp; real pay bands</li>
+                <li>✓ Unlimited 5-Point AI Fit Radar checks</li>
+                <li>✓ 2-Stage Identity &amp; PDF Resume Vault</li>
+                <li>★ Keeps permanent <strong>Founding Member Badge</strong> (1.0x XP)</li>
+                <li className="text-slate-400">✕ Outbound blind applications (0/mo)</li>
+                <li className="text-slate-400">✕ 1.25x XP Boost &amp; Gold Border (Paid plans)</li>
+              </ul>
             </div>
 
-            <ul className="space-y-2.5 pt-4 border-t border-slate-800 text-xs text-slate-200 font-medium">
-              <li>
-                ✓ <strong>Unlimited Blind Applications</strong> (40%+ AI Match Firewall)
-              </li>
-              <li>✓ Priority placement in Employer Talent Searches</li>
-              <li>✓ +150 Profile XP per qualified blind application</li>
-              <li>✓ Pause anytime to return to $0 Passive Vault mode</li>
-              <li>✓ Grandfathered $9/mo Founder&apos;s Rate forever</li>
-            </ul>
+            <div className="mt-6 pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                disabled={isProcessing || normalizedTier === 'explorer'}
+                onClick={() => handlePlanSwitch('explorer')}
+                className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-extrabold transition-colors disabled:opacity-60 cursor-pointer"
+              >
+                {normalizedTier === 'explorer'
+                  ? 'Active ($0 Explorer Vault)'
+                  : 'Switch to $0 Explorer Vault'}
+              </button>
+            </div>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-slate-800">
-            <button
-              type="button"
-              disabled={isProcessing || tierInfo?.tier === 'pro'}
-              onClick={() => handleSandboxSwitch('pro')}
-              className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
-            >
-              {tierInfo?.tier === 'pro'
-                ? '✓ Candidate Pro Pass Active'
-                : 'Activate Candidate Pro ($9/mo) →'}
-            </button>
+          {/* Card 2: Professional ($9/mo) */}
+          <div
+            className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
+              normalizedTier === 'professional'
+                ? 'border-2 border-amber-500 shadow-md ring-1 ring-amber-400/50'
+                : 'border border-slate-200 shadow-xs'
+            }`}
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between text-xs font-extrabold">
+                <span className="text-amber-700">★ First 30 Days $0</span>
+                {normalizedTier === 'professional' && (
+                  <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    Current Plan
+                  </span>
+                )}
+              </div>
+
+              <div>
+                <h3 className="text-xl font-black text-slate-900">
+                  Professional
+                </h3>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-3xl font-black text-slate-900">$9</span>
+                  <span className="text-xs font-bold text-slate-500">
+                    / month after 30d free trial
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                  For targeted job seekers submitting up to 15 high-fit blind applications per month.
+                </p>
+              </div>
+
+              <ul className="space-y-2.5 pt-4 border-t border-slate-100 text-xs text-slate-700 font-medium">
+                <li className="text-amber-800 font-bold">
+                  ★ <strong>First 30 Days Free ($0)</strong> during Launch
+                </li>
+                <li>
+                  ✓ <strong>15 Outbound Blind Applications / month</strong> (40%+ AI Fit)
+                </li>
+                <li className="text-amber-800 font-bold">
+                  ★ <strong>Active 1.25x Profile XP Multiplier</strong>
+                </li>
+                <li className="text-amber-800 font-bold">
+                  ★ <strong>Active Gold Founding Member Card Border</strong>
+                </li>
+                <li>✓ Unlimited 5-Point AI Fit Radar checks &amp; Inbound Pitches</li>
+                <li>✓ Elevated Employer Talent Search indexing</li>
+              </ul>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                disabled={isProcessing}
+                onClick={() => handlePlanSwitch('professional')}
+                className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
+              >
+                {normalizedTier === 'professional'
+                  ? `Active (${tierInfo?.freeAppsRemaining ?? 15}/15 Apps Left) — Reset Quota`
+                  : 'Activate Professional ($0 First 30 Days) →'}
+              </button>
+            </div>
+          </div>
+
+          {/* Card 3: Prestige ($15/mo) */}
+          <div
+            className={`bg-slate-900 text-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
+              normalizedTier === 'prestige'
+                ? 'border-2 border-amber-500 shadow-lg ring-1 ring-amber-400/50'
+                : 'border-2 border-indigo-500 shadow-md'
+            }`}
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between text-xs font-extrabold">
+                <span className="text-indigo-300">★ First 30 Days $0</span>
+                {normalizedTier === 'prestige' && (
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                    Current Plan
+                  </span>
+                )}
+              </div>
+
+              <div>
+                <h3 className="text-xl font-black text-white">Prestige</h3>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-3xl font-black text-white">$15</span>
+                  <span className="text-xs font-bold text-slate-300">
+                    / month after 30d free trial
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+                  Unlimited outbound blind applications and top-priority placement in Employer Talent Search.
+                </p>
+              </div>
+
+              <ul className="space-y-2.5 pt-4 border-t border-slate-800 text-xs text-slate-200 font-medium">
+                <li className="text-amber-300 font-bold">
+                  ★ <strong>First 30 Days Free ($0)</strong> during Launch
+                </li>
+                <li>
+                  ✓ <strong>Unlimited Outbound Blind Applications</strong> (40%+ AI Fit)
+                </li>
+                <li className="text-amber-300 font-bold">
+                  ★ <strong>Top-Priority Placement in Employer Search</strong>
+                </li>
+                <li className="text-amber-300 font-bold">
+                  ★ <strong>Active 1.25x Profile XP Multiplier</strong>
+                </li>
+                <li className="text-amber-300 font-bold">
+                  ★ <strong>Active Gold Founding Member Card Border</strong>
+                </li>
+                <li>✓ Downgrade to $0 Explorer Vault anytime</li>
+              </ul>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-slate-800">
+              <button
+                type="button"
+                disabled={isProcessing}
+                onClick={() => handlePlanSwitch('prestige')}
+                className="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
+              >
+                {normalizedTier === 'prestige'
+                  ? '✓ Prestige Plan Active (Unlimited Apps)'
+                  : 'Activate Prestige ($0 First 30 Days) →'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Developer / QA Sandbox Switcher (For Stress Testing) */}
+      {/* QA Stress-Testing Bar */}
       <div className="bg-slate-100 rounded-2xl border border-slate-300 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">
             🧪 QA Stress-Testing Controls (Remove Before Public Launch)
           </span>
           <p className="text-xs text-slate-600 mt-0.5">
-            Simulate different Candidate membership states to test the 30-Day Founding Rewards, Expired Paywall, and Pro Pass.
+            Instant 1-click switching between Explorer ($0), Professional ($9/mo · 15 apps), and Prestige ($15/mo · Unlimited apps).
           </p>
         </div>
 
@@ -409,26 +415,26 @@ export default function CandidateBillingPage() {
           <button
             type="button"
             disabled={isProcessing}
-            onClick={() => handleSandboxSwitch('trial')}
-            className="px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-slate-800 text-xs font-extrabold hover:bg-slate-50 cursor-pointer disabled:opacity-50"
+            onClick={() => handlePlanSwitch('explorer')}
+            className="px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer"
           >
-            Reset 30d Founding Rewards (15 Apps)
+            1. Explorer ($0 · 0 Outbound Apps)
           </button>
           <button
             type="button"
             disabled={isProcessing}
-            onClick={() => handleSandboxSwitch('expired')}
-            className="px-3.5 py-2 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 text-xs font-extrabold hover:bg-amber-200 cursor-pointer disabled:opacity-50"
+            onClick={() => handlePlanSwitch('professional')}
+            className="px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-amber-50 transition-colors cursor-pointer"
           >
-            Simulate Rewards Expired
+            2. Professional ($9/mo · 15 Apps + 1.25x XP)
           </button>
           <button
             type="button"
             disabled={isProcessing}
-            onClick={() => handleSandboxSwitch('pro')}
-            className="px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 cursor-pointer disabled:opacity-50"
+            onClick={() => handlePlanSwitch('prestige')}
+            className="px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors cursor-pointer"
           >
-            Simulate Pro ($9/mo)
+            3. Prestige ($15/mo · Unlimited Apps + 1.25x XP)
           </button>
         </div>
       </div>
