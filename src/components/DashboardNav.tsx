@@ -87,7 +87,7 @@ export default function DashboardNav({
               <img
                 src="/logo.png"
                 alt="specialsauce.io Logo"
-                className="h-11 sm:h-12 w-auto object-contain group-hover:opacity-90 transition-opacity"
+                className="h-14 sm:h-16 w-auto object-contain group-hover:opacity-90 transition-opacity"
               />
             </Link>
 

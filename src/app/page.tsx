@@ -53,7 +53,7 @@ export default function LandingPage() {
 
       {/* Navigation (Clean 3-part layout: Logo Left, Tagline Center, Sign In / Get Started Right) */}
       <nav className="fixed top-0 left-0 right-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 h-20 flex items-center justify-between relative">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 h-24 flex items-center justify-between relative">
           {/* LEFT: Clickable Logo */}
           <div className="flex items-center shrink-0">
             <Link
@@ -63,9 +63,9 @@ export default function LandingPage() {
               <Image
                 src="/logo.png"
                 alt="specialsauce.io Logo"
-                width={300}
-                height={75}
-                className="w-[185px] sm:w-[225px] h-auto"
+                width={420}
+                height={105}
+                className="h-14 sm:h-16 md:h-[72px] w-auto object-contain"
                 priority
               />
             </Link>
@@ -813,9 +813,9 @@ export default function LandingPage() {
             <Image
               src="/logo.png"
               alt="specialsauce.io Logo"
-              width={200}
-              height={50}
-              className="w-[185px] h-auto grayscale hover:grayscale-0 transition-all duration-300"
+              width={340}
+              height={85}
+              className="h-12 sm:h-14 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
             />
           </Link>
 

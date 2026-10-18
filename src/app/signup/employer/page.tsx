@@ -50,8 +50,9 @@ export default function EmployerSignupPage({
           <Image
             src="/logo.png"
             alt="specialsauce.io Logo"
-            width={240}
-            height={60}
+            width={340}
+            height={85}
+            className="h-20 w-auto object-contain"
             className="w-[195px] sm:w-[220px] h-auto"
             priority
           />
