@@ -485,7 +485,7 @@ export default function CandidateApplicationsPage() {
                           <RadarChart
                             cx="50%"
                             cy="50%"
-                            outerRadius="65%"
+                            outerRadius="52%" margin={{ top: 10, right: 28, bottom: 10, left: 28 }}
                             data={radarData}
                           >
                             <PolarGrid stroke="#cbd5e1" />

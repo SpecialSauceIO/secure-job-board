@@ -2463,11 +2463,11 @@ function getMatchPrompt(
       * If a candidate pivoted careers (e.g., high total career years, fewer years in a newly acquired technical skill), base "Experience Level" primarily on their hands-on tenure in the job's core required skills, while granting up to a +15 point Transferable Professional Maturity credit for prior leadership, stakeholder management, and operational execution.
       * Conversely, if a candidate has strong per-skill years in the exact required tools, do not penalize them if their overall career years are modest.
     - FIVE-PILLAR RADAR SCORING DEFINITIONS:
-      1. "Technical Skills": Direct semantic overlap and proficiency across the job's required hard skills, tools, and credentials.
-      2. "Experience Level": Skill-specific tenure alignment against the role's required years per skill + transferable professional maturity.
-      3. "Role Alignment": Scope of responsibilities, work model/location compatibility, education/practical-equivalence fit, and language requirements.
-      4. "Domain Expertise": Familiarity with the employer's Primary Industry Vertical and operational environment.
-      5. "Culture & Soft Skills": Communication, ownership, adaptability, and collaboration evidence demonstrated in the bio and skill matrix.
+      1. "Core Competencies": Direct semantic overlap and proficiency across the job's required role skills, tools, and functional capabilities.
+      2. "Skill Tenure": Skill-specific tenure alignment against the role's required years per skill + transferable professional maturity (never penalize career changers for having higher total career years than a newer skill's years, and never cite total career years if the role only asks for specific skill tenure).
+      3. "Logistics & Pay": Work model/location compatibility, pay band fit, employment type, work authorization, and start-date / availability window alignment.
+      4. "Industry & Creds": Familiarity with the employer's Primary Industry Vertical, Education/Practical-Experience equivalence, and Active Certifications.
+      5. "Execution & Comm.": Ownership, adaptability, cross-functional collaboration, and required Written/Verbal Language proficiency.
     - EDUCATION, CERTIFICATION & LANGUAGE EVALUATION:
       * If the job's Education Requirement includes "OR Equivalent Practical Experience", "OR Equivalent Experience", or "No Degree Required", treat candidates with strong practical experience or industry certifications as 100% meeting the education requirement even if they do not hold a formal college degree.
       * If the job specifies Required/Preferred Certifications and the candidate holds matching or equivalent certifications, boost their Technical Skills and Experience Level scores.
@@ -2499,16 +2499,39 @@ function getMatchPrompt(
     {
       "overall_score": <number between 0-100>,
       "radar_data": [
-        { "subject": "Technical Skills", "score": <number 0-100> },
-        { "subject": "Experience Level", "score": <number 0-100> },
-        { "subject": "Role Alignment", "score": <number 0-100> },
-        { "subject": "Domain Expertise", "score": <number 0-100> },
-        { "subject": "Culture & Soft Skills", "score": <number 0-100> }
+        { "subject": "Core Competencies", "score": <number 0-100> },
+        { "subject": "Skill Tenure", "score": <number 0-100> },
+        { "subject": "Logistics & Pay", "score": <number 0-100> },
+        { "subject": "Industry & Creds", "score": <number 0-100> },
+        { "subject": "Execution & Comm.", "score": <number 0-100> }
       ],
       "brief_analysis": "${briefAnalysisInstruction}",
       "employer_pitch": "<A 3-sentence enthusiastic summary addressed directly to the candidate explaining why they will be a great fit for this role.>"
     }
   `
+}
+
+
+function normalizeRadarSubjectLabel(rawSubject: string): string {
+  const s = String(rawSubject || '').trim().toLowerCase()
+  if (s.includes('technical') || s.includes('competenc')) return 'Core Competencies'
+  if (s.includes('experience') || s.includes('tenure')) return 'Skill Tenure'
+  if (s.includes('role') || s.includes('logistic') || s.includes('alignment')) return 'Logistics & Pay'
+  if (s.includes('domain') || s.includes('industry') || s.includes('cred')) return 'Industry & Creds'
+  if (s.includes('culture') || s.includes('soft') || s.includes('execution') || s.includes('comm')) return 'Execution & Comm.'
+  return rawSubject
+}
+
+function normalizeMatchDataObject(matchData: any): any {
+  if (!matchData || typeof matchData !== 'object') return matchData
+  if (!Array.isArray(matchData.radar_data)) return matchData
+  return {
+    ...matchData,
+    radar_data: matchData.radar_data.map((item: any) => ({
+      ...item,
+      subject: normalizeRadarSubjectLabel(item?.subject),
+    })),
+  }
 }
 
 function parseAiResponse(text: string) {

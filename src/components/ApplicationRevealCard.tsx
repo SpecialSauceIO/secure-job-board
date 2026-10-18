@@ -142,7 +142,10 @@ export function ApplicationRevealCard({
   const matchScore =
     app?.match_score ?? app?.match_data?.overall_score ?? null
   const radarData = Array.isArray(app?.match_data?.radar_data)
-    ? app.match_data.radar_data
+    ? app.match_data.radar_data.map((d: any) => ({
+        ...d,
+        subject: normalizePillarLabel(d?.subject),
+      }))
     : null
   const briefAnalysis =
     app?.match_data?.brief_analysis ||
@@ -470,12 +473,13 @@ export function ApplicationRevealCard({
                 </div>
               ))}
             </div>
-            <div className="w-full max-w-[240px] h-[180px] shrink-0 mx-auto">
+            <div className="w-full max-w-[300px] h-[205px] shrink-0 mx-auto">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart
                   cx="50%"
                   cy="50%"
-                  outerRadius="60%"
+                  outerRadius="52%"
+                  margin={{ top: 10, right: 28, bottom: 10, left: 28 }}
                   data={radarData}
                 >
                   <PolarGrid stroke="#cbd5e1" />

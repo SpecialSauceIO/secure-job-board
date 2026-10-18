@@ -145,6 +145,24 @@ function extractJobCardMeta(job: any) {
   }
 }
 
+function normalizePillarLabel(raw: string): string {
+  const s = String(raw || '').trim().toLowerCase()
+  if (s.includes('technical') || s.includes('competenc')) return 'Core Competencies'
+  if (s.includes('experience') || s.includes('tenure')) return 'Skill Tenure'
+  if (s.includes('role') || s.includes('logistic') || s.includes('alignment')) return 'Logistics & Pay'
+  if (s.includes('domain') || s.includes('industry') || s.includes('cred')) return 'Industry & Creds'
+  if (s.includes('culture') || s.includes('soft') || s.includes('execution') || s.includes('comm')) return 'Execution & Comm.'
+  return raw
+}
+
+const PILLAR_SUBTITLES: Record<string, string> = {
+  'Core Competencies': 'Required & Transferable Role Skills',
+  'Skill Tenure': 'Per-Skill Depth & Career-Changer Fair',
+  'Logistics & Pay': 'Pay, Work Model, Auth & Start Window',
+  'Industry & Creds': 'Vertical, Education & Certifications',
+  'Execution & Comm.': 'Ownership, Collaboration & Languages',
+}
+
 export function CandidateJobFeed({
   jobs,
   isVerified = false,
@@ -838,44 +856,59 @@ export function CandidateJobFeed({
                     {matchData.radar_data && (
                       <div className="flex flex-col lg:flex-row items-center gap-6">
                         <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                          {matchData.radar_data.map((item: any, i: number) => (
-                            <div
-                              key={i}
-                              className="bg-white px-3.5 py-2.5 rounded-lg border border-slate-200 flex items-center justify-between"
-                            >
-                              <span className="text-xs font-bold text-slate-600">
-                                {item.subject}
-                              </span>
-                              <span
-                                className={`text-sm font-black ${
-                                  item.score >= 80
-                                    ? 'text-emerald-600'
-                                    : item.score >= 60
-                                    ? 'text-indigo-600'
-                                    : 'text-rose-600'
-                                }`}
+                          {matchData.radar_data.map((item: any, i: number) => {
+                            const label = normalizePillarLabel(item.subject)
+                            const sub = PILLAR_SUBTITLES[label]
+                            return (
+                              <div
+                                key={i}
+                                className="bg-white px-3.5 py-2.5 rounded-lg border border-slate-200 flex items-center justify-between gap-2"
                               >
-                                {item.score}%
-                              </span>
-                            </div>
-                          ))}
+                                <div>
+                                  <span className="text-xs font-bold text-slate-800 block">
+                                    {label}
+                                  </span>
+                                  {sub && (
+                                    <span className="text-[10px] font-medium text-slate-400 block">
+                                      {sub}
+                                    </span>
+                                  )}
+                                </div>
+                                <span
+                                  className={`text-sm font-black shrink-0 ${
+                                    item.score >= 80
+                                      ? 'text-emerald-600'
+                                      : item.score >= 60
+                                      ? 'text-indigo-600'
+                                      : 'text-rose-600'
+                                  }`}
+                                >
+                                  {item.score}%
+                                </span>
+                              </div>
+                            )
+                          })}
                         </div>
 
-                        <div className="w-full max-w-[260px] h-[195px] shrink-0 mx-auto">
+                        <div className="w-full max-w-[310px] h-[215px] shrink-0 mx-auto">
                           <ResponsiveContainer width="100%" height="100%">
                             <RadarChart
                               cx="50%"
                               cy="50%"
-                              outerRadius="65%"
-                              data={matchData.radar_data}
+                              outerRadius="54%"
+                              margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
+                              data={matchData.radar_data.map((d: any) => ({
+                                ...d,
+                                subject: normalizePillarLabel(d.subject),
+                              }))}
                             >
                               <PolarGrid stroke="#cbd5e1" />
                               <PolarAngleAxis
                                 dataKey="subject"
                                 tick={{
-                                  fill: '#475569',
-                                  fontSize: 10,
-                                  fontWeight: 600,
+                                  fill: '#334155',
+                                  fontSize: 9.5,
+                                  fontWeight: 700,
                                 }}
                               />
                               <PolarRadiusAxis

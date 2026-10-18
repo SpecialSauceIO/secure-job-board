@@ -101,6 +101,16 @@ function getCandidateEducationLevel(candidate: any): string {
   return ''
 }
 
+function normalizeSearchPillarLabel(raw: string): string {
+  const s = String(raw || '').trim().toLowerCase()
+  if (s.includes('technical') || s.includes('competenc')) return 'Core Competencies'
+  if (s.includes('experience') || s.includes('tenure')) return 'Skill Tenure'
+  if (s.includes('role') || s.includes('logistic') || s.includes('alignment')) return 'Logistics & Pay'
+  if (s.includes('domain') || s.includes('industry') || s.includes('cred')) return 'Industry & Creds'
+  if (s.includes('culture') || s.includes('soft') || s.includes('execution') || s.includes('comm')) return 'Execution & Comm.'
+  return raw
+}
+
 function getCandidateAvailability(candidate: any): string {
   if (candidate?.availability_window) {
     return String(candidate.availability_window).trim()
@@ -1218,9 +1228,81 @@ export default function EmployerCandidateSearch({
                           </div>
 
                           {!isAnalyzingMatch && aiMatchData?.brief_analysis && (
-                            <p className="text-slate-600 italic border-b border-slate-200 pb-2">
-                              &ldquo;{aiMatchData.brief_analysis}&rdquo;
-                            </p>
+                            <div className="space-y-2.5 border-b border-slate-200 pb-2.5">
+                              <p className="text-slate-600 italic">
+                                &ldquo;{aiMatchData.brief_analysis}&rdquo;
+                              </p>
+                              {Array.isArray(aiMatchData?.radar_data) &&
+                                aiMatchData.radar_data.length > 0 && (
+                                  <div className="pt-1 space-y-2">
+                                    <div className="w-full h-[175px] bg-white rounded-lg border border-slate-200/80 p-1">
+                                      <ResponsiveContainer width="100%" height="100%">
+                                        <RadarChart
+                                          cx="50%"
+                                          cy="50%"
+                                          outerRadius="50%"
+                                          margin={{ top: 8, right: 24, bottom: 8, left: 24 }}
+                                          data={aiMatchData.radar_data.map((d: any) => ({
+                                            ...d,
+                                            subject: normalizeSearchPillarLabel(d.subject),
+                                          }))}
+                                        >
+                                          <PolarGrid stroke="#cbd5e1" />
+                                          <PolarAngleAxis
+                                            dataKey="subject"
+                                            tick={{
+                                              fill: '#334155',
+                                              fontSize: 8.5,
+                                              fontWeight: 700,
+                                            }}
+                                          />
+                                          <PolarRadiusAxis
+                                            angle={30}
+                                            domain={[0, 100]}
+                                            tick={false}
+                                            axisLine={false}
+                                          />
+                                          <Tooltip />
+                                          <Radar
+                                            name="Fit Score"
+                                            dataKey="score"
+                                            stroke="#4f46e5"
+                                            strokeWidth={2}
+                                            fill="#10b981"
+                                            fillOpacity={0.35}
+                                          />
+                                        </RadarChart>
+                                      </ResponsiveContainer>
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-1">
+                                      {aiMatchData.radar_data.map((item: any, idx: number) => {
+                                        const lbl = normalizeSearchPillarLabel(item.subject)
+                                        return (
+                                          <div
+                                            key={idx}
+                                            className="flex items-center justify-between bg-white px-2.5 py-1 rounded border border-slate-200/80 text-[11px]"
+                                          >
+                                            <span className="font-bold text-slate-700">
+                                              {lbl}
+                                            </span>
+                                            <span
+                                              className={`font-black ${
+                                                item.score >= 80
+                                                  ? 'text-emerald-600'
+                                                  : item.score >= 60
+                                                  ? 'text-indigo-600'
+                                                  : 'text-rose-600'
+                                              }`}
+                                            >
+                                              {item.score}%
+                                            </span>
+                                          </div>
+                                        )
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+                            </div>
                           )}
 
                           {salaryFails && (
