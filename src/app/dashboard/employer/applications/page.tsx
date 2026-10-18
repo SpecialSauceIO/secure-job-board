@@ -55,15 +55,20 @@ export default function EmployerInboundApplicationsPage() {
   const fetchApplications = useCallback(
     async (showSpinner = true) => {
       if (showSpinner) setIsLoading(true)
-      const result = await getEmployerInboundApplications(
-        'all',
-        daysFilter || undefined,
-        searchQuery || undefined
-      )
-      if (result.data) {
-        setApplications(result.data)
+      try {
+        const result = await getEmployerInboundApplications(
+          "all",
+          daysFilter || undefined,
+          searchQuery || undefined
+        )
+        if (Array.isArray(result?.data)) {
+          setApplications(result.data)
+        }
+      } catch (err) {
+        console.error("Failed to fetch inbound applications:", err)
+      } finally {
+        setIsLoading(false)
       }
-      if (showSpinner) setIsLoading(false)
     },
     [daysFilter, searchQuery]
   )

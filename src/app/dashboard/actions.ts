@@ -1775,46 +1775,68 @@ export async function getCandidateApplications(
   daysFilter?: number,
   searchQuery?: string
 ) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return { data: [], error: "Not authenticated" }
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { data: [], error: "Not authenticated" }
 
-  const db = getAdminSupabaseClient() || supabase
+    const db = getAdminSupabaseClient() || supabase
 
-  let dbQuery = db
-    .from("applications")
-    .select(
-      `
-      *,
-      jobs (
-        id,
-        title,
-        description,
-        work_model,
-        salary_min,
-        salary_max,
-        structured_requirements,
-        organization_id,
-        organizations:organization_id (*)
-      )
-    `
+    let dbQuery = db
+      .from("applications")
+      .select("*")
+      .eq("candidate_id", user.id)
+      .order("created_at", { ascending: false })
+
+    if (daysFilter && daysFilter > 0) {
+      const dateLimit = new Date()
+      dateLimit.setDate(dateLimit.getDate() - daysFilter)
+      dbQuery = dbQuery.gte("created_at", dateLimit.toISOString())
+    }
+
+    const { data: rawApps, error } = await dbQuery
+    if (error) return { data: [], error: error.message }
+
+    const filteredRaw = (rawApps || []).filter(
+      (a: any) => a.initiated_by !== "employer"
     )
-    .eq("candidate_id", user.id)
-    .order("created_at", { ascending: false })
 
-  if (daysFilter && daysFilter > 0) {
-    const dateLimit = new Date()
-    dateLimit.setDate(dateLimit.getDate() - daysFilter)
-    dbQuery = dbQuery.gte("created_at", dateLimit.toISOString())
-  }
+    const jobIds = Array.from(
+      new Set(filteredRaw.map((a: any) => a.job_id).filter(Boolean))
+    )
+    let jobsById: Record<string, any> = {}
+    if (jobIds.length > 0) {
+      const { data: jobRows } = await db
+        .from("jobs")
+        .select("*")
+        .in("id", jobIds)
+      const orgIds = Array.from(
+        new Set((jobRows || []).map((j: any) => j.organization_id).filter(Boolean))
+      )
+      let orgsById: Record<string, any> = {}
+      if (orgIds.length > 0) {
+        const { data: orgRows } = await db
+          .from("organizations")
+          .select("*")
+          .in("id", orgIds)
+        for (const o of orgRows || []) orgsById[o.id] = o
+      }
+      for (const j of jobRows || []) {
+        jobsById[j.id] = {
+          ...j,
+          organizations: j.organization_id ? orgsById[j.organization_id] || null : null,
+        }
+      }
+    }
 
-  const { data: rawApps, error } = await dbQuery
-  const data = (rawApps || []).filter((a: any) => a.initiated_by !== "employer")
-  if (error) return { data: [], error: error.message }
+    const data = filteredRaw.map((a: any) => ({
+      ...a,
+      jobs: jobsById[a.job_id] || null,
+    }))
 
-  let processedData = (data || []).map((app: any) => {
+    let processedData = (data || []).map((app: any) => {
     let normalizedStatus: 'pending' | 'unlocked' | 'shortlisted' | 'rejected' =
       'pending'
 
@@ -3552,62 +3574,76 @@ export async function getEmployerInboundApplications(
   daysFilter?: number,
   searchQuery?: string
 ) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return { error: "Unauthorized" }
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { data: [], error: "Unauthorized" }
 
-  const db = getAdminSupabaseClient() || supabase
+    const db = getAdminSupabaseClient() || supabase
 
-  const { data: members } = await db
-    .from("organization_members")
-    .select("organization_id")
-    .eq("user_id", user.id)
+    const { data: members } = await db
+      .from("organization_members")
+      .select("organization_id")
+      .eq("user_id", user.id)
 
-  const orgIds = Array.from(
-    new Set((members || []).map((m: any) => m.organization_id).filter(Boolean))
-  )
-  if (orgIds.length === 0) return { data: [] }
-
-  const { data: jobs } = await db
-    .from("jobs")
-    .select("id")
-    .in("organization_id", orgIds)
-
-  if (!jobs || jobs.length === 0) return { data: [] }
-  const jobIds = jobs.map((j: any) => j.id)
-
-  let dbQuery = db
-    .from("applications")
-    .select(
-      `
-      *,
-      jobs (
-        id,
-        title,
-        work_model,
-        salary_min,
-        salary_max,
-        structured_requirements
-      ),
-      profiles (*)
-    `
+    const orgIds = Array.from(
+      new Set((members || []).map((m: any) => m.organization_id).filter(Boolean))
     )
-    .in("job_id", jobIds)
-    .order("created_at", { ascending: false })
 
-  if (daysFilter && daysFilter > 0) {
-    const dateLimit = new Date()
-    dateLimit.setDate(dateLimit.getDate() - daysFilter)
-    dbQuery = dbQuery.gte("created_at", dateLimit.toISOString())
-  }
+    let jobRows: any[] = []
+    if (orgIds.length > 0) {
+      const { data: orgJobs } = await db
+        .from("jobs")
+        .select("*")
+        .in("organization_id", orgIds)
+      jobRows = orgJobs || []
+    }
 
-  const { data: rawApps, error } = await dbQuery
-  const data = (rawApps || []).filter((a: any) => a.initiated_by !== "employer")
-  if (error) return { error: error.message }
+    if (jobRows.length === 0) return { data: [] }
+    const jobIds = jobRows.map((j: any) => j.id)
+    const jobsById: Record<string, any> = {}
+    for (const j of jobRows) jobsById[j.id] = j
 
-  let processedData = await Promise.all(
+    let dbQuery = db
+      .from("applications")
+      .select("*")
+      .in("job_id", jobIds)
+      .order("created_at", { ascending: false })
+
+    if (daysFilter && daysFilter > 0) {
+      const dateLimit = new Date()
+      dateLimit.setDate(dateLimit.getDate() - daysFilter)
+      dbQuery = dbQuery.gte("created_at", dateLimit.toISOString())
+    }
+
+    const { data: rawApps, error } = await dbQuery
+    if (error) return { data: [], error: error.message }
+
+    const filteredRaw = (rawApps || []).filter(
+      (a: any) => a.initiated_by !== "employer"
+    )
+
+    const candidateIds = Array.from(
+      new Set(filteredRaw.map((a: any) => a.candidate_id).filter(Boolean))
+    )
+    const profilesById: Record<string, any> = {}
+    if (candidateIds.length > 0) {
+      const { data: profRows } = await db
+        .from("profiles")
+        .select("*")
+        .in("id", candidateIds)
+      for (const p of profRows || []) profilesById[p.id] = p
+    }
+
+    const data = filteredRaw.map((a: any) => ({
+      ...a,
+      jobs: jobsById[a.job_id] || null,
+      profiles: profilesById[a.candidate_id] || null,
+    }))
+
+    let processedData = await Promise.all(
     (data || []).map(async (app: any) => {
       let normalizedStatus:
         | 'unrevealed'
@@ -3727,6 +3763,10 @@ export async function getEmployerInboundApplications(
   }
 
   return { data: processedData }
+  } catch (err: any) {
+    console.error("getEmployerInboundApplications error:", err)
+    return { data: [], error: err?.message || "Failed to load inbound applications" }
+  }
 }
 
 export async function updateInboundApplicationDecision(
