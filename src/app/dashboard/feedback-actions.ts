@@ -69,7 +69,7 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
     new Set(
       [
         configuredTestInbox,
-        'info@specialsauce.io',
+        'support@specialsauce.io',
         !reporterEmail.endsWith('@test.com') &&
         !reporterEmail.endsWith('@example.com')
           ? reporterEmail

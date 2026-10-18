@@ -268,7 +268,7 @@ async function sendThreadEmailNotification({
       body: JSON.stringify({
         from: fromAddress,
         to: [primaryRecipient],
-        reply_to: 'info@specialsauce.io',
+        reply_to: 'support@specialsauce.io',
         subject: `[${referenceId}] ${subject}`,
         html: buildHtml(
           primaryRecipient !== rawRecipient && rawRecipient
@@ -288,7 +288,7 @@ async function sendThreadEmailNotification({
         body: JSON.stringify({
           from: fromAddress,
           to: [fallbackInbox],
-          reply_to: 'info@specialsauce.io',
+          reply_to: 'support@specialsauce.io',
           subject: `[${referenceId}] ${subject}`,
           html: buildHtml(
             `Sandbox Fallback: Originally addressed to ${rawRecipient}`

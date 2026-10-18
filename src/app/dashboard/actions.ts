@@ -813,7 +813,7 @@ async function sendPlatformNotification({
     cleanEnvKey(process.env.RESEND_FROM_EMAIL) ||
     'Special Sauce <onboarding@resend.dev>'
 
-  const resolvedReplyTo = (replyTo || 'info@specialsauce.io').trim()
+  const resolvedReplyTo = (replyTo || 'support@specialsauce.io').trim()
 
   const buildHtml = (intendedNote?: string) => `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 28px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
@@ -4599,7 +4599,7 @@ export async function submitSupportTicket(formData: FormData) {
   const userEmail = profile?.contact_email || profile?.email || user.email
 
   await sendPlatformNotification({
-    to: 'info@specialsauce.io',
+    to: 'support@specialsauce.io',
     replyTo: userEmail,
     subject: `Support Ticket [${ticketId}]: ${subject}`,
     referenceId: ticketId,
@@ -4618,7 +4618,7 @@ export async function submitSupportTicket(formData: FormData) {
 
   await sendPlatformNotification({
     to: userEmail,
-    replyTo: 'info@specialsauce.io',
+    replyTo: 'support@specialsauce.io',
     subject: `Support Ticket Received: ${subject} [${ticketId}]`,
     referenceId: ticketId,
     heading: 'We received your support request',
@@ -4678,7 +4678,7 @@ export async function submitQuickFeedback(formData: FormData) {
   const userEmail = user?.email || 'anonymous@specialsauce.io'
 
   await sendPlatformNotification({
-    to: 'info@specialsauce.io',
+    to: 'support@specialsauce.io',
     replyTo: userEmail,
     subject: `${feedbackType} Report from ${userEmail} on ${pageUrl}`,
     referenceId: refId,
