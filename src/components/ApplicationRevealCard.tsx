@@ -65,6 +65,39 @@ function safeFormatDate(rawDate?: any): string {
   }
 }
 
+function normalizeCandidateAvailability(raw?: any): string {
+  const val = String(raw || '').trim()
+  if (!val) return '2 Weeks Notice (Standard)'
+  const lower = val.toLowerCase()
+  if (lower.includes('pause') || lower.includes('not accepting')) {
+    return 'Paused (Not Accepting Pitches)'
+  }
+  if (lower.includes('immediate') || lower.includes('actively')) {
+    return 'Actively Looking (Immediate)'
+  }
+  if (lower.includes('2 week') || lower.includes('two week') || lower.includes('standard')) {
+    return '2 Weeks Notice (Standard)'
+  }
+  if (lower.includes('30') || lower.includes('open to offers') || lower.includes('passive')) {
+    return 'Open to Offers (30+ Days)'
+  }
+  return val
+}
+
+function getAvailabilityBadgeClasses(raw?: any): string {
+  const norm = normalizeCandidateAvailability(raw).toLowerCase()
+  if (norm.includes('paused')) {
+    return 'bg-rose-50 text-rose-700 border-rose-300'
+  }
+  if (norm.includes('immediate') || norm.includes('actively')) {
+    return 'bg-emerald-50 text-emerald-700 border-emerald-300'
+  }
+  if (norm.includes('30+') || norm.includes('open to offers')) {
+    return 'bg-amber-50 text-amber-800 border-amber-300'
+  }
+  return 'bg-indigo-50 text-indigo-700 border-indigo-300'
+}
+
 export function ApplicationRevealCard({
   app: appProp,
   application: applicationProp,
@@ -380,8 +413,8 @@ export function ApplicationRevealCard({
               )}
               <span className="text-emerald-700 font-semibold">
                 Min: $
-                {candidate?.min_salary_expectation
-                  ? (Number(candidate.min_salary_expectation) / 1000).toFixed(
+                {(candidate?.min_salary_expectation || candidate?.min_salary || candidate?.desired_salary)
+                  ? (Number(candidate?.min_salary_expectation || candidate?.min_salary || candidate?.desired_salary) / 1000).toFixed(
                       0
                     ) + 'k'
                   : 'Open'}
@@ -431,7 +464,7 @@ export function ApplicationRevealCard({
                 {candidateLanguages
                   .map(
                     (l) =>
-                      `${l.language} (${l.modality.split(' ')[0]} • ${
+                      `${l.language} (${String(l?.modality || 'Spoken & Written').split(' ')[0]} • ${
                         l.proficiency
                       })`
                   )

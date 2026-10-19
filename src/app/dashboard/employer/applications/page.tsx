@@ -470,8 +470,10 @@ export default function EmployerInboundApplicationsPage() {
                     )}
                   </div>
                   <ApplicationRevealCard
+                    app={app}
                     application={app}
                     onStatusChange={handleLocalStatusUpdate}
+                    onStatusUpdated={handleLocalStatusUpdate}
                   />
                 </div>
               )
