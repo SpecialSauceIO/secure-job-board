@@ -44,11 +44,11 @@ export default function LandingPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-600"></span>
               </span>
-              Welcome to your future.
+              Welcome to your future
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Changing the{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-orange-500">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">
                 Hiring Landscape.
               </span>
               <br />
@@ -76,7 +76,7 @@ export default function LandingPage() {
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               No More Bots.{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-600 via-orange-500 to-amber-500">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-orange-500">
                 No More Spam.
               </span>
               <br />
@@ -102,7 +102,7 @@ export default function LandingPage() {
             <h1 className="text-3xl sm:text-4xl md:text-[3.35rem] font-extrabold text-slate-900 tracking-tight leading-[1.12] max-w-6xl mb-4">
               <span className="sm:whitespace-nowrap">
                 Lock In Permanent{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-indigo-600">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">
                   Founding Status.
                 </span>
               </span>
