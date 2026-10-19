@@ -18,6 +18,10 @@ import {
   normalizeCandidateEducation,
 } from '@/constants/education'
 import { normalizeLanguageList } from '@/constants/languages'
+import {
+  CANDIDATE_AVAILABILITY_STATUSES,
+  normalizeCandidateAvailability,
+} from '@/constants/availability'
 
 export const dynamic = 'force-dynamic'
 
@@ -86,6 +90,7 @@ function extractSavedPrefMeta(profile: any) {
       ? normalizeCandidateEducation(metaEntry.education_level)
       : 'Practical Experience & Industry Certifications',
     certifications: metaEntry.certifications || '',
+    availabilityWindow: normalizeCandidateAvailability(metaEntry.availability_window),
     languages: normalizeLanguageList(metaEntry.languages, true),
   }
 }
@@ -116,6 +121,9 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
   const submittedCertifications = String(
     formData.get('certifications') || ''
   ).trim()
+  const rawSubmittedAvailability = String(
+    formData.get('availability_window') || ''
+  ).trim()
   const rawSubmittedLanguages = String(formData.get('languages') || '').trim()
 
   // Fetch latest structured_skills from DB so we preserve saved_job_ids, saved_candidate_ids, languages, and skills
@@ -141,6 +149,10 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
     : existingPrefMeta.education_level ||
       'Practical Experience & Industry Certifications'
 
+  const finalAvailabilityWindow = rawSubmittedAvailability
+    ? normalizeCandidateAvailability(rawSubmittedAvailability)
+    : normalizeCandidateAvailability(existingPrefMeta.availability_window)
+
   const finalLanguages = rawSubmittedLanguages
     ? normalizeLanguageList(rawSubmittedLanguages, true)
     : normalizeLanguageList(existingPrefMeta.languages, true)
@@ -156,6 +168,7 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
     industry_vertical: finalIndustryVertical,
     education_level: finalEducationLevel,
     certifications: submittedCertifications,
+    availability_window: finalAvailabilityWindow,
     languages: finalLanguages,
   })
 
@@ -163,6 +176,7 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
   formData.set('industry_vertical', finalIndustryVertical)
   formData.set('education_level', finalEducationLevel)
   formData.set('certifications', submittedCertifications)
+  formData.set('availability_window', finalAvailabilityWindow)
   formData.set('languages', JSON.stringify(finalLanguages))
 
   await updateProfile(formData)
@@ -201,8 +215,13 @@ export default async function MatchPreferencesPage() {
   )
 
   const savedEmploymentTypes = extractSavedEmploymentTypes(profile)
-  const { industryVertical, educationLevel, certifications, languages } =
-    extractSavedPrefMeta(profile)
+  const {
+    industryVertical,
+    educationLevel,
+    certifications,
+    availabilityWindow,
+    languages,
+  } = extractSavedPrefMeta(profile)
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-12">
@@ -361,6 +380,26 @@ export default async function MatchPreferencesPage() {
               </div>
 
               <div>
+                <label className="block text-sm font-bold text-slate-700">
+                  ⚡ Search Status &amp; Start Availability
+                </label>
+                <p className="text-xs text-slate-500 mt-0.5 mb-2">
+                  Signals your current search intent and notice period to verified employers.
+                </p>
+                <select
+                  name="availability_window"
+                  defaultValue={availabilityWindow}
+                  className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
+                >
+                  {CANDIDATE_AVAILABILITY_STATUSES.map((statusOpt) => (
+                    <option key={statusOpt} value={statusOpt}>
+                      {statusOpt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="sm:col-span-2">
                 <label className="block text-sm font-bold text-slate-700">
                   Preferred Work Model (Dealbreaker)
                 </label>

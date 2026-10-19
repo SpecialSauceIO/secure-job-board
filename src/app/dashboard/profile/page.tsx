@@ -17,6 +17,10 @@ import {
   normalizeCandidateEducation,
 } from '@/constants/education'
 import { normalizeLanguageList } from '@/constants/languages'
+import {
+  CANDIDATE_AVAILABILITY_STATUSES,
+  normalizeCandidateAvailability,
+} from '@/constants/availability'
 
 export const dynamic = 'force-dynamic'
 
@@ -66,9 +70,12 @@ async function saveCandidateProfilePreservingMeta(formData: FormData) {
     formData.get('certifications') || ''
   ).trim()
 
-  const submittedAvailability = String(
+  const rawSubmittedAvailability = String(
     formData.get('availability_window') || ''
-  ).trim() || existingPrefObj.availability_window || '2 Weeks Notice (Standard)'
+  ).trim()
+  const submittedAvailability = rawSubmittedAvailability
+    ? normalizeCandidateAvailability(rawSubmittedAvailability)
+    : normalizeCandidateAvailability(existingPrefObj.availability_window)
 
   const rawSubmittedLanguages = String(formData.get('languages') || '').trim()
   const normalizedLanguages = rawSubmittedLanguages
@@ -186,7 +193,7 @@ export default async function ProfilePage() {
     : 'Practical Experience & Industry Certifications'
 
   const currentCertifications = prefMetaObj?.certifications || ''
-  const currentAvailability = prefMetaObj?.availability_window || '2 Weeks Notice (Standard)'
+  const currentAvailability = normalizeCandidateAvailability(prefMetaObj?.availability_window)
   const currentLanguages = normalizeLanguageList(prefMetaObj?.languages, true)
 
   const hasProfileData = !!profile?.bio
@@ -358,21 +365,21 @@ export default async function ProfilePage() {
 
           <div className="sm:col-span-2">
             <label className="block text-sm font-bold text-slate-700 mb-1.5">
-              ⚡ Start Availability / Notice Period
+              ⚡ Candidate Search Status &amp; Start Availability
             </label>
             <p className="text-xs text-slate-500 mb-2">
-              Lets verified employers know how quickly you can start without revealing your current employer.
+              Lets verified employers know whether you are actively interviewing, selectively open to high-fit pitches, or paused.
             </p>
             <select
               name="availability_window"
               defaultValue={currentAvailability}
               className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
             >
-              <option value="Immediately Available">Immediately Available</option>
-              <option value="Within 1 Week">Within 1 Week</option>
-              <option value="2 Weeks Notice (Standard)">2 Weeks Notice (Standard)</option>
-              <option value="Within 1 Month (3–4 Weeks)">Within 1 Month (3–4 Weeks)</option>
-              <option value="More than 1 Month">More than 1 Month</option>
+              {CANDIDATE_AVAILABILITY_STATUSES.map((statusOpt) => (
+                <option key={statusOpt} value={statusOpt}>
+                  {statusOpt}
+                </option>
+              ))}
             </select>
           </div>
         </div>

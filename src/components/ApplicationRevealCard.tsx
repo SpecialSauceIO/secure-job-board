@@ -391,8 +391,12 @@ export function ApplicationRevealCard({
                 Prefers {candidate?.preferred_work_model || 'Any'}
               </span>
               <span>•</span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold text-xs border border-indigo-300/70">
-                ⚡ {candidate?.availability_window || '2 Weeks Notice (Standard)'}
+              <span
+                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md font-bold text-xs border ${getAvailabilityBadgeClasses(
+                  candidate?.availability_window
+                )}`}
+              >
+                ⚡ {normalizeCandidateAvailability(candidate?.availability_window)}
               </span>
               {candidate?.location && (
                 <>

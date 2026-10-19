@@ -30,6 +30,12 @@ import {
   normalizeCandidateEducation,
 } from '@/constants/education'
 import {
+  CANDIDATE_AVAILABILITY_STATUSES,
+  normalizeCandidateAvailability,
+  isCandidatePaused,
+  getAvailabilityBadgeClasses,
+} from '@/constants/availability'
+import {
   LanguageEntry,
   STANDARD_LANGUAGES,
   normalizeLanguageList,
@@ -130,7 +136,7 @@ function normalizeSearchPillarLabel(raw: string): string {
 
 function getCandidateAvailability(candidate: any): string {
   if (candidate?.availability_window) {
-    return String(candidate.availability_window).trim()
+    return normalizeCandidateAvailability(String(candidate.availability_window))
   }
   const rawSkills = Array.isArray(candidate?.structured_skills)
     ? candidate.structured_skills
@@ -138,9 +144,9 @@ function getCandidateAvailability(candidate: any): string {
   const metaEntry = rawSkills.find(
     (item: any) => item && item._ss_pref_meta === true
   )
-  return metaEntry?.availability_window
-    ? String(metaEntry.availability_window).trim()
-    : '2 Weeks Notice (Standard)'
+  return normalizeCandidateAvailability(
+    metaEntry?.availability_window ? String(metaEntry.availability_window) : null
+  )
 }
 
 function getCandidateCertifications(candidate: any): string {
@@ -1093,8 +1099,13 @@ export default function EmployerCandidateSearch({
                       {candidateIndustry || 'General / Cross-Industry'}
                     </span>
                     <span className="text-slate-300">•</span>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold text-[11px] border border-indigo-300">
-                      ⚡ {getCandidateAvailability(candidate)}
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md font-bold text-[11px] border ${getAvailabilityBadgeClasses(
+                        getCandidateAvailability(candidate)
+                      )}`}
+                    >
+                      {isCandidatePaused(getCandidateAvailability(candidate)) ? '⏸' : '⚡'}{' '}
+                      {getCandidateAvailability(candidate)}
                     </span>
                     {candidate.location && (
                       <>
