@@ -481,32 +481,32 @@ export default async function DashboardPage({
           </div>
         </header>
 
-        {/* 4 PASTEL COLOR-CODED EMPLOYER WIDGETS */}
+        {/* 4 HIGH-CONTRAST COLORBLIND-SAFE EMPLOYER WIDGETS */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {/* Card 1: Manage Company (Soft Sky Blue Pastel) */}
+          {/* Card 1: Manage Company (Crisp Slate / Charcoal Anchor) */}
           <Link
             href="/dashboard/employer/organization"
-            className="group bg-sky-50/75 hover:bg-sky-100/70 p-6 rounded-2xl border border-sky-200/90 hover:border-sky-400 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
+            className="group bg-slate-100/90 hover:bg-slate-200/75 p-6 rounded-2xl border-2 border-slate-300 border-t-4 border-t-slate-900 hover:border-slate-500 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="w-10 h-10 rounded-xl bg-white border border-sky-200 text-sky-700 flex items-center justify-center text-base shadow-2xs">
+                <span className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center text-base shadow-xs">
                   🏢
                 </span>
                 <span
-                  className={`px-2.5 py-1 rounded-lg text-xs font-extrabold ${
+                  className={`px-2.5 py-1 rounded-lg text-xs font-black ${
                     isOrgVerified
-                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                      : 'bg-amber-100 text-amber-800 border border-amber-300'
+                      ? 'bg-slate-900 text-white'
+                      : 'bg-amber-300 text-slate-950'
                   }`}
                 >
                   {isOrgVerified ? '✓ Verified' : 'Setup Needed'}
                 </span>
               </div>
-              <h3 className="text-lg font-black text-slate-900">
+              <h3 className="text-lg font-black text-slate-950">
                 Manage Company
               </h3>
-              <p className="text-xs text-slate-600 mt-1">
+              <p className="text-xs font-medium text-slate-700 mt-1">
                 {isOrgVerified
                   ? `Domain verified • Up to ${tierInfo.maxSeats} team ${
                       tierInfo.maxSeats === 1 ? 'seat' : 'seats'
@@ -514,33 +514,33 @@ export default async function DashboardPage({
                   : 'Verify domain, manage seats & ATS webhooks'}
               </p>
             </div>
-            <p className="text-xs font-extrabold text-sky-800 group-hover:text-sky-950 mt-5">
+            <p className="text-xs font-black text-slate-900 group-hover:underline mt-5">
               Company, logo &amp; seats →
             </p>
           </Link>
 
-          {/* Card 2: Manage Active Roles (Soft Indigo Pastel) */}
+          {/* Card 2: Manage Active Roles (Vibrant Royal Blue) */}
           <Link
             href={
               hasOrg
                 ? '/dashboard/employer/jobs'
                 : '/dashboard/employer/organization'
             }
-            className="group bg-indigo-50/75 hover:bg-indigo-100/70 p-6 rounded-2xl border border-indigo-200/90 hover:border-indigo-400 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
+            className="group bg-blue-100/80 hover:bg-blue-200/70 p-6 rounded-2xl border-2 border-blue-300 border-t-4 border-t-blue-600 hover:border-blue-500 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="w-10 h-10 rounded-xl bg-white border border-indigo-200 text-indigo-700 flex items-center justify-center text-base shadow-2xs">
+                <span className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-base shadow-xs">
                   💼
                 </span>
-                <span className="text-xs font-black text-indigo-900 bg-white border border-indigo-200 px-2.5 py-1 rounded-lg">
+                <span className="text-xs font-black text-blue-950 bg-white border-2 border-blue-300 px-2.5 py-1 rounded-lg">
                   {rolesBadgeText}
                 </span>
               </div>
-              <h3 className="text-lg font-black text-slate-900">
+              <h3 className="text-lg font-black text-blue-950">
                 Manage Active Roles
               </h3>
-              <p className="text-xs text-slate-600 mt-1">
+              <p className="text-xs font-medium text-blue-900/80 mt-1">
                 {tierInfo.maxActiveJobs >= 500
                   ? 'Unlimited active role slots enabled'
                   : `${Math.max(
@@ -549,40 +549,40 @@ export default async function DashboardPage({
                     )} active role slots remaining`}
               </p>
             </div>
-            <p className="text-xs font-extrabold text-indigo-800 group-hover:text-indigo-950 mt-5">
+            <p className="text-xs font-black text-blue-900 group-hover:underline mt-5">
               View &amp; edit roles →
             </p>
           </Link>
 
-          {/* Card 3: Outbound Pitches (Soft Amber Pastel) */}
+          {/* Card 3: Outbound Pitches (Warm High-Luminance Gold / Amber) */}
           <Link
             href={
               hasOrg
                 ? '/dashboard/employer/pitches'
                 : '/dashboard/employer/organization'
             }
-            className="group bg-amber-50/75 hover:bg-amber-100/70 p-6 rounded-2xl border border-amber-200/90 hover:border-amber-400 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
+            className="group bg-amber-100/90 hover:bg-amber-200/75 p-6 rounded-2xl border-2 border-amber-400 border-t-4 border-t-amber-600 hover:border-amber-600 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="w-10 h-10 rounded-xl bg-white border border-amber-200 text-amber-700 flex items-center justify-center text-base shadow-2xs">
+                <span className="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center text-base shadow-xs">
                   📤
                 </span>
                 <div className="flex items-center gap-1.5">
                   {pitchesUnreadMsgsCount > 0 && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 text-xs font-black animate-pulse">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-950 text-amber-300 text-xs font-black animate-pulse">
                       💬 {pitchesUnreadMsgsCount} New
                     </span>
                   )}
-                  <span className="text-xs font-black text-amber-950 bg-white border border-amber-200 px-2.5 py-1 rounded-lg">
+                  <span className="text-xs font-black text-amber-950 bg-white border-2 border-amber-400 px-2.5 py-1 rounded-lg">
                     {sentPitchesCount} Sent
                   </span>
                 </div>
               </div>
-              <h3 className="text-lg font-black text-slate-900">
+              <h3 className="text-lg font-black text-slate-950">
                 Outbound Pitches
               </h3>
-              <p className="text-xs text-slate-600 mt-1">
+              <p className="text-xs font-medium text-amber-950/85 mt-1">
                 {pitchesUnreadMsgsCount > 0
                   ? `${pitchesUnreadMsgsCount} unread candidate ${
                       pitchesUnreadMsgsCount === 1 ? 'reply' : 'replies'
@@ -592,44 +592,44 @@ export default async function DashboardPage({
                   : 'Candidates you pitched from Talent Search'}
               </p>
             </div>
-            <p className="text-xs font-extrabold text-amber-900 group-hover:text-amber-950 mt-5">
+            <p className="text-xs font-black text-amber-950 group-hover:underline mt-5">
               Open outbound pitches →
             </p>
           </Link>
 
-          {/* Card 4: Inbound Applications (Soft Emerald Pastel) */}
+          {/* Card 4: Inbound Applications (Deep Violet / Purple Contrast) */}
           <Link
             href={
               hasOrg
                 ? '/dashboard/employer/applications'
                 : '/dashboard/employer/organization'
             }
-            className="group bg-emerald-50/75 hover:bg-emerald-100/70 p-6 rounded-2xl border border-emerald-200/90 hover:border-emerald-400 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
+            className="group bg-purple-100/85 hover:bg-purple-200/75 p-6 rounded-2xl border-2 border-purple-300 border-t-4 border-t-purple-700 hover:border-purple-500 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="w-10 h-10 rounded-xl bg-white border border-emerald-200 text-emerald-700 flex items-center justify-center text-base shadow-2xs">
+                <span className="w-10 h-10 rounded-xl bg-purple-700 text-white flex items-center justify-center text-base shadow-xs">
                   📥
                 </span>
                 <div className="flex items-center gap-1.5">
                   {inboundUnreadMsgsCount > 0 ? (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 text-xs font-black animate-pulse">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-900 text-white text-xs font-black animate-pulse">
                       💬 {inboundUnreadMsgsCount} New
                     </span>
                   ) : pendingAppsCount > 0 ? (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-200/80 text-emerald-950 text-xs font-black">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-700 text-white text-xs font-black">
                       {pendingAppsCount} Awaiting
                     </span>
                   ) : null}
-                  <span className="text-xs font-black text-emerald-950 bg-white border border-emerald-200 px-2.5 py-1 rounded-lg">
+                  <span className="text-xs font-black text-purple-950 bg-white border-2 border-purple-300 px-2.5 py-1 rounded-lg">
                     {inboundTotalCount} Total
                   </span>
                 </div>
               </div>
-              <h3 className="text-lg font-black text-slate-900">
+              <h3 className="text-lg font-black text-purple-950">
                 Inbound Applications
               </h3>
-              <p className="text-xs text-slate-600 mt-1">
+              <p className="text-xs font-medium text-purple-900/85 mt-1">
                 {inboundUnreadMsgsCount > 0
                   ? `${inboundUnreadMsgsCount} unread applicant ${
                       inboundUnreadMsgsCount === 1 ? 'message' : 'messages'
@@ -639,7 +639,7 @@ export default async function DashboardPage({
                   : 'Candidates who applied to your roles (free unlock)'}
               </p>
             </div>
-            <p className="text-xs font-extrabold text-emerald-800 group-hover:text-emerald-950 mt-5">
+            <p className="text-xs font-black text-purple-900 group-hover:underline mt-5">
               Review inbound applicants →
             </p>
           </Link>
@@ -833,65 +833,67 @@ export default async function DashboardPage({
         </div>
       )}
 
-      {/* 4 PASTEL COLOR-CODED CANDIDATE WIDGETS */}
+      {/* 4 HIGH-CONTRAST COLORBLIND-SAFE CANDIDATE WIDGETS */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* Card 1: My Skill Profile (Crisp Slate / Charcoal Anchor) */}
         <Link
           href="/dashboard/profile"
-          className="group bg-sky-50/75 hover:bg-sky-100/70 p-6 rounded-2xl border border-sky-200/90 hover:border-sky-400 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
+          className="group bg-slate-100/90 hover:bg-slate-200/75 p-6 rounded-2xl border-2 border-slate-300 border-t-4 border-t-slate-900 hover:border-slate-500 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
         >
           <div>
             <div className="flex items-center justify-between mb-4">
-              <span className="w-10 h-10 rounded-xl bg-white border border-sky-200 text-sky-700 flex items-center justify-center text-base shadow-2xs">
+              <span className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center text-base shadow-xs">
                 📄
               </span>
               <span
-                className={`px-2.5 py-1 rounded-lg text-xs font-extrabold ${
+                className={`px-2.5 py-1 rounded-lg text-xs font-black ${
                   hasProfileData
-                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                    : 'bg-amber-100 text-amber-800 border border-amber-300'
+                    ? 'bg-slate-900 text-white'
+                    : 'bg-amber-300 text-slate-950'
                 }`}
               >
                 {hasProfileData ? '✓ Ready' : 'Setup'}
               </span>
             </div>
-            <h3 className="text-lg font-black text-slate-900">
+            <h3 className="text-lg font-black text-slate-950">
               My Skill Profile
             </h3>
-            <p className="text-xs text-slate-600 mt-1">
+            <p className="text-xs font-medium text-slate-700 mt-1">
               {hasProfileData
                 ? 'Resume parsed & ready for AI matching'
                 : 'Upload your PDF resume to auto-fill skills'}
             </p>
           </div>
-          <p className="text-xs font-extrabold text-sky-800 group-hover:text-sky-950 mt-5">
+          <p className="text-xs font-black text-slate-900 group-hover:underline mt-5">
             {hasProfileData ? 'Edit skill matrix →' : 'Upload resume →'}
           </p>
         </Link>
 
+        {/* Card 2: Inbound Pitches (Vibrant Royal Blue) */}
         <Link
           href="/dashboard/requests"
-          className="group bg-emerald-50/75 hover:bg-emerald-100/70 p-6 rounded-2xl border border-emerald-200/90 hover:border-emerald-400 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
+          className="group bg-blue-100/80 hover:bg-blue-200/70 p-6 rounded-2xl border-2 border-blue-300 border-t-4 border-t-blue-600 hover:border-blue-500 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
         >
           <div>
             <div className="flex items-center justify-between mb-4">
-              <span className="w-10 h-10 rounded-xl bg-white border border-emerald-200 text-emerald-700 flex items-center justify-center text-base shadow-2xs">
+              <span className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-base shadow-xs">
                 📥
               </span>
               <div className="flex items-center gap-1.5">
                 {unreadPitchMsgsCount > 0 && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 text-xs font-black animate-pulse">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-900 text-white text-xs font-black animate-pulse">
                     💬 {unreadPitchMsgsCount} New
                   </span>
                 )}
-                <span className="text-xs font-black text-emerald-950 bg-white border border-emerald-200 px-2.5 py-1 rounded-lg">
+                <span className="text-xs font-black text-blue-950 bg-white border-2 border-blue-300 px-2.5 py-1 rounded-lg">
                   {inboundEmployerPitches.length} Total
                 </span>
               </div>
             </div>
-            <h3 className="text-lg font-black text-slate-900">
+            <h3 className="text-lg font-black text-blue-950">
               Inbound Pitches
             </h3>
-            <p className="text-xs text-slate-600 mt-1">
+            <p className="text-xs font-medium text-blue-900/80 mt-1">
               {unreadPitchMsgsCount > 0
                 ? 'An employer sent you a message in your pitch inbox'
                 : pendingRequestsCount > 0
@@ -899,63 +901,65 @@ export default async function DashboardPage({
                 : 'Direct role pitches from verified employers'}
             </p>
           </div>
-          <p className="text-xs font-extrabold text-emerald-800 group-hover:text-emerald-950 mt-5">
+          <p className="text-xs font-black text-blue-900 group-hover:underline mt-5">
             Open inbound pitches →
           </p>
         </Link>
 
+        {/* Card 3: Outbound Applications (Warm High-Luminance Gold / Amber) */}
         <Link
           href="/dashboard/applications"
-          className="group bg-amber-50/75 hover:bg-amber-100/70 p-6 rounded-2xl border border-amber-200/90 hover:border-amber-400 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
+          className="group bg-amber-100/90 hover:bg-amber-200/75 p-6 rounded-2xl border-2 border-amber-400 border-t-4 border-t-amber-600 hover:border-amber-600 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
         >
           <div>
             <div className="flex items-center justify-between mb-4">
-              <span className="w-10 h-10 rounded-xl bg-white border border-amber-200 text-amber-700 flex items-center justify-center text-base shadow-2xs">
+              <span className="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center text-base shadow-xs">
                 📤
               </span>
               <div className="flex items-center gap-1.5">
                 {unreadOutboundMsgsCount > 0 && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 text-xs font-black animate-pulse">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-950 text-amber-300 text-xs font-black animate-pulse">
                     💬 {unreadOutboundMsgsCount} New
                   </span>
                 )}
-                <span className="text-xs font-black text-amber-950 bg-white border border-amber-200 px-2.5 py-1 rounded-lg">
+                <span className="text-xs font-black text-amber-950 bg-white border-2 border-amber-400 px-2.5 py-1 rounded-lg">
                   {applicationCount} Sent
                 </span>
               </div>
             </div>
-            <h3 className="text-lg font-black text-slate-900">
+            <h3 className="text-lg font-black text-slate-950">
               Outbound Applications
             </h3>
-            <p className="text-xs text-slate-600 mt-1">
+            <p className="text-xs font-medium text-amber-950/85 mt-1">
               {unreadOutboundMsgsCount > 0
                 ? 'An employer messaged you about your application!'
                 : 'Track blind applications & unlocked employers'}
             </p>
           </div>
-          <p className="text-xs font-extrabold text-amber-900 group-hover:text-amber-950 mt-5">
+          <p className="text-xs font-black text-amber-950 group-hover:underline mt-5">
             Track applications →
           </p>
         </Link>
 
+        {/* Card 4: Match Preferences (Deep Violet / Purple Contrast) */}
         <Link
           href="/dashboard/preferences"
-          className="group bg-indigo-50/75 hover:bg-indigo-100/70 p-6 rounded-2xl border border-indigo-200/90 hover:border-indigo-400 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
+          className="group bg-purple-100/85 hover:bg-purple-200/75 p-6 rounded-2xl border-2 border-purple-300 border-t-4 border-t-purple-700 hover:border-purple-500 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
         >
           <div>
             <div className="flex items-center justify-between mb-4">
-              <span className="w-10 h-10 rounded-xl bg-white border border-indigo-200 text-indigo-700 flex items-center justify-center text-base shadow-2xs">
+              <span className="w-10 h-10 rounded-xl bg-purple-700 text-white flex items-center justify-center text-base shadow-xs">
                 🛡️
               </span>
             </div>
-            <h3 className="text-lg font-black text-slate-900">
+            <h3 className="text-lg font-black text-purple-950">
               Match Preferences
             </h3>
-            <p className="text-xs text-slate-600 mt-1">
+            <p className="text-xs font-medium text-purple-900/85 mt-1">
               Set minimum salary, employment types &amp; work model
             </p>
           </div>
-          <p className="text-xs font-extrabold text-indigo-800 group-hover:text-indigo-950 mt-5">
+          <p className="text-xs font-black text-purple-900 group-hover:underline mt-5">
             Edit dealbreakers →
           </p>
         </Link>
