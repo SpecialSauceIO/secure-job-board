@@ -7,39 +7,26 @@ import {
 } from '@/constants/gamification'
 
 export function RankAndFounderPill({
-  tier,
   isFounder = true,
   founderText = 'Founding Member',
   size = 'sm',
 }: {
   level?: number
-  tier: MetalTierConfig
+  tier?: MetalTierConfig
   isFounder?: boolean
   founderText?: string
   size?: 'xs' | 'sm'
 }) {
+  if (!isFounder) return null
+
   const paddingClass =
     size === 'xs' ? 'px-2 py-0.5 text-[10px]' : 'px-2.5 py-1 text-[11px]'
 
-  const signalLabel =
-    tier?.name &&
-    tier.name !== 'Member' &&
-    tier.name !== 'Employer' &&
-    tier.name !== founderText
-      ? tier.name
-      : ''
-
-  if (!isFounder && !signalLabel) return null
-
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-md font-semibold border ${paddingClass} bg-slate-100 text-slate-700 border-slate-200`}
+      className={`inline-flex items-center rounded-md font-bold border ${paddingClass} bg-slate-100 text-slate-800 border-slate-300`}
     >
-      {isFounder && (
-        <span className="font-bold text-slate-900">{founderText}</span>
-      )}
-      {isFounder && signalLabel && <span className="text-slate-300">·</span>}
-      {signalLabel && <span className="text-slate-600">{signalLabel}</span>}
+      {founderText}
     </span>
   )
 }
