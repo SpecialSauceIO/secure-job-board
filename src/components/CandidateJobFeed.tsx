@@ -629,10 +629,10 @@ export function CandidateJobFeed({
               <div className="p-6 md:p-7 space-y-4">
                 {/* Row 1: Fixed Top Identity Bar & Save / Compensation Action Group */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
                     <span
                       title={`Blind Role • ${anonymousTeaserParts.join(' • ')}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-slate-900 text-white text-[11px] font-extrabold uppercase tracking-wider max-w-full overflow-hidden"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-slate-900 text-white text-[11px] font-extrabold uppercase tracking-wider min-w-0 shrink overflow-hidden"
                     >
                       <span className="shrink-0">🔒</span>
                       <span className="truncate">
