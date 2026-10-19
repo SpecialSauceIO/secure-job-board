@@ -103,7 +103,7 @@ export default function LandingPage() {
               <span className="sm:whitespace-nowrap">
                 Lock In Permanent{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0077D4] to-[#1DA1F2]">
-                  Founding Status.
+                  Founder Status.
                 </span>
               </span>
               <br />
