@@ -380,7 +380,7 @@ export default async function DashboardPage({
         <DashboardLiveSync />
 
         {/* WHITE-LABEL COMPANY BRAND HEADER */}
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b-2 border-slate-300">
           <div className="flex items-center gap-4">
             <EmployerBrandLogoUploader
               companyName={companyDisplayName}
@@ -869,7 +869,7 @@ export default async function DashboardPage({
       <DashboardLiveSync />
 
       {/* CANDIDATE HERO ROW */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b-2 border-slate-300">
         <div>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
@@ -1202,7 +1202,7 @@ export default async function DashboardPage({
       <ReputationBadgeCase summary={candidateGamification} />
 
       {/* RECOMMENDED ROLES SECTION */}
-      <section className="pt-6 border-t border-slate-200">
+      <section className="pt-6 border-t-2 border-slate-300">
         <div className="flex items-center justify-between gap-4 mb-5">
           <div>
             <h2 className="text-lg font-extrabold text-slate-900">
