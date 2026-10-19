@@ -184,7 +184,7 @@ export default async function DashboardPage({
   if (!profile?.role) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center p-6">
-        <div className="max-w-3xl w-full bg-white rounded-3xl shadow-xl border-2 border-2-slate-200 overflow-hidden">
+        <div className="max-w-3xl w-full bg-white rounded-3xl shadow-xl border-2 border-2-slate-200 overflow-hidden border-slate-300">
           <div className="p-10 text-center bg-slate-900 text-white">
             <h1 className="text-3xl md:text-4xl font-extrabold mb-3 tracking-tight">
               Welcome to Special Sauce
@@ -432,7 +432,7 @@ export default async function DashboardPage({
                 href="/dashboard/employer/search?saved=true"
                 className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border-2 text-xs font-extrabold transition-colors shadow-xs ${
                   savedCandidatesCount > 0
-                    ? 'bg-amber-50 border-amber-400 text-amber-900 hover:bg-amber-100'
+                    ? 'bg-amber-50 border-slate-300 text-amber-900 hover:bg-amber-100'
                     : 'bg-white border-slate-300 text-slate-700 hover:border-slate-400'
                 }`}
               >
@@ -616,7 +616,7 @@ export default async function DashboardPage({
             }
             className={`group p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
               a11yColorTiles
-                ? 'bg-amber-100/80 hover:bg-amber-200/65 border-amber-400 hover:border-amber-500 shadow-xs'
+                ? 'bg-amber-100/80 hover:bg-amber-200/65 border-slate-300 hover:border-slate-300 shadow-xs'
                 : 'bg-white hover:bg-slate-50/60 border-slate-300 hover:border-slate-400 shadow-xs'
             }`}
           >
@@ -905,7 +905,7 @@ export default async function DashboardPage({
             href="/dashboard/jobs?saved=true"
             className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border-2 text-xs font-extrabold transition-colors shadow-xs ${
               savedJobsCount > 0
-                ? 'bg-amber-50 border-amber-400 text-amber-900 hover:bg-amber-100'
+                ? 'bg-amber-50 border-slate-300 text-amber-900 hover:bg-amber-100'
                 : 'bg-white border-slate-300 text-slate-700 hover:border-slate-400'
             }`}
           >
@@ -1082,7 +1082,7 @@ export default async function DashboardPage({
           href="/dashboard/applications"
           className={`group p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
             a11yColorTiles
-              ? 'bg-amber-100/80 hover:bg-amber-200/65 border-amber-400 hover:border-amber-500 shadow-xs'
+              ? 'bg-amber-100/80 hover:bg-amber-200/65 border-slate-300 hover:border-slate-300 shadow-xs'
               : 'bg-white hover:bg-slate-50/60 border-slate-300 hover:border-slate-400 shadow-xs'
           }`}
         >

@@ -516,7 +516,7 @@ export default function SecureMessageThread({
               ? `Write an introductory message to ${candidateDisplayName} to request interview & resume release...`
               : 'Write a secure message...'
           }
-          className="flex-1 rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-medium text-slate-900 focus:bg-white focus:border-2-indigo-500 focus:outline-none"
+          className="flex-1 rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-medium text-slate-900 focus:bg-white focus:border-2-indigo-500 focus:outline-none border-slate-300"
         />
         <button
           type="submit"

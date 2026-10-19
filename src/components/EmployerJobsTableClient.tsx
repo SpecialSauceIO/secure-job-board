@@ -164,7 +164,7 @@ export default function EmployerJobsTableClient({
   return (
     <div className="space-y-5">
       {/* Organizer Toolbar: Status Tabs + Search + Industry + Work Type + Sort By */}
-      <div className="bg-white p-5 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-4">
+      <div className="bg-white p-5 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-4 border-slate-300">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* Status Filter Tabs */}
           <div className="flex flex-wrap items-center gap-2">
@@ -225,7 +225,7 @@ export default function EmployerJobsTableClient({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search roles by title, US metro, or skill..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl border-2 border-2-slate-200 bg-slate-50 text-xs font-medium text-slate-900 focus:bg-white focus:border-2-indigo-500 focus:outline-none"
+              className="w-full pl-10 pr-4 py-2 rounded-xl border-2 border-2-slate-200 bg-slate-50 text-xs font-medium text-slate-900 focus:bg-white focus:border-2-indigo-500 focus:outline-none border-slate-300"
             />
           </div>
         </div>
@@ -243,7 +243,7 @@ export default function EmployerJobsTableClient({
               id="manage-jobs-industry"
               value={industryFilter}
               onChange={(e) => setIndustryFilter(e.target.value)}
-              className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
+              className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer border-slate-300"
             >
               <option value="all">All Industry Verticals</option>
               {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
@@ -265,7 +265,7 @@ export default function EmployerJobsTableClient({
               id="manage-jobs-emp-type"
               value={employmentTypeFilter}
               onChange={(e) => setEmploymentTypeFilter(e.target.value)}
-              className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
+              className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer border-slate-300"
             >
               <option value="all">All Employment Types</option>
               {EMPLOYMENT_TYPES.map((t) => (
@@ -289,7 +289,7 @@ export default function EmployerJobsTableClient({
               onChange={(e) =>
                 setSortBy(e.target.value as EmployerJobSortOption)
               }
-              className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
+              className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer border-slate-300"
             >
               <option value="closing_soon">
                 Closing Soonest (30-Day Countdown)
@@ -318,7 +318,7 @@ export default function EmployerJobsTableClient({
 
       {/* Jobs Table or Empty Filter State */}
       {filteredAndSortedJobs.length === 0 ? (
-        <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-sm">
+        <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-sm border-slate-300">
           <p className="text-sm font-bold text-slate-700 mb-2">
             No roles match your current status, keyword, Employment Type, or Industry Vertical filter.
           </p>
@@ -336,9 +336,9 @@ export default function EmployerJobsTableClient({
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border-2 border-2-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border-2 border-2-slate-200 shadow-sm overflow-hidden border-slate-300">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse border-slate-300">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-300">
                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">

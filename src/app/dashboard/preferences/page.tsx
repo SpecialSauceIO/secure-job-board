@@ -236,7 +236,7 @@ export default async function MatchPreferencesPage() {
         </header>
 
         {!isVerified && (
-          <div className="p-6 rounded-2xl bg-amber-50 border-2 border-amber-500 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-6 rounded-2xl bg-amber-50 border-2 border-slate-300 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-sm font-extrabold text-amber-950">
                 Identity Verification Required
@@ -258,7 +258,7 @@ export default async function MatchPreferencesPage() {
 
         <form
           action={saveCandidatePreferencesWithEmploymentTypes}
-          className="bg-white p-6 md:p-8 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-6"
+          className="bg-white p-6 md:p-8 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-6 border-slate-300"
         >
           <input
             type="hidden"
@@ -315,7 +315,7 @@ export default async function MatchPreferencesPage() {
                   return (
                     <label
                       key={opt.value}
-                      className="relative flex items-start gap-3 p-3.5 rounded-xl border-2 border-2-slate-200 bg-slate-50/60 hover:bg-indigo-50/40 hover:border-2-indigo-300 transition-colors cursor-pointer"
+                      className="relative flex items-start gap-3 p-3.5 rounded-xl border-2 border-2-slate-200 bg-slate-50/60 hover:bg-indigo-50/40 hover:border-2-indigo-300 transition-colors cursor-pointer border-slate-300"
                     >
                       <input
                         type="checkbox"

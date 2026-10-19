@@ -301,7 +301,7 @@ export function ApplicationRevealCard({
           : status === 'rejected'
           ? 'border-slate-300 opacity-80'
           : rankInfo.isFounder
-          ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
+          ? 'border-2 border-slate-300 shadow-sm '
           : 'border-slate-300 hover:border-slate-400'
       }`}
     >
@@ -458,7 +458,7 @@ export function ApplicationRevealCard({
         )}
 
         {/* AI Fit Summary */}
-        <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-2-slate-200/80 text-xs text-slate-700 space-y-1">
+        <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-2-slate-200/80 text-xs text-slate-700 space-y-1 border-slate-300">
           <div className="flex items-center justify-between font-bold text-indigo-700">
             <span>AI Fit Summary</span>
             {radarData && (
@@ -476,7 +476,7 @@ export function ApplicationRevealCard({
 
         {/* Expandable Radar */}
         {isMounted && showRadar && radarData && (
-          <div className="p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200 flex flex-col lg:flex-row items-center gap-4">
+          <div className="p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200 flex flex-col lg:flex-row items-center gap-4 border-slate-300">
             <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
               {radarData.map((item: any, idx: number) => (
                 <div
@@ -558,7 +558,7 @@ export function ApplicationRevealCard({
                   type="button"
                   disabled={isProcessing}
                   onClick={() => handleDecision('rejected')}
-                  className="px-3 py-2 rounded-xl border-2 border-2-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer"
+                  className="px-3 py-2 rounded-xl border-2 border-2-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer border-slate-300"
                 >
                   Not a Fit
                 </button>

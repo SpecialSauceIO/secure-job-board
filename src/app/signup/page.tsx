@@ -14,7 +14,7 @@ export default function SignupSelectionPage() {
         </Link>
       </div>
 
-      <div className="max-w-3xl w-full bg-white rounded-3xl shadow-xl border-2 border-2-slate-200 overflow-hidden">
+      <div className="max-w-3xl w-full bg-white rounded-3xl shadow-xl border-2 border-2-slate-200 overflow-hidden border-slate-300">
         {/* Header */}
         <div className="p-10 text-center bg-slate-900 text-white">
           <h1 className="text-3xl md:text-4xl font-extrabold mb-3 tracking-tight">Join the Platform</h1>

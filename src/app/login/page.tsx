@@ -218,7 +218,7 @@ function LoginContent() {
   }
 
   return (
-    <div className="w-full max-w-md rounded-2xl bg-white p-8 sm:p-10 shadow-sm border-2 border-2-slate-200">
+    <div className="w-full max-w-md rounded-2xl bg-white p-8 sm:p-10 shadow-sm border-2 border-2-slate-200 border-slate-300">
       <div className="text-center mb-7">
         <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
           {mode === 'new_password'
@@ -473,7 +473,7 @@ function LoginContent() {
         </form>
       ) : mode === 'lookup' ? (
         <form onSubmit={handleUsernameLookup} className="space-y-5">
-          <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-100 border-2 border-2-slate-200">
+          <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-100 border-2 border-2-slate-200 border-slate-300">
             <button
               type="button"
               onClick={() => {
@@ -714,7 +714,7 @@ export default function LoginPage() {
 
       <Suspense
         fallback={
-          <div className="w-full max-w-md rounded-2xl bg-white p-10 shadow-sm border-2 border-2-slate-200 text-center text-xs font-bold text-slate-400">
+          <div className="w-full max-w-md rounded-2xl bg-white p-10 shadow-sm border-2 border-2-slate-200 text-center text-xs font-bold text-slate-400 border-slate-300">
             Loading secure sign-in...
           </div>
         }

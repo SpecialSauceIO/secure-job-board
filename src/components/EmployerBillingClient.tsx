@@ -175,8 +175,8 @@ export default function EmployerBillingClient({
               <span
                 className={`px-3 py-0.5 rounded-full text-xs font-extrabold border ${
                   currentTier === 'free'
-                    ? 'bg-amber-500/20 text-amber-300 border-amber-400/30'
-                    : 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30'
+                    ? 'bg-amber-500/20 text-amber-300 border-slate-300/30'
+                    : 'bg-emerald-500/20 text-emerald-300 border-slate-300/30'
                 }`}
               >
                 {tierDisplayLabel}
@@ -338,7 +338,7 @@ export default function EmployerBillingClient({
       </div>
 
       {/* Team & BPO Partner Seat Management Callout */}
-      <div className="p-6 rounded-2xl bg-white border-2 border-2-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="p-6 rounded-2xl bg-white border-2 border-2-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 border-slate-300">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-md bg-violet-100 text-violet-800 text-[10px] font-extrabold uppercase tracking-wider">

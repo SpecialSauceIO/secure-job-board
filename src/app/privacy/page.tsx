@@ -15,7 +15,7 @@ export default function PrivacyPolicyPage() {
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col justify-between">
       <PublicHeader />
       <main className="py-14 px-6 md:px-12">
-      <div className="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-3xl shadow-sm border-2 border-2-slate-200">
+      <div className="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-3xl shadow-sm border-2 border-2-slate-200 border-slate-300">
         {/* Header */}
         <div className="mb-12 border-b border-slate-300 pb-8">
           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">

@@ -32,7 +32,7 @@ export function JobSearchFilters({ onSearch }: JobSearchFiltersProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-4 rounded-lg shadow-sm border mb-6 flex flex-wrap gap-4 items-end">
+    <form onSubmit={handleSubmit} className="bg-white p-4 rounded-lg shadow-sm border mb-6 flex flex-wrap gap-4 items-end border-slate-300">
       <div className="flex-1 min-w-[200px]">
         <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Keywords</label>
         <input 

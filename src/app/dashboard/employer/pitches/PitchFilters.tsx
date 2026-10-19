@@ -32,7 +32,7 @@ export default function PitchFilters({
   }
 
   return (
-    <div className="flex flex-col gap-3 bg-white p-4 rounded-xl border-2 border-2-slate-200 shadow-sm">
+    <div className="flex flex-col gap-3 bg-white p-4 rounded-xl border-2 border-2-slate-200 shadow-sm border-slate-300">
       
       {/* Search Bar Row */}
       <form onSubmit={handleSearch} className="flex gap-2">

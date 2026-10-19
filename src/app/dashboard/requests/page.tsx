@@ -195,7 +195,7 @@ export default function CandidateRequestsInboxPage() {
       </header>
 
       {/* Filter Tabs */}
-      <div className="bg-white p-4 rounded-2xl border-2 border-2-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-white p-4 rounded-2xl border-2 border-2-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3 border-slate-300">
         <div className="flex flex-wrap items-center gap-1.5">
           {[
             { id: 'all', label: `All Pitches (${requests.length})` },
@@ -225,14 +225,14 @@ export default function CandidateRequestsInboxPage() {
 
       {/* Pitches List */}
       {isLoading ? (
-        <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-xs">
+        <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-xs border-slate-300">
           <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-3" />
           <p className="text-sm font-bold text-slate-500">
             Loading your employer pitch inbox...
           </p>
         </div>
       ) : filteredRequests.length === 0 ? (
-        <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-xs space-y-3">
+        <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-xs space-y-3 border-slate-300">
           <h3 className="text-lg font-extrabold text-slate-900">
             No employer pitches in this tab yet
           </h3>
@@ -304,7 +304,7 @@ export default function CandidateRequestsInboxPage() {
                     : isDeclined
                     ? 'border-slate-300 opacity-75'
                     : rankInfo.isFounder
-                    ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
+                    ? 'border-2 border-slate-300 shadow-sm '
                     : 'border-slate-300 hover:border-slate-400'
                 }`}
               >
@@ -404,7 +404,7 @@ export default function CandidateRequestsInboxPage() {
                   )}
 
                   {/* AI Pitch Summary */}
-                  <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-2-slate-200/80 text-xs text-slate-700 space-y-1">
+                  <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-2-slate-200/80 text-xs text-slate-700 space-y-1 border-slate-300">
                     <div className="flex items-center justify-between font-bold text-indigo-700">
                       <span>Why You Matched (5-Point AI Radar)</span>
                       {radarData && (
@@ -431,7 +431,7 @@ export default function CandidateRequestsInboxPage() {
 
                   {/* Expandable Radar */}
                   {isMounted && showRadar && radarData && (
-                    <div className="p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200 flex flex-col lg:flex-row items-center gap-4">
+                    <div className="p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200 flex flex-col lg:flex-row items-center gap-4 border-slate-300">
                       <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {radarData.map((item: any, idx: number) => (
                           <div
@@ -529,7 +529,7 @@ export default function CandidateRequestsInboxPage() {
                           type="button"
                           disabled={processingId === req.id}
                           onClick={() => handleDecision(req.id, 'declined')}
-                          className="px-3.5 py-2 rounded-xl border-2 border-2-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer"
+                          className="px-3.5 py-2 rounded-xl border-2 border-2-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer border-slate-300"
                         >
                           Decline
                         </button>

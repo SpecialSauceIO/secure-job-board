@@ -126,7 +126,7 @@ export default function EmployerBillingPage() {
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <Link
             href="/dashboard/employer/organization"
-            className="px-4 py-2.5 rounded-xl border-2 border-2-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors"
+            className="px-4 py-2.5 rounded-xl border-2 border-2-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors border-slate-300"
           >
             Company, Seats &amp; ATS Hub
           </Link>
@@ -141,14 +141,14 @@ export default function EmployerBillingPage() {
 
       {/* Dynamic Founding Partner Status & Live Plan Summary Banner */}
       {isLoading ? (
-        <div className="rounded-2xl bg-white border-2 border-2-slate-200 p-8 text-center shadow-xs">
+        <div className="rounded-2xl bg-white border-2 border-2-slate-200 p-8 text-center shadow-xs border-slate-300">
           <div className="inline-block w-6 h-6 border-3 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-2" />
           <p className="text-xs font-bold text-slate-500">
             Syncing organization verification &amp; plan status...
           </p>
         </div>
       ) : isOrgVerified ? (
-        <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50">
+        <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border-2 border-slate-300 shadow-sm ">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-2 max-w-3xl">
               <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
@@ -208,7 +208,7 @@ export default function EmployerBillingPage() {
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50">
+        <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border-2 border-slate-300 shadow-sm ">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-2 max-w-3xl">
               <div className="text-xs font-extrabold uppercase tracking-wider text-amber-300">
@@ -281,7 +281,7 @@ export default function EmployerBillingPage() {
         <div
           className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
             activeTier === 'starter'
-              ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
+              ? 'border-2 border-slate-300 shadow-sm '
               : 'border border-slate-300 shadow-xs'
           }`}
         >
@@ -350,7 +350,7 @@ export default function EmployerBillingPage() {
         <div
           className={`bg-slate-900 text-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
             activeTier === 'growth'
-              ? 'border-2 border-amber-500 shadow-lg ring-1 ring-amber-400/50'
+              ? 'border-2 border-slate-300 shadow-lg '
               : 'border-2 border-indigo-500 shadow-md'
           }`}
         >
@@ -360,7 +360,7 @@ export default function EmployerBillingPage() {
                 Most Popular for Recruiting Teams
               </span>
               {activeTier === 'growth' && (
-                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-slate-300/30">
                   Current Plan
                 </span>
               )}
@@ -417,7 +417,7 @@ export default function EmployerBillingPage() {
         <div
           className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
             activeTier === 'enterprise'
-              ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
+              ? 'border-2 border-slate-300 shadow-sm '
               : 'border border-slate-300 shadow-xs'
           }`}
         >
@@ -489,7 +489,7 @@ export default function EmployerBillingPage() {
       </div>
 
       {/* QA Sandbox Controls for Stress Testing (Stacked Cleanly with 4-Column Button Grid) */}
-      <div className="bg-slate-100 rounded-2xl border-2 border-2-slate-300 p-5 space-y-4">
+      <div className="bg-slate-100 rounded-2xl border-2 border-2-slate-300 p-5 space-y-4 border-slate-300">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">
@@ -523,7 +523,7 @@ export default function EmployerBillingPage() {
             onClick={() => handleTierSwitch('starter')}
             className={`w-full py-2.5 px-3 rounded-xl border text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50 ${
               activeTier === 'starter'
-                ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-xs'
+                ? 'bg-amber-500 text-slate-950 border-slate-300 shadow-xs'
                 : 'bg-white border-slate-300 text-slate-700 hover:bg-amber-50'
             }`}
           >

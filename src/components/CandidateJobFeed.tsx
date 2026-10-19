@@ -422,7 +422,7 @@ export function CandidateJobFeed({
 
   if (totalFreshCount === 0) {
     return (
-      <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-sm">
+      <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-sm border-slate-300">
         <div className="w-16 h-16 bg-slate-50 border border-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg
             className="w-8 h-8 text-slate-300"
@@ -458,7 +458,7 @@ export function CandidateJobFeed({
     <div className="space-y-6">
       {/* SORT, INDUSTRY VERTICAL, LANGUAGE & WORK TYPE ORGANIZER BAR */}
       {showSortControls && (
-        <div className="bg-white p-4 rounded-2xl border-2 border-2-slate-200 shadow-xs space-y-3.5">
+        <div className="bg-white p-4 rounded-2xl border-2 border-2-slate-200 shadow-xs space-y-3.5 border-slate-300">
           {/* Row 1: Employment Type Quick Filter Pills + Role Count */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-1.5">
@@ -511,7 +511,7 @@ export function CandidateJobFeed({
                 id="candidate-industry-filter"
                 value={industryFilter}
                 onChange={(e) => setIndustryFilter(e.target.value)}
-                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
+                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer shadow-2xs border-slate-300"
               >
                 <option value="all">All Industry Verticals</option>
                 {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
@@ -533,7 +533,7 @@ export function CandidateJobFeed({
                 id="candidate-language-filter"
                 value={languageFilter}
                 onChange={(e) => setLanguageFilter(e.target.value)}
-                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
+                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer shadow-2xs border-slate-300"
               >
                 <option value="all">All Languages</option>
                 {STANDARD_LANGUAGES.map((lang) => (
@@ -555,7 +555,7 @@ export function CandidateJobFeed({
                 id="candidate-job-sort"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
+                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer shadow-2xs border-slate-300"
               >
                 <option value="newest">Newest Posted (Freshness)</option>
                 <option value="closing_soon">
@@ -578,7 +578,7 @@ export function CandidateJobFeed({
       )}
 
       {sortedAndFilteredJobs.length === 0 ? (
-        <div className="bg-white p-10 rounded-2xl border-2 border-2-slate-200 text-center shadow-xs">
+        <div className="bg-white p-10 rounded-2xl border-2 border-2-slate-200 text-center shadow-xs border-slate-300">
           <p className="text-sm font-bold text-slate-700 mb-2">
             No open roles match your selected Work Type, Industry Vertical, or Language filter.
           </p>
@@ -620,9 +620,9 @@ export function CandidateJobFeed({
                 isApplied
                   ? 'border-emerald-300 ring-2 ring-emerald-500/10 shadow-md'
                   : isBookmarked
-                  ? 'border-2 border-amber-500 shadow-sm'
+                  ? 'border-2 border-slate-300 shadow-sm'
                   : meta.rankInfo.isFounder
-                  ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
+                  ? 'border-2 border-slate-300 shadow-sm '
                   : 'border-slate-300 shadow-sm hover:border-slate-300'
               }`}
             >
@@ -690,7 +690,7 @@ export function CandidateJobFeed({
                         }
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
                           isBookmarked
-                            ? 'bg-amber-50 border-amber-400 text-amber-900'
+                            ? 'bg-amber-50 border-slate-300 text-amber-900'
                             : 'bg-white border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-900'
                         }`}
                       >
@@ -829,7 +829,7 @@ export function CandidateJobFeed({
 
                 {/* AI Match Radar & Fit Analysis Results Box */}
                 {matchData && !isAnalyzing && (
-                  <div className="p-5 rounded-2xl bg-slate-50 border-2 border-2-slate-200 space-y-5 animate-in fade-in duration-300">
+                  <div className="p-5 rounded-2xl bg-slate-50 border-2 border-2-slate-200 space-y-5 animate-in fade-in duration-300 border-slate-300">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-300 pb-4">
                       <div>
                         <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-600 block">
@@ -1004,7 +1004,7 @@ export function CandidateJobFeed({
                         type="button"
                         disabled={isAnalyzing || isApplying}
                         onClick={() => handleAnalyzeFit(jobId)}
-                        className="px-4 py-2 rounded-xl border-2 border-2-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer"
+                        className="px-4 py-2 rounded-xl border-2 border-2-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer border-slate-300"
                       >
                         {isAnalyzing
                           ? 'Analyzing Fit...'

@@ -81,7 +81,7 @@ export function StructuredRequirementEditor({
   const meetsMinimum = filledCount >= MIN_REQUIRED_SKILLS
 
   return (
-    <div className="bg-white p-5 rounded-xl border-2 border-2-slate-200 shadow-xs mt-4 space-y-4">
+    <div className="bg-white p-5 rounded-xl border-2 border-2-slate-200 shadow-xs mt-4 space-y-4 border-slate-300">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-300 pb-3">
         <div>
           <label className="block text-sm font-extrabold text-slate-800">

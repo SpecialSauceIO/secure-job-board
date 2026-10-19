@@ -69,7 +69,7 @@ export default async function PostJobPage() {
         </div>
 
         <div className="space-y-4 rounded-lg bg-white p-6 border border-slate-300 shadow-sm">
-          <h3 className="text-md font-semibold text-gray-900 border-b pb-2">
+          <h3 className="text-md font-semibold text-gray-900 border-b pb-2 border-slate-300">
             Targeting Details
           </h3>
           

@@ -83,7 +83,7 @@ export default function EmployerTeamSeatsPanel({
   }
 
   return (
-    <div className="bg-white p-6 md:p-8 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-6">
+    <div className="bg-white p-6 md:p-8 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-6 border-slate-300">
       {/* Header & Live Seat Counter */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-300 pb-5">
         <div>
@@ -157,7 +157,7 @@ export default function EmployerTeamSeatsPanel({
       {(tier === 'growth' || tier === 'enterprise') && (
         <form
           onSubmit={handleInviteSubmit}
-          className="p-5 rounded-xl bg-slate-50 border-2 border-2-slate-200 space-y-4"
+          className="p-5 rounded-xl bg-slate-50 border-2 border-2-slate-200 space-y-4 border-slate-300"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
@@ -177,7 +177,7 @@ export default function EmployerTeamSeatsPanel({
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
                 placeholder="colleague@company.com or lead@bpo-partner.com"
-                className="w-full rounded-xl border-2 border-2-slate-300 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-2-indigo-500 focus:outline-none disabled:bg-slate-100"
+                className="w-full rounded-xl border-2 border-2-slate-300 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-2-indigo-500 focus:outline-none disabled:bg-slate-100 border-slate-300"
               />
             </div>
 
@@ -188,7 +188,7 @@ export default function EmployerTeamSeatsPanel({
                 onChange={(e) =>
                   setInviteRole(e.target.value as 'hiring_manager' | 'bpo_partner')
                 }
-                className="w-full rounded-xl border-2 border-2-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-700 focus:border-2-indigo-500 focus:outline-none disabled:bg-slate-100"
+                className="w-full rounded-xl border-2 border-2-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-700 focus:border-2-indigo-500 focus:outline-none disabled:bg-slate-100 border-slate-300"
               >
                 <option value="hiring_manager">Internal Hiring Manager</option>
                 <option value="bpo_partner">Delegated BPO / W-2 Partner</option>
@@ -213,7 +213,7 @@ export default function EmployerTeamSeatsPanel({
       )}
 
       {/* Current Seats Roster */}
-      <div className="divide-y divide-slate-300 border-2 border-2-slate-200 rounded-xl overflow-hidden">
+      <div className="divide-y divide-slate-300 border-2 border-2-slate-200 rounded-xl overflow-hidden border-slate-300">
         {seats.map((seat) => (
           <div
             key={seat.id}

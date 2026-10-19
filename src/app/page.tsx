@@ -198,7 +198,7 @@ export default function LandingPage() {
           </Link>
           <Link
             href="/signup/employer"
-            className="px-7 py-3.5 bg-white text-slate-900 text-sm sm:text-base font-bold rounded-xl border-2 border-slate-300 hover:border-slate-900 hover:-translate-y-0.5 transition-all shadow-xs flex items-center justify-center gap-2"
+            className="px-7 py-3.5 bg-white text-slate-900 text-sm sm:text-base font-bold rounded-xl border-2 border-slate-300 hover:border-slate-300 hover:-translate-y-0.5 transition-all shadow-xs flex items-center justify-center gap-2"
           >
             I&apos;m an Employer
           </Link>
@@ -327,8 +327,8 @@ export default function LandingPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Candidate Feature 1 */}
-              <div className="p-8 rounded-2xl bg-slate-50 border-2 border-2-slate-100 relative overflow-hidden group">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-2-slate-200 flex items-center justify-center mb-6 text-emerald-600 group-hover:scale-110 transition-transform">
+              <div className="p-8 rounded-2xl bg-slate-50 border-2 border-2-slate-100 relative overflow-hidden group border-slate-300">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-2-slate-200 flex items-center justify-center mb-6 text-emerald-600 group-hover:scale-110 transition-transform border-slate-300">
                   <svg
                     className="w-6 h-6"
                     fill="none"
@@ -352,8 +352,8 @@ export default function LandingPage() {
               </div>
 
               {/* Candidate Feature 2 */}
-              <div className="p-8 rounded-2xl bg-slate-50 border-2 border-2-slate-100 relative overflow-hidden group">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-2-slate-200 flex items-center justify-center mb-6 text-cyan-500 group-hover:scale-110 transition-transform">
+              <div className="p-8 rounded-2xl bg-slate-50 border-2 border-2-slate-100 relative overflow-hidden group border-slate-300">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-2-slate-200 flex items-center justify-center mb-6 text-cyan-500 group-hover:scale-110 transition-transform border-slate-300">
                   <svg
                     className="w-6 h-6"
                     fill="none"
@@ -420,8 +420,8 @@ export default function LandingPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Employer Feature 1 */}
-              <div className="p-8 rounded-2xl bg-slate-50 border-2 border-2-slate-100 relative overflow-hidden group">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-2-slate-200 flex items-center justify-center mb-6 text-orange-500 group-hover:scale-110 transition-transform">
+              <div className="p-8 rounded-2xl bg-slate-50 border-2 border-2-slate-100 relative overflow-hidden group border-slate-300">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-2-slate-200 flex items-center justify-center mb-6 text-orange-500 group-hover:scale-110 transition-transform border-slate-300">
                   <svg
                     className="w-6 h-6"
                     fill="none"
@@ -445,8 +445,8 @@ export default function LandingPage() {
               </div>
 
               {/* Employer Feature 2 */}
-              <div className="p-8 rounded-2xl bg-slate-50 border-2 border-2-slate-100 relative overflow-hidden group">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-2-slate-200 flex items-center justify-center mb-6 text-indigo-600 group-hover:scale-110 transition-transform">
+              <div className="p-8 rounded-2xl bg-slate-50 border-2 border-2-slate-100 relative overflow-hidden group border-slate-300">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-2-slate-200 flex items-center justify-center mb-6 text-indigo-600 group-hover:scale-110 transition-transform border-slate-300">
                   <svg
                     className="w-6 h-6"
                     fill="none"
@@ -500,7 +500,7 @@ export default function LandingPage() {
           </div>
 
           {/* FOUNDING MEMBER & FOUNDING PARTNER LAUNCH REWARDS BANNER */}
-          <div className="mt-20 rounded-3xl bg-slate-900 text-white p-8 sm:p-10 border-2 border-amber-400/80 shadow-xl relative overflow-hidden">
+          <div className="mt-20 rounded-3xl bg-slate-900 text-white p-8 sm:p-10 border-2 border-slate-300 shadow-xl relative overflow-hidden">
             <div className="absolute inset-0 opacity-15 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-400 via-indigo-900 to-slate-900 pointer-events-none" />
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               <div className="lg:col-span-7 space-y-3">
@@ -575,7 +575,7 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Widget 1: Verified People & Real Companies */}
-            <div className="p-8 rounded-2xl bg-white border-2 border-2-slate-200 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-transform">
+            <div className="p-8 rounded-2xl bg-white border-2 border-2-slate-200 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-transform border-slate-300">
               <div className="w-12 h-12 bg-emerald-50 rounded-xl border border-emerald-300 flex items-center justify-center mb-6 text-emerald-600">
                 <svg
                   className="w-6 h-6"
@@ -600,7 +600,7 @@ export default function LandingPage() {
             </div>
 
             {/* Widget 2: Always Fresh Opportunities */}
-            <div className="p-8 rounded-2xl bg-white border-2 border-2-slate-200 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-transform">
+            <div className="p-8 rounded-2xl bg-white border-2 border-2-slate-200 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-transform border-slate-300">
               <div className="w-12 h-12 bg-indigo-50 rounded-xl border border-indigo-300 flex items-center justify-center mb-6 text-indigo-600">
                 <svg
                   className="w-6 h-6"
@@ -654,7 +654,7 @@ export default function LandingPage() {
           </div>
 
           {/* Dedicated Trigger to Open Technical & Security Documentation Page */}
-          <div className="mt-14 p-6 sm:p-8 rounded-2xl bg-white border-2 border-2-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="mt-14 p-6 sm:p-8 rounded-2xl bg-white border-2 border-2-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-slate-300">
             <div className="flex items-start gap-4">
               <div className="w-11 h-11 rounded-xl bg-indigo-50 border border-indigo-300 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
                 <svg

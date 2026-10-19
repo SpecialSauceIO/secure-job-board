@@ -112,7 +112,7 @@ export default function CandidateBillingPage() {
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <Link
             href="/dashboard/profile"
-            className="px-4 py-2.5 rounded-xl border-2 border-2-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors"
+            className="px-4 py-2.5 rounded-xl border-2 border-2-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors border-slate-300"
           >
             My Anonymous Profile
           </Link>
@@ -139,9 +139,9 @@ export default function CandidateBillingPage() {
       )}
 
       {/* Unified Gold Launch Frame Wrapping All 3 Candidate Tiers */}
-      <div className="rounded-3xl border-2 border-amber-400 bg-gradient-to-b from-amber-50/60 via-white to-white p-6 sm:p-8 shadow-md space-y-8">
+      <div className="rounded-3xl border-2 border-slate-300 bg-gradient-to-b from-amber-50/60 via-white to-white p-6 sm:p-8 shadow-md space-y-8">
         {/* Top Founding Launch Banner */}
-        <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-7 border border-amber-400/60 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-7 border border-slate-300/60 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
               <span className="text-amber-300">
@@ -216,7 +216,7 @@ export default function CandidateBillingPage() {
           <div
             className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
               normalizedTier === 'explorer'
-                ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
+                ? 'border-2 border-slate-300 shadow-sm '
                 : 'border border-slate-300 shadow-xs'
             }`}
           >
@@ -272,7 +272,7 @@ export default function CandidateBillingPage() {
           <div
             className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
               normalizedTier === 'professional'
-                ? 'border-2 border-amber-500 shadow-md ring-1 ring-amber-400/50'
+                ? 'border-2 border-slate-300 shadow-md '
                 : 'border border-slate-300 shadow-xs'
             }`}
           >
@@ -337,7 +337,7 @@ export default function CandidateBillingPage() {
           <div
             className={`bg-slate-900 text-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
               normalizedTier === 'prestige'
-                ? 'border-2 border-amber-500 shadow-lg ring-1 ring-amber-400/50'
+                ? 'border-2 border-slate-300 shadow-lg '
                 : 'border-2 border-indigo-500 shadow-md'
             }`}
           >
@@ -345,7 +345,7 @@ export default function CandidateBillingPage() {
               <div className="flex items-center justify-between text-xs font-extrabold">
                 <span className="text-indigo-300">★ First 30 Days $0</span>
                 {normalizedTier === 'prestige' && (
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-slate-300/30">
                     Current Plan
                   </span>
                 )}
@@ -401,7 +401,7 @@ export default function CandidateBillingPage() {
       </div>
 
       {/* QA Stress-Testing Bar */}
-      <div className="bg-slate-100 rounded-2xl border-2 border-2-slate-300 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-slate-100 rounded-2xl border-2 border-2-slate-300 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-slate-300">
         <div>
           <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">
             🧪 QA Stress-Testing Controls (Remove Before Public Launch)
@@ -416,7 +416,7 @@ export default function CandidateBillingPage() {
             type="button"
             disabled={isProcessing}
             onClick={() => handlePlanSwitch('explorer')}
-            className="px-3 py-2 rounded-xl bg-white border-2 border-2-slate-300 text-slate-700 text-xs font-extrabold hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer"
+            className="px-3 py-2 rounded-xl bg-white border-2 border-2-slate-300 text-slate-700 text-xs font-extrabold hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer border-slate-300"
           >
             1. Explorer ($0 · 0 Outbound Apps)
           </button>
@@ -424,7 +424,7 @@ export default function CandidateBillingPage() {
             type="button"
             disabled={isProcessing}
             onClick={() => handlePlanSwitch('professional')}
-            className="px-3 py-2 rounded-xl bg-white border-2 border-2-slate-300 text-slate-700 text-xs font-extrabold hover:bg-amber-50 transition-colors cursor-pointer"
+            className="px-3 py-2 rounded-xl bg-white border-2 border-2-slate-300 text-slate-700 text-xs font-extrabold hover:bg-amber-50 transition-colors cursor-pointer border-slate-300"
           >
             2. Professional ($9/mo · 15 Apps + 1.25x XP)
           </button>

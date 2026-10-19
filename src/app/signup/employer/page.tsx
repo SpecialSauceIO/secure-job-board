@@ -73,7 +73,7 @@ export default function EmployerSignupPage({
         </div>
 
         {/* High-Trust Employer Value Props Callout */}
-        <div className="mb-6 p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200/80 space-y-2 text-xs text-slate-600">
+        <div className="mb-6 p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200/80 space-y-2 text-xs text-slate-600 border-slate-300">
           <div className="flex items-start gap-2">
             <span className="text-emerald-600 font-black mt-0.5">✓</span>
             <span>
@@ -143,7 +143,7 @@ export default function EmployerSignupPage({
                   className={`block w-full rounded-lg border ${
                     emailError
                       ? 'border-rose-500 focus:ring-rose-500/20'
-                      : 'border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20'
+                      : 'border-slate-300 focus:border-slate-300 focus:ring-emerald-500/20'
                   } bg-white pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 sm:text-sm shadow-sm transition-colors`}
                   placeholder="name@company.com"
                 />
@@ -183,7 +183,7 @@ export default function EmployerSignupPage({
                   name="password"
                   type="password"
                   required
-                  className="block w-full rounded-lg border border-slate-300 bg-white pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 sm:text-sm shadow-sm"
+                  className="block w-full rounded-lg border border-slate-300 bg-white pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 sm:text-sm shadow-sm"
                   placeholder="••••••••"
                   minLength={6}
                 />
