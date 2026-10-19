@@ -8,10 +8,10 @@ import { PublicFooter } from '@/components/PublicFooter'
 export default function LandingPage() {
   const [currentSlide, setCurrentSlide] = useState(0)
 
-  // Cycles through slides 0, 1, 2, 3, and 4 every 9 seconds (9000ms)
+  // Cycles through slides 0, 1, 2, 3, 4, and 5 every 9 seconds (9000ms)
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev === 4 ? 0 : prev + 1))
+      setCurrentSlide((prev) => (prev === 5 ? 0 : prev + 1))
     }, 9000)
     return () => clearInterval(timer)
   }, [currentSlide])
@@ -39,12 +39,12 @@ export default function LandingPage() {
                 : 'opacity-0 pointer-events-none z-0'
             }`}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-50 border border-violet-300 text-violet-700 text-[11px] font-bold uppercase tracking-wide mb-5">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-violet-50 border border-violet-300 text-violet-700 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-600"></span>
               </span>
-              28 Industry Verticals • Privacy-First Hiring
+              Redefining the Recruiting Process
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Changing the Hiring{' '}
@@ -55,14 +55,42 @@ export default function LandingPage() {
               For good.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Whether you work in Healthcare, Hospitality, Finance, Skilled Trades, Agriculture, Government, or Tech—we replace black-hole job boards with upfront pay transparency, skill-and-language matching, and complete privacy until you choose to connect.
+              Whether you work in Healthcare, Hospitality, Finance, Skilled Trades, Government, or Tech—we replace black-hole job boards with upfront pay transparency, verified credentials, and complete double-blind privacy until you choose to connect.
             </p>
           </div>
 
-          {/* SLIDE 1 (Slide #2): Unified Founding Member & Partner Launch Slide */}
+          {/* SLIDE 1 (Slide #2): No More Bots, No More Spam, No More Scams */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 1
+                ? 'opacity-100 translate-y-0 z-10'
+                : 'opacity-0 pointer-events-none z-0'
+            }`}
+          >
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-rose-50 border border-rose-300 text-rose-700 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+              </span>
+              100% Identity-Verified • Human-to-Human Hiring
+            </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
+              No More Bots.{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-600 via-orange-500 to-amber-500">
+                No More Spam.
+              </span>
+              <br />
+              No More Scams.
+            </h1>
+            <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
+              Traditional job boards are flooded with AI application bots, fake phishing listings, and cold recruiter spam. Every candidate and employer on Special Sauce is verified through Stripe Identity and corporate domain checks—so real professionals connect only with real hiring teams.
+            </p>
+          </div>
+
+          {/* SLIDE 2 (Slide #3): Unified Founding Member & Partner Launch Slide */}
+          <div
+            className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
+              currentSlide === 2
                 ? 'opacity-100 translate-y-0 z-10'
                 : 'opacity-0 pointer-events-none z-0'
             }`}
@@ -85,25 +113,25 @@ export default function LandingPage() {
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
               Join during our launch window to unlock{' '}
-              <strong className="text-slate-700">30 days of complimentary full access</strong>, permanent{' '}
-              <strong className="text-slate-700">Permanent Founding Member &amp; Partner status</strong>, priority AI matching rank, and lifetime rate locks.
+              <strong className="text-slate-700">30 days of complimentary full access</strong>,{' '}
+              <strong className="text-slate-700">Permanent Founding Member &amp; Partner status</strong>, verified behavioral trust signals, and lifetime rate locks.
             </p>
           </div>
 
-          {/* SLIDE 2 (Slide #3): No Ghost Jobs or Spam */}
+          {/* SLIDE 3 (Slide #4): Zero Ghost Jobs */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
-              currentSlide === 2
+              currentSlide === 3
                 ? 'opacity-100 translate-y-0 z-10'
                 : 'opacity-0 pointer-events-none z-0'
             }`}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-100 text-orange-700 text-[11px] font-bold uppercase tracking-wide mb-5">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-50 border border-orange-300 text-orange-700 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
               </span>
-              Real Active Jobs • No Resume Collector Traps
+              30-Day Active Role Guarantee • No Resume Traps
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Zero{' '}
@@ -114,19 +142,19 @@ export default function LandingPage() {
               No resume harvesting.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Every job posting automatically closes after 30 days unless the employer actively renews it, so you never waste time applying to outdated listings. Plus, your name and contact info stay private until you’re ready to talk.
+              Every job posting automatically expires after 30 days unless the employer actively renews it, eliminating abandoned listings and resume-collector traps. Your name, current employer, and contact details stay locked in your encrypted vault until you approve a request.
             </p>
           </div>
 
-          {/* SLIDE 3 (Slide #4): Employers */}
+          {/* SLIDE 4 (Slide #5): Employers */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
-              currentSlide === 3
+              currentSlide === 4
                 ? 'opacity-100 translate-y-0 z-10'
                 : 'opacity-0 pointer-events-none z-0'
             }`}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-300 text-indigo-700 text-[11px] font-bold uppercase tracking-wide mb-5">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-50 border border-indigo-300 text-indigo-700 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
@@ -142,19 +170,19 @@ export default function LandingPage() {
               Skip the resume pile.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Stop sifting through hundreds of unqualified applications. Our 5-Point AI Match Radar evaluates Core Competencies, Skill Tenure, Logistics &amp; Pay, Industry &amp; Creds, and Execution &amp; Comm. upfront—so only qualified, verified candidates reach your desk.
+              Stop sifting through hundreds of unqualified applications. Candidates pre-qualify against your role using our 5-Point AI Fit Radar across Core Competencies, Skill Tenure, Logistics &amp; Pay, Credentials, and Communication—so only high-fit, verified talent reaches your desk.
             </p>
           </div>
 
-          {/* SLIDE 4 (Slide #5): Candidates */}
+          {/* SLIDE 5 (Slide #6): Candidates */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
-              currentSlide === 4
+              currentSlide === 5
                 ? 'opacity-100 translate-y-0 z-10'
                 : 'opacity-0 pointer-events-none z-0'
             }`}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-[11px] font-bold uppercase tracking-wide mb-5">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -167,10 +195,10 @@ export default function LandingPage() {
                 Your Privacy.
               </span>
               <br />
-              Zero cold spam.
+              You hold the keys.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Explore new opportunities without risking your current job. Set your minimum pay and work preferences upfront, chat safely with interested employers first, and share your full resume only when you decide it’s a match.
+              Explore your true market value without risking your current role. Set your minimum compensation, work model, and search availability upfront—and let verified employers pitch you directly before you ever reveal your identity or resume.
             </p>
           </div>
         </div>
@@ -198,7 +226,7 @@ export default function LandingPage() {
           </Link>
           <Link
             href="/signup/employer"
-            className="px-7 py-3.5 bg-white text-slate-900 text-sm sm:text-base font-bold rounded-xl border-2 border-slate-300 hover:border-slate-300 hover:-translate-y-0.5 transition-all shadow-xs flex items-center justify-center gap-2"
+            className="px-7 py-3.5 bg-white text-slate-900 text-sm sm:text-base font-bold rounded-xl border-2 border-slate-300 hover:border-slate-400 hover:-translate-y-0.5 transition-all shadow-xs flex items-center justify-center gap-2"
           >
             I&apos;m an Employer
           </Link>
@@ -210,7 +238,7 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        {/* 5 Slide Indicators */}
+        {/* 6 Slide Indicators */}
         <div className="flex gap-2 mt-5 z-20 relative">
           <button
             onClick={() => setCurrentSlide(0)}
@@ -225,37 +253,46 @@ export default function LandingPage() {
             onClick={() => setCurrentSlide(1)}
             className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
               currentSlide === 1
+                ? 'bg-rose-600 w-6'
+                : 'bg-slate-300 hover:bg-slate-400'
+            }`}
+            aria-label="View No Bots No Spam No Scams slide"
+          />
+          <button
+            onClick={() => setCurrentSlide(2)}
+            className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
+              currentSlide === 2
                 ? 'bg-amber-500 w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
             aria-label="View Founding Member & Partner Launch Rewards slide"
           />
           <button
-            onClick={() => setCurrentSlide(2)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
-              currentSlide === 2
-                ? 'bg-orange-500 w-6'
-                : 'bg-slate-300 hover:bg-slate-400'
-            }`}
-            aria-label="View fresh jobs slide"
-          />
-          <button
             onClick={() => setCurrentSlide(3)}
             className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
               currentSlide === 3
-                ? 'bg-indigo-600 w-6'
+                ? 'bg-orange-500 w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
-            aria-label="View employer fit slide"
+            aria-label="View Zero Ghost Jobs slide"
           />
           <button
             onClick={() => setCurrentSlide(4)}
             className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
               currentSlide === 4
+                ? 'bg-indigo-600 w-6'
+                : 'bg-slate-300 hover:bg-slate-400'
+            }`}
+            aria-label="View Employer True Fit slide"
+          />
+          <button
+            onClick={() => setCurrentSlide(5)}
+            className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
+              currentSlide === 5
                 ? 'bg-emerald-500 w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
-            aria-label="View candidate privacy slide"
+            aria-label="View Candidate Privacy Vault slide"
           />
         </div>
 
