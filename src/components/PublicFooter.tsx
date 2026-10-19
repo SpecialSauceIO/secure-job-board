@@ -10,7 +10,7 @@ export function PublicFooter() {
           className="flex items-center hover:opacity-90 transition-opacity"
         >
           <Image
-            src="/logo.png?v=1792428229295"
+            src="/logo.png"
             alt="specialsauce.io Logo"
             width={340}
             height={85}
