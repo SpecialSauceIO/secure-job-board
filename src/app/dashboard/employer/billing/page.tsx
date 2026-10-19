@@ -168,7 +168,7 @@ export default function EmployerBillingPage() {
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                 Your verified organization has permanent{' '}
                 <strong className="text-amber-300">
-                  ★ Founding Partner Gold Card Trim &amp; 1.25x XP Boost
+                  ✓ Permanent Founding Partner Status &amp; Trust Signals
                 </strong>{' '}
                 active across all blind job listings, plus{' '}
                 <strong className="text-white">
@@ -236,7 +236,7 @@ export default function EmployerBillingPage() {
                 </strong>
                 , and the permanent{' '}
                 <strong className="text-emerald-300">
-                  ★ Founding Partner Gold Card Trim &amp; 1.25x XP Multiplier
+                  ✓ Permanent Founding Partner Status &amp; Trust Signals
                 </strong>
                 .
               </p>
@@ -326,7 +326,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong>
               </li>
               <li>✓ 5-Point AI Fit Radar &amp; Dealbreaker Firewall</li>
-              <li>✓ ★ Permanent Founding Partner Gold Trim</li>
+              <li>✓ Permanent Founding Partner Status &amp; Verified Hiring Signals</li>
             </ul>
           </div>
 
@@ -393,7 +393,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong>
               </li>
               <li>✓ Shared Candidate Shortlist &amp; Encrypted Threads</li>
-              <li>✓ ★ Permanent Founding Partner Gold Trim</li>
+              <li>✓ Permanent Founding Partner Status &amp; Verified Hiring Signals</li>
             </ul>
           </div>
 
@@ -467,7 +467,7 @@ export default function EmployerBillingPage() {
               <li>
                 ✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong>
               </li>
-              <li>✓ ★ Permanent Founding Partner Gold Trim &amp; 1.25x XP</li>
+              <li>✓ Permanent Founding Partner Status &amp; Verified Hiring Signals</li>
             </ul>
           </div>
 

@@ -169,8 +169,7 @@ export default function CandidateBillingPage() {
               <strong className="text-amber-300">★ Founding Member Badge</strong> forever. Active subscribers on{' '}
               <strong className="text-white">Professional ($9/mo)</strong> and{' '}
               <strong className="text-white">Prestige ($15/mo)</strong> also unlock the active{' '}
-              <strong className="text-amber-300">1.25x XP Rank Multiplier</strong> and{' '}
-              <strong className="text-amber-300">Gold Profile Card Border</strong>.
+              <strong className="text-amber-300">Permanent Founding Member Status</strong> and <strong className="text-amber-300">Verified Behavioral Trust Signals</strong>.
             </p>
           </div>
 
@@ -192,12 +191,12 @@ export default function CandidateBillingPage() {
                       {tierInfo?.freeAppsRemaining} of 15
                     </strong>{' '}
                     monthly blind applications remaining •{' '}
-                    <strong className="text-amber-300">1.25x XP Active</strong>
+                    <strong className="text-amber-300">Founding Member Active</strong>
                   </p>
                 )}
                 {normalizedTier === 'prestige' && (
                   <p className="text-xs text-emerald-400 font-bold">
-                    ✓ Unlimited Blind Applications + 1.25x XP + Priority Search Active
+                    ✓ Unlimited Blind Applications + Priority Search Placement Active
                   </p>
                 )}
                 {normalizedTier === 'explorer' && (
@@ -250,7 +249,7 @@ export default function CandidateBillingPage() {
                 <li>✓ 2-Stage Identity &amp; PDF Resume Vault</li>
                 <li>★ Keeps permanent <strong>Founding Member Badge</strong> (1.0x XP)</li>
                 <li className="text-slate-400">✕ Outbound blind applications (0/mo)</li>
-                <li className="text-slate-400">✕ 1.25x XP Boost &amp; Gold Border (Paid plans)</li>
+                <li className="text-slate-400">✕ Outbound Blind Applications (Professional &amp; Prestige)</li>
               </ul>
             </div>
 
@@ -309,7 +308,7 @@ export default function CandidateBillingPage() {
                   ✓ <strong>15 Outbound Blind Applications / month</strong> (40%+ AI Fit)
                 </li>
                 <li className="text-amber-800 font-bold">
-                  ★ <strong>Active 1.25x Profile XP Multiplier</strong>
+                  ✓ <strong>Verified Behavioral &amp; Responsiveness Signals</strong>
                 </li>
                 <li className="text-amber-800 font-bold">
                   ★ <strong>Active Gold Founding Member Card Border</strong>
@@ -375,7 +374,7 @@ export default function CandidateBillingPage() {
                   ★ <strong>Top-Priority Placement in Employer Search</strong>
                 </li>
                 <li className="text-amber-300 font-bold">
-                  ★ <strong>Active 1.25x Profile XP Multiplier</strong>
+                  ✓ <strong>Verified Behavioral &amp; Responsiveness Signals</strong>
                 </li>
                 <li className="text-amber-300 font-bold">
                   ★ <strong>Active Gold Founding Member Card Border</strong>
@@ -426,7 +425,7 @@ export default function CandidateBillingPage() {
             onClick={() => handlePlanSwitch('professional')}
             className="px-3 py-2 rounded-xl bg-white border-2 border-2-slate-300 text-slate-700 text-xs font-extrabold hover:bg-amber-50 transition-colors cursor-pointer border-slate-300"
           >
-            2. Professional ($9/mo · 15 Apps + 1.25x XP)
+            2. Professional ($9/mo · 15 Monthly Blind Apps)
           </button>
           <button
             type="button"
@@ -434,7 +433,7 @@ export default function CandidateBillingPage() {
             onClick={() => handlePlanSwitch('prestige')}
             className="px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors cursor-pointer"
           >
-            3. Prestige ($15/mo · Unlimited Apps + 1.25x XP)
+            3. Prestige ($15/mo · Unlimited Blind Apps + Priority Placement)
           </button>
         </div>
       </div>

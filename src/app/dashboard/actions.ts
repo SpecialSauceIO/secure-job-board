@@ -568,8 +568,8 @@ export async function activateSandboxCandidateTier(
         : 'Welcome to Candidate Professional ($9/mo · First 30 Days Free)',
       bodyLines: [
         isPrestige
-          ? 'Your Candidate Prestige plan is active with Unlimited Outbound Blind Applications, Top-Priority Employer Search placement, active 1.25x XP Multiplier, and Gold Founding Member Card Trim.'
-          : 'Your Candidate Professional plan is active with 15 Outbound Blind Applications per month, active 1.25x XP Multiplier, and Gold Founding Member Card Trim.',
+          ? 'Your Candidate Prestige plan is active with Unlimited Outbound Blind Applications, Top-Priority Employer Search placement, and Founding Member status.'
+          : 'Your Candidate Professional plan is active with 15 Outbound Blind Applications per month and Founding Member status.',
         `Subscription Reference ID: ${refId}`,
       ],
       ctaUrl: '/dashboard/jobs',
@@ -590,7 +590,7 @@ export async function activateSandboxCandidateTier(
       normalizedMode === 'prestige'
         ? '✓ Activated Prestige Plan ($15/mo · First 30 Days $0)! Unlimited outbound applications, 1.25x XP Boost & Gold Trim active.'
         : normalizedMode === 'professional'
-        ? '✓ Activated Professional Plan ($9/mo · First 30 Days $0)! 15 monthly outbound applications, 1.25x XP Boost & Gold Trim active.'
+        ? '✓ Activated Professional Plan ($9/mo · First 30 Days $0)! 15 monthly outbound applications active.'
         : '✓ Switched to Explorer Plan ($0/Forever Passive Vault). Inbound employer pitches remain 100% free; outbound applications & 1.25x XP paused.',
   }
 }

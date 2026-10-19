@@ -372,7 +372,7 @@ export default function LandingPage() {
                   2. See Your Fit Before You Apply
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Every job listing shows real pay bands (annual or hourly) and closes after 30 days so you never apply to dead roles. Check your instant 5-Point AI Fit score before submitting an anonymous application—and earn XP toward Bronze-to-Apex Rank Tiers.
+                  Every job listing shows real pay bands (annual or hourly) and closes after 30 days so you never apply to dead roles. Check your instant 5-Point AI Fit score before submitting an anonymous application and earn verified behavioral responsiveness signals.
                 </p>
               </div>
 
@@ -513,11 +513,11 @@ export default function LandingPage() {
                 <p className="text-sm text-slate-300 leading-relaxed">
                   Join during our initial launch window to unlock 30 days of complimentary full access, permanent{' '}
                   <strong className="text-amber-300">
-                    ★ Founding Member / Founding Partner Gold Trim
+                    Permanent Founding Member &amp; Founding Partner Status
                   </strong>
                   , a permanent{' '}
                   <strong className="text-amber-300">
-                    1.25x XP Multiplier
+                    Verified Behavioral Trust Signals
                   </strong>
                   , and lifetime Founder&apos;s Rate Locks.
                 </p>
@@ -540,7 +540,7 @@ export default function LandingPage() {
                     First 30 Days $0
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed">
-                    $0 Explorer Vault forever, or try Professional ($9/mo, 15 apps) &amp; Prestige ($15/mo, Unlimited apps + 1.25x XP &amp; Gold Trim) free for 30 days.
+                    $0 Explorer Vault forever, or try Professional ($9/mo, 15 apps) &amp; Prestige ($15/mo, Unlimited apps + Priority Placement) free for 30 days.
                   </p>
                 </div>
 

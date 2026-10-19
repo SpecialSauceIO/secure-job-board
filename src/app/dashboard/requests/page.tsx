@@ -131,8 +131,8 @@ export default function CandidateRequestsInboxPage() {
         type: 'success',
         text:
           decision === 'accepted'
-            ? `Pitch Accepted (+150 Profile XP • Ref: ${res.referenceId})! Stage 1 Thread is now open below.`
-            : `Pitch declined (+150 XP • Ref: ${res.referenceId}).`,
+            ? `Pitch Accepted (Ref: ${res.referenceId})! Stage 1 Thread is now open below.`
+            : `Pitch declined (Ref: ${res.referenceId}).`,
       },
     }))
 

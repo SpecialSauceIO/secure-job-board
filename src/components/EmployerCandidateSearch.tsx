@@ -388,7 +388,7 @@ export default function EmployerCandidateSearch({
       setLiveCredits((prev) => Math.max(0, prev - 1))
       setFeedback({
         type: 'success',
-        text: `Connection request sent (+150 XP • Ref: ${
+        text: `Connection request sent (Ref:${
           result.referenceId || 'SS'
         })! 1 Credit deducted.`,
       })

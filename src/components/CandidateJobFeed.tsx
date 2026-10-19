@@ -330,7 +330,7 @@ export function CandidateJobFeed({
       ...prev,
       [jobId]: {
         type: 'success',
-        text: `Blind Application Submitted (+150 XP • Ref: ${refCode})! Your identity remains hidden until the employer unlocks your profile.`,
+        text: `Blind Application Submitted (Ref: ${refCode})! Your identity remains hidden until the employer unlocks your profile.`,
       },
     }))
 

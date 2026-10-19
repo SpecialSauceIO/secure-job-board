@@ -227,7 +227,7 @@ export default function EmployerOrganizationForm({
                   ? `Your organization domain (${
                       cleanedDomain || 'company domain'
                     }) is verified. The "✓ Verified Company" trust badge and your Primary Industry Vertical (${industryVertical}) now power your blind job listings and outbound candidate pitches.`
-                  : 'Verify your corporate domain via work-email match + live DNS check or DNS TXT record to unlock the "✓ Verified Company" badge and your 30-Day Season 0 Founding Partner Grant.'}
+                  : 'Verify your corporate domain via work-email match + live DNS check or DNS TXT record to unlock the "✓ Verified Company" badge and your 30-Day Founding Partner Trial.'}
               </p>
             </div>
           </div>

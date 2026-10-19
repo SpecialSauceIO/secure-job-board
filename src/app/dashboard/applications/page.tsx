@@ -105,7 +105,7 @@ export default function CandidateApplicationsPage() {
             My Blind Application Tracker
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Track your anonymous applications (+150 XP each), chat with employers who unlock Stage 1 (+200 XP), and release your Stage 2 Resume Vault (+250 XP) when ready.
+            Track your anonymous applications, chat with verified employers in encrypted Stage 1 threads, and release your Stage 2 Resume Vault when ready.
           </p>
         </div>
 
@@ -157,7 +157,7 @@ export default function CandidateApplicationsPage() {
               <option value={0}>All Time</option>
               <option value={7}>Last 7 Days</option>
               <option value={30}>Last 30 Days</option>
-              <option value={90}>Last 90 Days (Season 0)</option>
+              <option value={90}>Last 90 Days</option>
             </select>
           </div>
         </div>

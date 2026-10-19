@@ -43,7 +43,7 @@ export default function PricingMatrixPage() {
                   First 30 Days Free on Any Plan + Permanent Founding Member Badge
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
-                  Enroll during our launch window to try <strong className="text-white">Professional</strong> or <strong className="text-white">Prestige</strong> for <strong className="text-emerald-300">$0 for your first 30 days</strong>. You permanently keep your <strong className="text-amber-300">★ Founding Member Badge</strong> on any tier, while the <strong className="text-amber-300">1.25x XP Rank Multiplier</strong> and <strong className="text-amber-300">Gold Profile Card Border</strong> remain active on paid plans.
+                  Enroll during our launch window to try <strong className="text-white">Professional</strong> or <strong className="text-white">Prestige</strong> for <strong className="text-emerald-300">$0 for your first 30 days</strong>. You permanently keep your <strong className="text-amber-300">Founding Member Status</strong> on any tier, plus full access to <strong className="text-amber-300">Verified Behavioral &amp; Responsiveness Signals</strong> across your blind profile.
                 </p>
               </div>
               <div className="shrink-0">
@@ -103,7 +103,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-slate-400">
                       <span>✕</span>
-                      <span>1.25x XP Multiplier &amp; Gold Profile Border (Paid plans only)</span>
+                      <span>Outbound Blind Applications (Included on Professional &amp; Prestige)</span>
                     </li>
                   </ul>
                 </div>
@@ -134,7 +134,7 @@ export default function PricingMatrixPage() {
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Built for selective professionals actively applying to high-fit roles while unlocking accelerated XP and Founder Gold Trim.
+                    Built for selective professionals actively submitting blind applications to high-fit roles with verified behavioral trust signals.
                   </p>
                   <ul className="space-y-2.5 pt-3 border-t border-slate-300 text-xs text-slate-700 font-medium">
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
@@ -147,7 +147,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
-                      <span><strong>Active 1.25x Profile XP Multiplier</strong> &amp; Rank Boost</span>
+                      <span><strong>Verified Behavioral Trust Signals</strong> (Vault-Ready &amp; Responsive Badges)</span>
                     </li>
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
@@ -207,7 +207,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-amber-300 font-bold">
                       <span>★</span>
-                      <span><strong>Active 1.25x Profile XP Multiplier</strong> &amp; Fast-Track Apex Rank</span>
+                      <span><strong>Verified Behavioral Trust Signals</strong> &amp; Priority Shortlist Placement</span>
                     </li>
                     <li className="flex items-start gap-2 text-amber-300 font-bold">
                       <span>★</span>
@@ -243,7 +243,7 @@ export default function PricingMatrixPage() {
                   First 30 Days Free on Any Employer Plan + Permanent Founding Partner Status
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
-                  Verify your corporate domain during launch to experience <strong className="text-white">Starter, Growth, or Enterprise</strong> for <strong className="text-emerald-300">$0 for your first 30 days</strong>. Reviewing and unlocking inbound candidate applications is <strong className="text-white">100% free (0 credits)</strong> across all plans, and active subscribers keep the <strong className="text-amber-300">★ Founding Partner Gold Trim &amp; 1.25x XP Multiplier</strong>.
+                  Verify your corporate domain during launch to experience <strong className="text-white">Starter, Growth, or Enterprise</strong> for <strong className="text-emerald-300">$0 for your first 30 days</strong>. Reviewing and unlocking inbound candidate applications is <strong className="text-white">100% free (0 credits)</strong> across all plans, and charter organizations keep permanent <strong className="text-amber-300">Founding Partner Status &amp; Verified Hiring Signals</strong>.
                 </p>
               </div>
               <div className="shrink-0">
@@ -302,7 +302,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
-                      <span><strong>Founding Partner Gold Badge, Border &amp; 1.25x XP</strong></span>
+                      <span><strong>Permanent Founding Partner Status &amp; Trust Signals</strong></span>
                     </li>
                     <li className="flex items-start gap-2 text-slate-400">
                       <span>✕</span>
@@ -362,7 +362,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-amber-300 font-bold">
                       <span>★</span>
-                      <span><strong>Founding Partner Gold Badge, Border &amp; 1.25x XP</strong></span>
+                      <span><strong>Permanent Founding Partner Status &amp; Trust Signals</strong></span>
                     </li>
                     <li className="flex items-start gap-2 text-slate-500">
                       <span>✕</span>
@@ -426,7 +426,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
-                      <span><strong>Founding Partner Gold Badge, Border &amp; 1.25x XP</strong></span>
+                      <span><strong>Permanent Founding Partner Status &amp; Trust Signals</strong></span>
                     </li>
                   </ul>
                 </div>
