@@ -703,65 +703,136 @@ export default function SupportCenterClient({
               action={handleTicketSubmit}
               className="space-y-5"
             >
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1.5">
-                  Category
-                </label>
-                <select
-                  name="category"
-                  required
-                  className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
-                >
-                  <option value="General Support">
-                    General Support &amp; Questions
-                  </option>
-                  <option value="2-Stage Vault & Encrypted Messaging">
-                    2-Stage Identity Vault &amp; Encrypted Messaging
-                  </option>
-                  <option value="Billing, Credits & Team Seats">
-                    Billing, Credits &amp; Team / BPO Seats
-                  </option>
-                  <option value="Data Security & Privacy">
-                    Data Security, Privacy &amp; Stripe Verification
-                  </option>
-                  <option value="Account & Domain Verification">
-                    Identity / Corporate Domain Verification
-                  </option>
-                  <option value="Technical Issue / Bug Report">
-                    Technical Issue / Bug Report
-                  </option>
-                </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1.5">
+                    Category
+                  </label>
+                  <select
+                    name="category"
+                    required
+                    className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+                  >
+                    <option value="General Support">
+                      General Support &amp; Questions
+                    </option>
+                    <option value="2-Stage Vault & Encrypted Messaging">
+                      2-Stage Identity Vault &amp; Messaging
+                    </option>
+                    <option value="Billing, Plans & Pitch Credits">
+                      Billing, Plans &amp; Pitch Credits
+                    </option>
+                    <option value="Account & Domain Verification">
+                      Stripe ID / Corporate Domain Verification
+                    </option>
+                    <option value="Enterprise ATS & Webhook Integration">
+                      Enterprise ATS &amp; Webhook Hub
+                    </option>
+                    <option value="Technical Issue / Bug Report">
+                      Technical Issue / Bug Report
+                    </option>
+                    <option value="Feature Request / Documentation Feedback">
+                      Feature Request / Documentation Feedback
+                    </option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1.5">
+                    Platform Area / Feature
+                  </label>
+                  <select
+                    name="platform_area"
+                    required
+                    className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+                  >
+                    <option value="Onboarding & Authentication">
+                      Onboarding &amp; Authentication
+                    </option>
+                    <option value="Stripe Identity Verification (Candidate)">
+                      Stripe Identity Verification (Candidate)
+                    </option>
+                    <option value="Corporate Domain / DNS Verification (Employer)">
+                      Corporate Domain / DNS Verification (Employer)
+                    </option>
+                    <option value="2-Stage Resume & Contact Vault">
+                      2-Stage Resume &amp; Contact Vault
+                    </option>
+                    <option value="5-Point AI Fit Radar & Dealbreakers">
+                      5-Point AI Fit Radar &amp; Dealbreakers
+                    </option>
+                    <option value="Billing, Subscriptions & Credits">
+                      Billing, Subscriptions &amp; Credits
+                    </option>
+                    <option value="Enterprise ATS & Webhook Hub">
+                      Enterprise ATS &amp; Webhook Hub
+                    </option>
+                    <option value="Encrypted Stage 1/2 Messaging">
+                      Encrypted Stage 1/2 Messaging
+                    </option>
+                    <option value="Other / General Platform">
+                      Other / General Platform
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-bold text-slate-700 mb-1.5">
+                    Subject
+                  </label>
+                  <input
+                    type="text"
+                    name="subject"
+                    required
+                    placeholder="Brief summary of your question or issue..."
+                    className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1.5">
+                    Ref ID <span className="text-slate-400 font-normal">(Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="related_ref_id"
+                    placeholder="e.g. SS-8F92A1B0"
+                    className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-mono"
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1.5">
-                  Subject
+                  Message &amp; Steps to Reproduce
                 </label>
-                <input
-                  type="text"
-                  name="subject"
+                <textarea
+                  name="message"
                   required
-                  placeholder="Brief summary of your question or issue (include SS-XXXXXXXX Ref ID if applicable)..."
-                  className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+                  rows={5}
+                  placeholder="Provide as much detail as possible so our team can assist you quickly..."
+                  className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-3.5 text-sm"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1.5">
-                  Message
+                  Screenshots or File Attachments <span className="text-slate-400 font-normal">(Optional • Up to 3 files, PNG/JPG/PDF/TXT)</span>
                 </label>
-                <textarea
-                  name="message"
-                  required
-                  rows={6}
-                  placeholder="Provide as much detail as possible..."
-                  className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-3.5 text-sm"
+                <input
+                  type="file"
+                  name="attachments"
+                  multiple
+                  accept="image/*,.pdf,.txt,.csv,.log,.json"
+                  className="w-full rounded-lg border border-dashed border-slate-300 bg-slate-50 text-slate-700 py-2.5 px-3.5 text-xs font-medium file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-extrabold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
                 />
               </div>
 
               <div className="pt-2">
                 <SubmitButton
-                  pendingText="Sending to Support..."
+                  pendingText="Uploading & Sending to Support..."
                   className="w-full rounded-xl bg-slate-900 px-8 py-3.5 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-600 transition-colors cursor-pointer"
                 >
                   Submit Support Ticket

@@ -26,7 +26,7 @@ import {
 } from '@/constants/languages'
 import { isSeasonZeroFounder } from '@/constants/gamification'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
-import { pushToOpsControlPlane } from '@/lib/ops-bridge'
+import { pushToOpsControlPlane, getOpsServiceClient } from '@/lib/ops-bridge'
 
 const MIN_MATCH_THRESHOLD = 40
 const CANDIDATE_TRIAL_MAX_APPS = 15
@@ -4688,7 +4688,9 @@ export async function submitSupportTicket(formData: FormData) {
   if (!user) return { error: 'Unauthorized' }
 
   const subject = ((formData.get('subject') as string) || '').trim()
-  const category = ((formData.get('category') as string) || '').trim()
+  const category = ((formData.get('category') as string) || 'General Support').trim()
+  const platformArea = ((formData.get('platform_area') as string) || 'General Platform').trim()
+  const relatedRefId = ((formData.get('related_ref_id') as string) || '').trim()
   const message = ((formData.get('message') as string) || '').trim()
 
   if (!subject || !message) {
@@ -4702,6 +4704,8 @@ export async function submitSupportTicket(formData: FormData) {
     .single()
 
   let orgContext = ''
+  let accountTierLabel = ''
+
   if (profile?.role === 'employer') {
     const { data: member } = await supabase
       .from('organization_members')
@@ -4717,29 +4721,106 @@ export async function submitSupportTicket(formData: FormData) {
         .single()
       if (org) {
         const tInfo = await resolveEmployerTierInfo(org)
-        orgContext = `Organization: ${org.name} (${org.domain}) | Tier: ${tInfo.label}`
+        accountTierLabel = `Employer • ${tInfo.tier.toUpperCase()}`
+        orgContext = `${org.name} (${org.domain || 'No domain'}) | ${tInfo.label}`
       }
     }
+    if (!accountTierLabel) accountTierLabel = 'Employer • Starter'
+  } else {
+    const cInfo = await resolveCandidateTierInfo(user.id)
+    accountTierLabel = `Candidate • ${String(cInfo.tier).toUpperCase()}`
   }
 
   const ticketId = `TKT-${Date.now().toString().slice(-6)}`
-  const userFullNameForOps = profile?.full_name || profile?.name || "User"
-  const userEmailForOps = profile?.contact_email || profile?.email || user.email || "unknown@user"
+
+  // Process up to 3 uploaded file attachments into Supabase Storage
+  const uploadedAttachments: Array<{
+    id: string
+    name: string
+    size: number
+    type: string
+    storage_path: string
+    url: string
+    uploaded_at: string
+  }> = []
+
+  try {
+    const rawFiles = formData.getAll('attachments')
+    const serviceClient = getOpsServiceClient()
+    if (serviceClient && rawFiles && rawFiles.length > 0) {
+      for (const entry of rawFiles.slice(0, 3)) {
+        if (entry && typeof entry === 'object' && 'arrayBuffer' in entry) {
+          const fileObj = entry as File
+          if (fileObj.size > 0 && fileObj.size <= 10 * 1024 * 1024 && fileObj.name) {
+            const safeName = fileObj.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+            const storagePath = `_isolated_ops_control_plane/attachments/${ticketId}/${Date.now()}_${safeName}`
+            const buffer = Buffer.from(await fileObj.arrayBuffer())
+            const { error: upErr } = await serviceClient.storage
+              .from('resumes')
+              .upload(storagePath, buffer, {
+                upsert: true,
+                contentType: fileObj.type || 'application/octet-stream',
+              })
+
+            if (!upErr) {
+              const { data: signedData } = await serviceClient.storage
+                .from('resumes')
+                .createSignedUrl(storagePath, 60 * 60 * 24 * 365)
+
+              uploadedAttachments.push({
+                id: `att-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+                name: fileObj.name,
+                size: fileObj.size,
+                type: fileObj.type || 'application/octet-stream',
+                storage_path: storagePath,
+                url: signedData?.signedUrl || '',
+                uploaded_at: new Date().toISOString(),
+              })
+            }
+          }
+        }
+      }
+    }
+  } catch (attErr) {
+    console.warn('Support attachment upload warning:', attErr)
+  }
+
+  const userFullNameForOps = profile?.full_name || profile?.name || 'User'
+  const userEmailForOps =
+    profile?.contact_email || profile?.email || user.email || 'unknown@user'
+
   await pushToOpsControlPlane({
-    event_type: "work_item",
+    event_type: 'work_item',
     id: ticketId,
-    work_item_type: "Support_Ticket",
-    priority: category.toLowerCase().includes("billing") || category.toLowerCase().includes("verification") ? "P1_High" : "P2_Normal",
+    work_item_type: category.toLowerCase().includes('bug')
+      ? 'Bug_Defect'
+      : category.toLowerCase().includes('feature')
+      ? 'Feature_Request'
+      : 'Support_Ticket',
+    state: 'open',
+    status: 'new',
+    priority:
+      category.toLowerCase().includes('billing') ||
+      category.toLowerCase().includes('verification')
+        ? 'P1_High'
+        : 'P2_Normal',
+    owned_by: 'Unassigned',
     subject,
     category,
+    platform_area: platformArea,
+    root_cause: 'Unclassified',
+    related_ref_id: relatedRefId,
+    account_tier: accountTierLabel,
     description: message,
     reporter_user_id: user.id,
     reporter_name: userFullNameForOps,
     reporter_email: userEmailForOps,
-    reporter_role: (profile?.role || "user").toUpperCase(),
+    reporter_role: (profile?.role || 'user').toUpperCase(),
     organization_context: orgContext,
-    page_url: "/dashboard/support",
+    page_url: '/dashboard/support',
+    attachments: uploadedAttachments,
   })
+
   const userFullName = profile?.full_name || profile?.name || 'User'
   const userEmail = profile?.contact_email || profile?.email || user.email
 
@@ -4748,17 +4829,22 @@ export async function submitSupportTicket(formData: FormData) {
     replyTo: userEmail,
     subject: `Support Ticket [${ticketId}]: ${subject}`,
     referenceId: ticketId,
-    heading: `New Support Request: ${category}`,
+    heading: `New Support Request: ${category} (${platformArea})`,
     bodyLines: [
+      `Ticket ID: ${ticketId}`,
       `User ID: ${user.id}`,
-      `Role: ${profile?.role?.toUpperCase() || 'UNKNOWN'}`,
-      `Name: ${userFullName}`,
-      `Email: ${userEmail}`,
-      orgContext ? orgContext : 'No organization attached.',
+      `Role & Tier: ${accountTierLabel}`,
+      `Name: ${userFullName} (${userEmail})`,
+      `Platform Area: ${platformArea}`,
+      relatedRefId ? `Related Reference ID: ${relatedRefId}` : '',
+      orgContext ? `Organization: ${orgContext}` : '',
+      uploadedAttachments.length > 0
+        ? `Attachments Uploaded: ${uploadedAttachments.map((a) => a.name).join(', ')}`
+        : 'Attachments: None',
       '',
       '--- MESSAGE ---',
       message,
-    ],
+    ].filter(Boolean),
   })
 
   await sendPlatformNotification({
@@ -4769,10 +4855,13 @@ export async function submitSupportTicket(formData: FormData) {
     heading: 'We received your support request',
     bodyLines: [
       `Hi ${userFullName},`,
-      `Thank you for contacting Special Sauce support. We have received your request regarding "${category}" and our team will review it shortly.`,
+      `Thank you for contacting Special Sauce support. We have logged your request regarding "${category}" (${platformArea}).`,
       `Your Ticket ID is ${ticketId}.`,
-      `We typically respond within 1-2 business days.`,
-    ],
+      uploadedAttachments.length > 0
+        ? `Attached Files (${uploadedAttachments.length}): ${uploadedAttachments.map((a) => a.name).join(', ')}`
+        : '',
+      'We typically respond within 1 business day.',
+    ].filter(Boolean),
     ctaUrl: '/dashboard/support',
     ctaLabel: 'Return to Help Center →',
   })

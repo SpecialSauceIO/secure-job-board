@@ -8,7 +8,7 @@ function cleanEnv(val?: string | null): string {
   return val.trim().replace(/^["']+|["']+$/g, "").trim()
 }
 
-function getServiceClient() {
+export function getOpsServiceClient() {
   const url = cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL)
   const key = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY)
   if (!url || !key) return null
@@ -21,7 +21,7 @@ export async function pushToOpsControlPlane(payload: Record<string, any>): Promi
   const nowIso = new Date().toISOString()
 
   try {
-    const client = getServiceClient()
+    const client = getOpsServiceClient()
     if (client) {
       let vault: { work_items: any[]; behavioral_flags: any[] } = {
         work_items: [],
@@ -47,10 +47,16 @@ export async function pushToOpsControlPlane(payload: Record<string, any>): Promi
         const newItem = {
           id: payload.id || `TKT-${Date.now().toString().slice(-6)}`,
           work_item_type: payload.work_item_type || "Support_Ticket",
+          state: payload.state || "open",
+          status: payload.status || "new",
           priority: payload.priority || "P2_Normal",
-          status: "new",
+          owned_by: payload.owned_by || "Unassigned",
           subject: payload.subject || "Incoming Support Request",
-          category: payload.category || "General",
+          category: payload.category || "General Support",
+          platform_area: payload.platform_area || "General Platform",
+          root_cause: payload.root_cause || "Unclassified",
+          related_ref_id: payload.related_ref_id || "",
+          account_tier: payload.account_tier || "",
           description: payload.description || "",
           reporter_user_id: payload.reporter_user_id || "unknown",
           reporter_name: payload.reporter_name || "Platform User",
@@ -59,11 +65,13 @@ export async function pushToOpsControlPlane(payload: Record<string, any>): Promi
           organization_context: payload.organization_context || "",
           page_url: payload.page_url || "/dashboard",
           user_agent: payload.user_agent || "",
+          attachments: Array.isArray(payload.attachments) ? payload.attachments : [],
           created_at: nowIso,
           updated_at: nowIso,
+          closed_at: null,
           thread: [],
         }
-        vault.work_items = [newItem, ...vault.work_items].slice(0, 600)
+        vault.work_items = [newItem, ...vault.work_items].slice(0, 800)
         const blob = new Blob([JSON.stringify(vault, null, 2)], {
           type: "application/json",
         })
