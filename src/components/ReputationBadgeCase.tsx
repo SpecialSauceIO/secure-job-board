@@ -55,7 +55,7 @@ export default function ReputationBadgeCase({
   const unlockedCount = unlockedBadges.length
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+    <div className="bg-white rounded-2xl border-2 border-slate-300 shadow-xs overflow-hidden">
       {/* Minimalist Single-Row Earned Behavioral Signals Bar */}
       <div className="px-6 py-3.5 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
