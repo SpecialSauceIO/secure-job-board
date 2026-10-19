@@ -265,6 +265,9 @@ export default async function DashboardPage({
     )
   }
 
+  const cookieStoreForA11y = await cookies()
+  const a11yColorTiles = cookieStoreForA11y.get('ss_a11y_color_tiles')?.value === '1'
+
   const { savedJobsCount, savedCandidatesCount } = extractBookmarkCounts(profile)
 
   // ============================================================================
@@ -481,17 +484,21 @@ export default async function DashboardPage({
           </div>
         </header>
 
-        {/* 4 MINIMALIST COLORBLIND-SAFE EMPLOYER WIDGETS */}
+        {/* 4 EMPLOYER WIDGETS (DEFAULT MINIMALIST WHITE B2B OR ACCESSIBILITY COLOR-CODED) */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {/* Card 1: Manage Profile (Crisp Slate) */}
+          {/* Card 1: Manage Profile */}
           <Link
             href="/dashboard/employer/organization"
-            className="group bg-slate-100/90 hover:bg-slate-200/70 p-6 rounded-2xl border border-slate-300 hover:border-slate-400 transition-all flex flex-col justify-between"
+            className={`group p-6 rounded-2xl border transition-all flex flex-col justify-between ${
+              a11yColorTiles
+                ? 'bg-slate-100/90 hover:bg-slate-200/70 border-slate-300 hover:border-slate-400'
+                : 'bg-white hover:bg-slate-50/60 border-slate-200 hover:border-slate-300 shadow-2xs'
+            }`}
           >
             <div>
               <div className="flex items-center justify-between mb-4">
                 <svg
-                  className="w-5 h-5 text-slate-700"
+                  className="w-5 h-5 text-slate-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -504,19 +511,19 @@ export default async function DashboardPage({
                   />
                 </svg>
                 <span
-                  className={`px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${
+                  className={`px-2.5 py-0.5 rounded-md text-[11px] font-semibold border ${
                     isOrgVerified
-                      ? 'bg-white text-slate-800 border-slate-300'
-                      : 'bg-amber-100 text-amber-900 border-amber-300'
+                      ? 'bg-slate-50 text-slate-700 border-slate-200'
+                      : 'bg-amber-50 text-amber-800 border-amber-200'
                   }`}
                 >
                   {isOrgVerified ? 'Verified' : 'Setup Needed'}
                 </span>
               </div>
-              <h3 className="text-lg font-bold text-slate-950">
+              <h3 className="text-lg font-bold text-slate-900">
                 Manage Profile
               </h3>
-              <p className="text-xs text-slate-600 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 {isOrgVerified
                   ? `Domain verified · Up to ${tierInfo.maxSeats} team ${
                       tierInfo.maxSeats === 1 ? 'seat' : 'seats'
@@ -524,24 +531,30 @@ export default async function DashboardPage({
                   : 'Verify domain, manage seats & ATS webhooks'}
               </p>
             </div>
-            <p className="text-xs font-bold text-slate-800 group-hover:text-slate-950 mt-5">
+            <p className="text-xs font-semibold text-slate-700 group-hover:text-slate-950 mt-5">
               Company, logo &amp; seats →
             </p>
           </Link>
 
-          {/* Card 2: Manage Active Roles (Royal Blue Tint) */}
+          {/* Card 2: Manage Active Roles */}
           <Link
             href={
               hasOrg
                 ? '/dashboard/employer/jobs'
                 : '/dashboard/employer/organization'
             }
-            className="group bg-blue-100/75 hover:bg-blue-200/60 p-6 rounded-2xl border border-blue-300 hover:border-blue-400 transition-all flex flex-col justify-between"
+            className={`group p-6 rounded-2xl border transition-all flex flex-col justify-between ${
+              a11yColorTiles
+                ? 'bg-blue-100/75 hover:bg-blue-200/60 border-blue-300 hover:border-blue-400'
+                : 'bg-white hover:bg-slate-50/60 border-slate-200 hover:border-slate-300 shadow-2xs'
+            }`}
           >
             <div>
               <div className="flex items-center justify-between mb-4">
                 <svg
-                  className="w-5 h-5 text-blue-800"
+                  className={`w-5 h-5 ${
+                    a11yColorTiles ? 'text-blue-800' : 'text-slate-600'
+                  }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -553,14 +566,28 @@ export default async function DashboardPage({
                     d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                   />
                 </svg>
-                <span className="text-[11px] font-bold text-blue-950 bg-white/90 border border-blue-300 px-2.5 py-0.5 rounded-md">
+                <span
+                  className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${
+                    a11yColorTiles
+                      ? 'text-blue-950 bg-white/90 border-blue-300 font-bold'
+                      : 'text-slate-700 bg-slate-50 border-slate-200'
+                  }`}
+                >
                   {rolesBadgeText}
                 </span>
               </div>
-              <h3 className="text-lg font-bold text-blue-950">
+              <h3
+                className={`text-lg font-bold ${
+                  a11yColorTiles ? 'text-blue-950' : 'text-slate-900'
+                }`}
+              >
                 Manage Active Roles
               </h3>
-              <p className="text-xs text-blue-900/80 mt-1">
+              <p
+                className={`text-xs mt-1 ${
+                  a11yColorTiles ? 'text-blue-900/80' : 'text-slate-500'
+                }`}
+              >
                 {tierInfo.maxActiveJobs >= 500
                   ? 'Unlimited active role slots enabled'
                   : `${Math.max(
@@ -569,24 +596,36 @@ export default async function DashboardPage({
                     )} active role slots remaining`}
               </p>
             </div>
-            <p className="text-xs font-bold text-blue-900 group-hover:text-blue-950 mt-5">
+            <p
+              className={`text-xs font-semibold mt-5 ${
+                a11yColorTiles
+                  ? 'text-blue-900 group-hover:text-blue-950 font-bold'
+                  : 'text-slate-700 group-hover:text-slate-950'
+              }`}
+            >
               View &amp; edit roles →
             </p>
           </Link>
 
-          {/* Card 3: Outbound Pitches (Warm Amber Tint) */}
+          {/* Card 3: Outbound Pitches */}
           <Link
             href={
               hasOrg
                 ? '/dashboard/employer/pitches'
                 : '/dashboard/employer/organization'
             }
-            className="group bg-amber-100/80 hover:bg-amber-200/65 p-6 rounded-2xl border border-amber-300 hover:border-amber-400 transition-all flex flex-col justify-between"
+            className={`group p-6 rounded-2xl border transition-all flex flex-col justify-between ${
+              a11yColorTiles
+                ? 'bg-amber-100/80 hover:bg-amber-200/65 border-amber-300 hover:border-amber-400'
+                : 'bg-white hover:bg-slate-50/60 border-slate-200 hover:border-slate-300 shadow-2xs'
+            }`}
           >
             <div>
               <div className="flex items-center justify-between mb-4">
                 <svg
-                  className="w-5 h-5 text-amber-900"
+                  className={`w-5 h-5 ${
+                    a11yColorTiles ? 'text-amber-900' : 'text-slate-600'
+                  }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -600,19 +639,29 @@ export default async function DashboardPage({
                 </svg>
                 <div className="flex items-center gap-1.5">
                   {pitchesUnreadMsgsCount > 0 && (
-                    <span className="px-2 py-0.5 rounded-md bg-slate-900 text-amber-300 text-[11px] font-bold">
+                    <span className="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-semibold">
                       {pitchesUnreadMsgsCount} Unread
                     </span>
                   )}
-                  <span className="text-[11px] font-bold text-amber-950 bg-white/90 border border-amber-300 px-2.5 py-0.5 rounded-md">
+                  <span
+                    className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${
+                      a11yColorTiles
+                        ? 'text-amber-950 bg-white/90 border-amber-300 font-bold'
+                        : 'text-slate-700 bg-slate-50 border-slate-200'
+                    }`}
+                  >
                     {sentPitchesCount} Sent
                   </span>
                 </div>
               </div>
-              <h3 className="text-lg font-bold text-slate-950">
+              <h3 className="text-lg font-bold text-slate-900">
                 Outbound Pitches
               </h3>
-              <p className="text-xs text-amber-950/80 mt-1">
+              <p
+                className={`text-xs mt-1 ${
+                  a11yColorTiles ? 'text-amber-950/80' : 'text-slate-500'
+                }`}
+              >
                 {pitchesUnreadMsgsCount > 0
                   ? `${pitchesUnreadMsgsCount} unread candidate ${
                       pitchesUnreadMsgsCount === 1 ? 'reply' : 'replies'
@@ -622,24 +671,36 @@ export default async function DashboardPage({
                   : 'Candidates you pitched from Talent Search'}
               </p>
             </div>
-            <p className="text-xs font-bold text-amber-950 group-hover:text-slate-950 mt-5">
+            <p
+              className={`text-xs font-semibold mt-5 ${
+                a11yColorTiles
+                  ? 'text-amber-950 group-hover:text-slate-950 font-bold'
+                  : 'text-slate-700 group-hover:text-slate-950'
+              }`}
+            >
               Open outbound pitches →
             </p>
           </Link>
 
-          {/* Card 4: Inbound Applications (Soft Violet / Purple Tint) */}
+          {/* Card 4: Inbound Applications */}
           <Link
             href={
               hasOrg
                 ? '/dashboard/employer/applications'
                 : '/dashboard/employer/organization'
             }
-            className="group bg-purple-100/75 hover:bg-purple-200/60 p-6 rounded-2xl border border-purple-300 hover:border-purple-400 transition-all flex flex-col justify-between"
+            className={`group p-6 rounded-2xl border transition-all flex flex-col justify-between ${
+              a11yColorTiles
+                ? 'bg-purple-100/75 hover:bg-purple-200/60 border-purple-300 hover:border-purple-400'
+                : 'bg-white hover:bg-slate-50/60 border-slate-200 hover:border-slate-300 shadow-2xs'
+            }`}
           >
             <div>
               <div className="flex items-center justify-between mb-4">
                 <svg
-                  className="w-5 h-5 text-purple-800"
+                  className={`w-5 h-5 ${
+                    a11yColorTiles ? 'text-purple-800' : 'text-slate-600'
+                  }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -653,23 +714,37 @@ export default async function DashboardPage({
                 </svg>
                 <div className="flex items-center gap-1.5">
                   {inboundUnreadMsgsCount > 0 ? (
-                    <span className="px-2 py-0.5 rounded-md bg-purple-900 text-white text-[11px] font-bold">
+                    <span className="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-semibold">
                       {inboundUnreadMsgsCount} Unread
                     </span>
                   ) : pendingAppsCount > 0 ? (
-                    <span className="px-2 py-0.5 rounded-md bg-purple-800 text-white text-[11px] font-bold">
+                    <span className="px-2 py-0.5 rounded-md bg-slate-800 text-white text-[11px] font-semibold">
                       {pendingAppsCount} Awaiting
                     </span>
                   ) : null}
-                  <span className="text-[11px] font-bold text-purple-950 bg-white/90 border border-purple-300 px-2.5 py-0.5 rounded-md">
+                  <span
+                    className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${
+                      a11yColorTiles
+                        ? 'text-purple-950 bg-white/90 border-purple-300 font-bold'
+                        : 'text-slate-700 bg-slate-50 border-slate-200'
+                    }`}
+                  >
                     {inboundTotalCount} Total
                   </span>
                 </div>
               </div>
-              <h3 className="text-lg font-bold text-purple-950">
+              <h3
+                className={`text-lg font-bold ${
+                  a11yColorTiles ? 'text-purple-950' : 'text-slate-900'
+                }`}
+              >
                 Inbound Applications
               </h3>
-              <p className="text-xs text-purple-900/80 mt-1">
+              <p
+                className={`text-xs mt-1 ${
+                  a11yColorTiles ? 'text-purple-900/80' : 'text-slate-500'
+                }`}
+              >
                 {inboundUnreadMsgsCount > 0
                   ? `${inboundUnreadMsgsCount} unread applicant ${
                       inboundUnreadMsgsCount === 1 ? 'message' : 'messages'
@@ -679,7 +754,13 @@ export default async function DashboardPage({
                   : 'Candidates who applied to your roles (free unlock)'}
               </p>
             </div>
-            <p className="text-xs font-bold text-purple-900 group-hover:text-purple-950 mt-5">
+            <p
+              className={`text-xs font-semibold mt-5 ${
+                a11yColorTiles
+                  ? 'text-purple-900 group-hover:text-purple-950 font-bold'
+                  : 'text-slate-700 group-hover:text-slate-950'
+              }`}
+            >
               Review inbound applicants →
             </p>
           </Link>
@@ -873,17 +954,21 @@ export default async function DashboardPage({
         </div>
       )}
 
-      {/* 4 MINIMALIST COLORBLIND-SAFE CANDIDATE WIDGETS */}
+      {/* 4 CANDIDATE WIDGETS (DEFAULT MINIMALIST WHITE B2B OR ACCESSIBILITY COLOR-CODED) */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* Card 1: Manage Profile (Crisp Slate) */}
+        {/* Card 1: Manage Profile */}
         <Link
           href="/dashboard/profile"
-          className="group bg-slate-100/90 hover:bg-slate-200/70 p-6 rounded-2xl border border-slate-300 hover:border-slate-400 transition-all flex flex-col justify-between"
+          className={`group p-6 rounded-2xl border transition-all flex flex-col justify-between ${
+            a11yColorTiles
+              ? 'bg-slate-100/90 hover:bg-slate-200/70 border-slate-300 hover:border-slate-400'
+              : 'bg-white hover:bg-slate-50/60 border-slate-200 hover:border-slate-300 shadow-2xs'
+          }`}
         >
           <div>
             <div className="flex items-center justify-between mb-4">
               <svg
-                className="w-5 h-5 text-slate-700"
+                className="w-5 h-5 text-slate-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -896,38 +981,44 @@ export default async function DashboardPage({
                 />
               </svg>
               <span
-                className={`px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${
+                className={`px-2.5 py-0.5 rounded-md text-[11px] font-semibold border ${
                   hasProfileData
-                    ? 'bg-white text-slate-800 border-slate-300'
-                    : 'bg-amber-100 text-amber-900 border-amber-300'
+                    ? 'bg-slate-50 text-slate-700 border-slate-200'
+                    : 'bg-amber-50 text-amber-800 border-amber-200'
                 }`}
               >
                 {hasProfileData ? 'Ready' : 'Setup'}
               </span>
             </div>
-            <h3 className="text-lg font-bold text-slate-950">
+            <h3 className="text-lg font-bold text-slate-900">
               Manage Profile
             </h3>
-            <p className="text-xs text-slate-600 mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               {hasProfileData
                 ? 'Resume parsed & ready for AI matching'
                 : 'Upload your PDF resume to auto-fill skills'}
             </p>
           </div>
-          <p className="text-xs font-bold text-slate-800 group-hover:text-slate-950 mt-5">
+          <p className="text-xs font-semibold text-slate-700 group-hover:text-slate-950 mt-5">
             {hasProfileData ? 'Skill matrix & resume →' : 'Upload resume →'}
           </p>
         </Link>
 
-        {/* Card 2: Inbound Pitches (Royal Blue Tint) */}
+        {/* Card 2: Inbound Pitches */}
         <Link
           href="/dashboard/requests"
-          className="group bg-blue-100/75 hover:bg-blue-200/60 p-6 rounded-2xl border border-blue-300 hover:border-blue-400 transition-all flex flex-col justify-between"
+          className={`group p-6 rounded-2xl border transition-all flex flex-col justify-between ${
+            a11yColorTiles
+              ? 'bg-blue-100/75 hover:bg-blue-200/60 border-blue-300 hover:border-blue-400'
+              : 'bg-white hover:bg-slate-50/60 border-slate-200 hover:border-slate-300 shadow-2xs'
+          }`}
         >
           <div>
             <div className="flex items-center justify-between mb-4">
               <svg
-                className="w-5 h-5 text-blue-800"
+                className={`w-5 h-5 ${
+                  a11yColorTiles ? 'text-blue-800' : 'text-slate-600'
+                }`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -941,19 +1032,33 @@ export default async function DashboardPage({
               </svg>
               <div className="flex items-center gap-1.5">
                 {unreadPitchMsgsCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-md bg-blue-900 text-white text-[11px] font-bold">
+                  <span className="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-semibold">
                     {unreadPitchMsgsCount} Unread
                   </span>
                 )}
-                <span className="text-[11px] font-bold text-blue-950 bg-white/90 border border-blue-300 px-2.5 py-0.5 rounded-md">
+                <span
+                  className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${
+                    a11yColorTiles
+                      ? 'text-blue-950 bg-white/90 border-blue-300 font-bold'
+                      : 'text-slate-700 bg-slate-50 border-slate-200'
+                  }`}
+                >
                   {inboundEmployerPitches.length} Total
                 </span>
               </div>
             </div>
-            <h3 className="text-lg font-bold text-blue-950">
+            <h3
+              className={`text-lg font-bold ${
+                a11yColorTiles ? 'text-blue-950' : 'text-slate-900'
+              }`}
+            >
               Inbound Pitches
             </h3>
-            <p className="text-xs text-blue-900/80 mt-1">
+            <p
+              className={`text-xs mt-1 ${
+                a11yColorTiles ? 'text-blue-900/80' : 'text-slate-500'
+              }`}
+            >
               {unreadPitchMsgsCount > 0
                 ? 'An employer sent you a message in your pitch inbox'
                 : pendingRequestsCount > 0
@@ -961,20 +1066,32 @@ export default async function DashboardPage({
                 : 'Direct role pitches from verified employers'}
             </p>
           </div>
-          <p className="text-xs font-bold text-blue-900 group-hover:text-blue-950 mt-5">
+          <p
+            className={`text-xs font-semibold mt-5 ${
+              a11yColorTiles
+                ? 'text-blue-900 group-hover:text-blue-950 font-bold'
+                : 'text-slate-700 group-hover:text-slate-950'
+            }`}
+          >
             Open inbound pitches →
           </p>
         </Link>
 
-        {/* Card 3: Outbound Applications (Warm Amber Tint) */}
+        {/* Card 3: Outbound Applications */}
         <Link
           href="/dashboard/applications"
-          className="group bg-amber-100/80 hover:bg-amber-200/65 p-6 rounded-2xl border border-amber-300 hover:border-amber-400 transition-all flex flex-col justify-between"
+          className={`group p-6 rounded-2xl border transition-all flex flex-col justify-between ${
+            a11yColorTiles
+              ? 'bg-amber-100/80 hover:bg-amber-200/65 border-amber-300 hover:border-amber-400'
+              : 'bg-white hover:bg-slate-50/60 border-slate-200 hover:border-slate-300 shadow-2xs'
+          }`}
         >
           <div>
             <div className="flex items-center justify-between mb-4">
               <svg
-                className="w-5 h-5 text-amber-900"
+                className={`w-5 h-5 ${
+                  a11yColorTiles ? 'text-amber-900' : 'text-slate-600'
+                }`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -988,38 +1105,60 @@ export default async function DashboardPage({
               </svg>
               <div className="flex items-center gap-1.5">
                 {unreadOutboundMsgsCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-md bg-slate-900 text-amber-300 text-[11px] font-bold">
+                  <span className="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-semibold">
                     {unreadOutboundMsgsCount} Unread
                   </span>
                 )}
-                <span className="text-[11px] font-bold text-amber-950 bg-white/90 border border-amber-300 px-2.5 py-0.5 rounded-md">
+                <span
+                  className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${
+                    a11yColorTiles
+                      ? 'text-amber-950 bg-white/90 border-amber-300 font-bold'
+                      : 'text-slate-700 bg-slate-50 border-slate-200'
+                  }`}
+                >
                   {applicationCount} Sent
                 </span>
               </div>
             </div>
-            <h3 className="text-lg font-bold text-slate-950">
+            <h3 className="text-lg font-bold text-slate-900">
               Outbound Applications
             </h3>
-            <p className="text-xs text-amber-950/80 mt-1">
+            <p
+              className={`text-xs mt-1 ${
+                a11yColorTiles ? 'text-amber-950/80' : 'text-slate-500'
+              }`}
+            >
               {unreadOutboundMsgsCount > 0
                 ? 'An employer messaged you about your application'
                 : 'Track blind applications & unlocked employers'}
             </p>
           </div>
-          <p className="text-xs font-bold text-amber-950 group-hover:text-slate-950 mt-5">
+          <p
+            className={`text-xs font-semibold mt-5 ${
+              a11yColorTiles
+                ? 'text-amber-950 group-hover:text-slate-950 font-bold'
+                : 'text-slate-700 group-hover:text-slate-950'
+            }`}
+          >
             Track applications →
           </p>
         </Link>
 
-        {/* Card 4: Match Preferences (Soft Violet / Purple Tint) */}
+        {/* Card 4: Match Preferences */}
         <Link
           href="/dashboard/preferences"
-          className="group bg-purple-100/75 hover:bg-purple-200/60 p-6 rounded-2xl border border-purple-300 hover:border-purple-400 transition-all flex flex-col justify-between"
+          className={`group p-6 rounded-2xl border transition-all flex flex-col justify-between ${
+            a11yColorTiles
+              ? 'bg-purple-100/75 hover:bg-purple-200/60 border-purple-300 hover:border-purple-400'
+              : 'bg-white hover:bg-slate-50/60 border-slate-200 hover:border-slate-300 shadow-2xs'
+          }`}
         >
           <div>
             <div className="flex items-center justify-between mb-4">
               <svg
-                className="w-5 h-5 text-purple-800"
+                className={`w-5 h-5 ${
+                  a11yColorTiles ? 'text-purple-800' : 'text-slate-600'
+                }`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -1032,14 +1171,28 @@ export default async function DashboardPage({
                 />
               </svg>
             </div>
-            <h3 className="text-lg font-bold text-purple-950">
+            <h3
+              className={`text-lg font-bold ${
+                a11yColorTiles ? 'text-purple-950' : 'text-slate-900'
+              }`}
+            >
               Match Preferences
             </h3>
-            <p className="text-xs text-purple-900/80 mt-1">
+            <p
+              className={`text-xs mt-1 ${
+                a11yColorTiles ? 'text-purple-900/80' : 'text-slate-500'
+              }`}
+            >
               Set minimum salary, employment types &amp; work model
             </p>
           </div>
-          <p className="text-xs font-bold text-purple-900 group-hover:text-purple-950 mt-5">
+          <p
+            className={`text-xs font-semibold mt-5 ${
+              a11yColorTiles
+                ? 'text-purple-900 group-hover:text-purple-950 font-bold'
+                : 'text-slate-700 group-hover:text-slate-950'
+            }`}
+          >
             Edit dealbreakers →
           </p>
         </Link>

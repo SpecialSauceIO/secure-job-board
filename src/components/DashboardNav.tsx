@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import QuickFeedbackWidget from '@/components/QuickFeedbackWidget'
 
 export default function DashboardNav({
@@ -17,8 +17,30 @@ export default function DashboardNav({
   signOutAction: () => Promise<void>
 }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [colorTilesEnabled, setColorTilesEnabled] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    try {
+      const hasCookie = document.cookie
+        .split('; ')
+        .some((row) => row.startsWith('ss_a11y_color_tiles=1'))
+      setColorTilesEnabled(hasCookie)
+    } catch {}
+  }, [])
+
+  const toggleColorTiles = () => {
+    const next = !colorTilesEnabled
+    setColorTilesEnabled(next)
+    try {
+      document.cookie = `ss_a11y_color_tiles=${
+        next ? '1' : '0'
+      }; path=/; max-age=31536000; SameSite=Lax`
+    } catch {}
+    router.refresh()
+  }
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -89,7 +111,7 @@ export default function DashboardNav({
             </Link>
           </div>
 
-          {/* CENTERED: Tagline (Identical to PublicHeader) */}
+          {/* CENTERED: Tagline */}
           <div className="absolute left-1/2 -translate-x-1/2 hidden xl:flex items-center gap-4 pointer-events-none">
             <span className="h-5 w-px bg-slate-200"></span>
             <p className="text-[11px] font-bold text-slate-500 tracking-[0.15em] uppercase whitespace-nowrap">
@@ -178,6 +200,38 @@ export default function DashboardNav({
                     >
                       <span>Help Center &amp; Playbooks</span>
                     </Link>
+                  </div>
+
+                  {/* Accessibility Options Section */}
+                  <div className="py-2 px-3 border-t border-slate-100 space-y-1.5">
+                    <p className="px-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      Accessibility
+                    </p>
+                    <button
+                      type="button"
+                      onClick={toggleColorTiles}
+                      className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer text-left"
+                    >
+                      <div>
+                        <span className="block text-xs font-bold text-slate-800">
+                          Color-Coded Tiles
+                        </span>
+                        <span className="block text-[10px] text-slate-500">
+                          High-contrast widget backgrounds
+                        </span>
+                      </div>
+                      <span
+                        className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
+                          colorTilesEnabled ? 'bg-slate-900' : 'bg-slate-200'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                            colorTilesEnabled ? 'translate-x-4' : 'translate-x-1'
+                          }`}
+                        />
+                      </span>
+                    </button>
                   </div>
 
                   <div className="pt-1.5 mt-1 border-t border-slate-100 px-2">
