@@ -247,7 +247,7 @@ export default function CandidateBillingPage() {
                 <li>✓ Browse blind role feed &amp; real pay bands</li>
                 <li>✓ Unlimited 5-Point AI Fit Radar checks</li>
                 <li>✓ 2-Stage Identity &amp; PDF Resume Vault</li>
-                <li>★ Keeps permanent <strong>Founding Member Badge</strong> (1.0x XP)</li>
+                <li>✓ Keeps permanent <strong>Founding Member Status</strong></li>
                 <li className="text-slate-400">✕ Outbound blind applications (0/mo)</li>
                 <li className="text-slate-400">✕ Outbound Blind Applications (Professional &amp; Prestige)</li>
               </ul>
@@ -311,7 +311,7 @@ export default function CandidateBillingPage() {
                   ✓ <strong>Verified Behavioral &amp; Responsiveness Signals</strong>
                 </li>
                 <li className="text-amber-800 font-bold">
-                  ★ <strong>Active Gold Founding Member Card Border</strong>
+                  ✓ <strong>Permanent Founding Member Status</strong>
                 </li>
                 <li>✓ Unlimited 5-Point AI Fit Radar checks &amp; Inbound Pitches</li>
                 <li>✓ Elevated Employer Talent Search indexing</li>
@@ -377,7 +377,7 @@ export default function CandidateBillingPage() {
                   ✓ <strong>Verified Behavioral &amp; Responsiveness Signals</strong>
                 </li>
                 <li className="text-amber-300 font-bold">
-                  ★ <strong>Active Gold Founding Member Card Border</strong>
+                  ✓ <strong>Permanent Founding Member Status</strong>
                 </li>
                 <li>✓ Downgrade to $0 Explorer Vault anytime</li>
               </ul>

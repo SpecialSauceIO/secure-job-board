@@ -95,7 +95,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-amber-600 font-bold">★</span>
-                      <span>Keeps permanent <strong>Founding Member Badge</strong> (1.0x standard XP)</span>
+                      <span>Keeps permanent <strong>Founding Member Status</strong></span>
                     </li>
                     <li className="flex items-start gap-2 text-slate-400">
                       <span>✕</span>
@@ -151,7 +151,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
-                      <span><strong>Active Gold Founding Member Card Border</strong> &amp; Badge</span>
+                      <span><strong>Permanent Founding Member Status</strong> &amp; Badge</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
@@ -211,7 +211,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-amber-300 font-bold">
                       <span>★</span>
-                      <span><strong>Active Gold Founding Member Card Border</strong> &amp; Badge</span>
+                      <span><strong>Permanent Founding Member Status</strong> &amp; Badge</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>

@@ -86,7 +86,7 @@ export default function LandingPage() {
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
               Join during our launch window to unlock{' '}
               <strong className="text-slate-700">30 days of complimentary full access</strong>, permanent{' '}
-              <strong className="text-slate-700">★ Founding Member &amp; Partner gold badges</strong>, priority AI matching rank, and lifetime rate locks.
+              <strong className="text-slate-700">Permanent Founding Member &amp; Partner status</strong>, priority AI matching rank, and lifetime rate locks.
             </p>
           </div>
 
