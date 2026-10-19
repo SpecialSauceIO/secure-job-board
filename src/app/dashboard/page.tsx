@@ -430,10 +430,10 @@ export default async function DashboardPage({
             {isOrgVerified && (
               <Link
                 href="/dashboard/employer/search?saved=true"
-                className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border text-xs font-extrabold transition-colors shadow-2xs ${
+                className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border-2 text-xs font-extrabold transition-colors shadow-xs ${
                   savedCandidatesCount > 0
                     ? 'bg-amber-50 border-amber-400 text-amber-900 hover:bg-amber-100'
-                    : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'
+                    : 'bg-white border-slate-300 text-slate-700 hover:border-slate-400'
                 }`}
               >
                 <svg
@@ -903,10 +903,10 @@ export default async function DashboardPage({
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <Link
             href="/dashboard/jobs?saved=true"
-            className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border text-xs font-extrabold transition-colors shadow-2xs ${
+            className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border-2 text-xs font-extrabold transition-colors shadow-xs ${
               savedJobsCount > 0
                 ? 'bg-amber-50 border-amber-400 text-amber-900 hover:bg-amber-100'
-                : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'
+                : 'bg-white border-slate-300 text-slate-700 hover:border-slate-400'
             }`}
           >
             <svg
@@ -939,7 +939,7 @@ export default async function DashboardPage({
       </header>
 
       {!isVerified && (
-        <div className="rounded-2xl border-2 border-amber-500 bg-amber-50/70 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/80 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
           <div>
             <h2 className="text-sm font-extrabold text-slate-900">
               Step 1: Verify Your Identity to Unlock Blind Applications

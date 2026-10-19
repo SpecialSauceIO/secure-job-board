@@ -133,7 +133,7 @@ export default function DashboardLiveSync() {
   const pitchUnread = pulseState.secondaryUnreadCount
 
   return (
-    <div className="rounded-xl border border-indigo-200 bg-indigo-50/90 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+    <div className="rounded-2xl border-2 border-indigo-300 bg-indigo-50/90 px-5 py-3 flex flex-wrap items-center justify-between gap-3 shadow-xs">
       <div className="flex items-center gap-2.5 text-xs">
         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-500 text-slate-950">
           <span className="w-1.5 h-1.5 rounded-full bg-slate-950 animate-ping" />

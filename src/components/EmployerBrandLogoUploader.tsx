@@ -61,7 +61,7 @@ export default function EmployerBrandLogoUploader({
             ? 'Click to upload or update your company white-label logo'
             : 'Set up your company first to upload a logo'
         }
-        className="w-16 h-16 rounded-2xl border-2 border-slate-200 bg-white shadow-xs hover:border-indigo-400 transition-all flex items-center justify-center overflow-hidden relative cursor-pointer"
+        className="w-16 h-16 rounded-2xl border-2 border-slate-300 bg-white shadow-xs hover:border-indigo-400 transition-all flex items-center justify-center overflow-hidden relative cursor-pointer"
       >
         {logoUrl ? (
           <img
