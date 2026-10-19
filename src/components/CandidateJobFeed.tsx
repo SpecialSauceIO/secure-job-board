@@ -632,9 +632,12 @@ export function CandidateJobFeed({
                   <div className="flex items-center gap-2 min-w-0">
                     <span
                       title={`Blind Role • ${anonymousTeaserParts.join(' • ')}`}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900 text-white text-[11px] font-extrabold uppercase tracking-wider truncate max-w-[260px] sm:max-w-[420px] md:max-w-[500px]"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-slate-900 text-white text-[11px] font-extrabold uppercase tracking-wider max-w-full overflow-hidden"
                     >
-                      🔒 Blind Role • {anonymousTeaserParts.join(' • ')}
+                      <span className="shrink-0">🔒</span>
+                      <span className="truncate">
+                        Blind Role • {anonymousTeaserParts.join(' • ')}
+                      </span>
                     </span>
 
                     <div className="shrink-0">
@@ -737,7 +740,7 @@ export function CandidateJobFeed({
                     <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
                       Work Model &amp; Location
                     </span>
-                    <span className="font-bold text-slate-900 truncate block mt-0.5">
+                    <span className="font-bold text-slate-900 leading-snug block mt-0.5">
                       {(job.work_model || 'Flexible').toUpperCase()} • {meta.location || 'US Nationwide'}
                     </span>
                   </div>
@@ -746,7 +749,7 @@ export function CandidateJobFeed({
                     <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
                       Employment &amp; Level
                     </span>
-                    <span className="font-bold text-slate-900 truncate block mt-0.5">
+                    <span className="font-bold text-slate-900 leading-snug block mt-0.5">
                       {meta.employmentType || 'Full-Time (W-2)'} • {meta.experienceLevel || 'Mid-Senior'}
                     </span>
                   </div>
@@ -757,7 +760,7 @@ export function CandidateJobFeed({
                     </span>
                     <span
                       title={`${meta.educationReq || 'Skills First'} • ${meta.workAuth || 'US Authorized'}`}
-                      className="font-bold text-slate-900 truncate block mt-0.5"
+                      className="font-bold text-slate-900 leading-snug block mt-0.5"
                     >
                       {meta.educationReq || 'Skills & Experience First'}
                     </span>
@@ -767,7 +770,7 @@ export function CandidateJobFeed({
                     <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
                       Languages &amp; Certs
                     </span>
-                    <span className="font-bold text-slate-900 truncate block mt-0.5">
+                    <span className="font-bold text-slate-900 leading-snug block mt-0.5">
                       {meta.requiredLanguages.length > 0
                         ? meta.requiredLanguages
                             .map((l) => `${l.language} (${l.proficiency})`)

@@ -1081,7 +1081,7 @@ export default function EmployerCandidateSearch({
                       {isCandidateVerified ? '✓ Identity Verified' : '✓ Blind Vault Active'}
                     </span>
                     <span className="text-slate-300">•</span>
-                    <span className="font-bold text-slate-800 truncate max-w-[320px]">
+                    <span className="font-bold text-slate-800">
                       {candidateIndustry || 'General / Cross-Industry'}
                     </span>
                     <span className="text-slate-300">•</span>
@@ -1102,7 +1102,7 @@ export default function EmployerCandidateSearch({
                       <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
                         Experience &amp; Model
                       </span>
-                      <span className="font-bold text-slate-900 truncate block mt-0.5 capitalize">
+                      <span className="font-bold text-slate-900 leading-snug block mt-0.5 capitalize">
                         {candidate.experience_years ? `${candidate.experience_years} Yrs Exp` : 'Exp Verified in Vault'} • {candidate.preferred_work_model || 'Flexible'} Model
                       </span>
                     </div>
@@ -1113,7 +1113,7 @@ export default function EmployerCandidateSearch({
                       </span>
                       <span
                         title={acceptedEmploymentTypes.join(', ')}
-                        className="font-bold text-slate-900 truncate block mt-0.5"
+                        className="font-bold text-slate-900 leading-snug block mt-0.5"
                       >
                         {acceptedEmploymentTypes.length > 0
                           ? acceptedEmploymentTypes.join(', ')
@@ -1127,7 +1127,7 @@ export default function EmployerCandidateSearch({
                       </span>
                       <span
                         title={`${candidateEdu || 'Skills & Experience First'}${candidateCerts ? ' • ' + candidateCerts : ''}`}
-                        className="font-bold text-slate-900 truncate block mt-0.5"
+                        className="font-bold text-slate-900 leading-snug block mt-0.5"
                       >
                         {candidateEdu || 'Skills & Experience First'}
                         {candidateCerts ? ` • ${candidateCerts}` : ''}
@@ -1138,7 +1138,7 @@ export default function EmployerCandidateSearch({
                       <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
                         Verified Languages
                       </span>
-                      <span className="font-bold text-slate-900 truncate block mt-0.5">
+                      <span className="font-bold text-slate-900 leading-snug block mt-0.5">
                         {candidateLanguages.length > 0
                           ? candidateLanguages
                               .map((l) => `${l.language} (${l.proficiency})`)
