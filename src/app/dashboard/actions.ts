@@ -601,7 +601,18 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   maxActiveJobs: number
   monthlyCredits: number
   maxSeats: number
+  planCreditsRemaining: number
+  rolloverCreditsRemaining: number
+  totalCreditsRemaining: number
 }> {
+  const totalCredits = Math.max(0, org?.connection_credits || 0)
+  const storedRollover = Math.min(totalCredits, parseRolloverCreditsTag(org?.description))
+  const computedPlanCredits = Math.max(0, totalCredits - storedRollover)
+  const bucketFields = {
+    planCreditsRemaining: computedPlanCredits,
+    rolloverCreditsRemaining: storedRollover,
+    totalCreditsRemaining: totalCredits,
+  }
   const descMatch = (org?.description || '').match(
     /\[TIER:(free|starter|growth|enterprise)\]/i
   )
@@ -630,6 +641,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
       maxActiveJobs: 999,
       monthlyCredits: 100,
       maxSeats: 999,
+      ...bucketFields,
     }
   }
   if (explicitTier === 'growth') {
@@ -639,6 +651,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
       maxActiveJobs: 15,
       monthlyCredits: 35,
       maxSeats: 5,
+      ...bucketFields,
     }
   }
   if (explicitTier === 'starter') {
@@ -648,6 +661,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
       maxActiveJobs: 5,
       monthlyCredits: 10,
       maxSeats: 2,
+      ...bucketFields,
     }
   }
 
@@ -669,6 +683,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
         maxActiveJobs: EMPLOYER_FOUNDER_GRANT_JOBS,
         monthlyCredits: EMPLOYER_FOUNDER_GRANT_CREDITS,
         maxSeats: 2,
+      ...bucketFields,
       }
     }
   }
@@ -680,6 +695,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
       maxActiveJobs: 0,
       monthlyCredits: 0,
       maxSeats: 1,
+      ...bucketFields,
     }
   }
 
@@ -694,6 +710,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
       maxActiveJobs: 999,
       monthlyCredits: 100,
       maxSeats: 999,
+      ...bucketFields,
     }
   }
   if (totalCapacity >= 20) {
@@ -703,6 +720,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
       maxActiveJobs: 15,
       monthlyCredits: 35,
       maxSeats: 5,
+      ...bucketFields,
     }
   }
   if (credits > 0 || sent > 0) {
@@ -712,6 +730,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
       maxActiveJobs: 5,
       monthlyCredits: 10,
       maxSeats: 2,
+      ...bucketFields,
     }
   }
 
@@ -721,12 +740,19 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
     maxActiveJobs: 0,
     monthlyCredits: 0,
     maxSeats: 1,
+      ...bucketFields,
   }
+}
+
+function parseRolloverCreditsTag(description?: string | null): number {
+  const match = (description || '').match(/\[TOPUP:(\d+)\]/i)
+  return match ? Math.max(0, parseInt(match[1], 10) || 0) : 0
 }
 
 export async function stripTierTag(description?: string | null): Promise<string> {
   return (description || '')
     .replace(/\s*\[TIER:[a-z]+\]/gi, '')
+    .replace(/\s*\[TOPUP:\d+\]/gi, '')
     .replace(/\s*\[SEATS:[^\]]*\]/gi, '')
     .trim()
 }
@@ -3441,11 +3467,26 @@ export async function sendConnectionRequest(
     finalPitchId = insertedPitch?.id || ''
   }
 
+  // Two-Bucket Depletion Rule:
+  // Bucket 1 (Monthly Plan Credits) is depleted FIRST.
+  // Bucket 2 (Rollover Top-Up Credits) is only touched when Monthly Plan Credits === 0.
+  const currentRollover = Math.min(credits, parseRolloverCreditsTag(orgObj?.description))
+  const currentPlanBucket = Math.max(0, credits - currentRollover)
+  const nextRollover = currentPlanBucket > 0 ? currentRollover : Math.max(0, currentRollover - 1)
+  const nextTotalCredits = Math.max(0, credits - 1)
+  const rawDesc = orgObj?.description || ''
+  const updatedDescWithTopup = /\[TOPUP:\d+\]/i.test(rawDesc)
+    ? rawDesc.replace(/\[TOPUP:\d+\]/i, `[TOPUP:${nextRollover}]`)
+    : nextRollover > 0
+    ? `${rawDesc} [TOPUP:${nextRollover}]`.trim()
+    : rawDesc
+
   await supabase
     .from('organizations')
     .update({
-      connection_credits: credits - 1,
+      connection_credits: nextTotalCredits,
       total_requests_sent: totalSent + 1,
+      description: updatedDescWithTopup,
     })
     .eq('id', member.organization_id)
 
@@ -4044,6 +4085,8 @@ export async function saveOrganizationProfile(formData: FormData) {
     if (seatsMatch) existingSeatsTag = seatsMatch[0]
     const atsMatch = (currentOrg?.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i)
     if (atsMatch) existingAtsTag = atsMatch[0]
+    const topupMatch = (currentOrg?.description || '').match(/\[TOPUP:\d+\]/i)
+    if (topupMatch) existingAtsTag = `${existingAtsTag} ${topupMatch[0]}`.trim()
   }
 
   let autoVerified = false
@@ -4584,25 +4627,30 @@ export async function activateSandboxEmployerTier(
     growth: {
       label: 'Growth Tier ($299/mo)',
       maxActiveJobs: 15,
-      credits: 30,
-      maxSeats: 3,
+      credits: 35,
+      maxSeats: 5,
     },
     enterprise: {
       label: 'Enterprise Tier ($899/mo)',
-      maxActiveJobs: 50,
+      maxActiveJobs: 999,
       credits: 100,
-      maxSeats: 10,
+      maxSeats: 999,
     },
   }
 
   const chosen = tierMap[targetTier]
-  const currentCredits = orgObj?.connection_credits || 0
-  const newCredits = targetTier === 'free' ? 0 : currentCredits + chosen.credits
+  const currentTotal = Math.max(0, orgObj?.connection_credits || 0)
+  const existingRollover = Math.min(currentTotal, parseRolloverCreditsTag(orgObj?.description))
+  const preservedRollover = targetTier === 'free' ? 0 : existingRollover
+  const newCredits = targetTier === 'free' ? 0 : chosen.credits + preservedRollover
 
   const cleanDesc = await stripTierTag(orgObj?.description)
   const seatsMatch = (orgObj?.description || '').match(/\[SEATS:[^\]]+\]/i)
   const existingSeatsTag = seatsMatch ? seatsMatch[0] : ''
-  const taggedDesc = `${cleanDesc} [TIER:${targetTier}] ${existingSeatsTag}`.trim()
+  const atsMatch = (orgObj?.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i)
+  const existingAtsTag = atsMatch ? atsMatch[0] : ''
+  const topupTag = preservedRollover > 0 ? `[TOPUP:${preservedRollover}]` : ''
+  const taggedDesc = `${cleanDesc} [TIER:${targetTier}] ${topupTag} ${existingSeatsTag} ${existingAtsTag}`.replace(/\s+/g, ' ').trim()
 
   try {
     const cookieStore = await cookies()
@@ -4637,18 +4685,15 @@ export async function activateSandboxEmployerTier(
     const billingRef = `SS-SUB${Date.now().toString().slice(-5)}`
     await sendPlatformNotification({
       to: user.email,
-      subject: `Subscription Activated: ${chosen.label} (${chosen.maxActiveJobs} Roles / +${chosen.credits} Credits / ${chosen.maxSeats} Seats)`,
+      subject: `Subscription Activated: ${chosen.label} (${chosen.maxActiveJobs >= 500 ? 'Unlimited' : chosen.maxActiveJobs} Roles / ${chosen.credits} Monthly Plan Credits)`,
       referenceId: billingRef,
       heading: `${chosen.label} Activated!`,
       bodyLines: [
         `Your organization (${orgObj?.name || 'Verified Employer'}) is now subscribed to ${chosen.label}.`,
-        `Active Role Slot Limit: Up to ${chosen.maxActiveJobs} simultaneous active roles.`,
-        `Monthly Pitch Credits Added: +${chosen.credits} Credits (New Balance: ${newCredits} Credits).`,
-        `Team & BPO Partner Seats: Up to ${chosen.maxSeats} ${chosen.maxSeats === 1 ? 'Seat' : 'Seats'}.`,
-        `Subscription Reference ID: ${billingRef}`,
+        `Monthly Plan Bucket reset to ${chosen.credits} Pitch Credits (used first) + ${preservedRollover} Non-Expiring Rollover Credits preserved.`,
       ],
-      ctaUrl: '/dashboard/employer/organization',
-      ctaLabel: 'Manage Team Seats & Roles →',
+      ctaUrl: '/dashboard/employer/billing',
+      ctaLabel: 'View Two-Bucket Credit Ledger →',
     })
   }
 
@@ -4664,17 +4709,137 @@ export async function activateSandboxEmployerTier(
     maxActiveJobs: chosen.maxActiveJobs,
     maxSeats: chosen.maxSeats,
     newCredits,
+    planCredits: chosen.credits,
+    rolloverCredits: preservedRollover,
     message:
       targetTier === 'free'
         ? 'Organization reset to Free Explorer ($0/mo — 0 Active Role Slots, 0 Pitch Credits, 1 Seat).'
-        : `Activated ${chosen.label}! Unlocked up to ${chosen.maxActiveJobs} Active Role Slots, ${chosen.maxSeats} Team/BPO Seats, and added +${chosen.credits} Pitch Credits.`,
+        : `✓ Activated ${chosen.label}! Monthly Plan Allowance set to ${chosen.credits} Pitch Credits${preservedRollover > 0 ? ` + ${preservedRollover} Rollover Top-Up Credits preserved (${newCredits} total)` : ''}.`,
+  }
+}
+
+export async function purchaseEmployerCreditTopUp(
+  packId: 'boost' | 'surge' | 'scale'
+) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { data: member } = await supabase
+    .from('organization_members')
+    .select('organization_id')
+    .eq('user_id', user.id)
+    .limit(1)
+    .maybeSingle()
+
+  if (!member?.organization_id) {
+    return { error: 'Please set up your Company Profile first.' }
+  }
+
+  const { data: orgObj } = await supabase
+    .from('organizations')
+    .select('*')
+    .eq('id', member.organization_id)
+    .single()
+
+  if (!orgObj) return { error: 'Organization not found.' }
+
+  const tierInfo = await resolveEmployerTierInfo(orgObj)
+  if (tierInfo.tier === 'free') {
+    return {
+      error:
+        'Active Subscription Required: Top-Up Pitch Credit packs are exclusively available to organizations on an active Starter ($99/mo), Growth ($299/mo), or Enterprise ($899/mo) plan.',
+    }
+  }
+
+  const packCatalog = {
+    boost: {
+      name: 'Boost Top-Up Pack',
+      credits: 10,
+      price: 49,
+      unitPrice: '$4.90/pitch',
+    },
+    surge: {
+      name: 'Surge Top-Up Pack',
+      credits: 25,
+      price: 99,
+      unitPrice: '$3.96/pitch',
+    },
+    scale: {
+      name: 'Scale Top-Up Pack',
+      credits: 75,
+      price: 249,
+      unitPrice: '$3.32/pitch',
+    },
+  }
+
+  const pack = packCatalog[packId]
+  if (!pack) return { error: 'Invalid top-up pack selected.' }
+
+  const currentTotal = Math.max(0, orgObj.connection_credits || 0)
+  const currentRollover = Math.min(currentTotal, parseRolloverCreditsTag(orgObj.description))
+  const currentPlanCredits = Math.max(0, currentTotal - currentRollover)
+
+  const newRollover = currentRollover + pack.credits
+  const newTotal = currentPlanCredits + newRollover
+
+  const cleanDesc = await stripTierTag(orgObj.description)
+  const seatsMatch = (orgObj.description || '').match(/\[SEATS:[^\]]+\]/i)
+  const existingSeatsTag = seatsMatch ? seatsMatch[0] : ''
+  const atsMatch = (orgObj.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i)
+  const existingAtsTag = atsMatch ? atsMatch[0] : ''
+  const taggedDesc = `${cleanDesc} [TIER:${tierInfo.tier}] [TOPUP:${newRollover}] ${existingSeatsTag} ${existingAtsTag}`.replace(/\s+/g, ' ').trim()
+
+  const { error: updateErr } = await supabase
+    .from('organizations')
+    .update({
+      connection_credits: newTotal,
+      description: taggedDesc,
+    })
+    .eq('id', member.organization_id)
+
+  if (updateErr) {
+    return { error: updateErr.message }
+  }
+
+  const topupRef = `SS-TOP${Date.now().toString().slice(-5)}`
+  await sendPlatformNotification({
+    to: user.email,
+    subject: `Top-Up Added: +${pack.credits} Non-Expiring Pitch Credits (${pack.name} — $${pack.price})`,
+    referenceId: topupRef,
+    heading: `+${pack.credits} Rollover Pitch Credits Added!`,
+    bodyLines: [
+      `Your organization purchased the ${pack.name} (+${pack.credits} Pitch Credits for $${pack.price}).`,
+      `Two-Bucket Protection: Your Monthly Plan Credits (${currentPlanCredits}) are always used first. Your Rollover Top-Up Credits (${newRollover}) never expire as long as your base subscription remains active.`,
+      `New Total Balance: ${newTotal} Pitch Credits.`,
+    ],
+    ctaUrl: '/dashboard/employer/search',
+    ctaLabel: 'Search & Pitch Verified Talent →',
+  })
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/employer/organization')
+  revalidatePath('/dashboard/employer/search')
+  revalidatePath('/dashboard/employer/jobs')
+  revalidatePath('/dashboard/employer/billing')
+
+  return {
+    success: true,
+    packId,
+    addedCredits: pack.credits,
+    planCredits: currentPlanCredits,
+    rolloverCredits: newRollover,
+    totalCredits: newTotal,
+    message: `✓ Added +${pack.credits} Non-Expiring Rollover Pitch Credits (${pack.name} · $${pack.price})! Balance: ${currentPlanCredits} Monthly Plan + ${newRollover} Rollover = ${newTotal} Total Credits.`,
   }
 }
 
 export async function addSandboxConnectionCredits(amountToAdd: number) {
-  return activateSandboxEmployerTier(
-    amountToAdd >= 50 ? 'enterprise' : amountToAdd >= 15 ? 'growth' : 'starter'
-  )
+  if (amountToAdd >= 75) return purchaseEmployerCreditTopUp('scale')
+  if (amountToAdd >= 25) return purchaseEmployerCreditTopUp('surge')
+  return purchaseEmployerCreditTopUp('boost')
 }
 
 // ------------------------------------------------------------------

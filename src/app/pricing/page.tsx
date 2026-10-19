@@ -438,6 +438,116 @@ export default function PricingMatrixPage() {
                 </Link>
               </div>
             </div>
+
+            {/* ================================================================
+                ON-DEMAND ROLLOVER PITCH CREDIT TOP-UP PACKS (Two-Bucket System)
+               ================================================================ */}
+            <div className="pt-6 border-t-2 border-slate-200 space-y-6">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-900 text-white p-6 rounded-2xl border border-slate-700">
+                <div className="space-y-1.5 max-w-3xl">
+                  <div className="inline-flex items-center gap-2 text-amber-300 text-[11px] font-extrabold uppercase tracking-wider">
+                    <span>⚡ Two-Bucket Rollover Credit System • Active Subscribers Only</span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                    Need Extra Outbound Reach During a Hiring Surge?
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    Active <strong className="text-white">Starter, Growth, and Enterprise</strong> subscribers can add on-demand Pitch Credit packs anytime. We use a <strong className="text-amber-300">Monthly-First Depletion Rule</strong>: your monthly plan allowance is always spent first, and purchased Top-Up Credits <strong className="text-emerald-300">roll over month-to-month and never expire</strong> while your subscription is active.
+                  </p>
+                </div>
+                <div className="shrink-0 flex flex-col sm:flex-row lg:flex-col gap-2 text-[11px] font-extrabold text-slate-200 bg-slate-800/90 px-4 py-3 rounded-xl border border-slate-700">
+                  <span className="flex items-center gap-1.5 text-emerald-300">
+                    ✓ Bucket 1: Monthly Plan Credits (Used 1st)
+                  </span>
+                  <span className="flex items-center gap-1.5 text-amber-300">
+                    ✓ Bucket 2: Top-Up Credits (100% Rollover)
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Pack 1: Boost Pack */}
+                <div className="bg-white rounded-2xl p-6 border-2 border-slate-300 shadow-xs flex flex-col justify-between space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+                        ⚡ Boost Pack
+                      </span>
+                      <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-extrabold border border-slate-300">
+                        $4.90 / pitch
+                      </span>
+                    </div>
+                    <div className="flex items-baseline justify-between pt-1">
+                      <h4 className="text-xl font-black text-slate-900">
+                        +10 Pitch Credits
+                      </h4>
+                      <span className="text-2xl font-black text-slate-900">$49</span>
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      Ideal when your team is 2–3 outbound pitches away from rounding out a final interview slate this month.
+                    </p>
+                  </div>
+                  <div className="pt-3 border-t border-slate-200 flex items-center justify-between text-[11px] font-bold text-slate-500">
+                    <span>✓ Non-expiring rollover</span>
+                    <span>One-time top-up</span>
+                  </div>
+                </div>
+
+                {/* Pack 2: Surge Pack */}
+                <div className="bg-white rounded-2xl p-6 border-2 border-indigo-500 shadow-sm flex flex-col justify-between space-y-4 relative overflow-hidden">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">
+                        🚀 Surge Pack • Save 20%
+                      </span>
+                      <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[11px] font-extrabold border border-indigo-200">
+                        $3.96 / pitch
+                      </span>
+                    </div>
+                    <div className="flex items-baseline justify-between pt-1">
+                      <h4 className="text-xl font-black text-slate-900">
+                        +25 Pitch Credits
+                      </h4>
+                      <span className="text-2xl font-black text-slate-900">$99</span>
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      Built for hiring managers actively sourcing passive candidates across 2 to 4 concurrent role openings.
+                    </p>
+                  </div>
+                  <div className="pt-3 border-t border-slate-200 flex items-center justify-between text-[11px] font-bold text-indigo-700">
+                    <span>✓ Non-expiring rollover</span>
+                    <span>Most Popular Top-Up</span>
+                  </div>
+                </div>
+
+                {/* Pack 3: Scale Pack */}
+                <div className="bg-white rounded-2xl p-6 border-2 border-slate-300 shadow-xs flex flex-col justify-between space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700">
+                        🏢 Scale Pack • Save 32%
+                      </span>
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[11px] font-extrabold border border-emerald-200">
+                        $3.32 / pitch
+                      </span>
+                    </div>
+                    <div className="flex items-baseline justify-between pt-1">
+                      <h4 className="text-xl font-black text-slate-900">
+                        +75 Pitch Credits
+                      </h4>
+                      <span className="text-2xl font-black text-slate-900">$249</span>
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      Maximum volume discount for multi-department recruiting pushes and quarterly talent acquisition sprints.
+                    </p>
+                  </div>
+                  <div className="pt-3 border-t border-slate-200 flex items-center justify-between text-[11px] font-bold text-emerald-700">
+                    <span>✓ Non-expiring rollover</span>
+                    <span>Best Value Per Pitch</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </main>
       </div>
