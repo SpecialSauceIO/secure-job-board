@@ -588,10 +588,10 @@ export async function activateSandboxCandidateTier(
     tierInfo,
     message:
       normalizedMode === 'prestige'
-        ? '✓ Activated Prestige Plan ($15/mo · First 30 Days $0)! Unlimited outbound applications, 1.25x XP Boost & Gold Trim active.'
+        ? '✓ Activated Prestige Plan ($15/mo · First 30 Days $0)! Unlimited outbound applications active.'
         : normalizedMode === 'professional'
         ? '✓ Activated Professional Plan ($9/mo · First 30 Days $0)! 15 monthly outbound applications active.'
-        : '✓ Switched to Explorer Plan ($0/Forever Passive Vault). Inbound employer pitches remain 100% free; outbound applications & 1.25x XP paused.',
+        : '✓ Switched to Explorer Plan ($0/Forever Passive Vault). Inbound employer pitches remain 100% free; outbound applications paused.',
   }
 }
 
