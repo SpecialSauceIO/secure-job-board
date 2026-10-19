@@ -48,7 +48,7 @@ export default function LandingPage() {
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Changing the{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-600">
                 Hiring Landscape.
               </span>
               <br />
@@ -191,7 +191,7 @@ export default function LandingPage() {
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Your Career.{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-emerald-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-orange-500">
                 Your Privacy.
               </span>
               <br />
