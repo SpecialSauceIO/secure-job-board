@@ -31,7 +31,7 @@ export default function LandingPage() {
       <section className="relative pt-36 sm:pt-44 pb-16 sm:pb-20 px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center text-center">
         {/* Cross-fading text container */}
         <div className="grid [grid-template-areas:'stack'] mb-6 w-full place-items-center">
-          {/* SLIDE 0 (Slide #1): Universal Opening Slide - COOL */}
+          {/* SLIDE 0 (Slide #1): Universal Opening Slide - LOGO BLUE */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 0
@@ -39,16 +39,16 @@ export default function LandingPage() {
                 : 'opacity-0 pointer-events-none z-0'
             }`}
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-violet-50 border border-violet-300 text-violet-700 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-50 border border-sky-300 text-[#0284C7] text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-600"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0284C7]"></span>
               </span>
               Welcome to your future
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Changing the{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-600">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0077D4] to-[#1DA1F2]">
                 Hiring Landscape.
               </span>
               <br />
@@ -59,7 +59,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 1 (Slide #2): No More Bots, No More Spam, No More Scams - WARM */}
+          {/* SLIDE 1 (Slide #2): No More Bots, No More Spam, No More Scams - LOGO ORANGE */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 1
@@ -67,16 +67,16 @@ export default function LandingPage() {
                 : 'opacity-0 pointer-events-none z-0'
             }`}
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-rose-50 border border-rose-300 text-rose-700 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-50 border border-orange-300 text-[#EA580C] text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#EA580C]"></span>
               </span>
               100% Identity-Verified • Human-to-Human Hiring
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               No More Bots.{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-orange-500">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#EA580C] to-[#F97316]">
                 No More Spam.
               </span>
               <br />
@@ -87,7 +87,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 2 (Slide #3): Unified Founding Member & Partner Launch Slide - COOL */}
+          {/* SLIDE 2 (Slide #3): Unified Founding Member & Partner Launch Slide - LOGO BLUE */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 2
@@ -95,14 +95,14 @@ export default function LandingPage() {
                 : 'opacity-0 pointer-events-none z-0'
             }`}
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
-              <span className="text-amber-600">★</span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-50 border border-sky-300 text-[#0284C7] text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
+              <span className="text-[#0284C7]">★</span>
               Early-Access Launch • Founding Memberships Open
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-[3.35rem] font-extrabold text-slate-900 tracking-tight leading-[1.12] max-w-6xl mb-4">
               <span className="sm:whitespace-nowrap">
                 Lock In Permanent{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-500">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0077D4] to-[#1DA1F2]">
                   Founding Status.
                 </span>
               </span>
@@ -118,7 +118,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 3 (Slide #4): Zero Ghost Jobs - WARM */}
+          {/* SLIDE 3 (Slide #4): Zero Ghost Jobs - LOGO ORANGE */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 3
@@ -126,16 +126,16 @@ export default function LandingPage() {
                 : 'opacity-0 pointer-events-none z-0'
             }`}
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-50 border border-orange-300 text-[#EA580C] text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#EA580C]"></span>
               </span>
               30-Day Active Role Guarantee • No Resume Traps
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Zero{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-500">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#EA580C] to-[#F97316]">
                 Ghost Jobs.
               </span>
               <br />
@@ -146,7 +146,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 4 (Slide #5): Employers - COOL */}
+          {/* SLIDE 4 (Slide #5): Employers - LOGO BLUE */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 4
@@ -154,16 +154,16 @@ export default function LandingPage() {
                 : 'opacity-0 pointer-events-none z-0'
             }`}
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-50 border border-indigo-300 text-indigo-700 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-50 border border-sky-300 text-[#0284C7] text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0284C7]"></span>
               </span>
               For Hiring Managers &amp; Recruiting Teams
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Hire for{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-500">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0077D4] to-[#1DA1F2]">
                 True Fit.
               </span>
               <br />
@@ -174,7 +174,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 5 (Slide #6): Candidates - WARM */}
+          {/* SLIDE 5 (Slide #6): Candidates - LOGO ORANGE */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 5
@@ -182,16 +182,16 @@ export default function LandingPage() {
                 : 'opacity-0 pointer-events-none z-0'
             }`}
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-50 border border-orange-300 text-[#EA580C] text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#EA580C]"></span>
               </span>
               For Job Seekers &amp; Passive Professionals
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Your Career.{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-orange-500">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#EA580C] to-[#F97316]">
                 Your Privacy.
               </span>
               <br />
@@ -203,11 +203,11 @@ export default function LandingPage() {
           </div>
         </div>
 
-                {/* CTAs */}
+        {/* CTAs */}
         <div className="flex flex-col sm:flex-row gap-3.5 w-full sm:w-auto relative z-20">
           <Link
             href="/signup/candidate"
-            className="px-7 py-3.5 bg-slate-900 text-white text-sm sm:text-base font-bold rounded-xl hover:bg-indigo-600 hover:-translate-y-0.5 transition-all shadow-md hover:shadow-indigo-200 flex items-center justify-center gap-2"
+            className="px-7 py-3.5 bg-slate-900 text-white text-sm sm:text-base font-bold rounded-xl hover:bg-[#0077D4] hover:-translate-y-0.5 transition-all shadow-md hover:shadow-sky-200 flex items-center justify-center gap-2"
           >
             I&apos;m a Candidate
             <svg
@@ -238,13 +238,13 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        {/* 6 Slide Indicators */}
+        {/* 6 Slide Indicators - Alternating Logo Blue & Logo Orange */}
         <div className="flex gap-2 mt-5 z-20 relative">
           <button
             onClick={() => setCurrentSlide(0)}
             className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
               currentSlide === 0
-                ? 'bg-violet-600 w-6'
+                ? 'bg-[#0077D4] w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
             aria-label="View overview slide"
@@ -253,7 +253,7 @@ export default function LandingPage() {
             onClick={() => setCurrentSlide(1)}
             className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
               currentSlide === 1
-                ? 'bg-rose-600 w-6'
+                ? 'bg-[#EA580C] w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
             aria-label="View No Bots No Spam No Scams slide"
@@ -262,7 +262,7 @@ export default function LandingPage() {
             onClick={() => setCurrentSlide(2)}
             className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
               currentSlide === 2
-                ? 'bg-amber-500 w-6'
+                ? 'bg-[#0077D4] w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
             aria-label="View Founding Member & Partner Launch Rewards slide"
@@ -271,7 +271,7 @@ export default function LandingPage() {
             onClick={() => setCurrentSlide(3)}
             className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
               currentSlide === 3
-                ? 'bg-orange-500 w-6'
+                ? 'bg-[#EA580C] w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
             aria-label="View Zero Ghost Jobs slide"
@@ -280,7 +280,7 @@ export default function LandingPage() {
             onClick={() => setCurrentSlide(4)}
             className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
               currentSlide === 4
-                ? 'bg-indigo-600 w-6'
+                ? 'bg-[#0077D4] w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
             aria-label="View Employer True Fit slide"
@@ -289,7 +289,7 @@ export default function LandingPage() {
             onClick={() => setCurrentSlide(5)}
             className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
               currentSlide === 5
-                ? 'bg-emerald-500 w-6'
+                ? 'bg-[#EA580C] w-6'
                 : 'bg-slate-300 hover:bg-slate-400'
             }`}
             aria-label="View Candidate Privacy Vault slide"
