@@ -24,7 +24,7 @@ export function RankAndFounderPill({
 
   return (
     <span
-      className={`inline-flex items-center rounded-md font-bold border ${paddingClass} bg-slate-100 text-slate-800 border-slate-300`}
+      className={`inline-flex items-center rounded-md font-bold border ${paddingClass} bg-slate-100 text-slate-900 border-slate-300 shadow-2xs`}
     >
       {founderText}
     </span>
@@ -46,7 +46,7 @@ export default function ReputationBadgeCase({
       {/* Minimalist Single-Row Earned Behavioral Signals Bar */}
       <div className="px-6 py-3.5 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1">
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 mr-1">
             Earned Signals
           </span>
 
@@ -54,27 +54,27 @@ export default function ReputationBadgeCase({
             <span
               key={badge.id}
               title={badge.description}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-800"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100/90 border border-slate-300 text-xs font-bold text-slate-900 shadow-2xs"
             >
-              <span className="text-emerald-600 font-bold">✓</span>
+              <span className="text-emerald-700 font-black">✓</span>
               <span>{badge.title}</span>
             </span>
           ))}
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
-          <span className="text-xs text-slate-500 font-medium">
+          <span className="text-xs text-slate-600 font-bold">
             {unlockedCount} of {summary.badges.length} Active
           </span>
 
           <button
             type="button"
             onClick={() => setIsExpanded((prev) => !prev)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border-2 border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold transition-colors cursor-pointer shadow-2xs"
           >
             <span>{isExpanded ? 'Hide Details' : 'Signal Criteria'}</span>
             <svg
-              className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+              className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
                 isExpanded ? 'rotate-180' : ''
               }`}
               fill="none"
@@ -84,7 +84,7 @@ export default function ReputationBadgeCase({
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth="2"
+                strokeWidth="2.25"
                 d="M19 9l-7 7-7-7"
               />
             </svg>
@@ -94,8 +94,8 @@ export default function ReputationBadgeCase({
 
       {/* Collapsible Behavioral Signal Criteria Drawer */}
       {isExpanded && (
-        <div className="px-6 py-5 bg-slate-50/50 border-t border-slate-200 space-y-3 animate-in fade-in duration-150">
-          <p className="text-xs text-slate-500">
+        <div className="px-6 py-5 bg-slate-50/70 border-t-2 border-slate-200 space-y-3.5 animate-in fade-in duration-150">
+          <p className="text-xs font-medium text-slate-600">
             Behavioral signals are earned automatically through verified account setup, responsiveness, and platform activity.
           </p>
 
@@ -103,35 +103,35 @@ export default function ReputationBadgeCase({
             {summary.badges.map((badge) => (
               <div
                 key={badge.id}
-                className={`p-4 rounded-xl border transition-all ${
+                className={`p-4 rounded-xl border-2 transition-all ${
                   badge.unlocked
-                    ? 'bg-white border-slate-200'
-                    : 'bg-slate-50 border-slate-200/70 opacity-65'
+                    ? 'bg-white border-slate-300 shadow-2xs'
+                    : 'bg-slate-50/80 border-slate-200 opacity-75'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
                   <h4
                     className={`text-xs font-bold truncate ${
-                      badge.unlocked ? 'text-slate-900' : 'text-slate-500'
+                      badge.unlocked ? 'text-slate-900' : 'text-slate-600'
                     }`}
                   >
                     {badge.title}
                   </h4>
                   <span
-                    className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
                       badge.unlocked
-                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                        : 'bg-slate-100 text-slate-500'
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                        : 'bg-white text-slate-600 border-slate-300'
                     }`}
                   >
                     {badge.unlocked ? '✓ Active' : 'Pending'}
                   </span>
                 </div>
-                <p className="text-[11px] leading-relaxed mt-1.5 text-slate-500">
+                <p className="text-[11px] leading-relaxed mt-1.5 text-slate-600">
                   {badge.description}
                 </p>
                 {!badge.unlocked && badge.progressText && (
-                  <p className="text-[10px] font-semibold text-slate-600 mt-2">
+                  <p className="text-[10px] font-bold text-slate-700 mt-2">
                     To unlock: {badge.progressText}
                   </p>
                 )}

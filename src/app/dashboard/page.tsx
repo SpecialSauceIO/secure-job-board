@@ -513,8 +513,8 @@ export default async function DashboardPage({
                 <span
                   className={`px-2.5 py-0.5 rounded-md text-[11px] font-semibold border ${
                     isOrgVerified
-                      ? 'bg-slate-50 text-slate-700 border-slate-200'
-                      : 'bg-amber-50 text-amber-800 border-amber-200'
+                      ? 'bg-slate-100 text-slate-800 border-slate-300 font-bold'
+                      : 'bg-amber-100 text-amber-900 border-amber-300 font-bold'
                   }`}
                 >
                   {isOrgVerified ? 'Verified' : 'Setup Needed'}
@@ -570,7 +570,7 @@ export default async function DashboardPage({
                   className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${
                     a11yColorTiles
                       ? 'text-blue-950 bg-white/90 border-blue-300 font-bold'
-                      : 'text-slate-700 bg-slate-50 border-slate-200'
+                      : 'text-slate-800 bg-slate-100 border-slate-300 font-bold'
                   }`}
                 >
                   {rolesBadgeText}
@@ -647,7 +647,7 @@ export default async function DashboardPage({
                     className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${
                       a11yColorTiles
                         ? 'text-amber-950 bg-white/90 border-amber-300 font-bold'
-                        : 'text-slate-700 bg-slate-50 border-slate-200'
+                        : 'text-slate-800 bg-slate-100 border-slate-300 font-bold'
                     }`}
                   >
                     {sentPitchesCount} Sent
@@ -726,7 +726,7 @@ export default async function DashboardPage({
                     className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${
                       a11yColorTiles
                         ? 'text-purple-950 bg-white/90 border-purple-300 font-bold'
-                        : 'text-slate-700 bg-slate-50 border-slate-200'
+                        : 'text-slate-800 bg-slate-100 border-slate-300 font-bold'
                     }`}
                   >
                     {inboundTotalCount} Total
@@ -983,8 +983,8 @@ export default async function DashboardPage({
               <span
                 className={`px-2.5 py-0.5 rounded-md text-[11px] font-semibold border ${
                   hasProfileData
-                    ? 'bg-slate-50 text-slate-700 border-slate-200'
-                    : 'bg-amber-50 text-amber-800 border-amber-200'
+                    ? 'bg-slate-100 text-slate-800 border-slate-300 font-bold'
+                    : 'bg-amber-100 text-amber-900 border-amber-300 font-bold'
                 }`}
               >
                 {hasProfileData ? 'Ready' : 'Setup'}
@@ -1040,7 +1040,7 @@ export default async function DashboardPage({
                   className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${
                     a11yColorTiles
                       ? 'text-blue-950 bg-white/90 border-blue-300 font-bold'
-                      : 'text-slate-700 bg-slate-50 border-slate-200'
+                      : 'text-slate-800 bg-slate-100 border-slate-300 font-bold'
                   }`}
                 >
                   {inboundEmployerPitches.length} Total
@@ -1113,7 +1113,7 @@ export default async function DashboardPage({
                   className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${
                     a11yColorTiles
                       ? 'text-amber-950 bg-white/90 border-amber-300 font-bold'
-                      : 'text-slate-700 bg-slate-50 border-slate-200'
+                      : 'text-slate-800 bg-slate-100 border-slate-300 font-bold'
                   }`}
                 >
                   {applicationCount} Sent
