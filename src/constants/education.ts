@@ -1,6 +1,7 @@
 export const CANDIDATE_EDUCATION_LEVELS = [
   'Practical Experience & Industry Certifications',
-  'High School Diploma / GED',
+  'High School Equivalency (GED / HiSET)',
+  'High School Diploma',
   'Undergraduate Coursework / Degree in Progress',
   'Associate Degree (AA / AS / AAS)',
   "Bachelor's Degree (BA / BS / BBA)",
@@ -10,9 +11,10 @@ export const CANDIDATE_EDUCATION_LEVELS = [
 
 export const JOB_EDUCATION_REQUIREMENTS = [
   'No Degree Required (Skills & Experience First)',
-  "Bachelor's Degree OR Equivalent Practical Experience",
-  'Associate Degree OR Equivalent Experience',
+  'High School Diploma or Equivalency (GED)',
   'Active Industry Certifications Required',
+  'Associate Degree OR Equivalent Experience',
+  "Bachelor's Degree OR Equivalent Practical Experience",
   "Bachelor's Degree Required (Strict)",
   "Master's / Advanced Degree Preferred or Required",
 ] as const
@@ -70,8 +72,21 @@ export function normalizeCandidateEducation(raw?: string | null): string {
   ) {
     return 'Associate Degree (AA / AS / AAS)'
   }
-  if (lower.includes('high school') || lower.includes('ged')) {
-    return 'High School Diploma / GED'
+  if (
+    lower === 'high school diploma / ged' ||
+    lower.includes('high school diploma')
+  ) {
+    return 'High School Diploma'
+  }
+  if (
+    lower.includes('ged') ||
+    lower.includes('hiset') ||
+    lower.includes('equivalency')
+  ) {
+    return 'High School Equivalency (GED / HiSET)'
+  }
+  if (lower.includes('high school') || lower.includes('secondary school')) {
+    return 'High School Diploma'
   }
 
   return 'Practical Experience & Industry Certifications'
@@ -94,6 +109,13 @@ export function normalizeJobEducationReq(raw?: string | null): string {
     lower.includes('none')
   ) {
     return 'No Degree Required (Skills & Experience First)'
+  }
+  if (
+    lower.includes('high school') ||
+    lower.includes('ged') ||
+    lower.includes('equivalency')
+  ) {
+    return 'High School Diploma or Equivalency (GED)'
   }
   if (
     lower.includes('master') ||

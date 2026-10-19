@@ -2490,6 +2490,7 @@ function getMatchPrompt(
       5. "Execution & Comm.": Ownership, adaptability, cross-functional collaboration, and required Written/Verbal Language proficiency.
     - EDUCATION, CERTIFICATION & LANGUAGE EVALUATION:
       * If the job's Education Requirement includes "OR Equivalent Practical Experience", "OR Equivalent Experience", or "No Degree Required", treat candidates with strong practical experience or industry certifications as 100% meeting the education requirement even if they do not hold a formal college degree.
+      * If the job's Education Requirement is "High School Diploma or Equivalency (GED)", treat candidates with "High School Diploma", "High School Equivalency (GED / HiSET)", or any college coursework/degree as 100% meeting the education requirement.
       * If the job specifies Required/Preferred Certifications and the candidate holds matching or equivalent certifications, boost their Technical Skills and Experience Level scores.
       * Evaluate Language Abilities carefully (including Modality: Written, Verbal, or Both, and Proficiency: Beginner, Intermediate, Advanced, Fluent). If the job requires a specific language/modality/proficiency that the candidate lacks, reflect that gap in Role Alignment and Culture & Soft Skills.
 

@@ -437,11 +437,19 @@ export default function EmployerCandidateSearch({
           (!candCerts || candCerts.length === 0)
         ) {
           return false
-        } else if (
-          educationFilter !== 'HAS_CERTS' &&
-          candEdu.toLowerCase() !== educationFilter.toLowerCase()
-        ) {
-          return false
+        } else if (educationFilter !== 'HAS_CERTS') {
+          const normCandEdu = normalizeCandidateEducation(candEdu).toLowerCase()
+          const normFilter = educationFilter.toLowerCase()
+          const isHsOrGedFilter =
+            normFilter.includes('high school') || normFilter.includes('ged')
+          const isCandHsOrGed =
+            normCandEdu.includes('high school') || normCandEdu.includes('ged')
+
+          if (isHsOrGedFilter && isCandHsOrGed) {
+            // Both High School Diploma and GED / Equivalency satisfy High School / GED filters
+          } else if (normCandEdu !== normFilter) {
+            return false
+          }
         }
       }
       if (languageFilter !== 'all') {
