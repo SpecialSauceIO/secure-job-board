@@ -44,12 +44,12 @@ export default function LandingPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-600"></span>
               </span>
-              Redefining the Recruiting Process
+              Welcome to your future.
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
-              Changing the Hiring{' '}
+              Changing the{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-orange-500">
-                Landscape.
+                Hiring Landscape.
               </span>
               <br />
               For good.
