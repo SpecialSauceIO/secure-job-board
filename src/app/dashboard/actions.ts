@@ -4733,7 +4733,6 @@ export async function submitSupportTicket(formData: FormData) {
 
   const ticketId = `TKT-${Date.now().toString().slice(-6)}`
 
-  // Process up to 3 uploaded file attachments into Supabase Storage
   const uploadedAttachments: Array<{
     id: string
     name: string

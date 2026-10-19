@@ -713,27 +713,13 @@ export default function SupportCenterClient({
                     required
                     className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
                   >
-                    <option value="General Support">
-                      General Support &amp; Questions
-                    </option>
-                    <option value="2-Stage Vault & Encrypted Messaging">
-                      2-Stage Identity Vault &amp; Messaging
-                    </option>
-                    <option value="Billing, Plans & Pitch Credits">
-                      Billing, Plans &amp; Pitch Credits
-                    </option>
-                    <option value="Account & Domain Verification">
-                      Stripe ID / Corporate Domain Verification
-                    </option>
-                    <option value="Enterprise ATS & Webhook Integration">
-                      Enterprise ATS &amp; Webhook Hub
-                    </option>
-                    <option value="Technical Issue / Bug Report">
-                      Technical Issue / Bug Report
-                    </option>
-                    <option value="Feature Request / Documentation Feedback">
-                      Feature Request / Documentation Feedback
-                    </option>
+                    <option value="General Support">General Support &amp; Questions</option>
+                    <option value="2-Stage Vault & Encrypted Messaging">2-Stage Identity Vault &amp; Messaging</option>
+                    <option value="Billing, Plans & Pitch Credits">Billing, Plans &amp; Pitch Credits</option>
+                    <option value="Account & Domain Verification">Stripe ID / Corporate Domain Verification</option>
+                    <option value="Enterprise ATS & Webhook Integration">Enterprise ATS &amp; Webhook Hub</option>
+                    <option value="Technical Issue / Bug Report">Technical Issue / Bug Report</option>
+                    <option value="Feature Request / Documentation Feedback">Feature Request / Documentation Feedback</option>
                   </select>
                 </div>
 
@@ -746,33 +732,15 @@ export default function SupportCenterClient({
                     required
                     className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
                   >
-                    <option value="Onboarding & Authentication">
-                      Onboarding &amp; Authentication
-                    </option>
-                    <option value="Stripe Identity Verification (Candidate)">
-                      Stripe Identity Verification (Candidate)
-                    </option>
-                    <option value="Corporate Domain / DNS Verification (Employer)">
-                      Corporate Domain / DNS Verification (Employer)
-                    </option>
-                    <option value="2-Stage Resume & Contact Vault">
-                      2-Stage Resume &amp; Contact Vault
-                    </option>
-                    <option value="5-Point AI Fit Radar & Dealbreakers">
-                      5-Point AI Fit Radar &amp; Dealbreakers
-                    </option>
-                    <option value="Billing, Subscriptions & Credits">
-                      Billing, Subscriptions &amp; Credits
-                    </option>
-                    <option value="Enterprise ATS & Webhook Hub">
-                      Enterprise ATS &amp; Webhook Hub
-                    </option>
-                    <option value="Encrypted Stage 1/2 Messaging">
-                      Encrypted Stage 1/2 Messaging
-                    </option>
-                    <option value="Other / General Platform">
-                      Other / General Platform
-                    </option>
+                    <option value="Onboarding & Authentication">Onboarding &amp; Authentication</option>
+                    <option value="Stripe Identity Verification (Candidate)">Stripe Identity Verification (Candidate)</option>
+                    <option value="Corporate Domain / DNS Verification (Employer)">Corporate Domain / DNS Verification (Employer)</option>
+                    <option value="2-Stage Resume & Contact Vault">2-Stage Resume &amp; Contact Vault</option>
+                    <option value="5-Point AI Fit Radar & Dealbreakers">5-Point AI Fit Radar &amp; Dealbreakers</option>
+                    <option value="Billing, Subscriptions & Credits">Billing, Subscriptions &amp; Credits</option>
+                    <option value="Enterprise ATS & Webhook Hub">Enterprise ATS &amp; Webhook Hub</option>
+                    <option value="Encrypted Stage 1/2 Messaging">Encrypted Stage 1/2 Messaging</option>
+                    <option value="Other / General Platform">Other / General Platform</option>
                   </select>
                 </div>
               </div>
