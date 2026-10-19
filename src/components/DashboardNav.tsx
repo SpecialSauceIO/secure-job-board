@@ -93,7 +93,7 @@ export default function DashboardNav({
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-2xs">
+    <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-300 shadow-2xs">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         {/* ROW 1: Identical to PublicHeader (Full-Size Logo Left, Centered Tagline, Feedback + Account Right) */}
         <div className="h-24 flex items-center justify-between relative">
@@ -155,7 +155,7 @@ export default function DashboardNav({
 
               {menuOpen && (
                 <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-white border-2 border-slate-300 shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                  <div className="px-4 py-3 border-b border-slate-200 space-y-1.5">
+                  <div className="px-4 py-3 border-b border-slate-300 space-y-1.5">
                     <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
                       Signed in as
                     </p>
@@ -203,7 +203,7 @@ export default function DashboardNav({
                   </div>
 
                   {/* Accessibility Options Section */}
-                  <div className="py-2 px-3 border-t border-slate-200 space-y-1.5">
+                  <div className="py-2 px-3 border-t border-slate-300 space-y-1.5">
                     <p className="px-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
                       Accessibility
                     </p>
@@ -234,7 +234,7 @@ export default function DashboardNav({
                     </button>
                   </div>
 
-                  <div className="pt-1.5 mt-1 border-t border-slate-200 px-2">
+                  <div className="pt-1.5 mt-1 border-t border-slate-300 px-2">
                     <form action={signOutAction}>
                       <button
                         type="submit"
@@ -251,7 +251,7 @@ export default function DashboardNav({
         </div>
 
         {/* ROW 2: Clean Core Workspace Navigation Tabs */}
-        <div className="flex items-center justify-between gap-4 py-2 border-t border-slate-200 overflow-x-auto no-scrollbar">
+        <div className="flex items-center justify-between gap-4 py-2 border-t border-slate-300 overflow-x-auto no-scrollbar">
           <nav className="flex items-center gap-1.5 shrink-0">
             {navLinks.map((item) => {
               const active = isActive(item.href, item.exact)

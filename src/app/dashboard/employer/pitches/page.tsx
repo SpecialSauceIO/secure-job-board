@@ -65,7 +65,7 @@ export default function EmployerSentPitchesPage() {
   return (
     <div className="max-w-6xl mx-auto py-4 space-y-6">
       {/* Header */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Sent Connection Pitches
@@ -84,7 +84,7 @@ export default function EmployerSentPitchesPage() {
       </header>
 
       {/* Filter & Search Bar */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-2-slate-200 shadow-xs space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           {/* Status Filter Pills */}
           <div className="flex flex-wrap items-center gap-1.5">
@@ -101,7 +101,7 @@ export default function EmployerSentPitchesPage() {
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
                   statusFilter === tab.id
                     ? 'bg-slate-900 text-white shadow-2xs'
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-300'
                 }`}
               >
                 {tab.label}
@@ -117,7 +117,7 @@ export default function EmployerSentPitchesPage() {
             <select
               value={daysFilter}
               onChange={(e) => setDaysFilter(Number(e.target.value))}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              className="rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
             >
               <option value={0}>All Time</option>
               <option value={7}>Last 7 Days</option>
@@ -130,14 +130,14 @@ export default function EmployerSentPitchesPage() {
         {/* Keyword Search */}
         <form
           onSubmit={handleSearchSubmit}
-          className="pt-3 border-t border-slate-100 flex gap-2"
+          className="pt-3 border-t border-slate-300 flex gap-2"
         >
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Filter by role title, skill, certification, language, Reference ID (SS-...), or unlocked candidate name..."
-            className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
+            className="flex-1 rounded-xl border-2 border-2-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-2-indigo-500 focus:outline-none"
           />
           <button
             type="submit"
@@ -164,14 +164,14 @@ export default function EmployerSentPitchesPage() {
 
       {/* Pitches List */}
       {isLoading ? (
-        <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-xs">
-          <div className="inline-block w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin mb-3" />
+        <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-xs">
+          <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-3" />
           <p className="text-sm font-bold text-slate-500">
             Loading outbound pitch pipeline...
           </p>
         </div>
       ) : pitches.length === 0 ? (
-        <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-xs space-y-3">
+        <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-xs space-y-3">
           <h3 className="text-lg font-extrabold text-slate-900">
             No outbound pitches match your current filter
           </h3>
@@ -263,15 +263,15 @@ export default function EmployerSentPitchesPage() {
                   isAccepted
                     ? 'border-emerald-300 ring-2 ring-emerald-50'
                     : isDeclined
-                    ? 'border-slate-200 opacity-75'
+                    ? 'border-slate-300 opacity-75'
                     : rankInfo.isFounder
                     ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
-                    : 'border-slate-200 hover:border-slate-300'
+                    : 'border-slate-300 hover:border-slate-400'
                 }`}
               >
                 <div className="p-6 md:p-8 space-y-4">
                   {/* Top Bar: Clean Inline Role, Ref, Date + Match & Status */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 text-xs font-semibold text-slate-500">
+                  <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-300 text-xs font-semibold text-slate-500">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-slate-900 font-extrabold">
                         Pitched Role: {job.title || 'Open Role'}
@@ -288,7 +288,7 @@ export default function EmployerSentPitchesPage() {
 
                     <div className="flex flex-wrap items-center gap-2.5">
                       {matchScore !== null && (
-                        <span className="px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold border border-indigo-200">
+                        <span className="px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold border border-indigo-300">
                           {matchScore}% AI Match
                         </span>
                       )}
@@ -433,7 +433,7 @@ export default function EmployerSentPitchesPage() {
                   )}
 
                   {/* AI Fit Summary & 5-Point Radar Toggle */}
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 space-y-1">
+                  <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-2-slate-200/80 text-xs text-slate-700 space-y-1">
                     <div className="flex flex-wrap items-center justify-between gap-2 font-bold text-indigo-700">
                       <span>5-Point AI Fit Assessment</span>
                       {radarData && (
@@ -453,12 +453,12 @@ export default function EmployerSentPitchesPage() {
                   </div>
 
                   {isMounted && showRadar && radarData && (
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col lg:flex-row items-center gap-4">
+                    <div className="p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200 flex flex-col lg:flex-row items-center gap-4">
                       <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {radarData.map((item: any, idx: number) => (
                           <div
                             key={idx}
-                            className="bg-white px-3 py-2 rounded-md border border-slate-200 flex justify-between items-center text-xs"
+                            className="bg-white px-3 py-2 rounded-md border border-slate-300 flex justify-between items-center text-xs"
                           >
                             <span className="font-semibold text-slate-600">
                               {item.subject}
@@ -515,7 +515,7 @@ export default function EmployerSentPitchesPage() {
                   )}
 
                   {candidateSkills.length > 0 && (
-                    <div className="text-xs text-slate-500 pt-1 border-t border-slate-100">
+                    <div className="text-xs text-slate-500 pt-1 border-t border-slate-300">
                       <strong className="text-slate-700">Core Skills:</strong>{' '}
                       {candidateSkills.join(' • ')}
                     </div>

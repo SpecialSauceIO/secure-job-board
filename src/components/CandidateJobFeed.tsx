@@ -422,8 +422,8 @@ export function CandidateJobFeed({
 
   if (totalFreshCount === 0) {
     return (
-      <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-sm">
-        <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-sm">
+        <div className="w-16 h-16 bg-slate-50 border border-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg
             className="w-8 h-8 text-slate-300"
             fill="none"
@@ -458,7 +458,7 @@ export function CandidateJobFeed({
     <div className="space-y-6">
       {/* SORT, INDUSTRY VERTICAL, LANGUAGE & WORK TYPE ORGANIZER BAR */}
       {showSortControls && (
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3.5">
+        <div className="bg-white p-4 rounded-2xl border-2 border-2-slate-200 shadow-xs space-y-3.5">
           {/* Row 1: Employment Type Quick Filter Pills + Role Count */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-1.5">
@@ -480,7 +480,7 @@ export function CandidateJobFeed({
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     employmentTypeFilter === tab.id
                       ? 'bg-slate-900 text-white shadow-2xs'
-                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/70'
+                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-300'
                   }`}
                 >
                   {tab.label}
@@ -499,7 +499,7 @@ export function CandidateJobFeed({
           </div>
 
           {/* Row 2: Industry Vertical + Language Requirement + Sort By Dropdown */}
-          <div className="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="pt-3 border-t border-slate-300 grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="flex items-center gap-2">
               <label
                 htmlFor="candidate-industry-filter"
@@ -511,7 +511,7 @@ export function CandidateJobFeed({
                 id="candidate-industry-filter"
                 value={industryFilter}
                 onChange={(e) => setIndustryFilter(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
+                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
               >
                 <option value="all">All Industry Verticals</option>
                 {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
@@ -533,7 +533,7 @@ export function CandidateJobFeed({
                 id="candidate-language-filter"
                 value={languageFilter}
                 onChange={(e) => setLanguageFilter(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
+                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
               >
                 <option value="all">All Languages</option>
                 {STANDARD_LANGUAGES.map((lang) => (
@@ -555,7 +555,7 @@ export function CandidateJobFeed({
                 id="candidate-job-sort"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
+                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer shadow-2xs"
               >
                 <option value="newest">Newest Posted (Freshness)</option>
                 <option value="closing_soon">
@@ -578,7 +578,7 @@ export function CandidateJobFeed({
       )}
 
       {sortedAndFilteredJobs.length === 0 ? (
-        <div className="bg-white p-10 rounded-2xl border border-slate-200 text-center shadow-xs">
+        <div className="bg-white p-10 rounded-2xl border-2 border-2-slate-200 text-center shadow-xs">
           <p className="text-sm font-bold text-slate-700 mb-2">
             No open roles match your selected Work Type, Industry Vertical, or Language filter.
           </p>
@@ -623,12 +623,12 @@ export function CandidateJobFeed({
                   ? 'border-2 border-amber-500 shadow-sm'
                   : meta.rankInfo.isFounder
                   ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
-                  : 'border-slate-200 shadow-sm hover:border-slate-300'
+                  : 'border-slate-300 shadow-sm hover:border-slate-300'
               }`}
             >
               <div className="p-6 md:p-8 space-y-4">
                 {/* Top Row: Clean Inline Blind Teaser, Rank/Founder Badge, & Compensation Band */}
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-3 border-b border-slate-100">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-3 border-b border-slate-300">
                   <div className="space-y-1.5">
                     <div className="flex flex-wrap items-center gap-2 text-xs">
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-extrabold uppercase tracking-wider">
@@ -650,7 +650,7 @@ export function CandidateJobFeed({
                       )}
 
                       <span className="text-slate-300">•</span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold text-[11px] border border-indigo-200/70">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold text-[11px] border border-indigo-300/70">
                         ⏱️ {meta.hiringTimeline}
                       </span>
                       <span className="text-slate-300">•</span>
@@ -691,7 +691,7 @@ export function CandidateJobFeed({
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
                           isBookmarked
                             ? 'bg-amber-50 border-amber-400 text-amber-900'
-                            : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900'
+                            : 'bg-white border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-900'
                         }`}
                       >
                         <svg
@@ -714,7 +714,7 @@ export function CandidateJobFeed({
                         {isBookmarked ? 'Saved' : 'Save'}
                       </button>
 
-                      <div className="px-3.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-black text-sm">
+                      <div className="px-3.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 font-black text-sm">
                         {meta.formattedPay}
                       </div>
                     </div>
@@ -814,8 +814,8 @@ export function CandidateJobFeed({
 
                 {/* Live 30-Second Progress Notifier Banner */}
                 {isAnalyzing && (
-                  <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center gap-3.5 animate-pulse">
-                    <div className="w-5 h-5 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin shrink-0" />
+                  <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-300 flex items-center gap-3.5 animate-pulse">
+                    <div className="w-5 h-5 border-3 border-indigo-300 border-t-indigo-600 rounded-full animate-spin shrink-0" />
                     <div className="text-xs text-indigo-950">
                       <span className="font-extrabold block">
                         Analyzing 5-Point AI Fit (This may take up to 30 seconds)...
@@ -829,8 +829,8 @@ export function CandidateJobFeed({
 
                 {/* AI Match Radar & Fit Analysis Results Box */}
                 {matchData && !isAnalyzing && (
-                  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-5 animate-in fade-in duration-300">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+                  <div className="p-5 rounded-2xl bg-slate-50 border-2 border-2-slate-200 space-y-5 animate-in fade-in duration-300">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-300 pb-4">
                       <div>
                         <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-600 block">
                           5-Point AI Fit Prediction
@@ -862,7 +862,7 @@ export function CandidateJobFeed({
                             return (
                               <div
                                 key={i}
-                                className="bg-white px-3.5 py-2.5 rounded-lg border border-slate-200 flex items-center justify-between gap-2"
+                                className="bg-white px-3.5 py-2.5 rounded-lg border border-slate-300 flex items-center justify-between gap-2"
                               >
                                 <div>
                                   <span className="text-xs font-bold text-slate-800 block">
@@ -936,7 +936,7 @@ export function CandidateJobFeed({
 
                 {/* Persistent Application Confirmation & Tracker CTA Banner */}
                 {isApplied && (
-                  <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in duration-300">
+                  <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in duration-300">
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5 font-black text-sm">
                         ✓
@@ -962,7 +962,7 @@ export function CandidateJobFeed({
 
                 {/* Error / Upgrade Prompt Banner */}
                 {cardFeedback && cardFeedback.type === 'error' && (
-                  <div className="p-3.5 rounded-xl text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-rose-50 text-rose-700 border border-rose-200">
+                  <div className="p-3.5 rounded-xl text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-rose-50 text-rose-700 border border-rose-300">
                     <span>{cardFeedback.text}</span>
                     <div className="flex items-center gap-2 shrink-0">
                       {!cardFeedback.text.includes('Candidate Pro') && (
@@ -987,7 +987,7 @@ export function CandidateJobFeed({
                 )}
 
                 {/* Bottom Action Bar */}
-                <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="pt-3 border-t border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <p className="text-xs text-slate-500">
                     {isApplied
                       ? `✓ Application logged under Reference ID ${appliedRef}.`
@@ -1004,7 +1004,7 @@ export function CandidateJobFeed({
                         type="button"
                         disabled={isAnalyzing || isApplying}
                         onClick={() => handleAnalyzeFit(jobId)}
-                        className="px-4 py-2 rounded-xl border border-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer"
+                        className="px-4 py-2 rounded-xl border-2 border-2-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer"
                       >
                         {isAnalyzing
                           ? 'Analyzing Fit...'

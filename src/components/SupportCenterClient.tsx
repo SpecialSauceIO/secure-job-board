@@ -113,9 +113,9 @@ export default function SupportCenterClient({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border-2 border-2-slate-200 shadow-sm overflow-hidden">
       {/* 4-Tab Navigation Header */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-b border-slate-200">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-b border-slate-300">
         <button
           type="button"
           onClick={() => setActiveTab('guides')}
@@ -171,7 +171,7 @@ export default function SupportCenterClient({
         {/* =================================================================== */}
         {activeTab === 'guides' && (
           <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 p-4 rounded-xl border-2 border-2-slate-200">
               <div>
                 <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">
                   Select Playbook View
@@ -181,7 +181,7 @@ export default function SupportCenterClient({
                 </p>
               </div>
 
-              <div className="inline-flex rounded-xl bg-white p-1 border border-slate-200 shadow-sm shrink-0">
+              <div className="inline-flex rounded-xl bg-white p-1 border-2 border-2-slate-200 shadow-sm shrink-0">
                 <button
                   type="button"
                   onClick={() => setSelectedGuide('employer')}
@@ -208,7 +208,7 @@ export default function SupportCenterClient({
             </div>
 
             <div className="space-y-2">
-              <span className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-extrabold">
+              <span className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 border border-indigo-300 text-indigo-700 text-xs font-extrabold">
                 {currentGuide.badge}
               </span>
               <h2 className="text-2xl font-extrabold text-slate-900">
@@ -223,7 +223,7 @@ export default function SupportCenterClient({
               {currentGuide.steps.map((item, idx) => (
                 <div
                   key={idx}
-                  className="p-5 rounded-xl bg-white border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-start gap-4 hover:border-indigo-200 transition-colors"
+                  className="p-5 rounded-xl bg-white border-2 border-2-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-start gap-4 hover:border-2-indigo-200 transition-colors"
                 >
                   <span className="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-black uppercase tracking-wider shrink-0">
                     {item.step}
@@ -330,11 +330,11 @@ export default function SupportCenterClient({
                   placeholder="Search FAQs (e.g. 2-Stage Vault, 30-day expiry, shortlist, W-2 vs 1099, Stripe, chime)..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-sm font-medium text-slate-900 transition-all"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-2-slate-200 bg-slate-50 focus:bg-white focus:border-2-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-sm font-medium text-slate-900 transition-all"
                 />
               </div>
 
-              <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200 shrink-0">
+              <div className="inline-flex rounded-xl bg-slate-100 p-1 border-2 border-2-slate-200 shrink-0">
                 <button
                   type="button"
                   onClick={() => setFaqRoleFilter('all')}
@@ -396,7 +396,7 @@ export default function SupportCenterClient({
                         return (
                           <div
                             key={faq.id}
-                            className="border border-slate-200 rounded-xl overflow-hidden transition-colors hover:border-indigo-200"
+                            className="border-2 border-2-slate-200 rounded-xl overflow-hidden transition-colors hover:border-2-indigo-200"
                           >
                             <button
                               type="button"
@@ -425,7 +425,7 @@ export default function SupportCenterClient({
                               </svg>
                             </button>
                             {isExpanded && (
-                              <div className="px-5 pb-4 text-sm text-slate-600 leading-relaxed bg-slate-50/50 border-t border-slate-100 pt-3">
+                              <div className="px-5 pb-4 text-sm text-slate-600 leading-relaxed bg-slate-50/50 border-t border-slate-300 pt-3">
                                 {faq.answer}
                               </div>
                             )}
@@ -476,8 +476,8 @@ export default function SupportCenterClient({
             {/* 2-Column Data Custody Comparison */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Column 1: Stored Exclusively Inside Stripe */}
-              <div className="rounded-2xl border-2 border-indigo-200 bg-indigo-50/40 p-6 space-y-5">
-                <div className="flex items-center gap-3 border-b border-indigo-200/80 pb-4">
+              <div className="rounded-2xl border-2 border-indigo-300 bg-indigo-50/40 p-6 space-y-5">
+                <div className="flex items-center gap-3 border-b border-indigo-300/80 pb-4">
                   <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 font-black">
                     S
                   </div>
@@ -500,7 +500,7 @@ export default function SupportCenterClient({
                   {SECURITY_ARCHITECTURE_DATA.stripeVaultItems.map((item, i) => (
                     <div
                       key={i}
-                      className="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm space-y-1"
+                      className="bg-white p-4 rounded-xl border border-indigo-300 shadow-sm space-y-1"
                     >
                       <div className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
                         <svg
@@ -527,8 +527,8 @@ export default function SupportCenterClient({
               </div>
 
               {/* Column 2: Stored Inside Special Sauce */}
-              <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50/40 p-6 space-y-5">
-                <div className="flex items-center gap-3 border-b border-emerald-200/80 pb-4">
+              <div className="rounded-2xl border-2 border-emerald-300 bg-emerald-50/40 p-6 space-y-5">
+                <div className="flex items-center gap-3 border-b border-emerald-300/80 pb-4">
                   <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
                     <svg
                       className="w-5 h-5"
@@ -563,7 +563,7 @@ export default function SupportCenterClient({
                     (item, i) => (
                       <div
                         key={i}
-                        className="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm space-y-1"
+                        className="bg-white p-4 rounded-xl border border-emerald-300 shadow-sm space-y-1"
                       >
                         <div className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
                           <svg
@@ -690,8 +690,8 @@ export default function SupportCenterClient({
               <div
                 className={`mb-6 p-4 rounded-xl text-sm font-bold border ${
                   ticketStatus.type === 'error'
-                    ? 'bg-rose-50 text-rose-700 border-rose-200'
-                    : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                    ? 'bg-rose-50 text-rose-700 border-rose-300'
+                    : 'bg-emerald-50 text-emerald-800 border-emerald-300'
                 }`}
               >
                 {ticketStatus.message}

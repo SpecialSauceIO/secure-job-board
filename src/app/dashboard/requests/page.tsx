@@ -176,7 +176,7 @@ export default function CandidateRequestsInboxPage() {
   return (
     <div className="max-w-6xl mx-auto py-4 space-y-6">
       {/* Header */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Employer Connection Pitches
@@ -195,7 +195,7 @@ export default function CandidateRequestsInboxPage() {
       </header>
 
       {/* Filter Tabs */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-white p-4 rounded-2xl border-2 border-2-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-1.5">
           {[
             { id: 'all', label: `All Pitches (${requests.length})` },
@@ -210,7 +210,7 @@ export default function CandidateRequestsInboxPage() {
               className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
                 statusFilter === tab.id
                   ? 'bg-slate-900 text-white shadow-2xs'
-                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-300'
               }`}
             >
               {tab.label}
@@ -225,14 +225,14 @@ export default function CandidateRequestsInboxPage() {
 
       {/* Pitches List */}
       {isLoading ? (
-        <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-xs">
-          <div className="inline-block w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin mb-3" />
+        <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-xs">
+          <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-3" />
           <p className="text-sm font-bold text-slate-500">
             Loading your employer pitch inbox...
           </p>
         </div>
       ) : filteredRequests.length === 0 ? (
-        <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-xs space-y-3">
+        <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-xs space-y-3">
           <h3 className="text-lg font-extrabold text-slate-900">
             No employer pitches in this tab yet
           </h3>
@@ -302,15 +302,15 @@ export default function CandidateRequestsInboxPage() {
                   isAccepted
                     ? 'border-emerald-300 ring-2 ring-emerald-50'
                     : isDeclined
-                    ? 'border-slate-200 opacity-75'
+                    ? 'border-slate-300 opacity-75'
                     : rankInfo.isFounder
                     ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
-                    : 'border-slate-200 hover:border-slate-300'
+                    : 'border-slate-300 hover:border-slate-400'
                 }`}
               >
                 <div className="p-6 md:p-8 space-y-4">
                   {/* Top Bar: Company Heading & Pay Band */}
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-3 border-b border-slate-100">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-3 border-b border-slate-300">
                     <div className="space-y-1.5">
                       <div className="flex flex-wrap items-center gap-2">
                         <span
@@ -342,7 +342,7 @@ export default function CandidateRequestsInboxPage() {
                     </div>
 
                     <div className="flex flex-col sm:items-end gap-1 shrink-0">
-                      <div className="px-3.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-black text-sm">
+                      <div className="px-3.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 font-black text-sm">
                         {payBand}
                       </div>
                       {matchScore !== null && (
@@ -404,7 +404,7 @@ export default function CandidateRequestsInboxPage() {
                   )}
 
                   {/* AI Pitch Summary */}
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 space-y-1">
+                  <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-2-slate-200/80 text-xs text-slate-700 space-y-1">
                     <div className="flex items-center justify-between font-bold text-indigo-700">
                       <span>Why You Matched (5-Point AI Radar)</span>
                       {radarData && (
@@ -431,12 +431,12 @@ export default function CandidateRequestsInboxPage() {
 
                   {/* Expandable Radar */}
                   {isMounted && showRadar && radarData && (
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col lg:flex-row items-center gap-4">
+                    <div className="p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200 flex flex-col lg:flex-row items-center gap-4">
                       <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {radarData.map((item: any, idx: number) => (
                           <div
                             key={idx}
-                            className="bg-white px-3 py-2 rounded-md border border-slate-200 flex justify-between items-center text-xs"
+                            className="bg-white px-3 py-2 rounded-md border border-slate-300 flex justify-between items-center text-xs"
                           >
                             <span className="font-semibold text-slate-600">
                               {item.subject}
@@ -486,7 +486,7 @@ export default function CandidateRequestsInboxPage() {
                     <div
                       className={`p-3 rounded-xl text-xs font-bold border ${
                         cardMsg.type === 'error'
-                          ? 'bg-rose-50 text-rose-700 border-rose-200'
+                          ? 'bg-rose-50 text-rose-700 border-rose-300'
                           : 'bg-emerald-50 text-emerald-800 border-emerald-300'
                       }`}
                     >
@@ -519,7 +519,7 @@ export default function CandidateRequestsInboxPage() {
 
                   {/* Action Footer */}
                   {!isAccepted && !isDeclined && (
-                    <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div className="pt-3 border-t border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                       <span className="text-slate-500">
                         <strong>Stage 1 Safe Connection:</strong> Accepting opens a secure chat thread while keeping your resume vaulted.
                       </span>
@@ -529,7 +529,7 @@ export default function CandidateRequestsInboxPage() {
                           type="button"
                           disabled={processingId === req.id}
                           onClick={() => handleDecision(req.id, 'declined')}
-                          className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer"
+                          className="px-3.5 py-2 rounded-xl border-2 border-2-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer"
                         >
                           Decline
                         </button>

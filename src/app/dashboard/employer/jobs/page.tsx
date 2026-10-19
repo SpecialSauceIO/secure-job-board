@@ -336,7 +336,7 @@ export default async function JobManagementPage() {
         </header>
 
         {/* Anti-Harvesting 30-Day Expiration Policy Callout */}
-        <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-start gap-3">
             <span className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 text-xs font-black mt-0.5">
               30d
@@ -351,7 +351,7 @@ export default async function JobManagementPage() {
         </div>
 
         {!isOrgVerified && (
-          <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div className="p-5 rounded-2xl bg-amber-50 border border-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
             <div className="flex items-start gap-3">
               <svg
                 className="w-5 h-5 text-amber-600 shrink-0 mt-0.5"
@@ -386,8 +386,8 @@ export default async function JobManagementPage() {
 
         <section>
           {enrichedRows.length === 0 ? (
-            <div className="bg-white p-12 rounded-2xl border border-slate-200 shadow-sm text-center">
-              <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 shadow-sm text-center">
+              <div className="w-16 h-16 bg-slate-50 border border-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="w-8 h-8 text-slate-300"
                   fill="none"

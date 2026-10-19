@@ -39,7 +39,7 @@ export default function LandingPage() {
                 : 'opacity-0 pointer-events-none z-0'
             }`}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-50 border border-violet-200 text-violet-700 text-[11px] font-bold uppercase tracking-wide mb-5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-50 border border-violet-300 text-violet-700 text-[11px] font-bold uppercase tracking-wide mb-5">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-600"></span>
@@ -126,7 +126,7 @@ export default function LandingPage() {
                 : 'opacity-0 pointer-events-none z-0'
             }`}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-[11px] font-bold uppercase tracking-wide mb-5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-300 text-indigo-700 text-[11px] font-bold uppercase tracking-wide mb-5">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
@@ -154,7 +154,7 @@ export default function LandingPage() {
                 : 'opacity-0 pointer-events-none z-0'
             }`}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-[11px] font-bold uppercase tracking-wide mb-5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-[11px] font-bold uppercase tracking-wide mb-5">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -198,7 +198,7 @@ export default function LandingPage() {
           </Link>
           <Link
             href="/signup/employer"
-            className="px-7 py-3.5 bg-white text-slate-900 text-sm sm:text-base font-bold rounded-xl border-2 border-slate-200 hover:border-slate-900 hover:-translate-y-0.5 transition-all shadow-xs flex items-center justify-center gap-2"
+            className="px-7 py-3.5 bg-white text-slate-900 text-sm sm:text-base font-bold rounded-xl border-2 border-slate-300 hover:border-slate-900 hover:-translate-y-0.5 transition-all shadow-xs flex items-center justify-center gap-2"
           >
             I&apos;m an Employer
           </Link>
@@ -268,7 +268,7 @@ export default function LandingPage() {
           <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
             Explore How It Works
           </span>
-          <span className="w-6 h-6 rounded-full border border-slate-200 bg-white shadow-2xs flex items-center justify-center group-hover:border-indigo-300 transition-all">
+          <span className="w-6 h-6 rounded-full border border-slate-300 bg-white shadow-2xs flex items-center justify-center group-hover:border-indigo-300 transition-all">
             <svg
               className="w-3 h-3 animate-bounce text-slate-500 group-hover:text-indigo-600"
               fill="none"
@@ -310,13 +310,13 @@ export default function LandingPage() {
       {/* Feature Section */}
       <section
         id="how-it-works"
-        className="scroll-mt-20 py-20 px-6 md:px-12 bg-white border-t border-slate-200"
+        className="scroll-mt-20 py-20 px-6 md:px-12 bg-white border-t border-slate-300"
       >
         <div className="max-w-7xl mx-auto">
           {/* TRACK 1: CANDIDATES */}
           <div className="mb-24">
             <div className="text-center mb-12">
-              <span className="inline-block px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-extrabold uppercase tracking-wider mb-3">
+              <span className="inline-block px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-xs font-extrabold uppercase tracking-wider mb-3">
                 Privacy, Transparency &amp; Fair Pay
               </span>
               <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -327,8 +327,8 @@ export default function LandingPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Candidate Feature 1 */}
-              <div className="p-8 rounded-2xl bg-slate-50 border border-slate-100 relative overflow-hidden group">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center mb-6 text-emerald-600 group-hover:scale-110 transition-transform">
+              <div className="p-8 rounded-2xl bg-slate-50 border-2 border-2-slate-100 relative overflow-hidden group">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-2-slate-200 flex items-center justify-center mb-6 text-emerald-600 group-hover:scale-110 transition-transform">
                   <svg
                     className="w-6 h-6"
                     fill="none"
@@ -352,8 +352,8 @@ export default function LandingPage() {
               </div>
 
               {/* Candidate Feature 2 */}
-              <div className="p-8 rounded-2xl bg-slate-50 border border-slate-100 relative overflow-hidden group">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center mb-6 text-cyan-500 group-hover:scale-110 transition-transform">
+              <div className="p-8 rounded-2xl bg-slate-50 border-2 border-2-slate-100 relative overflow-hidden group">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-2-slate-200 flex items-center justify-center mb-6 text-cyan-500 group-hover:scale-110 transition-transform">
                   <svg
                     className="w-6 h-6"
                     fill="none"
@@ -409,7 +409,7 @@ export default function LandingPage() {
           {/* TRACK 2: EMPLOYERS */}
           <div>
             <div className="text-center mb-12">
-              <span className="inline-block px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-extrabold uppercase tracking-wider mb-3">
+              <span className="inline-block px-3 py-1 rounded-full bg-indigo-50 border border-indigo-300 text-indigo-700 text-xs font-extrabold uppercase tracking-wider mb-3">
                 Built for Businesses Across All 28 Industry Verticals
               </span>
               <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -420,8 +420,8 @@ export default function LandingPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Employer Feature 1 */}
-              <div className="p-8 rounded-2xl bg-slate-50 border border-slate-100 relative overflow-hidden group">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center mb-6 text-orange-500 group-hover:scale-110 transition-transform">
+              <div className="p-8 rounded-2xl bg-slate-50 border-2 border-2-slate-100 relative overflow-hidden group">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-2-slate-200 flex items-center justify-center mb-6 text-orange-500 group-hover:scale-110 transition-transform">
                   <svg
                     className="w-6 h-6"
                     fill="none"
@@ -445,8 +445,8 @@ export default function LandingPage() {
               </div>
 
               {/* Employer Feature 2 */}
-              <div className="p-8 rounded-2xl bg-slate-50 border border-slate-100 relative overflow-hidden group">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center mb-6 text-indigo-600 group-hover:scale-110 transition-transform">
+              <div className="p-8 rounded-2xl bg-slate-50 border-2 border-2-slate-100 relative overflow-hidden group">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-2-slate-200 flex items-center justify-center mb-6 text-indigo-600 group-hover:scale-110 transition-transform">
                   <svg
                     className="w-6 h-6"
                     fill="none"
@@ -562,7 +562,7 @@ export default function LandingPage() {
       </section>
 
       {/* The End Result Section */}
-      <section className="py-24 px-6 md:px-12 bg-slate-50 border-t border-slate-200">
+      <section className="py-24 px-6 md:px-12 bg-slate-50 border-t border-slate-300">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -575,8 +575,8 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Widget 1: Verified People & Real Companies */}
-            <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-transform">
-              <div className="w-12 h-12 bg-emerald-50 rounded-xl border border-emerald-100 flex items-center justify-center mb-6 text-emerald-600">
+            <div className="p-8 rounded-2xl bg-white border-2 border-2-slate-200 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-transform">
+              <div className="w-12 h-12 bg-emerald-50 rounded-xl border border-emerald-300 flex items-center justify-center mb-6 text-emerald-600">
                 <svg
                   className="w-6 h-6"
                   fill="none"
@@ -600,8 +600,8 @@ export default function LandingPage() {
             </div>
 
             {/* Widget 2: Always Fresh Opportunities */}
-            <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-transform">
-              <div className="w-12 h-12 bg-indigo-50 rounded-xl border border-indigo-100 flex items-center justify-center mb-6 text-indigo-600">
+            <div className="p-8 rounded-2xl bg-white border-2 border-2-slate-200 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-transform">
+              <div className="w-12 h-12 bg-indigo-50 rounded-xl border border-indigo-300 flex items-center justify-center mb-6 text-indigo-600">
                 <svg
                   className="w-6 h-6"
                   fill="none"
@@ -654,9 +654,9 @@ export default function LandingPage() {
           </div>
 
           {/* Dedicated Trigger to Open Technical & Security Documentation Page */}
-          <div className="mt-14 p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="mt-14 p-6 sm:p-8 rounded-2xl bg-white border-2 border-2-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="flex items-start gap-4">
-              <div className="w-11 h-11 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
+              <div className="w-11 h-11 rounded-xl bg-indigo-50 border border-indigo-300 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
                 <svg
                   className="w-5 h-5"
                   fill="none"

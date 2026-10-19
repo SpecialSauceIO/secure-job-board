@@ -51,7 +51,7 @@ export default function SearchBar() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Job title, skills, or keywords"
-            className="block w-full rounded-xl border border-slate-300 bg-white pl-10 pr-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm"
+            className="block w-full rounded-xl border-2 border-2-slate-300 bg-white pl-10 pr-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-2-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm"
           />
         </div>
 
@@ -64,7 +64,7 @@ export default function SearchBar() {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="City, State, or Zip"
-            className="block w-full rounded-xl border border-slate-300 bg-white pl-10 pr-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm"
+            className="block w-full rounded-xl border-2 border-2-slate-300 bg-white pl-10 pr-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-2-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm"
           />
         </div>
 

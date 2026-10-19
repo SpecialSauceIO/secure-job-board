@@ -234,8 +234,8 @@ export default function EmployerBillingClient({
         <div
           className={`p-4 rounded-xl text-sm font-bold border ${
             feedback.type === 'error'
-              ? 'bg-rose-50 text-rose-700 border-rose-200'
-              : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              ? 'bg-rose-50 text-rose-700 border-rose-300'
+              : 'bg-emerald-50 text-emerald-800 border-emerald-300'
           }`}
         >
           {feedback.text}
@@ -253,7 +253,7 @@ export default function EmployerBillingClient({
               className={`bg-white rounded-2xl p-6 md:p-8 flex flex-col justify-between transition-all ${
                 tier.popular
                   ? 'border-2 border-indigo-600 shadow-md ring-4 ring-indigo-50 relative'
-                  : 'border border-slate-200 shadow-sm hover:border-indigo-200'
+                  : 'border border-slate-300 shadow-sm hover:border-indigo-300'
               }`}
             >
               {tier.popular && (
@@ -283,11 +283,11 @@ export default function EmployerBillingClient({
                     <span>Active Job Postings</span>
                     <span className="text-emerald-400">Up to {tier.maxActiveJobs} Roles</span>
                   </div>
-                  <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-indigo-50 text-indigo-900 border border-indigo-100 text-xs font-extrabold">
+                  <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-indigo-50 text-indigo-900 border border-indigo-300 text-xs font-extrabold">
                     <span>Monthly Pitch Credits (2:1)</span>
                     <span className="text-indigo-600">{tier.monthlyCredits} Credits / mo</span>
                   </div>
-                  <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-violet-50 text-violet-900 border border-violet-100 text-xs font-extrabold">
+                  <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-violet-50 text-violet-900 border border-violet-300 text-xs font-extrabold">
                     <span>Team & BPO Seats</span>
                     <span className="text-violet-700">
                       {tier.maxSeats} {tier.maxSeats === 1 ? 'Seat' : 'Seats'}
@@ -297,7 +297,7 @@ export default function EmployerBillingClient({
 
                 <p className="text-xs text-slate-500 leading-relaxed mb-5">{tier.description}</p>
 
-                <ul className="space-y-2.5 mb-8 border-t border-slate-100 pt-5">
+                <ul className="space-y-2.5 mb-8 border-t border-slate-300 pt-5">
                   {tier.features.map((feat, i) => (
                     <li key={i} className="flex items-start gap-2 text-xs font-semibold text-slate-700">
                       <svg
@@ -338,7 +338,7 @@ export default function EmployerBillingClient({
       </div>
 
       {/* Team & BPO Partner Seat Management Callout */}
-      <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="p-6 rounded-2xl bg-white border-2 border-2-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-md bg-violet-100 text-violet-800 text-[10px] font-extrabold uppercase tracking-wider">
@@ -362,7 +362,7 @@ export default function EmployerBillingClient({
       </div>
 
       {/* Developer Sandbox Tier Switcher */}
-      <div className="p-6 rounded-2xl bg-amber-50/80 border border-amber-200 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="p-6 rounded-2xl bg-amber-50/80 border border-amber-300 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[10px] font-extrabold uppercase tracking-wider">

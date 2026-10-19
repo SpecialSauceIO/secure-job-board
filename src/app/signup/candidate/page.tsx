@@ -25,9 +25,9 @@ export default async function CandidateSignupPage({
         </Link>
       </div>
 
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 sm:p-10 shadow-sm border border-slate-200 border-t-4 border-t-indigo-600">
+      <div className="w-full max-w-md rounded-2xl bg-white p-8 sm:p-10 shadow-sm border border-slate-300 border-t-4 border-t-indigo-600">
         <div className="text-center mb-6">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-extrabold uppercase tracking-wider mb-3">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-300 text-indigo-700 text-[11px] font-extrabold uppercase tracking-wider mb-3">
             🛡️ 2-Stage Identity Vault Protected
           </span>
           <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
@@ -39,7 +39,7 @@ export default async function CandidateSignupPage({
         </div>
 
         {/* High-Trust Value Props Callout */}
-        <div className="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs text-slate-600">
+        <div className="mb-6 p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200/80 space-y-2 text-xs text-slate-600">
           <div className="flex items-start gap-2">
             <span className="text-emerald-600 font-black mt-0.5">✓</span>
             <span>
@@ -64,7 +64,7 @@ export default async function CandidateSignupPage({
         </div>
 
         {resolvedParams.message && (
-          <div className="mb-6 p-4 bg-rose-50 border border-rose-200 text-rose-600 text-sm font-bold rounded-lg text-center">
+          <div className="mb-6 p-4 bg-rose-50 border border-rose-300 text-rose-600 text-sm font-bold rounded-lg text-center">
             {resolvedParams.message}
           </div>
         )}

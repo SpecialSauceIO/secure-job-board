@@ -164,7 +164,7 @@ export default function EmployerJobsTableClient({
   return (
     <div className="space-y-5">
       {/* Organizer Toolbar: Status Tabs + Search + Industry + Work Type + Sort By */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+      <div className="bg-white p-5 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* Status Filter Tabs */}
           <div className="flex flex-wrap items-center gap-2">
@@ -174,7 +174,7 @@ export default function EmployerJobsTableClient({
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 statusFilter === 'all'
                   ? 'bg-slate-900 text-white shadow-2xs'
-                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/70'
+                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-300'
               }`}
             >
               All Roles ({jobs.length})
@@ -186,7 +186,7 @@ export default function EmployerJobsTableClient({
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 statusFilter === 'active'
                   ? 'bg-slate-900 text-white shadow-2xs'
-                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/70'
+                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-300'
               }`}
             >
               Active ({activeCount})
@@ -198,7 +198,7 @@ export default function EmployerJobsTableClient({
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 statusFilter === 'closed'
                   ? 'bg-slate-900 text-white shadow-2xs'
-                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/70'
+                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-300'
               }`}
             >
               Closed / Expired ({closedCount})
@@ -225,13 +225,13 @@ export default function EmployerJobsTableClient({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search roles by title, US metro, or skill..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-medium text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
+              className="w-full pl-10 pr-4 py-2 rounded-xl border-2 border-2-slate-200 bg-slate-50 text-xs font-medium text-slate-900 focus:bg-white focus:border-2-indigo-500 focus:outline-none"
             />
           </div>
         </div>
 
         {/* Bottom Row: Industry + Work Type + Sort By Dropdown */}
-        <div className="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+        <div className="pt-3 border-t border-slate-300 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
           <div className="md:col-span-4 flex items-center gap-2">
             <label
               htmlFor="manage-jobs-industry"
@@ -243,7 +243,7 @@ export default function EmployerJobsTableClient({
               id="manage-jobs-industry"
               value={industryFilter}
               onChange={(e) => setIndustryFilter(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
             >
               <option value="all">All Industry Verticals</option>
               {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
@@ -265,7 +265,7 @@ export default function EmployerJobsTableClient({
               id="manage-jobs-emp-type"
               value={employmentTypeFilter}
               onChange={(e) => setEmploymentTypeFilter(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
             >
               <option value="all">All Employment Types</option>
               {EMPLOYMENT_TYPES.map((t) => (
@@ -289,7 +289,7 @@ export default function EmployerJobsTableClient({
               onChange={(e) =>
                 setSortBy(e.target.value as EmployerJobSortOption)
               }
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
             >
               <option value="closing_soon">
                 Closing Soonest (30-Day Countdown)
@@ -318,7 +318,7 @@ export default function EmployerJobsTableClient({
 
       {/* Jobs Table or Empty Filter State */}
       {filteredAndSortedJobs.length === 0 ? (
-        <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-sm">
+        <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-sm">
           <p className="text-sm font-bold text-slate-700 mb-2">
             No roles match your current status, keyword, Employment Type, or Industry Vertical filter.
           </p>
@@ -336,11 +336,11 @@ export default function EmployerJobsTableClient({
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border-2 border-2-slate-200 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200">
+                <tr className="bg-slate-50 border-b border-slate-300">
                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">
                     Role, Pay Band &amp; Details
                   </th>
@@ -355,7 +355,7 @@ export default function EmployerJobsTableClient({
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-300">
                 {filteredAndSortedJobs.map((job) => {
                   const isExpiringSoon =
                     job.is_active && !job.isExpired && job.daysRemaining <= 7
@@ -370,7 +370,7 @@ export default function EmployerJobsTableClient({
                           <p className="font-extrabold text-slate-900">
                             {job.title}
                           </p>
-                          <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-black">
+                          <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-300 text-xs font-black">
                             {job.formattedPay}
                           </span>
                         </div>
@@ -479,7 +479,7 @@ export default function EmployerJobsTableClient({
                         <div className="flex flex-wrap items-center justify-end gap-2">
                           <Link
                             href={`/dashboard/employer/jobs/${job.id}/edit`}
-                            className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-indigo-600 transition-colors"
+                            className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-indigo-600 transition-colors"
                           >
                             Edit
                           </Link>
@@ -503,7 +503,7 @@ export default function EmployerJobsTableClient({
                               />
                               <SubmitButton
                                 pendingText="Renewing..."
-                                className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+                                className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                               >
                                 ↻ Renew +30d
                               </SubmitButton>
@@ -527,7 +527,7 @@ export default function EmployerJobsTableClient({
                                 />
                                 <SubmitButton
                                   pendingText="..."
-                                  className="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors cursor-pointer"
+                                  className="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-rose-50 hover:text-rose-600 hover:border-rose-300 transition-colors cursor-pointer"
                                 >
                                   Close
                                 </SubmitButton>
@@ -535,7 +535,7 @@ export default function EmployerJobsTableClient({
                             ) : slotsFull ? (
                               <Link
                                 href="/dashboard/employer/billing"
-                                className="px-3 py-1.5 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
+                                className="px-3 py-1.5 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-300 rounded-lg hover:bg-amber-100 transition-colors"
                               >
                                 Slots Full ({activeJobsCount}/{maxActiveJobs}) ·
                                 Upgrade

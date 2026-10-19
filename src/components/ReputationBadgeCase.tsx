@@ -94,7 +94,7 @@ export default function ReputationBadgeCase({
 
       {/* Collapsible Behavioral Signal Criteria Drawer */}
       {isExpanded && (
-        <div className="px-6 py-5 bg-slate-50/70 border-t-2 border-slate-200 space-y-3.5 animate-in fade-in duration-150">
+        <div className="px-6 py-5 bg-slate-50/70 border-t-2 border-slate-300 space-y-3.5 animate-in fade-in duration-150">
           <p className="text-xs font-medium text-slate-600">
             Behavioral signals are earned automatically through verified account setup, responsiveness, and platform activity.
           </p>
@@ -106,7 +106,7 @@ export default function ReputationBadgeCase({
                 className={`p-4 rounded-xl border-2 transition-all ${
                   badge.unlocked
                     ? 'bg-white border-slate-300 shadow-2xs'
-                    : 'bg-slate-50/80 border-slate-200 opacity-75'
+                    : 'bg-slate-50/80 border-slate-300 opacity-75'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">

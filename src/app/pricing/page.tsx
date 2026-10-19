@@ -59,7 +59,7 @@ export default function PricingMatrixPage() {
             {/* 3 Candidate Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Tier 1: Explorer ($0) */}
-              <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-6">
+              <div className="bg-white p-8 rounded-2xl border-2 border-2-slate-200 shadow-xs flex flex-col justify-between space-y-6">
                 <div className="space-y-4">
                   <div>
                     <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
@@ -76,7 +76,7 @@ export default function PricingMatrixPage() {
                   <p className="text-xs text-slate-600 leading-relaxed">
                     Ideal when you&apos;re happily employed. Keep your anonymous profile live in the talent pool and let verified employers pitch you first.
                   </p>
-                  <ul className="space-y-2.5 pt-3 border-t border-slate-100 text-xs text-slate-700 font-medium">
+                  <ul className="space-y-2.5 pt-3 border-t border-slate-300 text-xs text-slate-700 font-medium">
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
                       <span><strong>Unlimited Inbound Employer Pitches</strong> &amp; Stage 1/2 Chat (100% Free)</span>
@@ -136,7 +136,7 @@ export default function PricingMatrixPage() {
                   <p className="text-xs text-slate-600 leading-relaxed">
                     Built for selective professionals actively applying to high-fit roles while unlocking accelerated XP and Founder Gold Trim.
                   </p>
-                  <ul className="space-y-2.5 pt-3 border-t border-slate-100 text-xs text-slate-700 font-medium">
+                  <ul className="space-y-2.5 pt-3 border-t border-slate-300 text-xs text-slate-700 font-medium">
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
                       <span><strong>First 30 Days Free ($0)</strong> during Launch Window</span>
@@ -259,7 +259,7 @@ export default function PricingMatrixPage() {
             {/* 3 Employer Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Employer Tier 1: Starter ($99/mo) */}
-              <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-6 relative overflow-hidden">
+              <div className="bg-white p-8 rounded-2xl border-2 border-2-slate-200 shadow-xs flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
                   ★ First 30 Days $0
                 </div>
@@ -279,7 +279,7 @@ export default function PricingMatrixPage() {
                   <p className="text-xs text-slate-600 leading-relaxed">
                     Built for small businesses and hiring managers filling 1 to 5 active roles at a time.
                   </p>
-                  <ul className="space-y-2.5 pt-3 border-t border-slate-100 text-xs text-slate-700 font-medium">
+                  <ul className="space-y-2.5 pt-3 border-t border-slate-300 text-xs text-slate-700 font-medium">
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
                       <span><strong>First 30 Days Free ($0)</strong> upon domain verification</span>
@@ -399,7 +399,7 @@ export default function PricingMatrixPage() {
                   <p className="text-xs text-slate-600 leading-relaxed">
                     Built for high-velocity talent acquisition teams, multi-location enterprises, and W-2 RPOs requiring automated HRIS/ATS synchronization.
                   </p>
-                  <ul className="space-y-2.5 pt-3 border-t border-slate-100 text-xs text-slate-700 font-medium">
+                  <ul className="space-y-2.5 pt-3 border-t border-slate-300 text-xs text-slate-700 font-medium">
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
                       <span><strong>First 30 Days Free ($0)</strong> upon domain verification</span>

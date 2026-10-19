@@ -258,7 +258,7 @@ export default async function MatchPreferencesPage() {
 
         <form
           action={saveCandidatePreferencesWithEmploymentTypes}
-          className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6"
+          className="bg-white p-6 md:p-8 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-6"
         >
           <input
             type="hidden"
@@ -301,7 +301,7 @@ export default async function MatchPreferencesPage() {
             </div>
 
             {/* 2. ACCEPTED EMPLOYMENT TYPES (DEALBREAKER) */}
-            <div className="pt-2 border-t border-slate-100">
+            <div className="pt-2 border-t border-slate-300">
               <label className="block text-sm font-bold text-slate-700">
                 Accepted Employment Types (Dealbreaker)
               </label>
@@ -315,7 +315,7 @@ export default async function MatchPreferencesPage() {
                   return (
                     <label
                       key={opt.value}
-                      className="relative flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-indigo-50/40 hover:border-indigo-300 transition-colors cursor-pointer"
+                      className="relative flex items-start gap-3 p-3.5 rounded-xl border-2 border-2-slate-200 bg-slate-50/60 hover:bg-indigo-50/40 hover:border-2-indigo-300 transition-colors cursor-pointer"
                     >
                       <input
                         type="checkbox"
@@ -339,7 +339,7 @@ export default async function MatchPreferencesPage() {
             </div>
 
             {/* 3. PRIMARY INDUSTRY VERTICAL & PREFERRED WORK MODEL */}
-            <div className="pt-2 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="pt-2 border-t border-slate-300 grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-bold text-slate-700">
                   Primary Industry Vertical
@@ -381,7 +381,7 @@ export default async function MatchPreferencesPage() {
             </div>
 
             {/* 4. EDUCATION & ACTIVE INDUSTRY CERTIFICATIONS */}
-            <div className="pt-2 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="pt-2 border-t border-slate-300 grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-bold text-slate-700">
                   🎓 Education &amp; Academic Background
@@ -426,7 +426,7 @@ export default async function MatchPreferencesPage() {
             />
 
             {/* 6. US CASCADING LOCATION SELECTOR */}
-            <div className="pt-2 border-t border-slate-100">
+            <div className="pt-2 border-t border-slate-300">
               <label className="block text-sm font-bold text-slate-700 mb-1">
                 Target Location
               </label>

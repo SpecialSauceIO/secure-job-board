@@ -50,7 +50,7 @@ export default function CandidatePreferencesForm({ profile }: { profile: any }) 
     <form onSubmit={handleSave} className="space-y-6">
       
       {/* Discoverability Toggle Card */}
-      <div className={`p-6 rounded-2xl border transition-colors ${isDiscoverable ? 'bg-white border-indigo-200 shadow-sm' : 'bg-slate-50 border-slate-200'}`}>
+      <div className={`p-6 rounded-2xl border transition-colors ${isDiscoverable ? 'bg-white border-indigo-300 shadow-sm' : 'bg-slate-50 border-slate-300'}`}>
         <div className="flex items-start justify-between gap-6">
           <div>
             <h3 className="text-lg font-bold text-slate-900">Profile Visibility</h3>
@@ -72,7 +72,7 @@ export default function CandidatePreferencesForm({ profile }: { profile: any }) 
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Minimum Salary Card */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-6 rounded-2xl border-2 border-2-slate-200 shadow-sm">
           <label className="block text-lg font-bold text-slate-900 mb-1">Minimum Salary</label>
           <p className="text-sm text-slate-500 mb-4">Employers offering below this amount will be blocked from messaging you.</p>
           <div className="relative">
@@ -84,19 +84,19 @@ export default function CandidatePreferencesForm({ profile }: { profile: any }) 
               value={minSalary}
               onChange={(e) => setMinSalary(e.target.value)}
               placeholder="120000"
-              className="block w-full rounded-xl border border-slate-300 bg-white pl-8 pr-4 py-3 text-slate-900 font-medium placeholder:text-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 shadow-sm"
+              className="block w-full rounded-xl border-2 border-2-slate-300 bg-white pl-8 pr-4 py-3 text-slate-900 font-medium placeholder:text-slate-300 focus:border-2-indigo-500 focus:ring-2 focus:ring-indigo-500/20 shadow-sm"
             />
           </div>
         </div>
 
         {/* Work Model Card */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-6 rounded-2xl border-2 border-2-slate-200 shadow-sm">
           <label className="block text-lg font-bold text-slate-900 mb-1">Work Model</label>
           <p className="text-sm text-slate-500 mb-4">Block roles that require an incompatible daily commute.</p>
           <select
             value={workModel}
             onChange={(e) => setWorkModel(e.target.value)}
-            className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 font-medium focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 shadow-sm cursor-pointer"
+            className="block w-full rounded-xl border-2 border-2-slate-300 bg-white px-4 py-3 text-slate-900 font-medium focus:border-2-indigo-500 focus:ring-2 focus:ring-indigo-500/20 shadow-sm cursor-pointer"
           >
             <option value="any">Open to Any Model</option>
             <option value="remote">Remote Only</option>

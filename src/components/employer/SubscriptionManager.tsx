@@ -56,7 +56,7 @@ export async function SubscriptionManager() {
   }
 
   return (
-    <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-8">
+    <div className="bg-white p-6 rounded-lg border border-slate-300 shadow-sm mb-8">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <h3 className="text-lg font-bold text-gray-900">Employer Pro Plan</h3>

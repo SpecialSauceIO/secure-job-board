@@ -33,7 +33,7 @@ function ScrambleText({ text, isScanning, label }: { text: string, isScanning: b
       <div className={`p-4 rounded-lg border font-mono text-sm min-h-[3rem] transition-colors duration-300 break-all overflow-hidden ${
         isScanning 
           ? 'bg-indigo-950 border-indigo-500/50 text-indigo-400 shadow-[inset_0_0_20px_rgba(79,70,229,0.2)]' 
-          : 'bg-slate-50 border-slate-200 text-slate-800'
+          : 'bg-slate-50 border-slate-300 text-slate-800'
       }`}>
         {display || <span className="text-slate-400">Awaiting document scan...</span>}
       </div>
@@ -46,7 +46,7 @@ function ScannerForm({ profile }: { profile: any }) {
   const [fileName, setFileName] = useState('');
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col md:flex-row">
+    <div className="bg-white rounded-2xl shadow-sm border-2 border-2-slate-200 overflow-hidden flex flex-col md:flex-row">
       
       {/* CSS for the Laser Scanner */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -61,7 +61,7 @@ function ScannerForm({ profile }: { profile: any }) {
       `}} />
 
       {/* Left Side: Upload & Laser Animation */}
-      <div className="p-8 md:w-1/3 bg-slate-50 border-r border-slate-200 flex flex-col items-center justify-center">
+      <div className="p-8 md:w-1/3 bg-slate-50 border-r border-slate-300 flex flex-col items-center justify-center">
         <div className="relative w-32 h-40 bg-white border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center mb-6 overflow-hidden shadow-sm">
            {pending && (
              <>

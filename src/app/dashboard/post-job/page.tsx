@@ -37,7 +37,7 @@ export default async function PostJobPage() {
       </div>
 
       <form action={createJob} className="space-y-6">
-        <div className="space-y-4 rounded-lg bg-gray-50 p-6 border border-gray-100">
+        <div className="space-y-4 rounded-lg bg-gray-50 p-6 border border-slate-300">
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Job Title
@@ -68,7 +68,7 @@ export default async function PostJobPage() {
           </div>
         </div>
 
-        <div className="space-y-4 rounded-lg bg-white p-6 border border-gray-200 shadow-sm">
+        <div className="space-y-4 rounded-lg bg-white p-6 border border-slate-300 shadow-sm">
           <h3 className="text-md font-semibold text-gray-900 border-b pb-2">
             Targeting Details
           </h3>
@@ -138,7 +138,7 @@ export default async function PostJobPage() {
           </div>
         </div>
 
-        <div className="rounded-lg bg-indigo-50 p-6 border border-indigo-100 flex items-start gap-4">
+        <div className="rounded-lg bg-indigo-50 p-6 border border-indigo-300 flex items-start gap-4">
           <div className="flex h-6 items-center">
             <input 
               type="checkbox" 

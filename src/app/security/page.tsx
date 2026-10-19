@@ -33,7 +33,7 @@ export default function SecurityTrustPage() {
         <main className="max-w-5xl mx-auto px-6 md:px-12 py-16 space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Pillar 1 */}
-            <div className="bg-white p-7 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+            <div className="bg-white p-7 rounded-2xl border-2 border-2-slate-200 shadow-2xs space-y-3">
               <span className="inline-block px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 text-xs font-extrabold">
                 1. 2-Stage Identity &amp; Resume Vault
               </span>
@@ -43,7 +43,7 @@ export default function SecurityTrustPage() {
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                 When a candidate uploads a PDF resume, it is stored in a private, non-public vault. During initial discovery, employers only see an anonymized skill, experience, certification, and language matrix.
               </p>
-              <ul className="text-xs text-slate-600 space-y-2 pt-3 border-t border-slate-100">
+              <ul className="text-xs text-slate-600 space-y-2 pt-3 border-t border-slate-300">
                 <li>
                   • <strong>Stage 1 (Safe Thread):</strong> Opens an in-platform message thread and reveals the employer’s company name while masking the candidate’s last name (<code>First Name + Last Initial</code>) and keeping their email and PDF resume locked.
                 </li>
@@ -54,7 +54,7 @@ export default function SecurityTrustPage() {
             </div>
 
             {/* Pillar 2 */}
-            <div className="bg-white p-7 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+            <div className="bg-white p-7 rounded-2xl border-2 border-2-slate-200 shadow-2xs space-y-3">
               <span className="inline-block px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 text-xs font-extrabold">
                 2. Offloaded Biometric &amp; Payment Vaulting
               </span>
@@ -64,7 +64,7 @@ export default function SecurityTrustPage() {
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                 Special Sauce never stores government ID images, biometric selfies, Social Security Numbers, or raw credit card numbers in our database.
               </p>
-              <ul className="text-xs text-slate-600 space-y-2 pt-3 border-t border-slate-100">
+              <ul className="text-xs text-slate-600 space-y-2 pt-3 border-t border-slate-300">
                 <li>
                   • <strong>Candidate Verification:</strong> Handled directly by Stripe Identity. Our database only stores a boolean <code>identity_verified</code> status flag.
                 </li>
@@ -75,7 +75,7 @@ export default function SecurityTrustPage() {
             </div>
 
             {/* Pillar 3 */}
-            <div className="bg-white p-7 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+            <div className="bg-white p-7 rounded-2xl border-2 border-2-slate-200 shadow-2xs space-y-3">
               <span className="inline-block px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 text-xs font-extrabold">
                 3. Anti-Harvesting &amp; Freshness Guardrails
               </span>
@@ -85,7 +85,7 @@ export default function SecurityTrustPage() {
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                 Traditional job boards incentivize &ldquo;ghost jobs&rdquo; and bulk resume scraping. Special Sauce enforces two automatic platform guardrails:
               </p>
-              <ul className="text-xs text-slate-600 space-y-2 pt-3 border-t border-slate-100">
+              <ul className="text-xs text-slate-600 space-y-2 pt-3 border-t border-slate-300">
                 <li>
                   • <strong>30-Day Auto-Expiry:</strong> Every active job listing automatically closes after 30 days unless manually renewed by the hiring team.
                 </li>
@@ -96,7 +96,7 @@ export default function SecurityTrustPage() {
             </div>
 
             {/* Pillar 4 */}
-            <div className="bg-white p-7 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+            <div className="bg-white p-7 rounded-2xl border-2 border-2-slate-200 shadow-2xs space-y-3">
               <span className="inline-block px-2.5 py-1 rounded-md bg-violet-50 text-violet-800 text-xs font-extrabold">
                 4. Multi-Industry AI Matching &amp; Dealbreakers
               </span>
@@ -106,7 +106,7 @@ export default function SecurityTrustPage() {
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                 Our matching engine evaluates candidates and roles across five normalized pillars: Core Competencies, Skill Tenure, Logistics &amp; Pay, Industry &amp; Creds, and Execution &amp; Comm.
               </p>
-              <ul className="text-xs text-slate-600 space-y-2 pt-3 border-t border-slate-100">
+              <ul className="text-xs text-slate-600 space-y-2 pt-3 border-t border-slate-300">
                 <li>
                   • <strong>Practical Experience &amp; Language Precision:</strong> Roles that accept practical experience in lieu of a degree weight hands-on skills equally, while verifying written/verbal language modality and proficiency.
                 </li>
@@ -118,7 +118,7 @@ export default function SecurityTrustPage() {
           </div>
 
           {/* Bottom CTA */}
-          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xs">
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border-2 border-2-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xs">
             <div>
               <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
                 Ready to claim your 30-Day Founding Rewards?
@@ -142,7 +142,7 @@ export default function SecurityTrustPage() {
               </Link>
               <Link
                 href="/signup/employer"
-                className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors"
+                className="px-4 py-2.5 rounded-xl border-2 border-2-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors"
               >
                 Join as Employer
               </Link>

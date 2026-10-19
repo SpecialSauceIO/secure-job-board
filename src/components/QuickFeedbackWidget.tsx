@@ -80,7 +80,7 @@ export default function QuickFeedbackWidget() {
             onClick={() => setIsOpen(false)}
           />
           <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl border-2 border-slate-300 shadow-2xl p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-300">
               <div>
                 <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
                   <span>🐞 Quick Beta Feedback</span>
@@ -111,7 +111,7 @@ export default function QuickFeedbackWidget() {
                     className={`py-1.5 px-2 rounded-lg text-xs font-extrabold border transition-all cursor-pointer ${
                       feedbackType === t
                         ? 'bg-slate-900 text-white border-slate-900'
-                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                        : 'bg-slate-50 text-slate-600 border-slate-300 hover:bg-slate-100'
                     }`}
                   >
                     {t === 'Bug'
@@ -136,8 +136,8 @@ export default function QuickFeedbackWidget() {
                 <div
                   className={`p-2.5 rounded-xl text-xs font-bold leading-relaxed ${
                     resultMsg.type === 'error'
-                      ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                      : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                      ? 'bg-rose-50 text-rose-700 border border-rose-300'
+                      : 'bg-emerald-50 text-emerald-800 border border-emerald-300'
                   }`}
                 >
                   {resultMsg.text}

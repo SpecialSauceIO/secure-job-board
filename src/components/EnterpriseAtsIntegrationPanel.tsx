@@ -119,7 +119,7 @@ export default function EnterpriseAtsIntegrationPanel() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 text-center shadow-xs">
+      <div className="bg-white rounded-2xl border-2 border-2-slate-200 p-6 text-center shadow-xs">
         <p className="text-xs font-bold text-slate-400">
           Loading Enterprise ATS &amp; Webhook Hub...
         </p>
@@ -210,7 +210,7 @@ export default function EnterpriseAtsIntegrationPanel() {
           <div
             className={`p-3.5 rounded-xl text-xs font-extrabold border ${
               feedback.type === 'error'
-                ? 'bg-rose-50 text-rose-800 border-rose-200'
+                ? 'bg-rose-50 text-rose-800 border-rose-300'
                 : 'bg-emerald-50 text-emerald-900 border-emerald-300'
             }`}
           >
@@ -220,7 +220,7 @@ export default function EnterpriseAtsIntegrationPanel() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Column 1: Workday / Universal Signed Webhook */}
-          <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
+          <div className="p-5 rounded-xl bg-slate-50 border-2 border-2-slate-200 space-y-4">
             <div>
               <h4 className="text-sm font-extrabold text-slate-900">
                 1. Workday &amp; Enterprise Outbound Webhook (HMAC-SHA256)
@@ -241,7 +241,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                   setConfig({ ...config, webhookUrl: e.target.value })
                 }
                 placeholder="https://wd5-impl-services1.workday.com/ccx/service/..."
-                className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-xl border-2 border-2-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-2-indigo-500 focus:outline-none"
               />
             </div>
 
@@ -262,7 +262,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                 type="text"
                 readOnly
                 value={config.webhookSecret}
-                className="w-full rounded-xl border border-slate-200 bg-slate-100 px-3.5 py-2 text-xs font-mono font-bold text-slate-700"
+                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-100 px-3.5 py-2 text-xs font-mono font-bold text-slate-700"
               />
             </div>
 
@@ -271,7 +271,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                 type="button"
                 disabled={isTestingWebhook || !config.webhookUrl}
                 onClick={handleTestWebhook}
-                className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
+                className="px-3.5 py-2 rounded-xl border-2 border-2-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
               >
                 {isTestingWebhook
                   ? 'Sending Test Payload...'
@@ -289,7 +289,7 @@ export default function EnterpriseAtsIntegrationPanel() {
           </div>
 
           {/* Column 2: Native Greenhouse Harvest API Connector */}
-          <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
+          <div className="p-5 rounded-xl bg-slate-50 border-2 border-2-slate-200 space-y-4">
             <div>
               <h4 className="text-sm font-extrabold text-slate-900">
                 2. Native Greenhouse Harvest API Connector
@@ -310,7 +310,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                   setConfig({ ...config, greenhouseApiKey: e.target.value })
                 }
                 placeholder="Enter Harvest API Key (Configure → Dev Center → API Credentials)..."
-                className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-xl border-2 border-2-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-2-indigo-500 focus:outline-none"
               />
             </div>
 
@@ -328,7 +328,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                   })
                 }
                 placeholder="e.g. 4029184 (Greenhouse Admin User ID for audit logs)"
-                className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-xl border-2 border-2-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-2-indigo-500 focus:outline-none"
               />
             </div>
 
@@ -368,7 +368,7 @@ export default function EnterpriseAtsIntegrationPanel() {
           </div>
         )}
 
-        <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-4">
+        <div className="pt-2 border-t border-slate-300 flex items-center justify-between gap-4">
           <span className="text-xs text-slate-500">
             🛡️ <strong>Double-Blind Privacy Guarantee:</strong> Candidate PII never touches your external ATS until the candidate explicitly clicks &ldquo;Release Resume &amp; Contact Vault&rdquo; in Stage 2.
           </span>

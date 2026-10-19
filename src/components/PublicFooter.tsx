@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 export function PublicFooter() {
   return (
-    <footer className="bg-white border-t border-slate-200 py-12 px-6">
+    <footer className="bg-white border-t border-slate-300 py-12 px-6">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
         <Link
           href="/"

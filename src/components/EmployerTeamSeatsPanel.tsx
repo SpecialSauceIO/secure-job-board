@@ -83,9 +83,9 @@ export default function EmployerTeamSeatsPanel({
   }
 
   return (
-    <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+    <div className="bg-white p-6 md:p-8 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-6">
       {/* Header & Live Seat Counter */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-300 pb-5">
         <div>
           <div className="flex flex-wrap items-center gap-2.5">
             <h2 className="text-xl font-extrabold text-slate-900">
@@ -123,8 +123,8 @@ export default function EmployerTeamSeatsPanel({
         <div
           className={`p-4 rounded-xl text-xs font-bold border ${
             feedback.type === 'error'
-              ? 'bg-rose-50 text-rose-700 border-rose-200'
-              : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              ? 'bg-rose-50 text-rose-700 border-rose-300'
+              : 'bg-emerald-50 text-emerald-800 border-emerald-300'
           }`}
         >
           {feedback.text}
@@ -133,7 +133,7 @@ export default function EmployerTeamSeatsPanel({
 
       {/* Upgrade Callout for Starter / Free Explorer */}
       {(tier === 'free' || tier === 'starter') && (
-        <div className="p-5 rounded-xl bg-indigo-50/70 border border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="p-5 rounded-xl bg-indigo-50/70 border border-indigo-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <h3 className="text-sm font-extrabold text-indigo-950">
               Need to add a Hiring Manager or BPO / RPO Delivery Partner?
@@ -157,7 +157,7 @@ export default function EmployerTeamSeatsPanel({
       {(tier === 'growth' || tier === 'enterprise') && (
         <form
           onSubmit={handleInviteSubmit}
-          className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4"
+          className="p-5 rounded-xl bg-slate-50 border-2 border-2-slate-200 space-y-4"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
@@ -177,7 +177,7 @@ export default function EmployerTeamSeatsPanel({
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
                 placeholder="colleague@company.com or lead@bpo-partner.com"
-                className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none disabled:bg-slate-100"
+                className="w-full rounded-xl border-2 border-2-slate-300 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-2-indigo-500 focus:outline-none disabled:bg-slate-100"
               />
             </div>
 
@@ -188,7 +188,7 @@ export default function EmployerTeamSeatsPanel({
                 onChange={(e) =>
                   setInviteRole(e.target.value as 'hiring_manager' | 'bpo_partner')
                 }
-                className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:outline-none disabled:bg-slate-100"
+                className="w-full rounded-xl border-2 border-2-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-700 focus:border-2-indigo-500 focus:outline-none disabled:bg-slate-100"
               >
                 <option value="hiring_manager">Internal Hiring Manager</option>
                 <option value="bpo_partner">Delegated BPO / W-2 Partner</option>
@@ -213,7 +213,7 @@ export default function EmployerTeamSeatsPanel({
       )}
 
       {/* Current Seats Roster */}
-      <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden">
+      <div className="divide-y divide-slate-300 border-2 border-2-slate-200 rounded-xl overflow-hidden">
         {seats.map((seat) => (
           <div
             key={seat.id}
@@ -225,8 +225,8 @@ export default function EmployerTeamSeatsPanel({
                   seat.role === 'owner'
                     ? 'bg-slate-900 text-white'
                     : seat.role === 'bpo_partner'
-                    ? 'bg-violet-100 text-violet-700 border border-violet-200'
-                    : 'bg-indigo-100 text-indigo-700 border border-indigo-200'
+                    ? 'bg-violet-100 text-violet-700 border border-violet-300'
+                    : 'bg-indigo-100 text-indigo-700 border border-indigo-300'
                 }`}
               >
                 {seat.email.substring(0, 2).toUpperCase()}
@@ -237,10 +237,10 @@ export default function EmployerTeamSeatsPanel({
                   <span
                     className={`px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider border ${
                       seat.role === 'owner'
-                        ? 'bg-slate-100 text-slate-800 border-slate-200'
+                        ? 'bg-slate-100 text-slate-800 border-slate-300'
                         : seat.role === 'bpo_partner'
-                        ? 'bg-violet-50 text-violet-700 border-violet-200'
-                        : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                        ? 'bg-violet-50 text-violet-700 border-violet-300'
+                        : 'bg-indigo-50 text-indigo-700 border-indigo-300'
                     }`}
                   >
                     {seat.role === 'owner'
@@ -272,7 +272,7 @@ export default function EmployerTeamSeatsPanel({
                 type="button"
                 disabled={removingId === seat.id}
                 onClick={() => handleRemoveSeat(seat.id, seat.email)}
-                className="self-end sm:self-auto px-3 py-1.5 rounded-lg border border-slate-200 text-slate-500 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 text-xs font-bold transition-colors disabled:opacity-50"
+                className="self-end sm:self-auto px-3 py-1.5 rounded-lg border border-slate-300 text-slate-500 hover:text-rose-600 hover:border-rose-300 hover:bg-rose-50 text-xs font-bold transition-colors disabled:opacity-50"
               >
                 {removingId === seat.id ? 'Removing...' : 'Revoke Seat'}
               </button>

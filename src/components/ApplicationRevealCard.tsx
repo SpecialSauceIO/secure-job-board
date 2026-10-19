@@ -299,15 +299,15 @@ export function ApplicationRevealCard({
           : status === 'unlocked'
           ? 'border-indigo-300 ring-1 ring-indigo-50'
           : status === 'rejected'
-          ? 'border-slate-200 opacity-80'
+          ? 'border-slate-300 opacity-80'
           : rankInfo.isFounder
           ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
-          : 'border-slate-200 hover:border-slate-300'
+          : 'border-slate-300 hover:border-slate-400'
       }`}
     >
       <div className="p-6 md:p-8 space-y-4">
         {/* Top Row: Role, Ref, Date, and Match Badge */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 text-xs font-semibold text-slate-500">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-300 text-xs font-semibold text-slate-500">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-slate-900 font-extrabold">
               Role: {job?.title || 'Open Role'}
@@ -320,7 +320,7 @@ export function ApplicationRevealCard({
 
           <div className="flex items-center gap-2">
             {matchScore !== null && (
-              <span className="px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold border border-indigo-200">
+              <span className="px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold border border-indigo-300">
                 {matchScore}% AI Match
               </span>
             )}
@@ -391,7 +391,7 @@ export function ApplicationRevealCard({
                 Prefers {candidate?.preferred_work_model || 'Any'}
               </span>
               <span>•</span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold text-xs border border-indigo-200/70">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold text-xs border border-indigo-300/70">
                 ⚡ {candidate?.availability_window || '2 Weeks Notice (Standard)'}
               </span>
               {candidate?.location && (
@@ -458,7 +458,7 @@ export function ApplicationRevealCard({
         )}
 
         {/* AI Fit Summary */}
-        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 space-y-1">
+        <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-2-slate-200/80 text-xs text-slate-700 space-y-1">
           <div className="flex items-center justify-between font-bold text-indigo-700">
             <span>AI Fit Summary</span>
             {radarData && (
@@ -476,12 +476,12 @@ export function ApplicationRevealCard({
 
         {/* Expandable Radar */}
         {isMounted && showRadar && radarData && (
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col lg:flex-row items-center gap-4">
+          <div className="p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200 flex flex-col lg:flex-row items-center gap-4">
             <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
               {radarData.map((item: any, idx: number) => (
                 <div
                   key={idx}
-                  className="bg-white px-3 py-2 rounded-md border border-slate-200 flex justify-between items-center text-xs"
+                  className="bg-white px-3 py-2 rounded-md border border-slate-300 flex justify-between items-center text-xs"
                 >
                   <div>
                     <span className="font-bold text-slate-800 block">
@@ -541,13 +541,13 @@ export function ApplicationRevealCard({
 
         {/* Error Banner */}
         {errorMsg && (
-          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold">
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-300 text-rose-700 text-xs font-bold">
             {errorMsg}
           </div>
         )}
 
         {/* Action Bar */}
-        <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="pt-3 border-t border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           {!isRevealed && status !== 'rejected' ? (
             <>
               <span className="text-slate-500">
@@ -558,7 +558,7 @@ export function ApplicationRevealCard({
                   type="button"
                   disabled={isProcessing}
                   onClick={() => handleDecision('rejected')}
-                  className="px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer"
+                  className="px-3 py-2 rounded-xl border-2 border-2-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer"
                 >
                   Not a Fit
                 </button>
@@ -606,7 +606,7 @@ export function ApplicationRevealCard({
                   onClick={() =>
                     handleDecision(status === 'rejected' ? 'unlocked' : 'rejected')
                   }
-                  className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer"
                 >
                   {status === 'rejected' ? 'Restore' : 'Archive'}
                 </button>

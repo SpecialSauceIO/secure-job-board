@@ -192,7 +192,7 @@ export default async function ProfilePage() {
   const hasProfileData = !!profile?.bio
 
   const AiSection = (
-    <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
+    <div className="bg-white p-6 md:p-8 rounded-2xl border-2 border-2-slate-200 shadow-sm">
       <div className="mb-6">
         <h2 className="text-xl font-bold text-slate-800">
           {hasProfileData
@@ -212,7 +212,7 @@ export default async function ProfilePage() {
   const FormSection = (
     <form
       action={saveCandidateProfilePreservingMeta}
-      className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6"
+      className="bg-white p-6 md:p-8 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-6"
     >
       <div>
         <h2 className="text-xl font-bold text-slate-800">
@@ -224,7 +224,7 @@ export default async function ProfilePage() {
       </div>
 
       {/* Private Identity Box (Vaulted behind 2-Stage Unlock) */}
-      <div className="p-5 rounded-xl bg-indigo-50/60 border border-indigo-100 space-y-4">
+      <div className="p-5 rounded-xl bg-indigo-50/60 border border-indigo-300 space-y-4">
         <div className="flex items-start gap-3">
           <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 mt-0.5">
             <svg
@@ -256,13 +256,13 @@ export default async function ProfilePage() {
               name="full_name"
               defaultValue={profile?.full_name || profile?.name || ''}
               placeholder="e.g. Jordan Taylor"
-              className="block w-full sm:w-2/3 rounded-lg border border-indigo-200 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+              className="block w-full sm:w-2/3 rounded-lg border border-indigo-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
             />
           </div>
         </div>
       </div>
 
-      <div className="space-y-8 bg-slate-50 p-6 border border-slate-100 rounded-xl">
+      <div className="space-y-8 bg-slate-50 p-6 border-2 border-2-slate-100 rounded-xl">
         {/* US Cascading Location Selector */}
         <div>
           <label className="block text-sm font-bold text-slate-700 mb-1">
@@ -319,7 +319,7 @@ export default async function ProfilePage() {
         </div>
 
         {/* Row 2: Education & Academic Background + Active Certifications & Licenses */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-200/80">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-300">
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-1.5">
               🎓 Education &amp; Academic Background
@@ -384,7 +384,7 @@ export default async function ProfilePage() {
         />
 
         {/* The Dynamic Skills Editor */}
-        <div className="pt-4 border-t border-slate-200/80">
+        <div className="pt-4 border-t border-slate-300">
           <StructuredSkillEditor initialSkills={visibleStructuredSkills} />
         </div>
 

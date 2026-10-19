@@ -218,7 +218,7 @@ function LoginContent() {
   }
 
   return (
-    <div className="w-full max-w-md rounded-2xl bg-white p-8 sm:p-10 shadow-sm border border-slate-200">
+    <div className="w-full max-w-md rounded-2xl bg-white p-8 sm:p-10 shadow-sm border-2 border-2-slate-200">
       <div className="text-center mb-7">
         <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
           {mode === 'new_password'
@@ -242,7 +242,7 @@ function LoginContent() {
 
       {/* URL Error Banner */}
       {mode === 'login' && urlError && !feedback && (
-        <div className="mb-6 p-4 rounded-xl bg-rose-50 text-rose-800 border border-rose-200 text-xs font-extrabold space-y-2">
+        <div className="mb-6 p-4 rounded-xl bg-rose-50 text-rose-800 border border-rose-300 text-xs font-extrabold space-y-2">
           <p>{urlError}</p>
           <div className="flex flex-wrap items-center gap-3 pt-1">
             <button
@@ -272,7 +272,7 @@ function LoginContent() {
 
       {/* Selected Hint Reminder Banner on Sign-In Screen */}
       {mode === 'login' && selectedHintBadge && (
-        <div className="mb-6 p-3.5 rounded-xl bg-indigo-50 text-indigo-950 border border-indigo-200 text-xs font-bold flex items-center justify-between gap-2">
+        <div className="mb-6 p-3.5 rounded-xl bg-indigo-50 text-indigo-950 border border-indigo-300 text-xs font-bold flex items-center justify-between gap-2">
           <span>
             Account Hint:{' '}
             <strong className="font-mono text-indigo-700">
@@ -295,7 +295,7 @@ function LoginContent() {
         <div
           className={`mb-6 p-4 rounded-xl text-xs font-extrabold border space-y-3 ${
             feedback.type === 'error'
-              ? 'bg-rose-50 text-rose-800 border-rose-200'
+              ? 'bg-rose-50 text-rose-800 border-rose-300'
               : 'bg-emerald-50 text-emerald-900 border-emerald-300'
           }`}
         >
@@ -312,7 +312,7 @@ function LoginContent() {
                     <span className="font-mono text-sm font-black text-slate-900">
                       {item.maskedEmail}
                     </span>
-                    <span className="text-[10px] font-sans font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="text-[10px] font-sans font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-300">
                       {item.roleLabel}
                     </span>
                   </div>
@@ -347,7 +347,7 @@ function LoginContent() {
       {mode === 'new_password' ? (
         isVerifyingToken ? (
           <div className="py-8 text-center space-y-3">
-            <div className="inline-block w-6 h-6 border-3 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
+            <div className="inline-block w-6 h-6 border-3 border-slate-300 border-t-indigo-600 rounded-full animate-spin" />
             <p className="text-xs font-bold text-slate-500">
               Verifying your Special Sauce security token...
             </p>
@@ -473,7 +473,7 @@ function LoginContent() {
         </form>
       ) : mode === 'lookup' ? (
         <form onSubmit={handleUsernameLookup} className="space-y-5">
-          <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-100 border border-slate-200">
+          <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-100 border-2 border-2-slate-200">
             <button
               type="button"
               onClick={() => {
@@ -678,16 +678,16 @@ function LoginContent() {
             </button>
 
             <div className="relative flex items-center py-1">
-              <div className="flex-grow border-t border-slate-200"></div>
+              <div className="flex-grow border-t border-slate-300"></div>
               <span className="shrink-0 px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">
                 Or
               </span>
-              <div className="flex-grow border-t border-slate-200"></div>
+              <div className="flex-grow border-t border-slate-300"></div>
             </div>
 
             <Link
               href="/signup"
-              className="w-full flex justify-center items-center rounded-lg bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm border border-slate-200 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:ring-offset-2 transition-all"
+              className="w-full flex justify-center items-center rounded-lg bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm border border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:ring-offset-2 transition-all"
             >
               Create a new account
             </Link>
@@ -714,7 +714,7 @@ export default function LoginPage() {
 
       <Suspense
         fallback={
-          <div className="w-full max-w-md rounded-2xl bg-white p-10 shadow-sm border border-slate-200 text-center text-xs font-bold text-slate-400">
+          <div className="w-full max-w-md rounded-2xl bg-white p-10 shadow-sm border-2 border-2-slate-200 text-center text-xs font-bold text-slate-400">
             Loading secure sign-in...
           </div>
         }

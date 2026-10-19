@@ -201,14 +201,14 @@ export default function EmployerInboundApplicationsPage() {
 
           <Link
             href="/dashboard/employer/pitches"
-            className="shrink-0 px-5 py-3 bg-white border border-slate-300 text-slate-800 text-sm font-bold rounded-xl hover:bg-slate-100 transition-colors shadow-sm inline-flex items-center gap-2"
+            className="shrink-0 px-5 py-3 bg-white border-2 border-2-slate-300 text-slate-800 text-sm font-bold rounded-xl hover:bg-slate-100 transition-colors shadow-sm inline-flex items-center gap-2"
           >
             View Outbound Pitches →
           </Link>
         </div>
 
         {/* Filter Bar: Status Tabs + Date Range + Keyword Search + Industry & Sort By */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div className="bg-white p-5 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             {/* Status Tabs */}
             <div className="flex flex-wrap gap-2">
@@ -313,7 +313,7 @@ export default function EmployerInboundApplicationsPage() {
             <select
               value={daysFilter}
               onChange={(e) => setDaysFilter(Number(e.target.value))}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              className="rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
             >
               <option value={0}>All Time</option>
               <option value={7}>Last 7 Days</option>
@@ -331,18 +331,18 @@ export default function EmployerInboundApplicationsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search applications by Reference ID (SS-...), role title, skill, bio, or unlocked candidate name..."
-              className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
+              className="flex-1 rounded-xl border-2 border-2-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-2-indigo-500 focus:outline-none"
             />
             <button
               type="submit"
-              className="px-6 py-2.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-colors cursor-pointer"
+              className="px-6 py-2.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-300 hover:bg-indigo-100 transition-colors cursor-pointer"
             >
               Filter
             </button>
           </form>
 
           {/* Organizer Row: Industry Vertical Filter + Sort By Dropdown */}
-          <div className="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+          <div className="pt-3 border-t border-slate-300 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
             <div className="md:col-span-5 flex items-center gap-2">
               <label
                 htmlFor="inbound-industry-filter"
@@ -354,7 +354,7 @@ export default function EmployerInboundApplicationsPage() {
                 id="inbound-industry-filter"
                 value={industryFilter}
                 onChange={(e) => setIndustryFilter(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
               >
                 <option value="all">All Industry Verticals</option>
                 {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
@@ -378,7 +378,7 @@ export default function EmployerInboundApplicationsPage() {
                 onChange={(e) =>
                   setSortBy(e.target.value as ApplicationSortOption)
                 }
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
               >
                 <option value="match_high">
                   AI Match Score (Highest First)
@@ -409,15 +409,15 @@ export default function EmployerInboundApplicationsPage() {
 
         {/* Applications Feed */}
         {isLoading ? (
-          <div className="py-16 text-center bg-white rounded-2xl border border-slate-200 shadow-sm">
-            <div className="inline-block w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+          <div className="py-16 text-center bg-white rounded-2xl border-2 border-2-slate-200 shadow-sm">
+            <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
             <p className="text-slate-500 font-medium">
               Loading inbound applications...
             </p>
           </div>
         ) : filteredAndSortedApplications.length === 0 ? (
-          <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-sm">
-            <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-sm">
+            <div className="w-16 h-16 bg-slate-50 border border-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
                 className="w-8 h-8 text-slate-300"
                 fill="none"
@@ -464,7 +464,7 @@ export default function EmployerInboundApplicationsPage() {
                       Applied for: {app.jobs?.title || 'Open Role'}
                     </span>
                     {appIndustry && (
-                      <span className="bg-indigo-50 text-indigo-800 border border-indigo-200 text-[11px] font-extrabold px-3 py-0.5 rounded-full shadow-2xs">
+                      <span className="bg-indigo-50 text-indigo-800 border border-indigo-300 text-[11px] font-extrabold px-3 py-0.5 rounded-full shadow-2xs">
                         {appIndustry}
                       </span>
                     )}

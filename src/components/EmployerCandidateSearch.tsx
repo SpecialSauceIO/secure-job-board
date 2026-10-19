@@ -521,7 +521,7 @@ export default function EmployerCandidateSearch({
       {/* SINGLE UNIFIED COMMAND BAR WITH COLLAPSIBLE ADVANCED FILTERS */}
       <form
         onSubmit={handleSearchSubmit}
-        className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3.5"
+        className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-2-slate-200 shadow-xs space-y-3.5"
       >
         {/* Row 1: Keyword Input + Work Model + Sort By + Filters Drawer Toggle + Search Button */}
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5">
@@ -544,7 +544,7 @@ export default function EmployerCandidateSearch({
               placeholder="Search skills, certifications, languages, or keywords..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 text-xs sm:text-sm font-medium text-slate-900 focus:outline-none"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border-2 border-2-slate-200 bg-slate-50 focus:bg-white focus:border-2-indigo-500 text-xs sm:text-sm font-medium text-slate-900 focus:outline-none"
             />
           </div>
 
@@ -552,7 +552,7 @@ export default function EmployerCandidateSearch({
             <select
               value={workModel}
               onChange={(e) => setWorkModel(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-extrabold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              className="rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-extrabold text-slate-700 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
             >
               <option value="">All Work Models</option>
               <option value="remote">Remote Only</option>
@@ -565,7 +565,7 @@ export default function EmployerCandidateSearch({
               onChange={(e) =>
                 setSortBy(e.target.value as CandidateSortOption)
               }
-              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-extrabold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              className="rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-extrabold text-slate-700 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
             >
               <option value="rank_high">Sort: Highest Rank &amp; XP</option>
               <option value="exp_high">Sort: Most Experienced</option>
@@ -580,8 +580,8 @@ export default function EmployerCandidateSearch({
               onClick={() => setShowAdvancedFilters((prev) => !prev)}
               className={`inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl border text-xs font-extrabold transition-colors cursor-pointer ${
                 showAdvancedFilters || activeAdvancedCount > 0
-                  ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
-                  : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                  ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
+                  : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
               }`}
             >
               <svg
@@ -614,7 +614,7 @@ export default function EmployerCandidateSearch({
 
         {/* Collapsible Advanced Filters Drawer */}
         {showAdvancedFilters && (
-          <div className="pt-3.5 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 animate-in fade-in duration-150">
+          <div className="pt-3.5 border-t border-slate-300 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 animate-in fade-in duration-150">
             <div>
               <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">
                 Employment Type
@@ -622,7 +622,7 @@ export default function EmployerCandidateSearch({
               <select
                 value={employmentType}
                 onChange={(e) => setEmploymentType(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
               >
                 <option value="all">All Types</option>
                 {EMPLOYMENT_TYPES.map((type) => (
@@ -640,7 +640,7 @@ export default function EmployerCandidateSearch({
               <select
                 value={industryFilter}
                 onChange={(e) => setIndustryFilter(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
               >
                 <option value="all">All 28 Industries</option>
                 {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
@@ -658,7 +658,7 @@ export default function EmployerCandidateSearch({
               <select
                 value={educationFilter}
                 onChange={(e) => setEducationFilter(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
               >
                 <option value="all">All Credentials</option>
                 <option value="HAS_CERTS">Holds Active Certifications</option>
@@ -677,7 +677,7 @@ export default function EmployerCandidateSearch({
               <select
                 value={languageFilter}
                 onChange={(e) => setLanguageFilter(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
               >
                 <option value="all">All Languages</option>
                 {STANDARD_LANGUAGES.map((lang) => (
@@ -698,7 +698,7 @@ export default function EmployerCandidateSearch({
                   setSelectedState(e.target.value)
                   setSelectedMetro('')
                 }}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
               >
                 <option value="">All US States</option>
                 <option value="REMOTE_US">🇺🇸 US Remote</option>
@@ -718,7 +718,7 @@ export default function EmployerCandidateSearch({
                 disabled={!selectedState}
                 value={selectedMetro}
                 onChange={(e) => setSelectedMetro(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none disabled:opacity-50 cursor-pointer"
+                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none disabled:opacity-50 cursor-pointer"
               >
                 <option value="">
                   {!selectedState
@@ -738,7 +738,7 @@ export default function EmployerCandidateSearch({
         )}
 
         {/* Compact Status & Utility Row */}
-        <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+        <div className="pt-2 border-t border-slate-300 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
           <div className="flex flex-wrap items-center gap-2">
             <span>
               Showing{' '}
@@ -757,7 +757,7 @@ export default function EmployerCandidateSearch({
               className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md font-bold border transition-colors cursor-pointer ${
                 onlyShortlisted
                   ? 'bg-amber-50 border-amber-400 text-amber-900'
-                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                  : 'bg-slate-50 border-slate-300 text-slate-600 hover:bg-slate-100'
               }`}
             >
               ★ Shortlisted ({savedCandidateIds.length})
@@ -824,7 +824,7 @@ export default function EmployerCandidateSearch({
 
       {/* Out of Credits Warning Banner */}
       {liveCredits < 1 && (
-        <div className="p-5 rounded-2xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+        <div className="p-5 rounded-2xl bg-rose-50 border border-rose-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
           <div>
             <h3 className="text-sm font-extrabold text-rose-950">
               You have 0 Connection Credits remaining
@@ -845,14 +845,14 @@ export default function EmployerCandidateSearch({
       {/* Candidate Feed */}
       <div className="grid grid-cols-1 gap-4">
         {isLoading ? (
-          <div className="py-12 text-center bg-white rounded-2xl border border-slate-200 shadow-sm">
-            <div className="inline-block w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+          <div className="py-12 text-center bg-white rounded-2xl border-2 border-2-slate-200 shadow-sm">
+            <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
             <p className="text-slate-500 font-medium">
               Scanning passive talent pool...
             </p>
           </div>
         ) : filteredAndSortedCandidates.length === 0 ? (
-          <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-sm">
+          <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-sm">
             <h3 className="text-xl font-bold text-slate-900 mb-2">
               {onlyShortlisted
                 ? 'No candidates in your Shortlist yet'
@@ -1012,7 +1012,7 @@ export default function EmployerCandidateSearch({
                     ? 'border-2 border-amber-500 shadow-sm'
                     : rankInfo.isFounder
                     ? 'border-2 border-amber-500 shadow-sm ring-1 ring-amber-400/50'
-                    : 'border-slate-200 hover:border-slate-300'
+                    : 'border-slate-300 hover:border-slate-400'
                 }`}
               >
                 <div className="flex-1 space-y-3">
@@ -1068,7 +1068,7 @@ export default function EmployerCandidateSearch({
                           {candidate.preferred_work_model || 'Flexible'} Model
                         </span>
                         <span className="text-slate-300">•</span>
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold text-[11px] border border-indigo-200/60">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold text-[11px] border border-indigo-300/60">
                           ⚡ {getCandidateAvailability(candidate)}
                         </span>
                         {candidate.location && (
@@ -1088,7 +1088,7 @@ export default function EmployerCandidateSearch({
                       className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
                         isShortlisted
                           ? 'bg-amber-50 border-amber-400 text-amber-900'
-                          : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900'
+                          : 'bg-white border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-900'
                       }`}
                     >
                       <svg
@@ -1154,7 +1154,7 @@ export default function EmployerCandidateSearch({
 
                   {/* Clean Inline Skills Line */}
                   {candidateSkillStrings.length > 0 && (
-                    <div className="text-xs text-slate-500 pt-1 border-t border-slate-100">
+                    <div className="text-xs text-slate-500 pt-1 border-t border-slate-300">
                       <strong className="text-slate-700">Core Skills:</strong>{' '}
                       {candidateSkillStrings.slice(0, 8).join(' • ')}
                       {candidateSkillStrings.length > 8 &&
@@ -1164,11 +1164,11 @@ export default function EmployerCandidateSearch({
                 </div>
 
                 {/* Full-Width Pitch Role Selector & 5-Point AI Fit Radar Panel */}
-                <div className="pt-4 border-t border-slate-100">
+                <div className="pt-4 border-t border-slate-300">
                   {pitchCandidateId === candidate.id ? (
                     <div className="space-y-5 animate-in fade-in duration-200">
                       {/* Role Selector Bar */}
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl border-2 border-2-slate-200">
                         <div className="flex-1">
                           <label className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">
                             Select Active Role to Evaluate &amp; Pitch
@@ -1179,7 +1179,7 @@ export default function EmployerCandidateSearch({
                             onChange={(e) =>
                               handleRoleSelect(e.target.value, candidate.id)
                             }
-                            className="w-full text-xs sm:text-sm rounded-xl border border-slate-300 bg-white text-slate-900 font-bold py-2.5 px-3.5 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 cursor-pointer"
+                            className="w-full text-xs sm:text-sm rounded-xl border-2 border-2-slate-300 bg-white text-slate-900 font-bold py-2.5 px-3.5 focus:ring-indigo-500 focus:border-2-indigo-500 disabled:opacity-50 cursor-pointer"
                           >
                             <option value="">Choose one of your open roles...</option>
                             {activeJobs.map((job) => (
@@ -1197,7 +1197,7 @@ export default function EmployerCandidateSearch({
                               onClick={() =>
                                 handleRoleSelect(selectedJobId, candidate.id)
                               }
-                              className="px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-100 transition-colors cursor-pointer"
+                              className="px-3.5 py-2.5 rounded-xl border-2 border-2-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-100 transition-colors cursor-pointer"
                             >
                               ↻ Re-Run Fit
                             </button>
@@ -1219,8 +1219,8 @@ export default function EmployerCandidateSearch({
 
                       {/* Loading Spinner */}
                       {isAnalyzingMatch && (
-                        <div className="p-5 rounded-2xl bg-indigo-50/70 border border-indigo-200 flex items-center gap-3 animate-pulse">
-                          <div className="w-5 h-5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin shrink-0" />
+                        <div className="p-5 rounded-2xl bg-indigo-50/70 border border-indigo-300 flex items-center gap-3 animate-pulse">
+                          <div className="w-5 h-5 border-2 border-indigo-300 border-t-indigo-600 rounded-full animate-spin shrink-0" />
                           <div className="text-xs sm:text-sm text-indigo-950 font-extrabold">
                             Analyzing 5-Point AI Fit across Core Competencies, Skill Tenure, Logistics &amp; Pay, Industry &amp; Creds, and Execution &amp; Comm. (Up to 30s)...
                           </div>
@@ -1229,8 +1229,8 @@ export default function EmployerCandidateSearch({
 
                       {/* Full-Width 5-Point AI Fit Prediction Box (Matches Candidate View) */}
                       {selectedJob && !isAnalyzingMatch && matchScore !== null && (
-                        <div className="p-5 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-5">
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+                        <div className="p-5 sm:p-6 rounded-2xl bg-slate-50 border-2 border-2-slate-200 space-y-5">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-300 pb-4">
                             <div>
                               <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-600 block">
                                 5-Point AI Fit Prediction • {selectedJob.title}
@@ -1268,7 +1268,7 @@ export default function EmployerCandidateSearch({
                                       return (
                                         <div
                                           key={idx}
-                                          className="bg-white px-3.5 py-2.5 rounded-lg border border-slate-200 flex items-center justify-between gap-2"
+                                          className="bg-white px-3.5 py-2.5 rounded-lg border border-slate-300 flex items-center justify-between gap-2"
                                         >
                                           <div>
                                             <span className="text-xs font-bold text-slate-800 block">
@@ -1423,8 +1423,8 @@ export default function EmployerCandidateSearch({
                         <div
                           className={`text-xs font-bold p-3.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${
                             feedback.type === 'error'
-                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              ? 'bg-rose-50 text-rose-700 border border-rose-300'
+                              : 'bg-emerald-50 text-emerald-700 border border-emerald-300'
                           }`}
                         >
                           <span>{feedback.text}</span>

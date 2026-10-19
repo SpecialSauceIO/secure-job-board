@@ -81,8 +81,8 @@ export function StructuredRequirementEditor({
   const meetsMinimum = filledCount >= MIN_REQUIRED_SKILLS
 
   return (
-    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs mt-4 space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+    <div className="bg-white p-5 rounded-xl border-2 border-2-slate-200 shadow-xs mt-4 space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-300 pb-3">
         <div>
           <label className="block text-sm font-extrabold text-slate-800">
             Core Role Competencies &amp; Skill Tenure Matrix <span className="text-rose-500">*</span>
@@ -95,8 +95,8 @@ export function StructuredRequirementEditor({
         <span
           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold shrink-0 border ${
             meetsMinimum
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-              : 'bg-amber-50 text-amber-800 border-amber-200'
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+              : 'bg-amber-50 text-amber-800 border-amber-300'
           }`}
         >
           {meetsMinimum
@@ -106,7 +106,7 @@ export function StructuredRequirementEditor({
       </div>
 
       {!meetsMinimum && (
-        <div className="rounded-lg bg-amber-50/80 border border-amber-200 px-3.5 py-2.5 text-xs text-amber-900 flex items-center gap-2">
+        <div className="rounded-lg bg-amber-50/80 border border-amber-300 px-3.5 py-2.5 text-xs text-amber-900 flex items-center gap-2">
           <span className="font-black text-amber-600">ⓘ</span>
           <span>
             <strong>Minimum {MIN_REQUIRED_SKILLS} Skills Required:</strong> Please fill in at least {MIN_REQUIRED_SKILLS} core skills below before publishing or saving this role ({MIN_REQUIRED_SKILLS - filledCount} more needed).

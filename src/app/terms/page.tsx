@@ -15,9 +15,9 @@ export default function TermsOfServicePage() {
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col justify-between">
       <PublicHeader />
       <main className="py-14 px-6 md:px-12">
-      <div className="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-slate-200">
+      <div className="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-3xl shadow-sm border-2 border-2-slate-200">
         {/* Header */}
-        <div className="mb-12 border-b border-slate-100 pb-8">
+        <div className="mb-12 border-b border-slate-300 pb-8">
           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">
             Terms of Service
           </h1>
@@ -59,7 +59,7 @@ export default function TermsOfServicePage() {
             </ul>
           </section>
 
-          <section className="bg-indigo-50/60 p-6 rounded-2xl border border-indigo-200">
+          <section className="bg-indigo-50/60 p-6 rounded-2xl border border-indigo-300">
             <h2 className="text-xl text-slate-900 mb-3">
               4. Marketplace Rules: 2-Stage Vault, 5-Unlock Cap &amp; 30-Day Job Expiration
             </h2>
@@ -68,7 +68,7 @@ export default function TermsOfServicePage() {
             </p>
             <ul className="list-disc pl-5 mt-3 space-y-2 text-slate-700">
               <li>
-                <strong>2-Stage Identity Vault:</strong> Unlocking an inbound application (free for subscribed Employers) or accepting an outbound pitch (1 Connection Credit) initiates <strong>Stage 1</strong>—opening an encrypted in-platform chat thread (<code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-200">SS-XXXXXXXX</code>) and revealing the Candidate’s First Name + Last Initial alongside the Employer’s verified company identity. The Candidate’s Full Name, direct email, and signed PDF resume remain vaulted until the Candidate voluntarily clicks <strong>&ldquo;Release Resume &amp; Contact Vault&rdquo; (Stage 2)</strong>.
+                <strong>2-Stage Identity Vault:</strong> Unlocking an inbound application (free for subscribed Employers) or accepting an outbound pitch (1 Connection Credit) initiates <strong>Stage 1</strong>—opening an encrypted in-platform chat thread (<code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-300">SS-XXXXXXXX</code>) and revealing the Candidate’s First Name + Last Initial alongside the Employer’s verified company identity. The Candidate’s Full Name, direct email, and signed PDF resume remain vaulted until the Candidate voluntarily clicks <strong>&ldquo;Release Resume &amp; Contact Vault&rdquo; (Stage 2)</strong>.
               </li>
               <li>
                 <strong>5-Unmessaged-Unlock Anti-Harvesting Ceiling:</strong> An Employer organization may hold a maximum of <strong>five (5)</strong> Stage 1 unlocked candidate threads awaiting an initial introductory message from the Employer. If an Employer reaches 5 unmessaged unlocked threads, additional profile unlocks are automatically paused until the Employer messages or archives their existing open threads.
@@ -82,7 +82,7 @@ export default function TermsOfServicePage() {
             </ul>
           </section>
 
-          <section className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+          <section className="bg-slate-50 p-6 rounded-2xl border-2 border-2-slate-200">
             <h2 className="text-xl text-slate-900 mb-3">
               5. Prohibited Conduct &amp; Acceptable Use Policy
             </h2>

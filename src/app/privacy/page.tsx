@@ -15,9 +15,9 @@ export default function PrivacyPolicyPage() {
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col justify-between">
       <PublicHeader />
       <main className="py-14 px-6 md:px-12">
-      <div className="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-slate-200">
+      <div className="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-3xl shadow-sm border-2 border-2-slate-200">
         {/* Header */}
-        <div className="mb-12 border-b border-slate-100 pb-8">
+        <div className="mb-12 border-b border-slate-300 pb-8">
           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">
             Privacy Policy
           </h1>
@@ -60,7 +60,7 @@ export default function PrivacyPolicyPage() {
             </ul>
           </section>
 
-          <section className="bg-emerald-50/60 p-6 rounded-2xl border border-emerald-200">
+          <section className="bg-emerald-50/60 p-6 rounded-2xl border border-emerald-300">
             <h2 className="text-xl text-slate-900 mb-3">
               3. How Our 2-Stage Identity Vault Works (Anti-Harvesting Architecture)
             </h2>
@@ -69,10 +69,10 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-5 mt-3 space-y-2 text-slate-700">
               <li>
-                <strong>Default Blind Discovery:</strong> While browsing or evaluating AI Match Radar scores, Employers only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-200">Anonymous Candidate #ID</code>, extracted skills, experience years, target US Metro location, and a third-person bio. Candidates only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-200">Blind Role • Verified Employer</code> alongside transparent pay bands, employment type, and core skill requirements.
+                <strong>Default Blind Discovery:</strong> While browsing or evaluating AI Match Radar scores, Employers only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">Anonymous Candidate #ID</code>, extracted skills, experience years, target US Metro location, and a third-person bio. Candidates only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">Blind Role • Verified Employer</code> alongside transparent pay bands, employment type, and core skill requirements.
               </li>
               <li>
-                <strong>Stage 1 (Encrypted Thread Unlock):</strong> When an Employer unlocks an inbound blind application—or when a Candidate accepts an outbound Employer Pitch—an encrypted in-platform message thread opens under a shared Reference ID (<code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-200">SS-XXXXXXXX</code>). At Stage 1, the Employer’s verified company name and domain are revealed to the Candidate, and only the Candidate’s <strong>First Name and Last Initial</strong> (e.g., <em>Alex M.</em>) are revealed to the Employer. <strong>The Candidate’s raw email address and original PDF resume remain locked inside the Special Sauce Vault.</strong>
+                <strong>Stage 1 (Encrypted Thread Unlock):</strong> When an Employer unlocks an inbound blind application—or when a Candidate accepts an outbound Employer Pitch—an encrypted in-platform message thread opens under a shared Reference ID (<code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">SS-XXXXXXXX</code>). At Stage 1, the Employer’s verified company name and domain are revealed to the Candidate, and only the Candidate’s <strong>First Name and Last Initial</strong> (e.g., <em>Alex M.</em>) are revealed to the Employer. <strong>The Candidate’s raw email address and original PDF resume remain locked inside the Special Sauce Vault.</strong>
               </li>
               <li>
                 <strong>Stage 2 (Candidate-Controlled Full Vault Release):</strong> The Candidate retains 100% control over when to click the <strong>&ldquo;Release Resume &amp; Contact Vault&rdquo;</strong> button inside the message thread. Only after the Candidate explicitly approves Stage 2 release does the platform reveal their Full Name, direct email address, and a time-limited (1-hour expiring) signed URL to view their original PDF resume.
@@ -80,7 +80,7 @@ export default function PrivacyPolicyPage() {
             </ul>
           </section>
 
-          <section className="bg-indigo-50/50 p-6 rounded-2xl border border-indigo-100">
+          <section className="bg-indigo-50/50 p-6 rounded-2xl border border-indigo-300">
             <h2 className="text-xl text-slate-900 mb-3">
               4. In-Platform Messaging, Email Relay &amp; AI Safety Scanning
             </h2>
@@ -92,7 +92,7 @@ export default function PrivacyPolicyPage() {
                 <strong>Automated Safety &amp; Anti-Phishing Firewall:</strong> Messages sent within in-platform threads are scanned automatically by heuristic and AI safety rules to block requests for Social Security Numbers (SSNs), banking/routing details, advance fees, off-platform encrypted chat lures (e.g., WhatsApp/Telegram), or external survey forms prior to Stage 2 release.
               </li>
               <li>
-                <strong>Transactional Email Relay:</strong> When a new message or connection event occurs, we dispatch transactional email alerts (via Resend) containing your <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-200">SS-XXXXXXXX</code> Reference ID without exposing the Candidate’s raw email address to the Employer until Stage 2 Vault Release is approved.
+                <strong>Transactional Email Relay:</strong> When a new message or connection event occurs, we dispatch transactional email alerts (via Resend) containing your <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-300">SS-XXXXXXXX</code> Reference ID without exposing the Candidate’s raw email address to the Employer until Stage 2 Vault Release is approved.
               </li>
               <li>
                 <strong>Zero Public AI Model Training:</strong> Uploaded resumes and job descriptions are transmitted via secure APIs to our LLM providers strictly for structured skill extraction and 5-Point AI Match Radar scoring. Your private documents are <span className="font-bold underline">never</span> used to train public foundation models.

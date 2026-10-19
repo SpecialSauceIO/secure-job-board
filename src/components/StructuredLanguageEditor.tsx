@@ -103,7 +103,7 @@ export function StructuredLanguageEditor({
   }
 
   return (
-    <div className="space-y-4 pt-4 border-t border-slate-200/80">
+    <div className="space-y-4 pt-4 border-t border-slate-300">
       <input type="hidden" name={name} value={JSON.stringify(entries)} />
 
       <div>
@@ -118,7 +118,7 @@ export function StructuredLanguageEditor({
         {entries.map((entry, idx) => (
           <div
             key={`${entry.language}-${idx}`}
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs"
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-white border-2 border-2-slate-200 shadow-2xs"
           >
             <div className="flex items-center gap-2.5">
               <span className="w-7 h-7 rounded-lg bg-teal-50 border border-teal-200 text-teal-800 flex items-center justify-center text-xs font-extrabold shrink-0">
@@ -135,7 +135,7 @@ export function StructuredLanguageEditor({
                 onChange={(e) =>
                   handleUpdateRow(idx, 'modality', e.target.value)
                 }
-                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+                className="rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
               >
                 {LANGUAGE_MODALITIES.map((mod) => (
                   <option key={mod} value={mod}>
@@ -149,7 +149,7 @@ export function StructuredLanguageEditor({
                 onChange={(e) =>
                   handleUpdateRow(idx, 'proficiency', e.target.value)
                 }
-                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-extrabold text-indigo-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+                className="rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs font-extrabold text-indigo-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
               >
                 {LANGUAGE_PROFICIENCIES.map((prof) => (
                   <option key={prof} value={prof}>
@@ -174,7 +174,7 @@ export function StructuredLanguageEditor({
       </div>
 
       {/* Add New Language Row */}
-      <div className="p-4 rounded-xl bg-slate-100/80 border border-slate-200/90 space-y-3">
+      <div className="p-4 rounded-xl bg-slate-100/80 border-2 border-2-slate-200/90 space-y-3">
         <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">
           + Add Another Language
         </span>

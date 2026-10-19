@@ -60,7 +60,7 @@ export async function InviteRecruiterForm() {
   }
 
   return (
-    <form action={inviteRecruiter} className="flex flex-col sm:flex-row gap-3 items-end p-6 bg-gray-50 rounded-lg border border-gray-200 shadow-sm mb-8">
+    <form action={inviteRecruiter} className="flex flex-col sm:flex-row gap-3 items-end p-6 bg-gray-50 rounded-lg border border-slate-300 shadow-sm mb-8">
       <input type="hidden" name="organizationId" value={member.organization_id} />
       
       <div className="flex-1 w-full">

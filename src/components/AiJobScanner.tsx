@@ -30,7 +30,7 @@ export default function AiJobScanner({ onDataExtracted }: { onDataExtracted: (da
   }
 
   return (
-    <div className="bg-indigo-50/50 p-6 rounded-xl border border-indigo-100 shadow-sm relative overflow-hidden">
+    <div className="bg-indigo-50/50 p-6 rounded-xl border border-indigo-300 shadow-sm relative overflow-hidden">
       <div className="absolute -right-6 -top-6 text-indigo-100 opacity-50 pointer-events-none">
         <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M19.5 3h-15C3.12 3 2 4.12 2 5.5v13C2 19.88 3.12 21 4.5 21h15c1.38 0 2.5-1.12 2.5-2.5v-13C22 4.12 20.88 3 19.5 3zM18 19H6c-.55 0-1-.45-1-1s.45-1 1-1h12c.55 0 1 .45 1 1s-.45 1-1 1zm0-4H6c-.55 0-1-.45-1-1s.45-1 1-1h12c.55 0 1 .45 1 1s-.45 1-1 1zm0-4H6c-.55 0-1-.45-1-1s.45-1 1-1h12c.55 0 1 .45 1 1s-.45 1-1 1z"/></svg>
       </div>

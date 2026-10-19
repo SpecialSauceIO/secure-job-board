@@ -101,7 +101,7 @@ export default async function EmployerOrganizationPage() {
 
   return (
     <div className="max-w-5xl mx-auto py-4 space-y-8">
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-300">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Company Profile, Seats &amp; ATS Integrations
@@ -113,7 +113,7 @@ export default async function EmployerOrganizationPage() {
 
         <Link
           href="/dashboard/employer/billing"
-          className="shrink-0 inline-flex items-center px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors"
+          className="shrink-0 inline-flex items-center px-4 py-2.5 rounded-xl border-2 border-2-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors"
         >
           Manage Plan &amp; Credits →
         </Link>

@@ -290,15 +290,15 @@ export default function SecureMessageThread({
       className={`rounded-2xl border bg-white overflow-hidden transition-all ${
         justReceivedAlert
           ? 'border-indigo-500 ring-4 ring-indigo-500/15 shadow-md'
-          : 'border-slate-200 shadow-xs'
+          : 'border-slate-300 shadow-xs'
       }`}
     >
       {/* Top Vault Status Header */}
       <div
         className={`px-4 py-3 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
           vaultReleased
-            ? 'bg-emerald-50/80 border-emerald-200'
-            : 'bg-indigo-50/70 border-indigo-100'
+            ? 'bg-emerald-50/80 border-emerald-300'
+            : 'bg-indigo-50/70 border-indigo-300'
         }`}
       >
         <div className="flex items-start sm:items-center gap-2.5">
@@ -318,7 +318,7 @@ export default function SecureMessageThread({
                   ? 'Stage 2 Complete: Full Contact & Resume Vault Released'
                   : 'Stage 1 Active: Encrypted In-Platform Thread (Anti-Harvesting Protection)'}
               </span>
-              <span className="px-2 py-0.5 rounded bg-white/80 border border-slate-200 text-[10px] font-mono font-bold text-slate-600">
+              <span className="px-2 py-0.5 rounded bg-white/80 border border-slate-300 text-[10px] font-mono font-bold text-slate-600">
                 {referenceId}
               </span>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100/80 text-emerald-800 text-[10px] font-extrabold">
@@ -339,8 +339,8 @@ export default function SecureMessageThread({
                 }
                 className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold transition-colors cursor-pointer ${
                   soundEnabled
-                    ? 'bg-white border-indigo-200 text-indigo-700 hover:bg-indigo-50'
-                    : 'bg-slate-100 border-slate-200 text-slate-500 hover:bg-slate-200'
+                    ? 'bg-white border-indigo-300 text-indigo-700 hover:bg-indigo-50'
+                    : 'bg-slate-100 border-slate-300 text-slate-500 hover:bg-slate-200'
                 }`}
               >
                 {soundEnabled ? '🔔 Chime On' : '🔕 Muted'}
@@ -384,7 +384,7 @@ export default function SecureMessageThread({
           )}
 
           {viewerRole === 'employer' && !vaultReleased && (
-            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold">
+            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-300 text-amber-800 text-[11px] font-bold">
               🔒 PDF Resume Vaulted (Message Candidate First)
             </span>
           )}
@@ -393,7 +393,7 @@ export default function SecureMessageThread({
 
       {/* Stage 2 Unlocked Contact Card (Only visible AFTER Candidate clicks Release Vault) */}
       {vaultReleased && (
-        <div className="px-4 py-2.5 bg-emerald-50/40 border-b border-emerald-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="px-4 py-2.5 bg-emerald-50/40 border-b border-emerald-300 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex flex-wrap items-center gap-4">
             {candidateFullName && (
               <span>
@@ -448,7 +448,7 @@ export default function SecureMessageThread({
               return (
                 <div
                   key={m.id}
-                  className="text-center py-1.5 px-3 rounded-lg bg-emerald-50 border border-emerald-200 text-[11px] font-bold text-emerald-800"
+                  className="text-center py-1.5 px-3 rounded-lg bg-emerald-50 border border-emerald-300 text-[11px] font-bold text-emerald-800"
                 >
                   {m.text}
                 </div>
@@ -479,7 +479,7 @@ export default function SecureMessageThread({
                   className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed ${
                     isMe
                       ? 'bg-slate-900 text-white rounded-br-xs'
-                      : 'bg-white border border-slate-200 text-slate-800 rounded-bl-xs shadow-2xs'
+                      : 'bg-white border border-slate-300 text-slate-800 rounded-bl-xs shadow-2xs'
                   }`}
                 >
                   {m.text}
@@ -492,12 +492,12 @@ export default function SecureMessageThread({
 
       {/* Feedback Alerts */}
       {errorMsg && (
-        <div className="px-4 py-2 bg-rose-50 border-t border-rose-200 text-xs font-bold text-rose-700">
+        <div className="px-4 py-2 bg-rose-50 border-t border-rose-300 text-xs font-bold text-rose-700">
           {errorMsg}
         </div>
       )}
       {successMsg && (
-        <div className="px-4 py-2 bg-emerald-50 border-t border-emerald-200 text-xs font-bold text-emerald-800">
+        <div className="px-4 py-2 bg-emerald-50 border-t border-emerald-300 text-xs font-bold text-emerald-800">
           {successMsg}
         </div>
       )}
@@ -505,7 +505,7 @@ export default function SecureMessageThread({
       {/* Message Composer */}
       <form
         onSubmit={handleSend}
-        className="p-3 bg-white border-t border-slate-200 flex items-center gap-2"
+        className="p-3 bg-white border-t border-slate-300 flex items-center gap-2"
       >
         <input
           type="text"
@@ -516,7 +516,7 @@ export default function SecureMessageThread({
               ? `Write an introductory message to ${candidateDisplayName} to request interview & resume release...`
               : 'Write a secure message...'
           }
-          className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-medium text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
+          className="flex-1 rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-medium text-slate-900 focus:bg-white focus:border-2-indigo-500 focus:outline-none"
         />
         <button
           type="submit"

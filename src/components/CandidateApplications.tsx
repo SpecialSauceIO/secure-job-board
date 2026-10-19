@@ -230,7 +230,7 @@ export function CandidateApplications() {
   return (
     <div className="space-y-6">
       {/* Filter Bar: Status Tabs + Date Range + Keyword Search + Industry & Sort By */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+      <div className="bg-white p-5 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           {/* Status Tabs */}
           <div className="flex flex-wrap gap-2">
@@ -335,7 +335,7 @@ export function CandidateApplications() {
           <select
             value={daysFilter}
             onChange={(e) => setDaysFilter(Number(e.target.value))}
-            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+            className="rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
           >
             <option value={0}>All Time</option>
             <option value={7}>Last 7 Days</option>
@@ -353,18 +353,18 @@ export function CandidateApplications() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Filter applications by Reference ID (e.g. SS-...), role title, skill, or unlocked company..."
-            className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
+            className="flex-1 rounded-xl border-2 border-2-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-2-indigo-500 focus:outline-none"
           />
           <button
             type="submit"
-            className="px-6 py-2.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-colors cursor-pointer"
+            className="px-6 py-2.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-300 hover:bg-indigo-100 transition-colors cursor-pointer"
           >
             Filter
           </button>
         </form>
 
         {/* Organizer Row: Industry Vertical Filter + Sort By Dropdown */}
-        <div className="pt-3 border-t border-slate-100 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+        <div className="pt-3 border-t border-slate-300 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
           <div className="md:col-span-5 flex items-center gap-2">
             <label
               htmlFor="candidate-app-industry"
@@ -376,7 +376,7 @@ export function CandidateApplications() {
               id="candidate-app-industry"
               value={industryFilter}
               onChange={(e) => setIndustryFilter(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
             >
               <option value="all">All Industry Verticals</option>
               {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
@@ -400,7 +400,7 @@ export function CandidateApplications() {
               onChange={(e) =>
                 setSortBy(e.target.value as CandidateAppSortOption)
               }
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer"
             >
               <option value="newest">Newest Applied First</option>
               <option value="recent_activity">
@@ -429,15 +429,15 @@ export function CandidateApplications() {
 
       {/* Applications List */}
       {isLoading ? (
-        <div className="py-16 text-center bg-white rounded-2xl border border-slate-200 shadow-sm">
-          <div className="inline-block w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+        <div className="py-16 text-center bg-white rounded-2xl border-2 border-2-slate-200 shadow-sm">
+          <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
           <p className="text-slate-500 font-medium">
             Loading your application history...
           </p>
         </div>
       ) : filteredAndSortedApplications.length === 0 ? (
-        <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-sm">
-          <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-sm">
+          <div className="w-16 h-16 bg-slate-50 border border-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
               className="w-8 h-8 text-slate-300"
               fill="none"
@@ -554,7 +554,7 @@ export function CandidateApplications() {
                     ? 'border-emerald-300 ring-2 ring-emerald-50'
                     : status === 'unlocked'
                     ? 'border-indigo-300 ring-1 ring-indigo-50'
-                    : 'border-slate-200 hover:border-indigo-200'
+                    : 'border-slate-300 hover:border-indigo-300'
                 }`}
               >
                 <div className="p-6 md:p-8 space-y-5">
@@ -595,15 +595,15 @@ export function CandidateApplications() {
                               : 'Anonymous Employer (Blind Listing)'}
                           </span>
                           {org.verification_status === 'verified' && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold border border-emerald-200">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold border border-emerald-300">
                               ✓ Verified Company
                             </span>
                           )}
-                          <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-[11px] font-bold border border-slate-200">
+                          <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-[11px] font-bold border border-slate-300">
                             Ref: {referenceId}
                           </span>
                           {jobIndustry && (
-                            <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-800 border border-indigo-200 text-[11px] font-bold">
+                            <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-800 border border-indigo-300 text-[11px] font-bold">
                               {jobIndustry}
                             </span>
                           )}
@@ -620,8 +620,8 @@ export function CandidateApplications() {
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-bold border ${
                             matchScore >= 80
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                              : 'bg-indigo-50 text-indigo-700 border-indigo-300'
                           }`}
                         >
                           {matchScore}% AI Match
@@ -629,14 +629,14 @@ export function CandidateApplications() {
                       )}
 
                       {status === 'pending' && (
-                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5">
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-300 flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
                           Pending Review (Identity Hidden)
                         </span>
                       )}
 
                       {status === 'unlocked' && (
-                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1">
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-300 flex items-center gap-1">
                           <svg
                             className="w-3.5 h-3.5"
                             fill="none"
@@ -661,7 +661,7 @@ export function CandidateApplications() {
                       )}
 
                       {status === 'rejected' && (
-                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-300">
                           Not Selected / Archived
                         </span>
                       )}
@@ -676,7 +676,7 @@ export function CandidateApplications() {
 
                     <div className="flex flex-wrap items-center gap-2.5">
                       {(job.salary_min || job.salary_max) && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-300">
                           <svg
                             className="w-4 h-4"
                             fill="none"
@@ -713,25 +713,25 @@ export function CandidateApplications() {
                       )}
 
                       {job.work_model && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold capitalize border border-slate-200">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold capitalize border border-slate-300">
                           {job.work_model} Work Model
                         </span>
                       )}
 
                       {job.employment_type && (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold border border-slate-300">
                           {job.employment_type}
                         </span>
                       )}
 
                       {jobEducationReq && (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-xs font-bold">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-300 text-xs font-bold">
                           🎓 {jobEducationReq}
                         </span>
                       )}
 
                       {jobRequiredCerts && (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-300 text-xs font-bold">
                           🏅 Certs: {jobRequiredCerts}
                         </span>
                       )}
@@ -739,7 +739,7 @@ export function CandidateApplications() {
                       {isEmployerRevealed &&
                         org.domain &&
                         org.domain !== 'hidden' && (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-100">
+                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-300">
                             🌐 {org.domain}
                           </span>
                         )}
@@ -792,7 +792,7 @@ export function CandidateApplications() {
                   )}
 
                   {/* AI Fit Analysis & Radar Toggle */}
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                  <div className="p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200">
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
                       <span className="text-xs font-bold text-indigo-600 flex items-center gap-1.5">
                         <svg
@@ -863,12 +863,12 @@ export function CandidateApplications() {
 
                   {/* Expandable 5-Point Radar Chart */}
                   {isExpanded && radarData && (
-                    <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col lg:flex-row items-center gap-6 animate-in fade-in duration-200">
+                    <div className="p-5 rounded-xl bg-slate-50 border-2 border-2-slate-200 flex flex-col lg:flex-row items-center gap-6 animate-in fade-in duration-200">
                       <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {radarData.map((item: any, idx: number) => (
                           <div
                             key={idx}
-                            className="bg-white px-3.5 py-2.5 rounded-lg border border-slate-200 shadow-sm flex justify-between items-center"
+                            className="bg-white px-3.5 py-2.5 rounded-lg border border-slate-300 shadow-sm flex justify-between items-center"
                           >
                             <span className="text-xs font-bold text-slate-600">
                               {item.subject}
@@ -947,7 +947,7 @@ export function CandidateApplications() {
                           {requiredSkills.map((item, idx) => (
                             <span
                               key={idx}
-                              className="px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-md border border-slate-200"
+                              className="px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-md border border-slate-300"
                             >
                               {item.skill}
                               {item.level ? (
@@ -967,8 +967,8 @@ export function CandidateApplications() {
                     <div
                       className={`p-3 rounded-xl text-xs font-bold ${
                         feedback.type === 'error'
-                          ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                          : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          ? 'bg-rose-50 text-rose-700 border border-rose-300'
+                          : 'bg-emerald-50 text-emerald-700 border border-emerald-300'
                       }`}
                     >
                       {feedback.text}

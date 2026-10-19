@@ -147,8 +147,8 @@ export default function EmployerOrganizationForm({
       <div
         className={`p-6 md:p-8 rounded-2xl border shadow-sm transition-all ${
           verificationStatus === 'verified'
-            ? 'bg-emerald-50/70 border-emerald-200'
-            : 'bg-amber-50/70 border-amber-200'
+            ? 'bg-emerald-50/70 border-emerald-300'
+            : 'bg-amber-50/70 border-amber-300'
         }`}
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -248,7 +248,7 @@ export default function EmployerOrganizationForm({
                 type="button"
                 disabled={isVerifying}
                 onClick={() => handleSandboxToggle('pending')}
-                className="px-4 py-2 bg-white text-slate-600 border border-slate-200 text-xs font-bold rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
+                className="px-4 py-2 bg-white text-slate-600 border-2 border-2-slate-200 text-xs font-bold rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 Reset to Pending
               </button>
@@ -304,7 +304,7 @@ export default function EmployerOrganizationForm({
 
         {/* Expandable DNS TXT Record Instructions */}
         {showDnsInstructions && (
-          <div className="mt-4 p-4 rounded-xl bg-white border border-slate-200 text-xs space-y-2">
+          <div className="mt-4 p-4 rounded-xl bg-white border-2 border-2-slate-200 text-xs space-y-2">
             <p className="font-bold text-slate-800">
               Alternative Method: DNS TXT Record Ownership Verification
             </p>
@@ -330,8 +330,8 @@ export default function EmployerOrganizationForm({
         <div
           className={`p-4 rounded-xl text-sm font-bold border ${
             feedback.type === 'error'
-              ? 'bg-rose-50 text-rose-700 border-rose-200'
-              : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              ? 'bg-rose-50 text-rose-700 border-rose-300'
+              : 'bg-emerald-50 text-emerald-800 border-emerald-300'
           }`}
         >
           {feedback.text}
@@ -341,7 +341,7 @@ export default function EmployerOrganizationForm({
       {/* COMPANY PROFILE FORM */}
       <form
         onSubmit={handleSave}
-        className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6"
+        className="bg-white p-6 md:p-8 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-6"
       >
         <div>
           <h2 className="text-xl font-bold text-slate-900">
@@ -352,7 +352,7 @@ export default function EmployerOrganizationForm({
           </p>
         </div>
 
-        <div className="space-y-5 rounded-xl bg-slate-50 p-6 border border-slate-100">
+        <div className="space-y-5 rounded-xl bg-slate-50 p-6 border-2 border-2-slate-100">
           {/* Row 1: Company Name & Corporate Domain */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
@@ -366,7 +366,7 @@ export default function EmployerOrganizationForm({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Acme Corp"
-                className="block w-full rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium"
+                className="block w-full rounded-xl border-2 border-2-slate-300 bg-white text-slate-900 shadow-sm focus:border-2-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium"
               />
             </div>
 
@@ -380,7 +380,7 @@ export default function EmployerOrganizationForm({
                 value={domain}
                 onChange={(e) => setDomain(e.target.value)}
                 placeholder="e.g. test.com or acmecorp.com"
-                className="block w-full rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium"
+                className="block w-full rounded-xl border-2 border-2-slate-300 bg-white text-slate-900 shadow-sm focus:border-2-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium"
               />
               <p className="text-[11px] text-slate-500 mt-1">
                 Tip: Enter <strong>{userEmailDomain}</strong> to auto-verify with your current login ({userEmail}).
@@ -389,7 +389,7 @@ export default function EmployerOrganizationForm({
           </div>
 
           {/* Row 2: Primary Industry Vertical & Company Stage / Size */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-3 border-t border-slate-200/70">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-3 border-t border-slate-300">
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-1.5">
                 Primary Industry Vertical
@@ -398,7 +398,7 @@ export default function EmployerOrganizationForm({
                 name="industry_vertical"
                 value={industryVertical}
                 onChange={(e) => setIndustryVertical(e.target.value)}
-                className="block w-full rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium cursor-pointer"
+                className="block w-full rounded-xl border-2 border-2-slate-300 bg-white text-slate-900 shadow-sm focus:border-2-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium cursor-pointer"
               >
                 {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
                   <option key={vertical} value={vertical}>
@@ -419,7 +419,7 @@ export default function EmployerOrganizationForm({
                 name="company_size"
                 value={companySize}
                 onChange={(e) => setCompanySize(e.target.value)}
-                className="block w-full rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium cursor-pointer"
+                className="block w-full rounded-xl border-2 border-2-slate-300 bg-white text-slate-900 shadow-sm focus:border-2-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium cursor-pointer"
               >
                 {COMPANY_SIZE_OPTIONS.map((sizeOpt) => (
                   <option key={sizeOpt} value={sizeOpt}>
@@ -434,7 +434,7 @@ export default function EmployerOrganizationForm({
           </div>
 
           {/* Row 3: Company Description */}
-          <div className="pt-3 border-t border-slate-200/70">
+          <div className="pt-3 border-t border-slate-300">
             <label className="block text-sm font-bold text-slate-700 mb-1">
               Company Description
             </label>
@@ -447,7 +447,7 @@ export default function EmployerOrganizationForm({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What does your company build, and what makes your team or culture unique?"
-              className="block w-full rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm"
+              className="block w-full rounded-xl border-2 border-2-slate-300 bg-white text-slate-900 shadow-sm focus:border-2-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm"
             />
           </div>
 
@@ -462,7 +462,7 @@ export default function EmployerOrganizationForm({
               value={logoUrl}
               onChange={(e) => setLogoUrl(e.target.value)}
               placeholder="https://example.com/logo.png"
-              className="block w-full rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm"
+              className="block w-full rounded-xl border-2 border-2-slate-300 bg-white text-slate-900 shadow-sm focus:border-2-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm"
             />
           </div>
         </div>

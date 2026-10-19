@@ -154,8 +154,8 @@ export default function CandidateBillingClient({
         <div
           className={`p-4 rounded-xl text-sm font-bold border ${
             feedback.type === 'error'
-              ? 'bg-rose-50 text-rose-700 border-rose-200'
-              : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              ? 'bg-rose-50 text-rose-700 border-rose-300'
+              : 'bg-emerald-50 text-emerald-800 border-emerald-300'
           }`}
         >
           {feedback.text}
@@ -165,7 +165,7 @@ export default function CandidateBillingClient({
       {/* Side-by-Side Comparison: Early Adopter Trial / Free Explorer vs Candidate Pro ($9/mo) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Card 1: Early Adopter Trial & Free Verified Explorer */}
-        <div className="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-6 md:p-8 border-2 border-2-slate-200 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between gap-2 mb-2">
               <h3 className="text-xl font-extrabold text-slate-900">
@@ -187,7 +187,7 @@ export default function CandidateBillingClient({
               Every Identity-Verified candidate starts with a 7-Day Early Adopter Trial (up to 3 free blind applications) and stays discoverable in the passive talent pool forever.
             </p>
 
-            <ul className="space-y-3 mb-8 border-t border-slate-100 pt-5">
+            <ul className="space-y-3 mb-8 border-t border-slate-300 pt-5">
               <li className="flex items-start gap-2.5 text-xs font-semibold text-slate-700">
                 <span className="text-emerald-500 font-black">✓</span>
                 <span>
@@ -249,7 +249,7 @@ export default function CandidateBillingClient({
               Simple monthly membership for active job seekers who want unlimited blind applications and priority visibility to hiring managers.
             </p>
 
-            <ul className="space-y-3 mb-8 border-t border-slate-100 pt-5">
+            <ul className="space-y-3 mb-8 border-t border-slate-300 pt-5">
               <li className="flex items-start gap-2.5 text-xs font-semibold text-slate-700">
                 <span className="text-emerald-500 font-black">✓</span>
                 <span>
@@ -297,7 +297,7 @@ export default function CandidateBillingClient({
       </div>
 
       {/* Developer Sandbox Switcher (Test 7-Day Trial vs Expired Trial vs Candidate Pro) */}
-      <div className="p-6 rounded-2xl bg-amber-50/80 border border-amber-200 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="p-6 rounded-2xl bg-amber-50/80 border border-amber-300 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[10px] font-extrabold uppercase tracking-wider">

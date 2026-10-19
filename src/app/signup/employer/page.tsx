@@ -59,9 +59,9 @@ export default function EmployerSignupPage({
         </Link>
       </div>
 
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 sm:p-10 shadow-sm border border-slate-200 border-t-4 border-t-emerald-600">
+      <div className="w-full max-w-md rounded-2xl bg-white p-8 sm:p-10 shadow-sm border border-slate-300 border-t-4 border-t-emerald-600">
         <div className="text-center mb-6">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-extrabold uppercase tracking-wider mb-3">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-[11px] font-extrabold uppercase tracking-wider mb-3">
             🏢 Verified Employers &amp; W-2 BPO Partners
           </span>
           <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
@@ -73,7 +73,7 @@ export default function EmployerSignupPage({
         </div>
 
         {/* High-Trust Employer Value Props Callout */}
-        <div className="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs text-slate-600">
+        <div className="mb-6 p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200/80 space-y-2 text-xs text-slate-600">
           <div className="flex items-start gap-2">
             <span className="text-emerald-600 font-black mt-0.5">✓</span>
             <span>
@@ -104,7 +104,7 @@ export default function EmployerSignupPage({
         </div>
 
         {resolvedParams.message && (
-          <div className="mb-6 p-4 bg-rose-50 border border-rose-200 text-rose-600 text-sm font-bold rounded-lg text-center">
+          <div className="mb-6 p-4 bg-rose-50 border border-rose-300 text-rose-600 text-sm font-bold rounded-lg text-center">
             {resolvedParams.message}
           </div>
         )}
