@@ -31,7 +31,7 @@ export default function LandingPage() {
       <section className="relative pt-36 sm:pt-44 pb-16 sm:pb-20 px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center text-center">
         {/* Cross-fading text container */}
         <div className="grid [grid-template-areas:'stack'] mb-6 w-full place-items-center">
-          {/* SLIDE 0 (Slide #1): Universal Opening Slide */}
+          {/* SLIDE 0 (Slide #1): Universal Opening Slide - COOL */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 0
@@ -59,7 +59,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 1 (Slide #2): No More Bots, No More Spam, No More Scams */}
+          {/* SLIDE 1 (Slide #2): No More Bots, No More Spam, No More Scams - WARM */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 1
@@ -87,7 +87,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 2 (Slide #3): Unified Founding Member & Partner Launch Slide */}
+          {/* SLIDE 2 (Slide #3): Unified Founding Member & Partner Launch Slide - COOL */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 2
@@ -102,7 +102,7 @@ export default function LandingPage() {
             <h1 className="text-3xl sm:text-4xl md:text-[3.35rem] font-extrabold text-slate-900 tracking-tight leading-[1.12] max-w-6xl mb-4">
               <span className="sm:whitespace-nowrap">
                 Lock In Permanent{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-500">
                   Founding Status.
                 </span>
               </span>
@@ -118,7 +118,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 3 (Slide #4): Zero Ghost Jobs */}
+          {/* SLIDE 3 (Slide #4): Zero Ghost Jobs - WARM */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 3
@@ -126,16 +126,16 @@ export default function LandingPage() {
                 : 'opacity-0 pointer-events-none z-0'
             }`}
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-50 border border-orange-300 text-orange-700 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
               30-Day Active Role Guarantee • No Resume Traps
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Zero{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-rose-500">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-500">
                 Ghost Jobs.
               </span>
               <br />
@@ -146,7 +146,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 4 (Slide #5): Employers */}
+          {/* SLIDE 4 (Slide #5): Employers - COOL */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 4
@@ -174,7 +174,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 5 (Slide #6): Candidates */}
+          {/* SLIDE 5 (Slide #6): Candidates - WARM */}
           <div
             className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
               currentSlide === 5
@@ -203,7 +203,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* CTAs */}
+                {/* CTAs */}
         <div className="flex flex-col sm:flex-row gap-3.5 w-full sm:w-auto relative z-20">
           <Link
             href="/signup/candidate"
