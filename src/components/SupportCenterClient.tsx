@@ -113,7 +113,7 @@ export default function SupportCenterClient({
   }
 
   return (
-    <div className="bg-white rounded-2xl border-2 border-2-slate-200 shadow-sm overflow-hidden border-slate-300">
+    <div className="bg-white rounded-2xl border-2 border-slate-300 shadow-sm overflow-hidden border-slate-300">
       {/* 4-Tab Navigation Header */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-b border-slate-300">
         <button
@@ -171,7 +171,7 @@ export default function SupportCenterClient({
         {/* =================================================================== */}
         {activeTab === 'guides' && (
           <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 p-4 rounded-xl border-2 border-2-slate-200 border-slate-300">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 p-4 rounded-xl border-2 border-slate-300 border-slate-300">
               <div>
                 <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">
                   Select Playbook View
@@ -181,7 +181,7 @@ export default function SupportCenterClient({
                 </p>
               </div>
 
-              <div className="inline-flex rounded-xl bg-white p-1 border-2 border-2-slate-200 shadow-sm shrink-0 border-slate-300">
+              <div className="inline-flex rounded-xl bg-white p-1 border-2 border-slate-300 shadow-sm shrink-0 border-slate-300">
                 <button
                   type="button"
                   onClick={() => setSelectedGuide('employer')}
@@ -223,7 +223,7 @@ export default function SupportCenterClient({
               {currentGuide.steps.map((item, idx) => (
                 <div
                   key={idx}
-                  className="p-5 rounded-xl bg-white border-2 border-2-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-start gap-4 hover:border-2-indigo-200 transition-colors border-slate-300"
+                  className="p-5 rounded-xl bg-white border-2 border-slate-300 shadow-sm flex flex-col sm:flex-row sm:items-start gap-4 hover:border-2-indigo-200 transition-colors border-slate-300"
                 >
                   <span className="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-black uppercase tracking-wider shrink-0">
                     {item.step}
@@ -330,11 +330,11 @@ export default function SupportCenterClient({
                   placeholder="Search FAQs (e.g. 2-Stage Vault, 30-day expiry, shortlist, W-2 vs 1099, Stripe, chime)..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-2-slate-200 bg-slate-50 focus:bg-white focus:border-2-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-sm font-medium text-slate-900 transition-all border-slate-300"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-slate-300 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-sm font-medium text-slate-900 transition-all border-slate-300"
                 />
               </div>
 
-              <div className="inline-flex rounded-xl bg-slate-100 p-1 border-2 border-2-slate-200 shrink-0 border-slate-300">
+              <div className="inline-flex rounded-xl bg-slate-100 p-1 border-2 border-slate-300 shrink-0 border-slate-300">
                 <button
                   type="button"
                   onClick={() => setFaqRoleFilter('all')}
@@ -396,7 +396,7 @@ export default function SupportCenterClient({
                         return (
                           <div
                             key={faq.id}
-                            className="border-2 border-2-slate-200 rounded-xl overflow-hidden transition-colors hover:border-2-indigo-200 border-slate-300"
+                            className="border-2 border-slate-300 rounded-xl overflow-hidden transition-colors hover:border-2-indigo-200 border-slate-300"
                           >
                             <button
                               type="button"

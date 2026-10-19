@@ -184,7 +184,7 @@ export default async function DashboardPage({
   if (!profile?.role) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center p-6">
-        <div className="max-w-3xl w-full bg-white rounded-3xl shadow-xl border-2 border-2-slate-200 overflow-hidden border-slate-300">
+        <div className="max-w-3xl w-full bg-white rounded-3xl shadow-xl border-2 border-slate-300 overflow-hidden border-slate-300">
           <div className="p-10 text-center bg-slate-900 text-white">
             <h1 className="text-3xl md:text-4xl font-extrabold mb-3 tracking-tight">
               Welcome to Special Sauce

@@ -88,17 +88,17 @@ export default function CalculatorPage() {
 
         {/* Top KPI Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="bg-white p-5 rounded-2xl border-2 border-2-slate-200 shadow-sm border-slate-300">
+          <div className="bg-white p-5 rounded-2xl border-2 border-slate-300 shadow-sm border-slate-300">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Gross MRR</p>
             <p className="text-2xl lg:text-3xl font-extrabold text-slate-900 mt-1">{fmtUSD(gross_mrr)}</p>
             <p className="text-xs text-slate-500 font-medium mt-1">ARR: {fmtUSD(arr)}</p>
           </div>
-          <div className="bg-white p-5 rounded-2xl border-2 border-2-slate-200 shadow-sm border-slate-300">
+          <div className="bg-white p-5 rounded-2xl border-2 border-slate-300 shadow-sm border-slate-300">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Variable Costs</p>
             <p className="text-2xl lg:text-3xl font-extrabold text-rose-600 mt-1">{fmtUSDFloat(total_variable_costs)}</p>
             <p className="text-xs text-slate-500 font-medium mt-1">AI + Stripe ID + Fees</p>
           </div>
-          <div className="bg-white p-5 rounded-2xl border-2 border-2-slate-200 shadow-sm border-slate-300">
+          <div className="bg-white p-5 rounded-2xl border-2 border-slate-300 shadow-sm border-slate-300">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Fixed Platform</p>
             <p className="text-2xl lg:text-3xl font-extrabold text-slate-700 mt-1">{fmtUSD(inputs.cost_fixed)}</p>
             <p className="text-xs text-slate-500 font-medium mt-1">Vercel & Supabase</p>
@@ -108,7 +108,7 @@ export default function CalculatorPage() {
             <p className="text-2xl lg:text-3xl font-extrabold text-emerald-600 mt-1">{fmtUSD(net_profit)}</p>
             <p className="text-xs text-emerald-700 font-medium mt-1">Annual: {fmtUSD(annual_profit)}</p>
           </div>
-          <div className="bg-white p-5 rounded-2xl border-2 border-2-slate-200 shadow-sm col-span-2 md:col-span-1 border-slate-300">
+          <div className="bg-white p-5 rounded-2xl border-2 border-slate-300 shadow-sm col-span-2 md:col-span-1 border-slate-300">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Gross Margin</p>
             <p className="text-2xl lg:text-3xl font-extrabold text-indigo-600 mt-1">{gross_margin}%</p>
             <p className="text-xs text-slate-500 font-medium mt-1">{total_paying_subs} Paying Subs</p>
@@ -119,7 +119,7 @@ export default function CalculatorPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
           {/* CANDIDATE TIERS */}
-          <div className="bg-white p-6 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-6 border-slate-300">
+          <div className="bg-white p-6 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6 border-slate-300">
             <div className="flex items-center justify-between border-b border-slate-300 pb-3">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
@@ -129,7 +129,7 @@ export default function CalculatorPage() {
             </div>
 
             {/* Tier 1 */}
-            <div className="p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200 space-y-3 border-slate-300">
+            <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-3 border-slate-300">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-slate-800 text-sm">Tier 1: Free Candidate</span>
                 <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-200 text-slate-700">$0/mo</span>
@@ -147,7 +147,7 @@ export default function CalculatorPage() {
             </div>
 
             {/* Tier 2 */}
-            <div className="p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200 space-y-3 border-slate-300">
+            <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-3 border-slate-300">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-slate-800 text-sm">Tier 2: Verified Professional</span>
                 <span className="text-xs font-bold text-emerald-700">{fmtUSD(c2_rev)}/mo</span>
@@ -169,7 +169,7 @@ export default function CalculatorPage() {
             </div>
 
             {/* Tier 3 */}
-            <div className="p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200 space-y-3 border-slate-300">
+            <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-3 border-slate-300">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-slate-800 text-sm">Tier 3: Spotlight Candidate</span>
                 <span className="text-xs font-bold text-emerald-700">{fmtUSD(c3_rev)}/mo</span>
@@ -192,7 +192,7 @@ export default function CalculatorPage() {
           </div>
 
           {/* EMPLOYER TIERS */}
-          <div className="bg-white p-6 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-6 border-slate-300">
+          <div className="bg-white p-6 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6 border-slate-300">
             <div className="flex items-center justify-between border-b border-slate-300 pb-3">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-indigo-600 inline-block"></span>
@@ -202,7 +202,7 @@ export default function CalculatorPage() {
             </div>
 
             {/* Tier 1 */}
-            <div className="p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200 space-y-3 border-slate-300">
+            <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-3 border-slate-300">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-slate-800 text-sm">Tier 1: Single Role</span>
                 <span className="text-xs font-bold text-indigo-700">{fmtUSD(e1_rev)}/mo</span>
@@ -224,7 +224,7 @@ export default function CalculatorPage() {
             </div>
 
             {/* Tier 2 */}
-            <div className="p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200 space-y-3 border-slate-300">
+            <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-3 border-slate-300">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-slate-800 text-sm">Tier 2: Growth (Up to 5)</span>
                 <span className="text-xs font-bold text-indigo-700">{fmtUSD(e2_rev)}/mo</span>
@@ -246,7 +246,7 @@ export default function CalculatorPage() {
             </div>
 
             {/* Tier 3 */}
-            <div className="p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200 space-y-3 border-slate-300">
+            <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-3 border-slate-300">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-slate-800 text-sm">Tier 3: Enterprise</span>
                 <span className="text-xs font-bold text-indigo-700">{fmtUSD(e3_rev)}/mo</span>
@@ -270,7 +270,7 @@ export default function CalculatorPage() {
         </div>
 
         {/* Unit Economic Cost Variables Tuning */}
-        <div className="bg-white p-6 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-4 border-slate-300">
+        <div className="bg-white p-6 rounded-2xl border-2 border-slate-300 shadow-sm space-y-4 border-slate-300">
           <div className="flex justify-between items-center border-b border-slate-300 pb-3">
             <h3 className="text-base font-bold text-slate-900">Unit Economics & Infrastructure Cost Engine</h3>
             <span className="text-xs font-semibold text-slate-400">Underlying Cost Drivers</span>
@@ -322,7 +322,7 @@ export default function CalculatorPage() {
         {/* Detailed Ledger Breakdown */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-12">
           
-          <div className="bg-white p-6 rounded-2xl border-2 border-2-slate-200 shadow-sm border-slate-300">
+          <div className="bg-white p-6 rounded-2xl border-2 border-slate-300 shadow-sm border-slate-300">
             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Revenue Breakdown</h3>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between py-1 border-b border-slate-300">
@@ -340,7 +340,7 @@ export default function CalculatorPage() {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl border-2 border-2-slate-200 shadow-sm border-slate-300">
+          <div className="bg-white p-6 rounded-2xl border-2 border-slate-300 shadow-sm border-slate-300">
             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Cost Breakdown</h3>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between py-1 border-b border-slate-300">

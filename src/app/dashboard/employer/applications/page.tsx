@@ -201,14 +201,14 @@ export default function EmployerInboundApplicationsPage() {
 
           <Link
             href="/dashboard/employer/pitches"
-            className="shrink-0 px-5 py-3 bg-white border-2 border-2-slate-300 text-slate-800 text-sm font-bold rounded-xl hover:bg-slate-100 transition-colors shadow-sm inline-flex items-center gap-2 border-slate-300"
+            className="shrink-0 px-5 py-3 bg-white border-2 border-slate-300 text-slate-800 text-sm font-bold rounded-xl hover:bg-slate-100 transition-colors shadow-sm inline-flex items-center gap-2 border-slate-300"
           >
             View Outbound Pitches →
           </Link>
         </div>
 
         {/* Filter Bar: Status Tabs + Date Range + Keyword Search + Industry & Sort By */}
-        <div className="bg-white p-5 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-4 border-slate-300">
+        <div className="bg-white p-5 rounded-2xl border-2 border-slate-300 shadow-sm space-y-4 border-slate-300">
           <div className="flex flex-wrap items-center justify-between gap-4">
             {/* Status Tabs */}
             <div className="flex flex-wrap gap-2">
@@ -313,7 +313,7 @@ export default function EmployerInboundApplicationsPage() {
             <select
               value={daysFilter}
               onChange={(e) => setDaysFilter(Number(e.target.value))}
-              className="rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer border-slate-300"
+              className="rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
             >
               <option value={0}>All Time</option>
               <option value={7}>Last 7 Days</option>
@@ -331,7 +331,7 @@ export default function EmployerInboundApplicationsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search applications by Reference ID (SS-...), role title, skill, bio, or unlocked candidate name..."
-              className="flex-1 rounded-xl border-2 border-2-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-2-indigo-500 focus:outline-none border-slate-300"
+              className="flex-1 rounded-xl border-2 border-slate-300 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none border-slate-300"
             />
             <button
               type="submit"
@@ -354,7 +354,7 @@ export default function EmployerInboundApplicationsPage() {
                 id="inbound-industry-filter"
                 value={industryFilter}
                 onChange={(e) => setIndustryFilter(e.target.value)}
-                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer border-slate-300"
+                className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
               >
                 <option value="all">All Industry Verticals</option>
                 {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
@@ -378,7 +378,7 @@ export default function EmployerInboundApplicationsPage() {
                 onChange={(e) =>
                   setSortBy(e.target.value as ApplicationSortOption)
                 }
-                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer border-slate-300"
+                className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
               >
                 <option value="match_high">
                   AI Match Score (Highest First)
@@ -409,14 +409,14 @@ export default function EmployerInboundApplicationsPage() {
 
         {/* Applications Feed */}
         {isLoading ? (
-          <div className="py-16 text-center bg-white rounded-2xl border-2 border-2-slate-200 shadow-sm border-slate-300">
+          <div className="py-16 text-center bg-white rounded-2xl border-2 border-slate-300 shadow-sm border-slate-300">
             <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
             <p className="text-slate-500 font-medium">
               Loading inbound applications...
             </p>
           </div>
         ) : filteredAndSortedApplications.length === 0 ? (
-          <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-sm border-slate-300">
+          <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-sm border-slate-300">
             <div className="w-16 h-16 bg-slate-50 border border-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
                 className="w-8 h-8 text-slate-300"

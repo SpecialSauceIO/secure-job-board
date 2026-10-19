@@ -113,7 +113,7 @@ export default async function EmployerOrganizationPage() {
 
         <Link
           href="/dashboard/employer/billing"
-          className="shrink-0 inline-flex items-center px-4 py-2.5 rounded-xl border-2 border-2-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors border-slate-300"
+          className="shrink-0 inline-flex items-center px-4 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors border-slate-300"
         >
           Manage Plan &amp; Credits →
         </Link>

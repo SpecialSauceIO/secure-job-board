@@ -126,7 +126,7 @@ export default function EmployerBillingPage() {
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <Link
             href="/dashboard/employer/organization"
-            className="px-4 py-2.5 rounded-xl border-2 border-2-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors border-slate-300"
+            className="px-4 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors border-slate-300"
           >
             Company, Seats &amp; ATS Hub
           </Link>
@@ -141,7 +141,7 @@ export default function EmployerBillingPage() {
 
       {/* Dynamic Founding Partner Status & Live Plan Summary Banner */}
       {isLoading ? (
-        <div className="rounded-2xl bg-white border-2 border-2-slate-200 p-8 text-center shadow-xs border-slate-300">
+        <div className="rounded-2xl bg-white border-2 border-slate-300 p-8 text-center shadow-xs border-slate-300">
           <div className="inline-block w-6 h-6 border-3 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-2" />
           <p className="text-xs font-bold text-slate-500">
             Syncing organization verification &amp; plan status...
@@ -489,7 +489,7 @@ export default function EmployerBillingPage() {
       </div>
 
       {/* QA Sandbox Controls for Stress Testing (Stacked Cleanly with 4-Column Button Grid) */}
-      <div className="bg-slate-100 rounded-2xl border-2 border-2-slate-300 p-5 space-y-4 border-slate-300">
+      <div className="bg-slate-100 rounded-2xl border-2 border-slate-300 p-5 space-y-4 border-slate-300">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">

@@ -112,7 +112,7 @@ export default function CandidateBillingPage() {
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <Link
             href="/dashboard/profile"
-            className="px-4 py-2.5 rounded-xl border-2 border-2-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors border-slate-300"
+            className="px-4 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors border-slate-300"
           >
             My Anonymous Profile
           </Link>
@@ -400,7 +400,7 @@ export default function CandidateBillingPage() {
       </div>
 
       {/* QA Stress-Testing Bar */}
-      <div className="bg-slate-100 rounded-2xl border-2 border-2-slate-300 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-slate-300">
+      <div className="bg-slate-100 rounded-2xl border-2 border-slate-300 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-slate-300">
         <div>
           <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">
             🧪 QA Stress-Testing Controls (Remove Before Public Launch)
@@ -415,7 +415,7 @@ export default function CandidateBillingPage() {
             type="button"
             disabled={isProcessing}
             onClick={() => handlePlanSwitch('explorer')}
-            className="px-3 py-2 rounded-xl bg-white border-2 border-2-slate-300 text-slate-700 text-xs font-extrabold hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer border-slate-300"
+            className="px-3 py-2 rounded-xl bg-white border-2 border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer border-slate-300"
           >
             1. Explorer ($0 · 0 Outbound Apps)
           </button>
@@ -423,7 +423,7 @@ export default function CandidateBillingPage() {
             type="button"
             disabled={isProcessing}
             onClick={() => handlePlanSwitch('professional')}
-            className="px-3 py-2 rounded-xl bg-white border-2 border-2-slate-300 text-slate-700 text-xs font-extrabold hover:bg-amber-50 transition-colors cursor-pointer border-slate-300"
+            className="px-3 py-2 rounded-xl bg-white border-2 border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-amber-50 transition-colors cursor-pointer border-slate-300"
           >
             2. Professional ($9/mo · 15 Monthly Blind Apps)
           </button>

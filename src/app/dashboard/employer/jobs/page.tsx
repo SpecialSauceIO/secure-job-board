@@ -386,7 +386,7 @@ export default async function JobManagementPage() {
 
         <section>
           {enrichedRows.length === 0 ? (
-            <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 shadow-sm text-center border-slate-300">
+            <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 shadow-sm text-center border-slate-300">
               <div className="w-16 h-16 bg-slate-50 border border-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="w-8 h-8 text-slate-300"

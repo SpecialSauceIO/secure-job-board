@@ -143,7 +143,7 @@ export default function NewJobPage() {
   if (isCheckingAccess) {
     return (
       <div className="min-h-screen bg-slate-50 p-6 md:p-12">
-        <div className="mx-auto max-w-3xl rounded-2xl bg-white p-12 text-center shadow-sm border-2 border-2-slate-200 mt-8 border-slate-300">
+        <div className="mx-auto max-w-3xl rounded-2xl bg-white p-12 text-center shadow-sm border-2 border-slate-300 mt-8 border-slate-300">
           <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
           <p className="text-slate-500 font-medium">
             Verifying organization permissions...
@@ -253,7 +253,7 @@ export default function NewJobPage() {
 
       <form action={handleSubmit} className="space-y-8">
         {/* SECTION 1: ROLE BASICS, EDUCATION, LANGUAGES & US CASCADING LOCATION */}
-        <div className="space-y-6 rounded-xl bg-slate-50 p-6 border-2 border-2-slate-200 border-slate-300">
+        <div className="space-y-6 rounded-xl bg-slate-50 p-6 border-2 border-slate-300 border-slate-300">
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-500 border-b border-slate-300 pb-2">
             1. Role Fundamentals, Education, Languages &amp; US Location
           </h3>
@@ -420,7 +420,7 @@ export default function NewJobPage() {
         </div>
 
         {/* SECTION 2: COMPENSATION & PAY TYPE (/YR VS /HR) */}
-        <div className="space-y-6 rounded-xl bg-slate-50 p-6 border-2 border-2-slate-200 border-slate-300">
+        <div className="space-y-6 rounded-xl bg-slate-50 p-6 border-2 border-slate-300 border-slate-300">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-300 pb-2">
             <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-500">
               2. Compensation Band (
@@ -546,7 +546,7 @@ export default function NewJobPage() {
         </div>
 
         {/* SECTION 3: ANONYMOUS COMPANY TEASER & WORK AUTHORIZATION */}
-        <div className="space-y-6 rounded-xl bg-slate-50 p-6 border-2 border-2-slate-200 border-slate-300">
+        <div className="space-y-6 rounded-xl bg-slate-50 p-6 border-2 border-slate-300 border-slate-300">
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-500 border-b border-slate-300 pb-2">
             3. Anonymous Company Teaser &amp; Work Authorization
           </h3>
@@ -654,7 +654,7 @@ export default function NewJobPage() {
         </div>
 
         {/* SECTION 4: SKILLS & DESCRIPTION */}
-        <div className="space-y-6 rounded-xl bg-slate-50 p-6 border-2 border-2-slate-200 border-slate-300">
+        <div className="space-y-6 rounded-xl bg-slate-50 p-6 border-2 border-slate-300 border-slate-300">
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-500 border-b border-slate-300 pb-2">
             4. Core Skill Matrix &amp; Role Overview
           </h3>

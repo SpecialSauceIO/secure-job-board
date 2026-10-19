@@ -73,7 +73,7 @@ export default async function EmployerSearchPage() {
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <Link
               href="/dashboard/employer/pitches"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-2-slate-200 bg-white text-slate-700 hover:border-2-slate-400 hover:text-slate-900 text-xs font-extrabold transition-colors shadow-2xs border-slate-300"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-900 text-xs font-extrabold transition-colors shadow-2xs border-slate-300"
             >
               <span>Sent Pitches</span>
               <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 text-[11px] font-black">

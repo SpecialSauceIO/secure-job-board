@@ -388,7 +388,7 @@ export default function CandidateJobsPage() {
       {/* SINGLE UNIFIED COMMAND BAR (REPLACES THE 2 STACKED FILTER BOXES) */}
       <form
         onSubmit={handleSearch}
-        className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-2-slate-200 shadow-xs space-y-3.5 border-slate-300"
+        className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-300 shadow-xs space-y-3.5 border-slate-300"
       >
         {/* Primary Everyday Row: Keyword + Work Model + Sort By + Filters Toggle + Search Button */}
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5">
@@ -411,7 +411,7 @@ export default function CandidateJobsPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search title, skills, or certifications..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border-2 border-2-slate-200 bg-slate-50 text-xs sm:text-sm font-medium text-slate-900 focus:bg-white focus:border-2-indigo-500 focus:outline-none border-slate-300"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border-2 border-slate-300 bg-slate-50 text-xs sm:text-sm font-medium text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none border-slate-300"
             />
           </div>
 
@@ -419,7 +419,7 @@ export default function CandidateJobsPage() {
             <select
               value={workModel}
               onChange={(e) => setWorkModel(e.target.value)}
-              className="rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-extrabold text-slate-700 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer border-slate-300"
+              className="rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2.5 text-xs font-extrabold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
             >
               <option value="all">All Work Models</option>
               <option value="remote">Remote Only</option>
@@ -430,7 +430,7 @@ export default function CandidateJobsPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-extrabold text-slate-700 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer border-slate-300"
+              className="rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2.5 text-xs font-extrabold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
             >
               <option value="newest">Sort: Newest First</option>
               <option value="pay_high">Sort: Highest Pay</option>
@@ -485,7 +485,7 @@ export default function CandidateJobsPage() {
               <select
                 value={employmentType}
                 onChange={(e) => setEmploymentType(e.target.value)}
-                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer border-slate-300"
+                className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
               >
                 <option value="all">All Employment Types</option>
                 {EMPLOYMENT_TYPES.map((type) => (
@@ -503,7 +503,7 @@ export default function CandidateJobsPage() {
               <select
                 value={industryFilter}
                 onChange={(e) => setIndustryFilter(e.target.value)}
-                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer border-slate-300"
+                className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
               >
                 <option value="all">All 28 Industries</option>
                 {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
@@ -521,7 +521,7 @@ export default function CandidateJobsPage() {
               <select
                 value={languageFilter}
                 onChange={(e) => setLanguageFilter(e.target.value)}
-                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer border-slate-300"
+                className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
               >
                 <option value="all">All Languages</option>
                 {STANDARD_LANGUAGES.map((lang) => (
@@ -542,7 +542,7 @@ export default function CandidateJobsPage() {
                   setSelectedState(e.target.value)
                   setSelectedMetro('')
                 }}
-                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer border-slate-300"
+                className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
               >
                 <option value="">All US States</option>
                 <option value="REMOTE_US">🇺🇸 US Remote Regions</option>
@@ -562,7 +562,7 @@ export default function CandidateJobsPage() {
                 disabled={!selectedState}
                 value={selectedMetro}
                 onChange={(e) => setSelectedMetro(e.target.value)}
-                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none disabled:opacity-50 cursor-pointer border-slate-300"
+                className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none disabled:opacity-50 cursor-pointer border-slate-300"
               >
                 <option value="">
                   {!selectedState
@@ -639,7 +639,7 @@ export default function CandidateJobsPage() {
       </form>
 
       {isLoading ? (
-        <div className="py-16 text-center bg-white rounded-2xl border-2 border-2-slate-200 shadow-xs border-slate-300">
+        <div className="py-16 text-center bg-white rounded-2xl border-2 border-slate-300 shadow-xs border-slate-300">
           <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-4" />
           <p className="text-slate-500 font-medium text-sm">
             Loading blind roles...

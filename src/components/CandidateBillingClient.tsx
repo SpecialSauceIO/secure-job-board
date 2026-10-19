@@ -165,7 +165,7 @@ export default function CandidateBillingClient({
       {/* Side-by-Side Comparison: Early Adopter Trial / Free Explorer vs Candidate Pro ($9/mo) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Card 1: Early Adopter Trial & Free Verified Explorer */}
-        <div className="bg-white rounded-2xl p-6 md:p-8 border-2 border-2-slate-200 shadow-sm flex flex-col justify-between border-slate-300">
+        <div className="bg-white rounded-2xl p-6 md:p-8 border-2 border-slate-300 shadow-sm flex flex-col justify-between border-slate-300">
           <div>
             <div className="flex items-center justify-between gap-2 mb-2">
               <h3 className="text-xl font-extrabold text-slate-900">

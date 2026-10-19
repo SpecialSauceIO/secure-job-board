@@ -59,7 +59,7 @@ export default function PricingMatrixPage() {
             {/* 3 Candidate Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Tier 1: Explorer ($0) */}
-              <div className="bg-white p-8 rounded-2xl border-2 border-2-slate-200 shadow-xs flex flex-col justify-between space-y-6 border-slate-300">
+              <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-col justify-between space-y-6 border-slate-300">
                 <div className="space-y-4">
                   <div>
                     <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
@@ -259,7 +259,7 @@ export default function PricingMatrixPage() {
             {/* 3 Employer Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Employer Tier 1: Starter ($99/mo) */}
-              <div className="bg-white p-8 rounded-2xl border-2 border-2-slate-200 shadow-xs flex flex-col justify-between space-y-6 relative overflow-hidden border-slate-300">
+              <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-col justify-between space-y-6 relative overflow-hidden border-slate-300">
                 <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
                   ★ First 30 Days $0
                 </div>

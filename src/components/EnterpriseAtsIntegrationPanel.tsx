@@ -119,7 +119,7 @@ export default function EnterpriseAtsIntegrationPanel() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl border-2 border-2-slate-200 p-6 text-center shadow-xs border-slate-300">
+      <div className="bg-white rounded-2xl border-2 border-slate-300 p-6 text-center shadow-xs border-slate-300">
         <p className="text-xs font-bold text-slate-400">
           Loading Enterprise ATS &amp; Webhook Hub...
         </p>
@@ -220,7 +220,7 @@ export default function EnterpriseAtsIntegrationPanel() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Column 1: Workday / Universal Signed Webhook */}
-          <div className="p-5 rounded-xl bg-slate-50 border-2 border-2-slate-200 space-y-4 border-slate-300">
+          <div className="p-5 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-4 border-slate-300">
             <div>
               <h4 className="text-sm font-extrabold text-slate-900">
                 1. Workday &amp; Enterprise Outbound Webhook (HMAC-SHA256)
@@ -241,7 +241,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                   setConfig({ ...config, webhookUrl: e.target.value })
                 }
                 placeholder="https://wd5-impl-services1.workday.com/ccx/service/..."
-                className="w-full rounded-xl border-2 border-2-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-2-indigo-500 focus:outline-none border-slate-300"
+                className="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-indigo-500 focus:outline-none border-slate-300"
               />
             </div>
 
@@ -262,7 +262,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                 type="text"
                 readOnly
                 value={config.webhookSecret}
-                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-100 px-3.5 py-2 text-xs font-mono font-bold text-slate-700 border-slate-300"
+                className="w-full rounded-xl border-2 border-slate-300 bg-slate-100 px-3.5 py-2 text-xs font-mono font-bold text-slate-700 border-slate-300"
               />
             </div>
 
@@ -271,7 +271,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                 type="button"
                 disabled={isTestingWebhook || !config.webhookUrl}
                 onClick={handleTestWebhook}
-                className="px-3.5 py-2 rounded-xl border-2 border-2-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50 border-slate-300"
+                className="px-3.5 py-2 rounded-xl border-2 border-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50 border-slate-300"
               >
                 {isTestingWebhook
                   ? 'Sending Test Payload...'
@@ -289,7 +289,7 @@ export default function EnterpriseAtsIntegrationPanel() {
           </div>
 
           {/* Column 2: Native Greenhouse Harvest API Connector */}
-          <div className="p-5 rounded-xl bg-slate-50 border-2 border-2-slate-200 space-y-4 border-slate-300">
+          <div className="p-5 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-4 border-slate-300">
             <div>
               <h4 className="text-sm font-extrabold text-slate-900">
                 2. Native Greenhouse Harvest API Connector
@@ -310,7 +310,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                   setConfig({ ...config, greenhouseApiKey: e.target.value })
                 }
                 placeholder="Enter Harvest API Key (Configure → Dev Center → API Credentials)..."
-                className="w-full rounded-xl border-2 border-2-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-2-indigo-500 focus:outline-none border-slate-300"
+                className="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-indigo-500 focus:outline-none border-slate-300"
               />
             </div>
 
@@ -328,7 +328,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                   })
                 }
                 placeholder="e.g. 4029184 (Greenhouse Admin User ID for audit logs)"
-                className="w-full rounded-xl border-2 border-2-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-2-indigo-500 focus:outline-none border-slate-300"
+                className="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-indigo-500 focus:outline-none border-slate-300"
               />
             </div>
 

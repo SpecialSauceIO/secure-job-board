@@ -84,7 +84,7 @@ export default function EmployerSentPitchesPage() {
       </header>
 
       {/* Filter & Search Bar */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-2-slate-200 shadow-xs space-y-4 border-slate-300">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-300 shadow-xs space-y-4 border-slate-300">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           {/* Status Filter Pills */}
           <div className="flex flex-wrap items-center gap-1.5">
@@ -117,7 +117,7 @@ export default function EmployerSentPitchesPage() {
             <select
               value={daysFilter}
               onChange={(e) => setDaysFilter(Number(e.target.value))}
-              className="rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer border-slate-300"
+              className="rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
             >
               <option value={0}>All Time</option>
               <option value={7}>Last 7 Days</option>
@@ -137,7 +137,7 @@ export default function EmployerSentPitchesPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Filter by role title, skill, certification, language, Reference ID (SS-...), or unlocked candidate name..."
-            className="flex-1 rounded-xl border-2 border-2-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-2-indigo-500 focus:outline-none border-slate-300"
+            className="flex-1 rounded-xl border-2 border-slate-300 bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none border-slate-300"
           />
           <button
             type="submit"
@@ -164,14 +164,14 @@ export default function EmployerSentPitchesPage() {
 
       {/* Pitches List */}
       {isLoading ? (
-        <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-xs border-slate-300">
+        <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs border-slate-300">
           <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-3" />
           <p className="text-sm font-bold text-slate-500">
             Loading outbound pitch pipeline...
           </p>
         </div>
       ) : pitches.length === 0 ? (
-        <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-xs space-y-3 border-slate-300">
+        <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs space-y-3 border-slate-300">
           <h3 className="text-lg font-extrabold text-slate-900">
             No outbound pitches match your current filter
           </h3>
@@ -433,7 +433,7 @@ export default function EmployerSentPitchesPage() {
                   )}
 
                   {/* AI Fit Summary & 5-Point Radar Toggle */}
-                  <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-2-slate-200/80 text-xs text-slate-700 space-y-1 border-slate-300">
+                  <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-slate-300/80 text-xs text-slate-700 space-y-1 border-slate-300">
                     <div className="flex flex-wrap items-center justify-between gap-2 font-bold text-indigo-700">
                       <span>5-Point AI Fit Assessment</span>
                       {radarData && (
@@ -453,7 +453,7 @@ export default function EmployerSentPitchesPage() {
                   </div>
 
                   {isMounted && showRadar && radarData && (
-                    <div className="p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200 flex flex-col lg:flex-row items-center gap-4 border-slate-300">
+                    <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-300 flex flex-col lg:flex-row items-center gap-4 border-slate-300">
                       <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {radarData.map((item: any, idx: number) => (
                           <div

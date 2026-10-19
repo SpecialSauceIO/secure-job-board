@@ -422,7 +422,7 @@ export function CandidateJobFeed({
 
   if (totalFreshCount === 0) {
     return (
-      <div className="bg-white p-12 rounded-2xl border-2 border-2-slate-200 text-center shadow-sm border-slate-300">
+      <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-sm border-slate-300">
         <div className="w-16 h-16 bg-slate-50 border border-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg
             className="w-8 h-8 text-slate-300"
@@ -458,7 +458,7 @@ export function CandidateJobFeed({
     <div className="space-y-6">
       {/* SORT, INDUSTRY VERTICAL, LANGUAGE & WORK TYPE ORGANIZER BAR */}
       {showSortControls && (
-        <div className="bg-white p-4 rounded-2xl border-2 border-2-slate-200 shadow-xs space-y-3.5 border-slate-300">
+        <div className="bg-white p-4 rounded-2xl border-2 border-slate-300 shadow-xs space-y-3.5 border-slate-300">
           {/* Row 1: Employment Type Quick Filter Pills + Role Count */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-1.5">
@@ -511,7 +511,7 @@ export function CandidateJobFeed({
                 id="candidate-industry-filter"
                 value={industryFilter}
                 onChange={(e) => setIndustryFilter(e.target.value)}
-                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer shadow-2xs border-slate-300"
+                className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer shadow-2xs border-slate-300"
               >
                 <option value="all">All Industry Verticals</option>
                 {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
@@ -533,7 +533,7 @@ export function CandidateJobFeed({
                 id="candidate-language-filter"
                 value={languageFilter}
                 onChange={(e) => setLanguageFilter(e.target.value)}
-                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer shadow-2xs border-slate-300"
+                className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer shadow-2xs border-slate-300"
               >
                 <option value="all">All Languages</option>
                 {STANDARD_LANGUAGES.map((lang) => (
@@ -555,7 +555,7 @@ export function CandidateJobFeed({
                 id="candidate-job-sort"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="w-full rounded-xl border-2 border-2-slate-200 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-2-indigo-500 focus:outline-none cursor-pointer shadow-2xs border-slate-300"
+                className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer shadow-2xs border-slate-300"
               >
                 <option value="newest">Newest Posted (Freshness)</option>
                 <option value="closing_soon">
@@ -578,7 +578,7 @@ export function CandidateJobFeed({
       )}
 
       {sortedAndFilteredJobs.length === 0 ? (
-        <div className="bg-white p-10 rounded-2xl border-2 border-2-slate-200 text-center shadow-xs border-slate-300">
+        <div className="bg-white p-10 rounded-2xl border-2 border-slate-300 text-center shadow-xs border-slate-300">
           <p className="text-sm font-bold text-slate-700 mb-2">
             No open roles match your selected Work Type, Industry Vertical, or Language filter.
           </p>
@@ -623,18 +623,21 @@ export function CandidateJobFeed({
                   ? 'border-2 border-slate-300 shadow-sm'
                   : meta.rankInfo.isFounder
                   ? 'border-2 border-slate-300 shadow-sm '
-                  : 'border-slate-300 shadow-sm hover:border-slate-300'
+                  : 'border-2 border-slate-300 shadow-sm hover:border-slate-400'
               }`}
             >
-              <div className="p-6 md:p-8 space-y-4">
-                {/* Top Row: Clean Inline Blind Teaser, Rank/Founder Badge, & Compensation Band */}
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-3 border-b border-slate-300">
-                  <div className="space-y-1.5">
-                    <div className="flex flex-wrap items-center gap-2 text-xs">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-extrabold uppercase tracking-wider">
-                        🔒 Blind Role • {anonymousTeaserParts.join(' • ')}
-                      </span>
+              <div className="p-6 md:p-7 space-y-4">
+                {/* Row 1: Fixed Top Identity Bar & Save / Compensation Action Group */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span
+                      title={`Blind Role • ${anonymousTeaserParts.join(' • ')}`}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900 text-white text-[11px] font-extrabold uppercase tracking-wider truncate max-w-[260px] sm:max-w-[420px] md:max-w-[500px]"
+                    >
+                      🔒 Blind Role • {anonymousTeaserParts.join(' • ')}
+                    </span>
 
+                    <div className="shrink-0">
                       <RankAndFounderPill
                         level={meta.rankInfo.level}
                         tier={meta.rankInfo.tier}
@@ -642,28 +645,73 @@ export function CandidateJobFeed({
                         founderText="Founding Partner"
                         size="xs"
                       />
+                    </div>
+                  </div>
 
-                      {orgVerified && (
-                        <span className="text-emerald-700 font-bold">
-                          ✓ Verified Domain
-                        </span>
-                      )}
+                  {/* Right Side: Save Button + Compensation Pill */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      disabled={togglingSaveId === jobId}
+                      onClick={() => handleToggleBookmark(jobId)}
+                      title={
+                        isBookmarked
+                          ? 'Remove from saved roles'
+                          : 'Save role to bookmark list'
+                      }
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
+                        isBookmarked
+                          ? 'bg-amber-50 border-amber-300 text-amber-900'
+                          : 'bg-white border-slate-300 text-slate-700 hover:border-slate-400 hover:text-slate-900'
+                      }`}
+                    >
+                      <svg
+                        className={`w-3.5 h-3.5 ${
+                          isBookmarked
+                            ? 'text-amber-500 fill-amber-500'
+                            : 'text-slate-400'
+                        }`}
+                        fill={isBookmarked ? 'currentColor' : 'none'}
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                        />
+                      </svg>
+                      {isBookmarked ? 'Saved' : 'Save'}
+                    </button>
 
+                    <div className="px-3.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 font-black text-sm">
+                      {meta.formattedPay}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 2: Dedicated Trust & Timeline Bar + Role Title */}
+                <div className="pb-3.5 border-b border-slate-300 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+                  <div className="space-y-1.5 min-w-0">
+                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs">
+                      <span className="text-emerald-700 font-bold">
+                        {orgVerified ? '✓ Verified Domain' : '✓ Verified Employer'}
+                      </span>
                       <span className="text-slate-300">•</span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold text-[11px] border border-indigo-300/70">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold text-[11px] border border-indigo-300">
                         ⏱️ {meta.hiringTimeline}
                       </span>
                       <span className="text-slate-300">•</span>
                       <span className="text-slate-500 font-medium">
                         Posted {new Date(job.created_at).toLocaleDateString()}
                       </span>
-
                       <span className="text-slate-300">•</span>
                       <span
                         className={`font-bold ${
                           meta.daysRemaining <= 5
                             ? 'text-amber-700'
-                            : 'text-slate-500'
+                            : 'text-slate-600'
                         }`}
                         title="All Special Sauce roles auto-expire after 30 days to prevent ghost listings"
                       >
@@ -671,146 +719,85 @@ export function CandidateJobFeed({
                       </span>
                     </div>
 
-                    <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">
                       {job.title}
                     </h3>
                   </div>
 
-                  {/* Prominent Pay Band Box + Save / Bookmark Button */}
-                  <div className="flex flex-col sm:items-end gap-1.5 shrink-0">
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        disabled={togglingSaveId === jobId}
-                        onClick={() => handleToggleBookmark(jobId)}
-                        title={
-                          isBookmarked
-                            ? 'Remove from saved roles'
-                            : 'Save role (+35 XP)'
-                        }
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
-                          isBookmarked
-                            ? 'bg-amber-50 border-slate-300 text-amber-900'
-                            : 'bg-white border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-900'
-                        }`}
-                      >
-                        <svg
-                          className={`w-3.5 h-3.5 ${
-                            isBookmarked
-                              ? 'text-amber-500 fill-amber-500'
-                              : 'text-slate-400'
-                          }`}
-                          fill={isBookmarked ? 'currentColor' : 'none'}
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                          />
-                        </svg>
-                        {isBookmarked ? 'Saved' : 'Save'}
-                      </button>
-
-                      <div className="px-3.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 font-black text-sm">
-                        {meta.formattedPay}
-                      </div>
-                    </div>
-                    {meta.compPerks && meta.compPerks !== 'Base Salary Only' && (
-                      <span className="text-[11px] font-bold text-indigo-700">
-                        {meta.compPerks}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Clean Inline Role Specifications (No Colored Pills!) */}
-                <div className="space-y-1 text-xs text-slate-600 font-medium">
-                  <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-                    <span className="font-extrabold text-slate-900 uppercase">
-                      {job.work_model || 'Flexible'}
+                  {meta.compPerks && meta.compPerks !== 'Base Salary Only' && (
+                    <span className="text-[11px] font-bold text-indigo-700 shrink-0">
+                      {meta.compPerks}
                     </span>
-                    {meta.location && (
-                      <>
-                        <span className="text-slate-300">•</span>
-                        <span>{meta.location}</span>
-                      </>
-                    )}
-                    {meta.employmentType && (
-                      <>
-                        <span className="text-slate-300">•</span>
-                        <span>{meta.employmentType}</span>
-                      </>
-                    )}
-                    {meta.experienceLevel && (
-                      <>
-                        <span className="text-slate-300">•</span>
-                        <span>{meta.experienceLevel}</span>
-                      </>
-                    )}
-                    {meta.workAuth && (
-                      <>
-                        <span className="text-slate-300">•</span>
-                        <span>{meta.workAuth}</span>
-                      </>
-                    )}
-                  </div>
-
-                  {(meta.educationReq ||
-                    meta.requiredCertifications ||
-                    meta.requiredLanguages.length > 0) && (
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-0.5 text-slate-500">
-                      {meta.educationReq && (
-                        <span>
-                          <strong className="text-slate-700">Education:</strong>{' '}
-                          {meta.educationReq}
-                        </span>
-                      )}
-                      {meta.requiredCertifications && (
-                        <span>
-                          <strong className="text-slate-700">Certs:</strong>{' '}
-                          {meta.requiredCertifications}
-                        </span>
-                      )}
-                      {meta.requiredLanguages.length > 0 && (
-                        <span>
-                          <strong className="text-slate-700">Languages:</strong>{' '}
-                          {meta.requiredLanguages
-                            .map(
-                              (l) =>
-                                `${l.language} (${l.modality.split(' ')[0]} • ${
-                                  l.proficiency
-                                })`
-                            )
-                            .join(', ')}
-                        </span>
-                      )}
-                    </div>
                   )}
                 </div>
 
-                {/* Role Description */}
-                <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                {/* Row 3: Uniform 4-Column Role Specification Grid */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 p-3.5 rounded-xl bg-slate-50/90 border border-slate-300 text-xs">
+                  <div className="min-w-0">
+                    <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      Work Model &amp; Location
+                    </span>
+                    <span className="font-bold text-slate-900 truncate block mt-0.5">
+                      {(job.work_model || 'Flexible').toUpperCase()} • {meta.location || 'US Nationwide'}
+                    </span>
+                  </div>
+
+                  <div className="min-w-0">
+                    <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      Employment &amp; Level
+                    </span>
+                    <span className="font-bold text-slate-900 truncate block mt-0.5">
+                      {meta.employmentType || 'Full-Time (W-2)'} • {meta.experienceLevel || 'Mid-Senior'}
+                    </span>
+                  </div>
+
+                  <div className="min-w-0">
+                    <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      Education &amp; Auth
+                    </span>
+                    <span
+                      title={`${meta.educationReq || 'Skills First'} • ${meta.workAuth || 'US Authorized'}`}
+                      className="font-bold text-slate-900 truncate block mt-0.5"
+                    >
+                      {meta.educationReq || 'Skills & Experience First'}
+                    </span>
+                  </div>
+
+                  <div className="min-w-0">
+                    <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      Languages &amp; Certs
+                    </span>
+                    <span className="font-bold text-slate-900 truncate block mt-0.5">
+                      {meta.requiredLanguages.length > 0
+                        ? meta.requiredLanguages
+                            .map((l) => `${l.language} (${l.proficiency})`)
+                            .join(', ')
+                        : 'English (Standard)'}
+                      {meta.requiredCertifications ? ` • ${meta.requiredCertifications}` : ''}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Row 4: Role Description (Clamped for Uniform Card Height) */}
+                <p className="text-sm text-slate-600 leading-relaxed line-clamp-3">
                   {job.description}
                 </p>
 
-                {/* Core Skill Requirements (Clean Subtle Spec Line) */}
-                {meta.visibleReqs.length > 0 && (
-                  <div className="text-xs text-slate-600 pt-1">
-                    <strong className="text-slate-800 uppercase tracking-wider text-[11px] mr-2">
-                      Core Skills:
-                    </strong>
-                    {meta.visibleReqs
-                      .map((req: any) =>
-                        req.level
-                          ? `${req.skill || req.name} (${req.level})`
-                          : req.skill || req.name
-                      )
-                      .join(' • ')}
-                  </div>
-                )}
+                {/* Row 5: Uniform Core Skills Footer Bar */}
+                <div className="text-xs text-slate-600 pt-2.5 border-t border-slate-200 truncate">
+                  <strong className="text-slate-800 uppercase tracking-wider text-[11px] mr-2">
+                    Core Skills:
+                  </strong>
+                  {meta.visibleReqs.length > 0
+                    ? meta.visibleReqs
+                        .map((req) =>
+                          req.level
+                            ? `${req.skill || req.name} (${req.level})`
+                            : req.skill || req.name
+                        )
+                        .join(' • ')
+                    : 'General role competencies'}
+                </div>
 
                 {/* Live 30-Second Progress Notifier Banner */}
                 {isAnalyzing && (
@@ -829,7 +816,7 @@ export function CandidateJobFeed({
 
                 {/* AI Match Radar & Fit Analysis Results Box */}
                 {matchData && !isAnalyzing && (
-                  <div className="p-5 rounded-2xl bg-slate-50 border-2 border-2-slate-200 space-y-5 animate-in fade-in duration-300 border-slate-300">
+                  <div className="p-5 rounded-2xl bg-slate-50 border-2 border-slate-300 space-y-5 animate-in fade-in duration-300 border-slate-300">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-300 pb-4">
                       <div>
                         <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-600 block">
@@ -1004,7 +991,7 @@ export function CandidateJobFeed({
                         type="button"
                         disabled={isAnalyzing || isApplying}
                         onClick={() => handleAnalyzeFit(jobId)}
-                        className="px-4 py-2 rounded-xl border-2 border-2-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer border-slate-300"
+                        className="px-4 py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer border-slate-300"
                       >
                         {isAnalyzing
                           ? 'Analyzing Fit...'

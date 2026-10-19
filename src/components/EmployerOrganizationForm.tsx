@@ -248,7 +248,7 @@ export default function EmployerOrganizationForm({
                 type="button"
                 disabled={isVerifying}
                 onClick={() => handleSandboxToggle('pending')}
-                className="px-4 py-2 bg-white text-slate-600 border-2 border-2-slate-200 text-xs font-bold rounded-xl hover:bg-slate-100 transition-colors cursor-pointer border-slate-300"
+                className="px-4 py-2 bg-white text-slate-600 border-2 border-slate-300 text-xs font-bold rounded-xl hover:bg-slate-100 transition-colors cursor-pointer border-slate-300"
               >
                 Reset to Pending
               </button>
@@ -304,7 +304,7 @@ export default function EmployerOrganizationForm({
 
         {/* Expandable DNS TXT Record Instructions */}
         {showDnsInstructions && (
-          <div className="mt-4 p-4 rounded-xl bg-white border-2 border-2-slate-200 text-xs space-y-2 border-slate-300">
+          <div className="mt-4 p-4 rounded-xl bg-white border-2 border-slate-300 text-xs space-y-2 border-slate-300">
             <p className="font-bold text-slate-800">
               Alternative Method: DNS TXT Record Ownership Verification
             </p>
@@ -341,7 +341,7 @@ export default function EmployerOrganizationForm({
       {/* COMPANY PROFILE FORM */}
       <form
         onSubmit={handleSave}
-        className="bg-white p-6 md:p-8 rounded-2xl border-2 border-2-slate-200 shadow-sm space-y-6 border-slate-300"
+        className="bg-white p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6 border-slate-300"
       >
         <div>
           <h2 className="text-xl font-bold text-slate-900">
@@ -352,7 +352,7 @@ export default function EmployerOrganizationForm({
           </p>
         </div>
 
-        <div className="space-y-5 rounded-xl bg-slate-50 p-6 border-2 border-2-slate-100 border-slate-300">
+        <div className="space-y-5 rounded-xl bg-slate-50 p-6 border-2 border-slate-300 border-slate-300">
           {/* Row 1: Company Name & Corporate Domain */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
@@ -366,7 +366,7 @@ export default function EmployerOrganizationForm({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Acme Corp"
-                className="block w-full rounded-xl border-2 border-2-slate-300 bg-white text-slate-900 shadow-sm focus:border-2-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium border-slate-300"
+                className="block w-full rounded-xl border-2 border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium border-slate-300"
               />
             </div>
 
@@ -380,7 +380,7 @@ export default function EmployerOrganizationForm({
                 value={domain}
                 onChange={(e) => setDomain(e.target.value)}
                 placeholder="e.g. test.com or acmecorp.com"
-                className="block w-full rounded-xl border-2 border-2-slate-300 bg-white text-slate-900 shadow-sm focus:border-2-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium border-slate-300"
+                className="block w-full rounded-xl border-2 border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium border-slate-300"
               />
               <p className="text-[11px] text-slate-500 mt-1">
                 Tip: Enter <strong>{userEmailDomain}</strong> to auto-verify with your current login ({userEmail}).
@@ -398,7 +398,7 @@ export default function EmployerOrganizationForm({
                 name="industry_vertical"
                 value={industryVertical}
                 onChange={(e) => setIndustryVertical(e.target.value)}
-                className="block w-full rounded-xl border-2 border-2-slate-300 bg-white text-slate-900 shadow-sm focus:border-2-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium cursor-pointer border-slate-300"
+                className="block w-full rounded-xl border-2 border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium cursor-pointer border-slate-300"
               >
                 {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
                   <option key={vertical} value={vertical}>
@@ -419,7 +419,7 @@ export default function EmployerOrganizationForm({
                 name="company_size"
                 value={companySize}
                 onChange={(e) => setCompanySize(e.target.value)}
-                className="block w-full rounded-xl border-2 border-2-slate-300 bg-white text-slate-900 shadow-sm focus:border-2-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium cursor-pointer border-slate-300"
+                className="block w-full rounded-xl border-2 border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium cursor-pointer border-slate-300"
               >
                 {COMPANY_SIZE_OPTIONS.map((sizeOpt) => (
                   <option key={sizeOpt} value={sizeOpt}>
@@ -447,7 +447,7 @@ export default function EmployerOrganizationForm({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What does your company build, and what makes your team or culture unique?"
-              className="block w-full rounded-xl border-2 border-2-slate-300 bg-white text-slate-900 shadow-sm focus:border-2-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm border-slate-300"
+              className="block w-full rounded-xl border-2 border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm border-slate-300"
             />
           </div>
 
@@ -462,7 +462,7 @@ export default function EmployerOrganizationForm({
               value={logoUrl}
               onChange={(e) => setLogoUrl(e.target.value)}
               placeholder="https://example.com/logo.png"
-              className="block w-full rounded-xl border-2 border-2-slate-300 bg-white text-slate-900 shadow-sm focus:border-2-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm border-slate-300"
+              className="block w-full rounded-xl border-2 border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm border-slate-300"
             />
           </div>
         </div>

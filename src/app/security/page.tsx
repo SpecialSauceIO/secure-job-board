@@ -33,7 +33,7 @@ export default function SecurityTrustPage() {
         <main className="max-w-5xl mx-auto px-6 md:px-12 py-16 space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Pillar 1 */}
-            <div className="bg-white p-7 rounded-2xl border-2 border-2-slate-200 shadow-2xs space-y-3 border-slate-300">
+            <div className="bg-white p-7 rounded-2xl border-2 border-slate-300 shadow-2xs space-y-3 border-slate-300">
               <span className="inline-block px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 text-xs font-extrabold">
                 1. 2-Stage Identity &amp; Resume Vault
               </span>
@@ -54,7 +54,7 @@ export default function SecurityTrustPage() {
             </div>
 
             {/* Pillar 2 */}
-            <div className="bg-white p-7 rounded-2xl border-2 border-2-slate-200 shadow-2xs space-y-3 border-slate-300">
+            <div className="bg-white p-7 rounded-2xl border-2 border-slate-300 shadow-2xs space-y-3 border-slate-300">
               <span className="inline-block px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 text-xs font-extrabold">
                 2. Offloaded Biometric &amp; Payment Vaulting
               </span>
@@ -75,7 +75,7 @@ export default function SecurityTrustPage() {
             </div>
 
             {/* Pillar 3 */}
-            <div className="bg-white p-7 rounded-2xl border-2 border-2-slate-200 shadow-2xs space-y-3 border-slate-300">
+            <div className="bg-white p-7 rounded-2xl border-2 border-slate-300 shadow-2xs space-y-3 border-slate-300">
               <span className="inline-block px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 text-xs font-extrabold">
                 3. Anti-Harvesting &amp; Freshness Guardrails
               </span>
@@ -96,7 +96,7 @@ export default function SecurityTrustPage() {
             </div>
 
             {/* Pillar 4 */}
-            <div className="bg-white p-7 rounded-2xl border-2 border-2-slate-200 shadow-2xs space-y-3 border-slate-300">
+            <div className="bg-white p-7 rounded-2xl border-2 border-slate-300 shadow-2xs space-y-3 border-slate-300">
               <span className="inline-block px-2.5 py-1 rounded-md bg-violet-50 text-violet-800 text-xs font-extrabold">
                 4. Multi-Industry AI Matching &amp; Dealbreakers
               </span>
@@ -118,7 +118,7 @@ export default function SecurityTrustPage() {
           </div>
 
           {/* Bottom CTA */}
-          <div className="bg-white p-6 sm:p-8 rounded-2xl border-2 border-2-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xs border-slate-300">
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border-2 border-slate-300 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xs border-slate-300">
             <div>
               <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
                 Ready to claim your 30-Day Founding Rewards?
@@ -142,7 +142,7 @@ export default function SecurityTrustPage() {
               </Link>
               <Link
                 href="/signup/employer"
-                className="px-4 py-2.5 rounded-xl border-2 border-2-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors border-slate-300"
+                className="px-4 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors border-slate-300"
               >
                 Join as Employer
               </Link>

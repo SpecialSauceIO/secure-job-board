@@ -46,7 +46,7 @@ function ScannerForm({ profile }: { profile: any }) {
   const [fileName, setFileName] = useState('');
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border-2 border-2-slate-200 overflow-hidden flex flex-col md:flex-row border-slate-300">
+    <div className="bg-white rounded-2xl shadow-sm border-2 border-slate-300 overflow-hidden flex flex-col md:flex-row border-slate-300">
       
       {/* CSS for the Laser Scanner */}
       <style dangerouslySetInnerHTML={{__html: `

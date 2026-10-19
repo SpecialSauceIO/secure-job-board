@@ -39,7 +39,7 @@ export default async function CandidateSignupPage({
         </div>
 
         {/* High-Trust Value Props Callout */}
-        <div className="mb-6 p-4 rounded-xl bg-slate-50 border-2 border-2-slate-200/80 space-y-2 text-xs text-slate-600 border-slate-300">
+        <div className="mb-6 p-4 rounded-xl bg-slate-50 border-2 border-slate-300/80 space-y-2 text-xs text-slate-600 border-slate-300">
           <div className="flex items-start gap-2">
             <span className="text-emerald-600 font-black mt-0.5">✓</span>
             <span>

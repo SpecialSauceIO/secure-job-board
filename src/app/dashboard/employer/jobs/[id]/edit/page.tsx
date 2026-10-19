@@ -198,7 +198,7 @@ export default function EditJobPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 p-6 md:p-12">
-        <div className="mx-auto max-w-4xl rounded-2xl bg-white p-12 text-center shadow-sm border-2 border-2-slate-200 mt-8 border-slate-300">
+        <div className="mx-auto max-w-4xl rounded-2xl bg-white p-12 text-center shadow-sm border-2 border-slate-300 mt-8 border-slate-300">
           <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
           <p className="text-slate-500 font-medium">Loading role details...</p>
         </div>
@@ -260,7 +260,7 @@ export default function EditJobPage() {
         <input type="hidden" name="job_id" value={jobId} />
 
         {/* SECTION 1: ROLE FUNDAMENTALS, EDUCATION, LANGUAGES & US LOCATION */}
-        <div className="space-y-6 rounded-xl bg-slate-50 p-6 border-2 border-2-slate-200 border-slate-300">
+        <div className="space-y-6 rounded-xl bg-slate-50 p-6 border-2 border-slate-300 border-slate-300">
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-500 border-b border-slate-300 pb-2">
             1. Role Fundamentals, Education, Languages &amp; US Location
           </h3>
@@ -427,7 +427,7 @@ export default function EditJobPage() {
         </div>
 
         {/* SECTION 2: COMPENSATION & PAY TYPE (/YR VS /HR) */}
-        <div className="space-y-6 rounded-xl bg-slate-50 p-6 border-2 border-2-slate-200 border-slate-300">
+        <div className="space-y-6 rounded-xl bg-slate-50 p-6 border-2 border-slate-300 border-slate-300">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-300 pb-2">
             <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-500">
               2. Compensation Band (
@@ -553,7 +553,7 @@ export default function EditJobPage() {
         </div>
 
         {/* SECTION 3: ANONYMOUS COMPANY TEASER & WORK AUTHORIZATION */}
-        <div className="space-y-6 rounded-xl bg-slate-50 p-6 border-2 border-2-slate-200 border-slate-300">
+        <div className="space-y-6 rounded-xl bg-slate-50 p-6 border-2 border-slate-300 border-slate-300">
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-500 border-b border-slate-300 pb-2">
             3. Anonymous Company Teaser &amp; Work Authorization
           </h3>
@@ -661,7 +661,7 @@ export default function EditJobPage() {
         </div>
 
         {/* SECTION 4: CORE SKILL MATRIX & OVERVIEW */}
-        <div className="space-y-6 rounded-xl bg-slate-50 p-6 border-2 border-2-slate-200 border-slate-300">
+        <div className="space-y-6 rounded-xl bg-slate-50 p-6 border-2 border-slate-300 border-slate-300">
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-500 border-b border-slate-300 pb-2">
             4. Core Skill Matrix &amp; Role Overview
           </h3>
@@ -694,7 +694,7 @@ export default function EditJobPage() {
         <div className="pt-2 flex items-center justify-end gap-3">
           <Link
             href="/dashboard/employer/jobs"
-            className="px-6 py-3 rounded-xl border-2 border-2-slate-300 bg-white text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors border-slate-300"
+            className="px-6 py-3 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors border-slate-300"
           >
             Cancel
           </Link>
