@@ -65,7 +65,7 @@ export default function QuickFeedbackWidget() {
           setIsOpen((prev) => !prev)
           setResultMsg(null)
         }}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/90 text-xs font-extrabold transition-colors shadow-2xs cursor-pointer"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border-2 border-amber-300/90 text-xs font-extrabold transition-colors shadow-2xs cursor-pointer"
         title="Report a bug or share quick feedback (Auto-attaches current page URL)"
       >
         <span>🐞</span>
@@ -79,7 +79,7 @@ export default function QuickFeedbackWidget() {
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xl p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
+          <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl border-2 border-slate-300 shadow-2xl p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
               <div>
                 <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
@@ -129,7 +129,7 @@ export default function QuickFeedbackWidget() {
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="What happened or what can we make better on this page?"
                 required
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:outline-none p-3 text-xs font-medium text-slate-900"
+                className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:outline-none p-3 text-xs font-medium text-slate-900"
               />
 
               {resultMsg && (

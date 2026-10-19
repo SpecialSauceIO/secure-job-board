@@ -128,7 +128,7 @@ export default function DashboardNav({
               <button
                 type="button"
                 onClick={() => setMenuOpen((prev) => !prev)}
-                className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl border-2 border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50 text-slate-900 text-xs font-bold transition-all cursor-pointer shadow-xs"
               >
                 <span className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[11px] font-extrabold uppercase shrink-0">
                   {userEmail ? userEmail.charAt(0) : 'U'}
@@ -154,8 +154,8 @@ export default function DashboardNav({
               </button>
 
               {menuOpen && (
-                <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-white border border-slate-200 shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                  <div className="px-4 py-3 border-b border-slate-100 space-y-1.5">
+                <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-white border-2 border-slate-300 shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-4 py-3 border-b border-slate-200 space-y-1.5">
                     <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
                       Signed in as
                     </p>
@@ -203,7 +203,7 @@ export default function DashboardNav({
                   </div>
 
                   {/* Accessibility Options Section */}
-                  <div className="py-2 px-3 border-t border-slate-100 space-y-1.5">
+                  <div className="py-2 px-3 border-t border-slate-200 space-y-1.5">
                     <p className="px-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
                       Accessibility
                     </p>
@@ -234,7 +234,7 @@ export default function DashboardNav({
                     </button>
                   </div>
 
-                  <div className="pt-1.5 mt-1 border-t border-slate-100 px-2">
+                  <div className="pt-1.5 mt-1 border-t border-slate-200 px-2">
                     <form action={signOutAction}>
                       <button
                         type="submit"
@@ -251,7 +251,7 @@ export default function DashboardNav({
         </div>
 
         {/* ROW 2: Clean Core Workspace Navigation Tabs */}
-        <div className="flex items-center justify-between gap-4 py-2 border-t border-slate-100 overflow-x-auto no-scrollbar">
+        <div className="flex items-center justify-between gap-4 py-2 border-t border-slate-200 overflow-x-auto no-scrollbar">
           <nav className="flex items-center gap-1.5 shrink-0">
             {navLinks.map((item) => {
               const active = isActive(item.href, item.exact)
