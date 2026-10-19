@@ -536,65 +536,6 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* FOUNDING MEMBER & FOUNDING PARTNER LAUNCH REWARDS BANNER */}
-          <div className="mt-20 rounded-3xl bg-slate-900 text-white p-8 sm:p-10 border-2 border-slate-300 shadow-xl relative overflow-hidden">
-            <div className="absolute inset-0 opacity-15 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-400 via-indigo-900 to-slate-900 pointer-events-none" />
-            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-300 text-xs font-extrabold uppercase tracking-wider">
-                  ★ Early-Access Launch • Founding Memberships Open
-                </div>
-                <h3 className="text-2xl sm:text-3xl font-black tracking-tight">
-                  30-Day Founding Rewards. Full Access &amp; Lifetime Perks.
-                </h3>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  Join during our initial launch window to unlock 30 days of complimentary full access, permanent{' '}
-                  <strong className="text-amber-300">
-                    Permanent Founding Member &amp; Founding Partner Status
-                  </strong>
-                  , a permanent{' '}
-                  <strong className="text-amber-300">
-                    Verified Behavioral Trust Signals
-                  </strong>
-                  , and lifetime Founder&apos;s Rate Locks.
-                </p>
-                <div className="pt-2">
-                  <Link
-                    href="/pricing"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs sm:text-sm font-black transition-colors shadow-sm"
-                  >
-                    Compare All Plans &amp; Founding Rewards →
-                  </Link>
-                </div>
-              </div>
-
-              <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 space-y-1.5">
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400 block">
-                    ★ Candidates (Explorer • Professional • Prestige)
-                  </span>
-                  <div className="text-lg font-black text-white">
-                    First 30 Days $0
-                  </div>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    $0 Explorer Vault forever, or try Professional ($9/mo, 15 apps) &amp; Prestige ($15/mo, Unlimited apps + Priority Placement) free for 30 days.
-                  </p>
-                </div>
-
-                <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 space-y-1.5">
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-300 block">
-                    ★ Employers (Starter • Growth • Enterprise)
-                  </span>
-                  <div className="text-lg font-black text-white">
-                    First 30 Days $0
-                  </div>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    Try Starter (5 roles), Growth (15 roles), or Enterprise (Unlimited roles + Workday &amp; Greenhouse ATS Webhooks) free for 30 days.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
