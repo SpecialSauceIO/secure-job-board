@@ -17,6 +17,7 @@ import {
   resolveEmployerTierInfo,
 } from '@/app/dashboard/actions'
 import VerifyButton from './VerifyButton'
+import EmployerBrandLogoUploader from '@/components/EmployerBrandLogoUploader'
 
 export const dynamic = 'force-dynamic'
 
@@ -364,48 +365,61 @@ export default async function DashboardPage({
       tierInfo.maxActiveJobs > 0 &&
       activeJobsCount < tierInfo.maxActiveJobs
 
+    const companyDisplayName =
+      orgData?.name || orgData?.domain || 'Set Up Your Company'
+    const rolesBadgeText =
+      tierInfo.maxActiveJobs >= 500
+        ? `${activeJobsCount} Active`
+        : `${activeJobsCount} / ${tierInfo.maxActiveJobs}`
+
     return (
-      <div className="max-w-6xl mx-auto py-4 space-y-8">
+      <div className="max-w-6xl mx-auto py-3 space-y-6">
         <DashboardLiveSync />
 
-        {/* CALM HERO ROW */}
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
-          <div>
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                Employer Dashboard
-              </h1>
-              <RankAndFounderPill
-                level={employerGamification.level}
-                tier={employerGamification.tier}
-                isFounder={employerGamification.isFounder}
-                founderText="Founding Partner"
-              />
-            </div>
-            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1.5 text-xs font-medium text-slate-500">
-              {isOrgVerified ? (
-                <span className="inline-flex items-center gap-1.5 text-emerald-700 font-bold">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  {orgData?.domain || 'Domain'} Verified
+        {/* WHITE-LABEL COMPANY BRAND HEADER */}
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
+          <div className="flex items-center gap-4">
+            <EmployerBrandLogoUploader
+              companyName={companyDisplayName}
+              initialLogoUrl={orgData?.logo_url}
+              hasOrg={hasOrg}
+            />
+            <div>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                  {companyDisplayName}
+                </h1>
+                <RankAndFounderPill
+                  level={employerGamification.level}
+                  tier={employerGamification.tier}
+                  isFounder={employerGamification.isFounder}
+                  founderText="Founding Partner"
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1.5 text-xs font-semibold text-slate-500">
+                {isOrgVerified ? (
+                  <span className="inline-flex items-center gap-1.5 text-emerald-700 font-bold">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    {orgData?.domain || 'Domain'} Verified
+                  </span>
+                ) : (
+                  <Link
+                    href="/dashboard/employer/organization"
+                    className="inline-flex items-center gap-1.5 text-amber-700 font-bold hover:underline"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    Verify Corporate Domain →
+                  </Link>
+                )}
+                <span>·</span>
+                <span>{rolesBadgeText} Roles</span>
+                <span>·</span>
+                <span>
+                  {connectionCredits} Pitch{' '}
+                  {connectionCredits === 1 ? 'Credit' : 'Credits'}
                 </span>
-              ) : (
-                <Link
-                  href="/dashboard/employer/organization"
-                  className="inline-flex items-center gap-1.5 text-amber-700 font-bold hover:underline"
-                >
-                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                  Domain Unverified (Click to Verify)
-                </Link>
-              )}
-              <span>·</span>
-              <span>
-                {activeJobsCount} of {tierInfo.maxActiveJobs} Active Roles
-              </span>
-              <span>·</span>
-              <span>
-                {connectionCredits} Pitch{' '}
-                {connectionCredits === 1 ? 'Credit' : 'Credits'} Available
-              </span>
+              </div>
             </div>
           </div>
 
@@ -452,7 +466,7 @@ export default async function DashboardPage({
                 href="/dashboard/employer/jobs/new"
                 className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold shadow-sm transition-colors"
               >
-                + Post New Job
+                + Post New Role
               </Link>
             ) : (
               <Link
@@ -460,103 +474,99 @@ export default async function DashboardPage({
                 className="inline-flex items-center px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-colors"
               >
                 {tierInfo.tier === 'free'
-                  ? 'Choose Plan to Post Jobs →'
+                  ? 'Choose Plan to Post Roles →'
                   : `Role Slots Full (${activeJobsCount}/${tierInfo.maxActiveJobs}) · Upgrade →`}
               </Link>
             )}
           </div>
         </header>
 
-        {/* 4 CORE METRIC CARDS */}
+        {/* 4 PASTEL COLOR-CODED EMPLOYER WIDGETS */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {/* Card 1: Company & Seats */}
+          {/* Card 1: Manage Company (Soft Sky Blue Pastel) */}
           <Link
             href="/dashboard/employer/organization"
-            className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-400 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+            className="group bg-sky-50/75 hover:bg-sky-100/70 p-6 rounded-2xl border border-sky-200/90 hover:border-sky-400 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base">
+                <span className="w-10 h-10 rounded-xl bg-white border border-sky-200 text-sky-700 flex items-center justify-center text-base shadow-2xs">
                   🏢
                 </span>
                 <span
-                  className={`text-xs font-extrabold ${
-                    isOrgVerified ? 'text-emerald-700' : 'text-amber-700'
+                  className={`px-2.5 py-1 rounded-lg text-xs font-extrabold ${
+                    isOrgVerified
+                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                      : 'bg-amber-100 text-amber-800 border border-amber-300'
                   }`}
                 >
                   {isOrgVerified ? '✓ Verified' : 'Setup Needed'}
                 </span>
               </div>
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                Company &amp; Seats
-              </p>
-              <h3 className="text-lg font-black text-slate-900 mt-1 truncate">
-                {orgData?.name || orgData?.domain || 'Setup Company'}
+              <h3 className="text-lg font-black text-slate-900">
+                Manage Company
               </h3>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-slate-600 mt-1">
                 {isOrgVerified
-                  ? `Up to ${tierInfo.maxSeats} collaborator ${
+                  ? `Domain verified • Up to ${tierInfo.maxSeats} team ${
                       tierInfo.maxSeats === 1 ? 'seat' : 'seats'
                     }`
-                  : 'Verify domain to unlock talent search'}
+                  : 'Verify domain, manage seats & ATS webhooks'}
               </p>
             </div>
-            <p className="text-xs font-bold text-slate-700 group-hover:text-indigo-600 mt-5">
-              Manage company &amp; seats →
+            <p className="text-xs font-extrabold text-sky-800 group-hover:text-sky-950 mt-5">
+              Company, logo &amp; seats →
             </p>
           </Link>
 
-          {/* Card 2: Active Roles */}
+          {/* Card 2: Manage Active Roles (Soft Indigo Pastel) */}
           <Link
             href={
               hasOrg
                 ? '/dashboard/employer/jobs'
                 : '/dashboard/employer/organization'
             }
-            className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-400 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+            className="group bg-indigo-50/75 hover:bg-indigo-100/70 p-6 rounded-2xl border border-indigo-200/90 hover:border-indigo-400 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base">
+                <span className="w-10 h-10 rounded-xl bg-white border border-indigo-200 text-indigo-700 flex items-center justify-center text-base shadow-2xs">
                   💼
                 </span>
-                <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
-                  {activeJobsCount} / {tierInfo.maxActiveJobs}
+                <span className="text-xs font-black text-indigo-900 bg-white border border-indigo-200 px-2.5 py-1 rounded-lg">
+                  {rolesBadgeText}
                 </span>
               </div>
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                Active Roles
-              </p>
-              <h3 className="text-lg font-black text-slate-900 mt-1">
-                Manage Jobs
+              <h3 className="text-lg font-black text-slate-900">
+                Manage Active Roles
               </h3>
-              <p className="text-xs text-slate-500 mt-1">
-                {tierInfo.tier === 'free'
-                  ? 'Activate a plan to publish roles'
+              <p className="text-xs text-slate-600 mt-1">
+                {tierInfo.maxActiveJobs >= 500
+                  ? 'Unlimited active role slots enabled'
                   : `${Math.max(
                       0,
                       tierInfo.maxActiveJobs - activeJobsCount
-                    )} role slots remaining`}
+                    )} active role slots remaining`}
               </p>
             </div>
-            <p className="text-xs font-bold text-slate-700 group-hover:text-indigo-600 mt-5">
+            <p className="text-xs font-extrabold text-indigo-800 group-hover:text-indigo-950 mt-5">
               View &amp; edit roles →
             </p>
           </Link>
 
-          {/* Card 3: Sent Pitches */}
+          {/* Card 3: Outbound Pitches (Soft Amber Pastel) */}
           <Link
             href={
               hasOrg
                 ? '/dashboard/employer/pitches'
                 : '/dashboard/employer/organization'
             }
-            className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-400 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+            className="group bg-amber-50/75 hover:bg-amber-100/70 p-6 rounded-2xl border border-amber-200/90 hover:border-amber-400 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base">
-                  📐
+                <span className="w-10 h-10 rounded-xl bg-white border border-amber-200 text-amber-700 flex items-center justify-center text-base shadow-2xs">
+                  📤
                 </span>
                 <div className="flex items-center gap-1.5">
                   {pitchesUnreadMsgsCount > 0 && (
@@ -564,95 +574,85 @@ export default async function DashboardPage({
                       💬 {pitchesUnreadMsgsCount} New
                     </span>
                   )}
-                  <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
-                    {sentPitchesCount}
+                  <span className="text-xs font-black text-amber-950 bg-white border border-amber-200 px-2.5 py-1 rounded-lg">
+                    {sentPitchesCount} Sent
                   </span>
                 </div>
               </div>
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                Sent Pitches
-              </p>
-              <h3 className="text-lg font-black text-slate-900 mt-1">
-                {pitchesUnreadMsgsCount > 0
-                  ? `${pitchesUnreadMsgsCount} Unread ${
-                      pitchesUnreadMsgsCount === 1 ? 'Reply' : 'Replies'
-                    }`
-                  : acceptedPitchesCount > 0
-                  ? `${acceptedPitchesCount} Accepted`
-                  : 'Outbound Pipeline'}
+              <h3 className="text-lg font-black text-slate-900">
+                Outbound Pitches
               </h3>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-slate-600 mt-1">
                 {pitchesUnreadMsgsCount > 0
-                  ? 'Candidates replied in your secure pitch threads'
+                  ? `${pitchesUnreadMsgsCount} unread candidate ${
+                      pitchesUnreadMsgsCount === 1 ? 'reply' : 'replies'
+                    } waiting`
                   : acceptedPitchesCount > 0
-                  ? `${acceptedPitchesCount} unlocked threads • Message & view vaults`
-                  : 'Track connection pitches sent to talent'}
+                  ? `${acceptedPitchesCount} accepted • Direct pitches sent to talent`
+                  : 'Candidates you pitched from Talent Search'}
               </p>
             </div>
-            <p className="text-xs font-bold text-slate-700 group-hover:text-indigo-600 mt-5">
-              Open pitch threads →
+            <p className="text-xs font-extrabold text-amber-900 group-hover:text-amber-950 mt-5">
+              Open outbound pitches →
             </p>
           </Link>
 
-          {/* Card 4: Inbound Applications */}
+          {/* Card 4: Inbound Applications (Soft Emerald Pastel) */}
           <Link
             href={
               hasOrg
                 ? '/dashboard/employer/applications'
                 : '/dashboard/employer/organization'
             }
-            className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-400 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+            className="group bg-emerald-50/75 hover:bg-emerald-100/70 p-6 rounded-2xl border border-emerald-200/90 hover:border-emerald-400 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base">
-                  👥
+                <span className="w-10 h-10 rounded-xl bg-white border border-emerald-200 text-emerald-700 flex items-center justify-center text-base shadow-2xs">
+                  📥
                 </span>
                 <div className="flex items-center gap-1.5">
-                  {inboundUnreadMsgsCount > 0 && (
+                  {inboundUnreadMsgsCount > 0 ? (
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 text-xs font-black animate-pulse">
                       💬 {inboundUnreadMsgsCount} New
                     </span>
-                  )}
-                  <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
-                    {inboundTotalCount}
+                  ) : pendingAppsCount > 0 ? (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-200/80 text-emerald-950 text-xs font-black">
+                      {pendingAppsCount} Awaiting
+                    </span>
+                  ) : null}
+                  <span className="text-xs font-black text-emerald-950 bg-white border border-emerald-200 px-2.5 py-1 rounded-lg">
+                    {inboundTotalCount} Total
                   </span>
                 </div>
               </div>
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                Inbound Pipeline
-              </p>
-              <h3 className="text-lg font-black text-slate-900 mt-1">
+              <h3 className="text-lg font-black text-slate-900">
+                Inbound Applications
+              </h3>
+              <p className="text-xs text-slate-600 mt-1">
                 {inboundUnreadMsgsCount > 0
-                  ? `${inboundUnreadMsgsCount} Unread ${
-                      inboundUnreadMsgsCount === 1 ? 'Message' : 'Messages'
+                  ? `${inboundUnreadMsgsCount} unread applicant ${
+                      inboundUnreadMsgsCount === 1 ? 'message' : 'messages'
                     }`
                   : pendingAppsCount > 0
-                  ? `${pendingAppsCount} Awaiting Review`
-                  : 'Applicant Pipeline'}
-              </h3>
-              <p className="text-xs text-slate-500 mt-1">
-                {inboundUnreadMsgsCount > 0
-                  ? 'Applicants replied or released their resume vault'
-                  : pendingAppsCount > 0
                   ? `${pendingAppsCount} new blind applications (free to unlock)`
-                  : 'Review blind skill matrices & unlock profiles'}
+                  : 'Candidates who applied to your roles (free unlock)'}
               </p>
             </div>
-            <p className="text-xs font-bold text-slate-700 group-hover:text-indigo-600 mt-5">
-              Review blind applicants →
+            <p className="text-xs font-extrabold text-emerald-800 group-hover:text-emerald-950 mt-5">
+              Review inbound applicants →
             </p>
           </Link>
         </section>
 
-        {/* EMPLOYER REPUTATION, XP LEVEL & TROPHY CASE */}
+        {/* COLLAPSIBLE EMPLOYER REPUTATION & MERIT BADGE BAR */}
         <ReputationBadgeCase summary={employerGamification} />
       </div>
     )
   }
 
   // ============================================================================
-  // STREAMLINED CANDIDATE VIEW (ZERO REDUNDANT PLAN LINKS OR FILTER BOXES)
+  // STREAMLINED CANDIDATE VIEW (PASTEL COLOR-CODED WIDGETS)
   // ============================================================================
   const isVerified = Boolean(
     profile?.identity_verified === true ||
@@ -695,9 +695,7 @@ export default async function DashboardPage({
   )
 
   const hasProfileData = !!(profile?.skills && profile?.bio)
-
   const appliedJobIds = new Set(outboundCandidateApps.map((a) => a.job_id))
-
   let recommendedJobs: any[] = []
 
   if (hasProfileData) {
@@ -742,16 +740,19 @@ export default async function DashboardPage({
     }))
   }
 
+  const candidateDisplayName =
+    profile?.full_name || profile?.name || 'Candidate Workspace'
+
   return (
-    <div className="max-w-6xl mx-auto py-4 space-y-8">
+    <div className="max-w-6xl mx-auto py-3 space-y-6">
       <DashboardLiveSync />
 
-      {/* CALM CANDIDATE HERO ROW */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
+      {/* CANDIDATE HERO ROW */}
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
         <div>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Candidate Dashboard
+              {candidateDisplayName}
             </h1>
             <RankAndFounderPill
               level={candidateGamification.level}
@@ -761,7 +762,7 @@ export default async function DashboardPage({
             />
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1.5 text-xs font-medium text-slate-500">
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1.5 text-xs font-semibold text-slate-500">
             {isVerified ? (
               <span className="inline-flex items-center gap-1.5 text-emerald-700 font-bold">
                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -816,7 +817,6 @@ export default async function DashboardPage({
         </div>
       </header>
 
-      {/* UNVERIFIED PROMPT BANNER */}
       {!isVerified && (
         <div className="rounded-2xl border-2 border-amber-500 bg-amber-50/70 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
@@ -833,50 +833,49 @@ export default async function DashboardPage({
         </div>
       )}
 
-      {/* 4 CORE CANDIDATE CARDS */}
+      {/* 4 PASTEL COLOR-CODED CANDIDATE WIDGETS */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <Link
           href="/dashboard/profile"
-          className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-400 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+          className="group bg-sky-50/75 hover:bg-sky-100/70 p-6 rounded-2xl border border-sky-200/90 hover:border-sky-400 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
         >
           <div>
             <div className="flex items-center justify-between mb-4">
-              <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base">
+              <span className="w-10 h-10 rounded-xl bg-white border border-sky-200 text-sky-700 flex items-center justify-center text-base shadow-2xs">
                 📄
               </span>
               <span
-                className={`text-xs font-extrabold ${
-                  hasProfileData ? 'text-emerald-700' : 'text-amber-700'
+                className={`px-2.5 py-1 rounded-lg text-xs font-extrabold ${
+                  hasProfileData
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                    : 'bg-amber-100 text-amber-800 border border-amber-300'
                 }`}
               >
                 {hasProfileData ? '✓ Ready' : 'Setup'}
               </span>
             </div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              Anonymous Profile
-            </p>
-            <h3 className="text-lg font-black text-slate-900 mt-1">
-              Skill Matrix
+            <h3 className="text-lg font-black text-slate-900">
+              My Skill Profile
             </h3>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-600 mt-1">
               {hasProfileData
                 ? 'Resume parsed & ready for AI matching'
                 : 'Upload your PDF resume to auto-fill skills'}
             </p>
           </div>
-          <p className="text-xs font-bold text-slate-700 group-hover:text-indigo-600 mt-5">
-            {hasProfileData ? 'Edit profile →' : 'Upload resume →'}
+          <p className="text-xs font-extrabold text-sky-800 group-hover:text-sky-950 mt-5">
+            {hasProfileData ? 'Edit skill matrix →' : 'Upload resume →'}
           </p>
         </Link>
 
         <Link
           href="/dashboard/requests"
-          className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-400 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+          className="group bg-emerald-50/75 hover:bg-emerald-100/70 p-6 rounded-2xl border border-emerald-200/90 hover:border-emerald-400 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
         >
           <div>
             <div className="flex items-center justify-between mb-4">
-              <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base">
-                ⚡
+              <span className="w-10 h-10 rounded-xl bg-white border border-emerald-200 text-emerald-700 flex items-center justify-center text-base shadow-2xs">
+                📥
               </span>
               <div className="flex items-center gap-1.5">
                 {unreadPitchMsgsCount > 0 && (
@@ -884,42 +883,35 @@ export default async function DashboardPage({
                     💬 {unreadPitchMsgsCount} New
                   </span>
                 )}
-                <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
-                  {inboundEmployerPitches.length}
+                <span className="text-xs font-black text-emerald-950 bg-white border border-emerald-200 px-2.5 py-1 rounded-lg">
+                  {inboundEmployerPitches.length} Total
                 </span>
               </div>
             </div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              Employer Pitches
-            </p>
-            <h3 className="text-lg font-black text-slate-900 mt-1">
-              {unreadPitchMsgsCount > 0
-                ? `${unreadPitchMsgsCount} Unread ${
-                    unreadPitchMsgsCount === 1 ? 'Message' : 'Messages'
-                  }`
-                : pendingRequestsCount > 0
-                ? `${pendingRequestsCount} Pending`
-                : 'Inbound Inbox'}
+            <h3 className="text-lg font-black text-slate-900">
+              Inbound Pitches
             </h3>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-600 mt-1">
               {unreadPitchMsgsCount > 0
                 ? 'An employer sent you a message in your pitch inbox'
-                : 'Review direct role pitches from verified employers'}
+                : pendingRequestsCount > 0
+                ? `${pendingRequestsCount} pending pitch — free to accept & unlock`
+                : 'Direct role pitches from verified employers'}
             </p>
           </div>
-          <p className="text-xs font-bold text-slate-700 group-hover:text-indigo-600 mt-5">
-            Open pitch inbox →
+          <p className="text-xs font-extrabold text-emerald-800 group-hover:text-emerald-950 mt-5">
+            Open inbound pitches →
           </p>
         </Link>
 
         <Link
           href="/dashboard/applications"
-          className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-400 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+          className="group bg-amber-50/75 hover:bg-amber-100/70 p-6 rounded-2xl border border-amber-200/90 hover:border-amber-400 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
         >
           <div>
             <div className="flex items-center justify-between mb-4">
-              <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base">
-                🎯
+              <span className="w-10 h-10 rounded-xl bg-white border border-amber-200 text-amber-700 flex items-center justify-center text-base shadow-2xs">
+                📤
               </span>
               <div className="flex items-center gap-1.5">
                 {unreadOutboundMsgsCount > 0 && (
@@ -927,62 +919,52 @@ export default async function DashboardPage({
                     💬 {unreadOutboundMsgsCount} New
                   </span>
                 )}
-                <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">
-                  {applicationCount}
+                <span className="text-xs font-black text-amber-950 bg-white border border-amber-200 px-2.5 py-1 rounded-lg">
+                  {applicationCount} Sent
                 </span>
               </div>
             </div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              Outbound Pipeline
-            </p>
-            <h3 className="text-lg font-black text-slate-900 mt-1">
-              {unreadOutboundMsgsCount > 0
-                ? `${unreadOutboundMsgsCount} Unread ${
-                    unreadOutboundMsgsCount === 1 ? 'Message' : 'Messages'
-                  }`
-                : 'Applications'}
+            <h3 className="text-lg font-black text-slate-900">
+              Outbound Applications
             </h3>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-600 mt-1">
               {unreadOutboundMsgsCount > 0
                 ? 'An employer messaged you about your application!'
                 : 'Track blind applications & unlocked employers'}
             </p>
           </div>
-          <p className="text-xs font-bold text-slate-700 group-hover:text-indigo-600 mt-5">
-            {unreadOutboundMsgsCount > 0 ? 'Read & reply →' : 'Track status →'}
+          <p className="text-xs font-extrabold text-amber-900 group-hover:text-amber-950 mt-5">
+            Track applications →
           </p>
         </Link>
 
         <Link
           href="/dashboard/preferences"
-          className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-400 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+          className="group bg-indigo-50/75 hover:bg-indigo-100/70 p-6 rounded-2xl border border-indigo-200/90 hover:border-indigo-400 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
         >
           <div>
             <div className="flex items-center justify-between mb-4">
-              <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-base">
+              <span className="w-10 h-10 rounded-xl bg-white border border-indigo-200 text-indigo-700 flex items-center justify-center text-base shadow-2xs">
                 🛡️
               </span>
             </div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              Filters &amp; Guardrails
-            </p>
-            <h3 className="text-lg font-black text-slate-900 mt-1">
-              Preferences
+            <h3 className="text-lg font-black text-slate-900">
+              Match Preferences
             </h3>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-600 mt-1">
               Set minimum salary, employment types &amp; work model
             </p>
           </div>
-          <p className="text-xs font-bold text-slate-700 group-hover:text-indigo-600 mt-5">
+          <p className="text-xs font-extrabold text-indigo-800 group-hover:text-indigo-950 mt-5">
             Edit dealbreakers →
           </p>
         </Link>
       </section>
 
-      {/* CANDIDATE REPUTATION, XP LEVEL & TROPHY CASE */}
+      {/* COLLAPSIBLE CANDIDATE REPUTATION & MERIT BADGE BAR */}
       <ReputationBadgeCase summary={candidateGamification} />
 
-      {/* RECOMMENDED ROLES SECTION (NO REDUNDANT FILTER BOX) */}
+      {/* RECOMMENDED ROLES SECTION */}
       <section className="pt-6 border-t border-slate-200">
         <div className="flex items-center justify-between gap-4 mb-5">
           <div>

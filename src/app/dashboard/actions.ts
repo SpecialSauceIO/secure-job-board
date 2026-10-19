@@ -5061,3 +5061,69 @@ export async function releaseCandidateVaultAndSyncAts(applicationId: string) {
     atsSyncStatus: atsSyncResult?.syncStatus || null,
   }
 }
+
+// ------------------------------------------------------------------
+// WHITE-LABEL EMPLOYER LOGO UPLOADER (SUPABASE STORAGE -> organizations.logo_url)
+// ------------------------------------------------------------------
+export async function uploadEmployerOrganizationLogo(formData: FormData) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { data: member } = await supabase
+    .from('organization_members')
+    .select('organization_id')
+    .eq('user_id', user.id)
+    .limit(1)
+    .maybeSingle()
+
+  if (!member?.organization_id) {
+    return { error: 'Please create or join your company profile first.' }
+  }
+
+  const fileEntry = formData.get('logo_file')
+  if (!fileEntry || typeof fileEntry !== 'object' || !('arrayBuffer' in fileEntry)) {
+    return { error: 'Please select an image file to upload.' }
+  }
+
+  const fileObj = fileEntry as File
+  if (fileObj.size <= 0 || fileObj.size > 5 * 1024 * 1024) {
+    return { error: 'Logo file must be under 5 MB.' }
+  }
+
+  const serviceClient = getOpsServiceClient() || supabase
+  const safeName = (fileObj.name || 'logo.png').replace(/[^a-zA-Z0-9._-]/g, '_')
+  const storagePath = `_org_brand_logos/${member.organization_id}/${Date.now()}_${safeName}`
+  const buffer = Buffer.from(await fileObj.arrayBuffer())
+
+  const { error: uploadErr } = await serviceClient.storage
+    .from('resumes')
+    .upload(storagePath, buffer, {
+      upsert: true,
+      contentType: fileObj.type || 'image/png',
+    })
+
+  if (uploadErr) {
+    return { error: 'Could not upload logo file. Please try another image.' }
+  }
+
+  const { data: signedData } = await serviceClient.storage
+    .from('resumes')
+    .createSignedUrl(storagePath, 60 * 60 * 24 * 365 * 5)
+
+  const finalLogoUrl = signedData?.signedUrl || ''
+  if (!finalLogoUrl) {
+    return { error: 'Could not generate logo URL.' }
+  }
+
+  await serviceClient
+    .from('organizations')
+    .update({ logo_url: finalLogoUrl })
+    .eq('id', member.organization_id)
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/employer/organization')
+  return { success: true, logoUrl: finalLogoUrl }
+}

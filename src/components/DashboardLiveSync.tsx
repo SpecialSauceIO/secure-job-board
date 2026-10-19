@@ -133,51 +133,36 @@ export default function DashboardLiveSync() {
   const pitchUnread = pulseState.secondaryUnreadCount
 
   return (
-    <div className="rounded-2xl border-2 border-indigo-600 bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 text-white p-4 sm:p-5 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div className="flex items-start sm:items-center gap-3.5">
-        <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-600/30 border border-indigo-400/40 text-xl">
-          💬
-          <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-slate-900"></span>
-          </span>
-        </div>
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-slate-950">
-              {pulseState.totalUnreadMessages} Unread {pulseState.totalUnreadMessages === 1 ? "Message" : "Messages"}
-            </span>
-            <h2 className="text-sm sm:text-base font-black text-white">
-              {isEmployer
-                ? "Candidate Reply Waiting in Your Pipeline"
-                : "Employer Message Waiting in Your Thread"}
-            </h2>
-          </div>
-          <p className="text-xs text-slate-300 mt-1">
-            {isEmployer
-              ? `You have ${inboundOrAppUnread > 0 ? `${inboundOrAppUnread} unread in Inbound Applications` : ""}${inboundOrAppUnread > 0 && pitchUnread > 0 ? " and " : ""}${pitchUnread > 0 ? `${pitchUnread} unread in Sent Pitches` : ""}. Open the thread to respond.`
-              : `You have ${inboundOrAppUnread > 0 ? `${inboundOrAppUnread} unread in My Applications` : ""}${inboundOrAppUnread > 0 && pitchUnread > 0 ? " and " : ""}${pitchUnread > 0 ? `${pitchUnread} unread in Employer Pitches` : ""}. Open the thread to reply.`}
-          </p>
-        </div>
+    <div className="rounded-xl border border-indigo-200 bg-indigo-50/90 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+      <div className="flex items-center gap-2.5 text-xs">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-500 text-slate-950">
+          <span className="w-1.5 h-1.5 rounded-full bg-slate-950 animate-ping" />
+          {pulseState.totalUnreadMessages} Unread
+        </span>
+        <span className="font-extrabold text-slate-900">
+          {isEmployer
+            ? 'Candidate reply waiting in your pipeline'
+            : 'Employer message waiting in your thread'}
+        </span>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+      <div className="flex flex-wrap items-center gap-2">
         {isEmployer ? (
           <>
             {inboundOrAppUnread > 0 && (
               <Link
                 href="/dashboard/employer/applications"
-                className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black transition-colors shadow-sm"
+                className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold transition-colors"
               >
-                Open Inbound Messages ({inboundOrAppUnread}) →
+                Inbound Applications ({inboundOrAppUnread}) →
               </Link>
             )}
             {pitchUnread > 0 && (
               <Link
                 href="/dashboard/employer/pitches"
-                className="px-4 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-black transition-colors shadow-sm"
+                className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold transition-colors"
               >
-                Open Pitch Replies ({pitchUnread}) →
+                Outbound Pitches ({pitchUnread}) →
               </Link>
             )}
           </>
@@ -186,17 +171,17 @@ export default function DashboardLiveSync() {
             {inboundOrAppUnread > 0 && (
               <Link
                 href="/dashboard/applications"
-                className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black transition-colors shadow-sm"
+                className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold transition-colors"
               >
-                Open Application Thread ({inboundOrAppUnread}) →
+                Outbound Applications ({inboundOrAppUnread}) →
               </Link>
             )}
             {pitchUnread > 0 && (
               <Link
                 href="/dashboard/requests"
-                className="px-4 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-black transition-colors shadow-sm"
+                className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold transition-colors"
               >
-                Open Employer Pitch ({pitchUnread}) →
+                Inbound Pitches ({pitchUnread}) →
               </Link>
             )}
           </>
