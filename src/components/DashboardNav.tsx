@@ -104,7 +104,7 @@ export default function DashboardNav({
               className="flex items-center hover:opacity-90 transition-opacity focus:outline-none"
             >
               <img
-                src="/logo.png"
+                src="/logo.png?v=1792428229295"
                 alt="specialsauce.io Logo"
                 className="h-14 sm:h-16 md:h-[72px] w-auto object-contain"
               />
