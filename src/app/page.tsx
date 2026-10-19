@@ -114,7 +114,7 @@ export default function LandingPage() {
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
               Join during our launch window to unlock{' '}
               <strong className="text-slate-700">30 days of complimentary full access</strong>,{' '}
-              <strong className="text-slate-700">Permanent Founding Member &amp; Partner status</strong>, verified behavioral trust signals, and lifetime rate locks.
+              <strong className="text-slate-700">Permanent Founding Member &amp; Partner status</strong>, and lifetime rate locks.
             </p>
           </div>
 
@@ -142,7 +142,7 @@ export default function LandingPage() {
               No resume harvesting.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Every job posting automatically expires after 30 days unless the employer actively renews it, eliminating abandoned listings and resume-collector traps. Your name, current employer, and contact details stay locked in your encrypted vault until you approve a request.
+              Every job posting automatically expires after 30 days unless the employer actively renews it, eliminating abandoned listings and resume-collector traps so you never waste time applying to outdated roles.
             </p>
           </div>
 
