@@ -1,5 +1,6 @@
-import SafetyReportButton from '@/components/SafetyReportButton'
 'use client'
+
+import SafetyReportButton from '@/components/SafetyReportButton'
 
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
