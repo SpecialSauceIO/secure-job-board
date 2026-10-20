@@ -209,8 +209,10 @@ export function CandidateJobFeed({
       }
     } catch {}
 
-    getPersistedMatchCache()
-      .then((res) => {
+    const hasLocalCandCache = Boolean(localStorage.getItem('ss_cand_match_results_v1'))
+    if (!hasLocalCandCache) {
+      getPersistedMatchCache()
+        .then((res) => {
         if (!mounted || !res?.cache) return
         const serverMatches: Record<string, any> = {}
         for (const [k, v] of Object.entries(res.cache)) {
@@ -229,7 +231,8 @@ export function CandidateJobFeed({
           })
         }
       })
-      .catch(() => {})
+        .catch(() => {})
+    }
 
     return () => {
       mounted = false

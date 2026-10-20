@@ -280,8 +280,9 @@ export default function EmployerCandidateSearch({
         setIsLoading(false)
       }
 
-      // Hydrate persisted match cache asynchronously in background without blocking candidate list
-      getPersistedMatchCache()
+      // Only fetch remote backup cache if localStorage is empty (avoids queuing extra Server Action on mount)
+      const hasLocalCache = Boolean(localStorage.getItem('ss_emp_match_cache_v1'))
+      if (!hasLocalCache) getPersistedMatchCache()
         .then((persisted) => {
           if (!persisted?.cache) return
           const empEntries: Record<string, any> = {}
