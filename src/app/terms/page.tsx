@@ -127,9 +127,34 @@ export default function TermsOfServicePage() {
             <h2 className="text-xl">
               7. Subscriptions, Connection Credits, Team Seats &amp; Billing
             </h2>
-            <p className="text-slate-600 leading-relaxed mt-2">
-              Employer subscription plans (Starter at $99/mo, Growth at $299/mo, Enterprise at $899/mo) and the Candidate Pro Pass ($9/mo) are billed in U.S. Dollars via Stripe Checkout and renew automatically unless canceled prior to the next billing cycle. Inbound Candidate applications are free for active Employer subscribers to review and unlock in Stage 1; outbound Employer pitches deduct one (1) Connection Credit per pitch. All payments are non-refundable except as required by applicable law.
-            </p>
+            <div className="text-slate-600 leading-relaxed mt-2 space-y-3">
+                <p>
+                  All paid subscription tiers and on-demand add-on packs are billed in U.S. Dollars via Stripe Checkout. Recurring monthly plans renew automatically unless canceled or downgraded prior to the next billing cycle:
+                </p>
+                <ul className="list-disc pl-5 space-y-1.5">
+                  <li>
+                    <strong className="text-slate-800">Candidate Plans:</strong> Explorer Vault ($0/mo — includes 4 lifetime blind applications), Professional (<h2 className="text-xl">
+              7. Subscriptions, Connection Credits, Team Seats &amp; Billing
+            </h2>
+            0/mo — 30 blind applications per monthly cycle), and Prestige (<h2 className="text-xl">
+              7. Subscriptions, Connection Credits, Team Seats &amp; Billing
+            </h2>
+            9/mo — 75 blind applications per monthly cycle plus Founding Member status; Prestige subscribers may switch or downgrade to the Professional plan at any time).
+                  </li>
+                  <li>
+                    <strong className="text-slate-800">Employer Subscription Plans:</strong> Free Preview ($0/mo — Corporate Domain Verification and passive talent search preview), Starter ($99/mo — up to 2 active roles, 15 monthly Pitch Credits, 1 seat), Growth ($299/mo — up to 10 active roles, 75 monthly Pitch Credits, up to 3 seats), and Enterprise ($899/mo — unlimited active roles, 250 monthly Pitch Credits, up to 10 seats).
+                  </li>
+                  <li>
+                    <strong className="text-slate-800">On-Demand Pitch Credit Top-Ups &amp; Role Slot Add-Ons:</strong> Subscribed Employers may purchase non-expiring Pitch Credit Top-Up Packs (10 Credits for $75, 25 Credits for <h2 className="text-xl">
+              7. Subscriptions, Connection Credits, Team Seats &amp; Billing
+            </h2>
+            50, or 100 Credits for $500) and Extra Active Job Slot Packs (+1 Active Job Slot for $39 one-time).
+                  </li>
+                  <li>
+                    <strong className="text-slate-800">Credit Integrity &amp; Finalized Decisions:</strong> Inbound Candidate applications are free for Employers to review and unlock in Stage 1. Outbound Employer pitches deduct one (1) Pitch Credit per pitch. Duplicate pitches or repeat applications for the same role are automatically blocked, and archived or declined decisions become permanent once the 10-second inline Undo grace window completes. All payments and top-up packs are non-refundable except as required by applicable law.
+                  </li>
+                </ul>
+              </div>
           </section>
 
           <section>

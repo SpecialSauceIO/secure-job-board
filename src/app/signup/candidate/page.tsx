@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import { signupCandidate } from '@/app/signup/actions'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -8,6 +11,8 @@ export default async function CandidateSignupPage({
   searchParams: Promise<{ message?: string }>
 }) {
   const resolvedParams = await searchParams
+
+  const [showPassword, setShowPassword] = useState<boolean>(false)
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4 sm:p-8">
@@ -129,12 +134,19 @@ export default async function CandidateSignupPage({
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
-                  className="block w-full rounded-lg border border-slate-300 bg-white pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 sm:text-sm shadow-sm"
+                  className="block w-full rounded-lg border border-slate-300 bg-white pl-10 pr-16 py-2.5 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 sm:text-sm shadow-sm"
                   placeholder="••••••••"
                   minLength={6}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev: boolean) => !prev)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-xs font-extrabold text-slate-500 hover:text-indigo-600 cursor-pointer"
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
               </div>
             </div>
           </div>

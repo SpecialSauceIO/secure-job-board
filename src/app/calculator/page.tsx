@@ -101,7 +101,7 @@ export default function CalculatorPage() {
           <div className="bg-white p-5 rounded-2xl border-2 border-slate-300 shadow-sm border-slate-300">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Fixed Platform</p>
             <p className="text-2xl lg:text-3xl font-extrabold text-slate-700 mt-1">{fmtUSD(inputs.cost_fixed)}</p>
-            <p className="text-xs text-slate-500 font-medium mt-1">Vercel & Supabase</p>
+            <p className="text-xs text-slate-500 font-medium mt-1">Edge Hosting & Encrypted Vault DB</p>
           </div>
           <div className="bg-white p-5 rounded-2xl border border-emerald-300 bg-emerald-50/30 shadow-sm">
             <p className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Net Monthly Profit</p>
@@ -356,7 +356,7 @@ export default function CalculatorPage() {
                 <span className="font-bold text-rose-600">{fmtUSDFloat(stripe_variable_fees)}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-300">
-                <span className="text-slate-600">Fixed Baseline (Vercel + Supabase)</span>
+                <span className="text-slate-600">Fixed Baseline (Cloud Edge + Vault DB)</span>
                 <span className="font-bold text-slate-900">{fmtUSD(inputs.cost_fixed)}</span>
               </div>
               <div className="flex justify-between py-1 text-base font-extrabold text-slate-900 pt-2">

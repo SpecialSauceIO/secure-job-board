@@ -251,7 +251,7 @@ export default function EmployerCandidateSearch({
     }
 
     try {
-      const savedMatches = localStorage.getItem('ss_emp_match_cache_v1')
+      const savedMatches = localStorage.getItem('ss_emp_match_cache_v2')
       if (savedMatches) {
         const parsed = JSON.parse(savedMatches)
         if (parsed && typeof parsed === 'object') setMatchCacheMap(parsed)
@@ -281,7 +281,7 @@ export default function EmployerCandidateSearch({
       }
 
       // Only fetch remote backup cache if localStorage is empty (avoids queuing extra Server Action on mount)
-      const hasLocalCache = Boolean(localStorage.getItem('ss_emp_match_cache_v1'))
+      const hasLocalCache = Boolean(localStorage.getItem('ss_emp_match_cache_v2'))
       if (!hasLocalCache) getPersistedMatchCache()
         .then((persisted) => {
           if (!persisted?.cache) return
@@ -303,7 +303,7 @@ export default function EmployerCandidateSearch({
             setMatchCacheMap((prev) => {
               const merged = { ...empEntries, ...prev }
               try {
-                localStorage.setItem('ss_emp_match_cache_v1', JSON.stringify(merged))
+                localStorage.setItem('ss_emp_match_cache_v2', JSON.stringify(merged))
               } catch {}
               return merged
             })
@@ -438,7 +438,7 @@ export default function EmployerCandidateSearch({
         setMatchCacheMap((prev) => {
           const next = { ...prev, [pairKey]: result.data }
           try {
-            localStorage.setItem('ss_emp_match_cache_v1', JSON.stringify(next))
+            localStorage.setItem('ss_emp_match_cache_v2', JSON.stringify(next))
           } catch {}
           return next
         })

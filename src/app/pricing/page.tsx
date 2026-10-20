@@ -215,7 +215,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>
-                      <span>Switch or downgrade to $0 Explorer anytime</span>
+                      <span>Switch or downgrade to Professional anytime</span>
                     </li>
                   </ul>
                 </div>

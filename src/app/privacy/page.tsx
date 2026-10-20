@@ -117,7 +117,7 @@ export default function PrivacyPolicyPage() {
                 <strong className="text-slate-800">With Verified Employers (Staged Consent):</strong> Stage 1 thread access occurs only when you apply blindly to an Employer’s role or accept their outbound pitch; Stage 2 disclosure (Full Name, direct email, and signed PDF resume link) occurs strictly when you click &ldquo;Release Resume &amp; Contact Vault.&rdquo;
               </li>
               <li>
-                <strong className="text-slate-800">With Infrastructure &amp; Security Providers:</strong> Trusted service providers who power our cloud hosting (Vercel), Row-Level Security database and private storage buckets (Supabase), payment and biometric identity vaulting (Stripe), transactional email delivery (Resend), and AI inference APIs.
+                <strong className="text-slate-800">With Infrastructure &amp; Security Providers:</strong> Trusted enterprise infrastructure providers who power our global edge cloud hosting, encrypted Row-Level Security (RLS) databases and isolated private storage buckets, payment and biometric identity vaulting (Stripe), transactional email delivery, and multi-tier AI matching inference.
               </li>
               <li>
                 <strong className="text-slate-800">For Legal &amp; Security Compliance:</strong> To comply with lawful requests, enforce our Terms of Service, or investigate suspected data harvesting or security violations.
@@ -128,7 +128,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-xl">7. Your Data Rights &amp; Account Deletion</h2>
             <p className="text-slate-600 leading-relaxed mt-2">
-              You have the right to access, update, or delete your Personal Information and vaulted PDF resume at any time through your dashboard settings or by submitting a request through our Help Center. Upon account deletion, your profile and stored resume files are permanently purged from our active Supabase databases and storage buckets.
+              You have the right to access, update, or delete your Personal Information and vaulted PDF resume at any time through your dashboard settings or by submitting a request through our Help Center. Upon account deletion, your profile and stored resume files are permanently purged from our active encrypted databases and isolated cloud storage buckets.
             </p>
           </section>
 

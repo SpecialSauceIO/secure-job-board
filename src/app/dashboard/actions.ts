@@ -2485,7 +2485,7 @@ export async function analyzeJobFit(jobId: string, forceRefresh: boolean = false
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
-  const cacheKey = `cand_${jobId}`
+  const cacheKey = `cand_v2_${jobId}`
   // Client-side localStorage handles instant repeat hits; server cache is hydrated on demand
 
   const { data: profile } = await supabase
@@ -2541,7 +2541,7 @@ export async function analyzeCandidateFit(
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
-  const cacheKey = `emp_${candidateId}_${jobId}`
+  const cacheKey = `emp_v2_${candidateId}_${jobId}`
   if (!forceRefresh) {
     const existingCache = await readUserMatchCache(user.id)
     if (existingCache[cacheKey]?.overall_score !== undefined) {
@@ -2631,6 +2631,11 @@ function getMatchPrompt(
       * Instead, inspect the per-skill years inside the candidate's "Skills & Experience Matrix" (structured_skills) and compare them directly against the required years in the job's "Core Requirements".
       * If a candidate pivoted careers (e.g., high total career years, fewer years in a newly acquired technical skill), base "Experience Level" primarily on their hands-on tenure in the job's core required skills, while granting up to a +15 point Transferable Professional Maturity credit for prior leadership, stakeholder management, and operational execution.
       * Conversely, if a candidate has strong per-skill years in the exact required tools, do not penalize them if their overall career years are modest.
+    - STRICT DOMAIN & CORE SKILL GATING (CRITICAL — NO INFLATED SCORES):
+      * You MUST be a rigorous, realistic evaluator. Do NOT give generous 75-90% scores when a candidate lacks the job's core functional skills or comes from a completely unrelated industry (e.g., an IT professional applying to or being evaluated for a Food Service Manager, Nursing, or Construction role).
+      * If the candidate has ZERO or near-zero direct overlap with the job's Core Requirements / functional skills, "Core Competencies" MUST score between 5 and 25, "Skill Tenure" (measuring tenure in THIS job's required skills, NOT unrelated career years) MUST score between 10 and 30, and "overall_score" MUST be below 35.
+      * High general career years (e.g., 16 years in IT) do NOT count as "Skill Tenure" for an unrelated field (e.g., Food Service Management). Transferable maturity credit (+15 max) only applies on top of actual role-relevant skill tenure.
+      * "overall_score" MUST be weighted: 45% Core Competencies + 25% Skill Tenure + 15% Industry & Creds + 10% Logistics & Pay + 5% Execution & Comm. Logistics & Pay or Communication can NEVER pull an unrelated profile above 39%.
     - FIVE-PILLAR RADAR SCORING DEFINITIONS:
       1. "Core Competencies": Direct semantic overlap and proficiency across the job's required role skills, tools, and functional capabilities.
       2. "Skill Tenure": Skill-specific tenure alignment against the role's required years per skill + transferable professional maturity (never penalize career changers for having higher total career years than a newer skill's years, and never cite total career years if the role only asks for specific skill tenure).
@@ -2695,12 +2700,58 @@ function normalizeRadarSubjectLabel(rawSubject: string): string {
 function normalizeMatchDataObject(matchData: any): any {
   if (!matchData || typeof matchData !== 'object') return matchData
   if (!Array.isArray(matchData.radar_data)) return matchData
+
+  const normalizedRadar = matchData.radar_data.map((item: any) => ({
+    ...item,
+    subject: normalizeRadarSubjectLabel(item?.subject),
+    score: Math.max(0, Math.min(100, Math.round(Number(item?.score) || 0))),
+  }))
+
+  const findScore = (label: string, fallback: number) => {
+    const found = normalizedRadar.find((r: any) => r.subject === label)
+    return found ? found.score : fallback
+  }
+
+  const coreScore = findScore('Core Competencies', Number(matchData.overall_score) || 50)
+  const tenureScore = findScore('Skill Tenure', coreScore)
+  const logisticsScore = findScore('Logistics & Pay', 75)
+  const industryScore = findScore('Industry & Creds', coreScore)
+  const commScore = findScore('Execution & Comm.', 75)
+
+  // If Core Competencies are weak (< 40), cap Skill Tenure so unrelated career years don't inflate the radar
+  const calibratedTenure =
+    coreScore < 35 ? Math.min(tenureScore, coreScore + 12) : tenureScore
+
+  const calibratedRadar = normalizedRadar.map((r: any) =>
+    r.subject === 'Skill Tenure' ? { ...r, score: calibratedTenure } : r
+  )
+
+  // Weighted overall score: 45% Core + 25% Skill Tenure + 15% Industry + 10% Logistics + 5% Comm
+  let weightedOverall = Math.round(
+    coreScore * 0.45 +
+      calibratedTenure * 0.25 +
+      industryScore * 0.15 +
+      logisticsScore * 0.10 +
+      commScore * 0.05
+  )
+
+  // Hard Domain / Competency Ceiling: if Core Competencies < 35%, overall cannot exceed coreScore + 10 (blocks <40% mismatches)
+  if (coreScore < 35) {
+    weightedOverall = Math.min(weightedOverall, coreScore + 10, 36)
+  } else if (coreScore < 50) {
+    weightedOverall = Math.min(weightedOverall, coreScore + 12)
+  }
+
+  const rawOverall = Number(matchData.overall_score)
+  const finalOverall =
+    !isNaN(rawOverall) && rawOverall > 0
+      ? Math.min(rawOverall, weightedOverall)
+      : weightedOverall
+
   return {
     ...matchData,
-    radar_data: matchData.radar_data.map((item: any) => ({
-      ...item,
-      subject: normalizeRadarSubjectLabel(item?.subject),
-    })),
+    overall_score: Math.max(5, Math.min(99, finalOverall)),
+    radar_data: calibratedRadar,
   }
 }
 
@@ -2722,8 +2773,10 @@ function buildDeterministicFallbackMatch(
   job: any,
   viewerRole: 'candidate' | 'employer' = 'candidate'
 ) {
+  const stopWords = new Set(['and', 'the', 'for', 'with', 'management', 'manager', 'senior', 'junior', 'lead', 'specialist', 'operations', 'services', 'general', 'professional'])
   const candSkills: string[] = Array.isArray(profile?.structured_skills)
     ? profile.structured_skills
+        .filter((s: any) => !s?._ss_pref_meta)
         .map((s: any) => String(s?.skill || s?.name || '').toLowerCase().trim())
         .filter(Boolean)
     : String(profile?.skills || '')
@@ -2739,43 +2792,61 @@ function buildDeterministicFallbackMatch(
         .filter(Boolean)
     : []
 
+  const titleTokens = String(job?.title || '')
+    .toLowerCase()
+    .split(/[^a-z0-9+#]+/)
+    .filter((w) => w.length > 2 && !stopWords.has(w))
+
+  const effectiveReqs = jobReqs.length > 0 ? jobReqs : titleTokens
+
   let matchedCount = 0
-  for (const req of jobReqs) {
-    const words = req.split(/\s+/).filter((w) => w.length > 2)
+  for (const req of effectiveReqs) {
+    const words = req.split(/\s+/).filter((w) => w.length > 2 && !stopWords.has(w))
     const hit = candSkills.some(
       (cs) =>
-        cs.includes(req) ||
-        req.includes(cs) ||
-        words.some((w) => cs.includes(w))
+        cs === req ||
+        (req.length >= 4 && (cs.includes(req) || req.includes(cs))) ||
+        (words.length > 0 && words.every((w) => cs.includes(w)))
     )
     if (hit) matchedCount++
   }
 
+  const ratio = effectiveReqs.length > 0 ? matchedCount / effectiveReqs.length : 0
+
+  const candIndustry = String(profile?.industry_vertical || '').toLowerCase().trim()
+  const jobIndustry = String(job?.industry || '').toLowerCase().trim()
+  const sameIndustry =
+    Boolean(candIndustry && jobIndustry) &&
+    (candIndustry === jobIndustry ||
+      candIndustry.includes(jobIndustry) ||
+      jobIndustry.includes(candIndustry))
+
   const competencyScore =
-    jobReqs.length > 0
-      ? Math.min(96, Math.max(68, Math.round((matchedCount / jobReqs.length) * 35 + 62)))
-      : 82
-  const tenureScore = Math.min(95, Math.max(72, Number(profile?.experience_years || 5) >= 5 ? 88 : 76))
-  const logisticsScore = 86
-  const industryScore =
-    profile?.industry_vertical &&
-    job?.industry &&
-    String(profile.industry_vertical).toLowerCase() === String(job.industry).toLowerCase()
-      ? 92
-      : 80
-  const commScore = 88
+    effectiveReqs.length > 0
+      ? matchedCount === 0
+        ? sameIndustry ? 32 : 14
+        : Math.min(95, Math.round(25 + ratio * 70))
+      : sameIndustry
+      ? 68
+      : 28
 
-  const overall = Math.round(
-    (competencyScore + tenureScore + logisticsScore + industryScore + commScore) / 5
-  )
+  const tenureScore =
+    matchedCount === 0
+      ? Math.min(28, Number(profile?.experience_years || 0) > 0 ? 22 : 12)
+      : Math.min(95, Math.round(competencyScore * 0.85 + Math.min(15, Number(profile?.experience_years || 3) * 1.5)))
 
-  const brief =
-    viewerRole === 'employer'
-      ? `This candidate demonstrates a ${overall}% overall alignment across required core competencies, skill tenure, and operational execution for ${job?.title || 'this role'}.`
-      : `Your profile shows a ${overall}% alignment with the core competencies, experience depth, and operational requirements for ${job?.title || 'this role'}.`
+  const logisticsScore = 82
+  const industryScore = sameIndustry ? 90 : matchedCount > 0 ? 58 : 20
+  const commScore = 78
 
-  return {
-    overall_score: overall,
+  const rawFallback = {
+    overall_score: Math.round(
+      competencyScore * 0.45 +
+        tenureScore * 0.25 +
+        industryScore * 0.15 +
+        logisticsScore * 0.10 +
+        commScore * 0.05
+    ),
     radar_data: [
       { subject: 'Core Competencies', score: competencyScore },
       { subject: 'Skill Tenure', score: tenureScore },
@@ -2783,9 +2854,28 @@ function buildDeterministicFallbackMatch(
       { subject: 'Industry & Creds', score: industryScore },
       { subject: 'Execution & Comm.', score: commScore },
     ],
-    brief_analysis: brief,
-    employer_pitch: `Strong cross-functional alignment for ${job?.title || 'this role'} backed by verified hands-on skill tenure and domain execution.`,
+    brief_analysis: '',
+    employer_pitch: '',
   }
+
+  const calibrated = normalizeMatchDataObject(rawFallback)
+  const overall = calibrated.overall_score
+
+  calibrated.brief_analysis =
+    overall < 40
+      ? viewerRole === 'employer'
+        ? `Low role alignment (${overall}%): Candidate's primary skill matrix and industry background do not overlap with the core requirements for ${job?.title || 'this role'}.`
+        : `Low role alignment (${overall}%): Your primary skill matrix and industry vertical have minimal overlap with the core requirements for ${job?.title || 'this role'}.`
+      : viewerRole === 'employer'
+      ? `This candidate demonstrates a ${overall}% overall alignment across required core competencies, skill tenure, and operational execution for ${job?.title || 'this role'}.`
+      : `Your profile shows a ${overall}% alignment with the core competencies, experience depth, and operational requirements for ${job?.title || 'this role'}.`
+
+  calibrated.employer_pitch =
+    overall < 40
+      ? `Significant domain and core skill gap detected for ${job?.title || 'this role'}.`
+      : `Strong cross-functional alignment for ${job?.title || 'this role'} backed by verified hands-on skill tenure and domain execution.`
+
+  return calibrated
 }
 
 async function analyzeMatchRouter(

@@ -379,7 +379,7 @@ export default function CandidateBillingPage() {
                 <li className="text-amber-300 font-bold">
                   ✓ <strong>Permanent Founding Member Status</strong>
                 </li>
-                <li>✓ Downgrade to $0 Explorer Vault anytime</li>
+                <li>✓ Switch or downgrade to Professional anytime</li>
               </ul>
             </div>
 

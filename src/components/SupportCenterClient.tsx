@@ -546,7 +546,7 @@ export default function SupportCenterClient({
                   </div>
                   <div>
                     <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 block">
-                      Supabase RLS &amp; 2-Stage Identity Vault
+                      Row-Level Security (RLS) &amp; 2-Stage Identity Vault
                     </span>
                     <h3 className="text-lg font-extrabold text-slate-900">
                       Protected by Special Sauce

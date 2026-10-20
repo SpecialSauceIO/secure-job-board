@@ -6,6 +6,53 @@ import {
   MetalTierConfig,
 } from "@/constants/gamification"
 
+const PASTEL_SIGNAL_PALETTES = [
+  {
+    pill: "bg-emerald-100/90 border-emerald-300 text-emerald-950",
+    icon: "text-emerald-700 font-black",
+    card: "bg-emerald-50/70 border-emerald-300 shadow-2xs",
+    tag: "bg-emerald-200/80 text-emerald-950 border-emerald-400",
+  },
+  {
+    pill: "bg-sky-100/90 border-sky-300 text-sky-950",
+    icon: "text-sky-700 font-black",
+    card: "bg-sky-50/70 border-sky-300 shadow-2xs",
+    tag: "bg-sky-200/80 text-sky-950 border-sky-400",
+  },
+  {
+    pill: "bg-violet-100/90 border-violet-300 text-violet-950",
+    icon: "text-violet-700 font-black",
+    card: "bg-violet-50/70 border-violet-300 shadow-2xs",
+    tag: "bg-violet-200/80 text-violet-950 border-violet-400",
+  },
+  {
+    pill: "bg-rose-100/90 border-rose-300 text-rose-950",
+    icon: "text-rose-700 font-black",
+    card: "bg-rose-50/70 border-rose-300 shadow-2xs",
+    tag: "bg-rose-200/80 text-rose-950 border-rose-400",
+  },
+  {
+    pill: "bg-teal-100/90 border-teal-300 text-teal-950",
+    icon: "text-teal-700 font-black",
+    card: "bg-teal-50/70 border-teal-300 shadow-2xs",
+    tag: "bg-teal-200/80 text-teal-950 border-teal-400",
+  },
+  {
+    pill: "bg-fuchsia-100/90 border-fuchsia-300 text-fuchsia-950",
+    icon: "text-fuchsia-700 font-black",
+    card: "bg-fuchsia-50/70 border-fuchsia-300 shadow-2xs",
+    tag: "bg-fuchsia-200/80 text-fuchsia-950 border-fuchsia-400",
+  },
+]
+
+function getSignalPalette(badgeId: string, idx: number) {
+  let hash = idx
+  for (let i = 0; i < badgeId.length; i++) {
+    hash = (hash * 31 + badgeId.charCodeAt(i)) % PASTEL_SIGNAL_PALETTES.length
+  }
+  return PASTEL_SIGNAL_PALETTES[Math.abs(hash) % PASTEL_SIGNAL_PALETTES.length]
+}
+
 export function RankAndFounderPill({
   isFounder = true,
   founderText = "Founding Member",
@@ -20,13 +67,13 @@ export function RankAndFounderPill({
   if (!isFounder) return null
 
   const paddingClass =
-    size === "xs" ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-[11px]"
+    size === "xs" ? "px-2.5 py-0.5 text-[10px]" : "px-3 py-1 text-[11px]"
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-md font-bold border ${paddingClass} bg-amber-50 text-amber-950 border-amber-300 shadow-2xs`}
+      className={`inline-flex items-center gap-1 rounded-md font-extrabold border-2 ${paddingClass} bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 text-amber-950 border-amber-500 shadow-xs`}
     >
-      <span className="text-amber-600">★</span>
+      <span className="text-amber-800 drop-shadow-2xs">★</span>
       <span>{founderText}</span>
     </span>
   )
@@ -54,23 +101,24 @@ export default function ReputationBadgeCase({
             Earned Signals
           </span>
 
-          {unlockedBadges.map((badge) => {
+          {unlockedBadges.map((badge, idx) => {
             const isFounder = isFounderBadge(badge.id)
+            const palette = getSignalPalette(badge.id, idx)
             return (
               <span
                 key={badge.id}
                 title={badge.description}
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border text-xs font-bold shadow-2xs ${
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-extrabold shadow-2xs ${
                   isFounder
-                    ? "bg-amber-50 border-amber-300 text-amber-950"
-                    : "bg-slate-100/90 border-slate-300 text-slate-900"
+                    ? "bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 border-2 border-amber-500 text-amber-950"
+                    : `border ${palette.pill}`
                 }`}
               >
                 <span
                   className={
                     isFounder
-                      ? "text-amber-600 font-black"
-                      : "text-emerald-700 font-black"
+                      ? "text-amber-800 font-black"
+                      : palette.icon
                   }
                 >
                   {isFounder ? "★" : "✓"}
@@ -119,22 +167,23 @@ export default function ReputationBadgeCase({
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-            {summary.badges.map((badge) => {
+            {summary.badges.map((badge, idx) => {
               const isFounder = isFounderBadge(badge.id)
+              const palette = getSignalPalette(badge.id, idx)
               return (
                 <div
                   key={badge.id}
                   className={`p-4 rounded-xl border-2 transition-all ${
                     badge.unlocked
                       ? isFounder
-                        ? "bg-amber-50/60 border-amber-300 shadow-2xs"
-                        : "bg-white border-slate-300 shadow-2xs"
+                        ? "bg-gradient-to-br from-amber-100 via-yellow-50 to-amber-200/80 border-amber-400 shadow-xs"
+                        : palette.card
                       : "bg-slate-50/80 border-slate-200 opacity-75"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <h4
-                      className={`text-xs font-bold truncate ${
+                      className={`text-xs font-extrabold truncate ${
                         badge.unlocked
                           ? isFounder
                             ? "text-amber-950"
@@ -145,18 +194,18 @@ export default function ReputationBadgeCase({
                       {isFounder && badge.unlocked ? `★ ${badge.title}` : badge.title}
                     </h4>
                     <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                      className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md border ${
                         badge.unlocked
                           ? isFounder
-                            ? "bg-amber-100/80 text-amber-950 border-amber-300"
-                            : "bg-emerald-50 text-emerald-800 border-emerald-300"
+                            ? "bg-amber-300/90 text-amber-950 border-amber-500"
+                            : palette.tag
                           : "bg-white text-slate-600 border-slate-300"
                       }`}
                     >
                       {badge.unlocked ? (isFounder ? "★ Charter" : "✓ Active") : "Pending"}
                     </span>
                   </div>
-                  <p className="text-[11px] leading-relaxed mt-1.5 text-slate-600">
+                  <p className="text-[11px] leading-relaxed mt-1.5 text-slate-700">
                     {badge.description}
                   </p>
                   {!badge.unlocked && badge.progressText && (
