@@ -2204,10 +2204,7 @@ export async function recalculatePitchMatch(applicationId: string) {
   }
 }
 
-export async function respondToConnectionRequest(
-  applicationId: string,
-  decision: 'accepted' | 'declined'
-) {
+export async function respondToConnectionRequest(applicationId: string, decision: 'accepted' | 'declined', reason?: string) {
   const supabase = await createClient()
   const {
     data: { user },
@@ -3996,10 +3993,7 @@ export async function getEmployerInboundApplications(
   return { data: processedData }
 }
 
-export async function updateInboundApplicationDecision(
-  applicationId: string,
-  decision: 'shortlisted' | 'rejected' | 'unlocked'
-) {
+export async function updateInboundApplicationDecision(applicationId: string, decision: 'shortlisted' | 'rejected' | 'unlocked', reason?: string) {
   const supabase = await createClient()
   const {
     data: { user },

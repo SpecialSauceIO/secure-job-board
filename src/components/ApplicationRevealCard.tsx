@@ -1,5 +1,6 @@
 'use client'
 
+import { EMPLOYER_ARCHIVE_REASONS } from '@/constants/feedback-reasons'
 import { useState, useEffect } from 'react'
 import {
   revealProfile,
@@ -303,15 +304,12 @@ export function ApplicationRevealCard({
     setIsProcessing(false)
   }
 
-  const handleDecision = async (
-    decision: 'shortlisted' | 'rejected' | 'unlocked'
-  ) => {
+  const handleDecision = async (decision: 'shortlisted' | 'rejected' | 'unlocked', selectedReason?: string) => {
     if (!app?.id) return
     setIsProcessing(true)
     setErrorMsg(null)
-
-    const res: any = await updateInboundApplicationDecision(
-      String(app.id),
+    try {
+      const res: any = await updateInboundApplicationDecision(String(app.id), decision, selectedReason || archiveReason),
       decision
     )
     if (res?.error) {
@@ -325,8 +323,12 @@ export function ApplicationRevealCard({
       setIsRevealed(true)
     }
     setShowArchivePrompt(false)
-    onStatusUpdated?.(String(app.id), decision)
-    setIsProcessing(false)
+      onStatusUpdated?.(String(app.id), decision)
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Failed to update application status.')
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   return (
@@ -607,7 +609,7 @@ export function ApplicationRevealCard({
                 onChange={(e) => setArchiveReason(e.target.value)}
                 className="w-full rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-rose-500"
               >
-                {EMPLOYER_ARCHIVE_REASONS.map((r) => (
+                {EMPLOYER_ARCHIVE_REASONS.map((r: string) => (
                   <option key={r} value={r}>
                     {r}
                   </option>

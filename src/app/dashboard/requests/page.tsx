@@ -84,10 +84,7 @@ export default function CandidateRequestsInboxPage() {
     setIsLoading(false)
   }
 
-  const handleDecision = async (
-    applicationId: string,
-    decision: 'accepted' | 'declined'
-  ) => {
+  const handleDecision = async (applicationId: string, decision: 'accepted' | 'declined', selectedReason?: string) => {
     setProcessingId(applicationId)
     setFeedback((prev) => {
       const copy = { ...prev }
@@ -608,7 +605,7 @@ export default function CandidateRequestsInboxPage() {
                             onClick={() => handleDecision(req.id, 'accepted')}
                             className="px-4 py-2 rounded-xl bg-slate-900 text-white font-extrabold hover:bg-emerald-600 transition-colors shadow-2xs cursor-pointer"
                           >
-                            {processingId === req.id ? 'Connecting...' : '🔓 Accept & Connect'}
+                            {processingId === req.id && decliningId !== req.id ? 'Connecting...' : '🔓 Accept & Connect'}
                           </button>
                         </div>
                       </div>
