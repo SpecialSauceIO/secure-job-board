@@ -1,7 +1,7 @@
 'use client'
 
 import { EMPLOYER_ARCHIVE_REASONS } from '@/constants/feedback-reasons'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   revealProfile,
   updateInboundApplicationDecision,
@@ -304,7 +304,51 @@ export function ApplicationRevealCard({
     setIsProcessing(false)
   }
 
-  const handleDecision = async (
+  const [archiveUndoSeconds, setArchiveUndoSeconds] = useState<number | null>(null)
+  const archiveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const pendingArchiveReasonRef = useRef<string>(archiveReason)
+
+  const clearArchiveTimer = () => {
+    if (archiveTimerRef.current) {
+      clearInterval(archiveTimerRef.current)
+      archiveTimerRef.current = null
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      clearArchiveTimer()
+    }
+  }, [])
+
+  const startArchiveWithUndo = (selectedReason?: string) => {
+    const chosen = selectedReason || archiveReason
+    pendingArchiveReasonRef.current = chosen
+    setArchiveReason(chosen)
+    setShowArchivePrompt(false)
+    setErrorMsg(null)
+    clearArchiveTimer()
+    setArchiveUndoSeconds(10)
+
+    let remaining = 10
+    archiveTimerRef.current = setInterval(() => {
+      remaining -= 1
+      if (remaining <= 0) {
+        clearArchiveTimer()
+        setArchiveUndoSeconds(null)
+        void commitDecision('rejected', pendingArchiveReasonRef.current)
+      } else {
+        setArchiveUndoSeconds(remaining)
+      }
+    }, 1000)
+  }
+
+  const handleUndoArchive = () => {
+    clearArchiveTimer()
+    setArchiveUndoSeconds(null)
+  }
+
+  const commitDecision = async (
     decision: 'shortlisted' | 'rejected' | 'unlocked',
     selectedReason?: string
   ) => {
@@ -333,6 +377,17 @@ export function ApplicationRevealCard({
     } finally {
       setIsProcessing(false)
     }
+  }
+
+  const handleDecision = async (
+    decision: 'shortlisted' | 'rejected' | 'unlocked',
+    selectedReason?: string
+  ) => {
+    if (decision === 'rejected') {
+      startArchiveWithUndo(selectedReason)
+      return
+    }
+    await commitDecision(decision, selectedReason)
   }
 
   return (
@@ -641,7 +696,27 @@ export function ApplicationRevealCard({
           </div>
         )}
         <div className="pt-3 border-t border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          {!isRevealed && status !== 'rejected' ? (
+          {archiveUndoSeconds !== null ? (
+            <div className="w-full p-3 rounded-xl bg-amber-50 border-2 border-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 text-amber-950 font-bold">
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-amber-400 text-slate-950 font-black text-[11px] tabular-nums">
+                  {archiveUndoSeconds}s
+                </span>
+                <span>
+                  Archiving application (&ldquo;{archiveReason}&rdquo;) in {archiveUndoSeconds}s...
+                </span>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleUndoArchive}
+                  className="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-indigo-600 text-white font-extrabold transition-colors cursor-pointer shadow-2xs"
+                >
+                  ↺ Undo Archive ({archiveUndoSeconds}s)
+                </button>
+              </div>
+            </div>
+          ) : !isRevealed && status !== 'rejected' ? (
             <>
               <span className="text-slate-500">
                 <strong>Free Unlock:</strong> Opening a Stage 1 thread costs 0 credits.
@@ -683,7 +758,7 @@ export function ApplicationRevealCard({
                   : '✓ Stage 1 Thread Open.'}
               </span>
               <div className="flex items-center gap-2">
-                {status !== 'shortlisted' && (
+                {status !== 'shortlisted' && status !== 'rejected' && (
                   <button
                     type="button"
                     disabled={isProcessing}
@@ -693,18 +768,20 @@ export function ApplicationRevealCard({
                     ★ Shortlist
                   </button>
                 )}
-                <button
-                  type="button"
-                  disabled={isProcessing}
-                  onClick={() =>
-                    status === 'rejected'
-                      ? handleDecision('unlocked')
-                      : setShowArchivePrompt(true)
-                  }
-                  className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer"
-                >
-                  {status === 'rejected' ? 'Restore' : 'Archive'}
-                </button>
+                {status !== 'rejected' ? (
+                  <button
+                    type="button"
+                    disabled={isProcessing}
+                    onClick={() => setShowArchivePrompt(true)}
+                    className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer"
+                  >
+                    Archive
+                  </button>
+                ) : (
+                  <span className="px-2.5 py-1 rounded-md bg-slate-100 border border-slate-300 text-slate-500 font-bold text-[11px]">
+                    Decision Finalized
+                  </span>
+                )}
               </div>
             </div>
           )}

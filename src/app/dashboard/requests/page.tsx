@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import {
   getCandidateConnectionRequests,
@@ -84,7 +84,71 @@ export default function CandidateRequestsInboxPage() {
     setIsLoading(false)
   }
 
+  const [declineUndoMap, setDeclineUndoMap] = useState<Record<string, { seconds: number; reason: string }>>({})
+  const declineTimersRef = useRef<Record<string, ReturnType<typeof setInterval>>>({})
+
+  useEffect(() => {
+    return () => {
+      Object.values(declineTimersRef.current).forEach((t) => clearInterval(t))
+    }
+  }, [])
+
+  const startDeclineWithUndo = (applicationId: string, selectedReason?: string) => {
+    const chosenReason = selectedReason || declineReasons[applicationId] || CANDIDATE_DECLINE_REASONS[0]
+    setDecliningId(null)
+    if (declineTimersRef.current[applicationId]) {
+      clearInterval(declineTimersRef.current[applicationId])
+    }
+    setDeclineUndoMap((prev) => ({
+      ...prev,
+      [applicationId]: { seconds: 10, reason: chosenReason },
+    }))
+
+    let remaining = 10
+    declineTimersRef.current[applicationId] = setInterval(() => {
+      remaining -= 1
+      if (remaining <= 0) {
+        clearInterval(declineTimersRef.current[applicationId])
+        delete declineTimersRef.current[applicationId]
+        setDeclineUndoMap((prev) => {
+          const copy = { ...prev }
+          delete copy[applicationId]
+          return copy
+        })
+        void commitCandidateDecision(applicationId, 'declined', chosenReason)
+      } else {
+        setDeclineUndoMap((prev) => {
+          if (!prev[applicationId]) return prev
+          return {
+            ...prev,
+            [applicationId]: { ...prev[applicationId], seconds: remaining },
+          }
+        })
+      }
+    }, 1000)
+  }
+
+  const handleUndoDecline = (applicationId: string) => {
+    if (declineTimersRef.current[applicationId]) {
+      clearInterval(declineTimersRef.current[applicationId])
+      delete declineTimersRef.current[applicationId]
+    }
+    setDeclineUndoMap((prev) => {
+      const copy = { ...prev }
+      delete copy[applicationId]
+      return copy
+    })
+  }
+
   const handleDecision = async (applicationId: string, decision: 'accepted' | 'declined', selectedReason?: string) => {
+    if (decision === 'declined') {
+      startDeclineWithUndo(applicationId, selectedReason)
+      return
+    }
+    await commitCandidateDecision(applicationId, decision, selectedReason)
+  }
+
+  const commitCandidateDecision = async (applicationId: string, decision: 'accepted' | 'declined', selectedReason?: string) => {
     setProcessingId(applicationId)
     setFeedback((prev) => {
       const copy = { ...prev }
@@ -536,6 +600,28 @@ export default function CandidateRequestsInboxPage() {
                   )}
                   {!isAccepted && !isDeclined && (
                     <div className="pt-3 border-t border-slate-300 space-y-3 text-xs">
+                      {declineUndoMap[req.id] ? (
+                        <div className="p-3.5 rounded-xl bg-amber-50 border-2 border-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="flex items-center gap-2.5 text-amber-950 font-bold">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-amber-400 text-slate-950 font-black text-[11px] tabular-nums">
+                              {declineUndoMap[req.id].seconds}s
+                            </span>
+                            <span>
+                              Declining pitch (&ldquo;{declineUndoMap[req.id].reason}&rdquo;) in {declineUndoMap[req.id].seconds}s...
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleUndoDecline(req.id)}
+                              className="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-indigo-600 text-white font-extrabold transition-colors cursor-pointer shadow-2xs"
+                            >
+                              ↺ Undo Decline ({declineUndoMap[req.id].seconds}s)
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
                       {decliningId === req.id && (
                         <div className="p-3.5 rounded-xl bg-rose-50/70 border-2 border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <div className="flex-1 space-y-1">
@@ -609,6 +695,8 @@ export default function CandidateRequestsInboxPage() {
                           </button>
                         </div>
                       </div>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
