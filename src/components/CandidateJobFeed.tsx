@@ -1,3 +1,4 @@
+import SafetyReportButton from '@/components/SafetyReportButton'
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
@@ -736,6 +737,7 @@ export function CandidateJobFeed({
                       </svg>
                       {isBookmarked ? 'Saved' : 'Save'}
                     </button>
+                      <SafetyReportButton targetType="job" referenceId={`#${String(job.uuid || job.id || '').replace(/-/g, '').slice(0, 6).toUpperCase()}`} />
 
                     <div className="px-3.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 font-black text-sm">
                       {meta.formattedPay}
