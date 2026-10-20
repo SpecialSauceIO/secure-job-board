@@ -265,48 +265,57 @@ export default function EmployerCandidateSearch({
 
     const fetchInitial = async () => {
       setIsLoading(true)
-      const [result, bookmarks, persisted] = await Promise.all([
-        searchCandidates('', '', ''),
-        getUserBookmarks(),
-        getPersistedMatchCache(),
-      ])
-      if (result.data) setCandidates(result.data)
-      if (bookmarks.savedCandidateIds) {
-        setSavedCandidateIds(bookmarks.savedCandidateIds)
+      try {
+        const [result, bookmarks] = await Promise.all([
+          searchCandidates('', '', ''),
+          getUserBookmarks(),
+        ])
+        if (result?.data) setCandidates(result.data)
+        if (bookmarks?.savedCandidateIds) {
+          setSavedCandidateIds(bookmarks.savedCandidateIds)
+        }
+      } catch (err) {
+        console.error('Error loading candidates:', err)
+      } finally {
+        setIsLoading(false)
       }
-      if (persisted?.cache) {
-        const empEntries: Record<string, any> = {}
-        const jobEntries: Record<string, string> = {}
-        for (const [k, v] of Object.entries(persisted.cache)) {
-          if (k.startsWith('emp_') && v && typeof v === 'object') {
-            const rest = k.slice('emp_'.length)
-            empEntries[rest] = v
-            const lastUnderscore = rest.lastIndexOf('_')
-            if (lastUnderscore !== -1) {
-              const cId = rest.slice(0, lastUnderscore)
-              const jId = rest.slice(lastUnderscore + 1)
-              jobEntries[cId] = jId
+
+      // Hydrate persisted match cache asynchronously in background without blocking candidate list
+      getPersistedMatchCache()
+        .then((persisted) => {
+          if (!persisted?.cache) return
+          const empEntries: Record<string, any> = {}
+          const jobEntries: Record<string, string> = {}
+          for (const [k, v] of Object.entries(persisted.cache)) {
+            if (k.startsWith('emp_') && v && typeof v === 'object') {
+              const rest = k.slice('emp_'.length)
+              empEntries[rest] = v
+              const lastUnderscore = rest.lastIndexOf('_')
+              if (lastUnderscore !== -1) {
+                const cId = rest.slice(0, lastUnderscore)
+                const jId = rest.slice(lastUnderscore + 1)
+                jobEntries[cId] = jId
+              }
             }
           }
-        }
-        if (Object.keys(empEntries).length > 0) {
-          setMatchCacheMap((prev) => {
-            const merged = { ...empEntries, ...prev }
-            try {
-              localStorage.setItem('ss_emp_match_cache_v1', JSON.stringify(merged))
-            } catch {}
-            return merged
-          })
-          setCandidateJobMap((prev) => {
-            const mergedJobs = { ...jobEntries, ...prev }
-            try {
-              localStorage.setItem('ss_emp_cand_job_map_v1', JSON.stringify(mergedJobs))
-            } catch {}
-            return mergedJobs
-          })
-        }
-      }
-      setIsLoading(false)
+          if (Object.keys(empEntries).length > 0) {
+            setMatchCacheMap((prev) => {
+              const merged = { ...empEntries, ...prev }
+              try {
+                localStorage.setItem('ss_emp_match_cache_v1', JSON.stringify(merged))
+              } catch {}
+              return merged
+            })
+            setCandidateJobMap((prev) => {
+              const mergedJobs = { ...jobEntries, ...prev }
+              try {
+                localStorage.setItem('ss_emp_cand_job_map_v1', JSON.stringify(mergedJobs))
+              } catch {}
+              return mergedJobs
+            })
+          }
+        })
+        .catch(() => {})
     }
     fetchInitial()
   }, [])

@@ -2386,7 +2386,14 @@ async function readUserMatchCache(userId: string): Promise<Record<string, any>> 
   const adminDb = getServiceRoleClient()
   if (!adminDb || !userId) return {}
   try {
-    const path = `${MATCH_CACHE_PREFIX}/${userId}.json`
+    const fileName = `${userId}.json`
+    const { data: list } = await adminDb.storage
+      .from('resumes')
+      .list(MATCH_CACHE_PREFIX, { search: fileName, limit: 5 })
+    const exists = (list || []).some((f) => f.name === fileName)
+    if (!exists) return {}
+
+    const path = `${MATCH_CACHE_PREFIX}/${fileName}`
     const { data, error } = await adminDb.storage.from('resumes').download(path)
     if (!error && data) {
       const parsed = JSON.parse(await data.text())
