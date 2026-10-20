@@ -113,11 +113,11 @@ export default function DashboardNav({
 
           {/* CENTERED: Tagline */}
           <div className="absolute left-1/2 -translate-x-1/2 hidden xl:flex items-center gap-4 pointer-events-none">
-            <span className="h-5 w-px bg-slate-200"></span>
+            <span className="h-5 w-px bg-slate-400"></span>
             <p className="text-sm font-light text-slate-700 tracking-[0.03em] lowercase whitespace-nowrap">
               securely connecting professionals and employers
             </p>
-            <span className="h-5 w-px bg-slate-200"></span>
+            <span className="h-5 w-px bg-slate-400"></span>
           </div>
 
           {/* RIGHT: Quick Feedback + Unified Account & Plan Dropdown */}
