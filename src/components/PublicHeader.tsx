@@ -33,8 +33,8 @@ export function PublicHeader({
         {/* CENTERED: Tagline */}
         <div className="absolute left-1/2 -translate-x-1/2 hidden xl:flex items-center gap-4 pointer-events-none">
           <span className="h-5 w-px bg-slate-200"></span>
-          <p className="text-[11px] font-bold text-slate-500 tracking-[0.15em] uppercase whitespace-nowrap">
-            Securely Connecting Professionals &amp; Employers
+          <p className="text-sm font-light text-slate-700 tracking-[0.03em] lowercase whitespace-nowrap">
+            securely connecting professionals and employers
           </p>
           <span className="h-5 w-px bg-slate-200"></span>
         </div>
