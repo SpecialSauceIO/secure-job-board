@@ -426,6 +426,13 @@ export default async function DashboardPage({
                   {connectionCredits} Pitch{' '}
                   {connectionCredits === 1 ? 'Credit' : 'Credits'}
                 </span>
+                <span>·</span>
+                <span
+                  title="Your Organization Reference ID for Support & Verification"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-300 font-mono text-[11px] font-bold text-slate-700"
+                >
+                  Org ID: #{String(orgData?.id || user.id).slice(0, 6).toUpperCase()}
+                </span>
               </div>
             </div>
           </div>
@@ -925,6 +932,13 @@ export default async function DashboardPage({
             )}
             <span>·</span>
             <span>2-Stage Identity &amp; Resume Vault Active</span>
+            <span>·</span>
+            <span
+              title="Your Anonymous Marketplace Identifier shown on Blind Applications & Talent Search"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 border border-indigo-200 font-mono text-[11px] font-bold text-indigo-800"
+            >
+              Blind ID: #{String(user.id).slice(0, 6).toUpperCase()}
+            </span>
           </div>
         </div>
 

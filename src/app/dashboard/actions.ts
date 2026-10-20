@@ -1638,7 +1638,7 @@ export async function applyBlind(formData: FormData) {
 
   const { data: existingApp } = await supabase
     .from('applications')
-    .select('id, match_data')
+    .select('id, status, match_data')
     .eq('job_id', jobId)
     .eq('candidate_id', user.id)
     .maybeSingle()
@@ -1646,26 +1646,14 @@ export async function applyBlind(formData: FormData) {
   let finalApplicationId = existingApp?.id || ''
 
   if (existingApp?.id) {
-    const mergedMatchData = {
-      ...(existingApp.match_data || {}),
-      ...match_data,
-      reference_id: formatReferenceId(existingApp.id),
+    const existingRef = formatReferenceId(existingApp.id)
+    if (existingApp.status === 'rejected') {
+      return {
+        error: `Application Locked: A final decision was already recorded for this role (Ref: ${existingRef}). Candidates cannot re-apply to archived or declined roles.`,
+      }
     }
-
-    const { error: updateError } = await supabase
-      .from('applications')
-      .update({
-        status: 'pending',
-        initiated_by: 'candidate',
-        match_score: parsedMatchScore,
-        employer_pitch: employerPitch || null,
-        match_data: mergedMatchData,
-      })
-      .eq('id', existingApp.id)
-
-    if (updateError) {
-      console.error('Error updating existing application:', updateError)
-      return { error: updateError.message }
+    return {
+      error: `Already Applied / Connected: You already have an active application or pitch for this role (Ref: ${existingRef}).`,
     }
   } else {
     const { data: insertedApp, error: insertError } = await supabase
@@ -3566,23 +3554,14 @@ export async function sendConnectionRequest(
   let finalPitchId = existingPitch?.id || ''
 
   if (existingPitch?.id) {
-    const { error: updateError } = await supabase
-      .from('applications')
-      .update({
-        status: 'pending',
-        initiated_by: 'employer',
-        is_revealed: false,
-        match_score: matchScore,
-        match_data: {
-          ...enrichedMatchData,
-          reference_id: formatReferenceId(existingPitch.id),
-        },
-      })
-      .eq('id', existingPitch.id)
-
-    if (updateError) {
-      console.error('RAW UPDATE ERROR:', updateError)
-      return { error: `DB Error: ${updateError.message}` }
+    const existingRef = formatReferenceId(existingPitch.id)
+    if (existingPitch.status === 'rejected') {
+      return {
+        error: `Pitch Locked: This candidate has already declined a pitch or been archived for this specific role (Ref: ${existingRef}). Duplicate pitches for the same role are blocked.`,
+      }
+    }
+    return {
+      error: `Already Pitched / Applied: An active pitch or application (Ref: ${existingRef}) already exists with this candidate for this role. No credit was deducted.`,
     }
   } else {
     const { data: insertedPitch, error: insertError } = await supabase
