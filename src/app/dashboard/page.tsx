@@ -714,14 +714,16 @@ export default async function DashboardPage({
                 </svg>
                 <div className="flex items-center gap-1.5">
                   {inboundUnreadMsgsCount > 0 ? (
-                    <span className="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-semibold">
-                      {inboundUnreadMsgsCount} Unread
-                    </span>
-                  ) : pendingAppsCount > 0 ? (
-                    <span className="px-2 py-0.5 rounded-md bg-slate-800 text-white text-[11px] font-semibold">
-                      {pendingAppsCount} Awaiting
-                    </span>
-                  ) : null}
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-bold shadow-xs">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        {inboundUnreadMsgsCount} Unread
+                      </span>
+                    ) : pendingAppsCount > 0 ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-purple-600 text-white text-[11px] font-bold shadow-xs">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-300 animate-pulse" />
+                        {pendingAppsCount} Pending Review
+                      </span>
+                    ) : null}
                   <span
                     className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${
                       a11yColorTiles
@@ -1031,11 +1033,17 @@ export default async function DashboardPage({
                 />
               </svg>
               <div className="flex items-center gap-1.5">
-                {unreadPitchMsgsCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-semibold">
-                    {unreadPitchMsgsCount} Unread
-                  </span>
-                )}
+                {unreadPitchMsgsCount > 0 ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-bold shadow-xs">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      {unreadPitchMsgsCount} Unread
+                    </span>
+                  ) : pendingRequestsCount > 0 ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-blue-600 text-white text-[11px] font-bold shadow-xs">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-300 animate-pulse" />
+                      {pendingRequestsCount} {pendingRequestsCount === 1 ? "New Pitch" : "New Pitches"}
+                    </span>
+                  ) : null}
                 <span
                   className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${
                     a11yColorTiles
