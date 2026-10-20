@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
-import { analyzeJobFit, applyBlind } from '@/app/dashboard/actions'
+import { analyzeJobFit, applyBlind, getPersistedMatchCache } from '@/app/dashboard/actions'
 import {
   getUserBookmarks,
   toggleBookmarkItem,
@@ -842,7 +842,7 @@ export function CandidateJobFeed({
                   </strong>
                   {meta.visibleReqs.length > 0
                     ? meta.visibleReqs
-                        .map((req) =>
+                        .map((req: any) =>
                           req.level
                             ? `${req.skill || req.name} (${req.level})`
                             : req.skill || req.name

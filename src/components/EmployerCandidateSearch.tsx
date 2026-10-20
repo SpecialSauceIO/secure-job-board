@@ -14,7 +14,7 @@ import Link from 'next/link'
 import {
   searchCandidates,
   sendConnectionRequest,
-  analyzeCandidateFit,
+  analyzeCandidateFit, getPersistedMatchCache,
 } from '@/app/dashboard/actions'
 import {
   getUserBookmarks,

@@ -2764,7 +2764,7 @@ async function analyzeMatchRouter(
   profile: any,
   job: any,
   viewerRole: 'candidate' | 'employer' = 'candidate'
-) {
+): Promise<{ data?: any; error?: string }> {
   const prompt = getMatchPrompt(profile, job, viewerRole)
   const geminiKey = cleanEnvKey(process.env.GEMINI_API_KEY)
   const groqKey = cleanEnvKey(process.env.GROQ_API_KEY)
