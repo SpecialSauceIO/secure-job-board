@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js"
 
 const OPS_BUCKET = "resumes"
+const OPS_VAULT_DIR = "_isolated_ops_control_plane"
+const OPS_VAULT_PREFIX = "ops_vault_v2_"
 const OPS_VAULT_PATH = "_isolated_ops_control_plane/ops_vault_v2.json"
 
 function cleanEnv(val?: string | null): string {
@@ -14,6 +16,13 @@ export function getOpsServiceClient() {
   if (!url || !key) return null
   return createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
+    global: {
+      fetch: (input, init) =>
+        fetch(input, {
+          ...init,
+          cache: "no-store",
+        }),
+    },
   })
 }
 
@@ -29,19 +38,69 @@ export async function pushToOpsControlPlane(payload: Record<string, any>): Promi
       }
 
       try {
-        const { data, error } = await client.storage
+        const { data: fileList } = await client.storage
           .from(OPS_BUCKET)
-          .download(OPS_VAULT_PATH)
-        if (!error && data) {
-          const parsed = JSON.parse(await data.text())
-          vault = {
-            work_items: Array.isArray(parsed.work_items) ? parsed.work_items : [],
-            behavioral_flags: Array.isArray(parsed.behavioral_flags)
-              ? parsed.behavioral_flags
-              : [],
+          .list(OPS_VAULT_DIR, {
+            limit: 20,
+            sortBy: { column: "name", order: "desc" },
+          })
+
+        const versionedFiles = (fileList || [])
+          .filter((f) => f.name.startsWith(OPS_VAULT_PREFIX) && f.name.endsWith(".json"))
+          .sort((a, b) => b.name.localeCompare(a.name))
+
+        const latestPath =
+          versionedFiles.length > 0
+            ? `${OPS_VAULT_DIR}/${versionedFiles[0].name}`
+            : OPS_VAULT_PATH
+
+        const [latestRes, baseRes] = await Promise.all([
+          client.storage.from(OPS_BUCKET).download(latestPath),
+          latestPath !== OPS_VAULT_PATH
+            ? client.storage.from(OPS_BUCKET).download(OPS_VAULT_PATH)
+            : Promise.resolve({ data: null, error: null }),
+        ])
+
+        const itemMap = new Map<string, any>()
+        const flagMap = new Map<string, any>()
+
+        for (const res of [baseRes, latestRes]) {
+          if (res?.data && !res.error) {
+            try {
+              const parsed = JSON.parse(await res.data.text())
+              if (Array.isArray(parsed.work_items)) {
+                for (const item of parsed.work_items) {
+                  if (!item?.id) continue
+                  const existing = itemMap.get(item.id)
+                  if (
+                    !existing ||
+                    new Date(item.updated_at || item.created_at || 0).getTime() >=
+                      new Date(existing.updated_at || existing.created_at || 0).getTime()
+                  ) {
+                    itemMap.set(item.id, item)
+                  }
+                }
+              }
+              if (Array.isArray(parsed.behavioral_flags)) {
+                for (const flag of parsed.behavioral_flags) {
+                  if (flag?.id) flagMap.set(flag.id, flag)
+                }
+              }
+            } catch {}
           }
         }
+
+        vault.work_items = Array.from(itemMap.values()).sort(
+          (a, b) =>
+            new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+        )
+        vault.behavioral_flags = Array.from(flagMap.values()).sort(
+          (a, b) =>
+            new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+        )
       } catch {}
+
+      let shouldSave = false
 
       if (payload.event_type === "work_item") {
         const newItem = {
@@ -71,14 +130,11 @@ export async function pushToOpsControlPlane(payload: Record<string, any>): Promi
           closed_at: null,
           thread: [],
         }
-        vault.work_items = [newItem, ...vault.work_items].slice(0, 800)
-        const blob = new Blob([JSON.stringify(vault, null, 2)], {
-          type: "application/json",
-        })
-        await client.storage.from(OPS_BUCKET).upload(OPS_VAULT_PATH, blob, {
-          upsert: true,
-          contentType: "application/json",
-        })
+        vault.work_items = [
+          newItem,
+          ...vault.work_items.filter((i) => i.id !== newItem.id),
+        ].slice(0, 800)
+        shouldSave = true
       } else if (payload.event_type === "behavioral_flag") {
         const newFlag = {
           id: payload.id || `FLG-${Date.now().toString().slice(-6)}`,
@@ -94,14 +150,30 @@ export async function pushToOpsControlPlane(payload: Record<string, any>): Promi
           enforcement_taken: null,
           created_at: nowIso,
         }
-        vault.behavioral_flags = [newFlag, ...vault.behavioral_flags].slice(0, 600)
-        const blob = new Blob([JSON.stringify(vault, null, 2)], {
-          type: "application/json",
-        })
-        await client.storage.from(OPS_BUCKET).upload(OPS_VAULT_PATH, blob, {
-          upsert: true,
-          contentType: "application/json",
-        })
+        vault.behavioral_flags = [
+          newFlag,
+          ...vault.behavioral_flags.filter((f) => f.id !== newFlag.id),
+        ].slice(0, 600)
+        shouldSave = true
+      }
+
+      if (shouldSave) {
+        const nowTs = Date.now()
+        const newVersionPath = `${OPS_VAULT_DIR}/${OPS_VAULT_PREFIX}${nowTs}.json`
+        const payloadBuffer = Buffer.from(JSON.stringify(vault, null, 2), "utf-8")
+
+        await Promise.all([
+          client.storage.from(OPS_BUCKET).upload(newVersionPath, payloadBuffer, {
+            upsert: true,
+            cacheControl: "0",
+            contentType: "application/json",
+          }),
+          client.storage.from(OPS_BUCKET).upload(OPS_VAULT_PATH, payloadBuffer, {
+            upsert: true,
+            cacheControl: "0",
+            contentType: "application/json",
+          }),
+        ])
       }
     }
   } catch (err) {
