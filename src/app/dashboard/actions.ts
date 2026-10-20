@@ -3235,7 +3235,10 @@ export async function searchCandidates(
     }
   }
 
-  let pitchedCandidateIds: string[] = []
+  const roleConnectionsByCandidate: Record<
+    string,
+    Record<string, { status: string; initiated_by: string; reference_id: string }>
+  > = {}
 
   const { data: jobs } = await supabase
     .from('jobs')
@@ -3247,14 +3250,22 @@ export async function searchCandidates(
 
     const { data: applications } = await supabase
       .from('applications')
-      .select('candidate_id, status')
+      .select('id, job_id, candidate_id, status, initiated_by')
       .in('job_id', jobIds)
-      .eq('initiated_by', 'employer')
 
     if (applications) {
-      pitchedCandidateIds = applications
-        .filter((app) => app.status !== 'rejected' && app.status !== 'declined')
-        .map((app) => app.candidate_id)
+      for (const app of applications) {
+        const cid = String(app.candidate_id)
+        const jid = String(app.job_id)
+        if (!roleConnectionsByCandidate[cid]) {
+          roleConnectionsByCandidate[cid] = {}
+        }
+        roleConnectionsByCandidate[cid][jid] = {
+          status: String(app.status || 'pending'),
+          initiated_by: String(app.initiated_by || 'employer'),
+          reference_id: formatReferenceId(app.id),
+        }
+      }
     }
   }
 
@@ -3308,7 +3319,6 @@ export async function searchCandidates(
   }
 
   let mappedCandidates = (data || [])
-    .filter((candidate) => !pitchedCandidateIds.includes(candidate.id))
     .map((candidate) => {
       const prefMeta = extractCandidatePrefMeta(candidate.structured_skills)
       const normalizedIndustry = prefMeta?.industry_vertical
@@ -3320,6 +3330,7 @@ export async function searchCandidates(
       const normalizedLangs = normalizeLanguageList(prefMeta?.languages, true)
       return {
         ...candidate,
+        existing_role_connections: roleConnectionsByCandidate[String(candidate.id)] || {},
         industry_vertical: normalizedIndustry,
         education_level: normalizedEdu,
         certifications: prefMeta?.certifications || '',

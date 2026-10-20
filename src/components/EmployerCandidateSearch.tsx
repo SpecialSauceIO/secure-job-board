@@ -486,13 +486,23 @@ export default function EmployerCandidateSearch({
         })! 1 Credit deducted.`,
       })
 
-      setTimeout(() => {
-        setCandidates((prev) => prev.filter((c) => c.id !== pitchCandidateId))
-        setPitchCandidateId(null)
-        setFeedback(null)
-        setSelectedJobId('')
-        setAiMatchData(null)
-      }, 2200)
+      const newRefId = result.referenceId || 'SS'
+      setCandidates((prev) =>
+        prev.map((c) => {
+          if (String(c.id) !== String(pitchCandidateId)) return c
+          return {
+            ...c,
+            existing_role_connections: {
+              ...(c.existing_role_connections || {}),
+              [selectedJobId]: {
+                status: 'pending',
+                initiated_by: 'employer',
+                reference_id: newRefId,
+              },
+            },
+          }
+        })
+      )
     }
 
     setIsSending(false)
@@ -1003,7 +1013,7 @@ export default function EmployerCandidateSearch({
             const acceptedEmploymentTypes =
               getCandidateEmploymentTypes(candidate)
 
-            const displayId = cid.split('-')[0].toUpperCase()
+            const displayId = cid.replace(/-/g, '').slice(0, 6).toUpperCase()
             const isCandidateVerified = Boolean(
               candidate.identity_verified === true ||
                 String(candidate.identity_verified) === 'true' ||
@@ -1012,6 +1022,16 @@ export default function EmployerCandidateSearch({
                 candidate.verification_status === 'verified' ||
                 candidate.verification_status === 'approved'
             )
+
+            const roleConnections: Record<
+              string,
+              { status: string; initiated_by: string; reference_id: string }
+            > = candidate.existing_role_connections || {}
+            const activeRoleConn =
+              pitchCandidateId === candidate.id && selectedJobId
+                ? roleConnections[String(selectedJobId)] || null
+                : null
+            const isRoleAlreadyLocked = Boolean(activeRoleConn)
 
             let selectedJob = null
             let salaryFails = false
@@ -1297,11 +1317,19 @@ export default function EmployerCandidateSearch({
                             className="w-full text-xs sm:text-sm rounded-xl border-2 border-slate-300 bg-white text-slate-900 font-bold py-2.5 px-3.5 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 cursor-pointer border-slate-300"
                           >
                             <option value="">Choose one of your open roles...</option>
-                            {activeJobs.map((job) => (
-                              <option key={job.id} value={job.id}>
-                                {job.title} ({getJobEmploymentType(job)})
-                              </option>
-                            ))}
+                            {activeJobs.map((job) => {
+                              const conn = roleConnections[String(job.id)]
+                              const lockTag = conn
+                                ? conn.status === 'rejected' || conn.status === 'declined'
+                                  ? ` — 🔒 Locked / Archived (Ref: ${conn.reference_id})`
+                                  : ` — ✓ Already Pitched / Applied (Ref: ${conn.reference_id})`
+                                : ''
+                              return (
+                                <option key={job.id} value={job.id}>
+                                  {job.title} ({getJobEmploymentType(job)}){lockTag}
+                                </option>
+                              )
+                            })}
                           </select>
                         </div>
 
@@ -1505,10 +1533,19 @@ export default function EmployerCandidateSearch({
                                 {MIN_MATCH_THRESHOLD}% relevance firewall.
                               </div>
                             )}
-                            {!hasDealbreaker && matchScore !== null && (
-                              <div className="text-emerald-700 font-bold">
-                                ✓ Meets {MIN_MATCH_THRESHOLD}%+ relevance firewall &amp; all candidate dealbreakers!
+                            {isRoleAlreadyLocked && activeRoleConn ? (
+                              <div className="text-amber-800 bg-amber-50 border border-amber-300 px-3 py-2 rounded-lg font-bold">
+                                🔒 {activeRoleConn.status === 'rejected' || activeRoleConn.status === 'declined'
+                                  ? `Pitch Locked: Candidate already declined or was archived for this role (Ref: ${activeRoleConn.reference_id}).`
+                                  : `Already Pitched / Applied: An active connection (Ref: ${activeRoleConn.reference_id}) already exists for this role.`}
                               </div>
+                            ) : (
+                              !hasDealbreaker &&
+                              matchScore !== null && (
+                                <div className="text-emerald-700 font-bold">
+                                  ✓ Meets {MIN_MATCH_THRESHOLD}%+ relevance firewall &amp; all candidate dealbreakers!
+                                </div>
+                              )
                             )}
                           </div>
 
@@ -1518,15 +1555,22 @@ export default function EmployerCandidateSearch({
                               onClick={handlePitch}
                               disabled={
                                 !selectedJobId ||
+                                isRoleAlreadyLocked ||
                                 isSending ||
                                 isAnalyzingMatch ||
                                 hasDealbreaker ||
                                 matchScore === null ||
                                 liveCredits < 1
                               }
-                              className="px-5 py-2.5 bg-slate-900 text-white text-xs font-extrabold rounded-xl hover:bg-indigo-600 disabled:opacity-50 transition-colors cursor-pointer"
+                              className={`px-5 py-2.5 text-xs font-extrabold rounded-xl transition-colors ${
+                                isRoleAlreadyLocked
+                                  ? 'bg-slate-200 text-slate-600 border border-slate-300 cursor-not-allowed'
+                                  : 'bg-slate-900 text-white hover:bg-indigo-600 disabled:opacity-50 cursor-pointer'
+                              }`}
                             >
-                              {isSending
+                              {isRoleAlreadyLocked
+                                ? '🔒 Already Pitched / Locked'
+                                : isSending
                                 ? 'Sending Pitch...'
                                 : 'Send Role Pitch (1 Credit) →'}
                             </button>
@@ -1570,6 +1614,12 @@ export default function EmployerCandidateSearch({
                       ? activeJobs.find((j) => String(j.id) === String(savedJobForCand))
                       : null
                     const savedScore = savedPairData?.overall_score ?? null
+                    const collapsedRoleConn = savedJobForCand
+                      ? roleConnections[String(savedJobForCand)] || null
+                      : null
+                    const allActiveRolesLocked =
+                      activeJobs.length > 0 &&
+                      activeJobs.every((j) => Boolean(roleConnections[String(j.id)]))
 
                     return (
                       <div className="space-y-3">
@@ -1624,9 +1674,17 @@ export default function EmployerCandidateSearch({
                                 setAiMatchData(null)
                               }
                             }}
-                            className="px-5 py-2.5 bg-slate-900 text-white text-xs font-extrabold rounded-xl hover:bg-indigo-600 transition-colors cursor-pointer shrink-0"
+                            className={`px-5 py-2.5 text-xs font-extrabold rounded-xl transition-colors cursor-pointer shrink-0 ${
+                              allActiveRolesLocked || collapsedRoleConn
+                                ? 'bg-slate-100 text-slate-700 border-2 border-slate-300 hover:bg-slate-200'
+                                : 'bg-slate-900 text-white hover:bg-indigo-600'
+                            }`}
                           >
-                            {savedScore !== null
+                            {allActiveRolesLocked
+                              ? '🔒 Already Pitched / Locked'
+                              : collapsedRoleConn
+                              ? `🔒 Role Locked (${collapsedRoleConn.reference_id}) • View / Switch Role →`
+                              : savedScore !== null
                               ? 'View 5-Point Radar & Pitch →'
                               : 'Evaluate Fit & Pitch Role →'}
                           </button>
