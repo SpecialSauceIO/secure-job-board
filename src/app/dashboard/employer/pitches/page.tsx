@@ -410,6 +410,21 @@ export default function EmployerSentPitchesPage() {
                     </div>
                   )}
 
+                  {/* Candidate Decline Feedback Banner */}
+                  {isDeclined && (
+                    <div className="px-4 py-3 rounded-xl bg-rose-50/90 border border-rose-300 text-xs text-rose-900 flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <span className="font-extrabold uppercase tracking-wider text-[11px] text-rose-700 mr-2">
+                          📋 Candidate Decline Reason:
+                        </span>
+                        <span className="font-bold">
+                          {pitch.match_data?.candidate_decline_reason ||
+                            'Candidate passed on this role pitch'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Encrypted Stage 1 / Stage 2 Thread (When Accepted) */}
                   {isAccepted && (
                     <SecureMessageThread

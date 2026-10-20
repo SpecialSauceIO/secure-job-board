@@ -139,6 +139,10 @@ export function ApplicationRevealCard({
   const [isProcessing, setIsProcessing] = useState(false)
   const [showRadar, setShowRadar] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [showArchivePrompt, setShowArchivePrompt] = useState(false)
+  const [archiveReason, setArchiveReason] = useState<string>(
+    app?.match_data?.employer_archive_reason || EMPLOYER_ARCHIVE_REASONS[0]
+  )
 
   const [unlockedName, setUnlockedName] = useState<string | null>(
     app?.unlocked_candidate_name || app?.profiles?.full_name || null
@@ -320,6 +324,7 @@ export function ApplicationRevealCard({
     if (decision === 'shortlisted' || decision === 'unlocked') {
       setIsRevealed(true)
     }
+    setShowArchivePrompt(false)
     onStatusUpdated?.(String(app.id), decision)
     setIsProcessing(false)
   }
@@ -584,6 +589,51 @@ export function ApplicationRevealCard({
         )}
 
         {/* Action Bar */}
+        {status === 'rejected' && archiveReason && (
+          <div className="px-3.5 py-2.5 rounded-xl bg-rose-50/80 border border-rose-200 text-xs text-rose-900 flex items-center justify-between gap-2">
+            <span>
+              <strong className="font-extrabold">Archived Reason Shared with Candidate:</strong> {archiveReason}
+            </span>
+          </div>
+        )}
+        {showArchivePrompt && status !== 'rejected' && (
+          <div className="p-3.5 rounded-xl bg-rose-50/70 border-2 border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex-1 space-y-1">
+              <label className="font-extrabold text-rose-950 block">
+                Select Reason for Archiving (Shared with Candidate):
+              </label>
+              <select
+                value={archiveReason}
+                onChange={(e) => setArchiveReason(e.target.value)}
+                className="w-full rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-rose-500"
+              >
+                {EMPLOYER_ARCHIVE_REASONS.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                disabled={isProcessing}
+                onClick={() => setShowArchivePrompt(false)}
+                className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isProcessing}
+                onClick={() => handleDecision('rejected', archiveReason)}
+                className="px-3.5 py-1.5 rounded-lg bg-rose-600 text-white font-extrabold hover:bg-rose-700 cursor-pointer shadow-2xs"
+              >
+                {isProcessing ? 'Archiving...' : 'Confirm Archive'}
+              </button>
+            </div>
+          </div>
+        )}
         <div className="pt-3 border-t border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           {!isRevealed && status !== 'rejected' ? (
             <>
@@ -594,8 +644,8 @@ export function ApplicationRevealCard({
                 <button
                   type="button"
                   disabled={isProcessing}
-                  onClick={() => handleDecision('rejected')}
-                  className="px-3 py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer border-slate-300"
+                  onClick={() => setShowArchivePrompt(true)}
+                  className="px-3 py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer"
                 >
                   Not a Fit
                 </button>
@@ -623,7 +673,7 @@ export function ApplicationRevealCard({
                 {status === 'shortlisted'
                   ? '★ Candidate is Shortlisted.'
                   : status === 'rejected'
-                  ? 'Archived as Not a Fit.'
+                  ? `Archived (${archiveReason})`
                   : '✓ Stage 1 Thread Open.'}
               </span>
               <div className="flex items-center gap-2">
@@ -641,7 +691,9 @@ export function ApplicationRevealCard({
                   type="button"
                   disabled={isProcessing}
                   onClick={() =>
-                    handleDecision(status === 'rejected' ? 'unlocked' : 'rejected')
+                    status === 'rejected'
+                      ? handleDecision('unlocked')
+                      : setShowArchivePrompt(true)
                   }
                   className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer"
                 >

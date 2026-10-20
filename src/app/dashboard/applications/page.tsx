@@ -407,6 +407,21 @@ export default function CandidateApplicationsPage() {
                     ))}
                   </div>
 
+                  {/* EMPLOYER ARCHIVE FEEDBACK CALLOUT */}
+                  {normStatus === 'rejected' && (
+                    <div className="px-4 py-3 rounded-xl bg-rose-50/90 border border-rose-300 text-xs text-rose-900 flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <span className="font-extrabold uppercase tracking-wider text-[11px] text-rose-700 mr-2">
+                          📋 Employer Decision Feedback:
+                        </span>
+                        <span className="font-bold">
+                          {app.match_data?.employer_archive_reason ||
+                            'Archived after initial 5-Point AI Fit review'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
                   {/* STAGE 1 / STAGE 2 ENCRYPTED THREAD & VAULT RELEASE */}
                   {isUnlocked && normStatus !== 'rejected' && (
                     <SecureMessageThread

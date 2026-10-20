@@ -302,6 +302,7 @@ export default async function DashboardPage({
     let inboundUnreadMsgsCount = 0
     let sentPitchesCount = 0
     let acceptedPitchesCount = 0
+    let declinedPitchesCount = 0
     let pitchesUnreadMsgsCount = 0
     let orgAppsList: any[] = []
     let orgJobsList: any[] = []
@@ -341,6 +342,9 @@ export default async function DashboardPage({
       sentPitchesCount = outboundPitches.length
       acceptedPitchesCount = outboundPitches.filter(
         (app) => app.status === 'accepted' || app.is_revealed === true
+      ).length
+      declinedPitchesCount = outboundPitches.filter(
+        (app) => app.status === 'rejected' || app.status === 'declined'
       ).length
       pitchesUnreadMsgsCount = outboundPitches.filter((app) =>
         hasUnreadThreadMessage(app, 'employer')
@@ -638,10 +642,26 @@ export default async function DashboardPage({
                   />
                 </svg>
                 <div className="flex items-center gap-1.5">
-                  {pitchesUnreadMsgsCount > 0 && (
-                    <span className="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-semibold">
+                  {pitchesUnreadMsgsCount > 0 ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-bold shadow-xs">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                       {pitchesUnreadMsgsCount} Unread
                     </span>
+                  ) : (
+                    <>
+                      {acceptedPitchesCount > 0 && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[11px] font-bold shadow-xs">
+                          <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                          {acceptedPitchesCount} Accepted
+                        </span>
+                      )}
+                      {declinedPitchesCount > 0 && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-600 text-white text-[11px] font-bold shadow-xs">
+                          <span className="h-1.5 w-1.5 rounded-full bg-amber-200 animate-pulse" />
+                          {declinedPitchesCount} Declined
+                        </span>
+                      )}
+                    </>
                   )}
                   <span
                     className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${
@@ -666,8 +686,8 @@ export default async function DashboardPage({
                   ? `${pitchesUnreadMsgsCount} unread candidate ${
                       pitchesUnreadMsgsCount === 1 ? 'reply' : 'replies'
                     } waiting`
-                  : acceptedPitchesCount > 0
-                  ? `${acceptedPitchesCount} accepted · Direct pitches sent to talent`
+                  : acceptedPitchesCount > 0 || declinedPitchesCount > 0
+                  ? `${acceptedPitchesCount} accepted · ${declinedPitchesCount} declined (view feedback)`
                   : 'Candidates you pitched from Talent Search'}
               </p>
             </div>
@@ -801,6 +821,12 @@ export default async function DashboardPage({
   )
 
   const applicationCount = outboundCandidateApps.length
+  const unlockedOutboundAppsCount = outboundCandidateApps.filter(
+    (a) => a.status === 'accepted' || a.status === 'shortlisted' || a.is_revealed === true
+  ).length
+  const archivedOutboundAppsCount = outboundCandidateApps.filter(
+    (a) => a.status === 'rejected' || a.status === 'declined'
+  ).length
   const pendingRequestsCount = inboundEmployerPitches.filter(
     (a) => a.status === 'pending' && !a.is_revealed
   ).length
@@ -1112,10 +1138,26 @@ export default async function DashboardPage({
                 />
               </svg>
               <div className="flex items-center gap-1.5">
-                {unreadOutboundMsgsCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-semibold">
+                {unreadOutboundMsgsCount > 0 ? (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-bold shadow-xs">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     {unreadOutboundMsgsCount} Unread
                   </span>
+                ) : (
+                  <>
+                    {unlockedOutboundAppsCount > 0 && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[11px] font-bold shadow-xs">
+                        <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                        {unlockedOutboundAppsCount} Unlocked
+                      </span>
+                    )}
+                    {archivedOutboundAppsCount > 0 && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-600 text-white text-[11px] font-bold shadow-xs">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-200 animate-pulse" />
+                        {archivedOutboundAppsCount} Archived
+                      </span>
+                    )}
+                  </>
                 )}
                 <span
                   className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${
@@ -1138,6 +1180,8 @@ export default async function DashboardPage({
             >
               {unreadOutboundMsgsCount > 0
                 ? 'An employer messaged you about your application'
+                : unlockedOutboundAppsCount > 0 || archivedOutboundAppsCount > 0
+                ? `${unlockedOutboundAppsCount} unlocked · ${archivedOutboundAppsCount} archived (view employer feedback)`
                 : 'Track blind applications & unlocked employers'}
             </p>
           </div>

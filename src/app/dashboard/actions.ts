@@ -2242,11 +2242,19 @@ export async function respondToConnectionRequest(
   const referenceId = formatReferenceId(applicationId)
 
   if (decision === 'declined') {
+    const updatedDeclineMatchData = {
+      ...(existingApp?.match_data || {}),
+      candidate_decision: 'declined',
+      candidate_decline_reason: reason || 'Timing / Accepted Another Offer',
+      status_updated_at: new Date().toISOString(),
+      reference_id: referenceId,
+    }
     const { error } = await supabase
       .from('applications')
       .update({
         status: 'rejected',
         is_revealed: false,
+        match_data: updatedDeclineMatchData,
       })
       .eq('id', applicationId)
       .eq('candidate_id', user.id)

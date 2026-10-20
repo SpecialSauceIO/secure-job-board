@@ -8,6 +8,7 @@ import {
   recalculatePitchMatch,
 } from '@/app/dashboard/actions'
 import SecureMessageThread from '@/components/SecureMessageThread'
+import { CANDIDATE_DECLINE_REASONS } from '@/constants/feedback-reasons'
 import { normalizeIndustryVertical } from '@/constants/industries'
 import { normalizeJobEducationReq } from '@/constants/education'
 import { normalizeLanguageList } from '@/constants/languages'
@@ -60,6 +61,8 @@ export default function CandidateRequestsInboxPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [processingId, setProcessingId] = useState<string | null>(null)
   const [recalculatingId, setRecalculatingId] = useState<string | null>(null)
+  const [decliningId, setDecliningId] = useState<string | null>(null)
+  const [declineReasons, setDeclineReasons] = useState<Record<string, string>>({})
   const [expandedRadarIds, setExpandedRadarIds] = useState<
     Record<string, boolean>
   >({})
@@ -92,7 +95,8 @@ export default function CandidateRequestsInboxPage() {
       return copy
     })
 
-    const res: any = await respondToConnectionRequest(applicationId, decision)
+    const chosenReason = selectedReason || declineReasons[applicationId] || CANDIDATE_DECLINE_REASONS[0]
+    const res: any = await respondToConnectionRequest(applicationId, decision, chosenReason)
 
     if (res?.error) {
       setFeedback((prev) => ({
@@ -107,7 +111,15 @@ export default function CandidateRequestsInboxPage() {
       prev.map((req) => {
         if (req.id !== applicationId) return req
         if (decision === 'declined') {
-          return { ...req, status: 'rejected', is_revealed: false }
+          return {
+            ...req,
+            status: 'rejected',
+            is_revealed: false,
+            match_data: {
+              ...(req.match_data || {}),
+              candidate_decline_reason: chosenReason,
+            },
+          }
         }
         return {
           ...req,
@@ -136,6 +148,7 @@ export default function CandidateRequestsInboxPage() {
       },
     }))
 
+    setDecliningId(null)
     setProcessingId(null)
   }
 
@@ -518,29 +531,86 @@ export default function CandidateRequestsInboxPage() {
                   )}
 
                   {/* Action Footer */}
+                  {isDeclined && req.match_data?.candidate_decline_reason && (
+                    <div className="px-3.5 py-2.5 rounded-xl bg-rose-50/80 border border-rose-200 text-xs text-rose-900">
+                      <strong className="font-extrabold">Declined Reason Sent to Employer:</strong>{' '}
+                      {req.match_data.candidate_decline_reason}
+                    </div>
+                  )}
                   {!isAccepted && !isDeclined && (
-                    <div className="pt-3 border-t border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                      <span className="text-slate-500">
-                        <strong>Stage 1 Safe Connection:</strong> Accepting opens a secure chat thread while keeping your resume vaulted.
-                      </span>
+                    <div className="pt-3 border-t border-slate-300 space-y-3 text-xs">
+                      {decliningId === req.id && (
+                        <div className="p-3.5 rounded-xl bg-rose-50/70 border-2 border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="flex-1 space-y-1">
+                            <label className="font-extrabold text-rose-950 block">
+                              Let the employer know why you are passing on this pitch:
+                            </label>
+                            <select
+                              value={declineReasons[req.id] || CANDIDATE_DECLINE_REASONS[0]}
+                              onChange={(e) =>
+                                setDeclineReasons((prev) => ({
+                                  ...prev,
+                                  [req.id]: e.target.value,
+                                }))
+                              }
+                              className="w-full rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-rose-500"
+                            >
+                              {CANDIDATE_DECLINE_REASONS.map((r) => (
+                                <option key={r} value={r}>
+                                  {r}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button
+                              type="button"
+                              disabled={processingId === req.id}
+                              onClick={() => setDecliningId(null)}
+                              className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              disabled={processingId === req.id}
+                              onClick={() =>
+                                handleDecision(
+                                  req.id,
+                                  'declined',
+                                  declineReasons[req.id] || CANDIDATE_DECLINE_REASONS[0]
+                                )
+                              }
+                              className="px-3.5 py-1.5 rounded-lg bg-rose-600 text-white font-extrabold hover:bg-rose-700 cursor-pointer shadow-2xs"
+                            >
+                              {processingId === req.id ? 'Declining...' : 'Confirm Decline'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <span className="text-slate-500">
+                          <strong>Stage 1 Safe Connection:</strong> Accepting opens a secure chat thread while keeping your resume vaulted.
+                        </span>
 
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          type="button"
-                          disabled={processingId === req.id}
-                          onClick={() => handleDecision(req.id, 'declined')}
-                          className="px-3.5 py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer border-slate-300"
-                        >
-                          Decline
-                        </button>
-                        <button
-                          type="button"
-                          disabled={processingId === req.id}
-                          onClick={() => handleDecision(req.id, 'accepted')}
-                          className="px-4 py-2 rounded-xl bg-slate-900 text-white font-extrabold hover:bg-emerald-600 transition-colors shadow-2xs cursor-pointer"
-                        >
-                          {processingId === req.id ? 'Connecting...' : '🔓 Accept & Connect'}
-                        </button>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            disabled={processingId === req.id}
+                            onClick={() => setDecliningId(req.id)}
+                            className="px-3.5 py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer"
+                          >
+                            Decline Pitch
+                          </button>
+                          <button
+                            type="button"
+                            disabled={processingId === req.id}
+                            onClick={() => handleDecision(req.id, 'accepted')}
+                            className="px-4 py-2 rounded-xl bg-slate-900 text-white font-extrabold hover:bg-emerald-600 transition-colors shadow-2xs cursor-pointer"
+                          >
+                            {processingId === req.id ? 'Connecting...' : '🔓 Accept & Connect'}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}
