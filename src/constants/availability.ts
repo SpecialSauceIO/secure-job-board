@@ -1,9 +1,9 @@
 export const CANDIDATE_AVAILABILITY_STATUSES = [
-  'Actively Interviewing • Immediate / < 1 Week',
-  'Actively Looking • 2 Weeks Notice (Standard)',
-  'Selective / Passive • Open to High-Fit Pitches (2–4 Weeks)',
-  'Passive / Executive Transition • 30+ Days Notice',
-  'Paused • Not Accepting Pitches Right Now',
+  'Immediate (< 1 Week)',
+  'Standard (2 Weeks Notice)',
+  'Open to high-fit pitches (2-4 Weeks Notice)',
+  'Executive Transition (30+ Days Notice)',
+  'Paused (Not Accepting Pitches Right Now)',
 ] as const
 
 export type CandidateAvailabilityStatus =
@@ -11,7 +11,7 @@ export type CandidateAvailabilityStatus =
 
 export function normalizeCandidateAvailability(raw?: string | null): string {
   if (!raw || !raw.trim()) {
-    return 'Actively Looking • 2 Weeks Notice (Standard)'
+    return 'Standard (2 Weeks Notice)'
   }
   const v = raw.trim()
   const exact = CANDIDATE_AVAILABILITY_STATUSES.find(
@@ -26,55 +26,68 @@ export function normalizeCandidateAvailability(raw?: string | null): string {
     lower.includes('not looking') ||
     lower.includes('off market')
   ) {
-    return 'Paused • Not Accepting Pitches Right Now'
+    return 'Paused (Not Accepting Pitches Right Now)'
   }
   if (
     lower.includes('immediate') ||
     lower.includes('within 1 week') ||
     lower.includes('< 1 week') ||
-    lower.includes('asap')
+    lower.includes('1 week') ||
+    lower.includes('asap') ||
+    lower.includes('actively interviewing')
   ) {
-    return 'Actively Interviewing • Immediate / < 1 Week'
+    return 'Immediate (< 1 Week)'
   }
   if (
+    lower.includes('high-fit') ||
+    lower.includes('high fit') ||
     lower.includes('selective') ||
     lower.includes('within 1 month') ||
     lower.includes('3–4 weeks') ||
-    lower.includes('2–4 weeks')
+    lower.includes('3-4 weeks') ||
+    lower.includes('2–4 weeks') ||
+    lower.includes('2-4 weeks')
   ) {
-    return 'Selective / Passive • Open to High-Fit Pitches (2–4 Weeks)'
+    return 'Open to high-fit pitches (2-4 Weeks Notice)'
   }
   if (
     lower.includes('more than 1 month') ||
     lower.includes('30+ days') ||
-    lower.includes('executive transition')
+    lower.includes('30 days') ||
+    lower.includes('executive transition') ||
+    lower.includes('open to offers')
   ) {
-    return 'Passive / Executive Transition • 30+ Days Notice'
+    return 'Executive Transition (30+ Days Notice)'
   }
-  if (lower.includes('2 weeks') || lower.includes('standard')) {
-    return 'Actively Looking • 2 Weeks Notice (Standard)'
+  if (
+    lower.includes('2 weeks') ||
+    lower.includes('two weeks') ||
+    lower.includes('standard') ||
+    lower.includes('actively looking')
+  ) {
+    return 'Standard (2 Weeks Notice)'
   }
 
-  return 'Actively Looking • 2 Weeks Notice (Standard)'
+  return 'Standard (2 Weeks Notice)'
 }
 
 export function isCandidatePaused(status?: string | null): boolean {
   const norm = normalizeCandidateAvailability(status)
-  return norm === 'Paused • Not Accepting Pitches Right Now'
+  return norm.startsWith('Paused')
 }
 
 export function getAvailabilityBadgeClasses(status?: string | null): string {
   const norm = normalizeCandidateAvailability(status)
-  if (norm.startsWith('Actively Interviewing')) {
+  if (norm.startsWith('Immediate')) {
     return 'bg-emerald-50 text-emerald-800 border-emerald-300'
   }
-  if (norm.startsWith('Actively Looking')) {
+  if (norm.startsWith('Standard')) {
     return 'bg-indigo-50 text-indigo-700 border-indigo-300'
   }
-  if (norm.startsWith('Selective / Passive')) {
+  if (norm.startsWith('Open to high-fit')) {
     return 'bg-violet-50 text-violet-800 border-violet-300'
   }
-  if (norm.startsWith('Passive / Executive')) {
+  if (norm.startsWith('Executive Transition')) {
     return 'bg-amber-50 text-amber-900 border-amber-300'
   }
   if (norm.startsWith('Paused')) {
