@@ -518,7 +518,7 @@ export async function activateSandboxCandidateTier(
   if (!user) return { error: 'Unauthorized' }
 
   const normalizedMode =
-    targetMode === 'free' || targetMode === 'expired'
+    (targetMode as string) === 'free' || targetMode === 'expired'
       ? 'explorer'
       : targetMode === 'trial'
       ? 'professional'
@@ -2279,7 +2279,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
     : existingApp?.jobs
   const orgObj: any = Array.isArray(jobObj?.organizations)
     ? jobObj?.organizations[0]
-    : existingApp?.organizations
+    : (existingApp as any)?.organizations
 
   const emailDomain = existingApp?.match_data?.employer_contact_email
     ? existingApp.match_data.employer_contact_email.split('@')[1]
@@ -4057,7 +4057,7 @@ export async function updateInboundApplicationDecision(applicationId: string, de
     : existingApp?.jobs
   const orgObj: any = Array.isArray(jobObj?.organizations)
     ? jobObj?.organizations[0]
-    : existingApp?.organizations
+    : (existingApp as any)?.organizations
   const resolvedOrgName =
     orgObj?.name ||
     existingApp?.match_data?.employer_org_name ||

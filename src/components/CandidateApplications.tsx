@@ -966,12 +966,12 @@ export function CandidateApplications() {
                   {feedback?.id === app.id && (
                     <div
                       className={`p-3 rounded-xl text-xs font-bold ${
-                        feedback.type === 'error'
+                        feedback?.type === 'error'
                           ? 'bg-rose-50 text-rose-700 border border-rose-300'
                           : 'bg-emerald-50 text-emerald-700 border border-emerald-300'
                       }`}
                     >
-                      {feedback.text}
+                      {feedback?.text}
                     </div>
                   )}
                 </div>

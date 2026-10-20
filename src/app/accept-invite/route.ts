@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${siteUrl}/login?error=Invalid+invite+link`)
   }
 
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Verify token exists and is valid
   const { data: invite, error } = await supabase
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
   }
 
   // Store the valid token in a secure cookie to process AFTER they sign up/log in
-  cookies().set('pending_org_invite', token, {
+  (await cookies()).set('pending_org_invite', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     maxAge: 60 * 60 * 24 // 24 hours

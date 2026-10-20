@@ -305,7 +305,7 @@ export default function CalculatorPage() {
             <div>
               <label className="text-xs text-slate-500 font-medium">Fixed Server Baseline</label>
               <div className="mt-1 flex items-center">
-                <span class="text-sm font-bold text-slate-400 mr-1">$</span>
+                <span className="text-sm font-bold text-slate-400 mr-1">$</span>
                 <input type="number" name="cost_fixed" value={inputs.cost_fixed} onChange={handleChange} className="w-full p-2 border border-slate-300 rounded-lg text-sm font-bold bg-white" />
               </div>
             </div>

@@ -71,7 +71,7 @@ export default function CandidateBillingClient({
     if (result?.error) {
       setFeedback({ type: 'error', text: result.error })
     } else if (result?.success && result.tierInfo) {
-      setTierInfo(result.tierInfo)
+      setTierInfo(result.tierInfo as any)
       setFeedback({
         type: 'success',
         text: result.message || 'Candidate membership status updated!',

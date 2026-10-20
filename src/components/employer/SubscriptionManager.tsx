@@ -40,14 +40,13 @@ export async function SubscriptionManager() {
 
     // Create the checkout session
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
       managed_payments: { enabled: false } as any, // Bypasses the new Stripe tax code requirement
       line_items: [{ price: priceId, quantity: 1 }],
       mode: 'subscription',
       success_url: `${siteUrl}/dashboard?checkout=success`,
       cancel_url: `${siteUrl}/dashboard?checkout=canceled`,
-      client_reference_id: member.organization_id, // This tells Stripe which company paid!
-      customer_email: user.email,
+      client_reference_id: member?.organization_id, // This tells Stripe which company paid!
+      customer_email: user?.email,
     })
 
     if (session.url) {

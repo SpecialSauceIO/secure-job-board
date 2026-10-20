@@ -52,8 +52,6 @@ export default function EmployerSignupPage({
             alt="specialsauce.io Logo"
             width={340}
             height={85}
-            className="h-20 w-auto object-contain"
-            className="w-[195px] sm:w-[220px] h-auto"
             priority
           />
         </Link>

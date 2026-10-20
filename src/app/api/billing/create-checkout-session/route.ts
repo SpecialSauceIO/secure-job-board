@@ -82,7 +82,6 @@ export async function POST(req: Request) {
     if (tierId === 'candidate_pro') {
       const checkoutSession = await stripe.checkout.sessions.create({
         mode: 'subscription',
-        payment_method_types: ['card'],
         customer_email: user.email,
         client_reference_id: user.id,
         metadata: {
@@ -147,7 +146,6 @@ export async function POST(req: Request) {
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
-      payment_method_types: ['card'],
       customer_email: user.email,
       client_reference_id: member.organization_id,
       metadata: {

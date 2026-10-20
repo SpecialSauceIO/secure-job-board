@@ -66,6 +66,7 @@ export default function SecureMessageThread({
   initialMessages?: ThreadMessage[]
   initialVaultReleased?: boolean
   employerName?: string
+  employerDomain?: string | null;
   candidateDisplayName?: string
   candidateFullName?: string | null
   candidateEmail?: string | null
