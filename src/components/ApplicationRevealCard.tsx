@@ -304,25 +304,29 @@ export function ApplicationRevealCard({
     setIsProcessing(false)
   }
 
-  const handleDecision = async (decision: 'shortlisted' | 'rejected' | 'unlocked', selectedReason?: string) => {
+  const handleDecision = async (
+    decision: 'shortlisted' | 'rejected' | 'unlocked',
+    selectedReason?: string
+  ) => {
     if (!app?.id) return
     setIsProcessing(true)
     setErrorMsg(null)
     try {
-      const res: any = await updateInboundApplicationDecision(String(app.id), decision, selectedReason || archiveReason),
-      decision
-    )
-    if (res?.error) {
-      setErrorMsg(res.error)
-      setIsProcessing(false)
-      return
-    }
+      const res: any = await updateInboundApplicationDecision(
+        String(app.id),
+        decision,
+        selectedReason || archiveReason
+      )
+      if (res?.error) {
+        setErrorMsg(res.error)
+        return
+      }
 
-    setStatus(decision)
-    if (decision === 'shortlisted' || decision === 'unlocked') {
-      setIsRevealed(true)
-    }
-    setShowArchivePrompt(false)
+      setStatus(decision)
+      if (decision === 'shortlisted' || decision === 'unlocked') {
+        setIsRevealed(true)
+      }
+      setShowArchivePrompt(false)
       onStatusUpdated?.(String(app.id), decision)
     } catch (err: any) {
       setErrorMsg(err?.message || 'Failed to update application status.')
