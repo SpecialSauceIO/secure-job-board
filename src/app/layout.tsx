@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: {
     template: '%s | Special Sauce',
-    default: 'Special Sauce | Securely Connecting Professionals & Employers',
+    default: 'specialsauce.io | securely connecting professionals and employers',
   },
   description: 'The AI-driven blind hiring platform that strips away bias and focuses purely on verified skills and experience.',
   openGraph: {

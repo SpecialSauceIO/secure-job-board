@@ -231,7 +231,7 @@ export async function requestBrandedPasswordReset(
         </a>
       </div>
       <p style="color: #94a3b8; font-size: 12px; line-height: 1.5; margin: 24px 0 0 0; padding-top: 16px; border-top: 1px solid #f1f5f9;">
-        🔒 Securely Connecting Professionals &amp; Employers • If you did not request a password reset, you can safely ignore this email.
+        🔒 securely connecting professionals and employers • If you did not request a password reset, you can safely ignore this email.
       </p>
     </div>
   `

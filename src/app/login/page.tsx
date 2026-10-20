@@ -229,14 +229,14 @@ function LoginContent() {
             ? 'Find your account email'
             : 'Welcome back'}
         </h2>
-        <p className="mt-2 text-sm text-slate-500 font-medium">
+        <p className="mt-2 text-sm text-slate-600 font-light tracking-[0.03em]">
           {mode === 'new_password'
             ? 'Enter and confirm your new Special Sauce password below'
             : mode === 'reset'
             ? 'We will send a branded Special Sauce recovery link to your email'
             : mode === 'lookup'
             ? 'Look up a privacy-masked hint of the email linked to your account'
-            : 'Securely connecting professionals & employers'}
+            : 'securely connecting professionals and employers'}
         </p>
       </div>
 
