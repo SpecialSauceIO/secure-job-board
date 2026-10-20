@@ -5552,3 +5552,34 @@ export async function uploadEmployerOrganizationLogo(formData: FormData) {
   revalidatePath('/dashboard/employer/organization')
   return { success: true, logoUrl: finalLogoUrl }
 }
+
+
+export async function submitSafetyReport(payload: {
+  targetType: 'application' | 'pitch' | 'job' | 'candidate'
+  referenceId: string
+  reason: string
+  details?: string
+}) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const reason = String(payload.reason || '').trim()
+  const referenceId = String(payload.referenceId || '').trim()
+  const details = String(payload.details || '').trim()
+  if (!reason) return { error: 'Please select a reason for this report.' }
+
+  const formData = new FormData()
+  formData.set('subject', `[TRUST & SAFETY] ${payload.targetType.toUpperCase()} Report (${referenceId || 'Ref'})`)
+  formData.set('category', 'Trust & Safety / Abuse Report')
+  formData.set('platform_area', `Flagged ${payload.targetType}`)
+  formData.set('related_ref_id', referenceId)
+  formData.set(
+    'message',
+    `Violation Reason: ${reason}\nFlagged Entity Type: ${payload.targetType}\nTarget Reference ID: ${referenceId}\nReporter Blind/Account ID: #${String(user.id).replace(/-/g, '').slice(0, 6).toUpperCase()}\n\nAdditional Context:\n${details || 'No additional notes provided.'}`
+  )
+
+  return await submitSupportTicket(formData)
+}

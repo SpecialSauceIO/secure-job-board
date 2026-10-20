@@ -1,3 +1,4 @@
+import DashboardAnalyticsReport, { AnalyticsRecordItem } from '@/components/DashboardAnalyticsReport'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
@@ -313,12 +314,16 @@ export default async function DashboardPage({
         .select(
           `
           id,
+          job_id,
+          candidate_id,
           status,
           is_revealed,
           initiated_by,
           match_score,
           match_data,
           jobs!inner (
+            id,
+            title,
             organization_id
           )
         `
@@ -366,6 +371,22 @@ export default async function DashboardPage({
       orgJobsList,
       orgAppsList
     )
+
+    const employerAnalyticsRecords: AnalyticsRecordItem[] = orgAppsList.map((app: any) => {
+      const jobObj = Array.isArray(app.jobs) ? app.jobs[0] : app.jobs
+      const stage2Released = Boolean(app.match_data?.stage_2_released || app.match_data?.contact_released)
+      const stage1Unlocked = Boolean(app.is_revealed || app.status === 'accepted' || app.status === 'shortlisted')
+      return {
+        id: String(app.id),
+        referenceId: app.match_data?.reference_id || `#${String(app.id).replace(/-/g, '').slice(0, 6).toUpperCase()}`,
+        roleTitle: jobObj?.title || 'Active Role',
+        channel: app.initiated_by === 'employer' ? 'Outbound Pitch' : 'Inbound Application',
+        counterpartyId: `#${String(app.candidate_id || app.id).replace(/-/g, '').slice(0, 6).toUpperCase()}`,
+        matchScore: typeof app.match_score === 'number' ? app.match_score : null,
+        status: String(app.status || 'pending'),
+        vaultStage: stage2Released ? 'Stage 2 Full Release' : stage1Unlocked ? 'Stage 1 Chat Unlocked' : 'Blind Vaulted',
+      }
+    })
 
     const canPostNewJob =
       isOrgVerified &&
@@ -797,6 +818,13 @@ export default async function DashboardPage({
 
         {/* COLLAPSIBLE EMPLOYER REPUTATION & MERIT BADGE BAR */}
         <ReputationBadgeCase summary={employerGamification} />
+        <DashboardAnalyticsReport
+          mode="employer"
+          orgOrBlindId={`#${String(orgData?.id || user.id).replace(/-/g, '').slice(0, 6).toUpperCase()}`}
+          activeRolesCount={activeJobsCount}
+          creditsRemaining={connectionCredits}
+          records={employerAnalyticsRecords}
+        />
       </div>
     )
   }
@@ -850,8 +878,23 @@ export default async function DashboardPage({
     candidateRecords
   )
 
+  const candidateAnalyticsRecords: AnalyticsRecordItem[] = candidateRecords.map((app: any) => {
+    const stage2Released = Boolean(app.match_data?.stage_2_released || app.match_data?.contact_released)
+    const stage1Unlocked = Boolean(app.is_revealed || app.status === 'accepted' || app.status === 'shortlisted')
+    return {
+      id: String(app.id),
+      referenceId: app.match_data?.reference_id || `#${String(app.id).replace(/-/g, '').slice(0, 6).toUpperCase()}`,
+      roleTitle: app.match_data?.job_title || app.match_data?.employer_org_name || `Role #${String(app.job_id || app.id).slice(0, 6).toUpperCase()}`,
+      channel: app.initiated_by === 'employer' ? 'Outbound Pitch' : 'Inbound Application',
+      counterpartyId: app.match_data?.employer_org_domain || `#${String(app.job_id || app.id).replace(/-/g, '').slice(0, 6).toUpperCase()}`,
+      matchScore: typeof app.match_score === 'number' ? app.match_score : null,
+      status: String(app.status || 'pending'),
+      vaultStage: stage2Released ? 'Stage 2 Full Release' : stage1Unlocked ? 'Stage 1 Chat Unlocked' : 'Blind Vaulted',
+    }
+  })
+
   const hasProfileData = !!(profile?.skills && profile?.bio)
-  const appliedJobIds = new Set(outboundCandidateApps.map((a) => a.job_id))
+  const appliedJobIds = new Set(candidateRecords.map((a) => a.job_id))
   let recommendedJobs: any[] = []
 
   if (hasProfileData) {
@@ -1266,6 +1309,11 @@ export default async function DashboardPage({
 
       {/* COLLAPSIBLE CANDIDATE REPUTATION & MERIT BADGE BAR */}
       <ReputationBadgeCase summary={candidateGamification} />
+      <DashboardAnalyticsReport
+        mode="candidate"
+        orgOrBlindId={`#${String(user.id).replace(/-/g, '').slice(0, 6).toUpperCase()}`}
+        records={candidateAnalyticsRecords}
+      />
 
       {/* RECOMMENDED ROLES SECTION */}
       <section className="pt-6 border-t-2 border-slate-300">

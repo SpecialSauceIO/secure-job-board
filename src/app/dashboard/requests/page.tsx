@@ -8,6 +8,7 @@ import {
   recalculatePitchMatch,
 } from '@/app/dashboard/actions'
 import SecureMessageThread from '@/components/SecureMessageThread'
+import SafetyReportButton from '@/components/SafetyReportButton'
 import { CANDIDATE_DECLINE_REASONS } from '@/constants/feedback-reasons'
 import { normalizeIndustryVertical } from '@/constants/industries'
 import { normalizeJobEducationReq } from '@/constants/education'
