@@ -2239,14 +2239,16 @@ export async function respondToConnectionRequest(applicationId: string, decision
   const referenceId = formatReferenceId(applicationId)
 
   if (decision === 'declined') {
+    const chosenDeclineReason = reason || 'Timing / Accepted Another Offer'
     const updatedDeclineMatchData = {
       ...(existingApp?.match_data || {}),
       candidate_decision: 'declined',
-      candidate_decline_reason: reason || 'Timing / Accepted Another Offer',
+      candidate_decline_reason: chosenDeclineReason,
       status_updated_at: new Date().toISOString(),
       reference_id: referenceId,
     }
-    const { error } = await supabase
+    const adminDb = (await getAdminSupabaseClient()) || supabase
+    let { error } = await adminDb
       .from('applications')
       .update({
         status: 'rejected',
@@ -2254,11 +2256,44 @@ export async function respondToConnectionRequest(applicationId: string, decision
         match_data: updatedDeclineMatchData,
       })
       .eq('id', applicationId)
-      .eq('candidate_id', user.id)
+
+    if (error && error.code === '23514') {
+      const retry = await adminDb
+        .from('applications')
+        .update({
+          is_revealed: false,
+          match_data: updatedDeclineMatchData,
+        })
+        .eq('id', applicationId)
+      error = retry.error
+    }
 
     if (error) {
       console.error('Error declining connection request:', error)
       return { error: error.message }
+    }
+
+    const declineJobObj: any = Array.isArray(existingApp?.jobs)
+      ? existingApp?.jobs[0]
+      : existingApp?.jobs
+    const declineRoleTitle = declineJobObj?.title || 'Open Role'
+    const employerRecipient = existingApp?.match_data?.employer_contact_email || null
+
+    if (employerRecipient) {
+      await sendPlatformNotification({
+        to: employerRecipient,
+        subject: `Candidate Declined Pitch for ${declineRoleTitle} (Feedback Shared)`,
+        referenceId,
+        heading: 'Outbound Connection Pitch Declined',
+        bodyLines: [
+          `Anonymous Candidate #${String(user.id).slice(0, 6)} respectfully declined your connection pitch for "${declineRoleTitle}".`,
+          `Candidate Feedback Reason: "${chosenDeclineReason}"`,
+          `Connection Reference ID: ${referenceId}`,
+          'Because the candidate declined before opening a Stage 1 thread, their identity remains vaulted.',
+        ],
+        ctaUrl: '/dashboard/employer/pitches',
+        ctaLabel: 'View Outbound Pitches →',
+      })
     }
 
     revalidatePath('/dashboard')
@@ -4065,9 +4100,16 @@ export async function updateInboundApplicationDecision(applicationId: string, de
   const resolvedOrgDomain =
     orgObj?.domain || existingApp?.match_data?.employer_org_domain || ''
 
+  const chosenArchiveReason =
+    decision === 'rejected'
+      ? reason || 'Core Skill / Technical Depth Alignment'
+      : undefined
+
   const updatedMatchData = {
     ...(existingApp?.match_data || {}),
     employer_decision: decision,
+    ...(chosenArchiveReason ? { employer_archive_reason: chosenArchiveReason } : {}),
+    status_updated_at: new Date().toISOString(),
     employer_org_name: resolvedOrgName,
     employer_org_domain: resolvedOrgDomain,
     employer_contact_email: employerEmail,
@@ -4076,7 +4118,8 @@ export async function updateInboundApplicationDecision(applicationId: string, de
   }
 
   if (decision === 'rejected') {
-    const { error } = await supabase
+    const adminDb = (await getAdminSupabaseClient()) || supabase
+    let { error } = await adminDb
       .from('applications')
       .update({
         status: 'rejected',
@@ -4084,7 +4127,34 @@ export async function updateInboundApplicationDecision(applicationId: string, de
       })
       .eq('id', applicationId)
 
+    if (error && error.code === '23514') {
+      const retry = await adminDb
+        .from('applications')
+        .update({
+          match_data: updatedMatchData,
+        })
+        .eq('id', applicationId)
+      error = retry.error
+    }
+
     if (error) return { error: error.message }
+
+    if (candidateEmail) {
+      await sendPlatformNotification({
+        to: candidateEmail,
+        subject: `Application Status Update for ${jobObj?.title || 'Open Role'}`,
+        referenceId,
+        heading: 'Update on Your Blind Application',
+        bodyLines: [
+          `The hiring team reviewed your blind application for "${jobObj?.title || 'Open Role'}" and decided not to move forward to Stage 1 unlock at this time.`,
+          `Employer Feedback Reason: "${chosenArchiveReason}"`,
+          `Connection Reference ID: ${referenceId}`,
+          '🔒 Zero-Ghosting & Privacy Guarantee: Because your application was archived prior to unlock, your identity, raw email, and PDF resume remained 100% blind.',
+        ],
+        ctaUrl: '/dashboard/applications',
+        ctaLabel: 'View Application Tracker →',
+      })
+    }
   } else if (decision === 'shortlisted') {
     let { error } = await supabase
       .from('applications')
