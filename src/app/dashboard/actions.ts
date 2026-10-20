@@ -2380,12 +2380,76 @@ export async function respondToConnectionRequest(
 // AI MATCH SCORING (Candidate <-> Job) WITH FAST FAILOVER FOR VERCEL HOBBY
 // ------------------------------------------------------------------
 
-export async function analyzeJobFit(jobId: string) {
+const MATCH_CACHE_PREFIX = '_isolated_match_cache_v1'
+
+async function readUserMatchCache(userId: string): Promise<Record<string, any>> {
+  const adminDb = getServiceRoleClient()
+  if (!adminDb || !userId) return {}
+  try {
+    const path = `${MATCH_CACHE_PREFIX}/${userId}.json`
+    const { data, error } = await adminDb.storage.from('resumes').download(path)
+    if (!error && data) {
+      const parsed = JSON.parse(await data.text())
+      return parsed && typeof parsed === 'object' ? parsed : {}
+    }
+  } catch {}
+  return {}
+}
+
+async function writeUserMatchCacheEntry(
+  userId: string,
+  cacheKey: string,
+  matchData: any
+): Promise<void> {
+  const adminDb = getServiceRoleClient()
+  if (!adminDb || !userId || !cacheKey || !matchData) return
+  try {
+    const current = await readUserMatchCache(userId)
+    current[cacheKey] = {
+      ...matchData,
+      cached_at: new Date().toISOString(),
+    }
+    const path = `${MATCH_CACHE_PREFIX}/${userId}.json`
+    const buf = Buffer.from(JSON.stringify(current), 'utf-8')
+    await adminDb.storage.from('resumes').upload(path, buf, {
+      upsert: true,
+      cacheControl: '0',
+      contentType: 'application/json',
+    })
+  } catch {}
+}
+
+export async function getPersistedMatchCache(): Promise<{
+  userId: string | null
+  cache: Record<string, any>
+}> {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { userId: null, cache: {} }
+    const cache = await readUserMatchCache(user.id)
+    return { userId: user.id, cache }
+  } catch {
+    return { userId: null, cache: {} }
+  }
+}
+
+export async function analyzeJobFit(jobId: string, forceRefresh: boolean = false) {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
+
+  const cacheKey = `cand_${jobId}`
+  if (!forceRefresh) {
+    const existingCache = await readUserMatchCache(user.id)
+    if (existingCache[cacheKey]?.overall_score !== undefined) {
+      return { data: existingCache[cacheKey] }
+    }
+  }
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -2409,7 +2473,7 @@ export async function analyzeJobFit(jobId: string) {
   if (!rawJob) return { error: 'Job not found' }
 
   const job = enrichJobRecord(rawJob)
-  return await analyzeMatchRouter(
+  const res = await analyzeMatchRouter(
     {
       ...profile,
       industry_vertical: prefMeta?.industry_vertical || '',
@@ -2422,14 +2486,31 @@ export async function analyzeJobFit(jobId: string) {
     job,
     'candidate'
   )
+
+  if (res?.data) {
+    await writeUserMatchCacheEntry(user.id, cacheKey, res.data)
+  }
+  return res
 }
 
-export async function analyzeCandidateFit(candidateId: string, jobId: string) {
+export async function analyzeCandidateFit(
+  candidateId: string,
+  jobId: string,
+  forceRefresh: boolean = false
+) {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
+
+  const cacheKey = `emp_${candidateId}_${jobId}`
+  if (!forceRefresh) {
+    const existingCache = await readUserMatchCache(user.id)
+    if (existingCache[cacheKey]?.overall_score !== undefined) {
+      return { data: existingCache[cacheKey] }
+    }
+  }
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -2450,7 +2531,7 @@ export async function analyzeCandidateFit(candidateId: string, jobId: string) {
   const job = enrichJobRecord(rawJob)
   const visibleSkills = filterVisibleSkills(profile.structured_skills)
   const prefMeta = extractCandidatePrefMeta(profile.structured_skills)
-  return await analyzeMatchRouter(
+  const res = await analyzeMatchRouter(
     {
       ...profile,
       industry_vertical: prefMeta?.industry_vertical || '',
@@ -2462,6 +2543,11 @@ export async function analyzeCandidateFit(candidateId: string, jobId: string) {
     job,
     'employer'
   )
+
+  if (res?.data) {
+    await writeUserMatchCacheEntry(user.id, cacheKey, res.data)
+  }
+  return res
 }
 
 function getMatchPrompt(

@@ -196,6 +196,46 @@ export function CandidateJobFeed({
     setJobList(jobs || [])
   }, [jobs])
 
+  // Load persisted AI Match results from localStorage immediately + hydrate from server
+  useEffect(() => {
+    let mounted = true
+    try {
+      const localRaw = localStorage.getItem('ss_cand_match_results_v1')
+      if (localRaw) {
+        const parsed = JSON.parse(localRaw)
+        if (parsed && typeof parsed === 'object') {
+          setMatchResults((prev) => ({ ...parsed, ...prev }))
+        }
+      }
+    } catch {}
+
+    getPersistedMatchCache()
+      .then((res) => {
+        if (!mounted || !res?.cache) return
+        const serverMatches: Record<string, any> = {}
+        for (const [k, v] of Object.entries(res.cache)) {
+          if (k.startsWith('cand_') && v && typeof v === 'object') {
+            const jId = k.slice('cand_'.length)
+            serverMatches[jId] = v
+          }
+        }
+        if (Object.keys(serverMatches).length > 0) {
+          setMatchResults((prev) => {
+            const merged = { ...serverMatches, ...prev }
+            try {
+              localStorage.setItem('ss_cand_match_results_v1', JSON.stringify(merged))
+            } catch {}
+            return merged
+          })
+        }
+      })
+      .catch(() => {})
+
+    return () => {
+      mounted = false
+    }
+  }, [])
+
   useEffect(() => {
     if (externalSavedIds !== undefined) return
     let mounted = true
@@ -263,10 +303,16 @@ export function CandidateJobFeed({
           },
         }))
       } else if (result?.data) {
-        setMatchResults((prev) => ({
-          ...prev,
-          [jobId]: result.data,
-        }))
+        setMatchResults((prev) => {
+          const updated = {
+            ...prev,
+            [jobId]: result.data,
+          }
+          try {
+            localStorage.setItem('ss_cand_match_results_v1', JSON.stringify(updated))
+          } catch {}
+          return updated
+        })
       } else {
         setFeedback((prev) => ({
           ...prev,

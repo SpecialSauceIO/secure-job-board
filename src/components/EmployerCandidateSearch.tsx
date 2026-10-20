@@ -229,6 +229,9 @@ export default function EmployerCandidateSearch({
   const [selectedJobId, setSelectedJobId] = useState('')
   const [isAnalyzingMatch, setIsAnalyzingMatch] = useState(false)
   const [aiMatchData, setAiMatchData] = useState<any | null>(null)
+  // Persistent cache keyed by `${candidateId}_${jobId}` + last selected jobId per candidate
+  const [matchCacheMap, setMatchCacheMap] = useState<Record<string, any>>({})
+  const [candidateJobMap, setCandidateJobMap] = useState<Record<string, string>>({})
   const [isSending, setIsSending] = useState(false)
   const [feedback, setFeedback] = useState<{
     type: 'success' | 'error'
@@ -247,15 +250,61 @@ export default function EmployerCandidateSearch({
       }
     }
 
+    try {
+      const savedMatches = localStorage.getItem('ss_emp_match_cache_v1')
+      if (savedMatches) {
+        const parsed = JSON.parse(savedMatches)
+        if (parsed && typeof parsed === 'object') setMatchCacheMap(parsed)
+      }
+      const savedJobMap = localStorage.getItem('ss_emp_cand_job_map_v1')
+      if (savedJobMap) {
+        const parsedJobs = JSON.parse(savedJobMap)
+        if (parsedJobs && typeof parsedJobs === 'object') setCandidateJobMap(parsedJobs)
+      }
+    } catch {}
+
     const fetchInitial = async () => {
       setIsLoading(true)
-      const [result, bookmarks] = await Promise.all([
+      const [result, bookmarks, persisted] = await Promise.all([
         searchCandidates('', '', ''),
         getUserBookmarks(),
+        getPersistedMatchCache(),
       ])
       if (result.data) setCandidates(result.data)
       if (bookmarks.savedCandidateIds) {
         setSavedCandidateIds(bookmarks.savedCandidateIds)
+      }
+      if (persisted?.cache) {
+        const empEntries: Record<string, any> = {}
+        const jobEntries: Record<string, string> = {}
+        for (const [k, v] of Object.entries(persisted.cache)) {
+          if (k.startsWith('emp_') && v && typeof v === 'object') {
+            const rest = k.slice('emp_'.length)
+            empEntries[rest] = v
+            const lastUnderscore = rest.lastIndexOf('_')
+            if (lastUnderscore !== -1) {
+              const cId = rest.slice(0, lastUnderscore)
+              const jId = rest.slice(lastUnderscore + 1)
+              jobEntries[cId] = jId
+            }
+          }
+        }
+        if (Object.keys(empEntries).length > 0) {
+          setMatchCacheMap((prev) => {
+            const merged = { ...empEntries, ...prev }
+            try {
+              localStorage.setItem('ss_emp_match_cache_v1', JSON.stringify(merged))
+            } catch {}
+            return merged
+          })
+          setCandidateJobMap((prev) => {
+            const mergedJobs = { ...jobEntries, ...prev }
+            try {
+              localStorage.setItem('ss_emp_cand_job_map_v1', JSON.stringify(mergedJobs))
+            } catch {}
+            return mergedJobs
+          })
+        }
       }
       setIsLoading(false)
     }
@@ -329,13 +378,34 @@ export default function EmployerCandidateSearch({
     setIsLoading(false)
   }
 
-  const handleRoleSelect = async (jobId: string, candidateId: string) => {
+  const handleRoleSelect = async (
+    jobId: string,
+    candidateId: string,
+    forceRefresh: boolean = false
+  ) => {
     setSelectedJobId(jobId)
-    setAiMatchData(null)
     setFeedback(null)
 
-    if (!jobId) return
+    if (!jobId) {
+      setAiMatchData(null)
+      return
+    }
 
+    const pairKey = `${candidateId}_${jobId}`
+    setCandidateJobMap((prev) => {
+      const next = { ...prev, [candidateId]: jobId }
+      try {
+        localStorage.setItem('ss_emp_cand_job_map_v1', JSON.stringify(next))
+      } catch {}
+      return next
+    })
+
+    if (!forceRefresh && matchCacheMap[pairKey]) {
+      setAiMatchData(matchCacheMap[pairKey])
+      return
+    }
+
+    setAiMatchData(null)
     setIsAnalyzingMatch(true)
 
     try {
@@ -349,12 +419,19 @@ export default function EmployerCandidateSearch({
       })
 
       const result: any = await Promise.race([
-        analyzeCandidateFit(candidateId, jobId),
+        analyzeCandidateFit(candidateId, jobId, forceRefresh),
         timeoutPromise,
       ])
 
       if (result?.data) {
         setAiMatchData(result.data)
+        setMatchCacheMap((prev) => {
+          const next = { ...prev, [pairKey]: result.data }
+          try {
+            localStorage.setItem('ss_emp_match_cache_v1', JSON.stringify(next))
+          } catch {}
+          return next
+        })
       } else if (result?.error) {
         setFeedback({
           type: 'error',
@@ -1223,7 +1300,7 @@ export default function EmployerCandidateSearch({
                             <button
                               type="button"
                               onClick={() =>
-                                handleRoleSelect(selectedJobId, candidate.id)
+                                handleRoleSelect(selectedJobId, candidate.id, true)
                               }
                               className="px-3.5 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-100 transition-colors cursor-pointer border-slate-300"
                             >
@@ -1472,25 +1549,81 @@ export default function EmployerCandidateSearch({
                         </div>
                       )}
                     </div>
-                  ) : (
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="text-xs text-slate-500 font-medium">
-                        Run an instant 5-Point AI Fit check against any of your active roles before pitching.
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPitchCandidateId(candidate.id)
-                          setFeedback(null)
-                          setSelectedJobId('')
-                          setAiMatchData(null)
-                        }}
-                        className="px-5 py-2.5 bg-slate-900 text-white text-xs font-extrabold rounded-xl hover:bg-indigo-600 transition-colors cursor-pointer shrink-0"
-                      >
-                        Evaluate Fit &amp; Pitch Role →
-                      </button>
-                    </div>
-                  )}
+                  ) : (() => {
+                    const savedJobForCand =
+                      candidateJobMap[candidate.id] ||
+                      (activeJobs.length === 1 ? String(activeJobs[0].id) : '')
+                    const savedPairData = savedJobForCand
+                      ? matchCacheMap[`${candidate.id}_${savedJobForCand}`]
+                      : null
+                    const savedJobObj = savedJobForCand
+                      ? activeJobs.find((j) => String(j.id) === String(savedJobForCand))
+                      : null
+                    const savedScore = savedPairData?.overall_score ?? null
+
+                    return (
+                      <div className="space-y-3">
+                        {savedPairData && savedScore !== null && (
+                          <div className="p-4 rounded-xl bg-slate-50 border border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span
+                                  className={`px-2.5 py-0.5 rounded-lg text-xs font-black border ${
+                                    savedScore >= 80
+                                      ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                                      : savedScore >= MIN_MATCH_THRESHOLD
+                                      ? 'bg-indigo-100 text-indigo-800 border-indigo-300'
+                                      : 'bg-rose-100 text-rose-800 border-rose-300'
+                                  }`}
+                                >
+                                  {savedScore}% AI Match
+                                </span>
+                                {savedJobObj && (
+                                  <span className="text-xs font-extrabold text-slate-700 truncate">
+                                    for {savedJobObj.title}
+                                  </span>
+                                )}
+                              </div>
+                              {savedPairData.brief_analysis && (
+                                <p className="text-xs text-slate-600 font-medium mt-1 line-clamp-2">
+                                  {savedPairData.brief_analysis}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="text-xs text-slate-500 font-medium">
+                            {savedScore !== null
+                              ? 'Saved 5-Point AI Fit evaluation ready. Click to view full radar graph or send role pitch.'
+                              : 'Run an instant 5-Point AI Fit check against any of your active roles before pitching.'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPitchCandidateId(candidate.id)
+                              setFeedback(null)
+                              if (savedJobForCand && savedPairData) {
+                                setSelectedJobId(savedJobForCand)
+                                setAiMatchData(savedPairData)
+                              } else if (activeJobs.length === 1) {
+                                const onlyJobId = String(activeJobs[0].id)
+                                handleRoleSelect(onlyJobId, candidate.id)
+                              } else {
+                                setSelectedJobId('')
+                                setAiMatchData(null)
+                              }
+                            }}
+                            className="px-5 py-2.5 bg-slate-900 text-white text-xs font-extrabold rounded-xl hover:bg-indigo-600 transition-colors cursor-pointer shrink-0"
+                          >
+                            {savedScore !== null
+                              ? 'View 5-Point Radar & Pitch →'
+                              : 'Evaluate Fit & Pitch Role →'}
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </div>
               </div>
             )
