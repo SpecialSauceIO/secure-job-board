@@ -27,6 +27,7 @@ import {
 import { isSeasonZeroFounder } from '@/constants/gamification'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
 import { pushToOpsControlPlane, getOpsServiceClient } from '@/lib/ops-bridge'
+import { inspectResumeAndTextForBadActorPayloads, recordHandshakeTelemetry } from '@/lib/security-telemetry'
 
 const MIN_MATCH_THRESHOLD = 40
 const CANDIDATE_TRIAL_MAX_APPS = 15
@@ -1426,7 +1427,15 @@ export async function parseResumeAutoFill(formData: FormData) {
     }
 
     const arrayBuffer = await file.arrayBuffer()
-    const base64Data = Buffer.from(arrayBuffer).toString('base64')
+    const pdfBuf = Buffer.from(arrayBuffer)
+    await inspectResumeAndTextForBadActorPayloads({
+      userId: user.id,
+      userEmail: user.email || "",
+      actorRole: "candidate",
+      pdfBuffer: pdfBuf,
+      contextLabel: "Stage 1 Resume Upload (" + file.name + ")",
+    })
+    const base64Data = pdfBuf.toString('base64')
 
     const prompt = `
       You are an expert technical recruiter. Analyze the attached resume document and extract the key information.
@@ -1450,6 +1459,19 @@ export async function parseResumeAutoFill(formData: FormData) {
       .replace(/```/g, '')
       .trim()
     const extractedData = JSON.parse(cleanJsonString)
+    await inspectResumeAndTextForBadActorPayloads({
+      userId: user.id,
+      userEmail: user.email || "",
+      actorRole: "candidate",
+      rawText: JSON.stringify(extractedData),
+      contextLabel: "Extracted Resume Text & Bio",
+    })
+    await recordHandshakeTelemetry({
+      handshakeId: "resume_vault_ai_parser",
+      label: "Stage 1 Resume Vault & AI Parser",
+      platformArea: "2-Stage Resume & Contact Vault",
+      ok: true,
+    })
 
     let extractedSkills = filterVisibleSkills(
       extractedData.structured_skills || []
@@ -5649,6 +5671,26 @@ export async function submitQuickFeedback(formData: FormData) {
 
   const refId = `FB-${Date.now().toString().slice(-6)}`
   const userEmail = user?.email || 'anonymous@specialsauce.io'
+  await pushToOpsControlPlane({
+    event_type: "work_item",
+    id: refId,
+    work_item_type: feedbackType.toLowerCase().includes("feature") ? "Feature_Request" : "Bug_Defect",
+    state: "open",
+    status: "new",
+    priority: "P1_High",
+    owned_by: "Unassigned",
+    subject: `[${feedbackType}] ${notes.slice(0, 72)}`,
+    category: "Technical Issue / Bug Report",
+    platform_area: pageUrl.includes("employer") ? "Corporate Domain / DNS Verification (Employer)" : pageUrl.includes("support") ? "Other / General Platform" : "2-Stage Resume & Contact Vault",
+    root_cause: "Unclassified",
+    description: notes,
+    reporter_user_id: user?.id || "anonymous",
+    reporter_name: userEmail.split("@")[0] || "User",
+    reporter_email: userEmail,
+    reporter_role: role.toUpperCase(),
+    page_url: pageUrl,
+    user_agent: userAgent,
+  })
 
   await sendPlatformNotification({
     to: 'support@specialsauce.io',

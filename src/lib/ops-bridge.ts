@@ -43,15 +43,23 @@ export interface UserVisibleTicket {
   category: string
   platform_area: string
   description: string
+  parent_ticket_id?: string | null
   created_at: string
   updated_at: string
   thread: UserVisibleTicketMessage[]
 }
 
-async function loadMergedOpsVault(client: NonNullable<ReturnType<typeof getOpsServiceClient>>) {
-  const vault: { work_items: any[]; behavioral_flags: any[] } = {
+export async function loadMergedOpsVault(
+  client: NonNullable<ReturnType<typeof getOpsServiceClient>>
+) {
+  const vault: {
+    work_items: any[]
+    behavioral_flags: any[]
+    monitor_meta: Record<string, any>
+  } = {
     work_items: [],
     behavioral_flags: [],
+    monitor_meta: {},
   }
 
   try {
@@ -80,11 +88,15 @@ async function loadMergedOpsVault(client: NonNullable<ReturnType<typeof getOpsSe
 
     const itemMap = new Map<string, any>()
     const flagMap = new Map<string, any>()
+    let mergedMeta: Record<string, any> = {}
 
     for (const res of [baseRes, latestRes]) {
       if (res?.data && !res.error) {
         try {
           const parsed = JSON.parse(await res.data.text())
+          if (parsed?.monitor_meta && typeof parsed.monitor_meta === "object") {
+            mergedMeta = { ...mergedMeta, ...parsed.monitor_meta }
+          }
           if (Array.isArray(parsed.work_items)) {
             for (const item of parsed.work_items) {
               if (!item?.id) continue
@@ -112,21 +124,22 @@ async function loadMergedOpsVault(client: NonNullable<ReturnType<typeof getOpsSe
 
     vault.work_items = Array.from(itemMap.values()).sort(
       (a, b) =>
-        new Date(b.updated_at || b.created_at || 0).getTime() -
-        new Date(a.updated_at || a.created_at || 0).getTime()
+        new Date(b.created_at || 0).getTime() -
+        new Date(a.created_at || 0).getTime()
     )
     vault.behavioral_flags = Array.from(flagMap.values()).sort(
       (a, b) =>
         new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
     )
+    vault.monitor_meta = mergedMeta
   } catch {}
 
   return vault
 }
 
-async function saveMergedOpsVault(
+export async function saveMergedOpsVault(
   client: NonNullable<ReturnType<typeof getOpsServiceClient>>,
-  vault: { work_items: any[]; behavioral_flags: any[] }
+  vault: { work_items: any[]; behavioral_flags: any[]; monitor_meta?: Record<string, any> }
 ) {
   const nowTs = Date.now()
   const newVersionPath = `${OPS_VAULT_DIR}/${OPS_VAULT_PREFIX}${nowTs}.json`
@@ -158,6 +171,9 @@ export async function getUserOpsTickets(
 
   return vault.work_items
     .filter((item: any) => {
+      if (item.work_item_type === "System_Outage" || item.work_item_type === "Security_Alert") {
+        return false
+      }
       const matchId = userId && String(item.reporter_user_id || "") === userId
       const matchEmail =
         cleanEmail &&
@@ -173,6 +189,7 @@ export async function getUserOpsTickets(
       category: String(item.category || "General Support"),
       platform_area: String(item.platform_area || "General Platform"),
       description: String(item.description || ""),
+      parent_ticket_id: item.parent_ticket_id || null,
       created_at: String(item.created_at || new Date().toISOString()),
       updated_at: String(item.updated_at || item.created_at || new Date().toISOString()),
       thread: (Array.isArray(item.thread) ? item.thread : [])
@@ -263,7 +280,7 @@ export async function pushToOpsControlPlane(payload: Record<string, any>): Promi
 
       const extractExistingTicketId = (txt?: string | null) => {
         if (!txt) return null
-        const m = String(txt).match(/\b(TKT-\d{4,10}|FB-\d{4,10})\b/i)
+        const m = String(txt).match(/\b(TKT-\d{4,10}|FB-\d{4,10}|INC-\d{4,10}|SEC-\d{4,10})\b/i)
         return m ? m[1].toUpperCase() : null
       }
 
@@ -294,16 +311,129 @@ export async function pushToOpsControlPlane(payload: Record<string, any>): Promi
           vault.work_items[refIdx] = item
           shouldSave = true
         } else {
+          const itemType = payload.work_item_type || "Support_Ticket"
+          const defaultPrefix =
+            itemType === "System_Outage"
+              ? "INC"
+              : itemType === "Security_Alert"
+              ? "SEC"
+              : "TKT"
+          const newId = payload.id || `${defaultPrefix}-${Date.now().toString().slice(-6)}`
+          const area = payload.platform_area || "Other / General Platform"
+
+          let parentId: string | null = payload.parent_ticket_id || null
+
+          if (
+            !parentId &&
+            itemType !== "System_Outage" &&
+            itemType !== "Security_Alert"
+          ) {
+            const activeOutageIdx = vault.work_items.findIndex(
+              (w: any) =>
+                w.state === "open" &&
+                w.work_item_type === "System_Outage" &&
+                w.platform_area === area
+            )
+
+            if (activeOutageIdx >= 0) {
+              const parentOutage = vault.work_items[activeOutageIdx]
+              parentId = parentOutage.id
+              const children = new Set<string>(
+                Array.isArray(parentOutage.child_ticket_ids)
+                  ? parentOutage.child_ticket_ids
+                  : []
+              )
+              children.add(newId)
+              parentOutage.child_ticket_ids = Array.from(children)
+              parentOutage.updated_at = nowIso
+              parentOutage.thread = Array.isArray(parentOutage.thread)
+                ? parentOutage.thread
+                : []
+              parentOutage.thread.push({
+                id: `link-${Date.now()}`,
+                author: "Incident Auto-Linker",
+                direction: "internal_note",
+                text: `🔗 Auto-linked incoming ${itemType} [${newId}] from ${
+                  payload.reporter_email || "Customer"
+                } ("${payload.subject}") to this Master Outage.`,
+                created_at: nowIso,
+              })
+              vault.work_items[activeOutageIdx] = parentOutage
+            } else if (itemType === "Bug_Defect") {
+              const thirtyMinAgo = Date.now() - 30 * 60 * 1000
+              const recentAreaBugs = vault.work_items.filter(
+                (w: any) =>
+                  w.state === "open" &&
+                  w.work_item_type !== "System_Outage" &&
+                  w.work_item_type !== "Security_Alert" &&
+                  w.platform_area === area &&
+                  new Date(w.created_at || 0).getTime() >= thirtyMinAgo
+              )
+
+              if (recentAreaBugs.length >= 2) {
+                const incId = `INC-${Date.now().toString().slice(-6)}`
+                const childIds = [
+                  ...recentAreaBugs.map((b: any) => String(b.id)),
+                  newId,
+                ]
+                parentId = incId
+
+                for (const bug of recentAreaBugs) {
+                  bug.parent_ticket_id = incId
+                }
+
+                const autoOutageItem = {
+                  id: incId,
+                  work_item_type: "System_Outage",
+                  state: "open",
+                  status: "new",
+                  priority: "P0_Critical",
+                  owned_by: "Steve Briley (Founder / Lead Ops)",
+                  subject: `[AUTO-DETECTED OUTAGE] Multiple Bug Reports in ${area}`,
+                  category: "Technical Issue / Bug Report",
+                  platform_area: area,
+                  root_cause: "Confirmed Bug / Technical Defect",
+                  related_ref_id: "",
+                  account_tier: "SYSTEM MONITOR",
+                  description: `Automated Burst Detector created this Master Outage Ticket (${incId}) because ${childIds.length} tickets were reported in "${area}" within 30 minutes.\n\nLinked Child Tickets: ${childIds.join(", ")}`,
+                  reporter_user_id: "system-watchdog",
+                  reporter_name: "Special Sauce Watchdog",
+                  reporter_email: "support@specialsauce.io",
+                  reporter_role: "SYSTEM",
+                  organization_context: "Platform-Wide Incident Tracking",
+                  page_url: "/dashboard",
+                  user_agent: "Automated Anomaly Engine",
+                  attachments: [],
+                  parent_ticket_id: null,
+                  child_ticket_ids: childIds,
+                  created_at: nowIso,
+                  updated_at: nowIso,
+                  closed_at: null,
+                  thread: [
+                    {
+                      id: `note-${Date.now()}`,
+                      author: "System Watchdog",
+                      direction: "internal_note",
+                      text: `🚨 Auto-created Master Outage ${incId} and linked ${childIds.length} child tickets: ${childIds.join(", ")}`,
+                      created_at: nowIso,
+                    },
+                  ],
+                }
+                vault.work_items.unshift(autoOutageItem)
+              }
+            }
+          }
+
           const newItem = {
-            id: payload.id || `TKT-${Date.now().toString().slice(-6)}`,
-            work_item_type: payload.work_item_type || "Support_Ticket",
+            id: newId,
+            work_item_type: itemType,
             state: payload.state || "open",
             status: payload.status || "new",
             priority: payload.priority || "P2_Normal",
             owned_by: payload.owned_by || "Unassigned",
             subject: payload.subject || "Incoming Support Request",
             category: payload.category || "General Support",
-            platform_area: payload.platform_area || "General Platform",
+            platform_area: area,
             root_cause: payload.root_cause || "Unclassified",
             related_ref_id: payload.related_ref_id || "",
             account_tier: payload.account_tier || "",
@@ -316,10 +446,14 @@ export async function pushToOpsControlPlane(payload: Record<string, any>): Promi
             page_url: payload.page_url || "/dashboard",
             user_agent: payload.user_agent || "",
             attachments: Array.isArray(payload.attachments) ? payload.attachments : [],
+            parent_ticket_id: parentId,
+            child_ticket_ids: Array.isArray(payload.child_ticket_ids)
+              ? payload.child_ticket_ids
+              : [],
             created_at: nowIso,
             updated_at: nowIso,
             closed_at: null,
-            thread: [],
+            thread: Array.isArray(payload.thread) ? payload.thread : [],
           }
           vault.work_items = [
             newItem,
