@@ -1,11 +1,11 @@
-import Link from 'next/link'
-import { PublicHeader } from '@/components/PublicHeader'
-import { PublicFooter } from '@/components/PublicFooter'
+import Link from "next/link"
+import { PublicHeader } from "@/components/PublicHeader"
+import { PublicFooter } from "@/components/PublicFooter"
 
 export const metadata = {
-  title: 'Pricing, Plans & Founding Rewards | specialsauce.io',
+  title: "Pricing, Plans & Founding Partner Rates | specialsauce.io",
   description:
-    'Compare Special Sauce Candidate plans (Explorer, Professional, Prestige) and Employer plans (Starter, Growth, Enterprise with Workday & Greenhouse ATS Webhooks). First 30 days $0 during our Launch Window.',
+    "Compare Special Sauce Candidate plans (Free Explorer Vault, ID-Verified Professional $9/mo & Prestige $15/mo) and Employer plans (Starter $149/mo, Growth $499/mo, Enterprise $1,250/mo Founding Partner Rates).",
 }
 
 export default function PricingMatrixPage() {
@@ -17,13 +17,13 @@ export default function PricingMatrixPage() {
         {/* Hero Header */}
         <section className="py-14 md:py-20 px-6 md:px-12 max-w-5xl mx-auto text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs font-extrabold uppercase tracking-wide">
-            <span>★ Early-Access Launch • First 30 Days $0 Across All Plans</span>
+            <span>★ Founding Launch Window • Free Candidate Explorer Vault &amp; Charter Employer Rates</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
-            Transparent Plans &amp; Founding Rewards
+            Transparent Plans &amp; Verified Signal
           </h1>
           <p className="text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
-            Whether you&apos;re exploring your next career move in privacy or hiring verified talent across 28 industry verticals, your first 30 days are <strong className="text-slate-900">$0</strong> during our launch window.
+            Candidates build their anonymous career vault on <strong className="text-slate-900">Explorer for $0 forever</strong> and only upgrade + verify identity when ready to apply or accept a pitch. Employers lock in <strong className="text-slate-900">Founding Partner Launch Rates</strong> backed by 100% Accepted-Only Credit Protection.
           </p>
         </section>
 
@@ -33,17 +33,17 @@ export default function PricingMatrixPage() {
               SECTION 1: CANDIDATE PLANS (Explorer $0 / Professional $9 / Prestige $15)
              ================================================================ */}
           <div className="rounded-3xl border-2 border-slate-300 bg-gradient-to-b from-amber-50/60 via-white to-white p-6 sm:p-10 shadow-md space-y-8 relative overflow-hidden">
-            {/* Top Unified Gold Launch Banner */}
+            {/* Top Unified Candidate Banner */}
             <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-7 border border-slate-300/60 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div className="space-y-1.5">
                 <div className="inline-flex items-center gap-2 text-amber-300 text-xs font-extrabold uppercase tracking-wider">
-                  <span>★ Candidate Founding Member Launch Window</span>
+                  <span>🛡️ Zero-Friction Onboarding • Pay &amp; Verify Only When Ready</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  First 30 Days Free on Any Plan + Permanent Founding Member Badge
+                  Start Free on Explorer + Upgrade to Apply or Unlock Pitches
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
-                  Enroll during our launch window to try <strong className="text-white">Professional</strong> or <strong className="text-white">Prestige</strong> for <strong className="text-emerald-300">$0 for your first 30 days</strong>. You permanently keep your <strong className="text-amber-300">Founding Member Status</strong> on any tier, plus full access to <strong className="text-amber-300">Verified Behavioral &amp; Responsiveness Signals</strong> across your blind profile.
+                  Create your anonymous profile, browse verified salary bands, and run unlimited 5-Point AI Fit checks for <strong className="text-emerald-300">$0 forever on Explorer</strong>. When you spot a role you want to apply for—or a verified employer sends you an outbound pitch—upgrade to <strong className="text-white">Professional ($9/mo)</strong> or <strong className="text-white">Prestige ($15/mo)</strong> and complete 1-time <strong className="text-amber-300">Biometric ID Verification</strong> to unlock full Stage 1/2 engagement.
                 </p>
               </div>
               <div className="shrink-0">
@@ -51,7 +51,7 @@ export default function PricingMatrixPage() {
                   href="/signup/candidate"
                   className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs sm:text-sm font-black transition-colors shadow-sm"
                 >
-                  Start 30-Day Free Trial →
+                  Create Free Explorer Vault →
                 </Link>
               </div>
             </div>
@@ -59,10 +59,10 @@ export default function PricingMatrixPage() {
             {/* 3 Candidate Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Tier 1: Explorer ($0) */}
-              <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-col justify-between space-y-6 border-slate-300">
+              <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-col justify-between space-y-6">
                 <div className="space-y-4">
                   <div>
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
                       Passive Career Vault
                     </span>
                     <h3 className="text-2xl font-black text-slate-900 mt-0.5">
@@ -74,12 +74,12 @@ export default function PricingMatrixPage() {
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Ideal when you&apos;re happily employed. Keep your anonymous profile live in the talent pool and let verified employers pitch you first.
+                    Ideal when you&apos;re exploring privately. Build your anonymous profile, test AI role fit, and receive pitch notifications from verified employers before deciding to upgrade.
                   </p>
                   <ul className="space-y-2.5 pt-3 border-t border-slate-300 text-xs text-slate-700 font-medium">
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span><strong>Unlimited Inbound Employer Pitches</strong> &amp; Stage 1/2 Chat (100% Free)</span>
+                      <span><strong>Live Anonymous Talent Profile</strong> in Employer Search</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
@@ -91,19 +91,15 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span>2-Stage Identity &amp; PDF Resume Vault protection</span>
+                      <span>Receive real-time <strong>Inbound Employer Pitch Alerts</strong></span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-600 font-bold">★</span>
-                      <span>Keeps permanent <strong>Founding Member Status</strong></span>
-                    </li>
-                    <li className="flex items-start gap-2 text-slate-400">
-                      <span>✕</span>
-                      <span>Outbound blind applications (Inbound pitches only)</span>
+                    <li className="flex items-start gap-2 text-amber-800 font-bold">
+                      <span>★</span>
+                      <span>Prompted to upgrade &amp; verify ID only when ready to open a pitch or apply</span>
                     </li>
                     <li className="flex items-start gap-2 text-slate-400">
                       <span>✕</span>
-                      <span>Outbound Blind Applications (Included on Professional &amp; Prestige)</span>
+                      <span>Outbound Blind Applications &amp; Pitch Unlocks (Requires Professional or Prestige + ID Verification)</span>
                     </li>
                   </ul>
                 </div>
@@ -115,10 +111,10 @@ export default function PricingMatrixPage() {
                 </Link>
               </div>
 
-              {/* Tier 2: Professional ($9/mo - First 30 Days Free) */}
+              {/* Tier 2: Professional ($9/mo) */}
               <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
-                  ★ First 30 Days $0
+                  🛡️ ID-Verified Active Tier
                 </div>
                 <div className="space-y-4">
                   <div>
@@ -130,20 +126,24 @@ export default function PricingMatrixPage() {
                     </h3>
                     <div className="mt-3 flex items-baseline gap-2">
                       <span className="text-3xl font-black text-slate-900">$9</span>
-                      <span className="text-xs font-bold text-slate-500">/ mo after 30-day free trial</span>
+                      <span className="text-xs font-bold text-slate-500">/ month</span>
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Built for selective professionals actively submitting blind applications to high-fit roles with verified behavioral trust signals.
+                    Built for selective professionals ready to unlock inbound employer pitches, complete biometric ID verification, and submit targeted blind applications.
                   </p>
                   <ul className="space-y-2.5 pt-3 border-t border-slate-300 text-xs text-slate-700 font-medium">
-                    <li className="flex items-start gap-2 text-amber-800 font-bold">
-                      <span>★</span>
-                      <span><strong>First 30 Days Free ($0)</strong> during Launch Window</span>
+                    <li className="flex items-start gap-2 text-emerald-700 font-bold">
+                      <span>🛡️</span>
+                      <span><strong>Includes Biometric ID Verification</strong> &amp; Verified Candidate Shield</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span><strong>15 Outbound Blind Applications / month</strong> (40%+ AI Fit)</span>
+                      <span><strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong> (Stage 1/2 Chat)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span><strong>15 Outbound Blind Applications / month</strong> (70%+ AI Fit)</span>
                     </li>
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
@@ -155,10 +155,6 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span>Unlimited 5-Point AI Fit Radar checks &amp; Inbound Pitches</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-600 font-bold">✓</span>
                       <span>Elevated placement in Employer Talent Search</span>
                     </li>
                   </ul>
@@ -167,14 +163,14 @@ export default function PricingMatrixPage() {
                   href="/signup/candidate"
                   className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl text-center transition-colors shadow-sm"
                 >
-                  Start 30-Day Free Professional Trial →
+                  Choose Professional ($9/mo) →
                 </Link>
               </div>
 
-              {/* Tier 3: Prestige ($15/mo - First 30 Days Free) */}
+              {/* Tier 3: Prestige ($15/mo) */}
               <div className="bg-slate-900 text-white p-8 rounded-2xl border-2 border-indigo-500 shadow-lg flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
-                  ★ First 30 Days $0
+                  ★ Priority Spotlight &amp; Unlimited
                 </div>
                 <div className="space-y-4">
                   <div>
@@ -186,20 +182,24 @@ export default function PricingMatrixPage() {
                     </h3>
                     <div className="mt-3 flex items-baseline gap-2">
                       <span className="text-3xl font-black text-white">$15</span>
-                      <span className="text-xs font-bold text-slate-300">/ mo after 30-day free trial</span>
+                      <span className="text-xs font-bold text-slate-300">/ month</span>
                     </div>
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed">
-                    Maximum visibility and zero application caps for active job seekers ready to transition fast.
+                    Maximum visibility and zero application caps for active, ID-verified professionals ready to transition fast.
                   </p>
                   <ul className="space-y-2.5 pt-3 border-t border-slate-800 text-xs text-slate-200 font-medium">
-                    <li className="flex items-start gap-2 text-amber-300 font-bold">
-                      <span>★</span>
-                      <span><strong>First 30 Days Free ($0)</strong> during Launch Window</span>
+                    <li className="flex items-start gap-2 text-emerald-300 font-bold">
+                      <span>🛡️</span>
+                      <span><strong>Includes Biometric ID Verification</strong> &amp; Verified Candidate Shield</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>
-                      <span><strong>Unlimited Outbound Blind Applications</strong> (40%+ AI Fit)</span>
+                      <span><strong>Unlimited Outbound Blind Applications</strong> (70%+ AI Fit)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-400 font-bold">✓</span>
+                      <span><strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong></span>
                     </li>
                     <li className="flex items-start gap-2 text-amber-300 font-bold">
                       <span>★</span>
@@ -209,13 +209,9 @@ export default function PricingMatrixPage() {
                       <span>★</span>
                       <span><strong>Verified Behavioral Trust Signals</strong> &amp; Priority Shortlist Placement</span>
                     </li>
-                    <li className="flex items-start gap-2 text-amber-300 font-bold">
-                      <span>★</span>
-                      <span><strong>Permanent Founding Member Status</strong> &amp; Badge</span>
-                    </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>
-                      <span>Switch or downgrade to Professional anytime</span>
+                      <span>Switch or downgrade to Professional or Explorer anytime</span>
                     </li>
                   </ul>
                 </div>
@@ -223,27 +219,27 @@ export default function PricingMatrixPage() {
                   href="/signup/candidate"
                   className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm"
                 >
-                  Start 30-Day Free Prestige Trial →
+                  Choose Prestige ($15/mo) →
                 </Link>
               </div>
             </div>
           </div>
 
           {/* ================================================================
-              SECTION 2: EMPLOYER PLANS (Starter $99 / Growth $299 / Enterprise $899)
+              SECTION 2: EMPLOYER PLANS (Starter $149 / Growth $499 / Enterprise $1,250)
              ================================================================ */}
           <div className="rounded-3xl border-2 border-slate-300 bg-gradient-to-b from-indigo-50/50 via-white to-white p-6 sm:p-10 shadow-md space-y-8 relative overflow-hidden">
-            {/* Top Unified Gold Launch Banner */}
+            {/* Top Unified Employer Launch Banner */}
             <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-7 border border-slate-300/60 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div className="space-y-1.5">
                 <div className="inline-flex items-center gap-2 text-amber-300 text-xs font-extrabold uppercase tracking-wider">
-                  <span>★ Employer Founding Partner Launch Window</span>
+                  <span>★ Employer Founding Partner Rate Lock (First 100 Verified Organizations)</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  First 30 Days Free on Any Employer Plan + Permanent Founding Partner Status
+                  Lock In Up to 50% Off Retail Pricing + 100% Accepted-Only Credit Protection
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
-                  Verify your corporate domain during launch to experience <strong className="text-white">Starter, Growth, or Enterprise</strong> for <strong className="text-emerald-300">$0 for your first 30 days</strong>. Reviewing and unlocking inbound candidate applications is <strong className="text-white">100% free (0 credits)</strong> across all plans, and charter organizations keep permanent <strong className="text-amber-300">Founding Partner Status &amp; Verified Hiring Signals</strong>.
+                  Verify your corporate domain during our launch window to lock in <strong className="text-amber-300">Founding Partner Rates ($149 / $499 / $1,250)</strong> vs. standard retail ($299 / $799 / $1,999). Reviewing and unlocking inbound candidate applications is <strong className="text-white">100% free (0 credits)</strong>, and every outbound pitch is backed by our <strong className="text-emerald-300">Accepted-Only Guarantee (declined pitches auto-refunded)</strong>.
                 </p>
               </div>
               <div className="shrink-0">
@@ -251,17 +247,17 @@ export default function PricingMatrixPage() {
                   href="/signup/employer"
                   className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs sm:text-sm font-black transition-colors shadow-sm"
                 >
-                  Claim 30-Day Free Employer Trial →
+                  Claim Founding Partner Rate →
                 </Link>
               </div>
             </div>
 
             {/* 3 Employer Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Employer Tier 1: Starter ($99/mo) */}
-              <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-col justify-between space-y-6 relative overflow-hidden border-slate-300">
+              {/* Employer Tier 1: Starter ($149 Founding / $299 Retail) */}
+              <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
-                  ★ First 30 Days $0
+                  ★ Founding Partner Rate (-50%)
                 </div>
                 <div className="space-y-4">
                   <div>
@@ -278,13 +274,9 @@ export default function PricingMatrixPage() {
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Built for small businesses and hiring managers filling 1 to 5 active roles at a time.
+                    Built for small businesses and hiring managers filling 1 to 5 active roles at a time—for less than the cost of a single promoted job slot.
                   </p>
                   <ul className="space-y-2.5 pt-3 border-t border-slate-300 text-xs text-slate-700 font-medium">
-                    <li className="flex items-start gap-2 text-amber-800 font-bold">
-                      <span>★</span>
-                      <span><strong>First 30 Days Free ($0)</strong> upon domain verification</span>
-                    </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
                       <span><strong>Up to 5 Simultaneous Active Blind Roles</strong></span>
@@ -319,14 +311,14 @@ export default function PricingMatrixPage() {
                   href="/signup/employer"
                   className="w-full py-3 bg-slate-900 hover:bg-indigo-600 text-white font-extrabold text-xs rounded-xl text-center transition-colors shadow-sm"
                 >
-                  Start 30-Day Free Starter Trial →
+                  Get Started with Starter ($149/mo) →
                 </Link>
               </div>
 
-              {/* Employer Tier 2: Growth ($299/mo) */}
+              {/* Employer Tier 2: Growth ($499 Founding / $799 Retail) */}
               <div className="bg-slate-900 text-white p-8 rounded-2xl border-2 border-indigo-500 shadow-lg flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
-                  ★ Most Popular • First 30 Days $0
+                  ★ Most Popular • Founding Rate
                 </div>
                 <div className="space-y-4">
                   <div>
@@ -343,13 +335,9 @@ export default function PricingMatrixPage() {
                     </div>
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed">
-                    Designed for scaling companies actively sourcing passive talent across multiple departments.
+                    Designed for scaling companies actively sourcing biometric ID-verified talent across multiple departments.
                   </p>
                   <ul className="space-y-2.5 pt-3 border-t border-slate-800 text-xs text-slate-200 font-medium">
-                    <li className="flex items-start gap-2 text-amber-300 font-bold">
-                      <span>★</span>
-                      <span><strong>First 30 Days Free ($0)</strong> upon domain verification</span>
-                    </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>
                       <span><strong>Up to 15 Simultaneous Active Blind Roles</strong></span>
@@ -384,14 +372,14 @@ export default function PricingMatrixPage() {
                   href="/signup/employer"
                   className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm"
                 >
-                  Start 30-Day Free Growth Trial →
+                  Get Started with Growth ($499/mo) →
                 </Link>
               </div>
 
-              {/* Employer Tier 3: Enterprise ($899/mo) */}
+              {/* Employer Tier 3: Enterprise ($1,250 Founding / $1,999 Retail) */}
               <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
-                  ★ ATS &amp; Webhook Hub • First 30 Days $0
+                  ★ ATS &amp; Webhook Hub • Founding Rate
                 </div>
                 <div className="space-y-4">
                   <div>
@@ -411,10 +399,6 @@ export default function PricingMatrixPage() {
                     Built for high-velocity talent acquisition teams, multi-location enterprises, and W-2 RPOs requiring automated HRIS/ATS synchronization.
                   </p>
                   <ul className="space-y-2.5 pt-3 border-t border-slate-300 text-xs text-slate-700 font-medium">
-                    <li className="flex items-start gap-2 text-amber-800 font-bold">
-                      <span>★</span>
-                      <span><strong>First 30 Days Free ($0)</strong> upon domain verification</span>
-                    </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
                       <span><strong>Unlimited Simultaneous Active Blind Roles</strong></span>
@@ -449,7 +433,7 @@ export default function PricingMatrixPage() {
                   href="/signup/employer"
                   className="w-full py-3 bg-slate-900 hover:bg-indigo-600 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm"
                 >
-                  Start 30-Day Free Enterprise Trial →
+                  Get Started with Enterprise ($1,250/mo) →
                 </Link>
               </div>
             </div>
