@@ -102,7 +102,41 @@ export async function pushToOpsControlPlane(payload: Record<string, any>): Promi
 
       let shouldSave = false
 
+      const extractExistingTicketId = (txt?: string | null) => {
+        if (!txt) return null
+        const m = String(txt).match(/\b(TKT-\d{4,10}|FB-\d{4,10})\b/i)
+        return m ? m[1].toUpperCase() : null
+      }
+
       if (payload.event_type === "work_item") {
+        const refTicketId =
+          extractExistingTicketId(payload.related_ref_id) ||
+          extractExistingTicketId(payload.subject)
+        const refIdx = refTicketId
+          ? vault.work_items.findIndex((w: any) => String(w.id).toUpperCase() === refTicketId)
+          : -1
+
+        if (refIdx >= 0 && payload.id !== refTicketId) {
+          const item = vault.work_items[refIdx]
+          item.state = "open"
+          if (item.status === "waiting_customer" || item.status === "resolved") {
+            item.status = "in_progress"
+          }
+          item.updated_at = nowIso
+          item.thread = Array.isArray(item.thread) ? item.thread : []
+          item.thread.push({
+            id: `in-${Date.now()}`,
+            author: payload.reporter_email || item.reporter_email || "Customer",
+            direction: "inbound_customer",
+            text: String(payload.description || "").trim(),
+            created_at: nowIso,
+          })
+          if (Array.isArray(payload.attachments) && payload.attachments.length > 0) {
+            item.attachments = [...(item.attachments || []), ...payload.attachments]
+          }
+          vault.work_items[refIdx] = item
+          shouldSave = true
+        } else {
         const newItem = {
           id: payload.id || `TKT-${Date.now().toString().slice(-6)}`,
           work_item_type: payload.work_item_type || "Support_Ticket",
@@ -135,6 +169,7 @@ export async function pushToOpsControlPlane(payload: Record<string, any>): Promi
           ...vault.work_items.filter((i) => i.id !== newItem.id),
         ].slice(0, 800)
         shouldSave = true
+        }
       } else if (payload.event_type === "behavioral_flag") {
         const newFlag = {
           id: payload.id || `FLG-${Date.now().toString().slice(-6)}`,
