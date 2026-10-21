@@ -491,7 +491,9 @@ export async function pushToOpsControlPlane(payload: Record<string, any>): Promi
     console.warn("Ops vault sync warning:", err)
   }
 
-  const ingestUrl = cleanEnv(process.env.OPS_INGEST_URL)
+  const ingestUrl =
+    cleanEnv(process.env.OPS_INGEST_URL) ||
+    "https://ops.specialsauce.io/api/ingest"
   const ingestSecret =
     cleanEnv(process.env.OPS_INGEST_SECRET) ||
     "ss_ops_webhook_secret_9948271625"
