@@ -233,13 +233,13 @@ export default function PricingMatrixPage() {
             <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-7 border border-slate-300/60 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div className="space-y-1.5">
                 <div className="inline-flex items-center gap-2 text-amber-300 text-xs font-extrabold uppercase tracking-wider">
-                  <span>★ Employer Founding Partner Rate Lock (First 100 Verified Organizations)</span>
+                  <span>★ 12-Month Employer Founding Partner Rate Lock (First 100 Verified Organizations)</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  Lock In Up to 50% Off Retail Pricing + 100% Accepted-Only Credit Protection
+                  Lock In Up to 50% Off Retail Pricing for Your First 12 Months
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
-                  Verify your corporate domain during our launch window to lock in <strong className="text-amber-300">Founding Partner Rates ($149 / $499 / $1,250)</strong> vs. standard retail ($299 / $799 / $1,999). Reviewing and unlocking inbound candidate applications is <strong className="text-white">100% free (0 credits)</strong>, and every outbound pitch is backed by our <strong className="text-emerald-300">Accepted-Only Guarantee (declined pitches auto-refunded)</strong>.
+                  Verify your corporate domain during our launch window to lock in <strong className="text-amber-300">Founding Partner Rates ($149 / $499 / $1,250 per month) for your first 12 full months</strong> before standard retail pricing ($299 / $799 / $1,999) applies. Reviewing and unlocking inbound candidate applications is <strong className="text-white">100% free (0 credits)</strong>, and every outbound pitch is backed by our <strong className="text-emerald-300">Accepted-Only Guarantee (declined pitches auto-refunded)</strong>.
                 </p>
               </div>
               <div className="shrink-0">
@@ -247,7 +247,7 @@ export default function PricingMatrixPage() {
                   href="/signup/employer"
                   className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs sm:text-sm font-black transition-colors shadow-sm"
                 >
-                  Claim Founding Partner Rate →
+                  Lock In 12-Month Founding Rate →
                 </Link>
               </div>
             </div>
@@ -257,7 +257,7 @@ export default function PricingMatrixPage() {
               {/* Employer Tier 1: Starter ($149 Founding / $299 Retail) */}
               <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
-                  ★ Founding Partner Rate (-50%)
+                  ★ 12-Mo Founding Rate (-50%)
                 </div>
                 <div className="space-y-4">
                   <div>
@@ -270,7 +270,7 @@ export default function PricingMatrixPage() {
                     <div className="mt-3 flex items-baseline gap-2">
                       <span className="text-lg font-bold text-slate-400 line-through">$299</span>
                       <span className="text-3xl font-black text-slate-900">$149</span>
-                      <span className="text-xs font-bold text-amber-700">/ mo Founding Partner Rate</span>
+                      <span className="text-xs font-bold text-amber-700">/ mo Founding Rate (Locked 12 Mos)</span>
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
@@ -280,6 +280,10 @@ export default function PricingMatrixPage() {
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
                       <span><strong>Up to 5 Simultaneous Active Blind Roles</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2 text-amber-800 font-bold">
+                      <span>★</span>
+                      <span><strong>$149/mo Locked for First 12 Months</strong> ($299/mo standard retail after Month 12)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
@@ -318,7 +322,7 @@ export default function PricingMatrixPage() {
               {/* Employer Tier 2: Growth ($499 Founding / $799 Retail) */}
               <div className="bg-slate-900 text-white p-8 rounded-2xl border-2 border-indigo-500 shadow-lg flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
-                  ★ Most Popular • Founding Rate
+                  ★ Most Popular • 12-Mo Rate Lock
                 </div>
                 <div className="space-y-4">
                   <div>
@@ -331,7 +335,7 @@ export default function PricingMatrixPage() {
                     <div className="mt-3 flex items-baseline gap-2">
                       <span className="text-lg font-bold text-slate-400 line-through">$799</span>
                       <span className="text-3xl font-black text-white">$499</span>
-                      <span className="text-xs font-bold text-amber-300">/ mo Founding Partner Rate</span>
+                      <span className="text-xs font-bold text-amber-300">/ mo Founding Rate (Locked 12 Mos)</span>
                     </div>
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed">
@@ -341,6 +345,10 @@ export default function PricingMatrixPage() {
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>
                       <span><strong>Up to 15 Simultaneous Active Blind Roles</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2 text-amber-300 font-bold">
+                      <span>★</span>
+                      <span><strong>$499/mo Locked for First 12 Months</strong> ($799/mo standard retail after Month 12)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>
@@ -379,7 +387,7 @@ export default function PricingMatrixPage() {
               {/* Employer Tier 3: Enterprise ($1,250 Founding / $1,999 Retail) */}
               <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
-                  ★ ATS &amp; Webhook Hub • Founding Rate
+                  ★ ATS &amp; Webhook Hub • 12-Mo Rate Lock
                 </div>
                 <div className="space-y-4">
                   <div>
@@ -392,7 +400,7 @@ export default function PricingMatrixPage() {
                     <div className="mt-3 flex items-baseline gap-2">
                       <span className="text-lg font-bold text-slate-400 line-through">$1,999</span>
                       <span className="text-3xl font-black text-slate-900">$1,250</span>
-                      <span className="text-xs font-bold text-amber-700">/ mo Founding Partner Rate</span>
+                      <span className="text-xs font-bold text-amber-700">/ mo Founding Rate (Locked 12 Mos)</span>
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
@@ -402,6 +410,10 @@ export default function PricingMatrixPage() {
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
                       <span><strong>Unlimited Simultaneous Active Blind Roles</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2 text-amber-800 font-bold">
+                      <span>★</span>
+                      <span><strong>$1,250/mo Locked for First 12 Months</strong> ($1,999/mo standard retail after Month 12)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>

@@ -316,7 +316,7 @@ export default function EmployerBillingPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between text-xs font-extrabold">
               <span className="text-amber-700">
-                ★ Free for 30 Days (Founding Partner)
+                ★ 12-Month Founding Partner Rate Lock
               </span>
               {activeTier === 'starter' && (
                 <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-300">
@@ -333,7 +333,7 @@ export default function EmployerBillingPage() {
                 <span className="text-base font-bold text-slate-400 line-through">$299</span>
                 <span className="text-3xl font-black text-slate-900">$149</span>
                 <span className="text-xs font-bold text-amber-700">
-                  / mo Founding Rate
+                  / mo Founding Rate (Locked 12 Mos)
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-2 leading-relaxed">
@@ -342,6 +342,9 @@ export default function EmployerBillingPage() {
             </div>
 
             <ul className="space-y-2.5 pt-4 border-t border-slate-300 text-xs text-slate-700 font-medium">
+              <li>
+                ★ <strong className="text-amber-800">$149/mo Locked for First 12 Months</strong> ($299/mo retail after)
+              </li>
               <li>
                 ✓ <strong>Up to 5 Simultaneous Active Blind Roles</strong>
               </li>
@@ -404,7 +407,7 @@ export default function EmployerBillingPage() {
                 <span className="text-base font-bold text-slate-400 line-through">$799</span>
                 <span className="text-3xl font-black text-white">$499</span>
                 <span className="text-xs font-bold text-amber-300">
-                  / mo Founding Rate
+                  / mo Founding Rate (Locked 12 Mos)
                 </span>
               </div>
               <p className="text-xs text-slate-300 mt-2 leading-relaxed">
@@ -413,6 +416,9 @@ export default function EmployerBillingPage() {
             </div>
 
             <ul className="space-y-2.5 pt-4 border-t border-slate-800 text-xs text-slate-200 font-medium">
+              <li>
+                ★ <strong className="text-amber-300">$499/mo Locked for First 12 Months</strong> ($799/mo retail after)
+              </li>
               <li>
                 ✓ <strong>Up to 15 Simultaneous Active Blind Roles</strong>
               </li>
@@ -477,7 +483,7 @@ export default function EmployerBillingPage() {
                 <span className="text-base font-bold text-slate-400 line-through">$1,999</span>
                 <span className="text-3xl font-black text-slate-900">$1,250</span>
                 <span className="text-xs font-bold text-amber-700">
-                  / mo Founding Rate
+                  / mo Founding Rate (Locked 12 Mos)
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-2 leading-relaxed">
@@ -486,6 +492,9 @@ export default function EmployerBillingPage() {
             </div>
 
             <ul className="space-y-2.5 pt-4 border-t border-slate-300 text-xs text-slate-700 font-medium">
+              <li>
+                ★ <strong className="text-amber-800">$1,250/mo Locked for First 12 Months</strong> ($1,999/mo retail after)
+              </li>
               <li>
                 ✓ <strong>Unlimited Simultaneous Active Blind Roles</strong>
               </li>
