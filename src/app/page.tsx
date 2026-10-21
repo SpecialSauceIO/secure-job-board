@@ -108,13 +108,12 @@ export default function LandingPage() {
               </span>
               <br />
               <span className="sm:whitespace-nowrap">
-                Full access. Lifetime perks.
+                Free Explorer Vault. Protected Credits.
               </span>
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
               Join during our launch window to unlock{' '}
-              <strong className="text-slate-700">30 days of complimentary full access</strong>,{' '}
-              <strong className="text-slate-700">Permanent Founding Member &amp; Partner status</strong>, and lifetime rate locks.
+              <strong className="text-slate-700">$0 Free Explorer Career Vaults</strong> for candidates, <strong className="text-slate-700">12-Month Founding Partner Rate Locks</strong> for employers, and <strong className="text-slate-700">100% Accepted-Only Credit Protection</strong>.
             </p>
           </div>
 

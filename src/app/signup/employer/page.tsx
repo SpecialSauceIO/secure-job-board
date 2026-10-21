@@ -88,7 +88,7 @@ export default function EmployerSignupPage({
               <strong className="text-slate-900">
                 Free Inbound Unlocks &amp; Live Chat:
               </strong>{' '}
-              Unlock inbound applicants for free, shortlist passive talent, and chat in real time.
+              Inbound applicants are 100% free. Outbound pitch credits automatically refund if a candidate declines.
             </span>
           </div>
           <div className="flex items-start gap-2">

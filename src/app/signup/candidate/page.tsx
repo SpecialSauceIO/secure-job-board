@@ -37,7 +37,7 @@ export default async function CandidateSignupPage({
             Candidate Sign Up
           </h2>
           <p className="mt-1.5 text-sm text-slate-500 font-medium">
-            Create your anonymous skill profile. Zero resume harvesting.
+            Create your anonymous Explorer Vault for $0/forever. Zero resume harvesting.
           </p>
         </div>
 
@@ -156,7 +156,7 @@ export default async function CandidateSignupPage({
               type="submit"
               className="w-full flex justify-center items-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 transition-all cursor-pointer"
             >
-              Create Candidate Account →
+              Create Free Explorer Vault →
             </button>
           </div>
 
