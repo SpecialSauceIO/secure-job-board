@@ -348,6 +348,9 @@ export default function EmployerBillingPage() {
               <li>
                 ✓ <strong>10 Monthly Plan Pitch Credits / month</strong>
               </li>
+              <li className="text-emerald-700 font-bold">
+                🛡️ <strong>100% Accepted-Only Credit Protection</strong> (Declined pitches auto-refunded)
+              </li>
               <li>
                 ✓ <strong>2 Team / BPO Collaborator Seats</strong>
               </li>
@@ -415,6 +418,9 @@ export default function EmployerBillingPage() {
               </li>
               <li>
                 ✓ <strong>35 Monthly Plan Pitch Credits / month</strong>
+              </li>
+              <li className="text-emerald-300 font-bold">
+                🛡️ <strong>100% Accepted-Only Credit Protection</strong> (Declined pitches auto-refunded)
               </li>
               <li>
                 ✓ <strong>Up to 5 Team &amp; Delegated W-2 BPO Partner Seats</strong>
@@ -486,6 +492,9 @@ export default function EmployerBillingPage() {
               <li>
                 ✓ <strong>120 Monthly Plan Pitch Credits / month</strong>
               </li>
+              <li className="text-emerald-700 font-bold">
+                🛡️ <strong>100% Accepted-Only Credit Protection</strong> (Declined pitches auto-refunded)
+              </li>
               <li>
                 ✓ <strong>Unlimited Team &amp; Delegated W-2 BPO/RPO Seats</strong>
               </li>
@@ -529,7 +538,7 @@ export default function EmployerBillingPage() {
               On-Demand Pitch Credit Top-Ups
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Top-Up Credits are added to your <strong className="text-slate-900">Rollover Top-Up Bucket</strong>. Your monthly plan allowance (<strong className="text-slate-900">{planCredits} Plan Credits remaining</strong>) is always spent first, and Rollover Top-Up Credits (<strong className="text-amber-700">{rolloverCredits} Rollover Credits banked</strong>) never expire as long as your base subscription remains active.
+              Top-Up Credits are added to your <strong className="text-slate-900">Rollover Top-Up Bucket</strong>. Your monthly plan allowance (<strong className="text-slate-900">{planCredits} Plan Credits remaining</strong>) is always spent first, and Rollover Top-Up Credits (<strong className="text-amber-700">{rolloverCredits} Rollover Credits banked</strong>) never expire as long as your base subscription remains active. Protected by our 100% Accepted-Only Guarantee—if a candidate declines an outbound pitch, your credit is automatically refunded to the exact bucket it came from.
             </p>
           </div>
 

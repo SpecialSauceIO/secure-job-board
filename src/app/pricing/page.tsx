@@ -293,6 +293,10 @@ export default function PricingMatrixPage() {
                       <span className="text-emerald-600 font-bold">✓</span>
                       <span><strong>10 Outbound Talent Pitch Credits / month</strong></span>
                     </li>
+                    <li className="flex items-start gap-2 text-emerald-700 font-bold">
+                      <span>🛡️</span>
+                      <span><strong>100% Accepted-Only Credit Protection</strong> (Declined pitches auto-refunded)</span>
+                    </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
                       <span><strong>Unlimited Free Inbound Applicant Unlocks</strong> (0 credits)</span>
@@ -353,6 +357,10 @@ export default function PricingMatrixPage() {
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>
                       <span><strong>35 Outbound Talent Pitch Credits / month</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2 text-emerald-300 font-bold">
+                      <span>🛡️</span>
+                      <span><strong>100% Accepted-Only Credit Protection</strong> (Declined pitches auto-refunded)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>
@@ -415,6 +423,10 @@ export default function PricingMatrixPage() {
                       <span className="text-emerald-600 font-bold">✓</span>
                       <span><strong>120 Outbound Talent Pitch Credits / month</strong></span>
                     </li>
+                    <li className="flex items-start gap-2 text-emerald-700 font-bold">
+                      <span>🛡️</span>
+                      <span><strong>100% Accepted-Only Credit Protection</strong> (Declined pitches auto-refunded)</span>
+                    </li>
                     <li className="flex items-start gap-2 text-indigo-700 font-bold">
                       <span>⚡</span>
                       <span><strong>Workday &amp; Enterprise Outbound Webhook (HMAC-SHA256)</strong> — real-time signed <code>candidate.vault_released</code> JSON payloads (Workday, MuleSoft, Zapier, Ashby)</span>
@@ -464,6 +476,9 @@ export default function PricingMatrixPage() {
                   </span>
                   <span className="flex items-center gap-1.5 text-amber-300">
                     ✓ Bucket 2: Top-Up Credits (100% Rollover)
+                  </span>
+                  <span className="flex items-center gap-1.5 text-sky-300">
+                    🛡️ Declined Pitches Auto-Refunded (+1 Credit)
                   </span>
                 </div>
               </div>
