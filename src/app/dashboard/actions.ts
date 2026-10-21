@@ -419,13 +419,13 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
 
   if (!targetUserId) {
     return {
-      tier: 'professional',
-      label: `★ Professional Plan (${CANDIDATE_TRIAL_DAYS}d Free Launch Trial · 15 Apps/mo)`,
-      canApply: true,
+      tier: 'explorer',
+      label: 'Explorer Plan ($0/Forever · Passive Career Vault)',
+      canApply: false,
       appsUsed: 0,
-      freeAppsRemaining: CANDIDATE_TRIAL_MAX_APPS,
-      daysRemaining: CANDIDATE_TRIAL_DAYS,
-      trialExpired: false,
+      freeAppsRemaining: 0,
+      daysRemaining: 0,
+      trialExpired: true,
     }
   }
 
@@ -448,7 +448,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
   if (rawPlan === 'prestige' || rawPlan === 'pro') {
     return {
       tier: 'prestige',
-      label: 'Prestige Plan ($15/mo · First 30d $0 · Unlimited Apps)',
+      label: '★ Prestige Plan ($15/mo · Unlimited Outbound Applications)',
       canApply: true,
       appsUsed: totalOutboundApps || 0,
       freeAppsRemaining: 999,
@@ -457,55 +457,55 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
     }
   }
 
-  // Explorer ($0/forever - Inbound & Browse Only)
-  if (rawPlan === 'explorer' || rawPlan === 'expired' || rawPlan === 'free') {
-    return {
-      tier: 'explorer',
-      label: 'Explorer Plan ($0/Forever · Passive Career Vault)',
-      canApply: false,
-      appsUsed: totalOutboundApps || 0,
-      freeAppsRemaining: 0,
-      daysRemaining: 0,
-      trialExpired: true,
+  // Professional ($9/mo - 15 Outbound Applications/mo)
+  if (rawPlan === 'professional' || rawPlan === 'trial') {
+    const baseline = meta.trialBaselineApps || 0
+    const appsUsedInCycle = Math.max(0, (totalOutboundApps || 0) - baseline)
+    const freeAppsRemaining = Math.max(
+      0,
+      CANDIDATE_TRIAL_MAX_APPS - appsUsedInCycle
+    )
+
+    const startIso =
+      meta.trialStart || profile?.created_at || new Date().toISOString()
+    const elapsedMs = Date.now() - new Date(startIso).getTime()
+    const elapsedDays = Math.floor(elapsedMs / (1000 * 60 * 60 * 24))
+    const daysRemaining = Math.max(0, CANDIDATE_TRIAL_DAYS - elapsedDays)
+
+    const quotaExhausted = freeAppsRemaining <= 0
+
+    if (quotaExhausted) {
+      return {
+        tier: 'professional',
+        label: 'Professional Plan ($9/mo · 0/15 Monthly Applications Left — Upgrade to Prestige for Unlimited)',
+        canApply: false,
+        appsUsed: appsUsedInCycle,
+        freeAppsRemaining: 0,
+        daysRemaining,
+        trialExpired: true,
+      }
     }
-  }
 
-  // Professional ($9/mo - 15 Outbound Applications/mo, First 30 Days Free)
-  const baseline = meta.trialBaselineApps || 0
-  const appsUsedInCycle = Math.max(0, (totalOutboundApps || 0) - baseline)
-  const freeAppsRemaining = Math.max(
-    0,
-    CANDIDATE_TRIAL_MAX_APPS - appsUsedInCycle
-  )
-
-  const startIso =
-    meta.trialStart || profile?.created_at || new Date().toISOString()
-  const elapsedMs = Date.now() - new Date(startIso).getTime()
-  const elapsedDays = Math.floor(elapsedMs / (1000 * 60 * 60 * 24))
-  const daysRemaining = Math.max(0, CANDIDATE_TRIAL_DAYS - elapsedDays)
-
-  const quotaExhausted = freeAppsRemaining <= 0
-
-  if (quotaExhausted) {
     return {
       tier: 'professional',
-      label: 'Professional Plan ($9/mo · 0/15 Monthly Applications Left — Upgrade to Prestige for Unlimited)',
-      canApply: false,
+      label: `★ Professional Plan ($9/mo · ${freeAppsRemaining}/${CANDIDATE_TRIAL_MAX_APPS} Monthly Apps Left)`,
+      canApply: true,
       appsUsed: appsUsedInCycle,
-      freeAppsRemaining: 0,
+      freeAppsRemaining,
       daysRemaining,
-      trialExpired: true,
+      trialExpired: false,
     }
   }
 
+  // Default for all new/un-tagged candidates: Explorer ($0/forever - Passive Career Vault)
   return {
-    tier: 'professional',
-    label: `★ Professional Plan ($9/mo · First 30d $0 · ${freeAppsRemaining}/${CANDIDATE_TRIAL_MAX_APPS} Apps Left)`,
-    canApply: true,
-    appsUsed: appsUsedInCycle,
-    freeAppsRemaining,
-    daysRemaining,
-    trialExpired: false,
+    tier: 'explorer',
+    label: 'Explorer Plan ($0/Forever · Passive Career Vault)',
+    canApply: false,
+    appsUsed: totalOutboundApps || 0,
+    freeAppsRemaining: 0,
+    daysRemaining: 0,
+    trialExpired: true,
   }
 }
 
@@ -568,12 +568,12 @@ export async function activateSandboxCandidateTier(
     await sendPlatformNotification({
       to: user.email,
       subject: isPrestige
-        ? 'Candidate Prestige Plan ($15/mo · First 30d $0) Activated!'
-        : 'Candidate Professional Plan ($9/mo · First 30d $0) Activated!',
+        ? 'Candidate Prestige Plan ($15/mo) Activated!'
+        : 'Candidate Professional Plan ($9/mo) Activated!',
       referenceId: refId,
       heading: isPrestige
-        ? 'Welcome to Candidate Prestige ($15/mo · First 30 Days Free)'
-        : 'Welcome to Candidate Professional ($9/mo · First 30 Days Free)',
+        ? 'Welcome to Candidate Prestige ($15/mo)'
+        : 'Welcome to Candidate Professional ($9/mo)',
       bodyLines: [
         isPrestige
           ? 'Your Candidate Prestige plan is active with Unlimited Outbound Blind Applications, Top-Priority Employer Search placement, and Founding Member status.'
@@ -596,9 +596,9 @@ export async function activateSandboxCandidateTier(
     tierInfo,
     message:
       normalizedMode === 'prestige'
-        ? '✓ Activated Prestige Plan ($15/mo · First 30 Days $0)! Unlimited outbound applications active.'
+        ? '✓ Activated Prestige Plan ($15/mo)! Unlimited outbound applications and pitch unlocks active.'
         : normalizedMode === 'professional'
-        ? '✓ Activated Professional Plan ($9/mo · First 30 Days $0)! 15 monthly outbound applications active.'
+        ? '✓ Activated Professional Plan ($9/mo)! 15 monthly outbound applications and pitch unlocks active.'
         : '✓ Switched to Explorer Plan ($0/Forever Passive Vault). Inbound employer pitches remain 100% free; outbound applications paused.',
   }
 }

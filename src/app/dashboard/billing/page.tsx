@@ -94,7 +94,7 @@ export default function CandidateBillingPage() {
       ? 'prestige'
       : tierInfo?.tier === 'trial'
       ? 'professional'
-      : tierInfo?.tier || 'professional'
+      : tierInfo?.tier || 'explorer'
 
   return (
     <div className="max-w-6xl mx-auto py-4 space-y-8">
@@ -102,17 +102,17 @@ export default function CandidateBillingPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Candidate Membership &amp; Founding Member Perks
+            Candidate Membership &amp; Identity-Verified Access
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Compare Explorer ($0), Professional ($9/mo), and Prestige ($15/mo). Your first 30 days are $0 on any plan during our launch window.
+            Start free on Explorer ($0/forever). Upgrade to Professional ($9/mo) or Prestige ($15/mo) and verify your identity when you&apos;re ready to apply or accept an employer pitch.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <Link
             href="/dashboard/profile"
-            className="px-4 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors border-slate-300"
+            className="px-4 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors"
           >
             My Anonymous Profile
           </Link>
@@ -145,31 +145,31 @@ export default function CandidateBillingPage() {
           <div className="space-y-2 max-w-2xl">
             <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
               <span className="text-amber-300">
-                ★ Early-Access Launch • First 30 Days Free
+                🛡️ Zero-Friction Explorer Vault • Upgrade &amp; Verify When Ready
               </span>
               <span className="text-slate-600">•</span>
               {isVerified ? (
-                <span className="text-emerald-400">✓ Identity Verified</span>
+                <span className="text-emerald-400">✓ Biometric Identity Verified</span>
               ) : (
                 <Link
                   href="/dashboard"
                   className="text-amber-400 hover:underline"
                 >
-                  Verification Pending (Verify on Dashboard →)
+                  ID Verification Pending (Complete After Upgrading →)
                 </Link>
               )}
             </div>
 
             <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-              First 30 Days $0 on Any Plan + Permanent Founding Member Badge
+              Free Explorer Career Vault + Active Tier &amp; Biometric ID Unlock
             </h2>
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Enroll during our launch window to keep your{' '}
-              <strong className="text-amber-300">★ Founding Member Badge</strong> forever. Active subscribers on{' '}
-              <strong className="text-white">Professional ($9/mo)</strong> and{' '}
-              <strong className="text-white">Prestige ($15/mo)</strong> also unlock the active{' '}
-              <strong className="text-amber-300">Permanent Founding Member Status</strong> and <strong className="text-amber-300">Verified Behavioral Trust Signals</strong>.
+              Keep your anonymous profile live in the talent pool and run unlimited 5-Point AI Fit checks on{" "}
+              <strong className="text-emerald-300">Explorer for $0 forever</strong>. When you are ready to submit outbound blind applications or unlock an inbound employer pitch, activate{" "}
+              <strong className="text-white">Professional ($9/mo)</strong> or{" "}
+              <strong className="text-white">Prestige ($15/mo)</strong> and complete your 1-time{" "}
+              <strong className="text-amber-300">Biometric ID Verification</strong>.
             </p>
           </div>
 
@@ -189,9 +189,9 @@ export default function CandidateBillingPage() {
                   <p className="text-xs text-slate-300">
                     <strong className="text-white">
                       {tierInfo?.freeAppsRemaining} of 15
-                    </strong>{' '}
-                    monthly blind applications remaining •{' '}
-                    <strong className="text-amber-300">Founding Member Active</strong>
+                    </strong>{" "}
+                    monthly blind applications remaining •{" "}
+                    <strong className="text-amber-300">Active Tier Unlocked</strong>
                   </p>
                 )}
                 {normalizedTier === 'prestige' && (
@@ -201,7 +201,7 @@ export default function CandidateBillingPage() {
                 )}
                 {normalizedTier === 'explorer' && (
                   <p className="text-xs text-slate-300">
-                    Passive Career Vault Active (Inbound employer pitches are 100% free)
+                    Passive Career Vault Active (Upgrade to Professional or Prestige to apply or unlock pitches)
                   </p>
                 )}
               </>
@@ -215,7 +215,7 @@ export default function CandidateBillingPage() {
           <div
             className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
               normalizedTier === 'explorer'
-                ? 'border-2 border-slate-300 shadow-sm '
+                ? 'border-2 border-slate-900 shadow-sm'
                 : 'border border-slate-300 shadow-xs'
             }`}
           >
@@ -238,18 +238,17 @@ export default function CandidateBillingPage() {
                   <span className="text-xs font-bold text-slate-500">/ forever</span>
                 </div>
                 <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                  Keep your anonymous profile live in the talent pool and let verified employers pitch you first.
+                  Keep your anonymous profile live in the talent pool, test 5-Point AI Fit scores, and receive employer pitch alerts.
                 </p>
               </div>
 
               <ul className="space-y-2.5 pt-4 border-t border-slate-300 text-xs text-slate-700 font-medium">
-                <li>✓ <strong>Unlimited Inbound Employer Pitches</strong> (100% Free)</li>
-                <li>✓ Browse blind role feed &amp; real pay bands</li>
+                <li>✓ <strong>Live Anonymous Profile</strong> in Employer Search</li>
+                <li>✓ Browse blind role feed &amp; verified pay bands</li>
                 <li>✓ Unlimited 5-Point AI Fit Radar checks</li>
-                <li>✓ 2-Stage Identity &amp; PDF Resume Vault</li>
-                <li>✓ Keeps permanent <strong>Founding Member Status</strong></li>
-                <li className="text-slate-400">✕ Outbound blind applications (0/mo)</li>
-                <li className="text-slate-400">✕ Outbound Blind Applications (Professional &amp; Prestige)</li>
+                <li>✓ Receive real-time <strong>Inbound Employer Pitch Alerts</strong></li>
+                <li className="text-amber-800 font-bold">★ Upgrade &amp; verify ID only when ready to engage</li>
+                <li className="text-slate-400">✕ Outbound Blind Applications &amp; Pitch Unlocks (Requires Professional or Prestige)</li>
               </ul>
             </div>
 
@@ -271,13 +270,13 @@ export default function CandidateBillingPage() {
           <div
             className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
               normalizedTier === 'professional'
-                ? 'border-2 border-slate-300 shadow-md '
+                ? 'border-2 border-amber-500 shadow-md'
                 : 'border border-slate-300 shadow-xs'
             }`}
           >
             <div className="space-y-4">
               <div className="flex items-center justify-between text-xs font-extrabold">
-                <span className="text-amber-700">★ First 30 Days $0</span>
+                <span className="text-amber-700">🛡️ ID-Verified Active Tier</span>
                 {normalizedTier === 'professional' && (
                   <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-300">
                     Current Plan
@@ -292,20 +291,23 @@ export default function CandidateBillingPage() {
                 <div className="mt-2 flex items-baseline gap-2">
                   <span className="text-3xl font-black text-slate-900">$9</span>
                   <span className="text-xs font-bold text-slate-500">
-                    / month after 30d free trial
+                    / month
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                  For targeted job seekers submitting up to 15 high-fit blind applications per month.
+                  For targeted job seekers ready to verify their identity, unlock inbound employer pitches, and submit up to 15 blind applications per month.
                 </p>
               </div>
 
               <ul className="space-y-2.5 pt-4 border-t border-slate-300 text-xs text-slate-700 font-medium">
-                <li className="text-amber-800 font-bold">
-                  ★ <strong>First 30 Days Free ($0)</strong> during Launch
+                <li className="text-emerald-700 font-bold">
+                  🛡️ <strong>Includes Biometric ID Verification</strong> &amp; Verified Shield
                 </li>
                 <li>
-                  ✓ <strong>15 Outbound Blind Applications / month</strong> (40%+ AI Fit)
+                  ✓ <strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong>
+                </li>
+                <li>
+                  ✓ <strong>15 Outbound Blind Applications / month</strong> (70%+ AI Fit)
                 </li>
                 <li className="text-amber-800 font-bold">
                   ✓ <strong>Verified Behavioral &amp; Responsiveness Signals</strong>
@@ -313,7 +315,6 @@ export default function CandidateBillingPage() {
                 <li className="text-amber-800 font-bold">
                   ✓ <strong>Permanent Founding Member Status</strong>
                 </li>
-                <li>✓ Unlimited 5-Point AI Fit Radar checks &amp; Inbound Pitches</li>
                 <li>✓ Elevated Employer Talent Search indexing</li>
               </ul>
             </div>
@@ -327,7 +328,7 @@ export default function CandidateBillingPage() {
               >
                 {normalizedTier === 'professional'
                   ? `Active (${tierInfo?.freeAppsRemaining ?? 15}/15 Apps Left) — Reset Quota`
-                  : 'Activate Professional ($0 First 30 Days) →'}
+                  : 'Activate Professional ($9/mo) →'}
               </button>
             </div>
           </div>
@@ -336,13 +337,13 @@ export default function CandidateBillingPage() {
           <div
             className={`bg-slate-900 text-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
               normalizedTier === 'prestige'
-                ? 'border-2 border-slate-300 shadow-lg '
+                ? 'border-2 border-amber-400 shadow-lg'
                 : 'border-2 border-indigo-500 shadow-md'
             }`}
           >
             <div className="space-y-4">
               <div className="flex items-center justify-between text-xs font-extrabold">
-                <span className="text-indigo-300">★ First 30 Days $0</span>
+                <span className="text-indigo-300">★ Priority Spotlight &amp; Unlimited</span>
                 {normalizedTier === 'prestige' && (
                   <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-slate-300/30">
                     Current Plan
@@ -355,20 +356,23 @@ export default function CandidateBillingPage() {
                 <div className="mt-2 flex items-baseline gap-2">
                   <span className="text-3xl font-black text-white">$15</span>
                   <span className="text-xs font-bold text-slate-300">
-                    / month after 30d free trial
+                    / month
                   </span>
                 </div>
                 <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                  Unlimited outbound blind applications and top-priority placement in Employer Talent Search.
+                  Unlimited outbound blind applications, unlimited pitch unlocks, and top-priority placement in Employer Talent Search.
                 </p>
               </div>
 
               <ul className="space-y-2.5 pt-4 border-t border-slate-800 text-xs text-slate-200 font-medium">
-                <li className="text-amber-300 font-bold">
-                  ★ <strong>First 30 Days Free ($0)</strong> during Launch
+                <li className="text-emerald-300 font-bold">
+                  🛡️ <strong>Includes Biometric ID Verification</strong> &amp; Verified Shield
                 </li>
                 <li>
-                  ✓ <strong>Unlimited Outbound Blind Applications</strong> (40%+ AI Fit)
+                  ✓ <strong>Unlimited Outbound Blind Applications</strong> (70%+ AI Fit)
+                </li>
+                <li>
+                  ✓ <strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong>
                 </li>
                 <li className="text-amber-300 font-bold">
                   ★ <strong>Top-Priority Placement in Employer Search</strong>
@@ -376,10 +380,7 @@ export default function CandidateBillingPage() {
                 <li className="text-amber-300 font-bold">
                   ✓ <strong>Verified Behavioral &amp; Responsiveness Signals</strong>
                 </li>
-                <li className="text-amber-300 font-bold">
-                  ✓ <strong>Permanent Founding Member Status</strong>
-                </li>
-                <li>✓ Switch or downgrade to Professional anytime</li>
+                <li>✓ Switch or downgrade to Professional or Explorer anytime</li>
               </ul>
             </div>
 
@@ -392,7 +393,7 @@ export default function CandidateBillingPage() {
               >
                 {normalizedTier === 'prestige'
                   ? '✓ Prestige Plan Active (Unlimited Apps)'
-                  : 'Activate Prestige ($0 First 30 Days) →'}
+                  : 'Activate Prestige ($15/mo) →'}
               </button>
             </div>
           </div>
@@ -400,7 +401,7 @@ export default function CandidateBillingPage() {
       </div>
 
       {/* QA Stress-Testing Bar */}
-      <div className="bg-slate-100 rounded-2xl border-2 border-slate-300 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-slate-300">
+      <div className="bg-slate-100 rounded-2xl border-2 border-slate-300 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">
             🧪 QA Stress-Testing Controls (Remove Before Public Launch)
@@ -415,15 +416,15 @@ export default function CandidateBillingPage() {
             type="button"
             disabled={isProcessing}
             onClick={() => handlePlanSwitch('explorer')}
-            className="px-3 py-2 rounded-xl bg-white border-2 border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer border-slate-300"
+            className="px-3 py-2 rounded-xl bg-white border-2 border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer"
           >
-            1. Explorer ($0 · 0 Outbound Apps)
+            1. Explorer ($0 · Passive Vault)
           </button>
           <button
             type="button"
             disabled={isProcessing}
             onClick={() => handlePlanSwitch('professional')}
-            className="px-3 py-2 rounded-xl bg-white border-2 border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-amber-50 transition-colors cursor-pointer border-slate-300"
+            className="px-3 py-2 rounded-xl bg-white border-2 border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-amber-50 transition-colors cursor-pointer"
           >
             2. Professional ($9/mo · 15 Monthly Blind Apps)
           </button>
