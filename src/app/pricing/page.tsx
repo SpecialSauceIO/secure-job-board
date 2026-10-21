@@ -272,8 +272,9 @@ export default function PricingMatrixPage() {
                       Starter
                     </h3>
                     <div className="mt-3 flex items-baseline gap-2">
-                      <span className="text-3xl font-black text-slate-900">$99</span>
-                      <span className="text-xs font-bold text-slate-500">/ mo after 30-day free trial</span>
+                      <span className="text-lg font-bold text-slate-400 line-through">$299</span>
+                      <span className="text-3xl font-black text-slate-900">$149</span>
+                      <span className="text-xs font-bold text-amber-700">/ mo Founding Partner Rate</span>
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
@@ -332,8 +333,9 @@ export default function PricingMatrixPage() {
                       Growth
                     </h3>
                     <div className="mt-3 flex items-baseline gap-2">
-                      <span className="text-3xl font-black text-white">$299</span>
-                      <span className="text-xs font-bold text-slate-300">/ mo after 30-day free trial</span>
+                      <span className="text-lg font-bold text-slate-400 line-through">$799</span>
+                      <span className="text-3xl font-black text-white">$499</span>
+                      <span className="text-xs font-bold text-amber-300">/ mo Founding Partner Rate</span>
                     </div>
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed">
@@ -392,8 +394,9 @@ export default function PricingMatrixPage() {
                       Enterprise
                     </h3>
                     <div className="mt-3 flex items-baseline gap-2">
-                      <span className="text-3xl font-black text-slate-900">$899</span>
-                      <span className="text-xs font-bold text-slate-500">/ mo after 30-day free trial</span>
+                      <span className="text-lg font-bold text-slate-400 line-through">$1,999</span>
+                      <span className="text-3xl font-black text-slate-900">$1,250</span>
+                      <span className="text-xs font-bold text-amber-700">/ mo Founding Partner Rate</span>
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
@@ -410,7 +413,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span><strong>100 Outbound Talent Pitch Credits / month</strong></span>
+                      <span><strong>120 Outbound Talent Pitch Credits / month</strong></span>
                     </li>
                     <li className="flex items-start gap-2 text-indigo-700 font-bold">
                       <span>⚡</span>
@@ -474,14 +477,14 @@ export default function PricingMatrixPage() {
                         ⚡ Boost Pack
                       </span>
                       <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-extrabold border border-slate-300">
-                        $4.90 / pitch
+                        $15.00 / pitch
                       </span>
                     </div>
                     <div className="flex items-baseline justify-between pt-1">
                       <h4 className="text-xl font-black text-slate-900">
                         +10 Pitch Credits
                       </h4>
-                      <span className="text-2xl font-black text-slate-900">$49</span>
+                      <span className="text-2xl font-black text-slate-900">$150</span>
                     </div>
                     <p className="text-xs text-slate-600 leading-relaxed">
                       Ideal when your team is 2–3 outbound pitches away from rounding out a final interview slate this month.
@@ -498,17 +501,17 @@ export default function PricingMatrixPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">
-                        🚀 Surge Pack • Save 20%
+                        🚀 Surge Pack • Save 13%
                       </span>
                       <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[11px] font-extrabold border border-indigo-200">
-                        $3.96 / pitch
+                        $13.00 / pitch
                       </span>
                     </div>
                     <div className="flex items-baseline justify-between pt-1">
                       <h4 className="text-xl font-black text-slate-900">
                         +25 Pitch Credits
                       </h4>
-                      <span className="text-2xl font-black text-slate-900">$99</span>
+                      <span className="text-2xl font-black text-slate-900">$325</span>
                     </div>
                     <p className="text-xs text-slate-600 leading-relaxed">
                       Built for hiring managers actively sourcing passive candidates across 2 to 4 concurrent role openings.
@@ -525,17 +528,17 @@ export default function PricingMatrixPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700">
-                        🏢 Scale Pack • Save 32%
+                        🏢 Scale Pack • Save 27%
                       </span>
                       <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[11px] font-extrabold border border-emerald-200">
-                        $3.32 / pitch
+                        $11.00 / pitch
                       </span>
                     </div>
                     <div className="flex items-baseline justify-between pt-1">
                       <h4 className="text-xl font-black text-slate-900">
                         +75 Pitch Credits
                       </h4>
-                      <span className="text-2xl font-black text-slate-900">$249</span>
+                      <span className="text-2xl font-black text-slate-900">$825</span>
                     </div>
                     <p className="text-xs text-slate-600 leading-relaxed">
                       Maximum volume discount for multi-department recruiting pushes and quarterly talent acquisition sprints.

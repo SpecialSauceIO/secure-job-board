@@ -330,9 +330,10 @@ export default function EmployerBillingPage() {
                 Starter Tier
               </h3>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-3xl font-black text-slate-900">$99</span>
-                <span className="text-xs font-bold text-slate-500">
-                  / month after 30d Rewards
+                <span className="text-base font-bold text-slate-400 line-through">$299</span>
+                <span className="text-3xl font-black text-slate-900">$149</span>
+                <span className="text-xs font-bold text-amber-700">
+                  / mo Founding Rate
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-2 leading-relaxed">
@@ -397,9 +398,10 @@ export default function EmployerBillingPage() {
             <div>
               <h3 className="text-xl font-black text-white">Growth Tier</h3>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-3xl font-black text-white">$299</span>
-                <span className="text-xs font-bold text-slate-300">
-                  / month (Founder Rate Lock)
+                <span className="text-base font-bold text-slate-400 line-through">$799</span>
+                <span className="text-3xl font-black text-white">$499</span>
+                <span className="text-xs font-bold text-amber-300">
+                  / mo Founding Rate
                 </span>
               </div>
               <p className="text-xs text-slate-300 mt-2 leading-relaxed">
@@ -466,9 +468,10 @@ export default function EmployerBillingPage() {
                 Enterprise Tier
               </h3>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-3xl font-black text-slate-900">$899</span>
-                <span className="text-xs font-bold text-slate-500">
-                  / month (Founder Rate Lock)
+                <span className="text-base font-bold text-slate-400 line-through">$1,999</span>
+                <span className="text-3xl font-black text-slate-900">$1,250</span>
+                <span className="text-xs font-bold text-amber-700">
+                  / mo Founding Rate
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-2 leading-relaxed">
@@ -481,7 +484,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Unlimited Simultaneous Active Blind Roles</strong>
               </li>
               <li>
-                ✓ <strong>100 Monthly Plan Pitch Credits / month</strong>
+                ✓ <strong>120 Monthly Plan Pitch Credits / month</strong>
               </li>
               <li>
                 ✓ <strong>Unlimited Team &amp; Delegated W-2 BPO/RPO Seats</strong>
@@ -506,8 +509,8 @@ export default function EmployerBillingPage() {
               {processingTarget === 'enterprise'
                 ? 'Activating Enterprise...'
                 : activeTier === 'enterprise'
-                ? 'Reset Monthly Plan Bucket (100 Plan Credits) →'
-                : 'Switch to Enterprise (100 Plan Credits & Unlimited Roles) →'}
+                ? 'Reset Monthly Plan Bucket (120 Plan Credits) →'
+                : 'Switch to Enterprise (120 Plan Credits & Unlimited Roles) →'}
             </button>
           </div>
         </div>
@@ -545,7 +548,7 @@ export default function EmployerBillingPage() {
         {activeTier === 'free' && (
           <div className="p-4 rounded-xl bg-amber-50 border border-amber-300 text-amber-950 text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <span>
-              🔒 <strong>Active Base Plan Required:</strong> Activate Starter ($99/mo), Growth ($299/mo), or Enterprise ($899/mo) above before purchasing standalone Rollover Pitch Credit Top-Up Packs.
+              🔒 <strong>Active Base Plan Required:</strong> Activate Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) above before purchasing standalone Rollover Pitch Credit Top-Up Packs.
             </span>
           </div>
         )}
@@ -559,14 +562,14 @@ export default function EmployerBillingPage() {
                   ⚡ Boost Pack
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-white border border-slate-300 text-slate-700 text-[11px] font-extrabold">
-                  $4.90 / pitch
+                  $15.00 / pitch
                 </span>
               </div>
               <div className="flex items-baseline justify-between pt-1">
                 <h3 className="text-2xl font-black text-slate-900">
                   +10 Credits
                 </h3>
-                <span className="text-2xl font-black text-slate-900">$49</span>
+                <span className="text-2xl font-black text-slate-900">$150</span>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
                 Quick top-up when you need a few extra outbound pitches to round out an interview slate this month.
@@ -581,7 +584,7 @@ export default function EmployerBillingPage() {
             >
               {processingTarget === 'topup_boost'
                 ? 'Adding +10 Rollover Credits...'
-                : 'Add +10 Rollover Credits ($49) →'}
+                : 'Add +10 Rollover Credits ($150) →'}
             </button>
           </div>
 
@@ -590,17 +593,17 @@ export default function EmployerBillingPage() {
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-600">
-                  🚀 Surge Pack • Save 20%
+                  🚀 Surge Pack • Save 13%
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-extrabold">
-                  $3.96 / pitch
+                  $13.00 / pitch
                 </span>
               </div>
               <div className="flex items-baseline justify-between pt-1">
                 <h3 className="text-2xl font-black text-slate-900">
                   +25 Credits
                 </h3>
-                <span className="text-2xl font-black text-slate-900">$99</span>
+                <span className="text-2xl font-black text-slate-900">$325</span>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
                 Built for hiring managers actively sourcing passive candidates across 2 to 4 concurrent open roles.
@@ -615,7 +618,7 @@ export default function EmployerBillingPage() {
             >
               {processingTarget === 'topup_surge'
                 ? 'Adding +25 Rollover Credits...'
-                : 'Add +25 Rollover Credits ($99) →'}
+                : 'Add +25 Rollover Credits ($325) →'}
             </button>
           </div>
 
@@ -624,17 +627,17 @@ export default function EmployerBillingPage() {
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-700">
-                  🏢 Scale Pack • Save 32%
+                  🏢 Scale Pack • Save 27%
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-extrabold">
-                  $3.32 / pitch
+                  $11.00 / pitch
                 </span>
               </div>
               <div className="flex items-baseline justify-between pt-1">
                 <h3 className="text-2xl font-black text-slate-900">
                   +75 Credits
                 </h3>
-                <span className="text-2xl font-black text-slate-900">$249</span>
+                <span className="text-2xl font-black text-slate-900">$825</span>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
                 Maximum volume discount for multi-department recruiting pushes and quarterly talent acquisition sprints.
@@ -649,7 +652,7 @@ export default function EmployerBillingPage() {
             >
               {processingTarget === 'topup_scale'
                 ? 'Adding +75 Rollover Credits...'
-                : 'Add +75 Rollover Credits ($249) →'}
+                : 'Add +75 Rollover Credits ($825) →'}
             </button>
           </div>
         </div>
@@ -696,7 +699,7 @@ export default function EmployerBillingPage() {
           >
             {processingTarget === 'starter'
               ? 'Switching...'
-              : '2. Starter ($99 • 5 Roles / 10 Plan Credits)'}
+              : '2. Starter ($149 Founding / $299 Retail • 5 Roles / 10 Credits)'}
           </button>
 
           <button
@@ -711,7 +714,7 @@ export default function EmployerBillingPage() {
           >
             {processingTarget === 'growth'
               ? 'Switching...'
-              : '3. Growth ($299 • 15 Roles / 35 Plan Credits)'}
+              : '3. Growth ($499 Founding / $799 Retail • 15 Roles / 35 Credits)'}
           </button>
 
           <button
@@ -726,7 +729,7 @@ export default function EmployerBillingPage() {
           >
             {processingTarget === 'enterprise'
               ? 'Switching...'
-              : '4. Enterprise ($899 • Unlimited / 100 Plan Credits)'}
+              : '4. Enterprise ($1,250 Founding / $1,999 Retail • Unlimited / 120 Credits)'}
           </button>
         </div>
       </div>

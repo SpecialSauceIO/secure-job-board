@@ -37,7 +37,7 @@ export const SECURITY_ARCHITECTURE_DATA = {
     {
       title: 'Credit Cards, ACH & Banking Details (PCI-DSS Level 1)',
       detail:
-        'All Employer subscription payments ($99 / $299 / $899) and Candidate Pro Pass ($9/mo) transactions are processed on Stripe-hosted Checkout pages. Raw card numbers, CVV codes, and banking details never touch Special Sauce servers.',
+        'All Employer subscription payments ($149 / $499 / $1,250 Founding Partner Rates; $299 / $799 / $1,999 Retail) and Candidate Pro Pass ($9/mo) transactions are processed on Stripe-hosted Checkout pages. Raw card numbers, CVV codes, and banking details never touch Special Sauce servers.',
     },
   ],
   platformStoredItems: [
@@ -71,7 +71,7 @@ Special Sauce does NOT store government ID images, biometric selfies, credit car
 
 2. WHAT IS STORED EXCLUSIVELY INSIDE STRIPE (PCI-DSS LEVEL 1 & SOC 2):
 - Candidate Identity Verification (Stripe Identity): Government IDs and biometric liveness checks are captured and encrypted (AES-256) directly inside Stripe's isolated vault. Special Sauce only stores a boolean "Identity Verified" status token.
-- Subscription & Billing Data (Stripe Checkout): All payment methods for Employer Tiers ($99/$299/$899) and Candidate Pro ($9/mo) are tokenized and vaulted by Stripe.
+- Subscription & Billing Data (Stripe Checkout): All payment methods for Employer Tiers ($149/$499/$1,250 Founding) and Candidate Pro ($9/mo) are tokenized and vaulted by Stripe.
 
 3. 2-STAGE ANTI-HARVESTING IDENTITY VAULT & IN-PLATFORM MESSAGING:
 - Stage 1 (Encrypted Thread Unlock): When an employer unlocks an inbound application or a candidate accepts an outbound pitch, an encrypted in-platform chat thread opens (Ref: SS-XXXXXXXX). The employer's verified company name/domain and the candidate's First Name + Last Initial are revealed, while the candidate's raw email and PDF resume remain strictly vaulted.
@@ -98,7 +98,7 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
         step: 'Step 2',
         title: 'Activate Your Tier & Assign Team / BPO Partner Seats',
         description:
-          'Choose Starter ($99/mo: 5 Roles, 10 Credits, 1 Seat), Growth ($299/mo: 15 Roles, 30 Credits, 3 Seats), or Enterprise ($899/mo: 50 Roles, 100 Credits, 10 Seats + ATS Sync). Invite internal hiring managers or W-2 BPO delivery leads on your Company Profile.',
+          'Choose Starter ($149/mo Founding ($299 Retail): 5 Roles, 10 Credits, 1 Seat), Growth ($499/mo Founding ($799 Retail): 15 Roles, 30 Credits, 3 Seats), or Enterprise ($1,250/mo Founding ($1,999 Retail): 50 Roles, 100 Credits, 10 Seats + ATS Sync). Invite internal hiring managers or W-2 BPO delivery leads on your Company Profile.',
       },
       {
         step: 'Step 3',
@@ -134,9 +134,9 @@ Special Sauce is a verified, double-blind technical & professional recruitment m
 - Step 5 — Stage 2 Unlock (Full Resume & Email Release): Once we message the candidate in the thread, they click "Release Resume & Contact Vault" to unlock their Full Name, direct email, and downloadable PDF resume.
 
 3. PLAN TIERS & SEAT CAPACITY (2:1 CREDIT RATIO):
-- Starter ($99/mo): Up to 5 Active Roles | 10 Pitch Credits/mo | 1 Seat (Owner)
-- Growth ($299/mo): Up to 15 Active Roles | 30 Pitch Credits/mo | Up to 3 Team/BPO Seats
-- Enterprise ($899/mo): Up to 50 Active Roles | 100 Pitch Credits/mo | Up to 10 Seats + ATS Webhook Sync
+- Starter ($149/mo Founding ($299 Retail)): Up to 5 Active Roles | 10 Pitch Credits/mo | 1 Seat (Owner)
+- Growth ($499/mo Founding ($799 Retail)): Up to 15 Active Roles | 30 Pitch Credits/mo | Up to 3 Team/BPO Seats
+- Enterprise ($1,250/mo Founding ($1,999 Retail)): Up to 50 Active Roles | 120 Pitch Credits/mo | Up to 10 Seats + ATS Webhook Sync
 ====================================================================`,
   },
   candidate: {
@@ -302,7 +302,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How do Pitch Credits, Active Role Slots, and Candidate Shortlists work?',
     answer:
-      'Starter ($99/mo) includes 5 Active Roles, 10 Pitch Credits/mo, and 1 Seat. Growth ($299/mo) includes 15 Active Roles, 30 Pitch Credits/mo, and 3 Seats. Enterprise ($899/mo) includes 50 Active Roles, 100 Pitch Credits/mo, and 10 Seats. While browsing passive candidates, you can click "Save to Shortlist" for free to bookmark candidates and compare their 5-Point AI Match scores before spending a Connection Credit to pitch them.',
+      'Starter ($149/mo Founding ($299 Retail)) includes 5 Active Roles, 10 Pitch Credits/mo, and 1 Seat. Growth ($499/mo Founding ($799 Retail)) includes 15 Active Roles, 30 Pitch Credits/mo, and 3 Seats. Enterprise ($1,250/mo Founding ($1,999 Retail)) includes 50 Active Roles, 120 Pitch Credits/mo, and 10 Seats. While browsing passive candidates, you can click "Save to Shortlist" for free to bookmark candidates and compare their 5-Point AI Match scores before spending a Connection Credit to pitch them.',
   },
   {
     id: 'e5',
@@ -320,7 +320,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How do we invite Hiring Managers or W-2 BPO / RPO Partners into our workspace?',
     answer:
-      'On the Growth ($299/mo, up to 3 seats) and Enterprise ($899/mo, up to 10 seats) plans, open your Company Profile (/dashboard/employer/organization) and scroll to the "Team & Delegated BPO Partner Seats" panel. Enter their email, choose "Internal Hiring Manager" or "Delegated BPO / W-2 Partner", and click Assign Seat. They will receive an email invitation and share your verified organization, roles, and credit pool.',
+      'On the Growth ($499/mo Founding ($799 Retail), up to 3 seats) and Enterprise ($1,250/mo Founding ($1,999 Retail), up to 10 seats) plans, open your Company Profile (/dashboard/employer/organization) and scroll to the "Team & Delegated BPO Partner Seats" panel. Enter their email, choose "Internal Hiring Manager" or "Delegated BPO / W-2 Partner", and click Assign Seat. They will receive an email invitation and share your verified organization, roles, and credit pool.',
   },
   {
     id: 'e7',

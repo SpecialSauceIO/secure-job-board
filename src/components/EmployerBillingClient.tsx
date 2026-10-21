@@ -8,7 +8,7 @@ const SUBSCRIPTION_TIERS = [
   {
     id: 'starter' as const,
     name: 'Starter Tier',
-    price: '$99',
+    price: '$149',
     interval: '/ month',
     maxActiveJobs: 5,
     monthlyCredits: 10,
@@ -28,7 +28,7 @@ const SUBSCRIPTION_TIERS = [
   {
     id: 'growth' as const,
     name: 'Growth Tier',
-    price: '$299',
+    price: '$499',
     interval: '/ month',
     maxActiveJobs: 15,
     monthlyCredits: 30,
@@ -48,7 +48,7 @@ const SUBSCRIPTION_TIERS = [
   {
     id: 'enterprise' as const,
     name: 'Enterprise Tier',
-    price: '$899',
+    price: '$1,250',
     interval: '/ month',
     maxActiveJobs: 50,
     monthlyCredits: 100,
@@ -155,11 +155,11 @@ export default function EmployerBillingClient({
 
   const tierDisplayLabel =
     currentTier === 'enterprise'
-      ? 'Enterprise ($899/mo)'
+      ? 'Enterprise ($1,250/mo Founding ($1,999 Retail))'
       : currentTier === 'growth'
-      ? 'Growth ($299/mo)'
+      ? 'Growth ($499/mo Founding ($799 Retail))'
       : currentTier === 'starter'
-      ? 'Starter ($99/mo)'
+      ? 'Starter ($149/mo Founding ($299 Retail))'
       : 'Free Explorer ($0/mo — Browse Only)'
 
   return (

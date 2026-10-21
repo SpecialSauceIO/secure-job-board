@@ -139,9 +139,9 @@ export default function EmployerTeamSeatsPanel({
               Need to add a Hiring Manager or BPO / RPO Delivery Partner?
             </h3>
             <p className="text-xs text-indigo-800/90 leading-relaxed">
-              The <strong>Starter Tier ($99/mo)</strong> includes 1 Owner seat. Upgrade to the{' '}
-              <strong>Growth Tier ($299/mo)</strong> to unlock up to <strong>3 Team & Partner Seats</strong>, or{' '}
-              <strong>Enterprise ($899/mo)</strong> for up to <strong>10 Seats + ATS Auto-Sync</strong>.
+              The <strong>Starter Tier ($149/mo Founding ($299 Retail))</strong> includes 1 Owner seat. Upgrade to the{' '}
+              <strong>Growth Tier ($499/mo Founding ($799 Retail))</strong> to unlock up to <strong>3 Team & Partner Seats</strong>, or{' '}
+              <strong>Enterprise ($1,250/mo Founding ($1,999 Retail))</strong> for up to <strong>10 Seats + ATS Auto-Sync</strong>.
             </p>
           </div>
           <Link

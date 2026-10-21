@@ -120,7 +120,7 @@ export async function saveEnterpriseAtsSettings(formData: FormData) {
   const tierInfo = await resolveEmployerTierInfo(org)
   if (tierInfo.tier !== 'enterprise') {
     return {
-      error: 'Enterprise Tier ($899/mo) is required to configure Workday & Greenhouse ATS integrations.',
+      error: 'Enterprise Tier ($1,250/mo Founding ($1,999 Retail)) is required to configure Workday & Greenhouse ATS integrations.',
     }
   }
 
@@ -550,7 +550,7 @@ export async function exportEnterpriseCandidatesCsv() {
   const tierInfo = await resolveEmployerTierInfo(org)
   if (tierInfo.tier !== 'enterprise') {
     return {
-      error: 'Enterprise Tier ($899/mo) is required for bulk ATS CSV exports.',
+      error: 'Enterprise Tier ($1,250/mo Founding ($1,999 Retail)) is required for bulk ATS CSV exports.',
     }
   }
 

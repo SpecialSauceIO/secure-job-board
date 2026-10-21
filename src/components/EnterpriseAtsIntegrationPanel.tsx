@@ -135,7 +135,7 @@ export default function EnterpriseAtsIntegrationPanel() {
           <div className="space-y-2.5 max-w-2xl">
             <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
               <span className="text-amber-300">
-                🔒 Enterprise Tier Exclusive ($899/mo)
+                🔒 Enterprise Tier Exclusive ($1,250/mo Founding ($1,999 Retail))
               </span>
               <span className="text-slate-600">•</span>
               <span className="text-slate-300">
@@ -149,7 +149,7 @@ export default function EnterpriseAtsIntegrationPanel() {
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
               Upgrade to the{' '}
-              <strong className="text-white">Enterprise Tier ($899/mo)</strong>{' '}
+              <strong className="text-white">Enterprise Tier ($1,250/mo Founding ($1,999 Retail))</strong>{' '}
               to unlock automated <strong className="text-amber-300">Stage 2 Vault exports</strong> directly into{' '}
               <strong className="text-white">Greenhouse Harvest API</strong>, real-time{' '}
               <strong className="text-white">HMAC-SHA256 Signed Webhooks</strong> for{' '}

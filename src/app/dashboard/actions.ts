@@ -645,9 +645,9 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   if (explicitTier === 'enterprise') {
     return {
       tier: 'enterprise',
-      label: 'Enterprise Tier ($899/mo · First 30d $0)',
+      label: 'Enterprise Tier ($1,250/mo Founding · $1,999 Retail)',
       maxActiveJobs: 999,
-      monthlyCredits: 100,
+      monthlyCredits: 120,
       maxSeats: 999,
       ...bucketFields,
     }
@@ -655,7 +655,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   if (explicitTier === 'growth') {
     return {
       tier: 'growth',
-      label: 'Growth Tier ($299/mo · First 30d $0)',
+      label: 'Growth Tier ($499/mo Founding · $799 Retail)',
       maxActiveJobs: 15,
       monthlyCredits: 35,
       maxSeats: 5,
@@ -665,7 +665,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   if (explicitTier === 'starter') {
     return {
       tier: 'starter',
-      label: 'Starter Tier ($99/mo · First 30d $0)',
+      label: 'Starter Tier ($149/mo Founding · $299 Retail)',
       maxActiveJobs: 5,
       monthlyCredits: 10,
       maxSeats: 2,
@@ -714,9 +714,9 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   if (totalCapacity >= 50) {
     return {
       tier: 'enterprise',
-      label: 'Enterprise Tier ($899/mo · First 30d $0)',
+      label: 'Enterprise Tier ($1,250/mo Founding · $1,999 Retail)',
       maxActiveJobs: 999,
-      monthlyCredits: 100,
+      monthlyCredits: 120,
       maxSeats: 999,
       ...bucketFields,
     }
@@ -724,7 +724,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   if (totalCapacity >= 20) {
     return {
       tier: 'growth',
-      label: 'Growth Tier ($299/mo · First 30d $0)',
+      label: 'Growth Tier ($499/mo Founding · $799 Retail)',
       maxActiveJobs: 15,
       monthlyCredits: 35,
       maxSeats: 5,
@@ -734,7 +734,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   if (credits > 0 || sent > 0) {
     return {
       tier: 'starter',
-      label: 'Starter Tier ($99/mo · First 30d $0)',
+      label: 'Starter Tier ($149/mo Founding · $299 Retail)',
       maxActiveJobs: 5,
       monthlyCredits: 10,
       maxSeats: 2,
@@ -3552,7 +3552,7 @@ export async function createStructuredJob(formData: FormData) {
   if (tierInfo.tier === 'free' || tierInfo.maxActiveJobs < 1) {
     return {
       error:
-        'Subscription Required: Your account is currently on the Free Explorer plan (browse-only). Subscribe to Starter ($99/mo), Growth ($299/mo), or Enterprise ($899/mo) on your Billing page to publish active roles.',
+        'Subscription Required: Your account is currently on the Free Explorer plan (browse-only). Subscribe to Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) on your Billing page to publish active roles.',
     }
   }
 
@@ -3910,7 +3910,7 @@ export async function sendConnectionRequest(
   if (tierInfo.tier === 'free' || credits < 1) {
     return {
       error:
-        'Subscription / Pitch Credits Required: Subscribe to Starter ($99/mo), Growth ($299/mo), or Enterprise ($899/mo) on your Billing page to unlock outbound candidate pitches.',
+        'Subscription / Pitch Credits Required: Subscribe to Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) on your Billing page to unlock outbound candidate pitches.',
     }
   }
 
@@ -5325,21 +5325,21 @@ export async function activateSandboxEmployerTier(
       maxSeats: 1,
     },
     starter: {
-      label: 'Starter Tier ($99/mo)',
+      label: 'Starter Tier ($149/mo Founding · $299 Retail)',
       maxActiveJobs: 5,
       credits: 10,
       maxSeats: 2,
     },
     growth: {
-      label: 'Growth Tier ($299/mo)',
+      label: 'Growth Tier ($499/mo Founding · $799 Retail)',
       maxActiveJobs: 15,
       credits: 35,
       maxSeats: 5,
     },
     enterprise: {
-      label: 'Enterprise Tier ($899/mo)',
+      label: 'Enterprise Tier ($1,250/mo Founding · $1,999 Retail)',
       maxActiveJobs: 999,
-      credits: 100,
+      credits: 120,
       maxSeats: 999,
     },
   }
@@ -5456,7 +5456,7 @@ export async function purchaseEmployerCreditTopUp(
   if (tierInfo.tier === 'free') {
     return {
       error:
-        'Active Subscription Required: Top-Up Pitch Credit packs are exclusively available to organizations on an active Starter ($99/mo), Growth ($299/mo), or Enterprise ($899/mo) plan.',
+        'Active Subscription Required: Top-Up Pitch Credit packs are exclusively available to organizations on an active Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) plan.',
     }
   }
 
@@ -5464,20 +5464,20 @@ export async function purchaseEmployerCreditTopUp(
     boost: {
       name: 'Boost Top-Up Pack',
       credits: 10,
-      price: 49,
-      unitPrice: '$4.90/pitch',
+      price: 150,
+      unitPrice: '$15.00/pitch',
     },
     surge: {
       name: 'Surge Top-Up Pack',
       credits: 25,
-      price: 99,
-      unitPrice: '$3.96/pitch',
+      price: 325,
+      unitPrice: '$13.00/pitch',
     },
     scale: {
       name: 'Scale Top-Up Pack',
       credits: 75,
-      price: 249,
-      unitPrice: '$3.32/pitch',
+      price: 825,
+      unitPrice: '$11.00/pitch',
     },
   }
 

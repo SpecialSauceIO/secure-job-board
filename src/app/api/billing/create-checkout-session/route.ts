@@ -16,30 +16,30 @@ export const EMPLOYER_SAAS_TIERS: Record<
 > = {
   starter: {
     id: 'starter',
-    name: 'Starter Plan ($99/mo — 5 Active Roles & 10 Pitch Credits)',
-    priceCents: 9900,
+    name: 'Starter Plan ($149/mo Founding Partner Rate — $299/mo Retail — 5 Active Roles & 10 Pitch Credits)',
+    priceCents: 14900,
     maxActiveJobs: 5,
     monthlyCredits: 10,
     description:
-      'Up to 5 simultaneous active blind job postings and 10 monthly passive candidate pitch credits (2:1 ratio).',
+      'Up to 5 simultaneous active blind job postings, 10 monthly passive candidate pitch credits, and 2 team seats.',
   },
   growth: {
     id: 'growth',
-    name: 'Growth Plan ($299/mo — 15 Active Roles & 30 Pitch Credits)',
-    priceCents: 29900,
+    name: 'Growth Plan ($499/mo Founding Partner Rate — $799/mo Retail — 15 Active Roles & 35 Pitch Credits)',
+    priceCents: 49900,
     maxActiveJobs: 15,
-    monthlyCredits: 30,
+    monthlyCredits: 35,
     description:
-      'Up to 15 simultaneous active blind job postings, 30 monthly passive candidate pitch credits (2:1 ratio), and credit rollover.',
+      'Up to 15 simultaneous active blind job postings, 35 monthly passive candidate pitch credits, and 5 team/BPO seats.',
   },
   enterprise: {
     id: 'enterprise',
-    name: 'Enterprise Plan ($899/mo — 50 Active Roles, 100 Credits + ATS Sync)',
-    priceCents: 89900,
-    maxActiveJobs: 50,
-    monthlyCredits: 100,
+    name: 'Enterprise Plan ($1,250/mo Founding Partner Rate — $1,999/mo Retail — Unlimited Roles, 120 Credits + ATS Sync)',
+    priceCents: 125000,
+    maxActiveJobs: 999,
+    monthlyCredits: 120,
     description:
-      'Up to 50 simultaneous active blind job postings, 100 monthly pitch credits (2:1 ratio), and Workday/Greenhouse ATS webhook integration.',
+      'Unlimited simultaneous active blind job postings, 120 monthly pitch credits, unlimited seats, and Workday/Greenhouse ATS webhook integration.',
   },
 }
 

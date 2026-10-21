@@ -25,13 +25,13 @@ const DEFAULT_STATE = {
   id_retry_rate_pct: 8,
 
   // Employer Tiers (Starter $99, Growth $299, Enterprise $899)
-  e1_price: 99,
+  e1_price: 149,
   e1_members: 12,
   e1_jobs: 2,
-  e2_price: 299,
+  e2_price: 499,
   e2_members: 6,
   e2_jobs: 6,
-  e3_price: 899,
+  e3_price: 1250,
   e3_members: 2,
   e3_jobs: 15,
 
@@ -522,7 +522,7 @@ export default function CalculatorPage() {
                   Employer Subscriptions &amp; Credit Top-Ups
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Starter ($99) • Growth ($299) • Enterprise ($899) • Rollover Pitch Credit Packs
+                  Starter ($149 Founding / $299 Retail) • Growth ($499 / $799) • Enterprise ($1,250 / $1,999) • Rollover Pitch Credit Packs
                 </p>
               </div>
               <span className="text-base font-black text-indigo-600">

@@ -142,7 +142,7 @@ export default function TermsOfServicePage() {
             9/mo — 75 blind applications per monthly cycle plus Founding Member status; Prestige subscribers may switch or downgrade to the Professional plan at any time).
                   </li>
                   <li>
-                    <strong className="text-slate-800">Employer Subscription Plans:</strong> Free Preview ($0/mo — Corporate Domain Verification and passive talent search preview), Starter ($99/mo — up to 2 active roles, 15 monthly Pitch Credits, 1 seat), Growth ($299/mo — up to 10 active roles, 75 monthly Pitch Credits, up to 3 seats), and Enterprise ($899/mo — unlimited active roles, 250 monthly Pitch Credits, up to 10 seats).
+                    <strong className="text-slate-800">Employer Subscription Plans:</strong> Free Preview ($0/mo — Corporate Domain Verification and passive talent search preview), Starter ($149/mo Founding ($299 Retail) — up to 2 active roles, 15 monthly Pitch Credits, 1 seat), Growth ($499/mo Founding ($799 Retail) — up to 10 active roles, 75 monthly Pitch Credits, up to 3 seats), and Enterprise ($1,250/mo Founding ($1,999 Retail) — unlimited active roles, 250 monthly Pitch Credits, up to 10 seats).
                   </li>
                   <li>
                     <strong className="text-slate-800">On-Demand Pitch Credit Top-Ups &amp; Role Slot Add-Ons:</strong> Subscribed Employers may purchase non-expiring Pitch Credit Top-Up Packs (10 Credits for $75, 25 Credits for <h2 className="text-xl">
