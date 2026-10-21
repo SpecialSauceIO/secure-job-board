@@ -161,7 +161,7 @@ export async function requestBrandedPasswordReset(
   const fallbackInbox = cleanEnvKey(process.env.RESEND_TEST_TO_EMAIL)
   const fromAddress =
     cleanEnvKey(process.env.RESEND_FROM_EMAIL) ||
-    'Special Sauce <onboarding@resend.dev>'
+    'Special Sauce <support@specialsauce.io>'
 
   const baseUrl =
     (clientOrigin && clientOrigin.startsWith('http') ? clientOrigin : '') ||

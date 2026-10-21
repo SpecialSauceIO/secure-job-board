@@ -228,7 +228,7 @@ async function sendThreadEmailNotification({
 
   const fromAddress =
     cleanEnvKey(process.env.RESEND_FROM_EMAIL) ||
-    'Special Sauce <onboarding@resend.dev>'
+    'Special Sauce <support@specialsauce.io>'
 
   const buildHtml = (intendedNote?: string) => `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 28px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
