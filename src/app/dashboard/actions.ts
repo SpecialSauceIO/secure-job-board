@@ -2305,14 +2305,72 @@ export async function respondToConnectionRequest(applicationId: string, decision
 
   if (decision === 'declined') {
     const chosenDeclineReason = reason || 'Timing / Accepted Another Offer'
+    const adminDb = (await getAdminSupabaseClient()) || supabase
+    const declineJobObj: any = Array.isArray(existingApp?.jobs)
+      ? existingApp?.jobs[0]
+      : existingApp?.jobs
+    const declineOrgId = declineJobObj?.organization_id || null
+    const alreadyRefunded = Boolean(existingApp?.match_data?.credit_refunded)
+
+    let refundedCreditNow = false
+    let updatedEmployerCredits: number | null = null
+    const bucketToRestore: "plan" | "rollover" =
+      existingApp?.match_data?.credit_bucket_used === "rollover" ? "rollover" : "plan"
+
+    if (declineOrgId && !alreadyRefunded) {
+      try {
+        const { data: orgRow } = await adminDb
+          .from('organizations')
+          .select('id, connection_credits, description')
+          .eq('id', declineOrgId)
+          .maybeSingle()
+
+        if (orgRow) {
+          const currentCredits = Math.max(0, orgRow.connection_credits || 0)
+          const nextCredits = currentCredits + 1
+          let nextDesc = orgRow.description || ''
+
+          if (bucketToRestore === 'rollover') {
+            const currentRollover = Math.min(
+              currentCredits,
+              parseRolloverCreditsTag(orgRow.description)
+            )
+            const nextRollover = currentRollover + 1
+            nextDesc = /\[TOPUP:\d+\]/i.test(nextDesc)
+              ? nextDesc.replace(/\[TOPUP:\d+\]/i, `[TOPUP:${nextRollover}]`)
+              : `${nextDesc} [TOPUP:${nextRollover}]`.trim()
+          }
+
+          const { error: refundErr } = await adminDb
+            .from('organizations')
+            .update({
+              connection_credits: nextCredits,
+              description: nextDesc,
+            })
+            .eq('id', declineOrgId)
+
+          if (!refundErr) {
+            refundedCreditNow = true
+            updatedEmployerCredits = nextCredits
+          }
+        }
+      } catch (refundEx) {
+        console.warn('Credit refund warning:', refundEx)
+      }
+    }
+
     const updatedDeclineMatchData = {
       ...(existingApp?.match_data || {}),
       candidate_decision: 'declined',
       candidate_decline_reason: chosenDeclineReason,
       status_updated_at: new Date().toISOString(),
       reference_id: referenceId,
+      credit_refunded: alreadyRefunded || refundedCreditNow,
+      credit_refunded_at: refundedCreditNow
+        ? new Date().toISOString()
+        : existingApp?.match_data?.credit_refunded_at || null,
     }
-    const adminDb = (await getAdminSupabaseClient()) || supabase
+
     let { error } = await adminDb
       .from('applications')
       .update({
@@ -2338,26 +2396,25 @@ export async function respondToConnectionRequest(applicationId: string, decision
       return { error: error.message }
     }
 
-    const declineJobObj: any = Array.isArray(existingApp?.jobs)
-      ? existingApp?.jobs[0]
-      : existingApp?.jobs
     const declineRoleTitle = declineJobObj?.title || 'Open Role'
     const employerRecipient = existingApp?.match_data?.employer_contact_email || null
 
     if (employerRecipient) {
       await sendPlatformNotification({
         to: employerRecipient,
-        subject: `Candidate Declined Pitch for ${declineRoleTitle} (Feedback Shared)`,
+        subject: `Pitch Declined + 1 Credit Refunded: ${declineRoleTitle} (${referenceId})`,
         referenceId,
-        heading: 'Outbound Connection Pitch Declined',
+        heading: 'Outbound Pitch Declined — +1 Pitch Credit Refunded',
         bodyLines: [
           `Anonymous Candidate #${String(user.id).slice(0, 6)} respectfully declined your connection pitch for "${declineRoleTitle}".`,
           `Candidate Feedback Reason: "${chosenDeclineReason}"`,
-          `Connection Reference ID: ${referenceId}`,
+          refundedCreditNow
+            ? `✓ Accepted-Only Credit Protection: +1 Pitch Credit has been automatically refunded to your organization (${bucketToRestore === "rollover" ? "Rollover Top-Up Bucket" : "Monthly Plan Bucket"}). Current Balance: ${updatedEmployerCredits} Credits.`
+            : `Connection Reference ID: ${referenceId}`,
           'Because the candidate declined before opening a Stage 1 thread, their identity remains vaulted.',
         ],
         ctaUrl: '/dashboard/employer/pitches',
-        ctaLabel: 'View Outbound Pitches →',
+        ctaLabel: 'View Outbound Pitches & Credit Balance →',
       })
     }
 
@@ -2365,7 +2422,13 @@ export async function respondToConnectionRequest(applicationId: string, decision
     revalidatePath('/dashboard/requests')
     revalidatePath('/dashboard/employer/search')
     revalidatePath('/dashboard/employer/pitches')
-    return { success: true, storedStatus: 'rejected', referenceId }
+    revalidatePath('/dashboard/employer/billing')
+    return {
+      success: true,
+      storedStatus: 'rejected',
+      referenceId,
+      creditRefunded: refundedCreditNow,
+    }
   }
 
   const candidateName =
@@ -4056,6 +4119,10 @@ export async function sendConnectionRequest(
     }
   }
 
+  const preCheckRollover = Math.min(credits, parseRolloverCreditsTag(orgObj?.description))
+  const preCheckPlanBucket = Math.max(0, credits - preCheckRollover)
+  const creditBucketUsed: "plan" | "rollover" = preCheckPlanBucket > 0 ? "plan" : "rollover"
+
   const enrichedMatchData = {
     ...(matchData || {}),
     employer_org_name: orgObj?.name || null,
@@ -4064,6 +4131,8 @@ export async function sendConnectionRequest(
       user.email || (orgObj?.domain ? `hiring@${orgObj.domain}` : null),
     candidate_contact_email: knownCandidateEmail,
     candidate_full_name: knownCandidateName,
+    credit_bucket_used: creditBucketUsed,
+    credit_refunded: false,
   }
 
   const { data: existingPitch } = await supabase
