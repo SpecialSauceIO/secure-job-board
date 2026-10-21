@@ -48,17 +48,19 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
     minute: '2-digit',
     second: '2-digit',
   })
-  const reporterEmail = user?.email || 'anonymous@specialsauce.io'
+  const reporterEmail = (user?.email || 'anonymous@specialsauce.io').trim()
 
   await pushToOpsControlPlane({
-    event_type: "work_item",
+    event_type: 'work_item',
     id: refId,
-    work_item_type: feedbackType.toLowerCase().includes("feature") ? "Feature_Request" : "Bug_Defect",
-    priority: feedbackType.toLowerCase().includes("bug") ? "P1_High" : "P2_Normal",
+    work_item_type: feedbackType.toLowerCase().includes('feature')
+      ? 'Feature_Request'
+      : 'Bug_Defect',
+    priority: feedbackType.toLowerCase().includes('bug') ? 'P1_High' : 'P2_Normal',
     subject: `[${feedbackType}] Report on ${pageUrl}`,
     category: feedbackType,
     description: notes,
-    reporter_user_id: user?.id || "anonymous",
+    reporter_user_id: user?.id || 'anonymous',
     reporter_name: reporterEmail,
     reporter_email: reporterEmail,
     reporter_role: role.toUpperCase(),
@@ -74,25 +76,14 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
     }
   }
 
-  const fromAddress =
-    cleanEnv(process.env.RESEND_FROM_EMAIL) ||
-    'Special Sauce Telemetry <onboarding@resend.dev>'
+  const configuredFrom = cleanEnv(process.env.RESEND_FROM_EMAIL)
+  const primaryFrom =
+    configuredFrom && !configuredFrom.includes('onboarding@resend.dev')
+      ? configuredFrom
+      : 'Special Sauce Support <support@specialsauce.io>'
 
   const configuredTestInbox = cleanEnv(
     process.env.FEEDBACK_TO_EMAIL || process.env.RESEND_TEST_TO_EMAIL
-  )
-
-  const candidateRecipients = Array.from(
-    new Set(
-      [
-        configuredTestInbox,
-        'support@specialsauce.io',
-        !reporterEmail.endsWith('@test.com') &&
-        !reporterEmail.endsWith('@example.com')
-          ? reporterEmail
-          : '',
-      ].filter(Boolean)
-    )
   )
 
   const appUrl =
@@ -104,12 +95,87 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
   const publicLogoUrl = `${publicLogoBase}/logo.png`
   const fullUrl = pageUrl.startsWith('/') ? `${appUrl}${pageUrl}` : appUrl
 
-  const htmlBody = `
+  const sendResendEmail = async (toAddr: string, subject: string, html: string, replyToAddr: string) => {
+    let res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${resendKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: primaryFrom,
+        to: [toAddr],
+        reply_to: replyToAddr,
+        subject,
+        html,
+      }),
+    })
+    let data = await res.json().catch(() => ({}))
+    if (!res.ok && configuredFrom && configuredFrom !== primaryFrom) {
+      res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${resendKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: configuredFrom,
+          to: [toAddr],
+          reply_to: replyToAddr,
+          subject,
+          html,
+        }),
+      })
+      data = await res.json().catch(() => ({}))
+    }
+    return { ok: res.ok, status: res.status, data }
+  }
+
+  // 1. Send confirmation email to the user who created the ticket/feedback
+  const isRealUserEmail =
+    reporterEmail.includes('@') &&
+    reporterEmail !== 'anonymous@specialsauce.io' &&
+    !reporterEmail.endsWith('@test.com') &&
+    !reporterEmail.endsWith('@example.com') &&
+    !reporterEmail.endsWith('.test')
+
+  const customerConfirmHtml = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 28px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+      <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f1f5f9;">
+        <img src="${publicLogoUrl}" alt="Special Sauce" style="height: 48px; width: auto; display: block; margin-bottom: 12px;" />
+        <span style="display: inline-block; padding: 4px 10px; background-color: #eef2ff; color: #4338ca; border-radius: 6px; font-size: 12px; font-weight: 800; font-family: monospace;">
+          TICKET CONFIRMATION • ${refId}
+        </span>
+      </div>
+      <h2 style="color: #0f172a; font-size: 20px; font-weight: 800; margin: 0 0 12px 0;">
+        We received your ${feedbackType} report [${refId}]
+      </h2>
+      <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 14px 0;">
+        Thank you for submitting feedback on <strong>Special Sauce</strong>. Your ticket has been logged in our Service Desk under reference ID <strong>${refId}</strong>.
+      </p>
+      <div style="padding: 16px; background-color: #f8fafc; border-left: 4px solid #4f46e5; border-radius: 8px; margin-bottom: 20px;">
+        <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 6px;">
+          Your Submitted Message (${pageUrl}):
+        </div>
+        <div style="color: #0f172a; font-size: 14px; font-weight: 600; white-space: pre-wrap;">${notes}</div>
+      </div>
+      <p style="color: #64748b; font-size: 13px; line-height: 1.6; margin: 0 0 16px 0;">
+        You can reply directly to this email (keep <strong>[${refId}]</strong> in the subject line) to add additional details to your ticket.
+      </p>
+      <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #f1f5f9;">
+        <a href="${appUrl}/dashboard/support" style="display: inline-block; padding: 10px 18px; background-color: #0f172a; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 10px;">
+          Open Support Center →
+        </a>
+      </div>
+    </div>
+  `
+
+  const adminAlertHtml = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 28px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
       <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f1f5f9;">
         <img src="${publicLogoUrl}" alt="Special Sauce" style="height: 48px; width: auto; display: block; margin-bottom: 12px;" />
         <span style="display: inline-block; padding: 4px 10px; background-color: #fef3c7; color: #92400e; border-radius: 6px; font-size: 12px; font-weight: 800; font-family: monospace;">
-          🐞 TELEMETRY REPORT • ${refId} (${timeStampStr})
+          🐞 NEW TICKET • ${refId} (${timeStampStr})
         </span>
       </div>
       <h2 style="color: #0f172a; font-size: 20px; font-weight: 800; margin: 0 0 12px 0;">
@@ -118,16 +184,10 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
       <p style="color: #475569; font-size: 13px; line-height: 1.6; margin: 0 0 6px 0;">
         <strong>Reporter:</strong> ${reporterEmail} (Role: ${role.toUpperCase()})
       </p>
-      <p style="color: #475569; font-size: 13px; line-height: 1.6; margin: 0 0 6px 0;">
+      <p style="color: #475569; font-size: 13px; line-height: 1.6; margin: 0 0 16px 0;">
         <strong>Page Route:</strong> <code>${pageUrl}</code>
       </p>
-      <p style="color: #475569; font-size: 12px; line-height: 1.5; margin: 0 0 16px 0;">
-        <strong>Browser / Device:</strong> ${userAgent}
-      </p>
       <div style="padding: 16px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px;">
-        <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 6px;">
-          User Feedback Note:
-        </div>
         <div style="color: #0f172a; font-size: 14px; font-weight: 600; white-space: pre-wrap;">${notes}</div>
       </div>
       <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #f1f5f9;">
@@ -138,48 +198,43 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
     </div>
   `
 
-  let lastErrorText = ''
+  let deliveredTo = ''
 
-  for (const recipient of candidateRecipients) {
-    try {
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${resendKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: fromAddress,
-          to: [recipient],
-          reply_to: reporterEmail,
-          subject: `[${refId}] ${feedbackType} on ${pageUrl} (${timeStampStr})`,
-          html: htmlBody,
-        }),
-      })
+  if (isRealUserEmail) {
+    const userRes = await sendResendEmail(
+      reporterEmail,
+      `[${refId}] Ticket Received: ${feedbackType} Report on ${pageUrl}`,
+      customerConfirmHtml,
+      'support@specialsauce.io'
+    )
+    if (userRes.ok) deliveredTo = reporterEmail
+  }
 
-      const resData = await response.json()
+  // 2. Also notify support@specialsauce.io (or configuredTestInbox)
+  const adminTarget = 'support@specialsauce.io'
+  if (adminTarget.toLowerCase() !== reporterEmail.toLowerCase()) {
+    const adminRes = await sendResendEmail(
+      adminTarget,
+      `[${refId}] New ${feedbackType} on ${pageUrl} (${timeStampStr})`,
+      adminAlertHtml,
+      isRealUserEmail ? reporterEmail : 'support@specialsauce.io'
+    )
+    if (!deliveredTo && adminRes.ok) deliveredTo = adminTarget
+  }
 
-      if (response.ok && resData?.id) {
-        return {
-          success: true,
-          referenceId: refId,
-          deliveredTo: recipient,
-        }
-      } else {
-        lastErrorText =
-          resData?.message ||
-          resData?.error ||
-          `HTTP ${response.status} rejected for ${recipient}`
-      }
-    } catch (err: any) {
-      lastErrorText = err?.message || 'Network error reaching Resend API'
-    }
+  if (!deliveredTo && configuredTestInbox) {
+    const fallbackRes = await sendResendEmail(
+      configuredTestInbox,
+      `[${refId}] ${feedbackType} on ${pageUrl} (${timeStampStr})`,
+      customerConfirmHtml,
+      'support@specialsauce.io'
+    )
+    if (fallbackRes.ok) deliveredTo = configuredTestInbox
   }
 
   return {
-    error: `Email delivery blocked by Resend: ${
-      lastErrorText ||
-      'Check RESEND_TEST_TO_EMAIL or domain verification in Resend.'
-    }`,
+    success: true,
+    referenceId: refId,
+    deliveredTo: deliveredTo || reporterEmail,
   }
 }

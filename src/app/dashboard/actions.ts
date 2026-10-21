@@ -873,9 +873,11 @@ async function sendPlatformNotification({
     return
   }
 
+  const configuredFrom = cleanEnvKey(process.env.RESEND_FROM_EMAIL)
   const fromAddress =
-    cleanEnvKey(process.env.RESEND_FROM_EMAIL) ||
-    'Special Sauce <onboarding@resend.dev>'
+    configuredFrom && !configuredFrom.includes('onboarding@resend.dev')
+      ? configuredFrom
+      : 'Special Sauce Support <support@specialsauce.io>'
 
   const resolvedReplyTo = (replyTo || 'support@specialsauce.io').trim()
 
