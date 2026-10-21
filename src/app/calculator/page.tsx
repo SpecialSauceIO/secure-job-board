@@ -36,8 +36,8 @@ const DEFAULT_STATE = {
   e3_jobs: 15,
 
   // Standalone Rollover Pitch Credit Top-Up Packs
-  topup_packs_sold: 4,
-  topup_pack_avg_price: 75,
+  topup_packs_sold: 6,
+  topup_pack_avg_price: 265,
 
   // Unit Economics & Circuit Breakers
   cost_id_verify: 1.50,
@@ -164,10 +164,26 @@ export default function CalculatorPage() {
     gross_mrr > 0 ? ((net_profit / gross_mrr) * 100).toFixed(1) : '0.0'
 
   const total_pitch_credits_issued =
-    inputs.e1_members * 15 +
-    inputs.e2_members * 75 +
-    inputs.e3_members * 250 +
+    inputs.e1_members * 10 +
+    inputs.e2_members * 35 +
+    inputs.e3_members * 120 +
     inputs.topup_packs_sold * 25
+
+  // --- 7. Year 1 Founding Partner vs. Year 2 Retail Step-Up Comparison ---
+  const y1_emp_base_mrr =
+    inputs.e1_members * 149 +
+    inputs.e2_members * 499 +
+    inputs.e3_members * 1250
+  const y2_emp_base_mrr =
+    inputs.e1_members * 299 +
+    inputs.e2_members * 799 +
+    inputs.e3_members * 1999
+  const y1_total_mrr = cand_rev + y1_emp_base_mrr + topup_rev
+  const y2_total_mrr = cand_rev + y2_emp_base_mrr + topup_rev
+  const y1_total_arr = y1_total_mrr * 12
+  const y2_total_arr = y2_total_mrr * 12
+  const retail_stepup_mrr_lift = y2_total_mrr - y1_total_mrr
+  const retail_stepup_arr_lift = y2_total_arr - y1_total_arr
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 p-6 md:p-10 font-sans">
@@ -522,7 +538,7 @@ export default function CalculatorPage() {
                   Employer Subscriptions &amp; Credit Top-Ups
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Starter ($149 Founding / $299 Retail) • Growth ($499 / $799) • Enterprise ($1,250 / $1,999) • Rollover Pitch Credit Packs
+                  Starter ($149 Founding / $299 Retail) • Growth ($499 / $799) • Enterprise ($1,250 / $1,999) • 100% Accepted-Only Guarantee
                 </p>
               </div>
               <span className="text-base font-black text-indigo-600">
@@ -530,15 +546,65 @@ export default function CalculatorPage() {
               </span>
             </div>
 
+            {/* 1-Click Year 1 Founding vs Year 2 Retail Preset Switcher */}
+            <div className="p-3.5 rounded-xl bg-slate-900 text-white space-y-2.5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-300">
+                  ★ 12-Month Rate Lock → Month 13 Retail Step-Up
+                </span>
+                <span className="text-[11px] font-black text-emerald-300">
+                  Built-In Year 2 Expansion: +{fmtUSD(retail_stepup_mrr_lift)}/mo (+{fmtUSD(retail_stepup_arr_lift)}/yr ARR)
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setInputs((prev) => ({
+                      ...prev,
+                      e1_price: 149,
+                      e2_price: 499,
+                      e3_price: 1250,
+                    }))
+                  }
+                  className={`py-2 px-3 rounded-lg text-xs font-extrabold transition cursor-pointer ${
+                    inputs.e1_price === 149 && inputs.e2_price === 499 && inputs.e3_price === 1250
+                      ? "bg-amber-400 text-slate-950 shadow-xs"
+                      : "bg-slate-800 text-slate-200 hover:bg-slate-700"
+                  }`}
+                >
+                  ★ Year 1 Founding Rates ($149 / $499 / $1,250) → {fmtUSD(y1_total_arr)} ARR
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setInputs((prev) => ({
+                      ...prev,
+                      e1_price: 299,
+                      e2_price: 799,
+                      e3_price: 1999,
+                    }))
+                  }
+                  className={`py-2 px-3 rounded-lg text-xs font-extrabold transition cursor-pointer ${
+                    inputs.e1_price === 299 && inputs.e2_price === 799 && inputs.e3_price === 1999
+                      ? "bg-indigo-500 text-white shadow-xs"
+                      : "bg-slate-800 text-slate-200 hover:bg-slate-700"
+                  }`}
+                >
+                  🚀 Year 2 Retail Step-Up ($299 / $799 / $1,999) → {fmtUSD(y2_total_arr)} ARR
+                </button>
+              </div>
+            </div>
+
             {/* Tier 1: Starter ($99/mo) */}
             <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-3">
               <div className="flex justify-between items-center">
                 <div>
                   <span className="font-black text-slate-900 text-sm">
-                    Starter Plan (Up to 2 Active Roles • 15 Pitch Credits/Mo)
+                    Starter Plan (Up to 5 Active Roles • 10 Pitch Credits/Mo)
                   </span>
                   <p className="text-[11px] text-slate-500">
-                    1 Hiring Seat • DNS Domain Verification • Stage 1/2 Vault Unlocks
+                    2 Team/BPO Seats • 12-Mo Founding Rate ($149 vs $299) • Declined Pitches Auto-Refunded
                   </p>
                 </div>
                 <span className="text-xs font-extrabold text-indigo-700">
@@ -572,7 +638,7 @@ export default function CalculatorPage() {
                 </div>
                 <div>
                   <label className="text-[11px] text-slate-600 font-bold">
-                    Avg Jobs / Org (Max 2)
+                    Avg Jobs / Org (Max 5)
                   </label>
                   <input
                     type="number"
@@ -590,10 +656,10 @@ export default function CalculatorPage() {
               <div className="flex justify-between items-center">
                 <div>
                   <span className="font-black text-slate-900 text-sm">
-                    Growth Plan (Up to 10 Active Roles • 75 Pitch Credits/Mo)
+                    Growth Plan (Up to 15 Active Roles • 35 Pitch Credits/Mo)
                   </span>
                   <p className="text-[11px] text-slate-500">
-                    Up to 3 Seats • Priority Candidate Feed • Multi-Recruiter Collaboration
+                    Up to 5 Team/BPO Seats • 12-Mo Founding Rate ($499 vs $799) • Declined Pitches Auto-Refunded
                   </p>
                 </div>
                 <span className="text-xs font-extrabold text-indigo-700">
@@ -627,7 +693,7 @@ export default function CalculatorPage() {
                 </div>
                 <div>
                   <label className="text-[11px] text-slate-600 font-bold">
-                    Avg Jobs / Org (Max 10)
+                    Avg Jobs / Org (Max 15)
                   </label>
                   <input
                     type="number"
@@ -645,10 +711,10 @@ export default function CalculatorPage() {
               <div className="flex justify-between items-center">
                 <div>
                   <span className="font-black text-slate-900 text-sm">
-                    Enterprise Plan (Unlimited Roles • 250 Pitch Credits/Mo)
+                    Enterprise Plan (Unlimited Roles • 120 Pitch Credits/Mo)
                   </span>
                   <p className="text-[11px] text-slate-600">
-                    Up to 10 Seats • Workday &amp; Greenhouse HMAC Webhooks • Bulk CSV Export
+                    Unlimited Seats • 12-Mo Founding Rate ($1,250 vs $1,999) • Workday &amp; Greenhouse ATS Sync
                   </p>
                 </div>
                 <span className="text-xs font-extrabold text-indigo-700">
@@ -700,7 +766,7 @@ export default function CalculatorPage() {
               <div className="flex justify-between items-center">
                 <div>
                   <span className="font-black text-slate-900 text-sm">
-                    Rollover Pitch Credit Top-Up Packs (Active Base Plan Required)
+                    Rollover Pitch Credit Top-Up Packs ($150 Boost +10 • $325 Surge +25 • $825 Scale +75)
                   </span>
                   <p className="text-[11px] text-slate-500">
                     Total Monthly Pitch Credits Issued Across All Employers: <strong>{total_pitch_credits_issued} credits/mo</strong>
