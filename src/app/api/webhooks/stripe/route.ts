@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import { recordHandshakeTelemetry, raiseSecurityAlertAndFlag } from '@/lib/security-telemetry'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-06-20' as any,
@@ -24,6 +25,16 @@ export async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
   } catch (err: any) {
     console.error('Webhook signature verification failed:', err.message)
+    await raiseSecurityAlertAndFlag({
+      flagType: 'Manual_Trust_Audit',
+      severity: 'high',
+      actorEmail: 'stripe-webhook@external',
+      actorRole: 'unknown',
+      platformArea: 'Billing, Subscriptions & Credits',
+      summary: 'Invalid Stripe Webhook Signature Detected',
+      evidenceSnippet: err.message || 'Signature verification failed',
+      createSecTicket: true,
+    })
     return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 })
   }
 
@@ -71,5 +82,24 @@ export async function POST(req: Request) {
     }
   }
 
+  if (event.type === 'payment_intent.payment_failed' || event.type === 'charge.dispute.created') {
+    const obj: any = event.data.object
+    await raiseSecurityAlertAndFlag({
+      flagType: 'Manual_Trust_Audit',
+      severity: 'high',
+      actorEmail: obj?.receipt_email || obj?.billing_details?.email || 'stripe-customer',
+      actorRole: 'unknown',
+      platformArea: 'Billing, Subscriptions & Credits',
+      summary: `Suspicious Stripe Transactional Event: ${event.type}`,
+      evidenceSnippet: `Event ${event.id} (${event.type}): ${obj?.last_payment_error?.message || 'Dispute or failed card attempt'}`,
+      createSecTicket: true,
+    })
+  }
+  await recordHandshakeTelemetry({
+    handshakeId: 'stripe_webhook_receiver',
+    label: `Stripe Webhook (${event.type})`,
+    platformArea: 'Billing, Subscriptions & Credits',
+    ok: true,
+  })
   return NextResponse.json({ received: true })
 }

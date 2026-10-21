@@ -5,6 +5,7 @@ import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js
 import { revalidatePath, unstable_noStore as noStore } from 'next/cache'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
 import { pushToOpsControlPlane } from '@/lib/ops-bridge'
+import { inspectStage1TextForContactLeakOrInjection, raiseSecurityAlertAndFlag, recordHandshakeTelemetry } from '@/lib/security-telemetry'
 
 const MAX_SILENT_UNLOCKS = 5
 
@@ -372,15 +373,16 @@ export async function sendApplicationMessage(
 
   const safetyScan = scanMessageForSuspiciousContent(trimmed)
   if (safetyScan.flagged) {
-    await pushToOpsControlPlane({
-      event_type: "behavioral_flag",
+    await raiseSecurityAlertAndFlag({
+      flagType: "Phishing_Or_OffPlatform_Lure",
       severity: "high",
-      flag_type: "Phishing_Or_OffPlatform_Lure",
-      user_id: user.id,
-      actor_email: user.email || "authenticated-user",
-      actor_role: "unknown",
-      summary: safetyScan.reason || "Blocked suspicious message in thread",
-      evidence_snippet: `Thread ${applicationId}: "${trimmed.slice(0, 180)}"`,
+      actorEmail: user.email || "authenticated-user",
+      actorRole: "unknown",
+      userId: user.id,
+      platformArea: "Encrypted Stage 1/2 Messaging",
+      summary: safetyScan.reason || "Blocked phishing/off-platform lure in thread",
+      evidenceSnippet: `Thread ${applicationId}: "${trimmed.slice(0, 180)}"`,
+      createSecTicket: true,
     })
     return { error: safetyScan.reason }
   }
@@ -441,6 +443,19 @@ export async function sendApplicationMessage(
 
   const existingMatchData = appRow.match_data || {}
   const isVaultReleased = Boolean(existingMatchData.candidate_vault_released === true)
+
+  const stage1LeakScan = await inspectStage1TextForContactLeakOrInjection({
+    userId: user.id,
+    userEmail: user.email || '',
+    actorRole: senderRole,
+    text: trimmed,
+    platformArea: 'Encrypted Stage 1/2 Messaging',
+    contextLabel: `Stage 1 Encrypted Thread (${applicationId.slice(0, 8)})`,
+    isStage2Unlocked: isVaultReleased,
+  })
+  if (stage1LeakScan.blocked) {
+    return { error: stage1LeakScan.reason }
+  }
 
   const rawCandidateName =
     profileObj?.full_name ||
@@ -514,8 +529,21 @@ export async function sendApplicationMessage(
     .eq('id', applicationId)
 
   if (updateErr) {
+    await recordHandshakeTelemetry({
+      handshakeId: 'marketplace_pitch_application_engine',
+      label: 'Stage 1/2 Encrypted Messaging Handshake',
+      platformArea: 'Encrypted Stage 1/2 Messaging',
+      ok: false,
+      errorDetail: updateErr.message,
+    })
     return { error: updateErr.message }
   }
+  await recordHandshakeTelemetry({
+    handshakeId: 'marketplace_pitch_application_engine',
+    label: 'Stage 1/2 Encrypted Messaging Handshake',
+    platformArea: 'Encrypted Stage 1/2 Messaging',
+    ok: true,
+  })
 
   const refId = formatReferenceId(applicationId)
   const roleTitle = jobObj?.title || 'Open Role'

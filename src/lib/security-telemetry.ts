@@ -74,6 +74,19 @@ export async function recordHandshakeTelemetry(params: {
 
       if (!existingOutage) {
         const incId = `INC-${Date.now().toString().slice(-6)}`
+        const openAreaChildren = vault.work_items.filter(
+          (w: any) =>
+            w.state === "open" &&
+            w.work_item_type !== "System_Outage" &&
+            w.work_item_type !== "Security_Alert" &&
+            w.platform_area === params.platformArea &&
+            !w.parent_ticket_id
+        )
+        const childIds = openAreaChildren.map((c: any) => String(c.id))
+        for (const child of openAreaChildren) {
+          child.parent_ticket_id = incId
+        }
+
         vault.work_items.unshift({
           id: incId,
           work_item_type: "System_Outage",
@@ -81,7 +94,7 @@ export async function recordHandshakeTelemetry(params: {
           status: "new",
           priority: "P0_Critical",
           owned_by: "Steve Briley (Founder / Lead Ops)",
-          subject: `[OUTAGE DETECTED] ${params.label} Handshake Failure`,
+          subject: `🚨 [OUTAGE DETECTED] ${params.label} Handshake Failure`,
           category: "Technical Issue / Bug Report",
           platform_area: params.platformArea,
           root_cause: "Confirmed Bug / Technical Defect",
@@ -89,6 +102,8 @@ export async function recordHandshakeTelemetry(params: {
           account_tier: "SYSTEM WATCHDOG",
           description: `Real-time handshake monitor detected a failure in "${params.label}" (${params.platformArea}).\n\nDiagnostic Error: ${
             params.errorDetail || "Unexpected error"
+          }\nAuto-Linked Open Area Tickets (${childIds.length}): ${
+            childIds.join(", ") || "None"
           }\nDetected At: ${nowIso}`,
           reporter_user_id: "system-watchdog",
           reporter_name: "Special Sauce Watchdog",
@@ -99,7 +114,7 @@ export async function recordHandshakeTelemetry(params: {
           user_agent: "SpecialSauce-Watchdog/1.0",
           attachments: [],
           parent_ticket_id: null,
-          child_ticket_ids: [],
+          child_ticket_ids: childIds,
           created_at: nowIso,
           updated_at: nowIso,
           closed_at: null,
@@ -366,6 +381,138 @@ export async function inspectResumeAndTextForBadActorPayloads(params: {
   return { safe: findings.length === 0, findings }
 }
 
+export async function inspectStage1TextForContactLeakOrInjection(params: {
+  userId: string
+  userEmail: string
+  actorRole: "candidate" | "employer"
+  text: string
+  platformArea: string
+  contextLabel: string
+  isStage2Unlocked?: boolean
+}): Promise<{ blocked: boolean; reason?: string }> {
+  const raw = String(params.text || "").trim()
+  if (!raw) return { blocked: false }
+
+  if (
+    /ignore\s+(all\s+)?previous\s+instructions|disregard\s+(all\s+)?prior|system\s+prompt|overall_score\s*[:=]\s*100|bypass\s+dealbreaker/i.test(
+      raw
+    )
+  ) {
+    await raiseSecurityAlertAndFlag({
+      flagType: "Prompt_Injection_Suspected",
+      severity: "high",
+      actorEmail: params.userEmail,
+      actorRole: params.actorRole,
+      userId: params.userId,
+      platformArea: params.platformArea,
+      summary: `Blocked LLM Prompt Injection in ${params.contextLabel}`,
+      evidenceSnippet: raw.slice(0, 240),
+      createSecTicket: true,
+    })
+    return {
+      blocked: true,
+      reason:
+        "Security Guardrail: Your submission contained restricted system-override keywords.",
+    }
+  }
+
+  if (!params.isStage2Unlocked) {
+    const obfuscatedEmail =
+      /\b[A-Za-z0-9._%+-]+\s*([at]|\(at\)|@|\sat\s)\s*[A-Za-z0-9.-]+\s*([dot]|\(dot\)|\.|\sdot\s)\s*(com|io|net|org|co|us|me)\b/i.test(
+        raw
+      )
+    const obfuscatedPhone =
+      /(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]{1,3}\d{3}[-.\s]{1,3}\d{4}\b/.test(raw)
+    const offPlatformHandle =
+      /\b(whatsapp|telegram|signal\s+me|t\.me\/|wa\.me\/|calendly\.com\/|linkedin\.com\/in\/)/i.test(
+        raw
+      )
+
+    if (obfuscatedEmail || obfuscatedPhone || offPlatformHandle) {
+      await raiseSecurityAlertAndFlag({
+        flagType: "Phishing_Or_OffPlatform_Lure",
+        severity: "high",
+        actorEmail: params.userEmail,
+        actorRole: params.actorRole,
+        userId: params.userId,
+        platformArea: params.platformArea,
+        summary: `Stage 1 Blind Vault Circumvention Attempt in ${params.contextLabel}`,
+        evidenceSnippet: raw.slice(0, 240),
+        createSecTicket: true,
+      })
+      return {
+        blocked: true,
+        reason:
+          "2-Stage Vault Guardrail: Direct email addresses, phone numbers, and off-platform contact links cannot be embedded inside Stage 1 blind pitches or messages prior to Stage 2 Vault Release.",
+      }
+    }
+  }
+
+  return { blocked: false }
+}
+
+export async function checkActionVelocityAndSpray(params: {
+  actorKey: string
+  actorEmail: string
+  actorRole: "candidate" | "employer" | "unknown"
+  actionType: "blind_apply" | "employer_pitch" | "login_failure"
+  maxAllowedInWindow: number
+  windowMinutes: number
+  platformArea: string
+}): Promise<{ allowed: boolean; reason?: string }> {
+  try {
+    const client = getOpsServiceClient()
+    if (!client) return { allowed: true }
+
+    const vault = await loadMergedOpsVault(client)
+    const now = Date.now()
+    const cutoff = now - params.windowMinutes * 60 * 1000
+    const bucketKey = `${params.actionType}:${params.actorKey}`
+
+    const velocityMap: Record<string, number[]> =
+      vault.monitor_meta?.velocity_buckets &&
+      typeof vault.monitor_meta.velocity_buckets === "object"
+        ? vault.monitor_meta.velocity_buckets
+        : {}
+
+    const history = Array.isArray(velocityMap[bucketKey])
+      ? velocityMap[bucketKey].filter((ts: number) => ts > cutoff)
+      : []
+
+    history.push(now)
+    velocityMap[bucketKey] = history.slice(-30)
+
+    vault.monitor_meta = {
+      ...vault.monitor_meta,
+      velocity_buckets: velocityMap,
+    }
+    await saveMergedOpsVault(client, vault)
+
+    if (history.length > params.maxAllowedInWindow) {
+      await raiseSecurityAlertAndFlag({
+        flagType: "Manual_Trust_Audit",
+        severity: "high",
+        actorEmail: params.actorEmail,
+        actorRole: params.actorRole,
+        userId: params.actorKey,
+        platformArea: params.platformArea,
+        summary: `High-Velocity ${params.actionType.toUpperCase()} Burst (${history.length} actions in ${params.windowMinutes}m)`,
+        evidenceSnippet: `Actor ${params.actorEmail} triggered ${history.length} "${params.actionType}" actions within ${params.windowMinutes} minutes (limit: ${params.maxAllowedInWindow}).`,
+        createSecTicket: true,
+      })
+      return {
+        allowed: false,
+        reason: `Rate Limit Guardrail: Too many rapid ${params.actionType.replace(
+          "_",
+          " "
+        )} requests detected. Please wait ${params.windowMinutes} minutes before trying again.`,
+      }
+    }
+  } catch {}
+
+  return { allowed: true }
+}
+
 export async function checkSignupAbuseAndVelocity(params: {
   email: string
   role: "candidate" | "employer"
@@ -396,8 +543,12 @@ export async function checkSignupAbuseAndVelocity(params: {
       const vault = await loadMergedOpsVault(client)
       const now = Date.now()
       const tenMinAgo = now - 10 * 60 * 1000
-      const recentSignups: number[] = Array.isArray(vault.monitor_meta?.recent_signup_timestamps)
-        ? vault.monitor_meta.recent_signup_timestamps.filter((ts: number) => ts > tenMinAgo)
+      const recentSignups: number[] = Array.isArray(
+        vault.monitor_meta?.recent_signup_timestamps
+      )
+        ? vault.monitor_meta.recent_signup_timestamps.filter(
+            (ts: number) => ts > tenMinAgo
+          )
         : []
 
       recentSignups.push(now)

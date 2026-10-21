@@ -4,6 +4,7 @@ import crypto from 'crypto'
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { resolveEmployerTierInfo } from '@/app/dashboard/actions'
+import { recordHandshakeTelemetry } from '@/lib/security-telemetry'
 
 export interface EnterpriseAtsConfig {
   webhookUrl: string
@@ -424,8 +425,22 @@ export async function autoSyncStage2VaultToEnterpriseAts(
           body: bodyString,
         })
         syncResults.push('webhook:' + res.status)
+        await recordHandshakeTelemetry({
+          handshakeId: 'enterprise_ats_webhook',
+          label: 'Enterprise ATS Outbound Webhook',
+          platformArea: 'Enterprise ATS & Webhook Hub',
+          ok: res.ok,
+          errorDetail: res.ok ? undefined : `ATS Webhook HTTP ${res.status}`,
+        })
       } catch (wErr: any) {
         syncResults.push('webhook_err:' + (wErr?.message || 'failed'))
+        await recordHandshakeTelemetry({
+          handshakeId: 'enterprise_ats_webhook',
+          label: 'Enterprise ATS Outbound Webhook',
+          platformArea: 'Enterprise ATS & Webhook Hub',
+          ok: false,
+          errorDetail: wErr?.message || 'Webhook delivery exception',
+        })
       }
     }
 

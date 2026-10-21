@@ -27,7 +27,7 @@ import {
 import { isSeasonZeroFounder } from '@/constants/gamification'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
 import { pushToOpsControlPlane, getOpsServiceClient } from '@/lib/ops-bridge'
-import { inspectResumeAndTextForBadActorPayloads, recordHandshakeTelemetry } from '@/lib/security-telemetry'
+import { inspectResumeAndTextForBadActorPayloads, inspectStage1TextForContactLeakOrInjection, checkActionVelocityAndSpray, raiseSecurityAlertAndFlag, recordHandshakeTelemetry } from '@/lib/security-telemetry'
 
 const MIN_MATCH_THRESHOLD = 40
 const CANDIDATE_TRIAL_MAX_APPS = 15
@@ -1248,6 +1248,17 @@ export async function updateProfile(formData: FormData) {
   const full_name = ((formData.get('full_name') as string) || '').trim()
   const experience_years = formData.get('experience_years') as string
   const bio = formData.get('bio') as string
+  if (bio) {
+    await inspectStage1TextForContactLeakOrInjection({
+      userId: user.id,
+      userEmail: user.email || '',
+      actorRole: 'candidate',
+      text: bio,
+      platformArea: '2-Stage Resume & Contact Vault',
+      contextLabel: 'Candidate Public Blind Bio',
+      isStage2Unlocked: false,
+    })
+  }
   const structured_skills_raw = formData.get('structured_skills') as string
   const industry_vertical_raw = (
     (formData.get('industry_vertical') as string) || ''
@@ -1602,6 +1613,34 @@ export async function applyBlind(formData: FormData) {
   const employerPitch = formData.get('employer_pitch') as string
   const matchDataRaw = formData.get('match_data') as string
 
+  const applyVelocity = await checkActionVelocityAndSpray({
+    actorKey: user.id,
+    actorEmail: user.email || '',
+    actorRole: 'candidate',
+    actionType: 'blind_apply',
+    maxAllowedInWindow: 8,
+    windowMinutes: 3,
+    platformArea: '2-Stage Resume & Contact Vault',
+  })
+  if (!applyVelocity.allowed) {
+    return { error: applyVelocity.reason || 'Rate limit exceeded. Please wait before applying again.' }
+  }
+
+  if (employerPitch) {
+    const pitchScan = await inspectStage1TextForContactLeakOrInjection({
+      userId: user.id,
+      userEmail: user.email || '',
+      actorRole: 'candidate',
+      text: employerPitch,
+      platformArea: '2-Stage Resume & Contact Vault',
+      contextLabel: 'Candidate Blind Application Pitch',
+      isStage2Unlocked: false,
+    })
+    if (pitchScan.blocked) {
+      return { error: pitchScan.reason || 'Submission blocked by security guardrail.' }
+    }
+  }
+
   const parsedMatchScore = matchScoreRaw
     ? parseInt(matchScoreRaw.toString(), 10)
     : null
@@ -1697,8 +1736,22 @@ export async function applyBlind(formData: FormData) {
 
     if (insertError) {
       console.error('Error applying to job:', insertError)
+      await recordHandshakeTelemetry({
+        handshakeId: 'marketplace_pitch_application_engine',
+        label: 'Blind Application Execution',
+        platformArea: '2-Stage Resume & Contact Vault',
+        ok: false,
+        errorDetail: insertError.message,
+      })
       return { error: insertError.message }
     }
+
+    await recordHandshakeTelemetry({
+      handshakeId: 'marketplace_pitch_application_engine',
+      label: 'Blind Application Execution',
+      platformArea: '2-Stage Resume & Contact Vault',
+      ok: true,
+    })
 
     finalApplicationId = insertedApp?.id || ''
   }
@@ -2555,6 +2608,20 @@ export async function analyzeJobFit(jobId: string, forceRefresh: boolean = false
 
   if (res?.data) {
     writeUserMatchCacheEntry(user.id, cacheKey, res.data).catch(() => {})
+    recordHandshakeTelemetry({
+      handshakeId: 'ai_fit_radar_engine',
+      label: '5-Point AI Fit Radar & Dealbreakers',
+      platformArea: '5-Point AI Fit Radar & Dealbreakers',
+      ok: true,
+    }).catch(() => {})
+  } else if (res?.error) {
+    recordHandshakeTelemetry({
+      handshakeId: 'ai_fit_radar_engine',
+      label: '5-Point AI Fit Radar & Dealbreakers',
+      platformArea: '5-Point AI Fit Radar & Dealbreakers',
+      ok: false,
+      errorDetail: String(res.error),
+    }).catch(() => {})
   }
   return res
 }
@@ -4023,10 +4090,24 @@ export async function sendConnectionRequest(
           error: 'You have already sent a request to this candidate for this role.',
         }
       }
+      await recordHandshakeTelemetry({
+        handshakeId: 'marketplace_pitch_application_engine',
+        label: 'Employer Outbound Pitch & Credit Ledger',
+        platformArea: 'Billing, Subscriptions & Credits',
+        ok: false,
+        errorDetail: insertError.message,
+      })
       return {
         error: `DB Error: ${insertError.message} (Code: ${insertError.code})`,
       }
     }
+
+    await recordHandshakeTelemetry({
+      handshakeId: 'marketplace_pitch_application_engine',
+      label: 'Employer Outbound Pitch & Credit Ledger',
+      platformArea: 'Billing, Subscriptions & Credits',
+      ok: true,
+    })
 
     finalPitchId = insertedPitch?.id || ''
   }
@@ -5064,6 +5145,18 @@ export async function verifyOrganizationDomain(domainInput?: string) {
   const isWorkEmailMatch = userEmailDomain === targetDomain
 
   if (!isWorkEmailMatch && !hasMatchingTxtToken) {
+    await raiseSecurityAlertAndFlag({
+      flagType: 'Domain_Verification_Mismatch',
+      severity: 'medium',
+      actorEmail: user.email || '',
+      actorRole: 'employer',
+      userId: user.id,
+      organizationId: member.organization_id,
+      platformArea: 'Corporate Domain / DNS Verification (Employer)',
+      summary: `Employer Domain Verification Mismatch for @${targetDomain}`,
+      evidenceSnippet: `User ${user.email} attempted to claim domain ${targetDomain} without matching email or DNS TXT token.`,
+      createSecTicket: false,
+    })
     return {
       error: `Domain Mismatch: Your account email (${user.email}) does not match @${targetDomain}, and the DNS TXT token (${expectedTxtToken}) was not found on ${targetDomain}. Either sign in with an @${targetDomain} email, add the DNS TXT record, or use the Sandbox Verification button below for local testing.`,
     }

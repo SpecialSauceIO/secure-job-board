@@ -4,6 +4,7 @@ import crypto from 'crypto'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
+import { checkActionVelocityAndSpray, recordHandshakeTelemetry } from '@/lib/security-telemetry'
 import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 
 export interface AccountHintItem {
@@ -86,6 +87,15 @@ export async function login(formData: FormData) {
 
   if (error) {
     console.error('Login error:', error.message)
+    await checkActionVelocityAndSpray({
+      actorKey: email.toLowerCase() || 'unknown',
+      actorEmail: email.toLowerCase() || 'unknown',
+      actorRole: 'unknown',
+      actionType: 'login_failure',
+      maxAllowedInWindow: 5,
+      windowMinutes: 10,
+      platformArea: 'Onboarding & Authentication',
+    })
     redirect(
       '/login?error=' +
         encodeURIComponent(
@@ -94,6 +104,12 @@ export async function login(formData: FormData) {
     )
   }
 
+  await recordHandshakeTelemetry({
+    handshakeId: 'auth_and_profiles_rls',
+    label: 'User Authentication & Session Login',
+    platformArea: 'Onboarding & Authentication',
+    ok: true,
+  })
   revalidatePath('/', 'layout')
   redirect('/dashboard')
 }
