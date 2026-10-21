@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import {
   login,
+  requestAccountLoginOtp,
+  verifyAccountLoginOtp,
   lookupAccountEmailHint,
   requestBrandedPasswordReset,
   type AccountHintItem,
@@ -21,7 +23,11 @@ function LoginContent() {
 
   const emailInputRef = useRef<HTMLInputElement>(null)
 
-  const [mode, setMode] = useState<'login' | 'reset' | 'lookup' | 'new_password'>('login')
+  const [mode, setMode] = useState<"login" | "otp" | "reset" | "lookup" | "new_password">("login")
+  const [loginEmail, setLoginEmail] = useState("")
+  const [loginPassword, setLoginPassword] = useState("")
+  const [otpCode, setOtpCode] = useState("")
+  const [otpMaskedEmail, setOtpMaskedEmail] = useState("")
   const [selectedHintBadge, setSelectedHintBadge] = useState<string | null>(null)
   const [resetEmail, setResetEmail] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -202,6 +208,56 @@ function LoginContent() {
     }
   }
 
+  const handleInitiateLoginOtp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setFeedback(null)
+
+    const res = await requestAccountLoginOtp(loginEmail, loginPassword)
+    setIsLoading(false)
+
+    if (!res.success) {
+      setFeedback({
+        type: "error",
+        text: res.error || "Invalid email or password.",
+      })
+      return
+    }
+
+    setOtpMaskedEmail(res.maskedEmail || loginEmail)
+    setOtpCode("")
+    setMode("otp")
+    setFeedback({
+      type: "success",
+      text: res.routedToFallback
+        ? "✓ 6-digit verification code generated for " + (res.maskedEmail || loginEmail) + " (routed to your test inbox)."
+        : "✓ We sent a 6-digit verification code to " + (res.maskedEmail || loginEmail) + ".",
+    })
+  }
+
+  const handleVerifyLoginOtp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setFeedback(null)
+
+    const res = await verifyAccountLoginOtp(otpCode)
+    if (!res.success) {
+      setIsLoading(false)
+      setFeedback({
+        type: "error",
+        text: res.error || "Invalid 6-digit verification code.",
+      })
+      return
+    }
+
+    setFeedback({
+      type: "success",
+      text: "✓ 2-Step Verification complete! Redirecting to your workspace...",
+    })
+    router.replace("/dashboard")
+    router.refresh()
+  }
+
   const handleUsernameLookup = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -226,18 +282,22 @@ function LoginContent() {
             ? 'Choose a new password'
             : mode === 'reset'
             ? 'Reset your password'
-            : mode === 'lookup'
-            ? 'Find your account email'
-            : 'Welcome back'}
+            : mode === "lookup"
+            ? "Find your account email"
+            : mode === "otp"
+            ? "Enter 6-Digit Security Code"
+            : "Welcome back"}
         </h2>
         <p className="mt-2 text-sm text-slate-600 font-light tracking-[0.03em]">
           {mode === 'new_password'
             ? 'Enter and confirm your new Special Sauce password below'
             : mode === 'reset'
             ? 'We will send a branded Special Sauce recovery link to your email'
-            : mode === 'lookup'
-            ? 'Look up a privacy-masked hint of the email linked to your account'
-            : 'securely connecting professionals and employers'}
+            : mode === "lookup"
+            ? "Look up a privacy-masked hint of the email linked to your account"
+            : mode === "otp"
+            ? "Enter the 6-digit code sent to " + (otpMaskedEmail || "your email")
+            : "securely connecting professionals and employers"}
         </p>
       </div>
 
@@ -569,8 +629,62 @@ function LoginContent() {
             </div>
           </div>
         </form>
+      ) : mode === "otp" ? (
+        <form onSubmit={handleVerifyLoginOtp} className="space-y-5">
+          <div>
+            <label
+              htmlFor="otp-code"
+              className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-2 text-center"
+            >
+              6-Digit Email Verification Code
+            </label>
+            <input
+              id="otp-code"
+              type="text"
+              inputMode="numeric"
+              maxLength={6}
+              required
+              autoFocus
+              value={otpCode}
+              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+              placeholder="000000"
+              className="block w-full rounded-xl border-2 border-indigo-500 bg-slate-50 px-4 py-3.5 text-center font-mono text-2xl font-black tracking-[0.35em] text-slate-900 focus:border-indigo-600 focus:bg-white focus:outline-none shadow-sm"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading || otpCode.length !== 6}
+            className="w-full flex justify-center items-center rounded-lg bg-slate-900 px-4 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-600 transition-all disabled:opacity-50 cursor-pointer"
+          >
+            {isLoading ? "Verifying 6-Digit Code..." : "Verify 6-Digit Code & Sign In →"}
+          </button>
+
+          <div className="flex items-center justify-between pt-2 text-xs font-bold">
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={() => {
+                setMode("login")
+                setFeedback(null)
+                setOtpCode("")
+              }}
+              className="text-slate-600 hover:text-slate-900 cursor-pointer"
+            >
+              ← Back to Email / Password
+            </button>
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={handleInitiateLoginOtp}
+              className="text-indigo-600 hover:underline cursor-pointer"
+            >
+              Resend 6-Digit Code
+            </button>
+          </div>
+        </form>
       ) : (
-        <form className="space-y-6">
+        <form onSubmit={handleInitiateLoginOtp} className="space-y-6">
           <div className="space-y-5">
             <div>
               <div className="flex items-center justify-between mb-1.5">
@@ -583,7 +697,7 @@ function LoginContent() {
                 <button
                   type="button"
                   onClick={() => {
-                    setMode('lookup')
+                    setMode("lookup")
                     setFeedback(null)
                   }}
                   className="text-xs font-bold text-slate-500 hover:text-indigo-600 hover:underline cursor-pointer"
@@ -613,11 +727,13 @@ function LoginContent() {
                   name="email"
                   type="email"
                   required
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
                   className="block w-full rounded-lg border border-slate-300 bg-white pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 sm:text-sm transition-all shadow-sm"
                   placeholder={
                     selectedHintBadge
-                      ? `Enter full email for ${selectedHintBadge}`
-                      : 'name@company.com'
+                      ? "Enter full email for " + selectedHintBadge
+                      : "name@company.com"
                   }
                 />
               </div>
@@ -634,7 +750,7 @@ function LoginContent() {
                 <button
                   type="button"
                   onClick={() => {
-                    setMode('reset')
+                    setMode("reset")
                     setFeedback(null)
                   }}
                   className="text-xs font-bold text-indigo-600 hover:underline cursor-pointer"
@@ -661,8 +777,10 @@ function LoginContent() {
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   required
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
                   className="block w-full rounded-lg border border-slate-300 bg-white pl-10 pr-16 py-2.5 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 sm:text-sm transition-all shadow-sm"
                   placeholder="••••••••"
                 />
@@ -671,7 +789,7 @@ function LoginContent() {
                   onClick={() => setShowPassword((prev) => !prev)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-xs font-extrabold text-slate-500 hover:text-indigo-600 cursor-pointer"
                 >
-                  {showPassword ? 'Hide' : 'Show'}
+                  {showPassword ? "Hide" : "Show"}
                 </button>
               </div>
             </div>
@@ -679,10 +797,11 @@ function LoginContent() {
 
           <div className="flex flex-col gap-4 pt-2">
             <button
-              formAction={login}
-              className="w-full flex justify-center items-center rounded-lg bg-slate-900 px-4 py-3 text-sm font-bold text-white shadow-sm hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 transition-all cursor-pointer"
+              type="submit"
+              disabled={isLoading}
+              className="w-full flex justify-center items-center rounded-lg bg-slate-900 px-4 py-3 text-sm font-bold text-white shadow-sm hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 transition-all disabled:opacity-50 cursor-pointer"
             >
-              Sign In Securely
+              {isLoading ? "Verifying & Sending 6-Digit Code..." : "Sign In Securely (2-Step OTP) →"}
             </button>
 
             <div className="relative flex items-center py-1">

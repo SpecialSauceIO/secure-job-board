@@ -1,6 +1,7 @@
 'use server'
 
-import crypto from 'crypto'
+import crypto from "crypto"
+import { cookies } from "next/headers"
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
@@ -482,4 +483,324 @@ export async function lookupAccountEmailHint(
           trimmed +
           '". Click "Send Reset Link" on any account below to send a recovery email directly to that inbox:',
   }
+}
+
+const LOGIN_OTP_COOKIE = "ss_login_otp_challenge"
+
+function encryptJsonPayload(payload: Record<string, any>): string {
+  const iv = crypto.randomBytes(12)
+  const cipher = crypto.createCipheriv("aes-256-gcm", getEncryptionKey(), iv)
+  const encrypted = Buffer.concat([
+    cipher.update(JSON.stringify(payload), "utf8"),
+    cipher.final(),
+  ])
+  const tag = cipher.getAuthTag()
+  return Buffer.concat([iv, tag, encrypted]).toString("base64url")
+}
+
+function decryptJsonPayload<T = any>(token?: string | null): T | null {
+  if (!token) return null
+  try {
+    const buf = Buffer.from(token, "base64url")
+    const iv = buf.subarray(0, 12)
+    const tag = buf.subarray(12, 28)
+    const encrypted = buf.subarray(28)
+    const decipher = crypto.createDecipheriv("aes-256-gcm", getEncryptionKey(), iv)
+    decipher.setAuthTag(tag)
+    const decrypted = Buffer.concat([
+      decipher.update(encrypted),
+      decipher.final(),
+    ]).toString("utf8")
+    const parsed = JSON.parse(decrypted)
+    if (parsed.exp && Date.now() > Number(parsed.exp)) {
+      return null
+    }
+    return parsed as T
+  } catch {
+    return null
+  }
+}
+
+export async function requestAccountLoginOtp(
+  emailInput: string,
+  passwordInput: string
+): Promise<{
+  success: boolean
+  maskedEmail?: string
+  routedToFallback?: boolean
+  error?: string
+}> {
+  const email = (emailInput || "").trim().toLowerCase()
+  const password = passwordInput || ""
+
+  if (!email || !password) {
+    return {
+      success: false,
+      error: "Please enter both your email address and password.",
+    }
+  }
+
+  const supabaseUrl = cleanEnvKey(process.env.NEXT_PUBLIC_SUPABASE_URL)
+  const supabaseAnonKey = cleanEnvKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return {
+      success: false,
+      error: "Authentication service configuration is missing.",
+    }
+  }
+
+  const statelessClient = createSupabaseAdminClient(supabaseUrl, supabaseAnonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+
+  const { data: signInData, error: signInErr } =
+    await statelessClient.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+  if (signInErr || !signInData?.user) {
+    const vel = await checkActionVelocityAndSpray({
+      actorKey: email || "unknown",
+      actorEmail: email || "unknown",
+      actorRole: "unknown",
+      actionType: "login_failure",
+      maxAllowedInWindow: 5,
+      windowMinutes: 10,
+      platformArea: "Onboarding & Authentication",
+    })
+    return {
+      success: false,
+      error: !vel.allowed && vel.reason
+        ? vel.reason
+        : "Invalid email or password. Please try again or reset your password below.",
+    }
+  }
+
+  const otpCode = String(crypto.randomInt(100000, 999999))
+  const otpHash = crypto
+    .createHmac("sha256", getEncryptionKey())
+    .update(email + ":" + otpCode)
+    .digest("hex")
+
+  const challengeToken = encryptJsonPayload({
+    email,
+    password,
+    otpHash,
+    attempts: 0,
+    exp: Date.now() + 5 * 60 * 1000,
+  })
+
+  const resendKey = cleanEnvKey(process.env.RESEND_API_KEY)
+  const fallbackInbox = cleanEnvKey(process.env.RESEND_TEST_TO_EMAIL)
+  const fromAddress =
+    cleanEnvKey(process.env.RESEND_FROM_EMAIL) ||
+    "Special Sauce Security <support@specialsauce.io>"
+
+  if (!resendKey) {
+    return {
+      success: false,
+      error: "RESEND_API_KEY is missing in environment variables; cannot send 6-digit verification code.",
+    }
+  }
+
+  const isFakeTestAddress =
+    email.endsWith("@test.com") || email.endsWith("@example.com")
+  const primaryRecipient =
+    isFakeTestAddress && fallbackInbox ? fallbackInbox : email
+  let routedToFallback = primaryRecipient !== email
+
+  const buildOtpHtml = (sandboxNote?: string) =>
+    "<div style=\"font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 540px; margin: 0 auto; padding: 32px 28px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;\">" +
+    (sandboxNote
+      ? "<div style=\"margin-bottom: 16px; padding: 8px 12px; background-color: #fef3c7; color: #92400e; border-radius: 8px; font-size: 11px; font-weight: 700;\">" + sandboxNote + "</div>"
+      : "") +
+    "<div style=\"margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f1f5f9;\">" +
+    "<span style=\"display: inline-block; padding: 4px 10px; background-color: #0f172a; color: #f8fafc; border-radius: 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;\">SPECIAL SAUCE™ 2-STEP VERIFICATION</span>" +
+    "</div>" +
+    "<h2 style=\"color: #0f172a; font-size: 22px; font-weight: 800; margin: 0 0 10px 0;\">Your 6-Digit Sign-In Code</h2>" +
+    "<p style=\"color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 20px 0;\">Enter the 6-digit verification code below to finish signing in to your Special Sauce™ account (<strong>" + email + "</strong>). This code expires in <strong>5 minutes</strong>.</p>" +
+    "<div style=\"background-color: #f8fafc; border: 2px solid #cbd5e1; border-radius: 12px; padding: 18px; text-align: center; font-family: monospace; font-size: 32px; font-weight: 900; letter-spacing: 0.28em; color: #0f172a; margin-bottom: 20px;\">" + otpCode + "</div>" +
+    "<p style=\"color: #94a3b8; font-size: 12px; line-height: 1.5; margin: 0; padding-top: 14px; border-top: 1px solid #f1f5f9;\">🔒 securely connecting professionals and employers • If you did not attempt to sign in, please reset your password immediately.</p>" +
+    "</div>"
+
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + resendKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: fromAddress,
+        to: [primaryRecipient],
+        subject: "[" + otpCode + "] Your Special Sauce™ verification code",
+        html: buildOtpHtml(
+          routedToFallback
+            ? "Sandbox Routing: Sign-in OTP code for " + email
+            : undefined
+        ),
+      }),
+    })
+
+    if (!res.ok && fallbackInbox && fallbackInbox !== primaryRecipient) {
+      const retryRes = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + resendKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: [fallbackInbox],
+          subject: "[" + otpCode + "] Your Special Sauce™ verification code",
+          html: buildOtpHtml("Sandbox Fallback: Sign-in OTP code for " + email),
+        }),
+      })
+      if (retryRes.ok) {
+        routedToFallback = true
+      } else {
+        const errText = await retryRes.text()
+        return {
+          success: false,
+          error: "Could not dispatch 6-digit verification email: " + errText.slice(0, 100),
+        }
+      }
+    } else if (!res.ok) {
+      const errText = await res.text()
+      return {
+        success: false,
+        error: "Could not dispatch 6-digit verification email: " + errText.slice(0, 100),
+      }
+    }
+  } catch (err: any) {
+    return {
+      success: false,
+      error: "Network error sending verification code: " + (err?.message || "Unknown error"),
+    }
+  }
+
+  const cookieStore = await cookies()
+  cookieStore.set(LOGIN_OTP_COOKIE, challengeToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 5 * 60,
+    sameSite: "lax",
+  })
+
+  return {
+    success: true,
+    maskedEmail: maskEmailAddress(email) || email,
+    routedToFallback,
+  }
+}
+
+export async function verifyAccountLoginOtp(
+  otpInput: string
+): Promise<{
+  success: boolean
+  error?: string
+}> {
+  const code = (otpInput || "").replace(/\D/g, "").trim()
+  if (code.length !== 6) {
+    return {
+      success: false,
+      error: "Please enter the 6-digit verification code sent to your email.",
+    }
+  }
+
+  const cookieStore = await cookies()
+  const rawToken = cookieStore.get(LOGIN_OTP_COOKIE)?.value
+  const challenge = decryptJsonPayload<{
+    email: string
+    password: string
+    otpHash: string
+    attempts: number
+    exp: number
+  }>(rawToken)
+
+  if (!challenge) {
+    return {
+      success: false,
+      error: "Your 6-digit verification code has expired. Please sign in again to request a new code.",
+    }
+  }
+
+  if (challenge.attempts >= 5) {
+    cookieStore.delete(LOGIN_OTP_COOKIE)
+    await checkActionVelocityAndSpray({
+      actorKey: challenge.email,
+      actorEmail: challenge.email,
+      actorRole: "unknown",
+      actionType: "login_failure",
+      maxAllowedInWindow: 5,
+      windowMinutes: 10,
+      platformArea: "Onboarding & Authentication",
+    })
+    return {
+      success: false,
+      error: "Too many invalid verification attempts. Please sign in again.",
+    }
+  }
+
+  const candidateHash = crypto
+    .createHmac("sha256", getEncryptionKey())
+    .update(challenge.email + ":" + code)
+    .digest("hex")
+
+  const isMatch =
+    candidateHash.length === challenge.otpHash.length &&
+    crypto.timingSafeEqual(
+      Buffer.from(candidateHash, "utf8"),
+      Buffer.from(challenge.otpHash, "utf8")
+    )
+
+  if (!isMatch) {
+    const nextAttempts = (challenge.attempts || 0) + 1
+    cookieStore.set(
+      LOGIN_OTP_COOKIE,
+      encryptJsonPayload({
+        ...challenge,
+        attempts: nextAttempts,
+      }),
+      {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: 5 * 60,
+        sameSite: "lax",
+      }
+    )
+    return {
+      success: false,
+      error: "Invalid 6-digit verification code (" + (5 - nextAttempts) + " attempt(s) remaining).",
+    }
+  }
+
+  cookieStore.delete(LOGIN_OTP_COOKIE)
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.signInWithPassword({
+    email: challenge.email,
+    password: challenge.password,
+  })
+
+  if (error) {
+    return {
+      success: false,
+      error: error.message || "Could not establish session after OTP verification.",
+    }
+  }
+
+  await recordHandshakeTelemetry({
+    handshakeId: "auth_and_profiles_rls",
+    label: "User Authentication & Session Login (2FA OTP Verified)",
+    platformArea: "Onboarding & Authentication",
+    ok: true,
+  })
+
+  revalidatePath("/", "layout")
+  return { success: true }
 }

@@ -466,8 +466,27 @@ export async function checkActionVelocityAndSpray(params: {
 
     const vault = await loadMergedOpsVault(client)
     const now = Date.now()
+
+    const frozenMap: Record<
+      string,
+      { frozen_at: string; expires_at: number; reason: string; actor_email: string }
+    > =
+      vault.monitor_meta?.frozen_accounts &&
+      typeof vault.monitor_meta.frozen_accounts === "object"
+        ? vault.monitor_meta.frozen_accounts
+        : {}
+
+    const activeFreeze = frozenMap[params.actorKey]
+    if (activeFreeze && Number(activeFreeze.expires_at) > now) {
+      const minsLeft = Math.max(1, Math.ceil((Number(activeFreeze.expires_at) - now) / 60000))
+      return {
+        allowed: false,
+        reason: "Security Auto-Freeze Active: This account has been temporarily locked for " + minsLeft + " more minute(s) due to anomalous high-velocity activity (" + activeFreeze.reason + "). Please contact Special Sauce Support if you need immediate assistance.",
+      }
+    }
+
     const cutoff = now - params.windowMinutes * 60 * 1000
-    const bucketKey = `${params.actionType}:${params.actorKey}`
+    const bucketKey = params.actionType + ":" + params.actorKey
 
     const velocityMap: Record<string, number[]> =
       vault.monitor_meta?.velocity_buckets &&
@@ -482,13 +501,22 @@ export async function checkActionVelocityAndSpray(params: {
     history.push(now)
     velocityMap[bucketKey] = history.slice(-30)
 
-    vault.monitor_meta = {
-      ...vault.monitor_meta,
-      velocity_buckets: velocityMap,
-    }
-    await saveMergedOpsVault(client, vault)
-
     if (history.length > params.maxAllowedInWindow) {
+      const freezeDurationMinutes = 60
+      frozenMap[params.actorKey] = {
+        frozen_at: new Date(now).toISOString(),
+        expires_at: now + freezeDurationMinutes * 60 * 1000,
+        reason: params.actionType + " burst (" + history.length + " in " + params.windowMinutes + "m)",
+        actor_email: params.actorEmail,
+      }
+
+      vault.monitor_meta = {
+        ...vault.monitor_meta,
+        velocity_buckets: velocityMap,
+        frozen_accounts: frozenMap,
+      }
+      await saveMergedOpsVault(client, vault)
+
       await raiseSecurityAlertAndFlag({
         flagType: "Manual_Trust_Audit",
         severity: "high",
@@ -496,18 +524,23 @@ export async function checkActionVelocityAndSpray(params: {
         actorRole: params.actorRole,
         userId: params.actorKey,
         platformArea: params.platformArea,
-        summary: `High-Velocity ${params.actionType.toUpperCase()} Burst (${history.length} actions in ${params.windowMinutes}m)`,
-        evidenceSnippet: `Actor ${params.actorEmail} triggered ${history.length} "${params.actionType}" actions within ${params.windowMinutes} minutes (limit: ${params.maxAllowedInWindow}).`,
+        summary: "[AUTO-FROZEN 60M] High-Velocity " + params.actionType.toUpperCase() + " Burst (" + history.length + " actions in " + params.windowMinutes + "m)",
+        evidenceSnippet: "Actor " + params.actorEmail + " triggered " + history.length + " " + params.actionType + " actions within " + params.windowMinutes + " minutes (limit: " + params.maxAllowedInWindow + "). Account automatically frozen for " + freezeDurationMinutes + " minutes.",
         createSecTicket: true,
       })
+
       return {
         allowed: false,
-        reason: `Rate Limit Guardrail: Too many rapid ${params.actionType.replace(
-          "_",
-          " "
-        )} requests detected. Please wait ${params.windowMinutes} minutes before trying again.`,
+        reason: "Security Auto-Freeze Guardrail: Too many rapid " + params.actionType.replace("_", " ") + " requests detected. Your account has been temporarily frozen for 60 minutes to prevent automated abuse.",
       }
     }
+
+    vault.monitor_meta = {
+      ...vault.monitor_meta,
+      velocity_buckets: velocityMap,
+      frozen_accounts: frozenMap,
+    }
+    await saveMergedOpsVault(client, vault)
   } catch {}
 
   return { allowed: true }

@@ -3884,6 +3884,23 @@ export async function sendConnectionRequest(
       error:
         'Action Blocked: Your corporate domain must be verified before sending connection requests.',
     }
+
+  const pitchVelocity = await checkActionVelocityAndSpray({
+    actorKey: user?.id || "unknown",
+    actorEmail: user?.email || "",
+    actorRole: "employer",
+    actionType: "employer_pitch",
+    maxAllowedInWindow: 8,
+    windowMinutes: 3,
+    platformArea: "2-Stage Resume & Contact Vault",
+  })
+  if (!pitchVelocity.allowed) {
+    return {
+      error:
+        pitchVelocity.reason ||
+        "Rate limit exceeded. Please wait before sending additional connection requests.",
+    }
+  }
   }
 
   const tierInfo = await resolveEmployerTierInfo(orgObj)
