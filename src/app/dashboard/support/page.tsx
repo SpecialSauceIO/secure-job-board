@@ -7,7 +7,15 @@ import { getUserOpsTickets } from '@/lib/ops-bridge'
 
 export const dynamic = 'force-dynamic'
 
-export default async function SupportPage() {
+export default async function SupportPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{
+    tab?: string
+    ticket?: string
+    rate?: string
+  }>
+}) {
   const supabase = await createClient()
   const {
     data: { user },
@@ -17,12 +25,24 @@ export default async function SupportPage() {
     redirect('/login')
   }
 
+  const resolvedParams = searchParams ? await searchParams : {}
+
   const [{ data: profile }, initialTickets] = await Promise.all([
     supabase.from('profiles').select('role').eq('id', user.id).single(),
     getUserOpsTickets(user.id, user.email),
   ])
 
   const userRole = profile?.role as 'candidate' | 'employer' | null
+  const requestedTicketId = resolvedParams?.ticket
+    ? String(resolvedParams.ticket).toUpperCase().trim()
+    : undefined
+  const requestedRate = resolvedParams?.rate
+    ? Number(resolvedParams.rate)
+    : undefined
+  const initialTab =
+    resolvedParams?.tab === 'ticket' || requestedTicketId
+      ? 'ticket'
+      : 'guides'
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-12">
@@ -58,7 +78,14 @@ export default async function SupportPage() {
         <SupportCenterClient
           faqs={SUPPORT_FAQS}
           userRole={userRole}
+          initialTab={initialTab}
           initialTickets={initialTickets}
+          initialSelectedTicketId={requestedTicketId}
+          initialCsatRating={
+            requestedRate && requestedRate >= 1 && requestedRate <= 5
+              ? requestedRate
+              : undefined
+          }
         />
       </div>
     </div>

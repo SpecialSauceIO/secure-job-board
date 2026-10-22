@@ -46,6 +46,10 @@ export interface UserVisibleTicket {
   parent_ticket_id?: string | null
   created_at: string
   updated_at: string
+  closed_at?: string | null
+  csat_score?: number | null
+  csat_comment?: string | null
+  csat_submitted_at?: string | null
   thread: UserVisibleTicketMessage[]
 }
 
@@ -192,6 +196,10 @@ export async function getUserOpsTickets(
       parent_ticket_id: item.parent_ticket_id || null,
       created_at: String(item.created_at || new Date().toISOString()),
       updated_at: String(item.updated_at || item.created_at || new Date().toISOString()),
+      closed_at: item.closed_at ? String(item.closed_at) : null,
+      csat_score: typeof item.csat_score === "number" ? item.csat_score : null,
+      csat_comment: item.csat_comment ? String(item.csat_comment) : null,
+      csat_submitted_at: item.csat_submitted_at ? String(item.csat_submitted_at) : null,
       thread: (Array.isArray(item.thread) ? item.thread : [])
         .filter(
           (m: any) =>
@@ -257,6 +265,74 @@ export async function appendUserTicketReply(params: {
     author: params.userEmail || item.reporter_email || "Customer",
     direction: "inbound_customer",
     text: trimmed,
+    created_at: nowIso,
+  })
+
+  vault.work_items[idx] = item
+  await saveMergedOpsVault(client, vault)
+
+  const updatedTickets = await getUserOpsTickets(params.userId, params.userEmail)
+  const updatedTicket = updatedTickets.find((t) => t.id.toUpperCase() === cleanId)
+
+  return { ok: true, ticket: updatedTicket }
+}
+
+export async function submitSupportTicketCsat(params: {
+  ticketId: string
+  userId: string
+  userEmail: string
+  rating: number
+  comment?: string
+}): Promise<{ ok: boolean; error?: string; ticket?: UserVisibleTicket }> {
+  const client = getOpsServiceClient()
+  if (!client) {
+    return { ok: false, error: "Support storage service unavailable." }
+  }
+
+  const score = Math.round(Number(params.rating))
+  if (!score || score < 1 || score > 5) {
+    return { ok: false, error: "Please select a star rating between 1 and 5." }
+  }
+
+  const vault = await loadMergedOpsVault(client)
+  const cleanId = String(params.ticketId || "").toUpperCase().trim()
+  const cleanEmail = String(params.userEmail || "").toLowerCase().trim()
+
+  const idx = vault.work_items.findIndex((w: any) => {
+    const idMatches = String(w.id || "").toUpperCase().trim() === cleanId
+    if (!idMatches) return false
+    const ownerMatches =
+      (params.userId && String(w.reporter_user_id || "") === params.userId) ||
+      (cleanEmail &&
+        String(w.reporter_email || "").toLowerCase().trim() === cleanEmail)
+    return ownerMatches
+  })
+
+  if (idx === -1) {
+    return { ok: false, error: "Ticket not found or access denied." }
+  }
+
+  const nowIso = new Date().toISOString()
+  const cleanComment = String(params.comment || "").trim()
+  const item = vault.work_items[idx]
+  item.csat_score = score
+  item.csat_comment = cleanComment || null
+  item.csat_submitted_at = nowIso
+  item.updated_at = nowIso
+  item.thread = Array.isArray(item.thread) ? item.thread : []
+
+  const starsVisual = "★".repeat(score) + "☆".repeat(5 - score)
+  item.thread.push({
+    id: "csat-" + Date.now(),
+    author: params.userEmail || item.reporter_email || "Customer",
+    direction: "internal_note",
+    text:
+      "[Customer CSAT Rating: " +
+      score +
+      "/5 " +
+      starsVisual +
+      "]" +
+      (cleanComment ? " — " + cleanComment : ""),
     created_at: nowIso,
   })
 

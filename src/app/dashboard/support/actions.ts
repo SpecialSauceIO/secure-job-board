@@ -5,6 +5,7 @@ import { createClient } from '@/utils/supabase/server'
 import {
   getUserOpsTickets,
   appendUserTicketReply,
+  submitSupportTicketCsat,
   type UserVisibleTicket,
 } from '@/lib/ops-bridge'
 
@@ -89,7 +90,7 @@ export async function replyToSupportTicketAction(
           You can view the live status of your ticket anytime in your dashboard Support Center, or reply directly to this email (keeping <strong>[${ticketId}]</strong> in the subject line).
         </p>
         <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
-          <a href="${mainAppUrl}/dashboard/support" style="display: inline-block; padding: 12px 20px; background-color: #0f172a; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; border-radius: 10px;">
+          <a href="${mainAppUrl}/dashboard/support?tab=ticket&ticket=${ticketId}" style="display: inline-block; padding: 12px 20px; background-color: #0f172a; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; border-radius: 10px;">
             View Ticket in Support Center →
           </a>
         </div>
@@ -113,6 +114,41 @@ export async function replyToSupportTicketAction(
         }),
       })
     } catch {}
+  }
+
+  revalidatePath('/dashboard/support')
+  const tickets = await getUserOpsTickets(user.id, user.email)
+  return { ok: true, tickets }
+}
+
+export async function submitTicketCsatAction(
+  ticketId: string,
+  rating: number,
+  comment: string
+): Promise<{
+  ok: boolean
+  error?: string
+  tickets?: UserVisibleTicket[]
+}> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { ok: false, error: 'You must be signed in to rate a ticket.' }
+  }
+
+  const res = await submitSupportTicketCsat({
+    ticketId,
+    userId: user.id,
+    userEmail: user.email || '',
+    rating,
+    comment,
+  })
+
+  if (!res.ok) {
+    return { ok: false, error: res.error || 'Could not save feedback rating.' }
   }
 
   revalidatePath('/dashboard/support')

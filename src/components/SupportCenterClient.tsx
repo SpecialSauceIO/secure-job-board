@@ -10,6 +10,7 @@ import { submitSupportTicket } from '@/app/dashboard/actions'
 import {
   fetchMySupportTicketsAction,
   replyToSupportTicketAction,
+  submitTicketCsatAction,
 } from '@/app/dashboard/support/actions'
 import type { UserVisibleTicket } from '@/lib/ops-bridge'
 import { SubmitButton } from '@/components/SubmitButton'
@@ -17,7 +18,7 @@ import { SubmitButton } from '@/components/SubmitButton'
 function getCustomerStatusBadge(ticket: UserVisibleTicket) {
   if (ticket.state === 'closed' || ticket.status === 'resolved') {
     return {
-      label: 'Resolved / Closed',
+      label: '✓ Resolved & Closed',
       classes: 'bg-emerald-100 text-emerald-800 border-emerald-300',
     }
   }
@@ -55,11 +56,15 @@ export default function SupportCenterClient({
   userRole,
   initialTab = 'guides',
   initialTickets = [],
+  initialSelectedTicketId,
+  initialCsatRating,
 }: {
   faqs: FAQ[]
   userRole: 'candidate' | 'employer' | null
   initialTab?: 'guides' | 'kb' | 'security' | 'ticket'
   initialTickets?: UserVisibleTicket[]
+  initialSelectedTicketId?: string
+  initialCsatRating?: number
 }) {
   const [activeTab, setActiveTab] = useState<
     'guides' | 'kb' | 'security' | 'ticket'
@@ -88,7 +93,7 @@ export default function SupportCenterClient({
 
   const [myTickets, setMyTickets] = useState<UserVisibleTicket[]>(initialTickets)
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(
-    initialTickets[0]?.id || null
+    initialSelectedTicketId || initialTickets[0]?.id || null
   )
   const [replyTextMap, setReplyTextMap] = useState<Record<string, string>>({})
   const [isSendingReply, setIsSendingReply] = useState(false)
@@ -98,6 +103,35 @@ export default function SupportCenterClient({
     type: 'success' | 'error'
     message: string
   } | null>(null)
+
+  const [csatRatingMap, setCsatRatingMap] = useState<Record<string, number>>(
+    () => {
+      const init: Record<string, number> = {}
+      for (const t of initialTickets) {
+        if (t.csat_score) init[t.id] = t.csat_score
+      }
+      if (initialSelectedTicketId && initialCsatRating) {
+        init[initialSelectedTicketId] = initialCsatRating
+      }
+      return init
+    }
+  )
+  const [csatCommentMap, setCsatCommentMap] = useState<Record<string, string>>(
+    () => {
+      const init: Record<string, string> = {}
+      for (const t of initialTickets) {
+        if (t.csat_comment) init[t.id] = t.csat_comment
+      }
+      return init
+    }
+  )
+  const [editingCsatMap, setEditingCsatMap] = useState<Record<string, boolean>>(
+    () =>
+      initialSelectedTicketId && initialCsatRating
+        ? { [initialSelectedTicketId]: true }
+        : {}
+  )
+  const [isSubmittingCsat, setIsSubmittingCsat] = useState(false)
 
   const awaitingCustomerCount = useMemo(() => {
     return myTickets.filter((t) => {
@@ -220,11 +254,49 @@ export default function SupportCenterClient({
           ticketId,
           type: 'success',
           message:
-            'Reply posted to ticket thread! Our support team has been notified (Status: Pending Support).',
+            'Reply posted to ticket thread! A confirmation email has been sent to your inbox.',
         })
       }
     } finally {
       setIsSendingReply(false)
+    }
+  }
+
+  const handleSubmitCsat = async (ticketId: string) => {
+    const rating = csatRatingMap[ticketId] || 0
+    if (rating < 1 || rating > 5) {
+      setReplyFeedback({
+        ticketId,
+        type: 'error',
+        message: 'Please click 1 to 5 stars to rate your support experience.',
+      })
+      return
+    }
+    setIsSubmittingCsat(true)
+    setReplyFeedback(null)
+
+    try {
+      const comment = (csatCommentMap[ticketId] || '').trim()
+      const res = await submitTicketCsatAction(ticketId, rating, comment)
+      if (!res.ok) {
+        setReplyFeedback({
+          ticketId,
+          type: 'error',
+          message: res.error || 'Could not submit rating.',
+        })
+      } else {
+        if (res.tickets) {
+          setMyTickets(res.tickets)
+        }
+        setEditingCsatMap((prev) => ({ ...prev, [ticketId]: false }))
+        setReplyFeedback({
+          ticketId,
+          type: 'success',
+          message: `Thank you! Your ${rating}/5 star support rating has been recorded.`,
+        })
+      }
+    } finally {
+      setIsSubmittingCsat(false)
     }
   }
 
@@ -650,6 +722,14 @@ export default function SupportCenterClient({
                     const isOpenThread = selectedTicketId === ticket.id
                     const badge = getCustomerStatusBadge(ticket)
                     const replyDraft = replyTextMap[ticket.id] || ''
+                    const isResolvedOrClosed =
+                      ticket.state === 'closed' || ticket.status === 'resolved'
+                    const currentStarSelection =
+                      csatRatingMap[ticket.id] ?? ticket.csat_score ?? 0
+                    const currentCommentDraft =
+                      csatCommentMap[ticket.id] ?? ticket.csat_comment ?? ''
+                    const isEditingCsat =
+                      editingCsatMap[ticket.id] || !ticket.csat_score
 
                     return (
                       <div
@@ -677,6 +757,12 @@ export default function SupportCenterClient({
                               >
                                 {badge.label}
                               </span>
+                              {ticket.csat_score && (
+                                <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300">
+                                  {'★'.repeat(ticket.csat_score)}{' '}
+                                  {ticket.csat_score}/5 Rated
+                                </span>
+                              )}
                               <span className="text-xs text-slate-400 font-medium">
                                 Updated{' '}
                                 {new Date(ticket.updated_at).toLocaleString()}
@@ -698,6 +784,126 @@ export default function SupportCenterClient({
 
                         {isOpenThread && (
                           <div className="border-t border-slate-200 p-4 sm:p-6 bg-slate-50/50 space-y-5">
+                            {isResolvedOrClosed && (
+                              <div className="p-5 rounded-2xl bg-emerald-50/90 border-2 border-emerald-300 space-y-4">
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <div>
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-700 text-white text-[11px] font-black uppercase tracking-wider">
+                                      ✓ Issue Marked as Resolved
+                                    </span>
+                                    <h4 className="text-sm sm:text-base font-extrabold text-slate-900 mt-1.5">
+                                      How was your Special Sauce support experience on {ticket.id}?
+                                    </h4>
+                                  </div>
+                                  {ticket.csat_score && !isEditingCsat && (
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setEditingCsatMap((prev) => ({
+                                          ...prev,
+                                          [ticket.id]: true,
+                                        }))
+                                      }
+                                      className="text-xs font-extrabold text-indigo-700 hover:underline cursor-pointer"
+                                    >
+                                      Edit Rating
+                                    </button>
+                                  )}
+                                </div>
+
+                                {ticket.csat_score && !isEditingCsat ? (
+                                  <div className="bg-white rounded-xl p-4 border border-emerald-200 space-y-1.5">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-lg tracking-wider text-amber-500">
+                                        {'★'.repeat(ticket.csat_score)}
+                                        <span className="text-slate-300">
+                                          {'★'.repeat(5 - ticket.csat_score)}
+                                        </span>
+                                      </span>
+                                      <span className="text-xs font-black text-slate-800">
+                                        {ticket.csat_score} / 5 Stars Submitted
+                                      </span>
+                                    </div>
+                                    {ticket.csat_comment && (
+                                      <p className="text-xs text-slate-600 italic">
+                                        &ldquo;{ticket.csat_comment}&rdquo;
+                                      </p>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <div className="bg-white rounded-xl p-4 border border-emerald-200 space-y-3">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <span className="text-xs font-extrabold text-slate-700 mr-1">
+                                        Select Star Rating:
+                                      </span>
+                                      {[1, 2, 3, 4, 5].map((star) => {
+                                        const active =
+                                          star <= currentStarSelection
+                                        return (
+                                          <button
+                                            key={star}
+                                            type="button"
+                                            onClick={() =>
+                                              setCsatRatingMap((prev) => ({
+                                                ...prev,
+                                                [ticket.id]: star,
+                                              }))
+                                            }
+                                            className={`px-3 py-1.5 rounded-xl border text-sm font-black transition-all cursor-pointer flex items-center gap-1 ${
+                                              active
+                                                ? 'bg-amber-400 border-amber-500 text-slate-950 shadow-xs scale-105'
+                                                : 'bg-slate-50 border-slate-300 text-slate-500 hover:border-amber-400'
+                                            }`}
+                                          >
+                                            <span>★</span>
+                                            <span className="text-xs">
+                                              {star}
+                                            </span>
+                                          </button>
+                                        )
+                                      })}
+                                    </div>
+
+                                    <div>
+                                      <label className="block text-xs font-extrabold text-slate-700 mb-1">
+                                        Additional Feedback or Comments (Optional)
+                                      </label>
+                                      <textarea
+                                        rows={2}
+                                        value={currentCommentDraft}
+                                        onChange={(e) =>
+                                          setCsatCommentMap((prev) => ({
+                                            ...prev,
+                                            [ticket.id]: e.target.value,
+                                          }))
+                                        }
+                                        placeholder="Tell us what went well or how we can improve our support..."
+                                        className="w-full rounded-lg border border-slate-300 p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none"
+                                      />
+                                    </div>
+
+                                    <div className="flex justify-end">
+                                      <button
+                                        type="button"
+                                        disabled={
+                                          isSubmittingCsat ||
+                                          currentStarSelection < 1
+                                        }
+                                        onClick={() =>
+                                          handleSubmitCsat(ticket.id)
+                                        }
+                                        className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
+                                      >
+                                        {isSubmittingCsat
+                                          ? 'Saving Feedback...'
+                                          : 'Submit Support Rating ★'}
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
                             <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
                               <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
                                 <div className="flex items-center justify-between text-xs text-slate-500 mb-1.5">
@@ -768,7 +974,9 @@ export default function SupportCenterClient({
 
                             <div className="bg-white p-4 rounded-xl border border-slate-300 space-y-3">
                               <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-600">
-                                Reply to Ticket {ticket.id}
+                                {isResolvedOrClosed
+                                  ? `Need more help on ${ticket.id}? Reply below to reopen this ticket`
+                                  : `Reply to Ticket ${ticket.id}`}
                               </label>
                               <textarea
                                 rows={3}
