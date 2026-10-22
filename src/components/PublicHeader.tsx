@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Image from 'next/image'
 
 export function PublicHeader({
   fixed = false,
@@ -19,13 +18,12 @@ export function PublicHeader({
             href="/"
             className="flex items-center hover:opacity-90 transition-opacity"
           >
-            <Image
+            <img
               src="/logo.png"
               alt="specialsauce.io Logo"
               width={420}
               height={105}
               className="h-14 sm:h-16 md:h-[72px] w-auto object-contain"
-              priority
             />
           </Link>
         </div>

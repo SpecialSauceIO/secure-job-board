@@ -282,3 +282,21 @@ html.dark .founder-gold-pill,
 html.dark .founder-gold-pill span {
   color: #451a03 !important;
 }
+
+/* Brighten Recharts 5-Point AI Fit Radar Chart labels & polar grid in Dark Mode */
+html.dark .recharts-polar-angle-axis-tick-value,
+html.dark .recharts-polar-angle-axis-tick text,
+html.dark .recharts-polar-angle-axis text,
+html.dark .recharts-text {
+  fill: #e2e8f0 !important;
+}
+
+html.dark .recharts-polar-grid-angle line,
+html.dark .recharts-polar-grid-concentric-polygon {
+  stroke: #334155 !important;
+}
+
+/* Keep Sign Out button in dropdown high-contrast in Dark Mode */
+html.dark .text-rose-600 {
+  color: #fb7185 !important;
+}

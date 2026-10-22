@@ -20,6 +20,29 @@ export default function DashboardNav({
   const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
   const [colorTilesEnabled, setColorTilesEnabled] = useState(false)
+  const [darkModeEnabled, setDarkModeEnabled] = useState(false)
+
+  useEffect(() => {
+    const syncDark = () => {
+      setDarkModeEnabled(document.documentElement.classList.contains('dark'))
+    }
+    syncDark()
+    window.addEventListener('ss-theme-change', syncDark)
+    return () => window.removeEventListener('ss-theme-change', syncDark)
+  }, [])
+
+  const toggleDarkMode = () => {
+    const nextDark = !darkModeEnabled
+    setDarkModeEnabled(nextDark)
+    if (nextDark) {
+      document.documentElement.classList.add('dark')
+      try { localStorage.setItem('ss_theme', 'dark') } catch {}
+    } else {
+      document.documentElement.classList.remove('dark')
+      try { localStorage.setItem('ss_theme', 'light') } catch {}
+    }
+    window.dispatchEvent(new Event('ss-theme-change'))
+  }
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -228,6 +251,32 @@ export default function DashboardNav({
                         <span
                           className={`toggle-knob inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-xs transition-transform ${
                             colorTilesEnabled ? 'translate-x-4' : 'translate-x-1'
+                          }`}
+                        />
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={toggleDarkMode}
+                      className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer text-left"
+                    >
+                      <div>
+                        <span className="block text-xs font-bold text-slate-800">
+                          Dark Mode
+                        </span>
+                        <span className="block text-[10px] text-slate-500">
+                          Midnight slate eye-strain reduction
+                        </span>
+                      </div>
+                      <span
+                        className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
+                          darkModeEnabled ? 'bg-indigo-600' : 'bg-slate-300'
+                        }`}
+                      >
+                        <span
+                          className={`toggle-knob inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-xs transition-transform ${
+                            darkModeEnabled ? 'translate-x-4' : 'translate-x-1'
                           }`}
                         />
                       </span>

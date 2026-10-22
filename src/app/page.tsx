@@ -33,7 +33,7 @@ export default function LandingPage() {
         <div className="grid [grid-template-areas:'stack'] mb-6 w-full place-items-center">
           {/* SLIDE 0 (Slide #1): Universal Opening Slide - LOGO BLUE */}
           <div
-            className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
+            className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
               currentSlide === 0
                 ? 'opacity-100 translate-y-0 z-10'
                 : 'opacity-0 pointer-events-none z-0'
@@ -61,7 +61,7 @@ export default function LandingPage() {
 
           {/* SLIDE 1 (Slide #2): No More Bots, No More Spam, No More Scams - LOGO ORANGE */}
           <div
-            className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
+            className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
               currentSlide === 1
                 ? 'opacity-100 translate-y-0 z-10'
                 : 'opacity-0 pointer-events-none z-0'
@@ -89,7 +89,7 @@ export default function LandingPage() {
 
           {/* SLIDE 2 (Slide #3): Unified Founding Member & Partner Launch Slide - LOGO BLUE */}
           <div
-            className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
+            className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
               currentSlide === 2
                 ? 'opacity-100 translate-y-0 z-10'
                 : 'opacity-0 pointer-events-none z-0'
@@ -119,7 +119,7 @@ export default function LandingPage() {
 
           {/* SLIDE 3 (Slide #4): Zero Ghost Jobs - LOGO ORANGE */}
           <div
-            className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
+            className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
               currentSlide === 3
                 ? 'opacity-100 translate-y-0 z-10'
                 : 'opacity-0 pointer-events-none z-0'
@@ -147,7 +147,7 @@ export default function LandingPage() {
 
           {/* SLIDE 4 (Slide #5): Employers - LOGO BLUE */}
           <div
-            className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
+            className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
               currentSlide === 4
                 ? 'opacity-100 translate-y-0 z-10'
                 : 'opacity-0 pointer-events-none z-0'
@@ -175,7 +175,7 @@ export default function LandingPage() {
 
           {/* SLIDE 5 (Slide #6): Candidates - LOGO ORANGE */}
           <div
-            className={`[grid-area:stack] bg-slate-50 flex flex-col items-center transition-all duration-700 ${
+            className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
               currentSlide === 5
                 ? 'opacity-100 translate-y-0 z-10'
                 : 'opacity-0 pointer-events-none z-0'

@@ -1,18 +1,21 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
-function syncLogoImages(isDark: boolean) {
+export function syncLogoImages(isDark: boolean) {
   if (typeof document === 'undefined') return
   const imgs = document.querySelectorAll<HTMLImageElement>('img[src*="logo"]')
   imgs.forEach((img) => {
     const currentSrc = img.getAttribute('src') || ''
     if (isDark) {
-      if (currentSrc === '/logo.png' || currentSrc === '/logo.jpg') {
+      if (currentSrc.includes('logo') && !currentSrc.includes('logo-dark')) {
+        img.removeAttribute('srcset')
         img.setAttribute('src', '/logo-dark.png')
       }
     } else {
-      if (currentSrc === '/logo-dark.png') {
+      if (currentSrc.includes('logo-dark')) {
+        img.removeAttribute('srcset')
         img.setAttribute('src', '/logo.png')
       }
     }
@@ -22,6 +25,7 @@ function syncLogoImages(isDark: boolean) {
 export default function ThemeToggle() {
   const [dark, setDark] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
     setMounted(true)
@@ -47,7 +51,7 @@ export default function ThemeToggle() {
       window.removeEventListener('ss-theme-change', onThemeChange)
       observer.disconnect()
     }
-  }, [])
+  }, [pathname])
 
   const toggleTheme = () => {
     const nextDark = !dark
@@ -71,7 +75,8 @@ export default function ThemeToggle() {
     window.dispatchEvent(new Event('ss-theme-change'))
   }
 
-  if (!mounted) return null
+  // Inside /dashboard, the toggle lives inside the Accessibility profile dropdown menu
+  if (!mounted || pathname?.startsWith('/dashboard')) return null
 
   return (
     <button
@@ -79,7 +84,7 @@ export default function ThemeToggle() {
       onClick={toggleTheme}
       title={dark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
       aria-label="Toggle color theme"
-      className="fixed bottom-5 right-5 z-50 flex items-center gap-2 px-3.5 py-2 rounded-full shadow-lg border text-xs font-extrabold transition-all cursor-pointer select-none backdrop-blur-md bg-slate-900/90 text-amber-300 border-slate-700 hover:border-amber-400"
+      className="fixed bottom-16 right-5 z-50 flex items-center gap-2 px-3.5 py-2 rounded-full shadow-lg border text-xs font-extrabold transition-all cursor-pointer select-none backdrop-blur-md bg-slate-900/90 text-amber-300 border-slate-700 hover:border-amber-400"
     >
       <span className="text-sm leading-none">{dark ? '☀️' : '🌙'}</span>
       <span>{dark ? 'Light Mode' : 'Dark Mode'}</span>
