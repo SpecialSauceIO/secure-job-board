@@ -1818,6 +1818,7 @@ export async function searchJobs(
     .from('jobs')
     .select(`*, organizations:organization_id (*)`)
     .eq('is_active', true)
+    .not('title', 'ilike', '[CALIBRATION]%')
 
   if (
     workModel &&

@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
     const [pRes, oRes, jRes, aRes] = await Promise.all([
       client.from('profiles').select('id', { count: 'exact', head: true }),
       client.from('organizations').select('id', { count: 'exact', head: true }),
-      client.from('jobs').select('id', { count: 'exact', head: true }).eq('is_active', true),
+      client.from('jobs').select('id', { count: 'exact', head: true }).eq('is_active', true).not('title', 'ilike', '[CALIBRATION]%'),
       client.from('applications').select('id', { count: 'exact', head: true }),
     ])
     if (pRes.error) throw pRes.error
