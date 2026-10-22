@@ -29,40 +29,164 @@ body {
   }
 }
 
-/* GLOBAL SMART DARK MODE PALETTE REMAPPING */
-html.dark .bg-white {
+/* ============================================================================
+   1. CORE SURFACES & FRACTIONAL OPACITY CONTAINERS (dk1, dk3, dk4, dk5, dk6)
+   ============================================================================ */
+html.dark .bg-white,
+html.dark [class*="bg-white/"] {
   background-color: #0f172a !important;
 }
 
-html.dark .bg-white\/80,
-html.dark .bg-white\/90,
-html.dark .bg-white\/95 {
-  background-color: rgba(15, 23, 42, 0.92) !important;
-}
-
 html.dark .bg-slate-50,
-html.dark .bg-gray-50 {
+html.dark .bg-gray-50,
+html.dark [class*="bg-slate-50/"],
+html.dark [class*="bg-gray-50/"] {
   background-color: #020617 !important;
 }
 
-html.dark .bg-slate-50\/50,
-html.dark .bg-slate-50\/60,
-html.dark .bg-slate-50\/70,
-html.dark .bg-slate-50\/80 {
-  background-color: rgba(15, 23, 42, 0.65) !important;
-}
-
 html.dark .bg-slate-100,
-html.dark .bg-gray-100 {
+html.dark .bg-gray-100,
+html.dark [class*="bg-slate-100/"],
+html.dark [class*="bg-gray-100/"] {
   background-color: #1e293b !important;
 }
 
 html.dark .bg-slate-200,
-html.dark .bg-gray-200 {
+html.dark .bg-gray-200,
+html.dark [class*="bg-slate-200/"] {
   background-color: #334155 !important;
 }
 
-/* Typography Remapping */
+/* Override light gradients (e.g. Explorer Vault wrapper in dk4.jpg) */
+html.dark [class*="from-amber-50"],
+html.dark [class*="from-slate-50"],
+html.dark [class*="from-indigo-50"],
+html.dark [class*="from-white"],
+html.dark [class*="via-white"],
+html.dark [class*="to-white"],
+html.dark [class*="to-slate-50"] {
+  background-image: none !important;
+  background-color: #0f172a !important;
+}
+
+/* ============================================================================
+   2. PASTEL BENTO TILES, EARNED SIGNALS & VAULT CALLOUTS (dk2, dk5)
+   ============================================================================ */
+/* Blue Bento Tile & Badges */
+html.dark [class*="bg-blue-50"],
+html.dark [class*="bg-blue-100"],
+html.dark [class*="bg-sky-50"],
+html.dark [class*="bg-sky-100"] {
+  background-color: rgba(30, 58, 138, 0.32) !important;
+  border-color: rgba(59, 130, 246, 0.45) !important;
+}
+html.dark [class*="text-blue-950"],
+html.dark [class*="text-blue-900"],
+html.dark [class*="text-blue-800"],
+html.dark [class*="text-blue-700"],
+html.dark [class*="text-sky-900"],
+html.dark [class*="text-sky-800"] {
+  color: #bfdbfe !important;
+}
+
+/* Amber / Yellow / Orange Bento Tile & Badges */
+html.dark [class*="bg-amber-50"],
+html.dark [class*="bg-amber-100"],
+html.dark [class*="bg-yellow-50"],
+html.dark [class*="bg-yellow-100"],
+html.dark [class*="bg-orange-50"],
+html.dark [class*="bg-orange-100"] {
+  background-color: rgba(120, 53, 15, 0.32) !important;
+  border-color: rgba(245, 158, 11, 0.45) !important;
+}
+html.dark [class*="text-amber-950"],
+html.dark [class*="text-amber-900"],
+html.dark [class*="text-amber-800"],
+html.dark [class*="text-amber-700"],
+html.dark [class*="text-orange-950"],
+html.dark [class*="text-orange-900"],
+html.dark [class*="text-orange-800"],
+html.dark [class*="text-orange-700"] {
+  color: #fde68a !important;
+}
+
+/* Purple / Violet Bento Tile & Badges */
+html.dark [class*="bg-purple-50"],
+html.dark [class*="bg-purple-100"],
+html.dark [class*="bg-violet-50"],
+html.dark [class*="bg-violet-100"],
+html.dark [class*="bg-fuchsia-50"] {
+  background-color: rgba(88, 28, 135, 0.32) !important;
+  border-color: rgba(168, 85, 247, 0.45) !important;
+}
+html.dark [class*="text-purple-950"],
+html.dark [class*="text-purple-900"],
+html.dark [class*="text-purple-800"],
+html.dark [class*="text-purple-700"],
+html.dark [class*="text-violet-900"],
+html.dark [class*="text-violet-800"] {
+  color: #e9d5ff !important;
+}
+
+/* Indigo Vault Callout Boxes (dk2 Full Name 2-Stage Identity Vault box) */
+html.dark [class*="bg-indigo-50"],
+html.dark [class*="bg-indigo-100"] {
+  background-color: rgba(49, 46, 129, 0.35) !important;
+  border-color: rgba(99, 102, 241, 0.45) !important;
+}
+html.dark [class*="text-indigo-950"],
+html.dark [class*="text-indigo-900"],
+html.dark [class*="text-indigo-800"],
+html.dark [class*="text-indigo-700"] {
+  color: #c7d2fe !important;
+}
+html.dark .text-indigo-600 {
+  color: #818cf8 !important;
+}
+
+/* Emerald / Green / Teal Earned Signals & Badges */
+html.dark [class*="bg-emerald-50"],
+html.dark [class*="bg-emerald-100"],
+html.dark [class*="bg-green-50"],
+html.dark [class*="bg-green-100"],
+html.dark [class*="bg-teal-50"],
+html.dark [class*="bg-teal-100"] {
+  background-color: rgba(6, 78, 59, 0.35) !important;
+  border-color: rgba(16, 185, 129, 0.45) !important;
+}
+html.dark [class*="text-emerald-950"],
+html.dark [class*="text-emerald-900"],
+html.dark [class*="text-emerald-800"],
+html.dark [class*="text-emerald-700"],
+html.dark [class*="text-teal-900"],
+html.dark [class*="text-teal-800"] {
+  color: #a7f3d0 !important;
+}
+
+/* Rose / Red / Pink Earned Signals & Badges */
+html.dark [class*="bg-rose-50"],
+html.dark [class*="bg-rose-100"],
+html.dark [class*="bg-red-50"],
+html.dark [class*="bg-red-100"],
+html.dark [class*="bg-pink-50"],
+html.dark [class*="bg-pink-100"] {
+  background-color: rgba(136, 19, 55, 0.35) !important;
+  border-color: rgba(244, 63, 94, 0.45) !important;
+}
+html.dark [class*="text-rose-950"],
+html.dark [class*="text-rose-900"],
+html.dark [class*="text-rose-800"],
+html.dark [class*="text-rose-700"],
+html.dark [class*="text-red-900"],
+html.dark [class*="text-red-800"],
+html.dark [class*="text-pink-900"] {
+  color: #fecdd3 !important;
+}
+
+/* ============================================================================
+   3. TYPOGRAPHY & BORDERS
+   ============================================================================ */
+html.dark .text-slate-950,
 html.dark .text-slate-900,
 html.dark .text-gray-900,
 html.dark .text-black {
@@ -86,10 +210,9 @@ html.dark .text-gray-600 {
 
 html.dark .text-slate-500,
 html.dark .text-gray-500 {
-  color: #64748b !important;
+  color: #94a3b8 !important;
 }
 
-/* Borders & Dividers */
 html.dark .border-slate-100,
 html.dark .border-slate-200,
 html.dark .border-gray-100,
@@ -98,11 +221,26 @@ html.dark .border-gray-200 {
 }
 
 html.dark .border-slate-300,
+html.dark .border-slate-400,
 html.dark .border-gray-300 {
   border-color: #334155 !important;
 }
 
-/* Form Inputs, Selects & Textareas */
+/* ============================================================================
+   4. PRIMARY CTA BUTTONS & INPUTS IN DARK MODE (dk6 Login CTA button)
+   ============================================================================ */
+html.dark button.bg-slate-900,
+html.dark a.bg-slate-900 {
+  background-color: #4f46e5 !important;
+  color: #ffffff !important;
+  border: 1px solid #6366f1 !important;
+}
+
+html.dark button.bg-slate-900:hover,
+html.dark a.bg-slate-900:hover {
+  background-color: #4338ca !important;
+}
+
 html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 html.dark select,
 html.dark textarea {
@@ -114,86 +252,6 @@ html.dark textarea {
 html.dark input::placeholder,
 html.dark textarea::placeholder {
   color: #64748b !important;
-}
-
-/* Soft Tint Badges & Callout Boxes */
-html.dark .bg-indigo-50,
-html.dark .bg-indigo-100 {
-  background-color: rgba(79, 70, 229, 0.18) !important;
-}
-html.dark .text-indigo-900,
-html.dark .text-indigo-800,
-html.dark .text-indigo-700 {
-  color: #a5b4fc !important;
-}
-html.dark .border-indigo-100,
-html.dark .border-indigo-200,
-html.dark .border-indigo-300 {
-  border-color: rgba(99, 102, 241, 0.35) !important;
-}
-
-html.dark .bg-emerald-50,
-html.dark .bg-emerald-100 {
-  background-color: rgba(16, 185, 129, 0.16) !important;
-}
-html.dark .text-emerald-900,
-html.dark .text-emerald-800,
-html.dark .text-emerald-700 {
-  color: #6ee7b7 !important;
-}
-html.dark .border-emerald-100,
-html.dark .border-emerald-200,
-html.dark .border-emerald-300 {
-  border-color: rgba(16, 185, 129, 0.35) !important;
-}
-
-html.dark .bg-amber-50,
-html.dark .bg-amber-100,
-html.dark .bg-orange-50,
-html.dark .bg-orange-100 {
-  background-color: rgba(245, 158, 11, 0.16) !important;
-}
-html.dark .text-amber-900,
-html.dark .text-amber-800,
-html.dark .text-amber-700,
-html.dark .text-orange-900,
-html.dark .text-orange-800,
-html.dark .text-orange-700 {
-  color: #fcd34d !important;
-}
-html.dark .border-amber-200,
-html.dark .border-amber-300,
-html.dark .border-orange-200 {
-  border-color: rgba(245, 158, 11, 0.35) !important;
-}
-
-html.dark .bg-rose-50,
-html.dark .bg-rose-100,
-html.dark .bg-red-50,
-html.dark .bg-red-100 {
-  background-color: rgba(244, 63, 94, 0.16) !important;
-}
-html.dark .text-rose-900,
-html.dark .text-rose-800,
-html.dark .text-rose-700,
-html.dark .text-red-800,
-html.dark .text-red-700 {
-  color: #fda4af !important;
-}
-html.dark .border-rose-200,
-html.dark .border-red-200 {
-  border-color: rgba(244, 63, 94, 0.35) !important;
-}
-
-html.dark .bg-blue-50,
-html.dark .bg-blue-100,
-html.dark .bg-sky-50 {
-  background-color: rgba(59, 130, 246, 0.16) !important;
-}
-html.dark .text-blue-900,
-html.dark .text-blue-800,
-html.dark .text-blue-700 {
-  color: #93c5fd !important;
 }
 
 /* Keep brand logo crisp and readable in Dark Mode */
