@@ -100,6 +100,7 @@ export default function SupportCenterClient({
   initialTab = 'guides',
   initialTickets = [],
   initialSelectedTicketId,
+  canUploadAttachments = false,
   initialCsatRating,
 }: {
   faqs: FAQ[]
@@ -109,6 +110,7 @@ export default function SupportCenterClient({
   initialTab?: 'guides' | 'kb' | 'security' | 'ticket'
   initialTickets?: UserVisibleTicket[]
   initialSelectedTicketId?: string
+  canUploadAttachments?: boolean
   initialCsatRating?: number
 }) {
   const [activeTab, setActiveTab] = useState<
@@ -619,13 +621,27 @@ export default function SupportCenterClient({
                     <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">
                       Screenshots or File Attachments <span className="text-slate-400 font-normal">(Optional • Up to 3 files)</span>
                     </label>
-                    <input
-                      type="file"
-                      name="attachments"
-                      multiple
-                      accept="image/*,.pdf,.txt,.csv,.log,.json"
-                      className="w-full rounded-xl border border-dashed border-slate-300 bg-slate-50 text-slate-700 py-2.5 px-3.5 text-xs font-medium file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-extrabold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
-                    />
+                    {canUploadAttachments ? (
+                      <input
+                        type="file"
+                        name="attachments"
+                        multiple
+                        accept="image/png,image/jpeg,image/webp,application/pdf,.txt"
+                        className="w-full rounded-xl border border-dashed border-slate-300 bg-slate-50 text-slate-700 py-2.5 px-3.5 text-xs font-medium file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-extrabold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
+                      />
+                    ) : (
+                      <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-200 flex items-start gap-2.5">
+                        <span className="text-sm leading-none mt-0.5">🔒</span>
+                        <div>
+                          <span className="font-extrabold text-amber-300 block mb-0.5">
+                            File Attachments Locked (Paid &amp; ID-Verified Subscribers Only)
+                          </span>
+                          <span className="text-slate-300 leading-relaxed">
+                            For platform security, file and screenshot uploads are restricted to ID-verified accounts on an active paid plan. You may still submit a plain-text support request below.
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="pt-2">

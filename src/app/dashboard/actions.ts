@@ -5640,7 +5640,7 @@ export async function submitSupportTicket(formData: FormData) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role, full_name, name, email, contact_email')
+    .select('role, full_name, name, email, contact_email, identity_verified, is_verified, verification_status')
     .eq('id', user.id)
     .single()
 
@@ -5687,11 +5687,25 @@ export async function submitSupportTicket(formData: FormData) {
   try {
     const rawFiles = formData.getAll('attachments')
     const serviceClient = getOpsServiceClient()
-    if (serviceClient && rawFiles && rawFiles.length > 0) {
+    const isProfVer =
+      profile?.identity_verified === true ||
+      String(profile?.identity_verified) === "true" ||
+      profile?.is_verified === true ||
+      String(profile?.is_verified) === "true" ||
+      profile?.verification_status === "verified" ||
+      profile?.verification_status === "approved";
+    const isPaidSub =
+      !accountTierLabel.toUpperCase().includes("EXPLORER") &&
+      !accountTierLabel.toUpperCase().includes("FREE");
+    const canUploadServer = Boolean(isPaidSub && (isProfVer || orgContext.toLowerCase().includes("verified")));
+    if (canUploadServer && serviceClient && rawFiles && rawFiles.length > 0) {
       for (const entry of rawFiles.slice(0, 3)) {
         if (entry && typeof entry === 'object' && 'arrayBuffer' in entry) {
           const fileObj = entry as File
-          if (fileObj.size > 0 && fileObj.size <= 10 * 1024 * 1024 && fileObj.name) {
+          const ext = (fileObj.name.split(".").pop() || "").toLowerCase();
+          const safeExt = ["png", "jpg", "jpeg", "webp", "pdf", "txt"].includes(ext);
+          const safeMime = ["image/png", "image/jpeg", "image/webp", "application/pdf", "text/plain"].includes(fileObj.type);
+          if (fileObj.size > 0 && fileObj.size <= 5 * 1024 * 1024 && fileObj.name && safeExt && safeMime) {
             const safeName = fileObj.name.replace(/[^a-zA-Z0-9._-]/g, '_')
             const storagePath = `_isolated_ops_control_plane/attachments/${ticketId}/${Date.now()}_${safeName}`
             const buffer = Buffer.from(await fileObj.arrayBuffer())
