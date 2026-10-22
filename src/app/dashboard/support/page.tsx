@@ -37,37 +37,39 @@ export default async function SupportPage({
   ])
 
   const userRole = profile?.role as 'candidate' | 'employer' | null
+  const userName = profile?.full_name || user.email?.split('@')[0] || 'You'
+
   const isProfileVerified =
     profile?.identity_verified === true ||
-    String(profile?.identity_verified) === "true" ||
+    String(profile?.identity_verified) === 'true' ||
     profile?.is_verified === true ||
-    String(profile?.is_verified) === "true" ||
-    profile?.verification_status === "verified" ||
-    profile?.verification_status === "approved"
+    String(profile?.is_verified) === 'true' ||
+    profile?.verification_status === 'verified' ||
+    profile?.verification_status === 'approved'
 
   let isPaidSubscriber = false
   let isVerifiedAccount = isProfileVerified
 
-  if (userRole === "employer") {
+  if (userRole === 'employer') {
     const { data: member } = await supabase
-      .from("organization_members")
-      .select("organization_id")
-      .eq("user_id", user.id)
+      .from('organization_members')
+      .select('organization_id')
+      .eq('user_id', user.id)
       .maybeSingle()
 
     if (member?.organization_id) {
       const { data: org } = await supabase
-        .from("organizations")
-        .select("*")
-        .eq("id", member.organization_id)
+        .from('organizations')
+        .select('*')
+        .eq('id', member.organization_id)
         .single()
       if (org) {
         const tInfo = await resolveEmployerTierInfo(org)
         isPaidSubscriber =
-          tInfo.tier === "starter" ||
-          tInfo.tier === "growth" ||
-          tInfo.tier === "enterprise"
-        if (org.verification_status === "verified") {
+          tInfo.tier === 'starter' ||
+          tInfo.tier === 'growth' ||
+          tInfo.tier === 'enterprise'
+        if (org.verification_status === 'verified') {
           isVerifiedAccount = true
         }
       }
@@ -75,13 +77,13 @@ export default async function SupportPage({
   } else {
     const cInfo = await resolveCandidateTierInfo(user.id)
     isPaidSubscriber =
-      cInfo.tier === "professional" ||
-      cInfo.tier === "prestige" ||
-      cInfo.tier === "pro"
+      cInfo.tier === 'professional' ||
+      cInfo.tier === 'prestige' ||
+      cInfo.tier === 'pro'
   }
 
   const canUploadAttachments = Boolean(isPaidSubscriber && isVerifiedAccount)
-  const userName = profile?.full_name || user.email?.split('@')[0] || 'You'
+
   const requestedTicketId = resolvedParams?.ticket
     ? String(resolvedParams.ticket).toUpperCase().trim()
     : undefined
