@@ -180,7 +180,7 @@ export function CandidateJobFeed({
 }) {
   const [jobList, setJobList] = useState<any[]>(jobs || [])
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10)
+  const [itemsPerPage, setItemsPerPage] = useState<number>(5)
   const [sortBy, setSortBy] = useState<SortOption>('newest')
   const [employmentTypeFilter, setEmploymentTypeFilter] =
     useState<string>('all')
@@ -203,7 +203,7 @@ export function CandidateJobFeed({
 
   useEffect(() => {
     try {
-      const savedSize = Number(localStorage.getItem('ss_jobs_per_page_v1'))
+      const savedSize = Number(localStorage.getItem('ss_jobs_per_page_v2'))
       if ([5, 10, 25, 50].includes(savedSize)) {
         setItemsPerPage(savedSize)
       }
@@ -1134,7 +1134,7 @@ export function CandidateJobFeed({
                   setItemsPerPage(nextSize)
                   setCurrentPage(1)
                   try {
-                    localStorage.setItem('ss_jobs_per_page_v1', String(nextSize))
+                    localStorage.setItem('ss_jobs_per_page_v2', String(nextSize))
                   } catch {}
                 }}
                 className="rounded-lg border-2 border-slate-300 bg-slate-50 px-2.5 py-1 text-xs font-extrabold text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"

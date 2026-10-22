@@ -219,7 +219,7 @@ export default function EmployerCandidateSearch({
 
   const [candidates, setCandidates] = useState<any[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10)
+  const [itemsPerPage, setItemsPerPage] = useState<number>(5)
   const [savedCandidateIds, setSavedCandidateIds] = useState<string[]>([])
   const [onlyShortlisted, setOnlyShortlisted] = useState(false)
   const [togglingCandidateId, setTogglingCandidateId] = useState<string | null>(
@@ -254,7 +254,7 @@ export default function EmployerCandidateSearch({
     }
 
     try {
-      const savedPageSize = Number(localStorage.getItem('ss_candidates_per_page_v1'))
+      const savedPageSize = Number(localStorage.getItem('ss_candidates_per_page_v2'))
       if ([5, 10, 25, 50].includes(savedPageSize)) setItemsPerPage(savedPageSize)
       const savedMatches = localStorage.getItem('ss_emp_match_cache_v2')
       if (savedMatches) {
@@ -1742,7 +1742,7 @@ export default function EmployerCandidateSearch({
                   setItemsPerPage(nextSize)
                   setCurrentPage(1)
                   try {
-                    localStorage.setItem('ss_candidates_per_page_v1', String(nextSize))
+                    localStorage.setItem('ss_candidates_per_page_v2', String(nextSize))
                   } catch {}
                 }}
                 className="rounded-lg border-2 border-slate-300 bg-slate-50 px-2.5 py-1 text-xs font-extrabold text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
