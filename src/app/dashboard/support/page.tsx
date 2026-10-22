@@ -27,31 +27,38 @@ export default async function SupportPage({
   const resolvedParams = searchParams ? await searchParams : {}
 
   const [{ data: profile }, initialTickets] = await Promise.all([
-    supabase.from('profiles').select('role').eq('id', user.id).single(),
+    supabase
+      .from('profiles')
+      .select('role, full_name')
+      .eq('id', user.id)
+      .single(),
     getUserOpsTickets(user.id, user.email),
   ])
 
   const userRole = profile?.role as 'candidate' | 'employer' | null
+  const userName = profile?.full_name || user.email?.split('@')[0] || 'You'
   const requestedTicketId = resolvedParams?.ticket
     ? String(resolvedParams.ticket).toUpperCase().trim()
     : undefined
   const requestedRate = resolvedParams?.rate
     ? Number(resolvedParams.rate)
     : undefined
-  const initialTab =
-    resolvedParams?.tab === 'ticket' || requestedTicketId
-      ? 'ticket'
-      : 'guides'
+
+  const rawTab = resolvedParams?.tab
+  const initialTab: 'ticket' | 'guides' | 'kb' | 'security' =
+    rawTab === 'guides' || rawTab === 'kb' || rawTab === 'security'
+      ? rawTab
+      : 'ticket'
 
   return (
     <div className="max-w-6xl mx-auto py-3 space-y-6">
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-300 pb-5">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Help Center &amp; Support
+            Help Center &amp; Support Desk
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Find answers in our knowledge base, manage your active support threads, or submit a ticket directly to the platform team.
+            Manage your live support conversations, submit a new ticket, or browse platform guides and security documentation.
           </p>
         </div>
       </header>
@@ -59,6 +66,8 @@ export default async function SupportPage({
       <SupportCenterClient
         faqs={SUPPORT_FAQS}
         userRole={userRole}
+        userName={userName}
+        userEmail={user.email || ''}
         initialTab={initialTab}
         initialTickets={initialTickets}
         initialSelectedTicketId={requestedTicketId}

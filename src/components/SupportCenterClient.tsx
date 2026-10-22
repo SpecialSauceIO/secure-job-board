@@ -15,11 +15,12 @@ import {
 import type { UserVisibleTicket } from '@/lib/ops-bridge'
 import { SubmitButton } from '@/components/SubmitButton'
 
-function getCustomerStatusBadge(ticket: UserVisibleTicket) {
+function getCustomerStatusMeta(ticket: UserVisibleTicket) {
   if (ticket.state === 'closed' || ticket.status === 'resolved') {
     return {
-      label: '✓ Resolved & Closed',
-      classes: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+      label: 'Resolved',
+      pillClasses: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+      dotColor: 'bg-emerald-500',
     }
   }
   const lastMsg =
@@ -29,38 +30,82 @@ function getCustomerStatusBadge(ticket: UserVisibleTicket) {
     lastMsg?.direction === 'outbound_reply'
   ) {
     return {
-      label: '⚡ Support Replied • Waiting on You',
-      classes: 'bg-amber-100 text-amber-900 border-amber-400 animate-pulse',
+      label: 'Waiting on You',
+      pillClasses: 'bg-amber-100 text-amber-900 border-amber-400',
+      dotColor: 'bg-amber-500',
     }
   }
   if (ticket.status === 'pending_support') {
     return {
-      label: 'Pending Support Review',
-      classes: 'bg-indigo-100 text-indigo-800 border-indigo-300',
+      label: 'Pending Support',
+      pillClasses: 'bg-indigo-100 text-indigo-800 border-indigo-300',
+      dotColor: 'bg-indigo-500',
     }
   }
   if (ticket.status === 'in_progress' || ticket.status === 'triaged') {
     return {
       label: 'In Progress',
-      classes: 'bg-sky-100 text-sky-800 border-sky-300',
+      pillClasses: 'bg-sky-100 text-sky-800 border-sky-300',
+      dotColor: 'bg-sky-500',
     }
   }
   return {
-    label: 'Open • Submitted',
-    classes: 'bg-slate-100 text-slate-700 border-slate-300',
+    label: 'Open',
+    pillClasses: 'bg-sky-100 text-sky-800 border-sky-300',
+    dotColor: 'bg-sky-500',
+  }
+}
+
+function getPriorityDisplay(priorityRaw?: string) {
+  if (priorityRaw === 'P0_Critical') {
+    return { label: 'Critical', icon: '⇈', color: 'text-rose-600' }
+  }
+  if (priorityRaw === 'P1_High') {
+    return { label: 'High', icon: '⌃', color: 'text-rose-600' }
+  }
+  if (priorityRaw === 'P3_Low') {
+    return { label: 'Low', icon: '⌄', color: 'text-slate-500' }
+  }
+  return { label: 'Normal', icon: '⌃', color: 'text-amber-600' }
+}
+
+function formatShortDate(iso: string) {
+  try {
+    return new Date(iso).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
+  } catch {
+    return iso
+  }
+}
+
+function formatMessageTime(iso: string) {
+  try {
+    return new Date(iso).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  } catch {
+    return ''
   }
 }
 
 export default function SupportCenterClient({
   faqs,
   userRole,
-  initialTab = 'guides',
+  userName = 'You',
+  userEmail = '',
+  initialTab = 'ticket',
   initialTickets = [],
   initialSelectedTicketId,
   initialCsatRating,
 }: {
   faqs: FAQ[]
   userRole: 'candidate' | 'employer' | null
+  userName?: string
+  userEmail?: string
   initialTab?: 'guides' | 'kb' | 'security' | 'ticket'
   initialTickets?: UserVisibleTicket[]
   initialSelectedTicketId?: string
@@ -95,6 +140,16 @@ export default function SupportCenterClient({
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(
     initialSelectedTicketId || initialTickets[0]?.id || null
   )
+  const [isComposingNewTicket, setIsComposingNewTicket] = useState<boolean>(
+    initialTickets.length === 0
+  )
+
+  // Right sidebar collapsible sections matching template.webp
+  const [openTicketInfo, setOpenTicketInfo] = useState(true)
+  const [openAssignment, setOpenAssignment] = useState(true)
+  const [openTags, setOpenTags] = useState(true)
+  const [openRecentList, setOpenRecentList] = useState(true)
+
   const [replyTextMap, setReplyTextMap] = useState<Record<string, string>>({})
   const [isSendingReply, setIsSendingReply] = useState(false)
   const [isRefreshingTickets, setIsRefreshingTickets] = useState(false)
@@ -132,6 +187,34 @@ export default function SupportCenterClient({
         : {}
   )
   const [isSubmittingCsat, setIsSubmittingCsat] = useState(false)
+
+  const switchTab = (nextTab: 'ticket' | 'guides' | 'kb' | 'security') => {
+    setActiveTab(nextTab)
+    try {
+      const url = new URL(window.location.href)
+      url.searchParams.set('tab', nextTab)
+      window.history.replaceState({}, '', url.toString())
+    } catch {}
+  }
+
+  const selectTicket = (ticketId: string) => {
+    setSelectedTicketId(ticketId)
+    setIsComposingNewTicket(false)
+    setReplyFeedback(null)
+    try {
+      const url = new URL(window.location.href)
+      url.searchParams.set('tab', 'ticket')
+      url.searchParams.set('ticket', ticketId)
+      window.history.replaceState({}, '', url.toString())
+    } catch {}
+  }
+
+  const activeTicket = useMemo(() => {
+    if (!myTickets.length) return null
+    return (
+      myTickets.find((t) => t.id === selectedTicketId) || myTickets[0] || null
+    )
+  }, [myTickets, selectedTicketId])
 
   const awaitingCustomerCount = useMemo(() => {
     return myTickets.filter((t) => {
@@ -218,14 +301,14 @@ export default function SupportCenterClient({
     } else {
       setTicketStatus({
         type: 'success',
-        message: `Ticket submitted successfully! Your reference ID is ${result.ticketId}. We've sent a confirmation receipt to your email.`,
+        message: `Ticket submitted! Reference ID: ${result.ticketId}. A confirmation receipt has been sent to your email.`,
       })
       ;(document.getElementById('support-form') as HTMLFormElement)?.reset()
       const refreshed = await fetchMySupportTicketsAction()
       if (refreshed.tickets) {
         setMyTickets(refreshed.tickets)
         if (result.ticketId) {
-          setSelectedTicketId(result.ticketId)
+          selectTicket(result.ticketId)
         }
       }
     }
@@ -253,8 +336,7 @@ export default function SupportCenterClient({
         setReplyFeedback({
           ticketId,
           type: 'success',
-          message:
-            'Reply posted to ticket thread! A confirmation email has been sent to your inbox.',
+          message: 'Reply posted to conversation thread.',
         })
       }
     } finally {
@@ -268,7 +350,7 @@ export default function SupportCenterClient({
       setReplyFeedback({
         ticketId,
         type: 'error',
-        message: 'Please click 1 to 5 stars to rate your support experience.',
+        message: 'Please select 1 to 5 stars to rate your support experience.',
       })
       return
     }
@@ -292,7 +374,7 @@ export default function SupportCenterClient({
         setReplyFeedback({
           ticketId,
           type: 'success',
-          message: `Thank you! Your ${rating}/5 star support rating has been recorded.`,
+          message: `Thank you! Your ${rating}/5 star rating has been saved.`,
         })
       }
     } finally {
@@ -300,55 +382,22 @@ export default function SupportCenterClient({
     }
   }
 
+  const userInitial = (userName || userEmail || 'U').charAt(0).toUpperCase()
+
   return (
     <div className="bg-white rounded-2xl border-2 border-slate-300 shadow-sm overflow-hidden">
+      {/* Top Sub-Navigation Tabs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-b border-slate-300">
         <button
           type="button"
-          onClick={() => setActiveTab('guides')}
-          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
-            activeTab === 'guides'
-              ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
-              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
-          }`}
-        >
-          1. How It Works &amp; Guides
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('kb')}
-          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
-            activeTab === 'kb'
-              ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
-              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
-          }`}
-        >
-          2. Searchable FAQs
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('security')}
-          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
-            activeTab === 'security'
-              ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50'
-              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
-          }`}
-        >
-          3. 2-Stage Vault &amp; Stripe
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('ticket')}
+          onClick={() => switchTab('ticket')}
           className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer flex items-center justify-center gap-2 ${
             activeTab === 'ticket'
               ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
               : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
           }`}
         >
-          <span>4. Support &amp; My Tickets</span>
+          <span>1. Support &amp; My Tickets</span>
           {myTickets.length > 0 && (
             <span
               className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
@@ -363,256 +412,1079 @@ export default function SupportCenterClient({
             </span>
           )}
         </button>
+
+        <button
+          type="button"
+          onClick={() => switchTab('guides')}
+          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
+            activeTab === 'guides'
+              ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
+              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+          }`}
+        >
+          2. How It Works &amp; Guides
+        </button>
+
+        <button
+          type="button"
+          onClick={() => switchTab('kb')}
+          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
+            activeTab === 'kb'
+              ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
+              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+          }`}
+        >
+          3. Searchable FAQs
+        </button>
+
+        <button
+          type="button"
+          onClick={() => switchTab('security')}
+          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
+            activeTab === 'security'
+              ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50'
+              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+          }`}
+        >
+          4. 2-Stage Vault &amp; Stripe
+        </button>
       </div>
 
-      <div className="p-6 md:p-8">
-        {activeTab === 'guides' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 p-4 rounded-xl border-2 border-slate-300">
-              <div>
-                <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">
-                  Select Playbook View
-                </span>
-                <p className="text-xs text-slate-600 mt-0.5">
-                  View step-by-step workflows (including the 2-Stage Identity Vault &amp; 30-Day Freshness rules) or copy the plain-text cheat sheet.
-                </p>
-              </div>
+      {/* TAB 1: SPLIT-PANE HELPDESK WORKSPACE MODELED ON template.webp */}
+      {activeTab === 'ticket' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[680px] divide-y lg:divide-y-0 lg:divide-x divide-slate-300">
+          {/* LEFT 8 COLUMNS: CONVERSATION STREAM OR NEW TICKET COMPOSER */}
+          <div className="lg:col-span-8 flex flex-col justify-between bg-white">
+            {isComposingNewTicket || !activeTicket ? (
+              <div className="p-6 sm:p-8 space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-300 pb-4">
+                  <div>
+                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600 block">
+                      New Support Conversation
+                    </span>
+                    <h2 className="text-xl font-extrabold text-slate-900">
+                      Open a New Support Ticket
+                    </h2>
+                  </div>
+                  {myTickets.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setIsComposingNewTicket(false)}
+                      className="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 text-xs font-extrabold text-slate-700 cursor-pointer"
+                    >
+                      ← Back to Ticket #{activeTicket?.id}
+                    </button>
+                  )}
+                </div>
 
-              <div className="inline-flex rounded-xl bg-white p-1 border-2 border-slate-300 shadow-sm shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setSelectedGuide('employer')}
-                  className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
-                    selectedGuide === 'employer'
-                      ? 'bg-slate-900 text-white shadow-sm'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
+                {ticketStatus && (
+                  <div
+                    className={`p-4 rounded-xl text-xs font-bold border ${
+                      ticketStatus.type === 'error'
+                        ? 'bg-rose-50 text-rose-700 border-rose-300'
+                        : 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                    }`}
+                  >
+                    {ticketStatus.message}
+                  </div>
+                )}
+
+                <form
+                  id="support-form"
+                  action={handleTicketSubmit}
+                  className="space-y-5"
                 >
-                  🏢 Employer &amp; BPO Guide
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedGuide('candidate')}
-                  className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
-                    selectedGuide === 'candidate'
-                      ? 'bg-indigo-600 text-white shadow-sm'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  👤 Candidate Guide
-                </button>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">
+                        Category
+                      </label>
+                      <select
+                        name="category"
+                        required
+                        className="w-full rounded-xl border border-slate-300 bg-white text-slate-900 py-2.5 px-3.5 text-sm font-medium"
+                      >
+                        <option value="General Support">General Support &amp; Questions</option>
+                        <option value="2-Stage Vault & Encrypted Messaging">2-Stage Identity Vault &amp; Messaging</option>
+                        <option value="Billing, Plans & Pitch Credits">Billing, Plans &amp; Pitch Credits</option>
+                        <option value="Account & Domain Verification">Stripe ID / Corporate Domain Verification</option>
+                        <option value="Enterprise ATS & Webhook Integration">Enterprise ATS &amp; Webhook Hub</option>
+                        <option value="Technical Issue / Bug Report">Technical Issue / Bug Report</option>
+                        <option value="Feature Request / Documentation Feedback">Feature Request / Documentation Feedback</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">
+                        Platform Area / Feature
+                      </label>
+                      <select
+                        name="platform_area"
+                        required
+                        className="w-full rounded-xl border border-slate-300 bg-white text-slate-900 py-2.5 px-3.5 text-sm font-medium"
+                      >
+                        <option value="Onboarding & Authentication">Onboarding &amp; Authentication</option>
+                        <option value="Stripe Identity Verification (Candidate)">Stripe Identity Verification (Candidate)</option>
+                        <option value="Corporate Domain / DNS Verification (Employer)">Corporate Domain / DNS Verification (Employer)</option>
+                        <option value="2-Stage Resume & Contact Vault">2-Stage Resume &amp; Contact Vault</option>
+                        <option value="5-Point AI Fit Radar & Dealbreakers">5-Point AI Fit Radar &amp; Dealbreakers</option>
+                        <option value="Billing, Subscriptions & Credits">Billing, Subscriptions &amp; Credits</option>
+                        <option value="Enterprise ATS & Webhook Hub">Enterprise ATS &amp; Webhook Hub</option>
+                        <option value="Encrypted Stage 1/2 Messaging">Encrypted Stage 1/2 Messaging</option>
+                        <option value="Other / General Platform">Other / General Platform</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">
+                        Subject
+                      </label>
+                      <input
+                        type="text"
+                        name="subject"
+                        required
+                        placeholder="Brief summary of your question or issue..."
+                        className="w-full rounded-xl border border-slate-300 bg-white text-slate-900 py-2.5 px-3.5 text-sm font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">
+                        Ref ID <span className="text-slate-400 font-normal">(Optional)</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="related_ref_id"
+                        placeholder="e.g. SS-8F92A1B0"
+                        className="w-full rounded-xl border border-slate-300 bg-white text-slate-900 py-2.5 px-3.5 text-sm font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">
+                      Message &amp; Steps to Reproduce
+                    </label>
+                    <textarea
+                      name="message"
+                      required
+                      rows={5}
+                      placeholder="Provide as much detail as possible so our support team can assist you..."
+                      className="w-full rounded-xl border border-slate-300 bg-white text-slate-900 py-3 px-3.5 text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">
+                      Screenshots or File Attachments <span className="text-slate-400 font-normal">(Optional • Up to 3 files)</span>
+                    </label>
+                    <input
+                      type="file"
+                      name="attachments"
+                      multiple
+                      accept="image/*,.pdf,.txt,.csv,.log,.json"
+                      className="w-full rounded-xl border border-dashed border-slate-300 bg-slate-50 text-slate-700 py-2.5 px-3.5 text-xs font-medium file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-extrabold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
+                    />
+                  </div>
+
+                  <div className="pt-2">
+                    <SubmitButton
+                      pendingText="Submitting Ticket..."
+                      className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-500 px-8 py-3.5 text-sm font-extrabold text-white shadow-sm transition-colors cursor-pointer"
+                    >
+                      Submit Support Ticket →
+                    </SubmitButton>
+                  </div>
+                </form>
+              </div>
+            ) : (
+              <>
+                {/* CONVERSATION PANE HEADER (Modeled on "SSO Setup for New Workspace #78901") */}
+                <div className="px-6 py-4 border-b border-slate-300 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <h2 className="text-base sm:text-lg font-extrabold text-slate-900 truncate">
+                      {activeTicket.subject}{' '}
+                      <span className="text-slate-400 font-mono font-bold">
+                        #{activeTicket.id}
+                      </span>
+                    </h2>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={handleRefreshTickets}
+                      disabled={isRefreshingTickets}
+                      title="Refresh Conversation"
+                      className="px-3 py-1.5 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 cursor-pointer disabled:opacity-50"
+                    >
+                      {isRefreshingTickets ? '↻...' : '↻ Refresh'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsComposingNewTicket(true)}
+                      className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold cursor-pointer shadow-2xs"
+                    >
+                      + New Ticket
+                    </button>
+                  </div>
+                </div>
+
+                {/* MESSAGE BUBBLES STREAM */}
+                <div className="flex-1 p-6 space-y-6 overflow-y-auto max-h-[540px]">
+                  {/* Initial Customer Request Bubble (Left-aligned like Jordan Lee) */}
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-9 h-9 rounded-full bg-emerald-700 text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5">
+                      {userInitial}
+                    </div>
+                    <div className="space-y-1.5 max-w-[82%]">
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="font-bold text-slate-900">
+                          {activeTicket.reporter_name || userName}
+                        </span>
+                        <span className="text-slate-400">
+                          {formatMessageTime(activeTicket.created_at)}
+                        </span>
+                      </div>
+                      <div className="p-4 rounded-2xl bg-slate-100 border border-slate-300/80 text-sm text-slate-800 space-y-2">
+                        <div className="text-xs text-slate-500 space-y-0.5 pb-1.5 border-b border-slate-300/60">
+                          <div>
+                            From: {activeTicket.reporter_email || userEmail}
+                          </div>
+                          <div>Reply to: support@specialsauce.io</div>
+                        </div>
+                        <p className="whitespace-pre-wrap leading-relaxed">
+                          {activeTicket.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Subsequent Thread Messages */}
+                  {activeTicket.thread.map((msg) => {
+                    const isSupport = msg.direction === 'outbound_reply'
+                    if (isSupport) {
+                      // Right-aligned Support Agent Bubble (like Mark Benson in template.webp)
+                      return (
+                        <div
+                          key={msg.id}
+                          className="flex items-start justify-end gap-3.5"
+                        >
+                          <div className="space-y-1.5 max-w-[82%] flex flex-col items-end">
+                            <div className="flex items-center gap-2 text-xs">
+                              <span className="font-bold text-slate-900">
+                                {msg.author || 'Special Sauce Support'}
+                              </span>
+                              <span className="text-slate-400">
+                                {formatMessageTime(msg.created_at)}
+                              </span>
+                            </div>
+                            <div className="p-4 rounded-2xl bg-indigo-50/90 border border-indigo-200 text-sm text-slate-900 whitespace-pre-wrap leading-relaxed">
+                              {msg.text}
+                            </div>
+                          </div>
+                          <div className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5">
+                            SS
+                          </div>
+                        </div>
+                      )
+                    }
+
+                    // Left-aligned Customer Follow-up Bubble
+                    return (
+                      <div key={msg.id} className="flex items-start gap-3.5">
+                        <div className="w-9 h-9 rounded-full bg-emerald-700 text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5">
+                          {userInitial}
+                        </div>
+                        <div className="space-y-1.5 max-w-[82%]">
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="font-bold text-slate-900">
+                              {activeTicket.reporter_name || userName}
+                            </span>
+                            <span className="text-slate-400">
+                              {formatMessageTime(msg.created_at)}
+                            </span>
+                          </div>
+                          <div className="p-4 rounded-2xl bg-slate-100 border border-slate-300/80 text-sm text-slate-800 whitespace-pre-wrap leading-relaxed">
+                            {msg.text}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+
+                  {/* CSAT Rating Card (Shows when ticket is resolved/closed or when user clicks Rate in sidebar) */}
+                  {(activeTicket.state === 'closed' ||
+                    activeTicket.status === 'resolved' ||
+                    editingCsatMap[activeTicket.id]) && (
+                    <div className="p-5 rounded-2xl bg-slate-50 border-2 border-emerald-500/40 space-y-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-600 text-white text-[11px] font-black uppercase tracking-wider">
+                            ✓ Ticket Resolved
+                          </span>
+                          <h4 className="text-sm font-extrabold text-slate-900 mt-1">
+                            Rate your support experience on #{activeTicket.id}
+                          </h4>
+                        </div>
+                        {activeTicket.csat_score &&
+                          !editingCsatMap[activeTicket.id] && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setEditingCsatMap((prev) => ({
+                                  ...prev,
+                                  [activeTicket.id]: true,
+                                }))
+                              }
+                              className="text-xs font-extrabold text-indigo-600 hover:underline cursor-pointer"
+                            >
+                              Update Rating
+                            </button>
+                          )}
+                      </div>
+
+                      {activeTicket.csat_score &&
+                      !editingCsatMap[activeTicket.id] ? (
+                        <div className="flex flex-wrap items-center gap-3 text-xs">
+                          <span className="text-base text-amber-500 tracking-wider">
+                            {'★'.repeat(activeTicket.csat_score)}
+                            <span className="text-slate-400">
+                              {'★'.repeat(5 - activeTicket.csat_score)}
+                            </span>
+                          </span>
+                          <span className="font-extrabold text-slate-800">
+                            {activeTicket.csat_score}/5 Stars Submitted
+                          </span>
+                          {activeTicket.csat_comment && (
+                            <span className="text-slate-600 italic">
+                              — &ldquo;{activeTicket.csat_comment}&rdquo;
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="space-y-3 pt-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => {
+                              const selectedScore =
+                                csatRatingMap[activeTicket.id] ??
+                                activeTicket.csat_score ??
+                                0
+                              const active = star <= selectedScore
+                              return (
+                                <button
+                                  key={star}
+                                  type="button"
+                                  onClick={() =>
+                                    setCsatRatingMap((prev) => ({
+                                      ...prev,
+                                      [activeTicket.id]: star,
+                                    }))
+                                  }
+                                  className={`px-3 py-1.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-1 ${
+                                    active
+                                      ? 'bg-amber-400 border-amber-500 text-slate-950'
+                                      : 'bg-white border-slate-300 text-slate-600 hover:border-amber-400'
+                                  }`}
+                                >
+                                  <span>★</span>
+                                  <span>{star}</span>
+                                </button>
+                              )
+                            })}
+                          </div>
+                          <textarea
+                            rows={2}
+                            value={
+                              csatCommentMap[activeTicket.id] ??
+                              activeTicket.csat_comment ??
+                              ''
+                            }
+                            onChange={(e) =>
+                              setCsatCommentMap((prev) => ({
+                                ...prev,
+                                [activeTicket.id]: e.target.value,
+                              }))
+                            }
+                            placeholder="Optional: Add a comment about your support experience..."
+                            className="w-full rounded-xl border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none"
+                          />
+                          <div className="flex justify-end">
+                            <button
+                              type="button"
+                              disabled={
+                                isSubmittingCsat ||
+                                (csatRatingMap[activeTicket.id] ??
+                                  activeTicket.csat_score ??
+                                  0) < 1
+                              }
+                              onClick={() => handleSubmitCsat(activeTicket.id)}
+                              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold cursor-pointer disabled:opacity-50"
+                            >
+                              {isSubmittingCsat
+                                ? 'Saving...'
+                                : 'Submit Rating ★'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* DOCKED BOTTOM COMPOSER (Modeled on template.webp bottom bar) */}
+                <div className="p-4 sm:p-5 border-t border-slate-300 bg-slate-50/60 space-y-2.5">
+                  {replyFeedback &&
+                    replyFeedback.ticketId === activeTicket.id && (
+                      <div
+                        className={`p-3 rounded-xl text-xs font-bold border ${
+                          replyFeedback.type === 'error'
+                            ? 'bg-rose-50 text-rose-700 border-rose-200'
+                            : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                        }`}
+                      >
+                        {replyFeedback.message}
+                      </div>
+                    )}
+
+                  <div className="rounded-2xl border border-slate-300 bg-white p-3.5 space-y-2.5 shadow-2xs">
+                    <div className="text-[11px] text-slate-400 font-medium flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                      <span>
+                        To: support@specialsauce.io • From:{' '}
+                        {activeTicket.reporter_email || userEmail}
+                      </span>
+                      <span className="font-mono">
+                        Subject: [{activeTicket.id}] Re: {activeTicket.subject}
+                      </span>
+                    </div>
+                    <textarea
+                      rows={2}
+                      value={replyTextMap[activeTicket.id] || ''}
+                      onChange={(e) =>
+                        setReplyTextMap((prev) => ({
+                          ...prev,
+                          [activeTicket.id]: e.target.value,
+                        }))
+                      }
+                      placeholder={
+                        activeTicket.state === 'closed' ||
+                        activeTicket.status === 'resolved'
+                          ? `Reply to reopen #${activeTicket.id}...`
+                          : `Write a message to Special Sauce Support...`
+                      }
+                      className="w-full text-sm text-slate-900 bg-transparent focus:outline-none resize-none"
+                    />
+                    <div className="flex items-center justify-between gap-3 pt-1">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEditingCsatMap((prev) => ({
+                            ...prev,
+                            [activeTicket.id]: !prev[activeTicket.id],
+                          }))
+                        }
+                        className="text-xs font-bold text-slate-500 hover:text-indigo-600 cursor-pointer"
+                      >
+                        ★ Rate Support Experience
+                      </button>
+                      <button
+                        type="button"
+                        disabled={
+                          isSendingReply ||
+                          !(replyTextMap[activeTicket.id] || '').trim()
+                        }
+                        onClick={() => handleSendInAppReply(activeTicket.id)}
+                        className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
+                      >
+                        {isSendingReply ? 'Sending...' : 'Send Reply →'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* RIGHT 4 COLUMNS: STRUCTURED INSPECTOR SIDEBAR (Modeled on template.webp) */}
+          <div className="lg:col-span-4 bg-slate-50/40 divide-y divide-slate-300">
+            {/* Reporter Identity Header */}
+            <div className="p-5 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center text-sm font-black shrink-0">
+                  {userInitial}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-extrabold text-slate-900 truncate">
+                    {activeTicket?.reporter_name || userName}
+                  </div>
+                  <div className="text-xs text-slate-500 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                    <span className="truncate">
+                      {userEmail || 'Online now'}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <span className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 border border-indigo-300 text-indigo-700 text-xs font-extrabold">
-                {currentGuide.badge}
+            {/* Section 1: Ticket info */}
+            {activeTicket && (
+              <div className="p-5 space-y-3">
+                <button
+                  type="button"
+                  onClick={() => setOpenTicketInfo((prev) => !prev)}
+                  className="w-full flex items-center justify-between text-left cursor-pointer"
+                >
+                  <span className="text-xs font-extrabold text-slate-900">
+                    Ticket info
+                  </span>
+                  <span className="text-xs text-slate-400 font-bold">
+                    {openTicketInfo ? '⌃' : '⌄'}
+                  </span>
+                </button>
+
+                {openTicketInfo && (
+                  <div className="space-y-2.5 pt-1 text-xs">
+                    <div className="grid grid-cols-2 items-center">
+                      <span className="text-slate-500">Ticket ID</span>
+                      <span className="font-mono font-bold text-slate-900">
+                        {activeTicket.id}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 items-center">
+                      <span className="text-slate-500">Creation date</span>
+                      <span className="font-medium text-slate-800">
+                        {formatShortDate(activeTicket.created_at)}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 items-center">
+                      <span className="text-slate-500">Last message</span>
+                      <span className="font-medium text-slate-800">
+                        {formatShortDate(activeTicket.updated_at)}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 items-center">
+                      <span className="text-slate-500">Status</span>
+                      <div>
+                        {(() => {
+                          const st = getCustomerStatusMeta(activeTicket)
+                          return (
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${st.pillClasses}`}
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full ${st.dotColor}`}
+                              />
+                              {st.label}
+                            </span>
+                          )
+                        })()}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 items-center">
+                      <span className="text-slate-500">Priority</span>
+                      <div>
+                        {(() => {
+                          const pr = getPriorityDisplay(activeTicket.priority)
+                          return (
+                            <span className="inline-flex items-center gap-1.5 font-semibold text-slate-800">
+                              <span className={`font-black ${pr.color}`}>
+                                {pr.icon}
+                              </span>
+                              {pr.label}
+                            </span>
+                          )
+                        })()}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 items-center">
+                      <span className="text-slate-500">Source</span>
+                      <span className="font-medium text-slate-800">
+                        Support Portal
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 items-center">
+                      <span className="text-slate-500">Rating</span>
+                      <div>
+                        {activeTicket.csat_score ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setEditingCsatMap((prev) => ({
+                                ...prev,
+                                [activeTicket.id]: true,
+                              }))
+                            }
+                            className="inline-flex items-center gap-1 font-bold text-emerald-700 hover:underline cursor-pointer"
+                          >
+                            <span>😊</span>
+                            <span>
+                              {activeTicket.csat_score >= 4
+                                ? 'Good'
+                                : activeTicket.csat_score === 3
+                                ? 'Neutral'
+                                : 'Rated'}{' '}
+                              ({activeTicket.csat_score}/5 ★)
+                            </span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setEditingCsatMap((prev) => ({
+                                ...prev,
+                                [activeTicket.id]: true,
+                              }))
+                            }
+                            className="text-indigo-600 font-bold hover:underline cursor-pointer"
+                          >
+                            + Rate experience
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Section 2: Assignment */}
+            {activeTicket && (
+              <div className="p-5 space-y-3">
+                <button
+                  type="button"
+                  onClick={() => setOpenAssignment((prev) => !prev)}
+                  className="w-full flex items-center justify-between text-left cursor-pointer"
+                >
+                  <span className="text-xs font-extrabold text-slate-900">
+                    Assignment
+                  </span>
+                  <span className="text-xs text-slate-400 font-bold">
+                    {openAssignment ? '⌃' : '⌄'}
+                  </span>
+                </button>
+
+                {openAssignment && (
+                  <div className="space-y-2.5 pt-1 text-xs">
+                    <div className="grid grid-cols-2 items-center">
+                      <span className="text-slate-500">Team</span>
+                      <span className="inline-flex items-center gap-1.5 font-semibold text-slate-800">
+                        <span className="w-4 h-4 rounded bg-indigo-600 text-white text-[10px] font-black inline-flex items-center justify-center">
+                          S
+                        </span>
+                        Support
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 items-center">
+                      <span className="text-slate-500">Teammate</span>
+                      <span className="font-medium text-slate-800 truncate">
+                        {activeTicket.owned_by &&
+                        activeTicket.owned_by !== 'Unassigned'
+                          ? activeTicket.owned_by.replace(/\s*\(.*\)/, '')
+                          : 'Special Sauce Support'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Section 3: Ticket tags */}
+            {activeTicket && (
+              <div className="p-5 space-y-3">
+                <button
+                  type="button"
+                  onClick={() => setOpenTags((prev) => !prev)}
+                  className="w-full flex items-center justify-between text-left cursor-pointer"
+                >
+                  <span className="text-xs font-extrabold text-slate-900">
+                    Ticket tags
+                  </span>
+                  <span className="text-xs text-slate-400 font-bold">
+                    {openTags ? '⌃' : '⌄'}
+                  </span>
+                </button>
+
+                {openTags && (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    <span className="px-2.5 py-1 rounded-lg bg-slate-200/70 border border-slate-300 text-[11px] font-semibold text-slate-700">
+                      {activeTicket.category
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/^-|-$/g, '')}
+                    </span>
+                    <span className="px-2.5 py-1 rounded-lg bg-slate-200/70 border border-slate-300 text-[11px] font-semibold text-slate-700">
+                      {activeTicket.platform_area
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/^-|-$/g, '')}
+                    </span>
+                    {activeTicket.related_ref_id && (
+                      <span className="px-2.5 py-1 rounded-lg border border-dashed border-slate-400 text-[11px] font-mono font-semibold text-slate-600">
+                        {activeTicket.related_ref_id}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Section 4: Recent conversations (Ticket Switcher) */}
+            <div className="p-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setOpenRecentList((prev) => !prev)}
+                  className="flex items-center gap-2 text-left cursor-pointer"
+                >
+                  <span className="text-xs font-extrabold text-slate-900">
+                    Recent conversations ({myTickets.length})
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsComposingNewTicket(true)}
+                  className="text-[11px] font-extrabold text-indigo-600 hover:underline cursor-pointer"
+                >
+                  + New
+                </button>
+              </div>
+
+              {openRecentList && (
+                <div className="space-y-1.5 max-h-[260px] overflow-y-auto pr-1">
+                  {myTickets.map((t) => {
+                    const isSelected =
+                      !isComposingNewTicket && activeTicket?.id === t.id
+                    const st = getCustomerStatusMeta(t)
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => selectTicket(t.id)}
+                        className={`w-full text-left p-2.5 rounded-xl border transition-all cursor-pointer flex items-start justify-between gap-2 ${
+                          isSelected
+                            ? 'bg-indigo-50/70 border-indigo-500 shadow-2xs'
+                            : 'bg-white border-slate-300 hover:bg-slate-50'
+                        }`}
+                      >
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              className={`w-2 h-2 rounded-full shrink-0 ${st.dotColor}`}
+                            />
+                            <span className="font-mono text-[11px] font-black text-slate-900">
+                              #{t.id}
+                            </span>
+                            <span className="text-[10px] text-slate-400">
+                              {formatShortDate(t.updated_at)}
+                            </span>
+                          </div>
+                          <div className="text-xs font-bold text-slate-800 truncate mt-0.5">
+                            {t.subject}
+                          </div>
+                        </div>
+                        {t.csat_score && (
+                          <span className="text-[10px] font-black text-amber-600 shrink-0">
+                            {t.csat_score}★
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 2: HOW IT WORKS & GUIDES */}
+      {activeTab === 'guides' && (
+        <div className="p-6 md:p-8 space-y-8 animate-in fade-in duration-300">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 p-4 rounded-xl border-2 border-slate-300">
+            <div>
+              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">
+                Select Playbook View
               </span>
-              <h2 className="text-2xl font-extrabold text-slate-900">
-                {currentGuide.title}
-              </h2>
-              <p className="text-sm text-slate-500 leading-relaxed">
-                {currentGuide.subtitle}
+              <p className="text-xs text-slate-600 mt-0.5">
+                View step-by-step workflows (including the 2-Stage Identity Vault &amp; 30-Day Freshness rules) or copy the plain-text cheat sheet.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
-              {currentGuide.steps.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="p-5 rounded-xl bg-white border-2 border-slate-300 shadow-sm flex flex-col sm:flex-row sm:items-start gap-4 transition-colors"
-                >
-                  <span className="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-black uppercase tracking-wider shrink-0">
-                    {item.step}
-                  </span>
-                  <div>
-                    <h3 className="text-base font-extrabold text-slate-900">
-                      {item.title}
-                    </h3>
-                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">
-                      {item.description}
-                    </p>
+            <div className="inline-flex rounded-xl bg-white p-1 border-2 border-slate-300 shadow-sm shrink-0">
+              <button
+                type="button"
+                onClick={() => setSelectedGuide('employer')}
+                className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
+                  selectedGuide === 'employer'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                🏢 Employer &amp; BPO Guide
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedGuide('candidate')}
+                className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
+                  selectedGuide === 'candidate'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                👤 Candidate Guide
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <span className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 border border-indigo-300 text-indigo-700 text-xs font-extrabold">
+              {currentGuide.badge}
+            </span>
+            <h2 className="text-2xl font-extrabold text-slate-900">
+              {currentGuide.title}
+            </h2>
+            <p className="text-sm text-slate-500 leading-relaxed">
+              {currentGuide.subtitle}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            {currentGuide.steps.map((item, idx) => (
+              <div
+                key={idx}
+                className="p-5 rounded-xl bg-white border-2 border-slate-300 shadow-sm flex flex-col sm:flex-row sm:items-start gap-4 transition-colors"
+              >
+                <span className="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-black uppercase tracking-wider shrink-0">
+                  {item.step}
+                </span>
+                <div>
+                  <h3 className="text-base font-extrabold text-slate-900">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-2xl bg-slate-900 text-white p-6 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+              <div>
+                <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-400 block">
+                  Copy-Paste Team Briefing Sheet
+                </span>
+                <h3 className="text-base font-bold text-white mt-0.5">
+                  Share this summary in Slack, Microsoft Teams, or Email
+                </h3>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleCopyGuide(currentGuide.id)}
+                className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-colors shrink-0 flex items-center gap-2 cursor-pointer ${
+                  copiedGuideId === currentGuide.id
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-indigo-600 text-white hover:bg-indigo-500'
+                }`}
+              >
+                {copiedGuideId === currentGuide.id
+                  ? 'Copied to Clipboard!'
+                  : 'Copy Briefing Sheet'}
+              </button>
+            </div>
+
+            <pre className="text-xs text-slate-300 font-mono whitespace-pre-wrap leading-relaxed bg-slate-950/70 p-4 rounded-xl border border-slate-800 overflow-x-auto">
+              {currentGuide.copyPasteText}
+            </pre>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: SEARCHABLE FAQS */}
+      {activeTab === 'kb' && (
+        <div className="p-6 md:p-8 space-y-6 animate-in fade-in duration-300">
+          <div className="flex flex-col md:flex-row gap-3">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="Search FAQs (e.g. 2-Stage Vault, 30-day expiry, shortlist, W-2 vs 1099, Stripe)..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border-2 border-slate-300 bg-slate-50 focus:bg-white focus:border-indigo-500 text-sm font-medium text-slate-900 transition-all"
+              />
+            </div>
+
+            <div className="inline-flex rounded-xl bg-slate-100 p-1 border-2 border-slate-300 shrink-0">
+              <button
+                type="button"
+                onClick={() => setFaqRoleFilter('all')}
+                className={`px-3.5 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
+                  faqRoleFilter === 'all'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                All FAQs
+              </button>
+              <button
+                type="button"
+                onClick={() => setFaqRoleFilter('employer')}
+                className={`px-3.5 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
+                  faqRoleFilter === 'employer'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Employer FAQs
+              </button>
+              <button
+                type="button"
+                onClick={() => setFaqRoleFilter('candidate')}
+                className={`px-3.5 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
+                  faqRoleFilter === 'candidate'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Candidate FAQs
+              </button>
+            </div>
+          </div>
+
+          {Object.keys(groupedFaqs).length === 0 ? (
+            <div className="text-center py-12 text-slate-500 font-medium">
+              No articles found matching &ldquo;{searchQuery}&rdquo;.
+              <br />
+              <button
+                type="button"
+                onClick={() => {
+                  switchTab('ticket')
+                  setIsComposingNewTicket(true)
+                }}
+                className="text-indigo-600 font-bold hover:underline mt-2 cursor-pointer"
+              >
+                Submit a support ticket instead →
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-8">
+              {Object.entries(groupedFaqs).map(([category, items]) => (
+                <div key={category}>
+                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-3 ml-1">
+                    {category}
+                  </h3>
+                  <div className="space-y-3">
+                    {items.map((faq) => {
+                      const isExpanded = expandedFaqId === faq.id
+                      return (
+                        <div
+                          key={faq.id}
+                          className="border-2 border-slate-300 rounded-xl overflow-hidden transition-colors"
+                        >
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setExpandedFaqId(isExpanded ? null : faq.id)
+                            }
+                            className="w-full px-5 py-4 text-left flex items-center justify-between bg-white focus:outline-none cursor-pointer"
+                          >
+                            <span className="font-bold text-slate-800 text-sm pr-4">
+                              {faq.question}
+                            </span>
+                            <span className="text-indigo-600 font-extrabold text-xs">
+                              {isExpanded ? 'Hide' : 'View'}
+                            </span>
+                          </button>
+                          {isExpanded && (
+                            <div className="px-5 pb-4 text-sm text-slate-600 leading-relaxed bg-slate-50/50 border-t border-slate-300 pt-3">
+                              {faq.answer}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               ))}
             </div>
+          )}
+        </div>
+      )}
 
-            <div className="rounded-2xl bg-slate-900 text-white p-6 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-                <div>
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-400 block">
-                    Copy-Paste Team Briefing Sheet
-                  </span>
-                  <h3 className="text-base font-bold text-white mt-0.5">
-                    Share this summary in Slack, Microsoft Teams, or Email
-                  </h3>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => handleCopyGuide(currentGuide.id)}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-colors shrink-0 flex items-center gap-2 cursor-pointer ${
-                    copiedGuideId === currentGuide.id
-                      ? 'bg-emerald-500 text-white'
-                      : 'bg-indigo-600 text-white hover:bg-indigo-500'
-                  }`}
-                >
-                  {copiedGuideId === currentGuide.id
-                    ? 'Copied to Clipboard!'
-                    : 'Copy Briefing Sheet'}
-                </button>
+      {/* TAB 4: 2-STAGE VAULT & STRIPE */}
+      {activeTab === 'security' && (
+        <div className="p-6 md:p-8 space-y-8 animate-in fade-in duration-300">
+          <div className="p-6 rounded-2xl bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-slate-300/30 text-emerald-300 text-xs font-extrabold">
+                PCI-DSS Level 1 • Biometric Isolation • 2-Stage Anti-Harvesting Vault
               </div>
-
-              <pre className="text-xs text-slate-300 font-mono whitespace-pre-wrap leading-relaxed bg-slate-950/70 p-4 rounded-xl border border-slate-800 overflow-x-auto">
-                {currentGuide.copyPasteText}
-              </pre>
+              <h2 className="text-2xl font-extrabold tracking-tight">
+                {SECURITY_ARCHITECTURE_DATA.title}
+              </h2>
+              <p className="text-sm text-slate-300 max-w-2xl leading-relaxed">
+                {SECURITY_ARCHITECTURE_DATA.subtitle}
+              </p>
             </div>
           </div>
-        )}
 
-        {activeTab === 'kb' && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="flex flex-col md:flex-row gap-3">
-              <div className="relative flex-1">
-                <input
-                  type="text"
-                  placeholder="Search FAQs (e.g. 2-Stage Vault, 30-day expiry, shortlist, W-2 vs 1099, Stripe)..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-300 bg-slate-50 focus:bg-white focus:border-indigo-500 text-sm font-medium text-slate-900 transition-all"
-                />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="rounded-2xl border-2 border-indigo-300 bg-indigo-50/40 p-6 space-y-5">
+              <div className="flex items-center gap-3 border-b border-indigo-300/80 pb-4">
+                <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 font-black">
+                  S
+                </div>
+                <div>
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600 block">
+                    Zero Platform Access • Vaulted by Stripe
+                  </span>
+                  <h3 className="text-lg font-extrabold text-slate-900">
+                    Stored Exclusively in Stripe
+                  </h3>
+                </div>
               </div>
-
-              <div className="inline-flex rounded-xl bg-slate-100 p-1 border-2 border-slate-300 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setFaqRoleFilter('all')}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
-                    faqRoleFilter === 'all'
-                      ? 'bg-white text-slate-900 shadow-sm'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  All FAQs
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFaqRoleFilter('employer')}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
-                    faqRoleFilter === 'employer'
-                      ? 'bg-white text-slate-900 shadow-sm'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  Employer FAQs
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFaqRoleFilter('candidate')}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
-                    faqRoleFilter === 'candidate'
-                      ? 'bg-white text-slate-900 shadow-sm'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  Candidate FAQs
-                </button>
-              </div>
-            </div>
-
-            {Object.keys(groupedFaqs).length === 0 ? (
-              <div className="text-center py-12 text-slate-500 font-medium">
-                No articles found matching &ldquo;{searchQuery}&rdquo;.
-                <br />
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('ticket')}
-                  className="text-indigo-600 font-bold hover:underline mt-2"
-                >
-                  Submit a support ticket instead →
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-8">
-                {Object.entries(groupedFaqs).map(([category, items]) => (
-                  <div key={category}>
-                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-3 ml-1">
-                      {category}
-                    </h3>
-                    <div className="space-y-3">
-                      {items.map((faq) => {
-                        const isExpanded = expandedFaqId === faq.id
-                        return (
-                          <div
-                            key={faq.id}
-                            className="border-2 border-slate-300 rounded-xl overflow-hidden transition-colors"
-                          >
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setExpandedFaqId(isExpanded ? null : faq.id)
-                              }
-                              className="w-full px-5 py-4 text-left flex items-center justify-between bg-white focus:outline-none cursor-pointer"
-                            >
-                              <span className="font-bold text-slate-800 text-sm pr-4">
-                                {faq.question}
-                              </span>
-                              <span className="text-indigo-600 font-extrabold text-xs">
-                                {isExpanded ? 'Hide' : 'View'}
-                              </span>
-                            </button>
-                            {isExpanded && (
-                              <div className="px-5 pb-4 text-sm text-slate-600 leading-relaxed bg-slate-50/50 border-t border-slate-300 pt-3">
-                                {faq.answer}
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
+              <div className="space-y-3">
+                {SECURITY_ARCHITECTURE_DATA.stripeVaultItems.map((item, i) => (
+                  <div
+                    key={i}
+                    className="bg-white p-4 rounded-xl border border-indigo-300 shadow-sm space-y-1"
+                  >
+                    <div className="text-sm font-extrabold text-slate-900">
+                      {item.title}
                     </div>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      {item.detail}
+                    </p>
                   </div>
                 ))}
               </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'security' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="p-6 rounded-2xl bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-slate-300/30 text-emerald-300 text-xs font-extrabold">
-                  PCI-DSS Level 1 • Biometric Isolation • 2-Stage Anti-Harvesting Vault
-                </div>
-                <h2 className="text-2xl font-extrabold tracking-tight">
-                  {SECURITY_ARCHITECTURE_DATA.title}
-                </h2>
-                <p className="text-sm text-slate-300 max-w-2xl leading-relaxed">
-                  {SECURITY_ARCHITECTURE_DATA.subtitle}
-                </p>
-              </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="rounded-2xl border-2 border-indigo-300 bg-indigo-50/40 p-6 space-y-5">
-                <div className="flex items-center gap-3 border-b border-indigo-300/80 pb-4">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 font-black">
-                    S
-                  </div>
-                  <div>
-                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600 block">
-                      Zero Platform Access • Vaulted by Stripe
-                    </span>
-                    <h3 className="text-lg font-extrabold text-slate-900">
-                      Stored Exclusively in Stripe
-                    </h3>
-                  </div>
+            <div className="rounded-2xl border-2 border-emerald-300 bg-emerald-50/40 p-6 space-y-5">
+              <div className="flex items-center gap-3 border-b border-emerald-300/80 pb-4">
+                <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 font-black">
+                  SS
                 </div>
-                <div className="space-y-3">
-                  {SECURITY_ARCHITECTURE_DATA.stripeVaultItems.map((item, i) => (
+                <div>
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 block">
+                    Row-Level Security (RLS) &amp; 2-Stage Identity Vault
+                  </span>
+                  <h3 className="text-lg font-extrabold text-slate-900">
+                    Protected by Special Sauce
+                  </h3>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {SECURITY_ARCHITECTURE_DATA.platformStoredItems.map(
+                  (item, i) => (
                     <div
                       key={i}
-                      className="bg-white p-4 rounded-xl border border-indigo-300 shadow-sm space-y-1"
+                      className="bg-white p-4 rounded-xl border border-emerald-300 shadow-sm space-y-1"
                     >
                       <div className="text-sm font-extrabold text-slate-900">
                         {item.title}
@@ -621,543 +1493,42 @@ export default function SupportCenterClient({
                         {item.detail}
                       </p>
                     </div>
-                  ))}
-                </div>
+                  )
+                )}
               </div>
-
-              <div className="rounded-2xl border-2 border-emerald-300 bg-emerald-50/40 p-6 space-y-5">
-                <div className="flex items-center gap-3 border-b border-emerald-300/80 pb-4">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 font-black">
-                    SS
-                  </div>
-                  <div>
-                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 block">
-                      Row-Level Security (RLS) &amp; 2-Stage Identity Vault
-                    </span>
-                    <h3 className="text-lg font-extrabold text-slate-900">
-                      Protected by Special Sauce
-                    </h3>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  {SECURITY_ARCHITECTURE_DATA.platformStoredItems.map(
-                    (item, i) => (
-                      <div
-                        key={i}
-                        className="bg-white p-4 rounded-xl border border-emerald-300 shadow-sm space-y-1"
-                      >
-                        <div className="text-sm font-extrabold text-slate-900">
-                          {item.title}
-                        </div>
-                        <p className="text-xs text-slate-600 leading-relaxed">
-                          {item.detail}
-                        </p>
-                      </div>
-                    )
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl bg-slate-900 text-white p-6 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-                <div>
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400 block">
-                    IT &amp; Procurement Security Summary
-                  </span>
-                  <h3 className="text-base font-bold text-white mt-0.5">
-                    Copy-Paste Data Custody, 2-Stage Vault &amp; Stripe Brief
-                  </h3>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleCopySecurityBrief}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-colors shrink-0 cursor-pointer ${
-                    copiedSecurity
-                      ? 'bg-emerald-500 text-white'
-                      : 'bg-indigo-600 text-white hover:bg-indigo-500'
-                  }`}
-                >
-                  {copiedSecurity ? 'Copied Security Brief!' : 'Copy Security Brief'}
-                </button>
-              </div>
-
-              <pre className="text-xs text-slate-300 font-mono whitespace-pre-wrap leading-relaxed bg-slate-950/70 p-4 rounded-xl border border-slate-800 overflow-x-auto">
-                {SECURITY_ARCHITECTURE_DATA.copyPasteSecurityBrief}
-              </pre>
             </div>
           </div>
-        )}
 
-        {activeTab === 'ticket' && (
-          <div className="animate-in fade-in duration-300 space-y-10">
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
-                <div>
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-600 block">
-                    In-App Support Inbox
-                  </span>
-                  <h2 className="text-xl font-extrabold text-slate-900">
-                    My Support Tickets &amp; Conversation Threads ({myTickets.length})
-                  </h2>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleRefreshTickets}
-                  disabled={isRefreshingTickets}
-                  className="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 text-xs font-extrabold text-slate-700 cursor-pointer disabled:opacity-50"
-                >
-                  {isRefreshingTickets ? 'Refreshing...' : '↻ Refresh Threads'}
-                </button>
+          <div className="rounded-2xl bg-slate-900 text-white p-6 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+              <div>
+                <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400 block">
+                  IT &amp; Procurement Security Summary
+                </span>
+                <h3 className="text-base font-bold text-white mt-0.5">
+                  Copy-Paste Data Custody, 2-Stage Vault &amp; Stripe Brief
+                </h3>
               </div>
 
-              {myTickets.length === 0 ? (
-                <div className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
-                  You don&apos;t have any support or feedback tickets yet. Use the form below to submit a new request.
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {myTickets.map((ticket) => {
-                    const isOpenThread = selectedTicketId === ticket.id
-                    const badge = getCustomerStatusBadge(ticket)
-                    const replyDraft = replyTextMap[ticket.id] || ''
-                    const isResolvedOrClosed =
-                      ticket.state === 'closed' || ticket.status === 'resolved'
-                    const currentStarSelection =
-                      csatRatingMap[ticket.id] ?? ticket.csat_score ?? 0
-                    const currentCommentDraft =
-                      csatCommentMap[ticket.id] ?? ticket.csat_comment ?? ''
-                    const isEditingCsat =
-                      editingCsatMap[ticket.id] || !ticket.csat_score
-
-                    return (
-                      <div
-                        key={ticket.id}
-                        className={`rounded-2xl border-2 transition-all overflow-hidden ${
-                          isOpenThread
-                            ? 'border-indigo-500 bg-white shadow-md'
-                            : 'border-slate-200 bg-slate-50/70 hover:border-slate-300'
-                        }`}
-                      >
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setSelectedTicketId(isOpenThread ? null : ticket.id)
-                          }
-                          className="w-full p-4 sm:p-5 text-left flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer"
-                        >
-                          <div className="space-y-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="font-mono text-xs font-black px-2.5 py-0.5 rounded-md bg-slate-900 text-white">
-                                {ticket.id}
-                              </span>
-                              <span
-                                className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-md border ${badge.classes}`}
-                              >
-                                {badge.label}
-                              </span>
-                              {ticket.csat_score && (
-                                <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300">
-                                  {'★'.repeat(ticket.csat_score)}{' '}
-                                  {ticket.csat_score}/5 Rated
-                                </span>
-                              )}
-                              <span className="text-xs text-slate-400 font-medium">
-                                Updated{' '}
-                                {new Date(ticket.updated_at).toLocaleString()}
-                              </span>
-                            </div>
-                            <h3 className="text-base font-extrabold text-slate-900">
-                              {ticket.subject}
-                            </h3>
-                          </div>
-
-                          <div className="flex items-center gap-2 shrink-0">
-                            <span className="text-xs font-bold text-indigo-600">
-                              {isOpenThread
-                                ? 'Hide Thread ▲'
-                                : `View Thread (${ticket.thread.length + 1}) ▼`}
-                            </span>
-                          </div>
-                        </button>
-
-                        {isOpenThread && (
-                          <div className="border-t border-slate-200 p-4 sm:p-6 bg-slate-50/50 space-y-5">
-                            {isResolvedOrClosed && (
-                              <div className="p-5 rounded-2xl bg-emerald-50/90 border-2 border-emerald-300 space-y-4">
-                                <div className="flex flex-wrap items-center justify-between gap-2">
-                                  <div>
-                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-700 text-white text-[11px] font-black uppercase tracking-wider">
-                                      ✓ Issue Marked as Resolved
-                                    </span>
-                                    <h4 className="text-sm sm:text-base font-extrabold text-slate-900 mt-1.5">
-                                      How was your Special Sauce support experience on {ticket.id}?
-                                    </h4>
-                                  </div>
-                                  {ticket.csat_score && !isEditingCsat && (
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        setEditingCsatMap((prev) => ({
-                                          ...prev,
-                                          [ticket.id]: true,
-                                        }))
-                                      }
-                                      className="text-xs font-extrabold text-indigo-700 hover:underline cursor-pointer"
-                                    >
-                                      Edit Rating
-                                    </button>
-                                  )}
-                                </div>
-
-                                {ticket.csat_score && !isEditingCsat ? (
-                                  <div className="bg-white rounded-xl p-4 border border-emerald-200 space-y-1.5">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-lg tracking-wider text-amber-500">
-                                        {'★'.repeat(ticket.csat_score)}
-                                        <span className="text-slate-300">
-                                          {'★'.repeat(5 - ticket.csat_score)}
-                                        </span>
-                                      </span>
-                                      <span className="text-xs font-black text-slate-800">
-                                        {ticket.csat_score} / 5 Stars Submitted
-                                      </span>
-                                    </div>
-                                    {ticket.csat_comment && (
-                                      <p className="text-xs text-slate-600 italic">
-                                        &ldquo;{ticket.csat_comment}&rdquo;
-                                      </p>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <div className="bg-white rounded-xl p-4 border border-emerald-200 space-y-3">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                      <span className="text-xs font-extrabold text-slate-700 mr-1">
-                                        Select Star Rating:
-                                      </span>
-                                      {[1, 2, 3, 4, 5].map((star) => {
-                                        const active =
-                                          star <= currentStarSelection
-                                        return (
-                                          <button
-                                            key={star}
-                                            type="button"
-                                            onClick={() =>
-                                              setCsatRatingMap((prev) => ({
-                                                ...prev,
-                                                [ticket.id]: star,
-                                              }))
-                                            }
-                                            className={`px-3 py-1.5 rounded-xl border text-sm font-black transition-all cursor-pointer flex items-center gap-1 ${
-                                              active
-                                                ? 'bg-amber-400 border-amber-500 text-slate-950 shadow-xs scale-105'
-                                                : 'bg-slate-50 border-slate-300 text-slate-500 hover:border-amber-400'
-                                            }`}
-                                          >
-                                            <span>★</span>
-                                            <span className="text-xs">
-                                              {star}
-                                            </span>
-                                          </button>
-                                        )
-                                      })}
-                                    </div>
-
-                                    <div>
-                                      <label className="block text-xs font-extrabold text-slate-700 mb-1">
-                                        Additional Feedback or Comments (Optional)
-                                      </label>
-                                      <textarea
-                                        rows={2}
-                                        value={currentCommentDraft}
-                                        onChange={(e) =>
-                                          setCsatCommentMap((prev) => ({
-                                            ...prev,
-                                            [ticket.id]: e.target.value,
-                                          }))
-                                        }
-                                        placeholder="Tell us what went well or how we can improve our support..."
-                                        className="w-full rounded-lg border border-slate-300 p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none"
-                                      />
-                                    </div>
-
-                                    <div className="flex justify-end">
-                                      <button
-                                        type="button"
-                                        disabled={
-                                          isSubmittingCsat ||
-                                          currentStarSelection < 1
-                                        }
-                                        onClick={() =>
-                                          handleSubmitCsat(ticket.id)
-                                        }
-                                        className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
-                                      >
-                                        {isSubmittingCsat
-                                          ? 'Saving Feedback...'
-                                          : 'Submit Support Rating ★'}
-                                      </button>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-
-                            <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
-                              <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
-                                <div className="flex items-center justify-between text-xs text-slate-500 mb-1.5">
-                                  <span className="font-extrabold text-slate-800">
-                                    You • Original Request ({ticket.category})
-                                  </span>
-                                  <span>
-                                    {new Date(
-                                      ticket.created_at
-                                    ).toLocaleString()}
-                                  </span>
-                                </div>
-                                <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
-                                  {ticket.description}
-                                </p>
-                              </div>
-
-                              {ticket.thread.map((msg) => {
-                                const isSupport =
-                                  msg.direction === 'outbound_reply'
-                                return (
-                                  <div
-                                    key={msg.id}
-                                    className={`p-4 rounded-xl border ${
-                                      isSupport
-                                        ? 'bg-indigo-50/80 border-indigo-200 ml-0 sm:mr-6'
-                                        : 'bg-emerald-50/70 border-emerald-200 ml-0 sm:ml-6'
-                                    }`}
-                                  >
-                                    <div className="flex items-center justify-between text-xs mb-1.5">
-                                      <span
-                                        className={`font-extrabold ${
-                                          isSupport
-                                            ? 'text-indigo-900'
-                                            : 'text-emerald-900'
-                                        }`}
-                                      >
-                                        {isSupport
-                                          ? '🛡️ Special Sauce Support Desk'
-                                          : '👤 Your Reply'}
-                                      </span>
-                                      <span className="text-slate-500">
-                                        {new Date(
-                                          msg.created_at
-                                        ).toLocaleString()}
-                                      </span>
-                                    </div>
-                                    <p className="text-sm text-slate-800 whitespace-pre-wrap leading-relaxed">
-                                      {msg.text}
-                                    </p>
-                                  </div>
-                                )
-                              })}
-                            </div>
-
-                            {replyFeedback &&
-                              replyFeedback.ticketId === ticket.id && (
-                                <div
-                                  className={`p-3.5 rounded-xl text-xs font-bold border ${
-                                    replyFeedback.type === 'error'
-                                      ? 'bg-rose-50 text-rose-700 border-rose-200'
-                                      : 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                                  }`}
-                                >
-                                  {replyFeedback.message}
-                                </div>
-                              )}
-
-                            <div className="bg-white p-4 rounded-xl border border-slate-300 space-y-3">
-                              <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-600">
-                                {isResolvedOrClosed
-                                  ? `Need more help on ${ticket.id}? Reply below to reopen this ticket`
-                                  : `Reply to Ticket ${ticket.id}`}
-                              </label>
-                              <textarea
-                                rows={3}
-                                value={replyDraft}
-                                onChange={(e) =>
-                                  setReplyTextMap((prev) => ({
-                                    ...prev,
-                                    [ticket.id]: e.target.value,
-                                  }))
-                                }
-                                placeholder={`Type a reply for ${ticket.id}... (Submitting will reopen/mark this ticket Pending Support)`}
-                                className="w-full rounded-lg border border-slate-300 p-3 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none"
-                              />
-                              <div className="flex items-center justify-between gap-3">
-                                <span className="text-xs text-slate-500">
-                                  You can reply right here or reply via email with{' '}
-                                  <strong className="font-mono">
-                                    [{ticket.id}]
-                                  </strong>{' '}
-                                  in the subject.
-                                </span>
-                                <button
-                                  type="button"
-                                  disabled={
-                                    isSendingReply || !replyDraft.trim()
-                                  }
-                                  onClick={() =>
-                                    handleSendInAppReply(ticket.id)
-                                  }
-                                  className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
-                                >
-                                  {isSendingReply
-                                    ? 'Sending Reply...'
-                                    : 'Send Reply to Support →'}
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-
-            <div className="max-w-2xl mx-auto pt-6 border-t-2 border-slate-200">
-              <div className="text-center mb-8">
-                <h2 className="text-xl font-bold text-slate-900">
-                  Open a New Support Ticket
-                </h2>
-                <p className="text-sm text-slate-500 mt-1">
-                  Your account ID, role, and organization details are automatically attached to this request.
-                </p>
-              </div>
-
-              {ticketStatus && (
-                <div
-                  className={`mb-6 p-4 rounded-xl text-sm font-bold border ${
-                    ticketStatus.type === 'error'
-                      ? 'bg-rose-50 text-rose-700 border-rose-300'
-                      : 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                  }`}
-                >
-                  {ticketStatus.message}
-                </div>
-              )}
-
-              <form
-                id="support-form"
-                action={handleTicketSubmit}
-                className="space-y-5"
+              <button
+                type="button"
+                onClick={handleCopySecurityBrief}
+                className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-colors shrink-0 cursor-pointer ${
+                  copiedSecurity
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-indigo-600 text-white hover:bg-indigo-500'
+                }`}
               >
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-1.5">
-                      Category
-                    </label>
-                    <select
-                      name="category"
-                      required
-                      className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
-                    >
-                      <option value="General Support">General Support &amp; Questions</option>
-                      <option value="2-Stage Vault & Encrypted Messaging">2-Stage Identity Vault &amp; Messaging</option>
-                      <option value="Billing, Plans & Pitch Credits">Billing, Plans &amp; Pitch Credits</option>
-                      <option value="Account & Domain Verification">Stripe ID / Corporate Domain Verification</option>
-                      <option value="Enterprise ATS & Webhook Integration">Enterprise ATS &amp; Webhook Hub</option>
-                      <option value="Technical Issue / Bug Report">Technical Issue / Bug Report</option>
-                      <option value="Feature Request / Documentation Feedback">Feature Request / Documentation Feedback</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-1.5">
-                      Platform Area / Feature
-                    </label>
-                    <select
-                      name="platform_area"
-                      required
-                      className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
-                    >
-                      <option value="Onboarding & Authentication">Onboarding &amp; Authentication</option>
-                      <option value="Stripe Identity Verification (Candidate)">Stripe Identity Verification (Candidate)</option>
-                      <option value="Corporate Domain / DNS Verification (Employer)">Corporate Domain / DNS Verification (Employer)</option>
-                      <option value="2-Stage Resume & Contact Vault">2-Stage Resume &amp; Contact Vault</option>
-                      <option value="5-Point AI Fit Radar & Dealbreakers">5-Point AI Fit Radar &amp; Dealbreakers</option>
-                      <option value="Billing, Subscriptions & Credits">Billing, Subscriptions &amp; Credits</option>
-                      <option value="Enterprise ATS & Webhook Hub">Enterprise ATS &amp; Webhook Hub</option>
-                      <option value="Encrypted Stage 1/2 Messaging">Encrypted Stage 1/2 Messaging</option>
-                      <option value="Other / General Platform">Other / General Platform</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="sm:col-span-2">
-                    <label className="block text-sm font-bold text-slate-700 mb-1.5">
-                      Subject
-                    </label>
-                    <input
-                      type="text"
-                      name="subject"
-                      required
-                      placeholder="Brief summary of your question or issue..."
-                      className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-1.5">
-                      Ref ID <span className="text-slate-400 font-normal">(Optional)</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="related_ref_id"
-                      placeholder="e.g. SS-8F92A1B0"
-                      className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-mono"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-1.5">
-                    Message &amp; Steps to Reproduce
-                  </label>
-                  <textarea
-                    name="message"
-                    required
-                    rows={5}
-                    placeholder="Provide as much detail as possible so our team can assist you quickly..."
-                    className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-3.5 text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-1.5">
-                    Screenshots or File Attachments <span className="text-slate-400 font-normal">(Optional • Up to 3 files, PNG/JPG/PDF/TXT)</span>
-                  </label>
-                  <input
-                    type="file"
-                    name="attachments"
-                    multiple
-                    accept="image/*,.pdf,.txt,.csv,.log,.json"
-                    className="w-full rounded-lg border border-dashed border-slate-300 bg-slate-50 text-slate-700 py-2.5 px-3.5 text-xs font-medium file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-extrabold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
-                  />
-                </div>
-
-                <div className="pt-2">
-                  <SubmitButton
-                    pendingText="Uploading & Sending to Support..."
-                    className="w-full rounded-xl bg-slate-900 px-8 py-3.5 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-600 transition-colors cursor-pointer"
-                  >
-                    Submit Support Ticket
-                  </SubmitButton>
-                </div>
-              </form>
+                {copiedSecurity ? 'Copied Security Brief!' : 'Copy Security Brief'}
+              </button>
             </div>
+
+            <pre className="text-xs text-slate-300 font-mono whitespace-pre-wrap leading-relaxed bg-slate-950/70 p-4 rounded-xl border border-slate-800 overflow-x-auto">
+              {SECURITY_ARCHITECTURE_DATA.copyPasteSecurityBrief}
+            </pre>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

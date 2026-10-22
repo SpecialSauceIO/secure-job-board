@@ -39,9 +39,14 @@ export interface UserVisibleTicket {
   work_item_type: string
   state: "open" | "closed"
   status: string
+  priority: string
+  owned_by: string
+  reporter_name: string
+  reporter_email: string
   subject: string
   category: string
   platform_area: string
+  related_ref_id?: string
   description: string
   parent_ticket_id?: string | null
   created_at: string
@@ -189,9 +194,14 @@ export async function getUserOpsTickets(
       work_item_type: String(item.work_item_type || "Support_Ticket"),
       state: item.state === "closed" ? "closed" : "open",
       status: String(item.status || "new"),
+      priority: String(item.priority || "P2_Normal"),
+      owned_by: String(item.owned_by || "Special Sauce Support"),
+      reporter_name: String(item.reporter_name || "You"),
+      reporter_email: String(item.reporter_email || userEmail || ""),
       subject: String(item.subject || "Support Request"),
       category: String(item.category || "General Support"),
       platform_area: String(item.platform_area || "General Platform"),
+      related_ref_id: item.related_ref_id ? String(item.related_ref_id) : "",
       description: String(item.description || ""),
       parent_ticket_id: item.parent_ticket_id || null,
       created_at: String(item.created_at || new Date().toISOString()),
