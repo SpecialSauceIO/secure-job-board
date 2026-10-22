@@ -208,11 +208,16 @@ export async function getUserOpsTickets(
       csat_comment: item.csat_comment ? String(item.csat_comment) : null,
       csat_submitted_at: item.csat_submitted_at ? String(item.csat_submitted_at) : null,
       thread: (Array.isArray(item.thread) ? item.thread : [])
-        .filter(
-          (m: any) =>
-            m &&
-            (m.direction === "outbound_reply" || m.direction === "inbound_customer")
-        )
+        .filter((m: any) => {
+          if (!m || (m.direction !== "outbound_reply" && m.direction !== "inbound_customer")) {
+            return false
+          }
+          const txt = String(m.text || "").trim()
+          if (txt.includes("Support Ticket Received:") || txt.includes("Support Ticket [")) {
+            return false
+          }
+          return true
+        })
         .map((m: any) => ({
           id: String(m.id || `msg-${Date.now()}`),
           author:
