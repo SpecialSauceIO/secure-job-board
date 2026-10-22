@@ -371,11 +371,18 @@ export default function SupportCenterClient({
           setMyTickets(res.tickets)
         }
         setEditingCsatMap((prev) => ({ ...prev, [ticketId]: false }))
-        setReplyFeedback({
-          ticketId,
+        setIsComposingNewTicket(true)
+        setTicketStatus({
           type: 'success',
-          message: `Thank you! Your ${rating}/5 star rating has been saved.`,
+          message: `✓ Thank you! Your ${rating}/5 star rating for #${ticketId} has been saved and your ticket is complete.`,
         })
+        try {
+          const url = new URL(window.location.href)
+          url.searchParams.set('tab', 'ticket')
+          url.searchParams.delete('ticket')
+          url.searchParams.delete('rate')
+          window.history.replaceState({}, '', url.toString())
+        } catch {}
       }
     } finally {
       setIsSubmittingCsat(false)
