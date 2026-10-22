@@ -202,7 +202,7 @@ export default function CalibrationOpsCard() {
                 <p className="text-[11px] text-slate-400 mt-0.5">{meta.subtitle}</p>
                 <div className="mt-3 flex items-baseline justify-between">
                   <span className="text-2xl font-black text-white">
-                    {item !== undefined ? item.overall + "%" : "—"}
+                    {item !== undefined ? String(item.overall).replace(/%/g, "") + "%" : "—"}
                   </span>
                   <span className="text-[11px] font-mono text-slate-400">
                     Band: {item?.expected || "—"}
@@ -244,7 +244,7 @@ export default function CalibrationOpsCard() {
                 <tbody className="divide-y divide-slate-800/60">
                   {history.map((run, idx) => {
                     const curve = tierKeys
-                      .map((k) => (run.tier_scores?.[k]?.overall !== undefined ? run.tier_scores[k].overall + "%" : "—"))
+                      .map((k) => (run.tier_scores?.[k]?.overall !== undefined ? String(run.tier_scores[k].overall).replace(/%/g, "") + "%" : "—"))
                       .join(" / ")
                     const ok = run.status === "passed"
                     return (
