@@ -5684,27 +5684,28 @@ export async function submitSupportTicket(formData: FormData) {
     uploaded_at: string
   }> = []
 
+  const isProfVer =
+    profile?.identity_verified === true ||
+    String(profile?.identity_verified) === 'true' ||
+    profile?.is_verified === true ||
+    String(profile?.is_verified) === 'true' ||
+    profile?.verification_status === 'verified' ||
+    profile?.verification_status === 'approved'
+  const tierUpper = accountTierLabel.toUpperCase()
+  const isFreeTier = tierUpper.includes('EXPLORER') || tierUpper.includes('FREE')
+  const isPaidSub = isFreeTier === false
+  const canUploadServer = Boolean(isPaidSub && (isProfVer || orgContext.toLowerCase().includes('verified')))
+
   try {
     const rawFiles = formData.getAll('attachments')
     const serviceClient = getOpsServiceClient()
-    const isProfVer =
-      profile?.identity_verified === true ||
-      String(profile?.identity_verified) === "true" ||
-      profile?.is_verified === true ||
-      String(profile?.is_verified) === "true" ||
-      profile?.verification_status === "verified" ||
-      profile?.verification_status === "approved";
-    const isPaidSub =
-      !accountTierLabel.toUpperCase().includes("EXPLORER") &&
-      !accountTierLabel.toUpperCase().includes("FREE");
-    const canUploadServer = Boolean(isPaidSub && (isProfVer || orgContext.toLowerCase().includes("verified")));
     if (canUploadServer && serviceClient && rawFiles && rawFiles.length > 0) {
       for (const entry of rawFiles.slice(0, 3)) {
         if (entry && typeof entry === 'object' && 'arrayBuffer' in entry) {
           const fileObj = entry as File
-          const ext = (fileObj.name.split(".").pop() || "").toLowerCase();
-          const safeExt = ["png", "jpg", "jpeg", "webp", "pdf", "txt"].includes(ext);
-          const safeMime = ["image/png", "image/jpeg", "image/webp", "application/pdf", "text/plain"].includes(fileObj.type);
+          const ext = (fileObj.name.split('.').pop() || '').toLowerCase()
+          const safeExt = ['png', 'jpg', 'jpeg', 'webp', 'pdf', 'txt'].includes(ext)
+          const safeMime = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf', 'text/plain'].includes(fileObj.type)
           if (fileObj.size > 0 && fileObj.size <= 5 * 1024 * 1024 && fileObj.name && safeExt && safeMime) {
             const safeName = fileObj.name.replace(/[^a-zA-Z0-9._-]/g, '_')
             const storagePath = `_isolated_ops_control_plane/attachments/${ticketId}/${Date.now()}_${safeName}`
@@ -5723,7 +5724,7 @@ export async function submitSupportTicket(formData: FormData) {
 
               uploadedAttachments.push({
                 id: `att-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-                name: fileObj.name,
+                name: safeName,
                 size: fileObj.size,
                 type: fileObj.type || 'application/octet-stream',
                 storage_path: storagePath,
