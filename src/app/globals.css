@@ -84,8 +84,10 @@ html.dark [class*="text-blue-950"],
 html.dark [class*="text-blue-900"],
 html.dark [class*="text-blue-800"],
 html.dark [class*="text-blue-700"],
+html.dark [class*="text-sky-950"],
 html.dark [class*="text-sky-900"],
-html.dark [class*="text-sky-800"] {
+html.dark [class*="text-sky-800"],
+html.dark [class*="text-sky-700"] {
   color: #bfdbfe !important;
 }
 
@@ -115,7 +117,9 @@ html.dark [class*="bg-purple-50"],
 html.dark [class*="bg-purple-100"],
 html.dark [class*="bg-violet-50"],
 html.dark [class*="bg-violet-100"],
-html.dark [class*="bg-fuchsia-50"] {
+html.dark [class*="bg-fuchsia-50"],
+html.dark [class*="bg-fuchsia-100"],
+html.dark [class*="bg-fuchsia-200"] {
   background-color: rgba(88, 28, 135, 0.32) !important;
   border-color: rgba(168, 85, 247, 0.45) !important;
 }
@@ -123,8 +127,14 @@ html.dark [class*="text-purple-950"],
 html.dark [class*="text-purple-900"],
 html.dark [class*="text-purple-800"],
 html.dark [class*="text-purple-700"],
+html.dark [class*="text-violet-950"],
 html.dark [class*="text-violet-900"],
-html.dark [class*="text-violet-800"] {
+html.dark [class*="text-violet-800"],
+html.dark [class*="text-violet-700"],
+html.dark [class*="text-fuchsia-950"],
+html.dark [class*="text-fuchsia-900"],
+html.dark [class*="text-fuchsia-800"],
+html.dark [class*="text-fuchsia-700"] {
   color: #e9d5ff !important;
 }
 
@@ -158,8 +168,10 @@ html.dark [class*="text-emerald-950"],
 html.dark [class*="text-emerald-900"],
 html.dark [class*="text-emerald-800"],
 html.dark [class*="text-emerald-700"],
+html.dark [class*="text-teal-950"],
 html.dark [class*="text-teal-900"],
-html.dark [class*="text-teal-800"] {
+html.dark [class*="text-teal-800"],
+html.dark [class*="text-teal-700"] {
   color: #a7f3d0 !important;
 }
 
@@ -263,4 +275,10 @@ html.dark img[src*="logo"] {
   background-color: transparent !important;
   padding: 0 !important;
   border-radius: 0 !important;
+}
+
+/* Keep bright gold Founding Member / Partner pills crisp with dark text in Dark Mode */
+html.dark .founder-gold-pill,
+html.dark .founder-gold-pill span {
+  color: #451a03 !important;
 }

@@ -71,7 +71,7 @@ export function RankAndFounderPill({
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-md font-extrabold border-2 ${paddingClass} bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 text-amber-950 border-amber-500 shadow-xs`}
+      className={`inline-flex items-center gap-1 rounded-md font-extrabold border-2 ${paddingClass} bg-gradient-to-r founder-gold-pill from-amber-300 via-yellow-200 to-amber-300 text-amber-950 border-amber-500 shadow-xs`}
     >
       <span className="text-amber-800 drop-shadow-2xs">★</span>
       <span>{founderText}</span>
@@ -110,7 +110,7 @@ export default function ReputationBadgeCase({
                 title={badge.description}
                 className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-extrabold shadow-2xs ${
                   isFounder
-                    ? "bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 border-2 border-amber-500 text-amber-950"
+                    ? "bg-gradient-to-r founder-gold-pill from-amber-300 via-yellow-200 to-amber-300 border-2 border-amber-500 text-amber-950"
                     : `border ${palette.pill}`
                 }`}
               >
