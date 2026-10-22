@@ -102,6 +102,12 @@ export async function POST(req: NextRequest) {
       senderEmail === 'support@specialsauce.io' ||
       senderEmail === 'noreply@specialsauce.io' ||
       senderEmail === 'no-reply@specialsauce.io' ||
+      senderEmail.includes('support@specialsauce.io') ||
+      senderEmail.includes('resend.dev') ||
+      (!/^(re|fwd?)\s*:/i.test(subject.trim()) && (subject.includes('✓ Resolved:') || subject.includes('Support Ticket Received:') || subject.includes('Support Ticket ['))) ||
+      rawBody.includes('Rate Experience or Reopen Ticket') ||
+      rawBody.includes('Click a star rating above') ||
+      rawBody.trim().endsWith(subject.trim()) ||
       /In-App Reply from/i.test(subject) ||
       /Update Confirmation: Your reply has been posted/i.test(subject) ||
       /^\[[^\]]+\]\s*In-App Reply from/i.test(rawBody)
