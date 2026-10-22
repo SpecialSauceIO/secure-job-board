@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server"
 import {
   getOpsServiceClient,
   loadMergedOpsVault,
   saveMergedOpsVault,
-} from '@/lib/ops-bridge'
+} from "@/lib/ops-bridge"
 
 function extractTicketId(text?: string | null): string | null {
   if (!text) return null
@@ -14,17 +14,19 @@ function extractTicketId(text?: string | null): string | null {
 }
 
 function stripQuotedHistory(rawText: string): string {
-  const lines = String(rawText || '').replace(/\r\n/g, '\n').split('\n')
+  const lines = String(rawText || "").replace(/\r\n/g, "\n").split("\n")
   const cleaned: string[] = []
   for (const line of lines) {
     const trimmed = line.trim()
     if (/^On .+ wrote:$/i.test(trimmed)) break
     if (/^From:\s+/i.test(trimmed) && cleaned.length > 0) break
     if (/^-{3,}\s*Original Message\s*-{3,}/i.test(trimmed)) break
-    if (trimmed.startsWith('>')) continue
+    if (/^SPECIAL SAUCE™ SUPPORT (DESK|CENTER)/i.test(trimmed)) break
+    if (/^✓\s*TICKET RESOLVED/i.test(trimmed)) break
+    if (trimmed.startsWith(">")) continue
     cleaned.push(line)
   }
-  return cleaned.join('\n').trim() || String(rawText || '').trim()
+  return cleaned.join("\n").trim()
 }
 
 export async function POST(req: NextRequest) {
@@ -33,7 +35,7 @@ export async function POST(req: NextRequest) {
     const client = getOpsServiceClient()
     if (!client) {
       return NextResponse.json(
-        { error: 'Ops storage client unavailable' },
+        { error: "Ops storage client unavailable" },
         { status: 500 }
       )
     }
@@ -42,18 +44,18 @@ export async function POST(req: NextRequest) {
     const nowIso = new Date().toISOString()
 
     if (
-      payload?.event_type === 'heartbeat' ||
-      emailData?.event_type === 'heartbeat'
+      payload?.event_type === "heartbeat" ||
+      emailData?.event_type === "heartbeat"
     ) {
       const vault = await loadMergedOpsVault(client)
       const latestChecks = Array.isArray(vault.monitor_meta?.latest_checks)
         ? vault.monitor_meta.latest_checks.map((chk: any) =>
-            chk.id === 'gmail_inbound_poller'
+            chk.id === "gmail_inbound_poller"
               ? {
                   ...chk,
-                  status: 'healthy',
+                  status: "healthy",
                   latency_ms: 0,
-                  detail: 'Last Gmail poll check-in 0m ago (threshold: 15m)',
+                  detail: "Last Gmail poll check-in 0m ago (threshold: 15m)",
                   checked_at: nowIso,
                 }
               : chk
@@ -80,7 +82,7 @@ export async function POST(req: NextRequest) {
         emailData?.from ||
         emailData?.sender ||
         emailData?.reporter_email ||
-        ''
+        ""
     ).trim()
     const senderEmailMatch = rawFrom.match(/<([^>]+)>/)
     const senderEmail = (
@@ -89,41 +91,42 @@ export async function POST(req: NextRequest) {
       .toLowerCase()
       .trim()
 
-    const subject = String(emailData?.subject || '')
+    const subject = String(emailData?.subject || "").trim()
     const rawBody = String(
       emailData?.text ||
         emailData?.reply_text ||
         emailData?.body ||
-        emailData?.html?.replace(/<[^>]+>/g, ' ') ||
-        ''
+        emailData?.html?.replace(/<[^>]+>/g, " ") ||
+        ""
     ).trim()
 
-    if (
-      senderEmail === 'support@specialsauce.io' ||
-      senderEmail === 'noreply@specialsauce.io' ||
-      senderEmail === 'no-reply@specialsauce.io' ||
-      senderEmail.includes('support@specialsauce.io') ||
-      senderEmail.includes('resend.dev') ||
-      (!/^(re|fwd?)\s*:/i.test(subject.trim()) && (subject.includes('✓ Resolved:') || subject.includes('Support Ticket Received:') || subject.includes('Support Ticket ['))) ||
-      rawBody.includes('Rate Experience or Reopen Ticket') ||
-      rawBody.includes('Click a star rating above') ||
-      rawBody.trim().endsWith(subject.trim()) ||
-      /In-App Reply from/i.test(subject) ||
-      /Update Confirmation: Your reply has been posted/i.test(subject) ||
-      /^\[[^\]]+\]\s*In-App Reply from/i.test(rawBody)
-    ) {
+    const cleanReply = stripQuotedHistory(rawBody)
+    const isReplySubject = /^(re|fwd?)\s*:/i.test(subject)
+
+    const isAutomatedLoop =
+      !cleanReply ||
+      cleanReply === subject ||
+      cleanReply.includes("✓ Resolved:") ||
+      cleanReply.includes("Support Ticket Received:") ||
+      cleanReply.includes("Support Ticket [") ||
+      cleanReply.includes("Update Confirmation: Your reply has been posted") ||
+      cleanReply.includes("SPECIAL SAUCE™ SUPPORT") ||
+      (!isReplySubject &&
+        (senderEmail.includes("support@specialsauce.io") ||
+          senderEmail.includes("noreply@specialsauce.io") ||
+          senderEmail.includes("no-reply@specialsauce.io") ||
+          senderEmail.includes("resend.dev") ||
+          subject.includes("✓ Resolved:") ||
+          subject.includes("Support Ticket Received:") ||
+          subject.includes("Support Ticket [") ||
+          subject.includes("Update Confirmation:") ||
+          subject.includes("In-App Reply from")))
+
+    if (isAutomatedLoop) {
       return NextResponse.json({
         ok: true,
         ignored_self_notification: true,
       })
-    }
-
-    const cleanReply = stripQuotedHistory(rawBody)
-    if (!cleanReply) {
-      return NextResponse.json(
-        { ok: false, reason: 'Empty reply body' },
-        { status: 400 }
-      )
     }
 
     const vault = await loadMergedOpsVault(client)
@@ -143,20 +146,21 @@ export async function POST(req: NextRequest) {
 
     if (targetIdx === -1 && senderEmail) {
       const cleanSubj = subject
-        .replace(/^(\[[^\]]+\]|re:|fwd?:|\s)+/gi, '')
+        .replace(/^(\[[^\]]+\]|re:|fwd?:|✓\s*resolved:|\s)+/gi, "")
         .toLowerCase()
         .trim()
       targetIdx = workItems.findIndex(
         (w: any) =>
-          String(w.reporter_email || '').toLowerCase().trim() === senderEmail &&
+          String(w.reporter_email || "").toLowerCase().trim() === senderEmail &&
           cleanSubj &&
-          String(w.subject || '').toLowerCase().includes(cleanSubj)
+          String(w.subject || "").toLowerCase().includes(cleanSubj)
       )
       if (targetIdx === -1) {
         targetIdx = workItems.findIndex(
           (w: any) =>
-            String(w.reporter_email || '').toLowerCase().trim() ===
-              senderEmail && w.state === 'open'
+            String(w.reporter_email || "").toLowerCase().trim() === senderEmail &&
+            w.work_item_type !== "System_Outage" &&
+            w.work_item_type !== "Security_Alert"
         )
       }
     }
@@ -166,7 +170,7 @@ export async function POST(req: NextRequest) {
         {
           ok: false,
           reason:
-            'No matching ticket found for ' + (explicitTicketId || senderEmail),
+            "No matching ticket found for " + (explicitTicketId || senderEmail),
         },
         { status: 404 }
       )
@@ -174,24 +178,25 @@ export async function POST(req: NextRequest) {
 
     const item = workItems[targetIdx]
     item.thread = Array.isArray(item.thread) ? item.thread : []
-    const incomingMsgId = String(emailData?.message_id || '').trim()
+    const incomingMsgId = String(emailData?.message_id || "").trim()
 
     const alreadyExists = item.thread.some(
       (m: any) =>
-        m.direction === 'inbound_customer' &&
+        m.direction === "inbound_customer" &&
         ((incomingMsgId && m.gmail_message_id === incomingMsgId) ||
-          String(m.text || '').trim() === cleanReply)
+          String(m.text || "").trim() === cleanReply)
     )
 
     if (!alreadyExists) {
-      item.state = 'open'
-      item.status = 'pending_support'
+      item.state = "open"
+      item.closed_at = null
+      item.status = "pending_support"
       item.updated_at = nowIso
       item.thread.push({
-        id: `in-${Date.now()}`,
+        id: "in-" + Date.now(),
         gmail_message_id: incomingMsgId || undefined,
-        author: senderEmail || item.reporter_email || 'Customer',
-        direction: 'inbound_customer',
+        author: senderEmail || item.reporter_email || "Customer",
+        direction: "inbound_customer",
         text: cleanReply,
         created_at: nowIso,
       })
@@ -210,7 +215,7 @@ export async function POST(req: NextRequest) {
     })
   } catch (err: any) {
     return NextResponse.json(
-      { error: err?.message || 'Inbound email sync failed' },
+      { error: err?.message || "Inbound email sync failed" },
       { status: 500 }
     )
   }
