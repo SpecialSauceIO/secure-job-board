@@ -13,10 +13,76 @@ const BENCHMARK_SPECS = [
   { tier: "TIER_5_20_BAKER", email: "calib.tier20.baker@specialsauce.test", reqs: 0, total: 5, base: { c: 8, t: 12, i: 16, l: 88, m: 35 }, minPass: 5, maxPass: 20 }
 ]
 
+async function sendCalibrationAlertEmail(payload: {
+  status: string
+  avgLatency: number
+  failures: string[]
+  results: Record<string, any>
+}) {
+  const resendKey = (process.env.RESEND_API_KEY || "").trim()
+  if (!resendKey) return { sent: false, reason: "Missing RESEND_API_KEY" }
+
+  const fromEmail = (process.env.RESEND_FROM_EMAIL || "Special Sauce Ops <support@specialsauce.io>").trim()
+  const recipients = Array.from(
+    new Set(["info@specialsauce.io", (process.env.RESEND_TEST_TO_EMAIL || "").trim()].filter(Boolean))
+  )
+
+  const rowsHtml = Object.entries(payload.results)
+    .map(([tier, data]: [string, any]) => {
+      const badge = data.passed ? "PASS" : "FAIL"
+      return "<tr>" +
+        "<td style=\"padding:8px;border:1px solid #334155;\"><strong>" + tier + "</strong></td>" +
+        "<td style=\"padding:8px;border:1px solid #334155;\">" + data.overall + "%</td>" +
+        "<td style=\"padding:8px;border:1px solid #334155;\">" + data.expected + "</td>" +
+        "<td style=\"padding:8px;border:1px solid #334155;\">" + badge + "</td>" +
+        "<td style=\"padding:8px;border:1px solid #334155;\">" + data.latency_ms + "ms</td>" +
+      "</tr>"
+    })
+    .join("")
+
+  const failList = payload.failures.map((f) => "<li>" + f + "</li>").join("")
+  const html = "<div style=\"font-family:sans-serif;background:#0f172a;color:#f8fafc;padding:24px;border-radius:12px;\">" +
+    "<h2 style=\"color:#ef4444;margin-top:0;\">AI Fit Calibration Drift Alert</h2>" +
+    "<p>The weekly 5-tier AI Fit calibration check detected score drift outside allowed guardrails.</p>" +
+    "<p><strong>Status:</strong> " + payload.status.toUpperCase() + " | <strong>Avg Latency:</strong> " + payload.avgLatency + "ms</p>" +
+    "<div style=\"background:#1e293b;padding:12px;border-left:4px solid #ef4444;margin-bottom:16px;\">" +
+      "<strong>Failures Detected:</strong><ul>" + failList + "</ul>" +
+    "</div>" +
+    "<table style=\"width:100%;border-collapse:collapse;font-size:14px;\">" +
+      "<thead><tr style=\"background:#1e293b;text-align:left;\">" +
+        "<th style=\"padding:8px;border:1px solid #334155;\">Tier</th>" +
+        "<th style=\"padding:8px;border:1px solid #334155;\">Scored</th>" +
+        "<th style=\"padding:8px;border:1px solid #334155;\">Target Band</th>" +
+        "<th style=\"padding:8px;border:1px solid #334155;\">Result</th>" +
+        "<th style=\"padding:8px;border:1px solid #334155;\">Latency</th>" +
+      "</tr></thead>" +
+      "<tbody>" + rowsHtml + "</tbody>" +
+    "</table></div>"
+
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + resendKey,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: fromEmail,
+        to: recipients,
+        subject: "[Special Sauce QA] AI Fit Calibration Alert (" + payload.failures.length + " issue)",
+        html
+      })
+    })
+    return { sent: res.ok, status: res.status }
+  } catch (err: any) {
+    return { sent: false, reason: err?.message || "Resend fetch error" }
+  }
+}
+
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization")
   const cronSecret = process.env.CRON_SECRET
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (cronSecret && authHeader !== "Bearer " + cronSecret) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -42,7 +108,7 @@ export async function GET(req: NextRequest) {
   for (const spec of BENCHMARK_SPECS) {
     const u = users.find((usr) => (usr.email || "").toLowerCase() === spec.email)
     if (!u) {
-      failures.push(`Missing calibration user: ${spec.email}`)
+      failures.push("Missing calibration user: " + spec.email)
       continue
     }
     const { data: prof } = await supabase.from("profiles").select("*").eq("id", u.id).single()
@@ -57,13 +123,13 @@ export async function GET(req: NextRequest) {
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: "Return strictly JSON: {\"overall_score\": number, \"radar_data\": [{\"subject\": \"Core Competencies\", \"score\": number}, {\"subject\": \"Skill Tenure\", \"score\": number}, {\"subject\": \"Logistics & Pay\", \"score\": number}, {\"subject\": \"Industry & Creds\", \"score\": number}, {\"subject\": \"Execution & Comm.\", \"score\": number}], \"brief_analysis\": string}" },
-          { role: "user", content: `Candidate Skills: ${JSON.stringify(prof?.structured_skills)} | Bio: ${prof?.bio} | Job Title: ${job.title} | Job Reqs: ${JSON.stringify(job.structured_requirements)}` }
+          { role: "user", content: "Candidate Skills: " + JSON.stringify(prof?.structured_skills) + " | Bio: " + prof?.bio + " | Job Title: " + job.title + " | Job Reqs: " + JSON.stringify(job.structured_requirements) }
         ]
       })
       raw = JSON.parse(chat.choices[0]?.message?.content || "{}")
     } catch (err: any) {
       providerUsed = "deterministic_fallback"
-      failures.push(`LLM provider error on ${spec.tier}: ${err.message}`)
+      failures.push("LLM provider error on " + spec.tier + ": " + err.message)
     }
 
     const ms = Date.now() - t0
@@ -95,12 +161,12 @@ export async function GET(req: NextRequest) {
 
     const inBand = overall >= spec.minPass && overall <= spec.maxPass
     if (!inBand) {
-      failures.push(`${spec.tier} drifted out of band: scored ${overall}% (expected ${spec.minPass}%-${spec.maxPass}%)`)
+      failures.push(spec.tier + " drifted out of band: scored " + overall + "% (expected " + spec.minPass + "%-" + spec.maxPass + "%)")
     }
 
     results[spec.tier] = {
       overall,
-      expected: `${spec.minPass}-${spec.maxPass}%`,
+      expected: spec.minPass + "-" + spec.maxPass + "%",
       passed: inBand,
       latency_ms: ms,
       provider: providerUsed
@@ -120,5 +186,15 @@ export async function GET(req: NextRequest) {
     failures
   })
 
-  return NextResponse.json({ status, avg_latency_ms: avgLatency, results, failures })
+  let alertResult: any = null
+  if (status === "failed" || req.nextUrl.searchParams.get("test_alert") === "1") {
+    alertResult = await sendCalibrationAlertEmail({
+      status,
+      avgLatency,
+      failures: failures.length > 0 ? failures : ["Manual test_alert=1 verification triggered"],
+      results
+    })
+  }
+
+  return NextResponse.json({ status, avg_latency_ms: avgLatency, results, failures, alert: alertResult })
 }

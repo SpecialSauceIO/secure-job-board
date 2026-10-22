@@ -134,28 +134,71 @@ export async function GET(req: NextRequest) {
   })
 
   const hasAiKey = Boolean(
-    (process.env.GEMINI_API_KEY || '').trim() ||
-      (process.env.GOOGLE_GENERATIVE_AI_API_KEY || '').trim() ||
-      (process.env.GROQ_API_KEY || '').trim() ||
-      (process.env.OPENAI_API_KEY || '').trim()
+    (process.env.GEMINI_API_KEY || "").trim() ||
+      (process.env.GOOGLE_GENERATIVE_AI_API_KEY || "").trim() ||
+      (process.env.GROQ_API_KEY || "").trim() ||
+      (process.env.OPENAI_API_KEY || "").trim()
   )
+  let latestCalib: any = null
+  try {
+    const { data: calRow } = await client
+      .from("calibration_runs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    latestCalib = calRow
+  } catch {}
+
+  const calibFailed = Boolean(latestCalib && latestCalib.status === "failed")
+  const aiStatus: "healthy" | "degraded" | "critical" = !hasAiKey || calibFailed
+    ? "critical"
+    : latestCalib
+    ? "healthy"
+    : "degraded"
+
+  const tierSummary = latestCalib?.tier_scores
+    ? [
+        latestCalib.tier_scores.TIER_1_100?.overall,
+        latestCalib.tier_scores.TIER_2_80?.overall,
+        latestCalib.tier_scores.TIER_3_60?.overall,
+        latestCalib.tier_scores.TIER_4_40?.overall,
+        latestCalib.tier_scores.TIER_5_20_BAKER?.overall,
+      ]
+        .filter((v) => v !== undefined)
+        .map((v) => String(v).replace("%", "") + "%")
+        .join("/")
+    : null
+
+  const aiDetail = !hasAiKey
+    ? "No AI provider API keys configured"
+    : calibFailed
+    ? "CALIBRATION DRIFT: " + ((latestCalib.failures || []).join("; ") || "Out of band")
+    : latestCalib
+    ? "QA Calibration PASSED (" + (tierSummary || "5/5 tiers") + ") • " + latestCalib.avg_latency_ms + "ms avg on " + latestCalib.provider_used
+    : "Multi-model AI Fit Radar armed (awaiting first calibration_runs log)"
+
   checks.push({
-    id: 'ai_fit_radar_engine',
-    name: '5-Point AI Fit Radar & Dealbreaker Engine',
-    platform_area: '5-Point AI Fit Radar & Dealbreakers',
-    category: 'Marketplace_Core',
-    status: hasAiKey ? 'healthy' : 'critical',
-    latency_ms: 5,
-    detail: hasAiKey
-      ? 'Multi-model AI Fit Radar & Prompt-Injection Sanitizer armed'
-      : 'No AI provider API keys configured',
+    id: "ai_fit_radar_engine",
+    name: "5-Point AI Fit Radar & Weekly Calibration Guard",
+    platform_area: "5-Point AI Fit Radar & Dealbreakers",
+    category: "Marketplace_Core",
+    status: aiStatus,
+    latency_ms: latestCalib?.avg_latency_ms || 5,
+    detail: aiDetail,
     checked_at: nowIso,
   })
   if (!hasAiKey) {
     criticalIssues.push({
-      area: '5-Point AI Fit Radar & Dealbreakers',
-      summary: 'AI Fit Radar Provider Keys Missing',
-      detail: 'Neither Gemini, Groq, nor OpenAI API keys were found in environment.',
+      area: "5-Point AI Fit Radar & Dealbreakers",
+      summary: "AI Fit Radar Provider Keys Missing",
+      detail: "Neither Gemini, Groq, nor OpenAI API keys were found in environment.",
+    })
+  } else if (calibFailed) {
+    criticalIssues.push({
+      area: "5-Point AI Fit Radar & Dealbreakers",
+      summary: "Weekly 5-Tier AI Fit Calibration Drift Detected",
+      detail: "Calibration run " + latestCalib.id + " failed: " + (latestCalib.failures || []).join(" | "),
     })
   }
 
@@ -302,6 +345,7 @@ export async function GET(req: NextRequest) {
     ok: criticalIssues.length === 0,
     status: criticalIssues.length > 0 ? 'critical' : 'healthy',
     checked_at: nowIso,
+    latest_calibration: latestCalib,
     checks,
     circuit_breakers: {
       stripe_identity_today: cb.global_today_count || 0,
@@ -311,7 +355,7 @@ export async function GET(req: NextRequest) {
         : 0,
     },
     active_outages: vault.work_items.filter(
-      (w: any) => w.state === 'open' && w.work_items_type === 'System_Outage'
+      (w: any) => w.state === 'open' && w.work_item_type === 'System_Outage'
     ).length,
   })
 }
