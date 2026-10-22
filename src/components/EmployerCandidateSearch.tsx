@@ -218,6 +218,8 @@ export default function EmployerCandidateSearch({
   const [selectedMetro, setSelectedMetro] = useState('')
 
   const [candidates, setCandidates] = useState<any[]>([])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10)
   const [savedCandidateIds, setSavedCandidateIds] = useState<string[]>([])
   const [onlyShortlisted, setOnlyShortlisted] = useState(false)
   const [togglingCandidateId, setTogglingCandidateId] = useState<string | null>(
@@ -252,6 +254,8 @@ export default function EmployerCandidateSearch({
     }
 
     try {
+      const savedPageSize = Number(localStorage.getItem('ss_candidates_per_page_v1'))
+      if ([5, 10, 25, 50].includes(savedPageSize)) setItemsPerPage(savedPageSize)
       const savedMatches = localStorage.getItem('ss_emp_match_cache_v2')
       if (savedMatches) {
         const parsed = JSON.parse(savedMatches)
@@ -628,6 +632,19 @@ export default function EmployerCandidateSearch({
     sortBy,
   ])
 
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [candidates, onlyShortlisted, employmentType, industryFilter, educationFilter, languageFilter, sortBy])
+
+  const totalFilteredCandidates = filteredAndSortedCandidates.length
+  const totalPages = Math.max(1, Math.ceil(totalFilteredCandidates / itemsPerPage))
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages)
+  const startIndex = (safeCurrentPage - 1) * itemsPerPage
+  const endIndex = Math.min(startIndex + itemsPerPage, totalFilteredCandidates)
+  const paginatedCandidates = useMemo(() => {
+    return filteredAndSortedCandidates.slice(startIndex, startIndex + itemsPerPage)
+  }, [filteredAndSortedCandidates, startIndex, itemsPerPage])
+
   return (
     <div className="space-y-6">
       {/* SINGLE UNIFIED COMMAND BAR WITH COLLAPSIBLE ADVANCED FILTERS */}
@@ -984,7 +1001,7 @@ export default function EmployerCandidateSearch({
             </button>
           </div>
         ) : (
-          filteredAndSortedCandidates.map((candidate) => {
+          paginatedCandidates.map((candidate) => {
             const cid = String(candidate.id)
             const isShortlisted = savedCandidateIds.includes(cid)
             const candidateIndustry = getCandidateIndustryVertical(candidate)
@@ -1700,6 +1717,106 @@ export default function EmployerCandidateSearch({
           })
         )}
       </div>
+
+      {!isLoading && filteredAndSortedCandidates.length > 0 && (
+        <div className="bg-white px-5 py-4 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+          <div className="flex flex-wrap items-center gap-3 text-slate-600 font-medium">
+            <span>
+              Showing{' '}
+              <strong className="text-slate-900 font-extrabold">
+                {startIndex + 1}–{endIndex}
+              </strong>{' '}
+              of{' '}
+              <strong className="text-slate-900 font-extrabold">
+                {totalFilteredCandidates}
+              </strong>{' '}
+              verified {totalFilteredCandidates === 1 ? 'candidate' : 'candidates'}
+            </span>
+            <span className="text-slate-300">|</span>
+            <label className="inline-flex items-center gap-2 font-bold text-slate-700">
+              <span>Per page:</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  const nextSize = Number(e.target.value)
+                  setItemsPerPage(nextSize)
+                  setCurrentPage(1)
+                  try {
+                    localStorage.setItem('ss_candidates_per_page_v1', String(nextSize))
+                  } catch {}
+                }}
+                className="rounded-lg border-2 border-slate-300 bg-slate-50 px-2.5 py-1 text-xs font-extrabold text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              disabled={safeCurrentPage <= 1}
+              onClick={() => {
+                setCurrentPage(Math.max(1, safeCurrentPage - 1))
+                if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
+              className="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-extrabold hover:bg-slate-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+            >
+              ← Prev
+            </button>
+
+            <div className="flex items-center gap-1 px-1">
+              {Array.from({ length: totalPages }, (_, idx) => idx + 1)
+                .filter((p) => p === 1 || p === totalPages || Math.abs(p - safeCurrentPage) <= 1)
+                .reduce<Array<number | string>>((acc, p, i, arr) => {
+                  if (i > 0 && typeof arr[i - 1] === 'number' && (p as number) - (arr[i - 1] as number) > 1) {
+                    acc.push('...')
+                  }
+                  acc.push(p)
+                  return acc
+                }, [])
+                .map((item, idx) =>
+                  item === '...' ? (
+                    <span key={`ellipsis-${idx}`} className="px-1.5 text-slate-400 font-bold">
+                      …
+                    </span>
+                  ) : (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => {
+                        setCurrentPage(Number(item))
+                        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+                      }}
+                      className={`min-w-[32px] h-8 px-2 rounded-xl text-xs font-extrabold border transition-colors cursor-pointer ${
+                        safeCurrentPage === item
+                          ? 'bg-slate-900 text-white border-slate-900'
+                          : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  )
+                )}
+            </div>
+
+            <button
+              type="button"
+              disabled={safeCurrentPage >= totalPages}
+              onClick={() => {
+                setCurrentPage(Math.min(totalPages, safeCurrentPage + 1))
+                if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
+              className="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-extrabold hover:bg-slate-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

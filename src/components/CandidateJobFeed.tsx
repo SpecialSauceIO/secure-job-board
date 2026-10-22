@@ -179,6 +179,8 @@ export function CandidateJobFeed({
   showSortControls?: boolean
 }) {
   const [jobList, setJobList] = useState<any[]>(jobs || [])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10)
   const [sortBy, setSortBy] = useState<SortOption>('newest')
   const [employmentTypeFilter, setEmploymentTypeFilter] =
     useState<string>('all')
@@ -196,7 +198,17 @@ export function CandidateJobFeed({
 
   useEffect(() => {
     setJobList(jobs || [])
+    setCurrentPage(1)
   }, [jobs])
+
+  useEffect(() => {
+    try {
+      const savedSize = Number(localStorage.getItem('ss_jobs_per_page_v1'))
+      if ([5, 10, 25, 50].includes(savedSize)) {
+        setItemsPerPage(savedSize)
+      }
+    } catch {}
+  }, [])
 
   // Load persisted AI Match results from localStorage immediately + hydrate from server
   useEffect(() => {
@@ -471,6 +483,15 @@ export function CandidateJobFeed({
     return (jobList || []).filter((j) => !extractJobCardMeta(j).isExpired).length
   }, [jobList])
 
+  const totalFilteredJobs = sortedAndFilteredJobs.length
+  const totalPages = Math.max(1, Math.ceil(totalFilteredJobs / itemsPerPage))
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages)
+  const startIndex = (safeCurrentPage - 1) * itemsPerPage
+  const endIndex = Math.min(startIndex + itemsPerPage, totalFilteredJobs)
+  const paginatedJobs = useMemo(() => {
+    return sortedAndFilteredJobs.slice(startIndex, startIndex + itemsPerPage)
+  }, [sortedAndFilteredJobs, startIndex, itemsPerPage])
+
   if (totalFreshCount === 0) {
     return (
       <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-sm border-slate-300">
@@ -646,7 +667,7 @@ export function CandidateJobFeed({
           </button>
         </div>
       ) : (
-        sortedAndFilteredJobs.map(({ job, meta }) => {
+        paginatedJobs.map(({ job, meta }) => {
           const jobId = String(job.uuid || job.id)
           const matchData = matchResults[jobId]
           const score = matchData?.overall_score ?? null
@@ -1087,6 +1108,106 @@ export function CandidateJobFeed({
             </div>
           )
         })
+      )}
+
+      {sortedAndFilteredJobs.length > 0 && (
+        <div className="bg-white px-5 py-4 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+          <div className="flex flex-wrap items-center gap-3 text-slate-600 font-medium">
+            <span>
+              Showing{' '}
+              <strong className="text-slate-900 font-extrabold">
+                {startIndex + 1}–{endIndex}
+              </strong>{' '}
+              of{' '}
+              <strong className="text-slate-900 font-extrabold">
+                {totalFilteredJobs}
+              </strong>{' '}
+              {totalFilteredJobs === 1 ? 'role' : 'roles'}
+            </span>
+            <span className="text-slate-300">|</span>
+            <label className="inline-flex items-center gap-2 font-bold text-slate-700">
+              <span>Per page:</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  const nextSize = Number(e.target.value)
+                  setItemsPerPage(nextSize)
+                  setCurrentPage(1)
+                  try {
+                    localStorage.setItem('ss_jobs_per_page_v1', String(nextSize))
+                  } catch {}
+                }}
+                className="rounded-lg border-2 border-slate-300 bg-slate-50 px-2.5 py-1 text-xs font-extrabold text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              disabled={safeCurrentPage <= 1}
+              onClick={() => {
+                setCurrentPage(Math.max(1, safeCurrentPage - 1))
+                if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
+              className="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-extrabold hover:bg-slate-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+            >
+              ← Prev
+            </button>
+
+            <div className="flex items-center gap-1 px-1">
+              {Array.from({ length: totalPages }, (_, idx) => idx + 1)
+                .filter((p) => p === 1 || p === totalPages || Math.abs(p - safeCurrentPage) <= 1)
+                .reduce<Array<number | string>>((acc, p, i, arr) => {
+                  if (i > 0 && typeof arr[i - 1] === 'number' && (p as number) - (arr[i - 1] as number) > 1) {
+                    acc.push('...')
+                  }
+                  acc.push(p)
+                  return acc
+                }, [])
+                .map((item, idx) =>
+                  item === '...' ? (
+                    <span key={`ellipsis-${idx}`} className="px-1.5 text-slate-400 font-bold">
+                      …
+                    </span>
+                  ) : (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => {
+                        setCurrentPage(Number(item))
+                        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+                      }}
+                      className={`min-w-[32px] h-8 px-2 rounded-xl text-xs font-extrabold border transition-colors cursor-pointer ${
+                        safeCurrentPage === item
+                          ? 'bg-slate-900 text-white border-slate-900'
+                          : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  )
+                )}
+            </div>
+
+            <button
+              type="button"
+              disabled={safeCurrentPage >= totalPages}
+              onClick={() => {
+                setCurrentPage(Math.min(totalPages, safeCurrentPage + 1))
+                if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
+              className="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-extrabold hover:bg-slate-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+            >
+              Next →
+            </button>
+          </div>
+        </div>
       )}
     </div>
   )
