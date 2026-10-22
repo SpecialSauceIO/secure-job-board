@@ -89,6 +89,7 @@ export default function DashboardNav({
     { href: '/dashboard/requests', label: 'Inbound Pitches' },
     { href: '/dashboard/profile', label: 'My Profile' },
     { href: '/dashboard/preferences', label: 'Match Preferences' },
+    { href: '/dashboard/support', label: 'Support' },
   ]
 
   const employerLinks = [
@@ -98,6 +99,7 @@ export default function DashboardNav({
     { href: '/dashboard/employer/applications', label: 'Inbound Applications' },
     { href: '/dashboard/employer/pitches', label: 'Outbound Pitches' },
     { href: '/dashboard/employer/organization', label: 'Manage Company' },
+    { href: '/dashboard/support', label: 'Support' },
   ]
 
   const navLinks =
@@ -105,7 +107,10 @@ export default function DashboardNav({
       ? employerLinks
       : role === 'candidate'
       ? candidateLinks
-      : [{ href: '/dashboard', label: 'Dashboard', exact: true }]
+      : [
+          { href: '/dashboard', label: 'Dashboard', exact: true },
+          { href: '/dashboard/support', label: 'Support' },
+        ]
 
   const billingHref =
     role === 'employer' ? '/dashboard/employer/billing' : '/dashboard/billing'
