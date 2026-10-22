@@ -22,6 +22,44 @@ export function syncLogoImages(isDark: boolean) {
   })
 }
 
+export function resolvePreferredThemeIsDark(): boolean {
+  if (typeof window === 'undefined') return false
+  try {
+    const saved = localStorage.getItem('ss_theme')
+    if (saved === 'dark') return true
+    if (saved === 'light') return false
+    const match = document.cookie.match(/(?:^|; )ss_theme=([^;]*)/)
+    if (match) {
+      const val = decodeURIComponent(match[1])
+      if (val === 'dark') return true
+      if (val === 'light') return false
+    }
+  } catch {}
+  return document.documentElement.classList.contains('dark')
+}
+
+export function applyPreferredTheme(isDark: boolean) {
+  if (typeof document === 'undefined') return
+  if (isDark) {
+    if (!document.documentElement.classList.contains('dark')) {
+      document.documentElement.classList.add('dark')
+    }
+    try {
+      localStorage.setItem('ss_theme', 'dark')
+      document.cookie = 'ss_theme=dark; path=/; max-age=31536000; SameSite=Lax'
+    } catch {}
+  } else {
+    if (document.documentElement.classList.contains('dark')) {
+      document.documentElement.classList.remove('dark')
+    }
+    try {
+      localStorage.setItem('ss_theme', 'light')
+      document.cookie = 'ss_theme=light; path=/; max-age=31536000; SameSite=Lax'
+    } catch {}
+  }
+  syncLogoImages(isDark)
+}
+
 export default function ThemeToggle() {
   const [dark, setDark] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -29,49 +67,52 @@ export default function ThemeToggle() {
 
   useEffect(() => {
     setMounted(true)
-    const isDark = document.documentElement.classList.contains('dark')
-    setDark(isDark)
-    syncLogoImages(isDark)
+    const preferredDark = resolvePreferredThemeIsDark()
+    applyPreferredTheme(preferredDark)
+    setDark(preferredDark)
 
     const onThemeChange = () => {
-      const nowDark = document.documentElement.classList.contains('dark')
+      const nowDark = resolvePreferredThemeIsDark()
+      applyPreferredTheme(nowDark)
       setDark(nowDark)
-      syncLogoImages(nowDark)
     }
 
     window.addEventListener('ss-theme-change', onThemeChange)
 
-    const observer = new MutationObserver(() => {
-      const nowDark = document.documentElement.classList.contains('dark')
+    const htmlObserver = new MutationObserver(() => {
+      const expectedDark = resolvePreferredThemeIsDark()
+      const hasDarkClass = document.documentElement.classList.contains('dark')
+      if (expectedDark !== hasDarkClass) {
+        if (expectedDark) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
+      }
+      syncLogoImages(expectedDark)
+    })
+    htmlObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    })
+
+    const bodyObserver = new MutationObserver(() => {
+      const nowDark = resolvePreferredThemeIsDark()
       syncLogoImages(nowDark)
     })
-    observer.observe(document.body, { childList: true, subtree: true })
+    bodyObserver.observe(document.body, { childList: true, subtree: true })
 
     return () => {
       window.removeEventListener('ss-theme-change', onThemeChange)
-      observer.disconnect()
+      htmlObserver.disconnect()
+      bodyObserver.disconnect()
     }
   }, [pathname])
 
   const toggleTheme = () => {
     const nextDark = !dark
     setDark(nextDark)
-    if (nextDark) {
-      document.documentElement.classList.add('dark')
-      try {
-        localStorage.setItem('ss_theme', 'dark')
-      } catch {
-        // ignore storage errors
-      }
-    } else {
-      document.documentElement.classList.remove('dark')
-      try {
-        localStorage.setItem('ss_theme', 'light')
-      } catch {
-        // ignore storage errors
-      }
-    }
-    syncLogoImages(nextDark)
+    applyPreferredTheme(nextDark)
     window.dispatchEvent(new Event('ss-theme-change'))
   }
 

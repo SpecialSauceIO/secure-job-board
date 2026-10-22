@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { cookies } from "next/headers";
 import "./globals.css";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -36,12 +37,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+  const themeCookie = cookieStore.get("ss_theme")?.value;
+  const serverDarkClass = themeCookie === "dark" ? "dark" : "";
+
   return (
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased ${serverDarkClass}`.trim()}
     >
       <head>
         <script
@@ -50,8 +55,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               (function() {
                 try {
                   var saved = localStorage.getItem('ss_theme');
+                  if (!saved) {
+                    var match = document.cookie.match(/(?:^|; )ss_theme=([^;]*)/);
+                    if (match) saved = decodeURIComponent(match[1]);
+                  }
                   if (saved === 'dark') {
                     document.documentElement.classList.add('dark');
+                    document.cookie = 'ss_theme=dark; path=/; max-age=31536000; SameSite=Lax';
+                  } else if (saved === 'light') {
+                    document.documentElement.classList.remove('dark');
+                    document.cookie = 'ss_theme=light; path=/; max-age=31536000; SameSite=Lax';
                   }
                 } catch (e) {}
               })();

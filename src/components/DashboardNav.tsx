@@ -4,6 +4,10 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import QuickFeedbackWidget from '@/components/QuickFeedbackWidget'
+import {
+  resolvePreferredThemeIsDark,
+  applyPreferredTheme,
+} from '@/components/ThemeToggle'
 
 export default function DashboardNav({
   role,
@@ -24,23 +28,19 @@ export default function DashboardNav({
 
   useEffect(() => {
     const syncDark = () => {
-      setDarkModeEnabled(document.documentElement.classList.contains('dark'))
+      const preferred = resolvePreferredThemeIsDark()
+      applyPreferredTheme(preferred)
+      setDarkModeEnabled(preferred)
     }
     syncDark()
     window.addEventListener('ss-theme-change', syncDark)
     return () => window.removeEventListener('ss-theme-change', syncDark)
-  }, [])
+  }, [pathname])
 
   const toggleDarkMode = () => {
     const nextDark = !darkModeEnabled
     setDarkModeEnabled(nextDark)
-    if (nextDark) {
-      document.documentElement.classList.add('dark')
-      try { localStorage.setItem('ss_theme', 'dark') } catch {}
-    } else {
-      document.documentElement.classList.remove('dark')
-      try { localStorage.setItem('ss_theme', 'light') } catch {}
-    }
+    applyPreferredTheme(nextDark)
     window.dispatchEvent(new Event('ss-theme-change'))
   }
   const dropdownRef = useRef<HTMLDivElement>(null)
