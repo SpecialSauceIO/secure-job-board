@@ -140,14 +140,15 @@ export async function GET(req: NextRequest) {
       (process.env.OPENAI_API_KEY || "").trim()
   )
   let latestCalib: any = null
+  let calibrationHistory: any[] = []
   try {
-    const { data: calRow } = await client
+    const { data: calRows } = await client
       .from("calibration_runs")
       .select("*")
       .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle()
-    latestCalib = calRow
+      .limit(12)
+    calibrationHistory = calRows || []
+    latestCalib = calibrationHistory[0] || null
   } catch {}
 
   const calibFailed = Boolean(latestCalib && latestCalib.status === "failed")
@@ -346,6 +347,7 @@ export async function GET(req: NextRequest) {
     status: criticalIssues.length > 0 ? 'critical' : 'healthy',
     checked_at: nowIso,
     latest_calibration: latestCalib,
+    calibration_history: calibrationHistory,
     checks,
     circuit_breakers: {
       stripe_identity_today: cb.global_today_count || 0,

@@ -30,6 +30,8 @@ const TIER_LABELS: Record<string, { label: string; subtitle: string }> = {
 
 export default function CalibrationOpsCard() {
   const [calib, setCalib] = useState<CalibrationRunRecord | null>(null)
+  const [history, setHistory] = useState<CalibrationRunRecord[]>([])
+  const [showHistory, setShowHistory] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(true)
   const [running, setRunning] = useState<boolean>(false)
   const [alertSending, setAlertSending] = useState<boolean>(false)
@@ -42,6 +44,9 @@ export default function CalibrationOpsCard() {
       const data = await res.json()
       if (data?.latest_calibration) {
         setCalib(data.latest_calibration)
+      }
+      if (Array.isArray(data?.calibration_history)) {
+        setHistory(data.calibration_history)
       }
     } catch (err) {
       console.error("Failed to load calibration health:", err)
@@ -68,18 +73,22 @@ export default function CalibrationOpsCard() {
         setBannerMsg("Error: " + (data?.error || "Failed to run calibration"))
         return
       }
-      setCalib({
+      const newRecord: CalibrationRunRecord = {
+        id: "live-" + Date.now(),
         status: data.status,
         provider_used: "openai/gpt-oss-120b",
         avg_latency_ms: data.avg_latency_ms,
         tier_scores: data.results || {},
         failures: data.failures || [],
         created_at: new Date().toISOString(),
-      })
+      }
+      setCalib(newRecord)
+      setHistory((prev) => [newRecord, ...prev].slice(0, 12))
+      const pruneNote = data.pruned_runs > 0 ? " (Pruned " + data.pruned_runs + " old runs)" : ""
       if (withTestAlert) {
-        setBannerMsg("Live 5-tier QA sweep complete & Resend alert dispatched to info@specialsauce.io!")
+        setBannerMsg("Live 5-tier QA sweep complete & Resend alert dispatched to info@specialsauce.io!" + pruneNote)
       } else {
-        setBannerMsg("Live 5-tier QA calibration completed in " + data.avg_latency_ms + "ms avg latency.")
+        setBannerMsg("Live 5-tier QA calibration completed in " + data.avg_latency_ms + "ms avg latency." + pruneNote)
       }
     } catch (err: any) {
       setBannerMsg("Error triggering calibration: " + (err?.message || "Unknown error"))
@@ -112,6 +121,9 @@ export default function CalibrationOpsCard() {
                 {isPassed ? "PASSED • ALL 5 TIERS IN BAND" : "DRIFT DETECTED"}
               </span>
             )}
+            <span className="px-2 py-0.5 rounded text-[11px] font-mono text-slate-400 bg-slate-900 border border-slate-800">
+              Retention: Last 50 Runs
+            </span>
           </div>
           <h2 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
             5-Point AI Fit Radar Calibration &amp; Guardrail Monitor
@@ -204,6 +216,62 @@ export default function CalibrationOpsCard() {
               </div>
             )
           })}
+        </div>
+      )}
+
+      {history.length > 0 && (
+        <div className="pt-2 border-t border-slate-800/80">
+          <button
+            type="button"
+            onClick={() => setShowHistory((s) => !s)}
+            className="text-xs font-bold text-indigo-300 hover:text-indigo-200 flex items-center gap-1.5 cursor-pointer"
+          >
+            <span>{showHistory ? "▾ Hide" : "▸ View"} Recent Run History &amp; Latency Trend ({history.length} runs)</span>
+          </button>
+
+          {showHistory && (
+            <div className="mt-3 overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/60">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-slate-800 text-slate-400 font-semibold bg-slate-900">
+                    <th className="py-2.5 px-3">Timestamp</th>
+                    <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-3">5-Tier Curve (T1→T5)</th>
+                    <th className="py-2.5 px-3">Avg Latency</th>
+                    <th className="py-2.5 px-3">Provider</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60">
+                  {history.map((run, idx) => {
+                    const curve = tierKeys
+                      .map((k) => (run.tier_scores?.[k]?.overall !== undefined ? run.tier_scores[k].overall + "%" : "—"))
+                      .join(" / ")
+                    const ok = run.status === "passed"
+                    return (
+                      <tr key={run.id || idx} className="hover:bg-slate-900/90">
+                        <td className="py-2 px-3 font-mono text-slate-300">
+                          {run.created_at ? new Date(run.created_at).toLocaleString() : "Just now"}
+                        </td>
+                        <td className="py-2 px-3">
+                          <span
+                            className={
+                              "px-2 py-0.5 rounded text-[10px] font-extrabold uppercase " +
+                              (ok ? "bg-emerald-500/20 text-emerald-300" : "bg-rose-500/20 text-rose-300")
+                            }
+                          >
+                            {ok ? "PASSED" : "FAILED"}
+                          </span>
+                        </td>
+                        <td className="py-2 px-3 font-mono text-white font-semibold">{curve}</td>
+                        <td className="py-2 px-3 font-mono text-slate-300">{run.avg_latency_ms}ms</td>
+                        <td className="py-2 px-3 font-mono text-indigo-300">{run.provider_used}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </section>

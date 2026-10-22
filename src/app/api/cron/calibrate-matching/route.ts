@@ -203,6 +203,21 @@ export async function GET(req: NextRequest) {
     failures
   })
 
+  // Retention policy: keep the most recent 50 runs, prune older records
+  let prunedCount = 0
+  try {
+    const { data: oldRows } = await supabase
+      .from("calibration_runs")
+      .select("id")
+      .order("created_at", { ascending: false })
+      .range(50, 500)
+    if (oldRows && oldRows.length > 0) {
+      const oldIds = oldRows.map((r: any) => r.id)
+      await supabase.from("calibration_runs").delete().in("id", oldIds)
+      prunedCount = oldIds.length
+    }
+  } catch {}
+
   let alertResult: any = null
   if (status === "failed" || req.nextUrl.searchParams.get("test_alert") === "1") {
     alertResult = await sendCalibrationAlertEmail({
@@ -213,5 +228,5 @@ export async function GET(req: NextRequest) {
     })
   }
 
-  return NextResponse.json({ status, avg_latency_ms: avgLatency, results, failures, alert: alertResult })
+  return NextResponse.json({ status, avg_latency_ms: avgLatency, results, failures, alert: alertResult, pruned_runs: prunedCount })
 }
