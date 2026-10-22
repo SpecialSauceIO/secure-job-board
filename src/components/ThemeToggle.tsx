@@ -2,6 +2,23 @@
 
 import { useEffect, useState } from 'react'
 
+function syncLogoImages(isDark: boolean) {
+  if (typeof document === 'undefined') return
+  const imgs = document.querySelectorAll<HTMLImageElement>('img[src*="logo"]')
+  imgs.forEach((img) => {
+    const currentSrc = img.getAttribute('src') || ''
+    if (isDark) {
+      if (currentSrc === '/logo.png' || currentSrc === '/logo.jpg') {
+        img.setAttribute('src', '/logo-dark.png')
+      }
+    } else {
+      if (currentSrc === '/logo-dark.png') {
+        img.setAttribute('src', '/logo.png')
+      }
+    }
+  })
+}
+
 export default function ThemeToggle() {
   const [dark, setDark] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -10,6 +27,26 @@ export default function ThemeToggle() {
     setMounted(true)
     const isDark = document.documentElement.classList.contains('dark')
     setDark(isDark)
+    syncLogoImages(isDark)
+
+    const onThemeChange = () => {
+      const nowDark = document.documentElement.classList.contains('dark')
+      setDark(nowDark)
+      syncLogoImages(nowDark)
+    }
+
+    window.addEventListener('ss-theme-change', onThemeChange)
+
+    const observer = new MutationObserver(() => {
+      const nowDark = document.documentElement.classList.contains('dark')
+      syncLogoImages(nowDark)
+    })
+    observer.observe(document.body, { childList: true, subtree: true })
+
+    return () => {
+      window.removeEventListener('ss-theme-change', onThemeChange)
+      observer.disconnect()
+    }
   }, [])
 
   const toggleTheme = () => {
@@ -30,6 +67,8 @@ export default function ThemeToggle() {
         // ignore storage errors
       }
     }
+    syncLogoImages(nextDark)
+    window.dispatchEvent(new Event('ss-theme-change'))
   }
 
   if (!mounted) return null

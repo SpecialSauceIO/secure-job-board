@@ -254,9 +254,13 @@ html.dark textarea::placeholder {
   color: #64748b !important;
 }
 
-/* Keep brand logo crisp and readable in Dark Mode */
+/* Keep toggle switch knobs crisp white and logos transparent in Dark Mode */
+html.dark .toggle-knob {
+  background-color: #ffffff !important;
+}
+
 html.dark img[src*="logo"] {
-  background-color: #ffffff;
-  padding: 4px 10px;
-  border-radius: 10px;
+  background-color: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
 }

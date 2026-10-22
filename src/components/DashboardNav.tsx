@@ -222,11 +222,11 @@ export default function DashboardNav({
                       </div>
                       <span
                         className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
-                          colorTilesEnabled ? 'bg-slate-900' : 'bg-slate-200'
+                          colorTilesEnabled ? 'bg-indigo-600' : 'bg-slate-300'
                         }`}
                       >
                         <span
-                          className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                          className={`toggle-knob inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-xs transition-transform ${
                             colorTilesEnabled ? 'translate-x-4' : 'translate-x-1'
                           }`}
                         />
