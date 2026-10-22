@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import {
   FAQ,
   PLAYBOOK_GUIDES,
@@ -277,7 +277,7 @@ export default function SupportCenterClient({
     return groups
   }, [filteredFaqs])
 
-  const handleRefreshTickets = async () => {
+  const handleRefreshTickets = useCallback(async () => {
     setIsRefreshingTickets(true)
     try {
       const res = await fetchMySupportTicketsAction()
@@ -290,7 +290,39 @@ export default function SupportCenterClient({
     } finally {
       setIsRefreshingTickets(false)
     }
-  }
+  }, [selectedTicketId])
+
+  useEffect(() => {
+    setMyTickets(initialTickets)
+  }, [initialTickets])
+
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search)
+      const urlTab = params.get('tab')
+      const urlTicket = params.get('ticket')
+      if (urlTab === 'ticket' || urlTicket) {
+        setActiveTab('ticket')
+        if (urlTicket) {
+          setSelectedTicketId(urlTicket.toUpperCase().trim())
+          setIsComposingNewTicket(false)
+        }
+      }
+    } catch {}
+    handleRefreshTickets()
+  }, [handleRefreshTickets])
+
+  useEffect(() => {
+    if (activeTab !== 'ticket') return
+    const timer = setInterval(() => {
+      fetchMySupportTicketsAction()
+        .then((res) => {
+          if (res.tickets) setMyTickets(res.tickets)
+        })
+        .catch(() => {})
+    }, 12000)
+    return () => clearInterval(timer)
+  }, [activeTab])
 
   const handleTicketSubmit = async (formData: FormData) => {
     setTicketStatus(null)
@@ -610,13 +642,26 @@ export default function SupportCenterClient({
               <>
                 {/* CONVERSATION PANE HEADER (Modeled on "SSO Setup for New Workspace #78901") */}
                 <div className="px-6 py-4 border-b border-slate-300 flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2.5 min-w-0">
                     <h2 className="text-base sm:text-lg font-extrabold text-slate-900 truncate">
                       {activeTicket.subject}{' '}
                       <span className="text-slate-400 font-mono font-bold">
                         #{activeTicket.id}
                       </span>
                     </h2>
+                    {(() => {
+                      const st = getCustomerStatusMeta(activeTicket)
+                      return (
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${st.pillClasses}`}
+                        >
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${st.dotColor}`}
+                          />
+                          {st.label}
+                        </span>
+                      )
+                    })()}
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
@@ -641,6 +686,124 @@ export default function SupportCenterClient({
 
                 {/* MESSAGE BUBBLES STREAM */}
                 <div className="flex-1 p-6 space-y-6 overflow-y-auto max-h-[540px]">
+                  {/* Prominent Resolved + CSAT Banner at Top of Stream when Ticket is Resolved */}
+                  {(activeTicket.state === 'closed' ||
+                    activeTicket.status === 'resolved' ||
+                    editingCsatMap[activeTicket.id]) && (
+                    <div className="p-5 rounded-2xl bg-slate-50 border-2 border-emerald-500/50 space-y-3 shadow-xs">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-600 text-white text-[11px] font-black uppercase tracking-wider">
+                            ✓ Resolved &amp; Closed
+                          </span>
+                          <h4 className="text-sm font-extrabold text-slate-900 mt-1">
+                            This support ticket has been marked as resolved. How was your support experience?
+                          </h4>
+                        </div>
+                        {activeTicket.csat_score &&
+                          !editingCsatMap[activeTicket.id] && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setEditingCsatMap((prev) => ({
+                                  ...prev,
+                                  [activeTicket.id]: true,
+                                }))
+                              }
+                              className="text-xs font-extrabold text-indigo-600 hover:underline cursor-pointer"
+                            >
+                              Update Rating
+                            </button>
+                          )}
+                      </div>
+
+                      {activeTicket.csat_score &&
+                      !editingCsatMap[activeTicket.id] ? (
+                        <div className="flex flex-wrap items-center gap-3 text-xs">
+                          <span className="text-base text-amber-500 tracking-wider">
+                            {'★'.repeat(activeTicket.csat_score)}
+                            <span className="text-slate-400">
+                              {'★'.repeat(5 - activeTicket.csat_score)}
+                            </span>
+                          </span>
+                          <span className="font-extrabold text-slate-800">
+                            {activeTicket.csat_score}/5 Stars Submitted
+                          </span>
+                          {activeTicket.csat_comment && (
+                            <span className="text-slate-600 italic">
+                              — &ldquo;{activeTicket.csat_comment}&rdquo;
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="space-y-3 pt-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => {
+                              const selectedScore =
+                                csatRatingMap[activeTicket.id] ??
+                                activeTicket.csat_score ??
+                                0
+                              const active = star <= selectedScore
+                              return (
+                                <button
+                                  key={star}
+                                  type="button"
+                                  onClick={() =>
+                                    setCsatRatingMap((prev) => ({
+                                      ...prev,
+                                      [activeTicket.id]: star,
+                                    }))
+                                  }
+                                  className={`px-3.5 py-1.5 rounded-xl border text-xs font-black transition-all cursor-pointer flex items-center gap-1 ${
+                                    active
+                                      ? 'bg-amber-400 border-amber-500 text-slate-950'
+                                      : 'bg-white border-slate-300 text-slate-600 hover:border-amber-400'
+                                  }`}
+                                >
+                                  <span>★</span>
+                                  <span>{star}</span>
+                                </button>
+                              )
+                            })}
+                          </div>
+                          <textarea
+                            rows={2}
+                            value={
+                              csatCommentMap[activeTicket.id] ??
+                              activeTicket.csat_comment ??
+                              ''
+                            }
+                            onChange={(e) =>
+                              setCsatCommentMap((prev) => ({
+                                ...prev,
+                                [activeTicket.id]: e.target.value,
+                              }))
+                            }
+                            placeholder="Optional: Add a comment about your support experience..."
+                            className="w-full rounded-xl border border-slate-300 bg-white p-2.5 text-xs text-slate-900 focus:border-indigo-500 focus:outline-none"
+                          />
+                          <div className="flex justify-end">
+                            <button
+                              type="button"
+                              disabled={
+                                isSubmittingCsat ||
+                                (csatRatingMap[activeTicket.id] ??
+                                  activeTicket.csat_score ??
+                                  0) < 1
+                              }
+                              onClick={() => handleSubmitCsat(activeTicket.id)}
+                              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold cursor-pointer disabled:opacity-50"
+                            >
+                              {isSubmittingCsat
+                                ? 'Saving...'
+                                : 'Submit Rating & Complete Ticket ★'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* Initial Customer Request Bubble (Left-aligned like Jordan Lee) */}
                   <div className="flex items-start gap-3.5">
                     <div className="w-9 h-9 rounded-full bg-emerald-700 text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5">

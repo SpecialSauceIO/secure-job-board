@@ -83,23 +83,23 @@ export async function loadMergedOpsVault(
       .filter((f) => f.name.startsWith(OPS_VAULT_PREFIX) && f.name.endsWith(".json"))
       .sort((a, b) => b.name.localeCompare(a.name))
 
-    const latestPath =
-      versionedFiles.length > 0
-        ? `${OPS_VAULT_DIR}/${versionedFiles[0].name}`
-        : OPS_VAULT_PATH
+    const topVersionPaths = versionedFiles
+      .slice(0, 3)
+      .map((f) => `${OPS_VAULT_DIR}/${f.name}`)
 
-    const [latestRes, baseRes] = await Promise.all([
-      client.storage.from(OPS_BUCKET).download(latestPath),
-      latestPath !== OPS_VAULT_PATH
-        ? client.storage.from(OPS_BUCKET).download(OPS_VAULT_PATH)
-        : Promise.resolve({ data: null, error: null }),
-    ])
+    const pathsToDownload = Array.from(
+      new Set([OPS_VAULT_PATH, ...topVersionPaths.reverse()])
+    )
+
+    const downloadResults = await Promise.all(
+      pathsToDownload.map((p) => client.storage.from(OPS_BUCKET).download(p))
+    )
 
     const itemMap = new Map<string, any>()
     const flagMap = new Map<string, any>()
     let mergedMeta: Record<string, any> = {}
 
-    for (const res of [baseRes, latestRes]) {
+    for (const res of downloadResults) {
       if (res?.data && !res.error) {
         try {
           const parsed = JSON.parse(await res.data.text())
@@ -114,10 +114,7 @@ export async function loadMergedOpsVault(
               const existTs = existing
                 ? new Date(existing.updated_at || existing.created_at || 0).getTime()
                 : -1
-              const itemLen = Array.isArray(item.thread) ? item.thread.length : 0
-              const existLen =
-                existing && Array.isArray(existing.thread) ? existing.thread.length : 0
-              if (!existing || itemTs > existTs || itemLen > existLen) {
+              if (!existing || itemTs >= existTs) {
                 itemMap.set(item.id, item)
               }
             }
