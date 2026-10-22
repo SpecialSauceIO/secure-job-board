@@ -965,50 +965,126 @@ async function sendPlatformNotification({
 }
 
 // ------------------------------------------------------------------
-// HELPER: CASCADING MULTI-MODEL PDF EXTRACTOR
+// HELPER: CASCADING MULTI-MODEL PDF EXTRACTOR (GROQ 120B TIER 1 + GEMINI MULTIMODAL)
 // ------------------------------------------------------------------
-async function extractPdfWithRetry(prompt: string, base64Data: string) {
-  const geminiKey = cleanEnvKey(process.env.GEMINI_API_KEY)
-  const ai = new GoogleGenAI({ apiKey: geminiKey })
-  const modelsToTry = [
-    'gemini-3.8-flash',
-    'gemini-2.0-flash',
-    'gemini-3.8-flash',
-    'gemini-3.6-flash',
-    'gemini-3.5-flash-lite',
-  ]
+function tryExtractReadablePdfText(base64Data: string): string {
+  try {
+    const zlib = require("node:zlib")
+    const buf = Buffer.from(base64Data, "base64")
+    const rawLat1 = buf.toString("latin1")
+    const chunks: string[] = []
 
-  for (const model of modelsToTry) {
-    try {
-      const response = await withTimeout(
-        ai.models.generateContent({
-          model: model,
-          contents: [
-            { text: prompt },
-            {
-              inlineData: {
-                data: base64Data,
-                mimeType: 'application/pdf',
-              },
-            },
-          ],
-        }),
-        6000,
-        `PDF Extractor (${model})`
-      )
-      if (response.text) {
-        console.log(`PDF successfully extracted using model: ${model}`)
-        return response.text
+    const collectTextLiterals = (src: string) => {
+      const matches = src.match(/\(([^()\\]{2,200})\)/g) || []
+      for (const m of matches) {
+        const inner = m.slice(1, -1).replace(/\\[nrt]/g, " ").replace(/[^\x20-\x7E]/g, " ").trim()
+        if (inner.length >= 2 && /[a-zA-Z]{2,}/.test(inner)) chunks.push(inner)
       }
-    } catch (error: any) {
-      console.warn(
-        `Model ${model} rate-limited or timed out, falling back to next model...`
-      )
-      continue
+    }
+
+    collectTextLiterals(rawLat1)
+
+    let pos = 0
+    while ((pos = rawLat1.indexOf("stream", pos)) !== -1) {
+      const endPos = rawLat1.indexOf("endstream", pos)
+      if (endPos === -1) break
+      let startByte = pos + 6
+      if (rawLat1[startByte] === "\r" && rawLat1[startByte + 1] === "\n") startByte += 2
+      else if (rawLat1[startByte] === "\n" || rawLat1[startByte] === "\r") startByte += 1
+      const streamSlice = buf.subarray(startByte, endPos)
+      try {
+        const inflated = zlib.inflateSync(streamSlice).toString("latin1")
+        collectTextLiterals(inflated)
+      } catch {}
+      pos = endPos + 9
+    }
+
+    const combined = chunks.join(" ").replace(/\s+/g, " ").trim()
+    return combined.length >= 180 ? combined.slice(0, 18000) : ""
+  } catch {
+    return ""
+  }
+}
+
+async function extractPdfWithRetry(prompt: string, base64Data: string) {
+  const groqKey = cleanEnvKey(process.env.GROQ_API_KEY)
+  const geminiKey = cleanEnvKey(process.env.GEMINI_API_KEY)
+
+  // Fast Path: If readable PDF text streams exist, run Tier 1 Groq openai/gpt-oss-120b -> Tier 2 qwen/qwen3.8-27b
+  const extractedText = tryExtractReadablePdfText(base64Data)
+  if (groqKey && extractedText.length >= 180) {
+    const groqModels = ["openai/gpt-oss-120b", "qwen/qwen3.8-27b"]
+    for (const gModel of groqModels) {
+      try {
+        const groq = new Groq({ apiKey: groqKey })
+        const chat = await withTimeout(
+          groq.chat.completions.create({
+            model: gModel,
+            temperature: 0.1,
+            response_format: { type: "json_object" },
+            messages: [
+              { role: "system", content: "You are an expert technical recruiter and document parser. Output strictly valid JSON matching the requested schema." },
+              { role: "user", content: prompt + "\n\n=== DOCUMENT TEXT ===\n" + extractedText }
+            ]
+          }),
+          6000,
+          "Groq Document Extractor (" + gModel + ")"
+        )
+        const content = chat.choices[0]?.message?.content
+        if (content) {
+          console.log("Document successfully extracted using Groq model: " + gModel)
+          return content
+        }
+      } catch (err: any) {
+        console.warn("Groq document extractor (" + gModel + ") skipped:", err?.message || err)
+      }
     }
   }
+
+  // Multimodal Fallback: Deduplicated Gemini Flash cascade for native/scanned PDF binary
+  if (geminiKey) {
+    const ai = new GoogleGenAI({ apiKey: geminiKey })
+    const modelsToTry = [
+      "gemini-3.8-flash",
+      "gemini-3.6-flash",
+      "gemini-3.5-flash-lite"
+    ]
+
+    for (const model of modelsToTry) {
+      try {
+        const response = await withTimeout(
+          ai.models.generateContent({
+            model: model,
+            contents: [
+              { text: prompt },
+              {
+                inlineData: {
+                  data: base64Data,
+                  mimeType: "application/pdf",
+                },
+              },
+            ],
+            config: {
+              responseMimeType: "application/json",
+              thinkingConfig: { thinkingBudget: 0 },
+            },
+          }),
+          6500,
+          "PDF Extractor (" + model + ")"
+        )
+        if (response.text) {
+          console.log("PDF successfully extracted using model: " + model)
+          return response.text
+        }
+      } catch (error: any) {
+        console.warn("Model " + model + " rate-limited or timed out, falling back to next model...")
+        continue
+      }
+    }
+  }
+
   throw new Error(
-    'Our AI document extraction engines timed out or are currently at capacity. Please wait a moment and try again.'
+    "Our AI document extraction engines timed out or are currently at capacity. Please wait a moment and try again."
   )
 }
 
