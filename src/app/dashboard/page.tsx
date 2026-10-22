@@ -901,7 +901,7 @@ export default async function DashboardPage({
     const { data: allActiveJobs } = await supabase
       .from('jobs')
       .select('*, organizations:organization_id (*)')
-      .eq('is_active', true)
+      .eq('is_active', true).not('title', 'ilike', '[CALIBRATION]%')
       .order('created_at', { ascending: false })
 
     const unappliedJobs = (allActiveJobs || []).filter(
