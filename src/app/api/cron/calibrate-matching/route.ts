@@ -103,6 +103,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
+  const providerParam = (req.nextUrl.searchParams.get("provider") || "").toLowerCase().trim()
+  const targetModel = providerParam === "qwen" || providerParam.includes("qwen")
+    ? "qwen/qwen3.8-27b"
+    : "openai/gpt-oss-120b"
+
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -135,7 +140,7 @@ export async function GET(req: NextRequest) {
 
     try {
       const chat = await groq.chat.completions.create({
-        model: "openai/gpt-oss-120b",
+        model: targetModel,
         temperature: 0.1,
         response_format: { type: "json_object" },
         messages: [
@@ -197,7 +202,7 @@ export async function GET(req: NextRequest) {
 
   await supabase.from("calibration_runs").insert({
     status,
-    provider_used: "openai/gpt-oss-120b",
+    provider_used: targetModel,
     avg_latency_ms: avgLatency,
     tier_scores: results,
     failures
@@ -228,5 +233,5 @@ export async function GET(req: NextRequest) {
     })
   }
 
-  return NextResponse.json({ status, avg_latency_ms: avgLatency, results, failures, alert: alertResult, pruned_runs: prunedCount })
+  return NextResponse.json({ status, provider_used: targetModel, avg_latency_ms: avgLatency, results, failures, alert: alertResult, pruned_runs: prunedCount })
 }

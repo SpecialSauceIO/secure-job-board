@@ -33,7 +33,8 @@ export default function CalibrationOpsCard() {
   const [history, setHistory] = useState<CalibrationRunRecord[]>([])
   const [showHistory, setShowHistory] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(true)
-  const [running, setRunning] = useState<boolean>(false)
+  const [runningTier1, setRunningTier1] = useState<boolean>(false)
+  const [runningQwen, setRunningQwen] = useState<boolean>(false)
   const [alertSending, setAlertSending] = useState<boolean>(false)
   const [bannerMsg, setBannerMsg] = useState<string | null>(null)
 
@@ -59,24 +60,32 @@ export default function CalibrationOpsCard() {
     fetchLatestHealth()
   }, [fetchLatestHealth])
 
-  const runCalibrationNow = async (withTestAlert = false) => {
+  const runCalibrationNow = async (opts: { provider?: "groq120b" | "qwen"; withTestAlert?: boolean }) => {
+    const isQwen = opts.provider === "qwen"
+    const withTestAlert = Boolean(opts.withTestAlert)
     try {
       if (withTestAlert) setAlertSending(true)
-      else setRunning(true)
+      else if (isQwen) setRunningQwen(true)
+      else setRunningTier1(true)
       setBannerMsg(null)
-      const url = withTestAlert
-        ? "/api/cron/calibrate-matching?test_alert=1"
-        : "/api/cron/calibrate-matching"
+
+      const params = new URLSearchParams()
+      if (isQwen) params.set("provider", "qwen")
+      if (withTestAlert) params.set("test_alert", "1")
+      const qs = params.toString()
+      const url = "/api/cron/calibrate-matching" + (qs ? "?" + qs : "")
+
       const res = await fetch(url, { method: "POST" })
       const data = await res.json()
       if (!res.ok) {
         setBannerMsg("Error: " + (data?.error || "Failed to run calibration"))
         return
       }
+      const usedModel = data.provider_used || (isQwen ? "qwen/qwen3.8-27b" : "openai/gpt-oss-120b")
       const newRecord: CalibrationRunRecord = {
         id: "live-" + Date.now(),
         status: data.status,
-        provider_used: "openai/gpt-oss-120b",
+        provider_used: usedModel,
         avg_latency_ms: data.avg_latency_ms,
         tier_scores: data.results || {},
         failures: data.failures || [],
@@ -86,18 +95,20 @@ export default function CalibrationOpsCard() {
       setHistory((prev) => [newRecord, ...prev].slice(0, 12))
       const pruneNote = data.pruned_runs > 0 ? " (Pruned " + data.pruned_runs + " old runs)" : ""
       if (withTestAlert) {
-        setBannerMsg("Live 5-tier QA sweep complete & Resend alert dispatched to info@specialsauce.io!" + pruneNote)
+        setBannerMsg("Live 5-tier QA sweep complete on " + usedModel + " & Resend alert dispatched!" + pruneNote)
       } else {
-        setBannerMsg("Live 5-tier QA calibration completed in " + data.avg_latency_ms + "ms avg latency." + pruneNote)
+        setBannerMsg("Live 5-tier QA sweep on " + usedModel + " completed in " + data.avg_latency_ms + "ms avg latency." + pruneNote)
       }
     } catch (err: any) {
       setBannerMsg("Error triggering calibration: " + (err?.message || "Unknown error"))
     } finally {
-      setRunning(false)
+      setRunningTier1(false)
+      setRunningQwen(false)
       setAlertSending(false)
     }
   }
 
+  const isBusy = runningTier1 || runningQwen || alertSending
   const isPassed = calib?.status === "passed"
   const tierKeys = ["TIER_1_100", "TIER_2_80", "TIER_3_60", "TIER_4_40", "TIER_5_20_BAKER"]
 
@@ -129,28 +140,36 @@ export default function CalibrationOpsCard() {
             5-Point AI Fit Radar Calibration &amp; Guardrail Monitor
           </h2>
           <p className="text-xs sm:text-sm text-slate-400">
-            Automated Monday 06:00 UTC benchmark sweep on <code className="text-indigo-300 font-mono">openai/gpt-oss-120b</code>
+            Active Provider: <code className="text-indigo-300 font-mono">{calib?.provider_used || "openai/gpt-oss-120b"}</code>
             {calib?.avg_latency_ms ? " • Avg Latency: " + calib.avg_latency_ms + "ms" : ""}
             {calib?.created_at ? " • Last Verified: " + new Date(calib.created_at).toLocaleString() : ""}
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => runCalibrationNow(false)}
-            disabled={running || alertSending}
-            className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white transition cursor-pointer shadow-sm"
+            onClick={() => runCalibrationNow({ provider: "groq120b" })}
+            disabled={isBusy}
+            className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white transition cursor-pointer shadow-sm"
           >
-            {running ? "Running 5-Tier Sweep..." : "Run QA Calibration Now"}
+            {runningTier1 ? "Running Tier 1 (120B)..." : "Run Tier 1 (120B) QA"}
           </button>
           <button
             type="button"
-            onClick={() => runCalibrationNow(true)}
-            disabled={running || alertSending}
-            className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-200 border border-slate-700 transition cursor-pointer"
+            onClick={() => runCalibrationNow({ provider: "qwen" })}
+            disabled={isBusy}
+            className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-cyan-600/90 hover:bg-cyan-500 disabled:opacity-50 text-white transition cursor-pointer shadow-sm"
           >
-            {alertSending ? "Dispatching Alert..." : "Run + Test Email Alert"}
+            {runningQwen ? "Running Tier 2 (Qwen)..." : "Benchmark Tier 2 (Qwen)"}
+          </button>
+          <button
+            type="button"
+            onClick={() => runCalibrationNow({ provider: "groq120b", withTestAlert: true })}
+            disabled={isBusy}
+            className="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-200 border border-slate-700 transition cursor-pointer"
+          >
+            {alertSending ? "Dispatching Alert..." : "Test Email Alert"}
           </button>
         </div>
       </div>
