@@ -971,7 +971,7 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
   const geminiKey = cleanEnvKey(process.env.GEMINI_API_KEY)
   const ai = new GoogleGenAI({ apiKey: geminiKey })
   const modelsToTry = [
-    'gemini-2.5-flash',
+    'gemini-3.8-flash',
     'gemini-2.0-flash',
     'gemini-3.8-flash',
     'gemini-3.6-flash',
@@ -2626,7 +2626,7 @@ export async function analyzeJobFit(jobId: string, forceRefresh: boolean = false
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
-  const cacheKey = `cand_v3_${jobId}`
+  const cacheKey = `cand_v4_${jobId}`
   if (!forceRefresh) {
     const existingCache = await readUserMatchCache(user.id)
     if (existingCache[cacheKey]?.overall_score !== undefined) {
@@ -2701,7 +2701,7 @@ export async function analyzeCandidateFit(
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
-  const cacheKey = `emp_v3_${candidateId}_${jobId}`
+  const cacheKey = `emp_v4_${candidateId}_${jobId}`
   if (!forceRefresh) {
     const existingCache = await readUserMatchCache(user.id)
     if (existingCache[cacheKey]?.overall_score !== undefined) {
@@ -2865,7 +2865,6 @@ function normalizeMatchDataObject(
   if (!matchData || typeof matchData !== 'object') return matchData
   if (!Array.isArray(matchData.radar_data)) return matchData
 
-  // Compute real multi-variable baseline scores for Logistics, Industry, and Comm so AI or fallback is grounded
   const baseline = computeMultiVariablePillarBaseline(profile, job)
 
   const normalizedRadar = matchData.radar_data.map((item: any) => ({
@@ -2874,22 +2873,44 @@ function normalizeMatchDataObject(
     score: Math.max(0, Math.min(100, Math.round(Number(item?.score) || 0))),
   }))
 
-  const findScore = (label: string, fallback: number) => {
+  const findAiScore = (label: string, fallback: number) => {
     const found = normalizedRadar.find((r: any) => r.subject === label)
     return found && Number(found.score) > 0 ? found.score : fallback
   }
 
-  const coreScore = findScore('Core Competencies', baseline.competencyScore)
-  const rawTenureScore = findScore('Skill Tenure', baseline.tenureScore)
-  const logisticsScore = findScore('Logistics & Pay', baseline.logisticsScore)
-  const industryScore = findScore('Industry & Creds', baseline.industryScore)
-  const commScore = findScore('Execution & Comm.', baseline.commScore)
+  const rawAiCore = findAiScore('Core Competencies', baseline.competencyScore)
+  const rawAiTenure = findAiScore('Skill Tenure', baseline.tenureScore)
+  const rawAiLogistics = findAiScore('Logistics & Pay', baseline.logisticsScore)
+  const rawAiIndustry = findAiScore('Industry & Creds', baseline.industryScore)
+  const rawAiComm = findAiScore('Execution & Comm.', baseline.commScore)
 
-  // Only cap Skill Tenure if Core Competencies are genuinely very low (< 30%), and allow dynamic variance
-  const calibratedTenure =
-    coreScore < 30
-      ? Math.min(rawTenureScore, Math.max(baseline.tenureScore, coreScore + 18))
-      : rawTenureScore
+  // Ground AI scores with deterministic requirement-level baseline so LLM neither hallucinates 60% on a Baker nor crushes a 2/5 career-changer to 20%
+  const isZeroSkillMismatch = baseline.reqMatchCount === 0 && baseline.combinedSkillSignal < 0.18
+  const reqCoverageRatio = baseline.totalReqCount > 0 ? baseline.reqMatchCount / baseline.totalReqCount : 0
+  const minCoreFloor = baseline.reqMatchCount > 0 ? Math.round(reqCoverageRatio * 84) : 8
+
+  const coreScore = isZeroSkillMismatch
+    ? Math.min(rawAiCore, baseline.competencyScore, 18)
+    : Math.max(minCoreFloor, Math.round(rawAiCore * 0.35 + baseline.competencyScore * 0.65))
+
+  const calibratedTenure = isZeroSkillMismatch
+    ? Math.min(rawAiTenure, baseline.tenureScore, 16)
+    : Math.max(
+        Math.round(baseline.tenureScore * 0.85),
+        Math.round(rawAiTenure * 0.35 + baseline.tenureScore * 0.65)
+      )
+
+  const industryScore = isZeroSkillMismatch && !baseline.exactIndustryMatch
+    ? Math.min(rawAiIndustry, baseline.industryScore, 20)
+    : Math.max(
+        Math.round(baseline.industryScore * 0.85),
+        Math.round(rawAiIndustry * 0.35 + baseline.industryScore * 0.65)
+      )
+
+  const logisticsScore = Math.round(rawAiLogistics * 0.35 + baseline.logisticsScore * 0.65)
+  const commScore = isZeroSkillMismatch
+    ? Math.min(rawAiComm, baseline.commScore, 35)
+    : Math.round(rawAiComm * 0.35 + baseline.commScore * 0.65)
 
   const finalRadar = [
     { subject: 'Core Competencies', score: coreScore },
@@ -2899,25 +2920,28 @@ function normalizeMatchDataObject(
     { subject: 'Execution & Comm.', score: commScore },
   ]
 
-  // Weighted overall score: 45% Core + 25% Skill Tenure + 15% Industry + 10% Logistics + 5% Comm
+  // Weighted overall score: 50% Core + 25% Skill Tenure + 15% Industry + 5% Logistics + 5% Comm
   let weightedOverall = Math.round(
-    coreScore * 0.45 +
+    coreScore * 0.50 +
       calibratedTenure * 0.25 +
       industryScore * 0.15 +
-      logisticsScore * 0.10 +
+      logisticsScore * 0.05 +
       commScore * 0.05
   )
 
-  // Domain ceiling: if Core Competencies < 28% AND Industry & Creds < 35%, prevent false-positive 40%+ matches
-  if (coreScore < 28 && industryScore < 35) {
-    weightedOverall = Math.min(weightedOverall, Math.max(12, coreScore + 14), 38)
-  } else if (coreScore < 35 && industryScore < 45) {
-    weightedOverall = Math.min(weightedOverall, Math.max(18, coreScore + 16), 44)
+  // Strict Domain & Core Skill Hard Ceiling:
+  // If 0 core requirements matched, hard-cap at <= 20%. Otherwise scale ceiling smoothly by coreScore.
+  if (isZeroSkillMismatch) {
+    weightedOverall = Math.min(weightedOverall, coreScore + 4, 20)
+  } else if (coreScore < 42) {
+    weightedOverall = Math.min(weightedOverall, coreScore + 8, 45)
+  } else if (coreScore < 65) {
+    weightedOverall = Math.min(weightedOverall, coreScore + 6)
   }
 
   return {
     ...matchData,
-    overall_score: Math.max(6, Math.min(99, weightedOverall)),
+    overall_score: Math.max(8, Math.min(99, weightedOverall)),
     radar_data: finalRadar,
   }
 }
@@ -2948,25 +2972,26 @@ function stemToken(word: string): string {
 }
 
 const DOMAIN_SYNONYM_GROUPS: string[][] = [
-  ['lms', 'learning', 'training', 'curriculum', 'instructional', 'enablement', 'onboarding', 'education', 'courseware', 'pedagogy', 'facilitation'],
-  ['knowledge', 'playbook', 'documentation', 'wiki', 'sop', 'process', 'content', 'architecture', 'governance'],
-  ['support', 'escalation', 'troubleshooting', 'incident', 'helpdesk', 'service', 'csat', 'customer', 'client', 'success', 'operations'],
-  ['cloud', 'saas', 'software', 'enterprise', 'infrastructure', 'office365', 'm365', 'vdi', 'azure', 'aws', 'it', 'systems', 'technical', 'platform'],
-  ['ai', 'llm', 'genai', 'prompt', 'copilot', 'claude', 'openai', 'gemini', 'automation', 'machine'],
-  ['sales', 'account', 'meddic', 'pipeline', 'revenue', 'closing', 'crm', 'salesforce', 'outbound', 'quota', 'b2b', 'executive'],
-  ['program', 'project', 'pmp', 'agile', 'scrum', 'stakeholder', 'leadership', 'crossfunctional', 'strategy', 'rollout', 'delivery'],
-  ['supply', 'logistics', 'warehouse', '3pl', 'distribution', 'freight', 'inventory', 'procurement', 'sap', 'lean'],
-  ['construction', 'commercial', 'procore', 'primavera', 'subcontractor', 'osha', 'bidding', 'gmp', 'estimating', 'site'],
-  ['hospitality', 'food', 'beverage', 'resort', 'banquet', 'hotel', 'restaurant', 'guest', 'catering', 'servsafe'],
-  ['legal', 'paralegal', 'contract', 'redline', 'corporate', 'privacy', 'gdpr', 'ccpa', 'sec', 'compliance', 'litigation', 'ironclad'],
+  ['lms', 'learning', 'training', 'curriculum', 'instructional', 'enablement', 'onboarding', 'courseware', 'pedagogy', 'facilitation'],
+  ['knowledge', 'playbook', 'documentation', 'wiki', 'sop', 'governance'],
+  ['escalation', 'troubleshooting', 'incident', 'helpdesk', 'servicedesk', 'csat'],
+  ['cloud', 'saas', 'enterprise', 'infrastructure', 'office365', 'm365', 'vdi', 'azure', 'aws'],
+  ['ai', 'llm', 'genai', 'prompt', 'copilot', 'claude', 'openai', 'gemini', 'machinelearning'],
+  ['sales', 'meddic', 'pipeline', 'revenue', 'closing', 'crm', 'salesforce', 'quota', 'b2b'],
+  ['program', 'project', 'pmp', 'agile', 'scrum', 'stakeholder', 'crossfunctional', 'okr'],
+  ['supplychain', 'warehouse', '3pl', 'distribution', 'freight', 'procurement', 'sap'],
+  ['construction', 'procore', 'primavera', 'subcontractor', 'osha', 'estimating'],
+  ['culinary', 'baker', 'baking', 'pastry', 'sourdough', 'fermentation', 'dough', 'oven', 'servsafe', 'foodservice', 'kitchen'],
+  ['legal', 'paralegal', 'redline', 'gdpr', 'ccpa', 'litigation', 'ironclad'],
 ]
 
 function expandTokenWithSynonyms(token: string): string[] {
   const t = token.toLowerCase().trim()
+  if (t.length < 3 && t !== 'ai') return [t]
   const s = stemToken(t)
   const expanded = new Set<string>([t, s])
   for (const group of DOMAIN_SYNONYM_GROUPS) {
-    if (group.some((g) => g === t || stemToken(g) === s || (t.length >= 4 && g.includes(t)))) {
+    if (group.some((g) => g === t || (s.length >= 4 && stemToken(g) === s))) {
       for (const g of group) {
         expanded.add(g)
         expanded.add(stemToken(g))
@@ -2980,16 +3005,27 @@ function computeMultiVariablePillarBaseline(profile: any, job: any) {
   const stopWords = new Set([
     'and', 'the', 'for', 'with', 'from', 'that', 'this', 'into', 'over', 'across',
     'high', 'full', 'role', 'work', 'team', 'year', 'years', 'experience', 'using',
+    'level', 'senior', 'junior', 'lead', 'manager', 'specialist', 'general', 'daily',
+    'ability', 'strong', 'proven', 'manage', 'managing', 'management', 'operations',
+    'production', 'quality', 'schedule', 'process', 'system', 'systems', 'support',
   ])
 
   const structuredSkills = Array.isArray(profile?.structured_skills)
     ? profile.structured_skills.filter((s: any) => !s?._ss_pref_meta && (s?.skill || s?.name))
     : []
 
-  const candSkillEntries = structuredSkills.map((s: any) => ({
-    name: String(s?.skill || s?.name || '').toLowerCase().trim(),
-    years: Math.max(1, Number(s?.years) || Number(profile?.experience_years) || 2),
-  }))
+  const candSkillEntries = structuredSkills.map((s: any) => {
+    const rawName = String(s?.skill || s?.name || '').toLowerCase().trim()
+    const tokens = rawName
+      .split(/[^a-z0-9+#]+/)
+      .filter((w) => (w.length >= 3 || w === 'ai') && !stopWords.has(w))
+    return {
+      name: rawName,
+      tokens,
+      stems: tokens.map(stemToken),
+      years: Math.max(1, Number(s?.years) || Number(profile?.experience_years) || 2),
+    }
+  })
 
   if (candSkillEntries.length === 0 && profile?.skills) {
     String(profile.skills)
@@ -2997,8 +3033,14 @@ function computeMultiVariablePillarBaseline(profile: any, job: any) {
       .map((s: string) => s.trim())
       .filter(Boolean)
       .forEach((name: string) => {
+        const lower = name.toLowerCase()
+        const tokens = lower
+          .split(/[^a-z0-9+#]+/)
+          .filter((w) => (w.length >= 3 || w === 'ai') && !stopWords.has(w))
         candSkillEntries.push({
-          name: name.toLowerCase(),
+          name: lower,
+          tokens,
+          stems: tokens.map(stemToken),
           years: Math.max(1, Number(profile?.experience_years) || 3),
         })
       })
@@ -3010,23 +3052,22 @@ function computeMultiVariablePillarBaseline(profile: any, job: any) {
     ...candSkillEntries.map((e: any) => e.name),
     candBio,
     candCerts,
-    String(profile?.industry_vertical || '').toLowerCase(),
   ].join(' ')
 
   const candTokens = new Set(
     candFullCorpus
       .split(/[^a-z0-9+#]+/)
-      .filter((w) => w.length >= 2 && !stopWords.has(w))
+      .filter((w) => (w.length >= 3 || w === 'ai') && !stopWords.has(w))
   )
   const candStems = new Set(Array.from(candTokens).map(stemToken))
 
-  // Extract Job Requirements
-  const jobReqs: Array<{ name: string; level: string }> = Array.isArray(job?.structured_requirements)
+  const jobReqs: Array<{ name: string; level: string; years?: number }> = Array.isArray(job?.structured_requirements)
     ? job.structured_requirements
         .filter((r: any) => !r?._ss_job_meta && (r?.skill || r?.name))
         .map((r: any) => ({
           name: String(r?.skill || r?.name || '').toLowerCase().trim(),
           level: String(r?.level || 'Intermediate'),
+          years: Number(r?.years) || 0,
         }))
     : []
 
@@ -3039,92 +3080,114 @@ function computeMultiVariablePillarBaseline(profile: any, job: any) {
       : [jobTitle, jobDesc].filter(Boolean)
 
   // ------------------------------------------------------------------
-  // PILLAR 1: CORE COMPETENCIES (0 - 100)
+  // PILLAR 1: CORE COMPETENCIES (0 - 100) — STRICT REQUIREMENT MATCHING
   // ------------------------------------------------------------------
-  let totalReqWeight = 0
-  let earnedReqWeight = 0
+  let totalReqCount = 0
+  let earnedReqUnits = 0
+  let reqMatchCount = 0
   const matchedSkillYears: number[] = []
 
   for (const reqText of reqTexts) {
     const reqWords = reqText
       .split(/[^a-z0-9+#]+/)
-      .filter((w) => w.length >= 2 && !stopWords.has(w))
+      .filter((w) => (w.length >= 3 || w === 'ai') && !stopWords.has(w))
+
     if (reqWords.length === 0) continue
+    totalReqCount += 1
 
-    totalReqWeight += 1
-    let directWordHits = 0
-    let synonymWordHits = 0
-    let matchedEntryYears = 0
+    let bestSkillScore = 0
+    let bestSkillYears = 0
 
-    for (const rw of reqWords) {
-      const rwStem = stemToken(rw)
-      const directSkillMatch = candSkillEntries.find(
-        (ce: any) =>
-          ce.name.includes(rw) ||
-          ce.name.split(/[^a-z0-9+#]+/).some((cw: string) => stemToken(cw) === rwStem)
-      )
-      if (directSkillMatch) {
-        directWordHits += 1
-        matchedEntryYears = Math.max(matchedEntryYears, directSkillMatch.years)
-      } else if (candTokens.has(rw) || candStems.has(rwStem)) {
-        directWordHits += 0.85
-        matchedEntryYears = Math.max(
-          matchedEntryYears,
-          Math.min(8, Number(profile?.experience_years) || 4)
-        )
-      } else {
-        const synonyms = expandTokenWithSynonyms(rw)
-        const synSkillMatch = candSkillEntries.find((ce: any) =>
-          synonyms.some((syn) => syn.length >= 3 && ce.name.includes(syn))
-        )
-        if (synSkillMatch) {
-          synonymWordHits += 0.65
-          matchedEntryYears = Math.max(matchedEntryYears, synSkillMatch.years)
-        } else if (synonyms.some((syn) => candTokens.has(syn) || candStems.has(syn))) {
-          synonymWordHits += 0.45
+    // Check against each structured skill of the candidate first
+    for (const ce of candSkillEntries) {
+      if (ce.name === reqText) {
+        bestSkillScore = 1.0
+        bestSkillYears = Math.max(bestSkillYears, ce.years)
+        break
+      }
+
+      let wordHits = 0
+      for (const rw of reqWords) {
+        const rwStem = stemToken(rw)
+        const rwSyns = expandTokenWithSynonyms(rw)
+        if (ce.tokens.includes(rw) || ce.stems.includes(rwStem)) {
+          wordHits += 1.0
+        } else if (
+          rwSyns.some((syn) => ce.tokens.includes(syn) || ce.stems.includes(syn))
+        ) {
+          wordHits += 0.75
         }
+      }
+
+      const ratio = wordHits / reqWords.length
+      if (ratio > bestSkillScore) {
+        bestSkillScore = ratio
+        bestSkillYears = ce.years
       }
     }
 
-    const reqCoverage = Math.min(1, (directWordHits + synonymWordHits) / reqWords.length)
-    earnedReqWeight += reqCoverage
-    if (reqCoverage >= 0.35 && matchedEntryYears > 0) {
-      matchedSkillYears.push(matchedEntryYears)
+    // If not in structured skills, check bio/certs corpus with whole-word token match
+    if (bestSkillScore < 0.5) {
+      let corpusHits = 0
+      for (const rw of reqWords) {
+        const rwStem = stemToken(rw)
+        const rwSyns = expandTokenWithSynonyms(rw)
+        if (candTokens.has(rw) || candStems.has(rwStem)) {
+          corpusHits += 0.75
+        } else if (rwSyns.some((syn) => candTokens.has(syn) || candStems.has(syn))) {
+          corpusHits += 0.45
+        }
+      }
+      const corpusRatio = Math.min(0.85, corpusHits / reqWords.length)
+      if (corpusRatio > bestSkillScore) {
+        bestSkillScore = corpusRatio
+        bestSkillYears = Math.min(5, Number(profile?.experience_years) || 3)
+      }
+    }
+
+    const cappedReqScore = Math.min(1.0, bestSkillScore)
+    if (cappedReqScore >= 0.45) {
+      earnedReqUnits += cappedReqScore
+      reqMatchCount += 1
+      if (bestSkillYears > 0) matchedSkillYears.push(bestSkillYears)
+    } else if (cappedReqScore >= 0.25) {
+      earnedReqUnits += cappedReqScore * 0.5
     }
   }
 
-  // Also check Title & Description alignment
+  const reqRatio = totalReqCount > 0 ? earnedReqUnits / totalReqCount : 0
+
   const titleWords = jobTitle
     .split(/[^a-z0-9+#]+/)
-    .filter((w) => w.length >= 3 && !stopWords.has(w))
+    .filter((w) => (w.length >= 3 || w === 'ai') && !stopWords.has(w))
   let titleHits = 0
   for (const tw of titleWords) {
+    const twStem = stemToken(tw)
     const syns = expandTokenWithSynonyms(tw)
     if (
       candTokens.has(tw) ||
-      candStems.has(stemToken(tw)) ||
+      candStems.has(twStem) ||
       syns.some((s) => candTokens.has(s) || candStems.has(s))
     ) {
       titleHits += 1
     }
   }
   const titleRatio = titleWords.length > 0 ? titleHits / titleWords.length : 0
-  const reqRatio = totalReqWeight > 0 ? earnedReqWeight / totalReqWeight : 0
 
-  const candInd = String(profile?.industry_vertical || '').toLowerCase()
-  const jobInd = String(job?.industry || job?.job_meta?.industry || '').toLowerCase()
+  const candInd = String(profile?.industry_vertical || '').toLowerCase().trim()
+  const jobInd = String(job?.industry || job?.job_meta?.industry || '').toLowerCase().trim()
   const exactIndustryMatch =
     Boolean(candInd && jobInd) &&
     (candInd === jobInd || candInd.includes(jobInd) || jobInd.includes(candInd))
 
-  const combinedSkillSignal = reqRatio * 0.72 + titleRatio * 0.28
-  let competencyScore = Math.round(10 + combinedSkillSignal * 84 + (exactIndustryMatch ? 6 : 0))
-  if (combinedSkillSignal < 0.08 && !exactIndustryMatch) {
-    // Deterministic slight differentiation per job based on title token length so unrelated roles aren't identical
-    const hashVariance = (jobTitle.length + reqTexts.length * 3) % 9
-    competencyScore = 9 + hashVariance // 9% to 17% for completely unrelated domains
+  const combinedSkillSignal =
+    totalReqCount > 0 ? reqRatio * 0.85 + titleRatio * 0.15 : titleRatio
+
+  let competencyScore = Math.round(combinedSkillSignal * 94 + (exactIndustryMatch ? 5 : 0))
+  if (reqMatchCount === 0 && combinedSkillSignal < 0.15) {
+    competencyScore = Math.max(8, Math.min(18, Math.round(8 + combinedSkillSignal * 40)))
   }
-  competencyScore = Math.max(8, Math.min(97, competencyScore))
+  competencyScore = Math.max(8, Math.min(99, competencyScore))
 
   // ------------------------------------------------------------------
   // PILLAR 2: SKILL TENURE (0 - 100)
@@ -3143,114 +3206,114 @@ function computeMultiVariablePillarBaseline(profile: any, job: any) {
       ? matchedSkillYears.reduce((a, b) => a + b, 0) / matchedSkillYears.length
       : 0
 
-  let tenureScore = 15
-  if (avgMatchedYears > 0) {
-    const tenureRatio = Math.min(1.25, avgMatchedYears / targetYears)
-    const maturityBonus = Math.min(15, Math.round(Math.min(totalCareerYears, 15) * 1.0))
-    tenureScore = Math.round(Math.min(96, tenureRatio * 72 + maturityBonus * Math.min(1, combinedSkillSignal + 0.35)))
+  let tenureScore = 12
+  if (reqMatchCount > 0 && avgMatchedYears > 0) {
+    const depthRatio = Math.min(1.15, avgMatchedYears / targetYears)
+    const coverageFactor = totalReqCount > 0 ? reqMatchCount / totalReqCount : 0.5
+    const maturityBonus = Math.min(12, Math.round(Math.min(totalCareerYears, 12) * 1.0))
+    tenureScore = Math.round(
+      Math.min(98, (depthRatio * 55 + coverageFactor * 33) + maturityBonus * coverageFactor)
+    )
   } else {
-    // Unrelated skill set: only grant modest transferable maturity scaled against target seniority
-    const seniorityGap = Math.max(0, Math.min(18, Math.round((totalCareerYears / (targetYears + 2)) * 12)))
-    tenureScore = Math.max(11, Math.min(29, 10 + seniorityGap + (exactIndustryMatch ? 8 : 0)))
+    tenureScore = Math.max(10, Math.min(20, 10 + (exactIndustryMatch ? 8 : 2)))
   }
 
   // ------------------------------------------------------------------
-  // PILLAR 3: LOGISTICS & PAY (0 - 100) — DYNAMIC WORK MODEL, GEO & SALARY
+  // PILLAR 3: LOGISTICS & PAY (0 - 100)
   // ------------------------------------------------------------------
   const jobWorkModel = String(job?.work_model || 'remote').toLowerCase()
   const candWorkModel = String(profile?.preferred_work_model || 'any').toLowerCase()
   const jobLoc = String(job?.location || '').toLowerCase()
   const candLoc = String(profile?.location || '').toLowerCase()
 
-  // Extract state code or metro match
-  const stateTokens = ['tx', 'texas', 'dfw', 'dallas', 'fort worth', 'arlington', 'ny', 'new york', 'fl', 'miami', 'il', 'chicago', 'co', 'denver', 'tn', 'memphis', 'ca', 'wa']
+  const stateTokens = ['tx', 'texas', 'dfw', 'dallas', 'fort worth', 'cleburne', 'arlington', 'ny', 'new york', 'fl', 'miami', 'il', 'chicago', 'co', 'denver', 'tn', 'memphis', 'ca', 'wa']
   const sameLocation =
     Boolean(candLoc && jobLoc) &&
     (candLoc === jobLoc ||
       stateTokens.some((st) => candLoc.includes(st) && jobLoc.includes(st)))
 
-  let workModelPoints = 38 // out of 50
+  let workModelPoints = 38
   if (jobWorkModel.includes('remote')) {
-    workModelPoints = candWorkModel.includes('onsite') ? 40 : 48
+    workModelPoints = candWorkModel.includes('onsite') ? 38 : 48
   } else if (jobWorkModel.includes('hybrid')) {
-    workModelPoints = sameLocation ? 45 : candWorkModel.includes('remote') ? 18 : 24
+    workModelPoints = sameLocation ? 46 : candWorkModel.includes('remote') ? 18 : 26
   } else {
-    // On-site role
-    workModelPoints = sameLocation ? 44 : candWorkModel.includes('remote') ? 12 : 16
+    workModelPoints = sameLocation ? 46 : candWorkModel.includes('remote') ? 12 : 20
   }
 
-  // Pay Band Fit (out of 35)
   const candMinSal = Number(profile?.min_salary_expectation) || 0
-  const jobSalMin = Number(job?.salary_min) || 0
-  const jobSalMax = Number(job?.salary_max) || jobSalMin || 0
+  const rawJobMax = Number(job?.salary_max) || Number(job?.salary_min) || 0
+  const isHourly = job?.pay_type === 'hourly' || (rawJobMax > 0 && rawJobMax <= 500)
+  const jobAnnualMax = isHourly ? rawJobMax * 2080 : rawJobMax
+
   let payPoints = 30
-  if (candMinSal > 0 && jobSalMax > 0) {
-    if (jobSalMax >= candMinSal && (jobSalMin >= candMinSal * 0.85 || jobSalMax >= candMinSal * 1.1)) {
-      payPoints = 34
-    } else if (jobSalMax >= candMinSal * 0.9) {
-      payPoints = 27
+  if (candMinSal > 0 && jobAnnualMax > 0) {
+    if (jobAnnualMax >= candMinSal) {
+      payPoints = 36
+    } else if (jobAnnualMax >= candMinSal * 0.85) {
+      payPoints = 24
     } else {
-      const ratioPay = Math.max(0.3, jobSalMax / candMinSal)
-      payPoints = Math.round(ratioPay * 26)
+      payPoints = Math.max(6, Math.round((jobAnnualMax / candMinSal) * 22))
     }
-  } else if (jobSalMax > 0) {
-    // Vary slightly by salary band vs target seniority
-    payPoints = jobSalMax >= 130000 ? 33 : jobSalMax >= 100000 ? 30 : 27
+  } else {
+    payPoints = 32
   }
 
-  // Availability Window Fit (out of 15)
   const availRaw = String(profile?.availability_window || 'Standard (2 Weeks Notice)').toLowerCase()
   const availPoints = availRaw.includes('immediate') ? 15 : availRaw.includes('2 weeks') ? 14 : 11
 
-  const logisticsScore = Math.max(22, Math.min(98, workModelPoints + payPoints + availPoints))
+  const logisticsScore = Math.max(20, Math.min(99, workModelPoints + payPoints + availPoints))
 
   // ------------------------------------------------------------------
-  // PILLAR 4: INDUSTRY & CREDS (0 - 100) — VERTICAL, EDUCATION & CERTS
+  // PILLAR 4: INDUSTRY & CREDS (0 - 100) — GATED BY DOMAIN RELEVANCE
   // ------------------------------------------------------------------
-  let industryPoints = 14 // out of 55
+  let industryPoints = 8 // out of 55
   if (exactIndustryMatch) {
     industryPoints = 52
-  } else if (combinedSkillSignal >= 0.45) {
+  } else if (combinedSkillSignal >= 0.5) {
     industryPoints = 38
-  } else if (jobInd.includes('other') || jobInd.includes('multi-industry') || jobInd.includes('professional')) {
-    industryPoints = 32
+  } else if (combinedSkillSignal >= 0.25) {
+    industryPoints = 22
   } else {
-    industryPoints = 10 + Math.round(combinedSkillSignal * 22)
+    industryPoints = 8
   }
 
-  // Education Requirement (out of 25)
   const jobEdu = String(job?.education_req || job?.job_meta?.education_req || 'Equivalent Practical Experience').toLowerCase()
   const candEdu = String(profile?.education_level || 'Practical Experience & Industry Certifications').toLowerCase()
-  let eduPoints = 24
-  if (jobEdu.includes('equivalent') || jobEdu.includes('no degree') || jobEdu.includes('high school')) {
-    eduPoints = 24
-  } else if (jobEdu.includes('strict')) {
+  let eduPoints = 22
+  if (jobEdu.includes('strict')) {
     const hasDegree = candEdu.includes('bachelor') || candEdu.includes('master') || candEdu.includes('doctor') || candEdu.includes('associate')
-    eduPoints = hasDegree ? 25 : 9
+    eduPoints = hasDegree ? 25 : 8
   } else {
-    eduPoints = 21
+    eduPoints = 23
+  }
+  // Scale education credit by domain relevance so unrelated degrees/GEDs don't inflate score
+  if (!exactIndustryMatch && combinedSkillSignal < 0.2) {
+    eduPoints = Math.min(eduPoints, 8)
   }
 
-  // Certifications Fit (out of 20)
   const reqCertsRaw = String(job?.required_certifications || job?.job_meta?.required_certifications || '').toLowerCase().trim()
-  let certPoints = 16
+  let certPoints = 10
   if (!reqCertsRaw || reqCertsRaw === 'none' || reqCertsRaw === 'none specified') {
-    certPoints = candCerts.length > 2 ? 19 : 16
+    certPoints = exactIndustryMatch || combinedSkillSignal >= 0.4 ? 18 : 6
   } else {
     const reqCertTokens = reqCertsRaw.split(/[,/•]+/).map((c) => c.trim()).filter(Boolean)
-    const certHit = reqCertTokens.some((rc) =>
+    const matchedCerts = reqCertTokens.filter((rc) =>
       rc
-        .split(/s+/)
+        .split(/\s+/)
         .filter((w) => w.length >= 3)
         .some((w) => candFullCorpus.includes(w.toLowerCase()))
     )
-    certPoints = certHit ? 20 : 6
+    certPoints =
+      matchedCerts.length > 0
+        ? Math.round(10 + (matchedCerts.length / reqCertTokens.length) * 10)
+        : 4
   }
 
   const industryScore = Math.max(12, Math.min(98, industryPoints + eduPoints + certPoints))
 
   // ------------------------------------------------------------------
-  // PILLAR 5: EXECUTION & COMM. (0 - 100) — LANGUAGES, BIO & LEADERSHIP
+  // PILLAR 5: EXECUTION & COMM. (0 - 100)
   // ------------------------------------------------------------------
   const candLangs = Array.isArray(profile?.languages) ? profile.languages : []
   const jobLangs = Array.isArray(job?.required_languages)
@@ -3259,7 +3322,7 @@ function computeMultiVariablePillarBaseline(profile: any, job: any) {
     ? job.job_meta.required_languages
     : []
 
-  let langPoints = 42 // out of 45
+  let langPoints = 40
   if (jobLangs.length > 0) {
     let matchedLangs = 0
     for (const jl of jobLangs) {
@@ -3274,16 +3337,14 @@ function computeMultiVariablePillarBaseline(profile: any, job: any) {
     langPoints = Math.round((matchedLangs / jobLangs.length) * 45)
   }
 
-  // Leadership, Stakeholder & Quantified Execution signals in Bio + Role Fit (out of 55)
-  const hasMetrics = /d+%|d{3,}/.test(candBio)
+  const hasMetrics = /\d+%|\d{3,}/.test(candBio)
   const hasLeadership = /lead|manager|director|architect|global|enterprise|strategy|cross-functional|onboarding/.test(candBio)
   const roleExecPoints = Math.round(
-    (hasMetrics ? 18 : 10) +
-      (hasLeadership ? 18 : 10) +
-      Math.min(19, Math.round(combinedSkillSignal * 19))
+    ((hasMetrics ? 16 : 8) + (hasLeadership ? 16 : 8)) * Math.max(0.25, combinedSkillSignal) +
+      Math.min(20, Math.round(combinedSkillSignal * 20))
   )
 
-  const commScore = Math.max(35, Math.min(97, langPoints + roleExecPoints))
+  const commScore = Math.max(25, Math.min(97, langPoints + roleExecPoints))
 
   return {
     competencyScore,
@@ -3291,6 +3352,10 @@ function computeMultiVariablePillarBaseline(profile: any, job: any) {
     logisticsScore,
     industryScore,
     commScore,
+    reqMatchCount,
+    totalReqCount,
+    combinedSkillSignal,
+    exactIndustryMatch,
   }
 }
 
@@ -3303,10 +3368,10 @@ function buildDeterministicFallbackMatch(
 
   const rawFallback = {
     overall_score: Math.round(
-      baseline.competencyScore * 0.45 +
+      baseline.competencyScore * 0.50 +
         baseline.tenureScore * 0.25 +
         baseline.industryScore * 0.15 +
-        baseline.logisticsScore * 0.10 +
+        baseline.logisticsScore * 0.05 +
         baseline.commScore * 0.05
     ),
     radar_data: [
@@ -3326,16 +3391,16 @@ function buildDeterministicFallbackMatch(
   calibrated.brief_analysis =
     overall < 40
       ? viewerRole === 'employer'
-        ? `Low role alignment (${overall}%): Candidate's primary skill matrix (${profile?.industry_vertical || 'General'}) has limited overlap with the core requirements for ${job?.title || 'this role'} (Core Competencies: ${baseline.competencyScore}%, Logistics: ${baseline.logisticsScore}%).`
-        : `Low role alignment (${overall}%): Your primary skill matrix and industry vertical have limited overlap with the core requirements for ${job?.title || 'this role'} (Core Competencies: ${baseline.competencyScore}%, Logistics & Pay: ${baseline.logisticsScore}%).`
+        ? `Low role alignment (${overall}%): Candidate matched ${baseline.reqMatchCount} of ${baseline.totalReqCount} core requirements for ${job?.title || 'this role'} (Core Competencies: ${calibrated.radar_data[0].score}%).`
+        : `Low role alignment (${overall}%): Your profile matched ${baseline.reqMatchCount} of ${baseline.totalReqCount} core requirements for ${job?.title || 'this role'} (Core Competencies: ${calibrated.radar_data[0].score}%).`
       : viewerRole === 'employer'
-      ? `This candidate demonstrates a ${overall}% overall alignment across required core competencies (${baseline.competencyScore}%), skill tenure (${baseline.tenureScore}%), and logistics (${baseline.logisticsScore}%) for ${job?.title || 'this role'}.`
-      : `Your profile shows a ${overall}% alignment with the core competencies (${baseline.competencyScore}%), experience depth (${baseline.tenureScore}%), and logistics (${baseline.logisticsScore}%) for ${job?.title || 'this role'}.`
+      ? `Candidate matched ${baseline.reqMatchCount} of ${baseline.totalReqCount} core requirements (${overall}% overall fit) across Core Competencies (${calibrated.radar_data[0].score}%) and Skill Tenure (${calibrated.radar_data[1].score}%).`
+      : `You matched ${baseline.reqMatchCount} of ${baseline.totalReqCount} core requirements (${overall}% overall fit) across Core Competencies (${calibrated.radar_data[0].score}%) and Skill Tenure (${calibrated.radar_data[1].score}%).`
 
   calibrated.employer_pitch =
     overall < 40
       ? `Significant domain and core skill gap detected for ${job?.title || 'this role'}.`
-      : `Strong cross-functional alignment for ${job?.title || 'this role'} backed by verified hands-on skill tenure and domain execution.`
+      : `Verified alignment across ${baseline.reqMatchCount} of ${baseline.totalReqCount} core requirements for ${job?.title || 'this role'}.`
 
   return calibrated
 }
@@ -3346,37 +3411,10 @@ async function analyzeMatchRouter(
   viewerRole: 'candidate' | 'employer' = 'candidate'
 ): Promise<{ data?: any; error?: string }> {
   const prompt = getMatchPrompt(profile, job, viewerRole)
-  const geminiKey = cleanEnvKey(process.env.GEMINI_API_KEY)
   const groqKey = cleanEnvKey(process.env.GROQ_API_KEY)
-  const openAiKey = cleanEnvKey(process.env.OPENAI_API_KEY)
+  const geminiKey = cleanEnvKey(process.env.GEMINI_API_KEY)
 
-  // Tier 1: Gemini 2.5 Flash with thinkingBudget: 0 and JSON mode (completes in ~1.5-3.5s, 8.5s timeout ceiling)
-  if (geminiKey) {
-    try {
-      const ai = new GoogleGenAI({ apiKey: geminiKey })
-      const response = await withTimeout(
-        ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: prompt,
-          config: {
-            responseMimeType: 'application/json',
-            thinkingConfig: { thinkingBudget: 0 },
-          },
-        }),
-        8500,
-        'Tier 1 (gemini-2.5-flash)'
-      )
-
-      if (response.text) {
-        const parsed = parseAiResponse(response.text, profile, job)
-        return { data: parsed }
-      }
-    } catch (error: any) {
-      console.warn(`[${viewerRole}] Gemini primary skipped:`, error.message || error)
-    }
-  }
-
-  // Tier 2: Groq llama-3.3-70b-versatile with 7.5s timeout
+  // Tier 1: Groq openai/gpt-oss-120b (~650ms response time)
   if (groqKey) {
     try {
       const groq = new Groq({ apiKey: groqKey })
@@ -3385,15 +3423,17 @@ async function analyzeMatchRouter(
           messages: [
             {
               role: 'system',
-              content: 'You are a senior technical recruiter and data analyst. Output strictly valid JSON matching the requested schema.',
+              content:
+                'You are a rigorous technical recruiter and data analyst. Output strictly valid JSON matching the requested schema. Never inflate scores for unrelated domains.',
             },
             { role: 'user', content: prompt },
           ],
-          model: 'llama-3.3-70b-versatile',
+          model: 'openai/gpt-oss-120b',
+          temperature: 0.1,
           response_format: { type: 'json_object' },
         }),
-        7500,
-        'Tier 2 (Groq llama-3.3-70b-versatile)'
+        6000,
+        'Tier 1 (Groq openai/gpt-oss-120b)'
       )
 
       if (chatCompletion.choices[0]?.message?.content) {
@@ -3401,34 +3441,66 @@ async function analyzeMatchRouter(
         return { data: parsed }
       }
     } catch (error: any) {
-      console.warn(`[${viewerRole}] Groq fallback skipped:`, error.message || error)
+      console.warn(`[${viewerRole}] Groq Tier 1 (openai/gpt-oss-120b) skipped:`, error.message || error)
     }
-  }
 
-  // Tier 3: OpenAI gpt-4o-mini with 7.5s timeout
-  if (openAiKey) {
+    // Tier 2: Groq qwen/qwen3.8-27b (~250ms high-availability fallback)
     try {
-      const openai = new OpenAI({ apiKey: openAiKey })
-      const completion = await withTimeout(
-        openai.chat.completions.create({
-          messages: [{ role: 'user', content: prompt }],
-          model: 'gpt-4o-mini',
+      const groq = new Groq({ apiKey: groqKey })
+      const backupCompletion = await withTimeout(
+        groq.chat.completions.create({
+          messages: [
+            {
+              role: 'system',
+              content:
+                'You are a rigorous technical recruiter and data analyst. Output strictly valid JSON matching the requested schema.',
+            },
+            { role: 'user', content: prompt },
+          ],
+          model: 'qwen/qwen3.8-27b',
+          temperature: 0.1,
           response_format: { type: 'json_object' },
         }),
-        7500,
-        'Tier 3 (gpt-4o-mini)'
+        5000,
+        'Tier 2 (Groq qwen/qwen3.8-27b)'
       )
 
-      if (completion.choices[0]?.message?.content) {
-        const parsed = parseAiResponse(completion.choices[0].message.content, profile, job)
+      if (backupCompletion.choices[0]?.message?.content) {
+        const parsed = parseAiResponse(backupCompletion.choices[0].message.content, profile, job)
         return { data: parsed }
       }
     } catch (error: any) {
-      console.warn(`[${viewerRole}] OpenAI fallback skipped:`, error.message || error)
+      console.warn(`[${viewerRole}] Groq Tier 2 (qwen/qwen3.8-27b) skipped:`, error.message || error)
     }
   }
 
-  // Multi-variable 5-Point mathematical engine fallback
+  // Tier 3: Gemini 3.8 Flash
+  if (geminiKey) {
+    try {
+      const ai = new GoogleGenAI({ apiKey: geminiKey })
+      const response = await withTimeout(
+        ai.models.generateContent({
+          model: 'gemini-3.8-flash',
+          contents: prompt,
+          config: {
+            responseMimeType: 'application/json',
+            thinkingConfig: { thinkingBudget: 0 },
+          },
+        }),
+        6500,
+        'Tier 3 (gemini-3.8-flash)'
+      )
+
+      if (response.text) {
+        const parsed = parseAiResponse(response.text, profile, job)
+        return { data: parsed }
+      }
+    } catch (error: any) {
+      console.warn(`[${viewerRole}] Gemini Tier 3 skipped:`, error.message || error)
+    }
+  }
+
+  // Tier 4: Calibrated 5-Point mathematical engine fallback
   return {
     data: buildDeterministicFallbackMatch(profile, job, viewerRole),
   }
