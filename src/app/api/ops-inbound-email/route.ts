@@ -98,6 +98,20 @@ export async function POST(req: NextRequest) {
         ''
     ).trim()
 
+    if (
+      senderEmail === 'support@specialsauce.io' ||
+      senderEmail === 'noreply@specialsauce.io' ||
+      senderEmail === 'no-reply@specialsauce.io' ||
+      /In-App Reply from/i.test(subject) ||
+      /Update Confirmation: Your reply has been posted/i.test(subject) ||
+      /^\[[^\]]+\]\s*In-App Reply from/i.test(rawBody)
+    ) {
+      return NextResponse.json({
+        ok: true,
+        ignored_self_notification: true,
+      })
+    }
+
     const cleanReply = stripQuotedHistory(rawBody)
     if (!cleanReply) {
       return NextResponse.json(
