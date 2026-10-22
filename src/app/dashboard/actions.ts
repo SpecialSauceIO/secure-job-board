@@ -2862,65 +2862,68 @@ function normalizeMatchDataObject(
   profile?: any,
   job?: any
 ): any {
-  if (!matchData || typeof matchData !== 'object') return matchData
-  if (!Array.isArray(matchData.radar_data)) return matchData
+  if (!matchData || typeof matchData !== "object") return matchData
 
   const baseline = computeMultiVariablePillarBaseline(profile, job)
 
-  const normalizedRadar = matchData.radar_data.map((item: any) => ({
-    ...item,
-    subject: normalizeRadarSubjectLabel(item?.subject),
-    score: Math.max(0, Math.min(100, Math.round(Number(item?.score) || 0))),
-  }))
+  let rawRadarList: Array<{ subject: string; score: number }> = []
+  if (Array.isArray(matchData.radar_data)) {
+    rawRadarList = matchData.radar_data.map((item: any) => ({
+      subject: normalizeRadarSubjectLabel(item?.subject),
+      score: Math.max(0, Math.min(100, Math.round(Number(item?.score) || 0))),
+    }))
+  } else if (matchData.radar_data && typeof matchData.radar_data === "object") {
+    rawRadarList = Object.entries(matchData.radar_data).map(([k, v]) => ({
+      subject: normalizeRadarSubjectLabel(k),
+      score: Math.max(0, Math.min(100, Math.round(Number(v) || 0))),
+    }))
+  }
 
   const findAiScore = (label: string, fallback: number) => {
-    const found = normalizedRadar.find((r: any) => r.subject === label)
+    const found = rawRadarList.find((r) => r.subject === label)
     return found && Number(found.score) > 0 ? found.score : fallback
   }
 
-  const rawAiCore = findAiScore('Core Competencies', baseline.competencyScore)
-  const rawAiTenure = findAiScore('Skill Tenure', baseline.tenureScore)
-  const rawAiLogistics = findAiScore('Logistics & Pay', baseline.logisticsScore)
-  const rawAiIndustry = findAiScore('Industry & Creds', baseline.industryScore)
-  const rawAiComm = findAiScore('Execution & Comm.', baseline.commScore)
+  const rawAiCore = findAiScore("Core Competencies", baseline.competencyScore)
+  const rawAiTenure = findAiScore("Skill Tenure", baseline.tenureScore)
+  const rawAiLogistics = findAiScore("Logistics & Pay", baseline.logisticsScore)
+  const rawAiIndustry = findAiScore("Industry & Creds", baseline.industryScore)
+  const rawAiComm = findAiScore("Execution & Comm.", baseline.commScore)
 
-  // Ground AI scores with deterministic requirement-level baseline so LLM neither hallucinates 60% on a Baker nor crushes a 2/5 career-changer to 20%
   const isZeroSkillMismatch = baseline.reqMatchCount === 0 && baseline.combinedSkillSignal < 0.18
   const reqCoverageRatio = baseline.totalReqCount > 0 ? baseline.reqMatchCount / baseline.totalReqCount : 0
-  const minCoreFloor = baseline.reqMatchCount > 0 ? Math.round(reqCoverageRatio * 84) : 8
+  const minCoreFloor = baseline.reqMatchCount > 0 ? Math.round(reqCoverageRatio * 96) : 8
 
   const coreScore = isZeroSkillMismatch
-    ? Math.min(rawAiCore, baseline.competencyScore, 18)
-    : Math.max(minCoreFloor, Math.round(rawAiCore * 0.35 + baseline.competencyScore * 0.65))
+    ? Math.max(8, Math.min(rawAiCore, baseline.competencyScore, 16))
+    : Math.max(baseline.competencyScore, minCoreFloor, Math.round(rawAiCore * 0.25 + baseline.competencyScore * 0.75))
 
   const calibratedTenure = isZeroSkillMismatch
-    ? Math.min(rawAiTenure, baseline.tenureScore, 16)
-    : Math.max(
-        Math.round(baseline.tenureScore * 0.85),
-        Math.round(rawAiTenure * 0.35 + baseline.tenureScore * 0.65)
-      )
+    ? Math.max(10, Math.min(rawAiTenure, baseline.tenureScore, 14))
+    : Math.max(baseline.tenureScore, Math.round(rawAiTenure * 0.25 + baseline.tenureScore * 0.75))
 
-  const industryScore = isZeroSkillMismatch && !baseline.exactIndustryMatch
-    ? Math.min(rawAiIndustry, baseline.industryScore, 20)
-    : Math.max(
-        Math.round(baseline.industryScore * 0.85),
-        Math.round(rawAiIndustry * 0.35 + baseline.industryScore * 0.65)
-      )
+  const industryScore =
+    isZeroSkillMismatch && !baseline.exactIndustryMatch
+      ? Math.max(12, Math.min(rawAiIndustry, baseline.industryScore, 18))
+      : Math.max(baseline.industryScore, Math.round(rawAiIndustry * 0.25 + baseline.industryScore * 0.75))
 
-  const logisticsScore = Math.round(rawAiLogistics * 0.35 + baseline.logisticsScore * 0.65)
+  const logisticsScore = Math.max(
+    baseline.logisticsScore,
+    Math.round(rawAiLogistics * 0.25 + baseline.logisticsScore * 0.75)
+  )
+
   const commScore = isZeroSkillMismatch
-    ? Math.min(rawAiComm, baseline.commScore, 35)
-    : Math.round(rawAiComm * 0.35 + baseline.commScore * 0.65)
+    ? Math.max(25, Math.min(rawAiComm, baseline.commScore, 35))
+    : Math.max(baseline.commScore, Math.round(rawAiComm * 0.25 + baseline.commScore * 0.75))
 
   const finalRadar = [
-    { subject: 'Core Competencies', score: coreScore },
-    { subject: 'Skill Tenure', score: calibratedTenure },
-    { subject: 'Logistics & Pay', score: logisticsScore },
-    { subject: 'Industry & Creds', score: industryScore },
-    { subject: 'Execution & Comm.', score: commScore },
+    { subject: "Core Competencies", score: coreScore },
+    { subject: "Skill Tenure", score: calibratedTenure },
+    { subject: "Logistics & Pay", score: logisticsScore },
+    { subject: "Industry & Creds", score: industryScore },
+    { subject: "Execution & Comm.", score: commScore },
   ]
 
-  // Weighted overall score: 50% Core + 25% Skill Tenure + 15% Industry + 5% Logistics + 5% Comm
   let weightedOverall = Math.round(
     coreScore * 0.50 +
       calibratedTenure * 0.25 +
@@ -2929,13 +2932,11 @@ function normalizeMatchDataObject(
       commScore * 0.05
   )
 
-  // Strict Domain & Core Skill Hard Ceiling:
-  // If 0 core requirements matched, hard-cap at <= 20%. Otherwise scale ceiling smoothly by coreScore.
   if (isZeroSkillMismatch) {
     weightedOverall = Math.min(weightedOverall, coreScore + 4, 20)
-  } else if (coreScore < 42) {
-    weightedOverall = Math.min(weightedOverall, coreScore + 8, 45)
-  } else if (coreScore < 65) {
+  } else if (coreScore < 48) {
+    weightedOverall = Math.min(weightedOverall, coreScore + 6, 46)
+  } else if (coreScore < 68) {
     weightedOverall = Math.min(weightedOverall, coreScore + 6)
   }
 
