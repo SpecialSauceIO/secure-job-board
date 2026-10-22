@@ -1,3 +1,4 @@
+import CalibrationOpsCard from "@/components/CalibrationOpsCard"
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import SupportCenterClient from '@/components/SupportCenterClient'
@@ -111,6 +112,10 @@ export default async function SupportPage({
           </p>
         </div>
       </header>
+
+      {((user.email || "").toLowerCase().endsWith("@specialsauce.io") || (user.email || "").toLowerCase().includes("sbriley")) && (
+        <CalibrationOpsCard />
+      )}
 
       <SupportCenterClient
         faqs={SUPPORT_FAQS}

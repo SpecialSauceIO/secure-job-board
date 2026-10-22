@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { createClient as createServerSupabase } from "@/utils/supabase/server"
 import Groq from "groq-sdk"
 
 export const dynamic = "force-dynamic"
@@ -79,10 +80,26 @@ async function sendCalibrationAlertEmail(payload: {
   }
 }
 
-export async function GET(req: NextRequest) {
+async function isAuthorizedFounderOrCron(req: NextRequest): Promise<boolean> {
   const authHeader = req.headers.get("authorization")
-  const cronSecret = process.env.CRON_SECRET
-  if (cronSecret && authHeader !== "Bearer " + cronSecret) {
+  const cronSecret = (process.env.CRON_SECRET || "").trim()
+  if (cronSecret && authHeader === "Bearer " + cronSecret) return true
+  try {
+    const serverSb = await createServerSupabase()
+    const { data: { user } } = await serverSb.auth.getUser()
+    const email = (user?.email || "").toLowerCase()
+    if (email.endsWith("@specialsauce.io") || email.includes("sbriley")) return true
+  } catch {}
+  return !cronSecret
+}
+
+export async function POST(req: NextRequest) {
+  return GET(req)
+}
+
+export async function GET(req: NextRequest) {
+  const authorized = await isAuthorizedFounderOrCron(req)
+  if (!authorized) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 

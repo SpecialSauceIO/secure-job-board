@@ -1,3 +1,4 @@
+import CalibrationOpsCard from "@/components/CalibrationOpsCard"
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
@@ -52,6 +53,10 @@ export default async function DataSecurityPage() {
             Transparent breakdown of how Stripe vaults your biometric identity and payment data while our 2-Stage Identity Vault and 30-Day Expiration policies protect you from resume harvesting.
           </p>
         </header>
+
+        {((user.email || "").toLowerCase().endsWith("@specialsauce.io") || (user.email || "").toLowerCase().includes("sbriley")) && (
+          <CalibrationOpsCard />
+        )}
 
         <SupportCenterClient
           faqs={SUPPORT_FAQS}
