@@ -97,7 +97,7 @@ export default function SupportCenterClient({
   userRole,
   userName = 'You',
   userEmail = '',
-  initialTab = 'ticket',
+  initialTab = 'guides',
   initialTickets = [],
   initialSelectedTicketId,
   initialCsatRating,
@@ -390,6 +390,42 @@ export default function SupportCenterClient({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-b border-slate-300">
         <button
           type="button"
+          onClick={() => switchTab('guides')}
+          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
+            activeTab === 'guides'
+              ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
+              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+          }`}
+        >
+          1. How It Works &amp; Guides
+        </button>
+
+        <button
+          type="button"
+          onClick={() => switchTab('kb')}
+          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
+            activeTab === 'kb'
+              ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
+              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+          }`}
+        >
+          2. Searchable FAQs
+        </button>
+
+        <button
+          type="button"
+          onClick={() => switchTab('security')}
+          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
+            activeTab === 'security'
+              ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50'
+              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+          }`}
+        >
+          3. 2-Stage Vault &amp; Stripe
+        </button>
+
+        <button
+          type="button"
           onClick={() => switchTab('ticket')}
           className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer flex items-center justify-center gap-2 ${
             activeTab === 'ticket'
@@ -397,7 +433,7 @@ export default function SupportCenterClient({
               : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
           }`}
         >
-          <span>1. Support &amp; My Tickets</span>
+          <span>4. Support &amp; My Tickets</span>
           {myTickets.length > 0 && (
             <span
               className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
@@ -411,42 +447,6 @@ export default function SupportCenterClient({
                 : myTickets.length}
             </span>
           )}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => switchTab('guides')}
-          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
-            activeTab === 'guides'
-              ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
-              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
-          }`}
-        >
-          2. How It Works &amp; Guides
-        </button>
-
-        <button
-          type="button"
-          onClick={() => switchTab('kb')}
-          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
-            activeTab === 'kb'
-              ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
-              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
-          }`}
-        >
-          3. Searchable FAQs
-        </button>
-
-        <button
-          type="button"
-          onClick={() => switchTab('security')}
-          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
-            activeTab === 'security'
-              ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50'
-              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
-          }`}
-        >
-          4. 2-Stage Vault &amp; Stripe
         </button>
       </div>
 

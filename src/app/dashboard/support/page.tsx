@@ -46,9 +46,11 @@ export default async function SupportPage({
 
   const rawTab = resolvedParams?.tab
   const initialTab: 'ticket' | 'guides' | 'kb' | 'security' =
-    rawTab === 'guides' || rawTab === 'kb' || rawTab === 'security'
+    rawTab === 'ticket' || requestedTicketId
+      ? 'ticket'
+      : rawTab === 'kb' || rawTab === 'security'
       ? rawTab
-      : 'ticket'
+      : 'guides'
 
   return (
     <div className="max-w-6xl mx-auto py-3 space-y-6">
