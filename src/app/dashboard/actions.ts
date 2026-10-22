@@ -26,7 +26,8 @@ import {
 } from '@/constants/languages'
 import { isSeasonZeroFounder } from '@/constants/gamification'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
-import { pushToOpsControlPlane, getOpsServiceClient } from '@/lib/ops-bridge'
+import { pushToOpsControlPlane,
+  getUserOpsTickets, getOpsServiceClient } from '@/lib/ops-bridge'
 import { inspectResumeAndTextForBadActorPayloads, inspectStage1TextForContactLeakOrInjection, checkActionVelocityAndSpray, raiseSecurityAlertAndFlag, recordHandshakeTelemetry } from '@/lib/security-telemetry'
 
 const MIN_MATCH_THRESHOLD = 40
@@ -5695,6 +5696,16 @@ export async function submitSupportTicket(formData: FormData) {
   const isFreeTier = tierUpper.includes('EXPLORER') || tierUpper.includes('FREE')
   const isPaidSub = isFreeTier === false
   const canUploadServer = Boolean(isPaidSub && (isProfVer || orgContext.toLowerCase().includes('verified')))
+
+  if (canUploadServer === false) {
+    const existingUserTickets = await getUserOpsTickets(user.id, user.email)
+    const openSupportTicketsCount = (existingUserTickets || []).filter(
+      (t: any) => t.state === 'open' && t.status !== 'resolved'
+    ).length
+    if (openSupportTicketsCount >= 3) {
+      return { error: 'Free & unverified accounts are limited to 3 open support tickets at a time. Please reply to an existing open ticket or wait for resolution.' }
+    }
+  }
 
   try {
     const rawFiles = formData.getAll('attachments')

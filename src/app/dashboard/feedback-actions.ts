@@ -1,11 +1,20 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { pushToOpsControlPlane } from '@/lib/ops-bridge'
+import { pushToOpsControlPlane, getUserOpsTickets } from '@/lib/ops-bridge'
 
 function cleanEnv(val?: string | null): string {
   if (!val) return ''
   return val.trim().replace(/^["']+|["']+$/g, '').trim()
+}
+
+function escapeHtml(str: string): string {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
 }
 
 export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
@@ -19,36 +28,59 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
     data: { user },
   } = await supabase.auth.getUser()
 
+  if (!user || !user.email) {
+    return { error: 'You must be signed in to submit feedback.' }
+  }
+
   const feedbackType = (
     (formData.get('feedback_type') as string) || 'Bug'
-  ).trim()
-  const notes = ((formData.get('notes') as string) || '').trim()
-  const pageUrl = ((formData.get('page_url') as string) || '/dashboard').trim()
+  ).trim().slice(0, 40)
+  const notes = ((formData.get('notes') as string) || '').trim().slice(0, 4000)
+  const pageUrl = ((formData.get('page_url') as string) || '/dashboard').trim().slice(0, 300)
   const userAgent = (
     (formData.get('user_agent') as string) || 'Unknown Browser'
-  ).trim()
+  ).trim().slice(0, 400)
 
   if (!notes) {
     return { error: 'Please enter a short note before sending.' }
   }
 
-  let role = 'unauthenticated'
-  if (user) {
-    const { data: profile } = await supabase
+  const [{ data: profile }, existingTickets] = await Promise.all([
+    supabase
       .from('profiles')
-      .select('role')
+      .select('role, identity_verified, is_verified, verification_status')
       .eq('id', user.id)
-      .maybeSingle()
-    role = profile?.role || 'unknown'
+      .maybeSingle(),
+    getUserOpsTickets(user.id, user.email),
+  ])
+
+  const isVerified =
+    profile?.identity_verified === true ||
+    String(profile?.identity_verified) === 'true' ||
+    profile?.is_verified === true ||
+    String(profile?.is_verified) === 'true' ||
+    profile?.verification_status === 'verified' ||
+    profile?.verification_status === 'approved'
+
+  const openTicketsCount = (existingTickets || []).filter(
+    (t: any) => t.state === 'open' && t.status !== 'resolved'
+  ).length
+
+  if (isVerified === false && openTicketsCount >= 3) {
+    return {
+      error:
+        'You already have 3 open support/feedback requests in the queue. Please wait for our team to resolve them or reply to an existing ticket in the Support Center.',
+    }
   }
 
+  const role = profile?.role || 'unknown'
   const refId = `FB-${Date.now().toString().slice(-6)}`
   const timeStampStr = new Date().toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
   })
-  const reporterEmail = (user?.email || 'anonymous@specialsauce.io').trim()
+  const reporterEmail = user.email.trim()
 
   await pushToOpsControlPlane({
     event_type: 'work_item',
@@ -60,7 +92,7 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
     subject: `[${feedbackType}] Report on ${pageUrl}`,
     category: feedbackType,
     description: notes,
-    reporter_user_id: user?.id || 'anonymous',
+    reporter_user_id: user.id,
     reporter_name: reporterEmail,
     reporter_email: reporterEmail,
     reporter_role: role.toUpperCase(),
@@ -94,6 +126,9 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
     : appUrl
   const publicLogoUrl = `${publicLogoBase}/logo.png`
   const fullUrl = pageUrl.startsWith('/') ? `${appUrl}${pageUrl}` : appUrl
+  const safeNotesHtml = escapeHtml(notes)
+  const safePageUrlHtml = escapeHtml(pageUrl)
+  const safeFeedbackTypeHtml = escapeHtml(feedbackType)
 
   const sendResendEmail = async (toAddr: string, subject: string, html: string, replyToAddr: string) => {
     let res = await fetch('https://api.resend.com/emails', {
@@ -131,7 +166,6 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
     return { ok: res.ok, status: res.status, data }
   }
 
-  // 1. Send confirmation email to the user who created the ticket/feedback
   const isRealUserEmail =
     reporterEmail.includes('@') &&
     reporterEmail !== 'anonymous@specialsauce.io' &&
@@ -148,16 +182,16 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
         </span>
       </div>
       <h2 style="color: #0f172a; font-size: 20px; font-weight: 800; margin: 0 0 12px 0;">
-        We received your ${feedbackType} report [${refId}]
+        We received your ${safeFeedbackTypeHtml} report [${refId}]
       </h2>
       <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 14px 0;">
         Thank you for submitting feedback on <strong>Special Sauce</strong>. Your ticket has been logged in our Service Desk under reference ID <strong>${refId}</strong>.
       </p>
       <div style="padding: 16px; background-color: #f8fafc; border-left: 4px solid #4f46e5; border-radius: 8px; margin-bottom: 20px;">
         <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 6px;">
-          Your Submitted Message (${pageUrl}):
+          Your Submitted Message (${safePageUrlHtml}):
         </div>
-        <div style="color: #0f172a; font-size: 14px; font-weight: 600; white-space: pre-wrap;">${notes}</div>
+        <div style="color: #0f172a; font-size: 14px; font-weight: 600; white-space: pre-wrap;">${safeNotesHtml}</div>
       </div>
       <p style="color: #64748b; font-size: 13px; line-height: 1.6; margin: 0 0 16px 0;">
         You can reply directly to this email (keep <strong>[${refId}]</strong> in the subject line) to add additional details to your ticket.
@@ -179,20 +213,20 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
         </span>
       </div>
       <h2 style="color: #0f172a; font-size: 20px; font-weight: 800; margin: 0 0 12px 0;">
-        Quick ${feedbackType} Report [${refId}]
+        Quick ${safeFeedbackTypeHtml} Report [${refId}]
       </h2>
       <p style="color: #475569; font-size: 13px; line-height: 1.6; margin: 0 0 6px 0;">
-        <strong>Reporter:</strong> ${reporterEmail} (Role: ${role.toUpperCase()})
+        <strong>Reporter:</strong> ${escapeHtml(reporterEmail)} (Role: ${escapeHtml(role.toUpperCase())})
       </p>
       <p style="color: #475569; font-size: 13px; line-height: 1.6; margin: 0 0 16px 0;">
-        <strong>Page Route:</strong> <code>${pageUrl}</code>
+        <strong>Page Route:</strong> <code>${safePageUrlHtml}</code>
       </p>
       <div style="padding: 16px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px;">
-        <div style="color: #0f172a; font-size: 14px; font-weight: 600; white-space: pre-wrap;">${notes}</div>
+        <div style="color: #0f172a; font-size: 14px; font-weight: 600; white-space: pre-wrap;">${safeNotesHtml}</div>
       </div>
       <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #f1f5f9;">
         <a href="${fullUrl}" style="display: inline-block; padding: 10px 18px; background-color: #0f172a; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 10px;">
-          Open Reported Page (${pageUrl}) →
+          Open Reported Page (${safePageUrlHtml}) →
         </a>
       </div>
     </div>
@@ -203,19 +237,18 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
   if (isRealUserEmail) {
     const userRes = await sendResendEmail(
       reporterEmail,
-      `[${refId}] Ticket Received: ${feedbackType} Report on ${pageUrl}`,
+      `[${refId}] Support Ticket Received: ${feedbackType} Report on ${pageUrl}`,
       customerConfirmHtml,
       'support@specialsauce.io'
     )
     if (userRes.ok) deliveredTo = reporterEmail
   }
 
-  // 2. Also notify support@specialsauce.io (or configuredTestInbox)
   const adminTarget = 'support@specialsauce.io'
   if (adminTarget.toLowerCase() !== reporterEmail.toLowerCase()) {
     const adminRes = await sendResendEmail(
       adminTarget,
-      `[${refId}] New ${feedbackType} on ${pageUrl} (${timeStampStr})`,
+      `[${refId}] Support Ticket Received: New ${feedbackType} on ${pageUrl} (${timeStampStr})`,
       adminAlertHtml,
       isRealUserEmail ? reporterEmail : 'support@specialsauce.io'
     )
@@ -225,7 +258,7 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
   if (!deliveredTo && configuredTestInbox) {
     const fallbackRes = await sendResendEmail(
       configuredTestInbox,
-      `[${refId}] ${feedbackType} on ${pageUrl} (${timeStampStr})`,
+      `[${refId}] Support Ticket Received: ${feedbackType} on ${pageUrl} (${timeStampStr})`,
       customerConfirmHtml,
       'support@specialsauce.io'
     )
