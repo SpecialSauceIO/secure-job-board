@@ -104,8 +104,8 @@ export async function GET(req: NextRequest) {
   }
 
   const providerParam = (req.nextUrl.searchParams.get("provider") || "").toLowerCase().trim()
-  const targetModel = providerParam === "qwen" || providerParam.includes("qwen")
-    ? "qwen/qwen3.8-27b"
+  const targetModel = providerParam === "20b" || providerParam === "qwen" || providerParam.includes("20b")
+    ? "openai/gpt-oss-20b"
     : "openai/gpt-oss-120b"
 
   const supabase = createClient(

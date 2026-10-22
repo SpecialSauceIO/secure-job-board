@@ -1013,7 +1013,7 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
   // Fast Path: If readable PDF text streams exist, run Tier 1 Groq openai/gpt-oss-120b -> Tier 2 qwen/qwen3.8-27b
   const extractedText = tryExtractReadablePdfText(base64Data)
   if (groqKey && extractedText.length >= 180) {
-    const groqModels = ["openai/gpt-oss-120b", "qwen/qwen3.8-27b"]
+    const groqModels = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b"]
     for (const gModel of groqModels) {
       try {
         const groq = new Groq({ apiKey: groqKey })
@@ -1021,6 +1021,7 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
           groq.chat.completions.create({
             model: gModel,
             temperature: 0.1,
+            max_tokens: 700,
             response_format: { type: "json_object" },
             messages: [
               { role: "system", content: "You are an expert technical recruiter and document parser. Output strictly valid JSON matching the requested schema." },
@@ -3506,8 +3507,9 @@ async function analyzeMatchRouter(
             },
             { role: 'user', content: prompt },
           ],
-          model: 'openai/gpt-oss-120b',
+          model: "openai/gpt-oss-120b",
           temperature: 0.1,
+          max_tokens: 450,
           response_format: { type: 'json_object' },
         }),
         6000,
@@ -3535,8 +3537,9 @@ async function analyzeMatchRouter(
             },
             { role: 'user', content: prompt },
           ],
-          model: 'qwen/qwen3.8-27b',
+          model: "openai/gpt-oss-20b",
           temperature: 0.1,
+          max_tokens: 450,
           response_format: { type: 'json_object' },
         }),
         5000,

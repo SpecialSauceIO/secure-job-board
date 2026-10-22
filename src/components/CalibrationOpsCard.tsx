@@ -81,7 +81,7 @@ export default function CalibrationOpsCard() {
         setBannerMsg("Error: " + (data?.error || "Failed to run calibration"))
         return
       }
-      const usedModel = data.provider_used || (isQwen ? "qwen/qwen3.8-27b" : "openai/gpt-oss-120b")
+      const usedModel = data.provider_used || (isQwen ? "openai/gpt-oss-20b" : "openai/gpt-oss-120b")
       const newRecord: CalibrationRunRecord = {
         id: "live-" + Date.now(),
         status: data.status,
@@ -161,7 +161,7 @@ export default function CalibrationOpsCard() {
             disabled={isBusy}
             className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-cyan-600/90 hover:bg-cyan-500 disabled:opacity-50 text-white transition cursor-pointer shadow-sm"
           >
-            {runningQwen ? "Running Tier 2 (Qwen)..." : "Benchmark Tier 2 (Qwen)"}
+            {runningQwen ? "Running Tier 2 (20B)..." : "Benchmark Tier 2 (20B)"}
           </button>
           <button
             type="button"
