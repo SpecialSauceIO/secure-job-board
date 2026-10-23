@@ -45,7 +45,7 @@ export default async function SignupSelectionPage({
         <Link href="/" className="group block">
           <img
             src="/logo.png"
-            alt="Special Sauce Logo"
+            alt="specialsauce.io Logo"
             className="h-20 w-auto group-hover:scale-105 transition-transform"
           />
         </Link>

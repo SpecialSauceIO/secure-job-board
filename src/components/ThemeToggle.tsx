@@ -3,23 +3,8 @@
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 
-export function syncLogoImages(isDark: boolean) {
-  if (typeof document === 'undefined') return
-  const imgs = document.querySelectorAll<HTMLImageElement>('img[src*="logo"]')
-  imgs.forEach((img) => {
-    const currentSrc = img.getAttribute('src') || ''
-    if (isDark) {
-      if (currentSrc.includes('logo') && !currentSrc.includes('logo-dark')) {
-        img.removeAttribute('srcset')
-        img.setAttribute('src', '/logo.png')
-      }
-    } else {
-      if (currentSrc.includes('logo-dark')) {
-        img.removeAttribute('srcset')
-        img.setAttribute('src', '/logo.png')
-      }
-    }
-  })
+export function syncLogoImages(_isDark?: boolean) {
+  // Unified /logo.png is used across both light and dark themes
 }
 
 export function resolvePreferredThemeIsDark(): boolean {
@@ -57,7 +42,6 @@ export function applyPreferredTheme(isDark: boolean) {
       document.cookie = 'ss_theme=light; path=/; max-age=31536000; SameSite=Lax'
     } catch {}
   }
-  syncLogoImages(isDark)
 }
 
 export default function ThemeToggle() {
@@ -89,23 +73,15 @@ export default function ThemeToggle() {
           document.documentElement.classList.remove('dark')
         }
       }
-      syncLogoImages(expectedDark)
     })
     htmlObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['class'],
     })
 
-    const bodyObserver = new MutationObserver(() => {
-      const nowDark = resolvePreferredThemeIsDark()
-      syncLogoImages(nowDark)
-    })
-    bodyObserver.observe(document.body, { childList: true, subtree: true })
-
     return () => {
       window.removeEventListener('ss-theme-change', onThemeChange)
       htmlObserver.disconnect()
-      bodyObserver.disconnect()
     }
   }, [pathname])
 
