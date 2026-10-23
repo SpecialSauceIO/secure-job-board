@@ -191,7 +191,11 @@ export default function CandidateSignupPage({
         <p className="text-xs text-slate-500">
           Already have an account?{' '}
           <Link
-            href="/login"
+            href={
+              selectedPlan === 'professional' || selectedPlan === 'prestige'
+                ? `/login?plan=${selectedPlan}`
+                : '/login'
+            }
             className="font-extrabold text-indigo-600 hover:text-indigo-700"
           >
             Sign In

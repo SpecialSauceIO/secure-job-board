@@ -102,6 +102,7 @@ export async function login(formData: FormData) {
 
   const email = ((formData.get('email') as string) || '').trim()
   const password = (formData.get('password') as string) || ''
+  const selectedPlan = ((formData.get('plan') as string) || '').trim().toLowerCase()
   const rememberMe = formData.get('rememberMe') === 'true' || formData.get('rememberMe') === 'on'
   await applySessionLifetimePolicy(rememberMe)
 
@@ -136,6 +137,12 @@ export async function login(formData: FormData) {
     ok: true,
   })
   revalidatePath('/', 'layout')
+  if (selectedPlan === 'professional' || selectedPlan === 'prestige') {
+    redirect('/dashboard/billing?select=' + encodeURIComponent(selectedPlan))
+  }
+  if (selectedPlan === 'starter' || selectedPlan === 'growth' || selectedPlan === 'enterprise') {
+    redirect('/dashboard/employer/billing?select=' + encodeURIComponent(selectedPlan))
+  }
   redirect('/dashboard')
 }
 

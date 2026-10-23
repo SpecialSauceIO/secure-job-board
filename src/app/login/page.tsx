@@ -20,6 +20,13 @@ function LoginContent() {
   const tokenHash = searchParams.get('token_hash')
   const recoveryType = searchParams.get('type')
   const authCode = searchParams.get('code')
+  const planParam = (searchParams.get('plan') || '').trim().toLowerCase()
+  const postLoginDestination =
+    planParam === 'professional' || planParam === 'prestige'
+      ? `/dashboard/billing?select=${encodeURIComponent(planParam)}`
+      : planParam === 'starter' || planParam === 'growth' || planParam === 'enterprise'
+        ? `/dashboard/employer/billing?select=${encodeURIComponent(planParam)}`
+        : '/dashboard'
 
   const emailInputRef = useRef<HTMLInputElement>(null)
 
@@ -203,7 +210,7 @@ function LoginContent() {
         text: '✓ Password updated! Redirecting you to your workspace...',
       })
       setTimeout(() => {
-        router.replace('/dashboard')
+        router.replace(postLoginDestination)
         router.refresh()
       }, 900)
     }
@@ -255,7 +262,7 @@ function LoginContent() {
       type: "success",
       text: "✓ 2-Step Verification complete! Redirecting to your workspace...",
     })
-    router.replace("/dashboard")
+    router.replace(postLoginDestination)
     router.refresh()
   }
 
@@ -836,7 +843,7 @@ function LoginContent() {
             </div>
 
             <Link
-              href="/signup"
+              href={planParam ? `/signup?plan=${encodeURIComponent(planParam)}` : "/signup"}
               className="w-full flex justify-center items-center rounded-lg bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm border border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:ring-offset-2 transition-all"
             >
               Create a new account
