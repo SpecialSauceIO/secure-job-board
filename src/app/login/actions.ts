@@ -439,7 +439,7 @@ export async function lookupAccountEmailHint(
     } else {
       const { data: profiles } = await db
         .from('profiles')
-        .select('id, full_name, role, email, contact_email')
+        .select('*')
         .ilike('full_name', '%' + trimmed + '%')
         .limit(8)
 
