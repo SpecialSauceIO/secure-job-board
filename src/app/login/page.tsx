@@ -31,6 +31,7 @@ function LoginContent() {
   const [selectedHintBadge, setSelectedHintBadge] = useState<string | null>(null)
   const [resetEmail, setResetEmail] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
   const [ newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [lookupRole, setLookupRole] = useState<'candidate' | 'employer'>('candidate')
@@ -213,7 +214,7 @@ function LoginContent() {
     setIsLoading(true)
     setFeedback(null)
 
-    const res = await requestAccountLoginOtp(loginEmail, loginPassword)
+    const res = await requestAccountLoginOtp(loginEmail, loginPassword, rememberMe)
     setIsLoading(false)
 
     if (!res.success) {
@@ -240,7 +241,7 @@ function LoginContent() {
     setIsLoading(true)
     setFeedback(null)
 
-    const res = await verifyAccountLoginOtp(otpCode)
+    const res = await verifyAccountLoginOtp(otpCode, rememberMe)
     if (!res.success) {
       setIsLoading(false)
       setFeedback({
@@ -793,6 +794,28 @@ function LoginContent() {
                 </button>
               </div>
             </div>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <label
+                      htmlFor="remember-me"
+                      className="flex items-center gap-2.5 cursor-pointer select-none group"
+                    >
+                      <input
+                        id="remember-me"
+                        name="rememberMe"
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                      />
+                      <span className="text-xs font-bold text-slate-700 group-hover:text-slate-900">
+                        Keep me signed in
+                      </span>
+                    </label>
+                    <span className="text-[11px] font-medium text-slate-500">
+                      {rememberMe ? "Stays signed in for 30 days" : "12-hour security timeout"}
+                    </span>
+                  </div>
           </div>
 
           <div className="flex flex-col gap-4 pt-2">

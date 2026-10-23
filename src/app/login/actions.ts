@@ -75,11 +75,35 @@ function maskEmailAddress(rawEmail?: string | null): string | null {
   return maskedLocal + '@' + domainPart
 }
 
+
+const SESSION_POLICY_COOKIE = "ss_session_policy"
+const TWELVE_HOURS_SECONDS = 12 * 60 * 60
+const THIRTY_DAYS_SECONDS = 30 * 24 * 60 * 60
+
+async function applySessionLifetimePolicy(rememberMe: boolean) {
+  const cookieStore = await cookies()
+  const maxAge = rememberMe ? THIRTY_DAYS_SECONDS : TWELVE_HOURS_SECONDS
+  const exp = Date.now() + maxAge * 1000
+  cookieStore.set(
+    SESSION_POLICY_COOKIE,
+    JSON.stringify({ remember: Boolean(rememberMe), exp }),
+    {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge,
+      sameSite: "lax",
+    }
+  )
+}
+
 export async function login(formData: FormData) {
   const supabase = await createClient()
 
   const email = ((formData.get('email') as string) || '').trim()
   const password = (formData.get('password') as string) || ''
+  const rememberMe = formData.get('rememberMe') === 'true' || formData.get('rememberMe') === 'on'
+  await applySessionLifetimePolicy(rememberMe)
 
   const { error } = await supabase.auth.signInWithPassword({
     email,
@@ -523,7 +547,8 @@ function decryptJsonPayload<T = any>(token?: string | null): T | null {
 
 export async function requestAccountLoginOtp(
   emailInput: string,
-  passwordInput: string
+  passwordInput: string,
+  rememberMe = false
 ): Promise<{
   success: boolean
   maskedEmail?: string
@@ -589,6 +614,7 @@ export async function requestAccountLoginOtp(
     password,
     otpHash,
     attempts: 0,
+    rememberMe: Boolean(rememberMe),
     exp: Date.now() + 5 * 60 * 1000,
   })
 
@@ -698,7 +724,8 @@ export async function requestAccountLoginOtp(
 }
 
 export async function verifyAccountLoginOtp(
-  otpInput: string
+  otpInput: string,
+  rememberMeInput?: boolean
 ): Promise<{
   success: boolean
   error?: string
@@ -719,6 +746,7 @@ export async function verifyAccountLoginOtp(
     otpHash: string
     attempts: number
     exp: number
+    rememberMe?: boolean
   }>(rawToken)
 
   if (!challenge) {
@@ -780,6 +808,8 @@ export async function verifyAccountLoginOtp(
   }
 
   cookieStore.delete(LOGIN_OTP_COOKIE)
+  const effectiveRememberMe = typeof rememberMeInput === "boolean" ? rememberMeInput : Boolean(challenge.rememberMe)
+  await applySessionLifetimePolicy(effectiveRememberMe)
 
   const supabase = await createClient()
   const { error } = await supabase.auth.signInWithPassword({
