@@ -688,7 +688,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
     if (daysLeft > 0) {
       return {
         tier: 'starter',
-        label: `★ Founding Partner Rewards (${daysLeft}d Free Starter)`,
+        label: `★ Founding Partner Charter (${daysLeft}d Starter Launch Access)`,
         maxActiveJobs: EMPLOYER_FOUNDER_GRANT_JOBS,
         monthlyCredits: EMPLOYER_FOUNDER_GRANT_CREDITS,
         maxSeats: 2,
@@ -1682,8 +1682,11 @@ export async function applyBlind(formData: FormData) {
 
   const candidateTier = await resolveCandidateTierInfo(user.id)
   if (!candidateTier.canApply) {
+    const isExplorer = candidateTier.tier === 'explorer' || candidateTier.tier === 'free'
     return {
-      error: `Founding Member Rewards Concluded: You have used all ${CANDIDATE_TRIAL_MAX_APPS} free blind applications (or your ${CANDIDATE_TRIAL_DAYS}-day Founding Rewards window has ended). Subscribe to the Candidate Pro Pass ($9/month) on your Membership page to unlock unlimited blind applications!`,
+      error: isExplorer
+        ? 'Active Membership Required: Upgrade to Candidate Professional ($9/mo for 15 monthly blind applications) or Prestige ($15/mo for unlimited blind applications) on your Membership & Billing page to submit outbound blind applications.'
+        : `Monthly Application Quota Reached (${CANDIDATE_TRIAL_MAX_APPS}/${CANDIDATE_TRIAL_MAX_APPS} Used): Upgrade to Candidate Prestige ($15/mo) on your Membership & Billing page to unlock Unlimited Outbound Blind Applications.`,
     }
   }
 
@@ -5095,7 +5098,7 @@ export async function saveOrganizationProfile(formData: FormData) {
     domain: cleanedDomain,
     verification_status: currentStatus,
     message: autoVerified
-      ? `Profile saved & ${cleanedDomain} automatically verified via your matching work email (${user.email})! Your 30-Day Founding Partner Rewards (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`
+      ? `Profile saved & ${cleanedDomain} automatically verified via your matching work email (${user.email})! Your Founding Partner Charter Status & 12-Month Rate Lock eligibility (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Launch Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`
       : 'Company profile saved successfully.',
   }
 }
@@ -5447,8 +5450,8 @@ export async function verifyOrganizationDomain(domainInput?: string) {
     domain: targetDomain,
     verification_status: 'verified',
     message: hasMatchingTxtToken
-      ? `Domain ${targetDomain} verified via DNS TXT record! Your 30-Day Founding Partner Rewards (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`
-      : `Domain ${targetDomain} verified via corporate email match (${user.email}) & live DNS check! Your 30-Day Founding Partner Rewards (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`,
+      ? `Domain ${targetDomain} verified via DNS TXT record! Your Founding Partner Charter Status & 12-Month Rate Lock eligibility (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Launch Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`
+      : `Domain ${targetDomain} verified via corporate email match (${user.email}) & live DNS check! Your Founding Partner Charter Status & 12-Month Rate Lock eligibility (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Launch Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`,
   }
 }
 

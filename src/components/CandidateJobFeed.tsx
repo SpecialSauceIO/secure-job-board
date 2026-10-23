@@ -1028,7 +1028,7 @@ export function CandidateJobFeed({
                   <div className="p-3.5 rounded-xl text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-rose-50 text-rose-700 border border-rose-300">
                     <span>{cardFeedback.text}</span>
                     <div className="flex items-center gap-2 shrink-0">
-                      {!cardFeedback.text.includes('Candidate Pro') && (
+                      {!cardFeedback.text.includes('Membership & Billing') && (
                         <button
                           type="button"
                           onClick={() => handleAnalyzeFit(jobId)}
@@ -1037,7 +1037,7 @@ export function CandidateJobFeed({
                           ↻ Try AI Match Again
                         </button>
                       )}
-                      {cardFeedback.text.includes('Candidate Pro') && (
+                      {cardFeedback.text.includes('Membership & Billing') && (
                         <Link
                           href="/dashboard/billing"
                           className="px-3.5 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors text-center"

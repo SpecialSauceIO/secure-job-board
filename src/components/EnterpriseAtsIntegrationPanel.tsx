@@ -171,7 +171,7 @@ export default function EnterpriseAtsIntegrationPanel() {
     )
   }
 
-  // UNLOCKED CONSOLE FOR ENTERPRISE TIER ($899/MO)
+  // UNLOCKED CONSOLE FOR ENTERPRISE TIER ($1,250/MO FOUNDING · $1,999/MO RETAIL)
   return (
     <div className="bg-white rounded-2xl border-2 border-slate-300 shadow-sm  overflow-hidden">
       <div className="bg-slate-900 text-white p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
