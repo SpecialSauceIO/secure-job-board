@@ -85,6 +85,7 @@ export default function CandidateBillingPage() {
     const params = new URLSearchParams(window.location.search)
     const billingStatus = params.get('billing')
     const planParam = params.get('plan') as 'professional' | 'prestige' | null
+    const selectParam = params.get('select') as 'professional' | 'prestige' | null
     if (billingStatus === 'success' && (planParam === 'professional' || planParam === 'prestige')) {
       window.history.replaceState({}, '', '/dashboard/billing')
       activateSandboxCandidateTier(planParam).then((res) => {
@@ -100,6 +101,15 @@ export default function CandidateBillingPage() {
       setFeedback({
         type: 'error',
         text: 'Stripe Checkout was cancelled. Your membership plan was not changed.',
+      })
+    } else if (selectParam === 'professional' || selectParam === 'prestige') {
+      window.history.replaceState({}, '', '/dashboard/billing')
+      setFeedback({
+        type: 'success',
+        text:
+          selectParam === 'prestige'
+            ? 'Welcome to Special Sauce: Your Explorer Vault is created. Click "Activate Prestige ($15/mo)" below to unlock unlimited blind applications and top-priority search placement.'
+            : 'Welcome to Special Sauce: Your Explorer Vault is created. Click "Activate Professional ($9/mo)" below to unlock 15 monthly blind applications and biometric ID verification.',
       })
     }
   }, [loadCandidateBillingState])

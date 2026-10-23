@@ -109,6 +109,7 @@ export default function EmployerBillingPage() {
     const billingStatus = params.get('billing')
     const tierParam = params.get('tier') as 'starter' | 'growth' | 'enterprise' | null
     const packParam = params.get('pack') as 'boost' | 'surge' | 'scale' | null
+    const selectParam = params.get('select') as 'starter' | 'growth' | 'enterprise' | null
 
     if (billingStatus === 'success' && tierParam && ['starter', 'growth', 'enterprise'].includes(tierParam)) {
       window.history.replaceState({}, '', '/dashboard/employer/billing')
@@ -133,6 +134,17 @@ export default function EmployerBillingPage() {
       setFeedback({
         type: 'error',
         text: 'Stripe Checkout was cancelled. No billing changes were made.',
+      })
+    } else if (selectParam && ['starter', 'growth', 'enterprise'].includes(selectParam)) {
+      window.history.replaceState({}, '', '/dashboard/employer/billing')
+      const planNames: Record<string, string> = {
+        starter: 'Starter ($149/mo Founding Rate — 5 Active Roles & 10 Pitch Credits)',
+        growth: 'Growth ($499/mo Founding Rate — 15 Active Roles & 35 Pitch Credits)',
+        enterprise: 'Enterprise ($1,250/mo Founding Rate — Unlimited Roles, 120 Credits & ATS Sync)',
+      }
+      setFeedback({
+        type: 'success',
+        text: `Welcome to Special Sauce: Complete your Company Profile if needed, then click "${planNames[selectParam]}" below to lock in your 12-Month Founding Partner Rate.`,
       })
     }
   }, [loadBillingState])
