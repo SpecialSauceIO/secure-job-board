@@ -383,7 +383,7 @@ function extractJobMeta(rawReqs: any, jobRow?: any): JobExtendedMeta {
     hiring_timeline: metaItem?.hiring_timeline || jobRow?.hiring_timeline || 'Active Hiring (2–4 Weeks)',
     renewed_at: metaItem?.renewed_at || null,
     days_remaining: daysRemaining,
-    is_expired: diffMs <= 0,
+    is_expired: String(jobRow?.title || "").startsWith("[CALIBRATION]") ? false : diffMs <= 0,
   }
 }
 

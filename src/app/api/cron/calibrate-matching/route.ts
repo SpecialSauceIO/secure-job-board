@@ -234,5 +234,43 @@ export async function GET(req: NextRequest) {
     })
   }
 
-  return NextResponse.json({ status, provider_used: targetModel, avg_latency_ms: avgLatency, results, failures, alert: alertResult, pruned_runs: prunedCount })
+  
+    // 5b. Daily 30-Day Anti-Harvesting Job Expiration Sweep (Excludes [CALIBRATION] fixtures)
+    let expiredJobsClosed = 0;
+    try {
+      const { data: activeJobs } = await supabase
+        .from("jobs")
+        .select("id, title, created_at, structured_requirements")
+        .eq("is_active", true);
+
+      const nowMs = Date.now();
+      const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+      const toExpireIds: string[] = [];
+
+      for (const j of activeJobs || []) {
+        if (String(j.title || "").startsWith("[CALIBRATION]")) continue;
+        const reqs = Array.isArray(j.structured_requirements) ? j.structured_requirements : [];
+        const metaItem = reqs.find(
+          (r: any) => r && typeof r === "object" && (r._ss_job_meta === true || r.skill === "__SS_JOB_META__" || r.name === "__SS_JOB_META__")
+        );
+        const baseIso = metaItem?.renewed_at || j.created_at;
+        const startMs = baseIso ? new Date(baseIso).getTime() : nowMs;
+        if (!Number.isNaN(startMs) && startMs + thirtyDaysMs <= nowMs) {
+          toExpireIds.push(j.id);
+        }
+      }
+
+      if (toExpireIds.length > 0) {
+        await supabase
+          .from("jobs")
+          .update({ is_active: false })
+          .in("id", toExpireIds);
+        expiredJobsClosed = toExpireIds.length;
+      }
+    } catch (expErr) {
+      console.error("[Daily Calibration] 30-day job expiration sweep warning:", expErr);
+    }
+
+    return NextResponse.json({
+      expired_jobs_closed: expiredJobsClosed, status, provider_used: targetModel, avg_latency_ms: avgLatency, results, failures, alert: alertResult, pruned_runs: prunedCount })
 }
