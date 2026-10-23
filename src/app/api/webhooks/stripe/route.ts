@@ -122,6 +122,9 @@ export async function POST(req: Request) {
             .update({
               connection_credits: newTotal,
               description: taggedDesc,
+              ...(typeof session.customer === 'string'
+                ? { stripe_customer_id: session.customer }
+                : {}),
             })
             .eq('id', organizationId)
         }
@@ -338,12 +341,18 @@ export async function POST(req: Request) {
   // ============================================================================
   if (event.type === 'identity.verification_session.verified') {
     const session = event.data.object as Stripe.Identity.VerificationSession
-    const userId = session.metadata?.userId
+    const userId =
+      session.metadata?.userId ||
+      session.metadata?.user_id ||
+      session.client_reference_id
 
     if (userId) {
       const { error } = await supabaseAdmin
         .from('profiles')
-        .update({ identity_verified: true })
+        .update({
+          identity_verified: true,
+          verification_status: 'verified',
+        })
         .eq('id', userId)
 
       if (error) {

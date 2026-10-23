@@ -237,6 +237,40 @@ export default function EmployerBillingPage() {
     setProcessingTarget(null)
   }
 
+  const handleOpenEmployerPortal = async () => {
+    setIsProcessing(true)
+    setProcessingTarget('portal')
+    setFeedback(null)
+    try {
+      const response = await fetch('/api/billing/create-portal-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audience: 'employer' }),
+      })
+      const data = await response.json()
+      if (!response.ok || data.error) {
+        setFeedback({
+          type: 'error',
+          text: data.error || 'Could not open Stripe Billing Portal.',
+        })
+        setIsProcessing(false)
+        setProcessingTarget(null)
+        return
+      }
+      if (data.url) {
+        window.location.href = data.url
+        return
+      }
+    } catch (err: any) {
+      setFeedback({
+        type: 'error',
+        text: err.message || 'Network error launching Stripe Billing Portal.',
+      })
+    }
+    setIsProcessing(false)
+    setProcessingTarget(null)
+  }
+
   return (
     <div className="max-w-6xl mx-auto py-4 space-y-8">
       {/* Clean Page Header */}
@@ -251,6 +285,14 @@ export default function EmployerBillingPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <button
+            type="button"
+            onClick={handleOpenEmployerPortal}
+            disabled={isProcessing}
+            className="px-4 py-2.5 rounded-xl border-2 border-indigo-200 bg-indigo-50/80 text-indigo-950 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer disabled:opacity-50"
+          >
+            {processingTarget === 'portal' ? 'Opening Stripe...' : 'Invoices & Payment Portal ↗'}
+          </button>
           <Link
             href="/dashboard/employer/organization"
             className="px-4 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors"

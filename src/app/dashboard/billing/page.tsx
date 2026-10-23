@@ -147,6 +147,37 @@ export default function CandidateBillingPage() {
     setIsProcessing(false)
   }
 
+  const handleOpenCustomerPortal = async () => {
+    setIsProcessing(true)
+    setFeedback(null)
+    try {
+      const response = await fetch('/api/billing/create-portal-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audience: 'candidate' }),
+      })
+      const data = await response.json()
+      if (!response.ok || data.error) {
+        setFeedback({
+          type: 'error',
+          text: data.error || 'Could not open Stripe Billing Portal.',
+        })
+        setIsProcessing(false)
+        return
+      }
+      if (data.url) {
+        window.location.href = data.url
+        return
+      }
+    } catch (err: any) {
+      setFeedback({
+        type: 'error',
+        text: err.message || 'Network error launching Stripe Billing Portal.',
+      })
+    }
+    setIsProcessing(false)
+  }
+
   const handlePlanSwitch = async (
     targetMode: 'explorer' | 'professional' | 'prestige'
   ) => {
@@ -191,6 +222,16 @@ export default function CandidateBillingPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          {normalizedTier !== 'explorer' && (
+            <button
+              type="button"
+              onClick={handleOpenCustomerPortal}
+              disabled={isProcessing}
+              className="px-4 py-2.5 rounded-xl border-2 border-indigo-200 bg-indigo-50/80 text-indigo-950 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer disabled:opacity-50"
+            >
+              Manage Subscription &amp; Invoices ↗
+            </button>
+          )}
           <Link
             href="/dashboard/profile"
             className="px-4 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors"
