@@ -66,6 +66,63 @@ export default function CandidateBillingPage() {
     loadCandidateBillingState()
   }, [loadCandidateBillingState])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const billingStatus = params.get('billing')
+    const planParam = params.get('plan') as 'professional' | 'prestige' | null
+    if (billingStatus === 'success' && (planParam === 'professional' || planParam === 'prestige')) {
+      window.history.replaceState({}, '', '/dashboard/billing')
+      activateSandboxCandidateTier(planParam).then((res) => {
+        if (res?.tierInfo) setTierInfo(res.tierInfo)
+        setFeedback({
+          type: 'success',
+          text: `Stripe Subscription Confirmed: Your Candidate ${planParam === 'prestige' ? 'Prestige ($15/mo)' : 'Professional ($9/mo)'} plan is now active.`,
+        })
+        loadCandidateBillingState()
+      })
+    } else if (billingStatus === 'cancelled') {
+      window.history.replaceState({}, '', '/dashboard/billing')
+      setFeedback({
+        type: 'error',
+        text: 'Stripe Checkout was cancelled. Your membership plan was not changed.',
+      })
+    }
+  }, [loadCandidateBillingState])
+
+  const handleStripeCandidateCheckout = async (
+    targetPlan: 'professional' | 'prestige'
+  ) => {
+    setIsProcessing(true)
+    setFeedback(null)
+    try {
+      const response = await fetch('/api/billing/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tierId: targetPlan }),
+      })
+      const data = await response.json()
+      if (!response.ok || data.error) {
+        setFeedback({
+          type: 'error',
+          text: data.error || 'Could not launch Stripe Checkout. Use the QA controls below to switch tiers locally.',
+        })
+        setIsProcessing(false)
+        return
+      }
+      if (data.url) {
+        window.location.href = data.url
+        return
+      }
+    } catch (err: any) {
+      setFeedback({
+        type: 'error',
+        text: err.message || 'Network error starting Stripe Checkout.',
+      })
+    }
+    setIsProcessing(false)
+  }
+
   const handlePlanSwitch = async (
     targetMode: 'explorer' | 'professional' | 'prestige'
   ) => {
@@ -323,7 +380,7 @@ export default function CandidateBillingPage() {
               <button
                 type="button"
                 disabled={isProcessing}
-                onClick={() => handlePlanSwitch('professional')}
+                onClick={() => normalizedTier === 'professional' ? handlePlanSwitch('professional') : handleStripeCandidateCheckout('professional')}
                 className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
               >
                 {normalizedTier === 'professional'
@@ -388,7 +445,7 @@ export default function CandidateBillingPage() {
               <button
                 type="button"
                 disabled={isProcessing}
-                onClick={() => handlePlanSwitch('prestige')}
+                onClick={() => normalizedTier === 'prestige' ? handlePlanSwitch('prestige') : handleStripeCandidateCheckout('prestige')}
                 className="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
               >
                 {normalizedTier === 'prestige'

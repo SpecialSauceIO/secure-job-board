@@ -89,6 +89,79 @@ export default function EmployerBillingPage() {
     loadBillingState()
   }, [loadBillingState])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const billingStatus = params.get('billing')
+    const tierParam = params.get('tier') as 'starter' | 'growth' | 'enterprise' | null
+    const packParam = params.get('pack') as 'boost' | 'surge' | 'scale' | null
+
+    if (billingStatus === 'success' && tierParam && ['starter', 'growth', 'enterprise'].includes(tierParam)) {
+      window.history.replaceState({}, '', '/dashboard/employer/billing')
+      activateSandboxEmployerTier(tierParam).then((res) => {
+        setFeedback({
+          type: 'success',
+          text: res?.message || `Stripe Subscription Confirmed: Activated ${tierParam.toUpperCase()} plan.`,
+        })
+        loadBillingState()
+      })
+    } else if (billingStatus === 'topup_success' && packParam && ['boost', 'surge', 'scale'].includes(packParam)) {
+      window.history.replaceState({}, '', '/dashboard/employer/billing')
+      purchaseEmployerCreditTopUp(packParam).then((res) => {
+        setFeedback({
+          type: 'success',
+          text: res?.message || 'Stripe Payment Confirmed: Added non-expiring Rollover Pitch Credits to your organization.',
+        })
+        loadBillingState()
+      })
+    } else if (billingStatus === 'cancelled') {
+      window.history.replaceState({}, '', '/dashboard/employer/billing')
+      setFeedback({
+        type: 'error',
+        text: 'Stripe Checkout was cancelled. No billing changes were made.',
+      })
+    }
+  }, [loadBillingState])
+
+  const handleStripeEmployerCheckout = async (
+    targetId: 'starter' | 'growth' | 'enterprise' | 'boost' | 'surge' | 'scale',
+    isTopUp = false
+  ) => {
+    setIsProcessing(true)
+    setProcessingTarget(isTopUp ? `topup_${targetId}` : targetId)
+    setFeedback(null)
+    try {
+      const response = await fetch('/api/billing/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(
+          isTopUp ? { packId: `topup_${targetId}` } : { tierId: targetId }
+        ),
+      })
+      const data = await response.json()
+      if (!response.ok || data.error) {
+        setFeedback({
+          type: 'error',
+          text: data.error || 'Could not launch Stripe Checkout. Use the QA Sandbox controls below to test locally.',
+        })
+        setIsProcessing(false)
+        setProcessingTarget(null)
+        return
+      }
+      if (data.url) {
+        window.location.href = data.url
+        return
+      }
+    } catch (err: any) {
+      setFeedback({
+        type: 'error',
+        text: err.message || 'Network error starting Stripe Checkout.',
+      })
+    }
+    setIsProcessing(false)
+    setProcessingTarget(null)
+  }
+
   const handleTierSwitch = async (
     targetTier: 'free' | 'starter' | 'growth' | 'enterprise'
   ) => {
@@ -369,7 +442,7 @@ export default function EmployerBillingPage() {
             <button
               type="button"
               disabled={isProcessing}
-              onClick={() => handleTierSwitch('starter')}
+              onClick={() => activeTier === 'starter' ? handleTierSwitch('starter') : handleStripeEmployerCheckout('starter')}
               className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {processingTarget === 'starter'
@@ -443,7 +516,7 @@ export default function EmployerBillingPage() {
             <button
               type="button"
               disabled={isProcessing}
-              onClick={() => handleTierSwitch('growth')}
+              onClick={() => activeTier === 'growth' ? handleTierSwitch('growth') : handleStripeEmployerCheckout('growth')}
               className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {processingTarget === 'growth'
@@ -521,7 +594,7 @@ export default function EmployerBillingPage() {
             <button
               type="button"
               disabled={isProcessing}
-              onClick={() => handleTierSwitch('enterprise')}
+              onClick={() => activeTier === 'enterprise' ? handleTierSwitch('enterprise') : handleStripeEmployerCheckout('enterprise')}
               className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {processingTarget === 'enterprise'
@@ -597,7 +670,7 @@ export default function EmployerBillingPage() {
             <button
               type="button"
               disabled={isProcessing || activeTier === 'free'}
-              onClick={() => handleTopUpPurchase('boost')}
+              onClick={() => handleStripeEmployerCheckout('boost', true)}
               className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-40 cursor-pointer"
             >
               {processingTarget === 'topup_boost'
@@ -631,7 +704,7 @@ export default function EmployerBillingPage() {
             <button
               type="button"
               disabled={isProcessing || activeTier === 'free'}
-              onClick={() => handleTopUpPurchase('surge')}
+              onClick={() => handleStripeEmployerCheckout('surge', true)}
               className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-40 cursor-pointer"
             >
               {processingTarget === 'topup_surge'
@@ -665,7 +738,7 @@ export default function EmployerBillingPage() {
             <button
               type="button"
               disabled={isProcessing || activeTier === 'free'}
-              onClick={() => handleTopUpPurchase('scale')}
+              onClick={() => handleStripeEmployerCheckout('scale', true)}
               className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-40 cursor-pointer"
             >
               {processingTarget === 'topup_scale'

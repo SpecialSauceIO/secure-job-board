@@ -3,14 +3,69 @@ import { cookies } from 'next/headers'
 import { createClient } from '@/utils/supabase/server'
 import Stripe from 'stripe'
 
+export const CANDIDATE_SAAS_TIERS: Record<
+  string,
+  {
+    id: 'professional' | 'prestige'
+    name: string
+    priceCents: number
+    envVar: string
+    defaultPriceId: string
+    description: string
+  }
+> = {
+  professional: {
+    id: 'professional',
+    name: 'Special Sauce - Candidate Professional Plan ($9/mo)',
+    priceCents: 900,
+    envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL',
+    defaultPriceId: 'price_1UTlhiR0rSVwN0zE50jmmQcG',
+    description:
+      'ID-Verified Active Tier: Unlock and accept unlimited inbound employer pitches, plus 15 outbound blind applications/month (70%+ AI Fit).',
+  },
+  candidate_pro: {
+    id: 'professional',
+    name: 'Special Sauce - Candidate Professional Plan ($9/mo)',
+    priceCents: 900,
+    envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL',
+    defaultPriceId: 'price_1UTlhiR0rSVwN0zE50jmmQcG',
+    description:
+      'ID-Verified Active Tier: Unlock and accept unlimited inbound employer pitches, plus 15 outbound blind applications/month (70%+ AI Fit).',
+  },
+  prestige: {
+    id: 'prestige',
+    name: 'Special Sauce - Candidate Prestige Plan ($15/mo)',
+    priceCents: 1500,
+    envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE',
+    defaultPriceId: 'price_1UTlhiR0rSVwN0zEOoT4FTnK',
+    description:
+      'Priority Spotlight & Unlimited: Unlimited outbound blind applications (70%+ AI Fit), top-priority placement in Employer Talent Search, and priority shortlist placement.',
+  },
+  candidate_prestige: {
+    id: 'prestige',
+    name: 'Special Sauce - Candidate Prestige Plan ($15/mo)',
+    priceCents: 1500,
+    envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE',
+    defaultPriceId: 'price_1UTlhiR0rSVwN0zEOoT4FTnK',
+    description:
+      'Priority Spotlight & Unlimited: Unlimited outbound blind applications (70%+ AI Fit), top-priority placement in Employer Talent Search, and priority shortlist placement.',
+  },
+}
+
 export const EMPLOYER_SAAS_TIERS: Record<
   string,
   {
     id: 'starter' | 'growth' | 'enterprise'
     name: string
     priceCents: number
+    retailPriceCents: number
+    foundingEnvVar: string
+    retailEnvVar: string
+    defaultFoundingPriceId: string
+    defaultRetailPriceId: string
     maxActiveJobs: number
     monthlyCredits: number
+    maxSeats: number
     description: string
   }
 > = {
@@ -18,8 +73,14 @@ export const EMPLOYER_SAAS_TIERS: Record<
     id: 'starter',
     name: 'Starter Plan ($149/mo Founding Partner Rate — $299/mo Retail — 5 Active Roles & 10 Pitch Credits)',
     priceCents: 14900,
+    retailPriceCents: 29900,
+    foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_STARTER_FOUNDING',
+    retailEnvVar: 'STRIPE_PRICE_EMPLOYER_STARTER_RETAIL',
+    defaultFoundingPriceId: 'price_1UTlhjR0rSVwN0zEeaTS7l4y',
+    defaultRetailPriceId: 'price_1UTlhjR0rSVwN0zEjlo2UAuI',
     maxActiveJobs: 5,
     monthlyCredits: 10,
+    maxSeats: 2,
     description:
       'Up to 5 simultaneous active blind job postings, 10 monthly passive candidate pitch credits, and 2 team seats.',
   },
@@ -27,8 +88,14 @@ export const EMPLOYER_SAAS_TIERS: Record<
     id: 'growth',
     name: 'Growth Plan ($499/mo Founding Partner Rate — $799/mo Retail — 15 Active Roles & 35 Pitch Credits)',
     priceCents: 49900,
+    retailPriceCents: 79900,
+    foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_GROWTH_FOUNDING',
+    retailEnvVar: 'STRIPE_PRICE_EMPLOYER_GROWTH_RETAIL',
+    defaultFoundingPriceId: 'price_1UTlhjR0rSVwN0zEAKyTupr1',
+    defaultRetailPriceId: 'price_1UTlhkR0rSVwN0zEqE3cHTtn',
     maxActiveJobs: 15,
     monthlyCredits: 35,
+    maxSeats: 5,
     description:
       'Up to 15 simultaneous active blind job postings, 35 monthly passive candidate pitch credits, and 5 team/BPO seats.',
   },
@@ -36,10 +103,90 @@ export const EMPLOYER_SAAS_TIERS: Record<
     id: 'enterprise',
     name: 'Enterprise Plan ($1,250/mo Founding Partner Rate — $1,999/mo Retail — Unlimited Roles, 120 Credits + ATS Sync)',
     priceCents: 125000,
+    retailPriceCents: 199900,
+    foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_ENTERPRISE_FOUNDING',
+    retailEnvVar: 'STRIPE_PRICE_EMPLOYER_ENTERPRISE_RETAIL',
+    defaultFoundingPriceId: 'price_1UTlhkR0rSVwN0zErZVu7zTG',
+    defaultRetailPriceId: 'price_1UTlhkR0rSVwN0zERsYANSSD',
     maxActiveJobs: 999,
     monthlyCredits: 120,
+    maxSeats: 999,
     description:
       'Unlimited simultaneous active blind job postings, 120 monthly pitch credits, unlimited seats, and Workday/Greenhouse ATS webhook integration.',
+  },
+}
+
+export const EMPLOYER_TOPUP_PACKS: Record<
+  string,
+  {
+    id: 'boost' | 'surge' | 'scale'
+    name: string
+    credits: number
+    priceCents: number
+    envVar: string
+    defaultPriceId: string
+    description: string
+  }
+> = {
+  boost: {
+    id: 'boost',
+    name: 'Boost Pitch Credit Top-Up (+10 Rollover Credits)',
+    credits: 10,
+    priceCents: 15000,
+    envVar: 'STRIPE_PRICE_TOPUP_BOOST',
+    defaultPriceId: 'price_1UTlhlR0rSVwN0zEVrIFlu0P',
+    description:
+      '+10 non-expiring Rollover Pitch Credits ($15.00/pitch) protected by our 100% Accepted-Only Credit Guarantee.',
+  },
+  topup_boost: {
+    id: 'boost',
+    name: 'Boost Pitch Credit Top-Up (+10 Rollover Credits)',
+    credits: 10,
+    priceCents: 15000,
+    envVar: 'STRIPE_PRICE_TOPUP_BOOST',
+    defaultPriceId: 'price_1UTlhlR0rSVwN0zEVrIFlu0P',
+    description:
+      '+10 non-expiring Rollover Pitch Credits ($15.00/pitch) protected by our 100% Accepted-Only Credit Guarantee.',
+  },
+  surge: {
+    id: 'surge',
+    name: 'Surge Pitch Credit Top-Up (+25 Rollover Credits)',
+    credits: 25,
+    priceCents: 32500,
+    envVar: 'STRIPE_PRICE_TOPUP_SURGE',
+    defaultPriceId: 'price_1UTlhlR0rSVwN0zEM24VgaHU',
+    description:
+      '+25 non-expiring Rollover Pitch Credits ($13.00/pitch - Save 13%) protected by our 100% Accepted-Only Credit Guarantee.',
+  },
+  topup_surge: {
+    id: 'surge',
+    name: 'Surge Pitch Credit Top-Up (+25 Rollover Credits)',
+    credits: 25,
+    priceCents: 32500,
+    envVar: 'STRIPE_PRICE_TOPUP_SURGE',
+    defaultPriceId: 'price_1UTlhlR0rSVwN0zEM24VgaHU',
+    description:
+      '+25 non-expiring Rollover Pitch Credits ($13.00/pitch - Save 13%) protected by our 100% Accepted-Only Credit Guarantee.',
+  },
+  scale: {
+    id: 'scale',
+    name: 'Scale Pitch Credit Top-Up (+75 Rollover Credits)',
+    credits: 75,
+    priceCents: 82500,
+    envVar: 'STRIPE_PRICE_TOPUP_SCALE',
+    defaultPriceId: 'price_1UTlhmR0rSVwN0zEH6SOnJp3',
+    description:
+      '+75 non-expiring Rollover Pitch Credits ($11.00/pitch - Save 27%) protected by our 100% Accepted-Only Credit Guarantee.',
+  },
+  topup_scale: {
+    id: 'scale',
+    name: 'Scale Pitch Credit Top-Up (+75 Rollover Credits)',
+    credits: 75,
+    priceCents: 82500,
+    envVar: 'STRIPE_PRICE_TOPUP_SCALE',
+    defaultPriceId: 'price_1UTlhmR0rSVwN0zEH6SOnJp3',
+    description:
+      '+75 non-expiring Rollover Pitch Credits ($11.00/pitch - Save 27%) protected by our 100% Accepted-Only Credit Guarantee.',
   },
 }
 
@@ -56,7 +203,8 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const tierId = (body?.tierId || body?.packId || '').toLowerCase()
+    const rawKey = (body?.tierId || body?.packId || '').toLowerCase().trim()
+    const rateType = (body?.rateType || 'founding').toLowerCase().trim()
 
     const stripeKey =
       process.env.STRIPE_SECRET_KEY || process.env.STRIPE_IDENTITY_SECRET_KEY || ''
@@ -64,7 +212,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error:
-            'STRIPE_SECRET_KEY is not configured in .env.local yet. Use the Developer Sandbox Switcher below to activate this plan locally, or add STRIPE_SECRET_KEY=sk_test_... to .env.local.',
+            'STRIPE_SECRET_KEY is not configured in .env.local yet. Use the QA Sandbox controls below to test plans locally.',
         },
         { status: 400 }
       )
@@ -74,39 +222,43 @@ export async function POST(req: Request) {
       apiVersion: '2026-09-30.endive' as any,
     })
 
-    const origin = req.headers.get('origin') || 'http://localhost:3000'
+    const origin = req.headers.get('origin') || 'https://www.specialsauce.io'
 
     // =========================================================================
-    // CANDIDATE PRO PASS ($9/MONTH SUBSCRIPTION)
+    // 1. CANDIDATE SUBSCRIPTIONS: PROFESSIONAL ($9/MO) & PRESTIGE ($15/MO)
     // =========================================================================
-    if (tierId === 'candidate_pro') {
+    const candidateTier = CANDIDATE_SAAS_TIERS[rawKey]
+    if (candidateTier) {
+      const catalogPriceId =
+        process.env[candidateTier.envVar] || candidateTier.defaultPriceId
+
       const checkoutSession = await stripe.checkout.sessions.create({
         mode: 'subscription',
         customer_email: user.email,
         client_reference_id: user.id,
         metadata: {
-          planType: 'candidate_pro',
+          audience: 'candidate',
+          planType: `candidate_${candidateTier.id}`,
           userId: user.id,
-          tierId: 'pro',
+          tierId: candidateTier.id,
         },
         line_items: [
-          {
-            price_data: {
-              currency: 'usd',
-              unit_amount: 900, // $9.00 / month
-              recurring: {
-                interval: 'month',
+          catalogPriceId
+            ? { price: catalogPriceId, quantity: 1 }
+            : {
+                price_data: {
+                  currency: 'usd',
+                  unit_amount: candidateTier.priceCents,
+                  recurring: { interval: 'month' },
+                  product_data: {
+                    name: candidateTier.name,
+                    description: candidateTier.description,
+                  },
+                },
+                quantity: 1,
               },
-              product_data: {
-                name: 'Candidate Pro Pass ($9/mo)',
-                description:
-                  'Unlimited blind job applications (40%+ AI Match required), priority spotlight in Employer Talent Search, and full AI Fit Radar access.',
-              },
-            },
-            quantity: 1,
-          },
         ],
-        success_url: `${origin}/dashboard/billing?billing=success&session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${origin}/dashboard/billing?billing=success&plan=${candidateTier.id}&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/dashboard/billing?billing=cancelled`,
       })
 
@@ -121,12 +273,67 @@ export async function POST(req: Request) {
     }
 
     // =========================================================================
-    // EMPLOYER SAAS TIERS ($99 / $299 / $899 PER MONTH)
+    // 2. EMPLOYER TOP-UP CREDIT PACKS (BOOST $150 / SURGE $325 / SCALE $825)
     // =========================================================================
-    const tier = EMPLOYER_SAAS_TIERS[tierId]
+    const topupPack = EMPLOYER_TOPUP_PACKS[rawKey]
+    if (topupPack) {
+      const { data: member } = await supabase
+        .from('organization_members')
+        .select('organization_id')
+        .eq('user_id', user.id)
+        .limit(1)
+        .maybeSingle()
+
+      if (!member?.organization_id) {
+        return NextResponse.json(
+          { error: 'Please set up your Company Profile before purchasing Top-Up Credits.' },
+          { status: 400 }
+        )
+      }
+
+      const catalogPriceId =
+        process.env[topupPack.envVar] || topupPack.defaultPriceId
+
+      const checkoutSession = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        customer_email: user.email,
+        client_reference_id: member.organization_id,
+        metadata: {
+          audience: 'employer_topup',
+          organizationId: member.organization_id,
+          userId: user.id,
+          packId: topupPack.id,
+          creditsToAdd: String(topupPack.credits),
+        },
+        line_items: [
+          catalogPriceId
+            ? { price: catalogPriceId, quantity: 1 }
+            : {
+                price_data: {
+                  currency: 'usd',
+                  unit_amount: topupPack.priceCents,
+                  product_data: {
+                    name: topupPack.name,
+                    description: topupPack.description,
+                  },
+                },
+                quantity: 1,
+              },
+        ],
+        success_url: `${origin}/dashboard/employer/billing?billing=topup_success&pack=${topupPack.id}&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/dashboard/employer/billing?billing=cancelled`,
+      })
+
+      return NextResponse.json({ url: checkoutSession.url })
+    }
+
+    // =========================================================================
+    // 3. EMPLOYER SAAS SUBSCRIPTIONS ($149 / $499 / $1,250 FOUNDING OR RETAIL)
+    // =========================================================================
+    const tier = EMPLOYER_SAAS_TIERS[rawKey]
     if (!tier) {
       return NextResponse.json(
-        { error: 'Invalid subscription tier selected.' },
+        { error: 'Invalid subscription tier or top-up pack selected.' },
         { status: 400 }
       )
     }
@@ -135,6 +342,7 @@ export async function POST(req: Request) {
       .from('organization_members')
       .select('organization_id')
       .eq('user_id', user.id)
+      .limit(1)
       .maybeSingle()
 
     if (!member?.organization_id) {
@@ -144,34 +352,42 @@ export async function POST(req: Request) {
       )
     }
 
+    const isRetail = rateType === 'retail'
+    const catalogPriceId = isRetail
+      ? process.env[tier.retailEnvVar] || tier.defaultRetailPriceId
+      : process.env[tier.foundingEnvVar] || tier.defaultFoundingPriceId
+
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer_email: user.email,
       client_reference_id: member.organization_id,
       metadata: {
+        audience: 'employer',
         organizationId: member.organization_id,
         userId: user.id,
         tierId: tier.id,
+        rateType: isRetail ? 'retail' : 'founding',
         maxActiveJobs: String(tier.maxActiveJobs),
         creditsToAdd: String(tier.monthlyCredits),
+        maxSeats: String(tier.maxSeats),
       },
       line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            unit_amount: tier.priceCents,
-            recurring: {
-              interval: 'month',
+        catalogPriceId
+          ? { price: catalogPriceId, quantity: 1 }
+          : {
+              price_data: {
+                currency: 'usd',
+                unit_amount: isRetail ? tier.retailPriceCents : tier.priceCents,
+                recurring: { interval: 'month' },
+                product_data: {
+                  name: tier.name,
+                  description: tier.description,
+                },
+              },
+              quantity: 1,
             },
-            product_data: {
-              name: tier.name,
-              description: tier.description,
-            },
-          },
-          quantity: 1,
-        },
       ],
-      success_url: `${origin}/dashboard/employer/billing?billing=success&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/dashboard/employer/billing?billing=success&tier=${tier.id}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/dashboard/employer/billing?billing=cancelled`,
     })
 
@@ -189,7 +405,7 @@ export async function POST(req: Request) {
       {
         error:
           error.message ||
-          'Stripe Checkout failed. If you are using a Restricted Identity Key (rk_test_...), add your standard STRIPE_SECRET_KEY (sk_test_...) to .env.local or use the Developer Sandbox Switcher below.',
+          'Stripe Checkout failed. Check your Stripe API permissions or use the QA Sandbox controls below.',
       },
       { status: 500 }
     )
