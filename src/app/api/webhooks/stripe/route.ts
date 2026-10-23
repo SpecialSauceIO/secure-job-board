@@ -162,6 +162,177 @@ export async function POST(req: Request) {
     }
   }
 
+
+  // ============================================================================
+  // 1B. RECURRING MONTHLY RENEWAL (invoice.payment_succeeded)
+  //     - Replenishes Employer monthly Pitch Credits (10 / 35 / 120) while
+  //       preserving unused [TOPUP:X] rollover credits.
+  //     - Resets Candidate Professional ($9/mo) monthly 15-application counter.
+  // ============================================================================
+  if (event.type === 'invoice.payment_succeeded') {
+    const invoice = event.data.object as Stripe.Invoice
+    const billingReason = (invoice as any).billing_reason || ''
+    const subId =
+      typeof (invoice as any).subscription === 'string'
+        ? (invoice as any).subscription
+        : (invoice as any).subscription?.id || ''
+    const custId =
+      typeof invoice.customer === 'string'
+        ? invoice.customer
+        : (invoice.customer as any)?.id || ''
+
+    if (billingReason === 'subscription_cycle' && (subId || custId)) {
+      // 1) Check if this subscription belongs to an Employer Organization
+      let orgQuery = supabaseAdmin.from('organizations').select('*')
+      orgQuery = subId
+        ? orgQuery.eq('stripe_subscription_id', subId)
+        : orgQuery.eq('stripe_customer_id', custId)
+      const { data: orgObj } = await orgQuery.maybeSingle()
+
+      if (orgObj) {
+        const tierMatch = (orgObj.description || '').match(/\[TIER:(starter|growth|enterprise)\]/i)
+        const activeTier = (
+          tierMatch ? tierMatch[1] : orgObj.subscription_tier || 'starter'
+        ).toLowerCase()
+        const planCreditsMap: Record<string, number> = {
+          starter: 10,
+          growth: 35,
+          enterprise: 120,
+        }
+        const monthlyAllowance = planCreditsMap[activeTier] || 10
+        const currentTotal = Math.max(0, orgObj.connection_credits || 0)
+        const preservedRollover = Math.min(
+          currentTotal,
+          parseRolloverCreditsTag(orgObj.description)
+        )
+        const renewedTotal = monthlyAllowance + preservedRollover
+        const cleanDesc = stripTags(orgObj.description)
+        const topupTag = preservedRollover > 0 ? `[TOPUP:${preservedRollover}]` : ''
+        const taggedDesc = `${cleanDesc} [TIER:${activeTier}] ${topupTag}`
+          .replace(/\s+/g, ' ')
+          .trim()
+
+        await supabaseAdmin
+          .from('organizations')
+          .update({
+            subscription_status: 'active',
+            connection_credits: renewedTotal,
+            description: taggedDesc,
+          })
+          .eq('id', orgObj.id)
+      } else {
+        // 2) Otherwise check if a Candidate Profile holds this subscription
+        const { data: candidates } = await supabaseAdmin
+          .from('profiles')
+          .select('id, structured_skills')
+          .eq('role', 'candidate')
+
+        for (const cand of candidates || []) {
+          const skills = Array.isArray(cand.structured_skills) ? cand.structured_skills : []
+          const meta = skills.find((item: any) => item && typeof item === 'object' && item._ss_meta)
+          if (
+            meta &&
+            ((subId && meta.stripeSubscriptionId === subId) ||
+              (custId && meta.stripeCustomerId === custId))
+          ) {
+            const { count: currentApps } = await supabaseAdmin
+              .from('applications')
+              .select('*', { count: 'exact', head: true })
+              .eq('candidate_id', cand.id)
+              .neq('initiated_by', 'employer')
+
+            const filtered = skills.filter(
+              (item: any) => !(item && typeof item === 'object' && item._ss_meta)
+            )
+            const updatedMeta = {
+              ...meta,
+              trialStart: new Date().toISOString(),
+              trialBaselineApps: meta.plan === 'professional' ? currentApps || 0 : 0,
+            }
+            await supabaseAdmin
+              .from('profiles')
+              .update({ structured_skills: [...filtered, updatedMeta] })
+              .eq('id', cand.id)
+            break
+          }
+        }
+      }
+    }
+  }
+
+  // ============================================================================
+  // 1C. SUBSCRIPTION CANCELED / EXPIRED (customer.subscription.deleted)
+  //     - Downgrades Employer to 'free' while preserving any purchased [TOPUP:X]
+  //     - Downgrades Candidate back to 'explorer' ($0/forever)
+  // ============================================================================
+  if (event.type === 'customer.subscription.deleted') {
+    const subscription = event.data.object as Stripe.Subscription
+    const subId = subscription.id
+    const custId =
+      typeof subscription.customer === 'string'
+        ? subscription.customer
+        : (subscription.customer as any)?.id || ''
+
+    // 1) Check Employer Organization
+    let orgQuery = supabaseAdmin.from('organizations').select('*')
+    orgQuery = subId
+      ? orgQuery.eq('stripe_subscription_id', subId)
+      : orgQuery.eq('stripe_customer_id', custId)
+    const { data: orgObj } = await orgQuery.maybeSingle()
+
+    if (orgObj) {
+      const currentTotal = Math.max(0, orgObj.connection_credits || 0)
+      const preservedRollover = Math.min(
+        currentTotal,
+        parseRolloverCreditsTag(orgObj.description)
+      )
+      const cleanDesc = stripTags(orgObj.description)
+      const topupTag = preservedRollover > 0 ? `[TOPUP:${preservedRollover}]` : ''
+      const taggedDesc = `${cleanDesc} [TIER:free] ${topupTag}`
+        .replace(/\s+/g, ' ')
+        .trim()
+
+      await supabaseAdmin
+        .from('organizations')
+        .update({
+          subscription_status: 'canceled',
+          subscription_tier: 'free',
+          connection_credits: preservedRollover,
+          description: taggedDesc,
+        })
+        .eq('id', orgObj.id)
+    } else {
+      // 2) Check Candidate Profile
+      const { data: candidates } = await supabaseAdmin
+        .from('profiles')
+        .select('id, structured_skills')
+        .eq('role', 'candidate')
+
+      for (const cand of candidates || []) {
+        const skills = Array.isArray(cand.structured_skills) ? cand.structured_skills : []
+        const meta = skills.find((item: any) => item && typeof item === 'object' && item._ss_meta)
+        if (
+          meta &&
+          ((subId && meta.stripeSubscriptionId === subId) ||
+            (custId && meta.stripeCustomerId === custId))
+        ) {
+          const filtered = skills.filter(
+            (item: any) => !(item && typeof item === 'object' && item._ss_meta)
+          )
+          const downgradedMeta = {
+            ...meta,
+            plan: 'explorer',
+          }
+          await supabaseAdmin
+            .from('profiles')
+            .update({ structured_skills: [...filtered, downgradedMeta] })
+            .eq('id', cand.id)
+          break
+        }
+      }
+    }
+  }
+
   // ============================================================================
   // 2. CANDIDATE IDENTITY: Handle successful verification
   // ============================================================================
