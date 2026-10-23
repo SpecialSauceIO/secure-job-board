@@ -89,6 +89,7 @@ export default async function DashboardPage({
   const isReturningFromStripe = Boolean(
     resolvedParams?.verification === 'pending' || resolvedParams?.session_id
   )
+  let stripeIdentityReturnState: 'verified' | 'processing' | 'requires_input' | null = null
 
   await claimInvitedOrganizationSeatIfAny(user.id, user.email)
 
@@ -161,6 +162,7 @@ export default async function DashboardPage({
       }
 
       if (matchedSession) {
+        stripeIdentityReturnState = 'verified'
         await supabase
           .from('profiles')
           .update({ identity_verified: true })
@@ -176,6 +178,8 @@ export default async function DashboardPage({
           identity_verified: true,
           verification_status: 'verified',
         }
+      } else {
+        stripeIdentityReturnState = 'processing'
       }
     } catch (err: any) {
       console.warn('[STRIPE IDENTITY SYNC] Error:', err.message || err)
@@ -1025,6 +1029,44 @@ export default async function DashboardPage({
           </Link>
         </div>
       </header>
+
+      {isReturningFromStripe && isVerified && (
+        <div className="rounded-2xl border-2 border-emerald-400 bg-emerald-50/90 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+          <div>
+            <h2 className="text-sm font-extrabold text-emerald-950">
+              ✅ Identity Verified via Stripe! Your Blind Profile Is Now Active
+            </h2>
+            <p className="mt-0.5 text-xs text-emerald-800">
+              Your biometric ID check succeeded. Employers can now trust your verified status while your personal identity remains 100% hidden until you accept a reveal.
+            </p>
+          </div>
+          <Link
+            href="/dashboard"
+            className="shrink-0 rounded-xl bg-emerald-800 px-4 py-2 text-xs font-extrabold text-white hover:bg-emerald-900 transition-all"
+          >
+            Dismiss
+          </Link>
+        </div>
+      )}
+
+      {isReturningFromStripe && !isVerified && stripeIdentityReturnState === 'processing' && (
+        <div className="rounded-2xl border-2 border-sky-300 bg-sky-50/90 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+          <div>
+            <h2 className="text-sm font-extrabold text-sky-950">
+              ⏳ Stripe Identity Verification In Progress
+            </h2>
+            <p className="mt-0.5 text-xs text-sky-800">
+              Stripe is finalizing your document and selfie verification (usually takes 15–45 seconds). Click Refresh Status below or resume verification if you didn&apos;t finish submitting.
+            </p>
+          </div>
+          <Link
+            href="/dashboard?verification=pending"
+            className="shrink-0 rounded-xl bg-sky-900 px-4 py-2 text-xs font-extrabold text-white hover:bg-sky-950 transition-all"
+          >
+            ↻ Refresh Status
+          </Link>
+        </div>
+      )}
 
       {!isVerified && (
         <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/80 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
