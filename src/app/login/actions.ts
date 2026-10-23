@@ -279,7 +279,7 @@ export async function requestBrandedPasswordReset(
         </a>
       </div>
       <p style="color: #94a3b8; font-size: 12px; line-height: 1.5; margin: 24px 0 0 0; padding-top: 16px; border-top: 1px solid #f1f5f9;">
-        🔒 securely connecting professionals and employers • If you did not request a password reset, you can safely ignore this email.
+        🔒 Special Sauce™ Security • If you did not request a password reset, you can safely ignore this email.
       </p>
     </div>
   `
@@ -655,7 +655,7 @@ export async function requestAccountLoginOtp(
     "<h2 style=\"color: #0f172a; font-size: 22px; font-weight: 800; margin: 0 0 10px 0;\">Your 6-Digit Sign-In Code</h2>" +
     "<p style=\"color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 20px 0;\">Enter the 6-digit verification code below to finish signing in to your Special Sauce™ account (<strong>" + email + "</strong>). This code expires in <strong>5 minutes</strong>.</p>" +
     "<div style=\"background-color: #f8fafc; border: 2px solid #cbd5e1; border-radius: 12px; padding: 18px; text-align: center; font-family: monospace; font-size: 32px; font-weight: 900; letter-spacing: 0.28em; color: #0f172a; margin-bottom: 20px;\">" + otpCode + "</div>" +
-    "<p style=\"color: #94a3b8; font-size: 12px; line-height: 1.5; margin: 0; padding-top: 14px; border-top: 1px solid #f1f5f9;\">🔒 securely connecting professionals and employers • If you did not attempt to sign in, please reset your password immediately.</p>" +
+    "<p style=\"color: #94a3b8; font-size: 12px; line-height: 1.5; margin: 0; padding-top: 14px; border-top: 1px solid #f1f5f9;\">🔒 Special Sauce™ Security • If you did not attempt to sign in, please reset your password immediately.</p>" +
     "</div>"
 
   try {

@@ -305,7 +305,7 @@ function LoginContent() {
             ? "Look up a privacy-masked hint of the email linked to your account"
             : mode === "otp"
             ? "Enter the 6-digit code sent to " + (otpMaskedEmail || "your email")
-            : "securely connecting professionals and employers"}
+            : "Sign in to your account to continue"}
         </p>
       </div>
 
