@@ -95,36 +95,54 @@ export async function loadMergedOpsVault(
       pathsToDownload.map((p) => client.storage.from(OPS_BUCKET).download(p))
     )
 
-    const itemMap = new Map<string, any>()
-    const flagMap = new Map<string, any>()
+    const parsedPayloads: any[] = []
     let mergedMeta: Record<string, any> = {}
+    let maxResetEpoch = 0
 
     for (const res of downloadResults) {
       if (res?.data && !res.error) {
         try {
           const parsed = JSON.parse(await res.data.text())
+          parsedPayloads.push(parsed)
           if (parsed?.monitor_meta && typeof parsed.monitor_meta === "object") {
+            const epoch = Number(parsed.monitor_meta.vault_reset_epoch || 0)
+            if (epoch > maxResetEpoch) maxResetEpoch = epoch
             mergedMeta = { ...mergedMeta, ...parsed.monitor_meta }
           }
-          if (Array.isArray(parsed.work_items)) {
-            for (const item of parsed.work_items) {
-              if (!item?.id) continue
-              const existing = itemMap.get(item.id)
-              const itemTs = new Date(item.updated_at || item.created_at || 0).getTime()
-              const existTs = existing
-                ? new Date(existing.updated_at || existing.created_at || 0).getTime()
-                : -1
-              if (!existing || itemTs >= existTs) {
-                itemMap.set(item.id, item)
-              }
-            }
-          }
-          if (Array.isArray(parsed.behavioral_flags)) {
-            for (const flag of parsed.behavioral_flags) {
-              if (flag?.id) flagMap.set(flag.id, flag)
-            }
-          }
         } catch {}
+      }
+    }
+
+    if (maxResetEpoch > 0) {
+      mergedMeta.vault_reset_epoch = maxResetEpoch
+    }
+
+    const itemMap = new Map<string, any>()
+    const flagMap = new Map<string, any>()
+
+    for (const parsed of parsedPayloads) {
+      if (Array.isArray(parsed.work_items)) {
+        for (const item of parsed.work_items) {
+          if (!item?.id) continue
+          const createdTs = new Date(item.created_at || item.updated_at || 0).getTime()
+          if (maxResetEpoch > 0 && createdTs < maxResetEpoch) continue
+          const existing = itemMap.get(item.id)
+          const itemTs = new Date(item.updated_at || item.created_at || 0).getTime()
+          const existTs = existing
+            ? new Date(existing.updated_at || existing.created_at || 0).getTime()
+            : -1
+          if (!existing || itemTs >= existTs) {
+            itemMap.set(item.id, item)
+          }
+        }
+      }
+      if (Array.isArray(parsed.behavioral_flags)) {
+        for (const flag of parsed.behavioral_flags) {
+          if (!flag?.id) continue
+          const flagTs = new Date(flag.created_at || flag.updated_at || 0).getTime()
+          if (maxResetEpoch > 0 && (flagTs === 0 || flagTs < maxResetEpoch)) continue
+          flagMap.set(flag.id, flag)
+        }
       }
     }
 
@@ -163,6 +181,21 @@ export async function saveMergedOpsVault(
       contentType: "application/json",
     }),
   ])
+
+  // Auto-prune old version snapshots beyond the newest 3 so storage stays clean
+  try {
+    const { data: list } = await client.storage
+      .from(OPS_BUCKET)
+      .list(OPS_VAULT_DIR, { limit: 100, sortBy: { column: "name", order: "desc" } })
+    const oldSnapshots = (list || [])
+      .filter((f) => f.name.startsWith(OPS_VAULT_PREFIX) && f.name.endsWith(".json"))
+      .sort((a, b) => b.name.localeCompare(a.name))
+      .slice(3)
+      .map((f) => `${OPS_VAULT_DIR}/${f.name}`)
+    if (oldSnapshots.length > 0) {
+      await client.storage.from(OPS_BUCKET).remove(oldSnapshots)
+    }
+  } catch {}
 }
 
 export async function getUserOpsTickets(
