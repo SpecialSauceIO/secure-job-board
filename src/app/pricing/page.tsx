@@ -219,7 +219,7 @@ export default function PricingMatrixPage() {
                       href="/signup/candidate?plan=prestige"
                       className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm"
                     >
-                      Choose Prestige (w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm5/mo) →
+                      Choose Prestige ($15/mo) →
                     </Link>
               </div>
             </div>
@@ -315,7 +315,7 @@ export default function PricingMatrixPage() {
                       href="/signup/employer?plan=starter"
                       className="w-full py-3 bg-slate-900 hover:bg-indigo-600 text-white font-extrabold text-xs rounded-xl text-center transition-colors shadow-sm"
                     >
-                      Get Started with Starter (w-full py-3 bg-slate-900 hover:bg-indigo-600 text-white font-extrabold text-xs rounded-xl text-center transition-colors shadow-sm49/mo) →
+                      Get Started with Starter ($149/mo) →
                     </Link>
               </div>
 
@@ -445,7 +445,7 @@ export default function PricingMatrixPage() {
                       href="/signup/employer?plan=enterprise"
                       className="w-full py-3 bg-slate-900 hover:bg-indigo-600 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm"
                     >
-                      Get Started with Enterprise (w-full py-3 bg-slate-900 hover:bg-indigo-600 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm,250/mo) →
+                      Get Started with Enterprise ($1,250/mo) →
                     </Link>
               </div>
             </div>
