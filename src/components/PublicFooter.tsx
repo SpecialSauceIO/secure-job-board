@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { LEGAL_CONFIG } from '@/constants/legal'
 
 export function PublicFooter() {
   return (
@@ -44,10 +45,16 @@ export function PublicFooter() {
           >
             Privacy Policy
           </Link>
+          <a
+            href={`mailto:${LEGAL_CONFIG.supportEmail}`}
+            className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
+          >
+            Support ({LEGAL_CONFIG.supportEmail})
+          </a>
         </div>
 
-        <p className="text-sm text-slate-500">
-          © {new Date().getFullYear()} specialsauce.io. All rights reserved.
+        <p className="text-sm text-slate-500 text-center md:text-right">
+          © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName}. All rights reserved.
         </p>
       </div>
     </footer>

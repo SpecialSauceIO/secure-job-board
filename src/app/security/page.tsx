@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { PublicHeader } from '@/components/PublicHeader'
 import { PublicFooter } from '@/components/PublicFooter'
+import { LEGAL_CONFIG } from '@/constants/legal'
 
 export const metadata = {
   title: 'Security & Trust Architecture | specialsauce.io',
@@ -114,6 +115,42 @@ export default function SecurityTrustPage() {
                   • <strong>Hard Dealbreaker Firewall:</strong> Employers are automatically blocked from pitching candidates if the role violates the candidate’s minimum salary expectation, work model, employment type, or language requirements.
                 </li>
               </ul>
+            </div>
+          </div>
+
+          {/* Infrastructure Subprocessors & B2B Compliance Banner */}
+          <div className="bg-slate-900 text-white p-6 sm:p-8 rounded-2xl border-2 border-slate-800 space-y-4 shadow-2xs">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <span className="inline-block px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-[11px] font-extrabold uppercase tracking-wider mb-2">
+                  Enterprise Encryption &amp; Subprocessor Isolation
+                </span>
+                <h2 className="text-base sm:text-lg font-extrabold text-white">
+                  Zero Raw Biometrics, PCI-DSS Level 1 Billing &amp; Row-Level Security
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed max-w-3xl">
+                  All platform traffic is encrypted in transit via TLS 1.3 and at rest via AES-256. Payment credentials and government ID biometrics are isolated inside Stripe&apos;s PCI-DSS Level 1 and SOC 2 Type II certified vault, and private resume files are protected by strict Supabase Row-Level Security (RLS) policies with zero public AI model training.
+                </p>
+              </div>
+              <div className="shrink-0 text-xs text-slate-300 space-y-1 md:text-right">
+                <p className="font-bold text-white">Security &amp; Compliance Desk</p>
+                <p>
+                  <a
+                    href={`mailto:${LEGAL_CONFIG.legalEmail}`}
+                    className="text-emerald-300 font-bold hover:underline"
+                  >
+                    {LEGAL_CONFIG.legalEmail}
+                  </a>
+                </p>
+                <p>
+                  <a
+                    href={`mailto:${LEGAL_CONFIG.privacyEmail}`}
+                    className="text-slate-300 hover:underline"
+                  >
+                    {LEGAL_CONFIG.privacyEmail}
+                  </a>
+                </p>
+              </div>
             </div>
           </div>
 
