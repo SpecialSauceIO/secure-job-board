@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { PublicHeader } from '@/components/PublicHeader'
 import { PublicFooter } from '@/components/PublicFooter'
+import { LEGAL_CONFIG } from '@/constants/legal'
 
 export const metadata = {
   title: 'Terms of Service | specialsauce.io',
@@ -9,7 +10,7 @@ export const metadata = {
 }
 
 export default function TermsOfServicePage() {
-  const lastUpdated = 'October 16, 2026'
+  const lastUpdated = LEGAL_CONFIG.lastUpdated
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col justify-between">
@@ -129,7 +130,7 @@ export default function TermsOfServicePage() {
               </h2>
               <div className="text-slate-600 leading-relaxed mt-2 space-y-3">
                 <p>
-                  All paid subscription tiers and on-demand add-on packs are billed in U.S. Dollars via Stripe Checkout. Recurring monthly plans renew automatically unless canceled or downgraded prior to the next billing cycle:
+                  All paid subscription tiers and on-demand add-on packs are billed in U.S. Dollars via Stripe Checkout. Recurring monthly plans renew automatically unless canceled or downgraded prior to the next billing cycle (subscribers may cancel anytime in one click via the self-serve Stripe Customer Portal inside their Billing Dashboard):
                 </p>
                 <ul className="list-disc pl-5 space-y-1.5">
                   <li>
@@ -163,7 +164,23 @@ export default function TermsOfServicePage() {
           </section>
 
           <section>
-            <h2 className="text-xl">10. Changes to Terms &amp; Contact Information</h2>
+            <h2 className="text-xl">
+              10. Governing Law, Venue &amp; Dispute Resolution
+            </h2>
+            <p className="text-slate-600 leading-relaxed mt-2">
+              These Terms and any dispute or claim arising out of or related to the Platform shall be governed by and construed in accordance with the laws of the <strong>{LEGAL_CONFIG.governingState}</strong> and applicable federal laws of the United States, without regard to conflict-of-law principles. Any dispute not resolved informally within thirty (30) days of written notice to{' '}
+              <a
+                href={`mailto:${LEGAL_CONFIG.legalEmail}`}
+                className="text-indigo-600 font-bold hover:underline"
+              >
+                {LEGAL_CONFIG.legalEmail}
+              </a>{' '}
+              shall be resolved by binding individual arbitration administered in the {LEGAL_CONFIG.governingState} under the rules of the American Arbitration Association (AAA), or in the state or federal courts located in Texas for injunctive relief protecting intellectual property or platform security. To the fullest extent permitted by law, you and {LEGAL_CONFIG.brandName} waive any right to participate in a class action or representative proceeding.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl">11. Changes to Terms &amp; Corporate Contact Information</h2>
             <p className="text-slate-600 leading-relaxed mt-2">
               We may update these Terms periodically to reflect new security features or regulatory requirements. Continued use of the Platform after an update constitutes acceptance of the revised Terms. For legal or compliance inquiries, please contact us at{' '}
               <a

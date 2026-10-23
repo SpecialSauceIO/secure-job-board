@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { PublicHeader } from '@/components/PublicHeader'
 import { PublicFooter } from '@/components/PublicFooter'
+import { LEGAL_CONFIG } from '@/constants/legal'
 
 export const metadata = {
   title: 'Privacy Policy | specialsauce.io',
@@ -9,7 +10,7 @@ export const metadata = {
 }
 
 export default function PrivacyPolicyPage() {
-  const lastUpdated = 'October 16, 2026'
+  const lastUpdated = LEGAL_CONFIG.lastUpdated
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col justify-between">
@@ -52,7 +53,7 @@ export default function PrivacyPolicyPage() {
                 <span className="font-semibold text-slate-800">
                   Special Sauce never stores your raw government ID documents, facial scans, credit card numbers, or bank account details on our servers.
                 </span>{' '}
-                We only receive and store a cryptographic verification status token.
+                We only receive and store a cryptographic verification status token. Biometric verification is performed strictly with your explicit consent for identity verification and anti-fraud/sybil protection in compliance with applicable state and federal privacy laws (including the Texas Capture or Use of Biometric Identifier Act). Stripe retains and purges biometric verification data in accordance with the Stripe Privacy Policy and statutory retention limits (no longer than 1 year after the purpose for collection expires, or immediately upon your deletion request to privacy@specialsauce.io).
               </li>
               <li>
                 <strong className="text-slate-800">In-Platform Messaging &amp; Telemetry Data:</strong> Encrypted thread messages associated with connection Reference IDs (<code className="text-xs font-mono bg-slate-100 px-1.5 py-0.5 rounded">SS-XXXXXXXX</code>), read-receipt timestamps, IP addresses, and usage velocity required to enforce anti-harvesting guardrails and prevent automated scraping.
