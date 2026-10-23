@@ -23,6 +23,20 @@ export default function CandidateBillingPage() {
   const [isVerified, setIsVerified] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [showQaControls, setShowQaControls] = useState(
+    process.env.NODE_ENV === 'development'
+  )
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const isLocal =
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1'
+    if (isLocal || params.get('qa') === '1' || params.get('qa') === 'true') {
+      setShowQaControls(true)
+    }
+  }, [])
   const [feedback, setFeedback] = useState<{
     type: 'success' | 'error'
     text: string
@@ -457,7 +471,8 @@ export default function CandidateBillingPage() {
         </div>
       </div>
 
-      {/* QA Stress-Testing Bar */}
+      {/* QA Stress-Testing Bar (Hidden in production unless ?qa=1) */}
+      {showQaControls && (
       <div className="bg-slate-100 rounded-2xl border-2 border-slate-300 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">
@@ -495,6 +510,7 @@ export default function CandidateBillingPage() {
           </button>
         </div>
       </div>
+      )}
     </div>
   )
 }

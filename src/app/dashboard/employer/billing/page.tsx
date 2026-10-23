@@ -14,6 +14,20 @@ export default function EmployerBillingPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [showQaControls, setShowQaControls] = useState(
+    process.env.NODE_ENV === 'development'
+  )
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const isLocal =
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1'
+    if (isLocal || params.get('qa') === '1' || params.get('qa') === 'true') {
+      setShowQaControls(true)
+    }
+  }, [])
   const [processingTarget, setProcessingTarget] = useState<string | null>(null)
 
   const [orgData, setOrgData] = useState<any>(null)
@@ -749,7 +763,8 @@ export default function EmployerBillingPage() {
         </div>
       </section>
 
-      {/* QA Sandbox Controls for Stress Testing */}
+      {/* QA Sandbox Controls for Stress Testing (Hidden in production unless ?qa=1) */}
+      {showQaControls && (
       <div className="bg-slate-100 rounded-2xl border-2 border-slate-300 p-5 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
@@ -824,6 +839,7 @@ export default function EmployerBillingPage() {
           </button>
         </div>
       </div>
+      )}
     </div>
   )
 }
