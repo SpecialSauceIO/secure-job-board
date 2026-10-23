@@ -63,8 +63,13 @@ export async function POST(req: Request) {
           user_id: user.id,
           tier: tierInfo.tier,
         },
+        provided_details: {
+          email: profile?.contact_email || profile?.email || user.email || undefined,
+        },
         options: {
           document: {
+            allowed_types: ['driving_license', 'passport', 'id_card'],
+            require_live_capture: true,
             require_matching_selfie: true,
           },
         },
