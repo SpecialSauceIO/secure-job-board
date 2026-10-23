@@ -14,6 +14,7 @@ import {
   calculateEmployerGamification,
 } from '@/constants/gamification'
 import {
+  claimInvitedOrganizationSeatIfAny,
   setRole,
   resolveEmployerTierInfo,
 } from '@/app/dashboard/actions'
@@ -88,6 +89,8 @@ export default async function DashboardPage({
   const isReturningFromStripe = Boolean(
     resolvedParams?.verification === 'pending' || resolvedParams?.session_id
   )
+
+  await claimInvitedOrganizationSeatIfAny(user.id, user.email)
 
   let { data: profile } = await supabase
     .from('profiles')

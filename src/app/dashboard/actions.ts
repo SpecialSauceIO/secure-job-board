@@ -5103,6 +5103,81 @@ export async function saveOrganizationProfile(formData: FormData) {
   }
 }
 
+export async function claimInvitedOrganizationSeatIfAny(
+  userId?: string | null,
+  userEmail?: string | null
+): Promise<{ claimed: boolean; organizationId?: string }> {
+  const cleanEmail = (userEmail || '').trim().toLowerCase()
+  if (!userId || !cleanEmail) return { claimed: false }
+
+  const adminClient = getAdminSupabaseClient()
+  if (!adminClient) return { claimed: false }
+
+  try {
+    const { data: orgs } = await adminClient
+      .from('organizations')
+      .select('id, description')
+      .ilike('description', '%[SEATS:%')
+
+    if (!orgs || orgs.length === 0) return { claimed: false }
+
+    for (const org of orgs) {
+      const seats = parseStoredSeatsTag(org.description)
+      const matchIdx = seats.findIndex(
+        (s) => (s.email || '').trim().toLowerCase() === cleanEmail
+      )
+
+      if (matchIdx !== -1) {
+        const matchedSeat = seats[matchIdx]
+        const memberRole =
+          matchedSeat.role === 'bpo_partner' ? 'bpo_partner' : 'member'
+
+        // Ensure user is in organization_members
+        const { data: existingMember } = await adminClient
+          .from('organization_members')
+          .select('id, role')
+          .eq('organization_id', org.id)
+          .eq('user_id', userId)
+          .maybeSingle()
+
+        if (!existingMember) {
+          await adminClient.from('organization_members').insert({
+            organization_id: org.id,
+            user_id: userId,
+            role: memberRole,
+          })
+        }
+
+        // Ensure profile role is employer so they land on the Employer Dashboard
+        await adminClient
+          .from('profiles')
+          .update({ role: 'employer' })
+          .eq('id', userId)
+
+        // Flip seat status from 'invited' to 'active' if needed
+        if (matchedSeat.status !== 'active') {
+          seats[matchIdx] = { ...matchedSeat, status: 'active' }
+          const tierInfo = await resolveEmployerTierInfo(org)
+          const cleanDesc = await stripTierTag(org.description)
+          const seatsTag = encodeStoredSeatsTag(seats)
+          const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${seatsTag}`.trim()
+
+          await adminClient
+            .from('organizations')
+            .update({ description: newDescription })
+            .eq('id', org.id)
+        }
+
+        return { claimed: true, organizationId: org.id }
+      }
+    }
+  } catch (err) {
+    console.warn('[SEAT AUTO-CLAIM] Warning:', err)
+  }
+
+  return { claimed: false }
+}
+
 export async function getOrganizationSeats() {
   const supabase = await createClient()
   const {
@@ -5120,13 +5195,39 @@ export async function getOrganizationSeats() {
 
   const { data: org } = await supabase
     .from('organizations')
-    .select('description, created_at')
+    .select('description, created_at, domain')
     .eq('id', member.organization_id)
     .single()
 
+  let ownerEmail = user.email || 'owner@company.com'
+  let ownerUserId = user.id
+
+  const adminClient = getAdminSupabaseClient()
+  if (adminClient) {
+    try {
+      const { data: ownerMember } = await adminClient
+        .from('organization_members')
+        .select('user_id')
+        .eq('organization_id', member.organization_id)
+        .eq('role', 'owner')
+        .limit(1)
+        .maybeSingle()
+
+      if (ownerMember?.user_id) {
+        ownerUserId = ownerMember.user_id
+        const { data: ownerAuth } = await adminClient.auth.admin.getUserById(
+          ownerMember.user_id
+        )
+        if (ownerAuth?.user?.email) {
+          ownerEmail = ownerAuth.user.email
+        }
+      }
+    } catch {}
+  }
+
   const ownerSeat = {
-    id: `owner-${user.id}`,
-    email: user.email || 'owner@company.com',
+    id: `owner-${ownerUserId}`,
+    email: ownerEmail,
     role: 'owner' as const,
     status: 'active' as const,
     addedAt: org?.created_at || new Date().toISOString(),
@@ -5192,24 +5293,38 @@ export async function inviteOrganizationSeat(formData: FormData) {
   }
 
   let seatStatus: 'active' | 'invited' = 'invited'
-  try {
-    const { data: matchedProfile } = await supabase
-      .from('profiles')
-      .select('id')
-      .or(`email.ilike.${rawEmail},contact_email.ilike.${rawEmail}`)
-      .limit(1)
-      .maybeSingle()
+  const adminClient = getAdminSupabaseClient()
 
-    if (matchedProfile?.id) {
-      const { error: memberInsertErr } = await supabase
-        .from('organization_members')
-        .insert({
-          organization_id: member.organization_id,
-          user_id: matchedProfile.id,
-          role: seatRole === 'bpo_partner' ? 'bpo_partner' : 'member',
-        })
-      if (!memberInsertErr) {
-        seatStatus = 'active'
+  try {
+    if (adminClient) {
+      const { data: usersList } = await adminClient.auth.admin.listUsers({
+        page: 1,
+        perPage: 1000,
+      })
+      const matchedAuthUser = (usersList?.users || []).find(
+        (u) => (u.email || '').trim().toLowerCase() === rawEmail
+      )
+
+      if (matchedAuthUser?.id) {
+        await adminClient
+          .from('profiles')
+          .update({ role: 'employer' })
+          .eq('id', matchedAuthUser.id)
+
+        const { data: existingMem } = await adminClient
+          .from('organization_members')
+          .select('id')
+          .eq('organization_id', member.organization_id)
+          .eq('user_id', matchedAuthUser.id)
+          .maybeSingle()
+
+        if (!existingMem) {
+          await adminClient.from('organization_members').insert({
+            organization_id: member.organization_id,
+            user_id: matchedAuthUser.id,
+            role: seatRole === 'bpo_partner' ? 'bpo_partner' : 'member',
+          })
+        }
       }
     }
   } catch {}
@@ -5292,10 +5407,11 @@ export async function removeOrganizationSeat(
 
   const tierInfo = await resolveEmployerTierInfo(org)
   const existingInvited = parseStoredSeatsTag(org?.description)
+  const cleanTargetEmail = (seatEmail || '').trim().toLowerCase()
   const updatedInvited = existingInvited.filter(
     (s) =>
       s.id !== seatId &&
-      s.email.toLowerCase() !== (seatEmail || '').toLowerCase()
+      s.email.toLowerCase() !== cleanTargetEmail
   )
 
   const cleanDesc = await stripTierTag(org?.description)
@@ -5308,6 +5424,28 @@ export async function removeOrganizationSeat(
     .eq('id', member.organization_id)
 
   if (error) return { error: error.message }
+
+  // Also remove from organization_members via adminClient
+  const adminClient = getAdminSupabaseClient()
+  if (adminClient && cleanTargetEmail) {
+    try {
+      const { data: usersList } = await adminClient.auth.admin.listUsers({
+        page: 1,
+        perPage: 1000,
+      })
+      const matchedAuthUser = (usersList?.users || []).find(
+        (u) => (u.email || '').trim().toLowerCase() === cleanTargetEmail
+      )
+      if (matchedAuthUser?.id) {
+        await adminClient
+          .from('organization_members')
+          .delete()
+          .eq('organization_id', member.organization_id)
+          .eq('user_id', matchedAuthUser.id)
+          .neq('role', 'owner')
+      }
+    } catch {}
+  }
 
   revalidatePath('/dashboard/employer/organization')
   revalidatePath('/dashboard/employer/billing')

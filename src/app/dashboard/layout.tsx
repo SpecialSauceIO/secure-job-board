@@ -5,6 +5,7 @@ import DashboardNav from '@/components/DashboardNav'
 import {
   resolveCandidateTierInfo,
   resolveEmployerTierInfo,
+  claimInvitedOrganizationSeatIfAny,
 } from '@/app/dashboard/actions'
 
 export const dynamic = 'force-dynamic'
@@ -30,6 +31,8 @@ export default async function DashboardLayout({
     await supabaseAction.auth.signOut()
     redirect('/login')
   }
+
+  await claimInvitedOrganizationSeatIfAny(user.id, user.email)
 
   let role: 'candidate' | 'employer' | null = null
   let tierLabel = ''
