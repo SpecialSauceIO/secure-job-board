@@ -178,7 +178,7 @@ Special Sauce is a verified, double-blind technical & professional recruitment m
       },
     ],
     copyPasteText: `====================================================================
-SPECIAL SAUCE — CANDIDATE HOW-IT-WORKS & 2-STAGE VAULT CHEAT SHEET
+SPECIAL SAUCE — CANDIDATE HOW-IT-WORKS & 2-STAGE VAULT REFERENCE GUIDE
 ====================================================================
 
 1. ZERO RESUME HARVESTING (2-STAGE IDENTITY VAULT):

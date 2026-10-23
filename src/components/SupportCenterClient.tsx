@@ -1395,7 +1395,7 @@ export default function SupportCenterClient({
                 Select Playbook View
               </span>
               <p className="text-xs text-slate-600 mt-0.5">
-                View step-by-step workflows (including the 2-Stage Identity Vault &amp; 30-Day Freshness rules) or copy the plain-text cheat sheet.
+                View step-by-step workflows (including the 2-Stage Identity Vault &amp; 30-Day Freshness rules) or copy the plain-text reference guide.
               </p>
             </div>
 
