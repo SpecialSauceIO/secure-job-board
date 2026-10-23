@@ -11,7 +11,7 @@ export function syncLogoImages(isDark: boolean) {
     if (isDark) {
       if (currentSrc.includes('logo') && !currentSrc.includes('logo-dark')) {
         img.removeAttribute('srcset')
-        img.setAttribute('src', '/logo-dark.png')
+        img.setAttribute('src', '/logo.png')
       }
     } else {
       if (currentSrc.includes('logo-dark')) {
