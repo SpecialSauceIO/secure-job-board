@@ -12,6 +12,7 @@ export async function signupCandidate(formData: FormData) {
   const supabase = await createClient()
   const email = ((formData.get('email') as string) || '').trim()
   const password = formData.get('password') as string
+  const selectedPlan = ((formData.get('plan') as string) || '').trim().toLowerCase()
 
   const guard = await checkSignupAbuseAndVelocity({
     email,
@@ -55,6 +56,9 @@ export async function signupCandidate(formData: FormData) {
     latencyMs: Date.now() - startMs,
   })
 
+  if (selectedPlan === 'professional' || selectedPlan === 'prestige') {
+    redirect('/dashboard/billing?select=' + encodeURIComponent(selectedPlan))
+  }
   redirect('/dashboard')
 }
 
@@ -126,5 +130,9 @@ export async function signupEmployer(formData: FormData) {
     latencyMs: Date.now() - startMs,
   })
 
+  const empPlan = ((formData.get('plan') as string) || '').trim().toLowerCase()
+  if (empPlan === 'starter' || empPlan === 'growth' || empPlan === 'enterprise') {
+    redirect('/dashboard/employer/billing?select=' + encodeURIComponent(empPlan))
+  }
   redirect('/dashboard/employer/organization')
 }

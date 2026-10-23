@@ -8,10 +8,16 @@ import { useState, use } from 'react'
 export default function EmployerSignupPage({
   searchParams,
 }: {
-  searchParams: Promise<{ message?: string }>
+  searchParams: Promise<{ message?: string; plan?: string }>
 }) {
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const resolvedParams = use(searchParams)
+  const selectedPlan =
+    resolvedParams.plan === 'starter' ||
+    resolvedParams.plan === 'growth' ||
+    resolvedParams.plan === 'enterprise'
+      ? resolvedParams.plan
+      : ''
   const [emailError, setEmailError] = useState('')
 
   // Client-side instant firewall for free email providers
@@ -109,6 +115,7 @@ export default function EmployerSignupPage({
         )}
 
         <form action={signupEmployer} className="space-y-5">
+            <input type="hidden" name="plan" value={selectedPlan} />
           <div className="space-y-4">
             <div>
               <label

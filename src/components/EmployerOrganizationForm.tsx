@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   saveOrganizationProfile,
   verifyOrganizationDomain,
@@ -45,6 +45,20 @@ export default function EmployerOrganizationForm({
   const [isSaving, setIsSaving] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
   const [showDnsInstructions, setShowDnsInstructions] = useState(false)
+  const [showQaControls, setShowQaControls] = useState(
+    process.env.NODE_ENV === 'development'
+  )
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const isLocal =
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1'
+    if (isLocal || params.get('qa') === '1' || params.get('qa') === 'true') {
+      setShowQaControls(true)
+    }
+  }, [])
   const [feedback, setFeedback] = useState<{
     type: 'success' | 'error'
     text: string
@@ -289,7 +303,7 @@ export default function EmployerOrganizationForm({
                 : 'Verify via DNS TXT Record'}
             </button>
 
-            {verificationStatus !== 'verified' && orgId && (
+            {showQaControls && verificationStatus !== 'verified' && orgId && (
               <button
                 type="button"
                 disabled={isVerifying}

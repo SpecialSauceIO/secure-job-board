@@ -1,16 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, use } from 'react'
 import { signupCandidate } from '@/app/signup/actions'
 import Link from 'next/link'
 import Image from 'next/image'
 
-export default async function CandidateSignupPage({
+export default function CandidateSignupPage({
   searchParams,
 }: {
-  searchParams: Promise<{ message?: string }>
+  searchParams: Promise<{ message?: string; plan?: string }>
 }) {
-  const resolvedParams = await searchParams
+  const resolvedParams = use(searchParams)
+  const selectedPlan =
+    resolvedParams.plan === 'professional' || resolvedParams.plan === 'prestige'
+      ? resolvedParams.plan
+      : 'explorer'
 
   const [showPassword, setShowPassword] = useState<boolean>(false)
 
@@ -37,7 +41,11 @@ export default async function CandidateSignupPage({
             Candidate Sign Up
           </h2>
           <p className="mt-1.5 text-sm text-slate-500 font-medium">
-            Create your anonymous Explorer Vault for $0/forever. Zero resume harvesting.
+            {selectedPlan === 'prestige'
+              ? 'Create your account to activate Candidate Prestige ($15/mo).'
+              : selectedPlan === 'professional'
+                ? 'Create your account to activate Candidate Professional ($9/mo).'
+                : 'Create your anonymous Explorer Vault for $0/forever. Zero resume harvesting.'}
           </p>
         </div>
 
@@ -73,6 +81,7 @@ export default async function CandidateSignupPage({
         )}
 
         <form action={signupCandidate} className="space-y-5">
+          <input type="hidden" name="plan" value={selectedPlan} />
           <div className="space-y-4">
             <div>
               <label
@@ -156,7 +165,11 @@ export default async function CandidateSignupPage({
               type="submit"
               className="w-full flex justify-center items-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 transition-all cursor-pointer"
             >
-              Create Free Explorer Vault →
+              {selectedPlan === 'prestige'
+                ? 'Continue to Prestige ($15/mo) →'
+                : selectedPlan === 'professional'
+                  ? 'Continue to Professional ($9/mo) →'
+                  : 'Create Free Explorer Vault →'}
             </button>
           </div>
 
