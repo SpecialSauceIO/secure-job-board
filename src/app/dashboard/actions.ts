@@ -2371,10 +2371,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
         organization_id,
         organizations:organization_id (name, domain)
       ),
-      profiles (
-        full_name,
-        name
-      )
+      profiles (*)
     `
     )
     .eq('id', applicationId)
@@ -5741,7 +5738,6 @@ export async function activateSandboxEmployerTier(
     .from('organizations')
     .update({
       subscription_tier: targetTier,
-      max_active_jobs: chosen.maxActiveJobs,
     })
     .eq('id', member.organization_id)
 
@@ -6236,13 +6232,7 @@ export async function releaseCandidateVaultAndSyncAts(applicationId: string) {
         organization_id,
         organizations:organization_id (name, domain)
       ),
-      profiles:candidate_id (
-        full_name,
-        name,
-        email,
-        contact_email,
-        resume_url
-      )
+      profiles:candidate_id (*)
     `
     )
     .eq('id', applicationId)
