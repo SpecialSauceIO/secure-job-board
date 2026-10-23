@@ -230,7 +230,7 @@ export default function CandidateApplicationsPage() {
             No blind applications match your current filter
           </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Run a free 5-Point AI Fit check on open roles and submit a blind application (+150 Profile XP) whenever you score 40%+.
+            Run a free 5-Point AI Fit check on open roles and submit a blind application (+150 Profile XP) whenever you score 70%+.
           </p>
           <Link
             href="/dashboard/jobs"
@@ -483,7 +483,7 @@ export default function CandidateApplicationsPage() {
                     <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">
                       {app.match_data?.brief_analysis ||
                         app.employer_pitch ||
-                        'Submitted with verified 40%+ AI skill match.'}
+                        'Submitted with verified 70%+ AI Fit match.'}
                     </p>
                   </div>
 

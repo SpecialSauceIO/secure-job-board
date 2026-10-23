@@ -313,15 +313,15 @@ export default function EmployerBillingPage() {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-2 max-w-3xl">
               <div className="text-xs font-extrabold uppercase tracking-wider text-amber-300">
-                ★ 30-Day Founding Partner Rewards ($99 Value — $0 for 30 Days)
+                ★ 12-Month Employer Founding Partner Rate Lock (Up to 50% Off Retail)
               </div>
               <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-                Verify Your Corporate Domain to Unlock Your 30-Day Founding Starter Rewards
+                Verify Your Corporate Domain to Lock In 12-Month Founding Partner Rates
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                 Organizations that verify their corporate domain during our Founding Member Launch automatically receive{' '}
                 <strong className="text-white">
-                  30 days of Starter Tier access ($0)
+                  12-Month Founding Partner Pricing ($149 / $499 / $1,250 per month)
                 </strong>{' '}
                 including{' '}
                 <strong className="text-amber-300">
@@ -645,7 +645,7 @@ export default function EmployerBillingPage() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Boost Pack: +10 Credits ($49) */}
+          {/* Boost Pack: +10 Credits ($150) */}
           <div className="rounded-2xl border-2 border-slate-300 bg-slate-50/50 p-6 flex flex-col justify-between space-y-5">
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
@@ -679,7 +679,7 @@ export default function EmployerBillingPage() {
             </button>
           </div>
 
-          {/* Surge Pack: +25 Credits ($99) */}
+          {/* Surge Pack: +25 Credits ($325) */}
           <div className="rounded-2xl border-2 border-indigo-500 bg-white p-6 flex flex-col justify-between space-y-5 shadow-sm relative">
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
@@ -713,7 +713,7 @@ export default function EmployerBillingPage() {
             </button>
           </div>
 
-          {/* Scale Pack: +75 Credits ($249) */}
+          {/* Scale Pack: +75 Credits ($825) */}
           <div className="rounded-2xl border-2 border-slate-300 bg-slate-50/50 p-6 flex flex-col justify-between space-y-5">
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">

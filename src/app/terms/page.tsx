@@ -77,7 +77,7 @@ export default function TermsOfServicePage() {
                 <strong>30-Day Automatic Role Expiration:</strong> Every active job listing automatically expires <strong>thirty (30) days</strong> after creation unless manually renewed by the Employer for a fresh 30-day cycle. Roles may only remain active while a genuine hiring need exists.
               </li>
               <li>
-                <strong>40%+ AI Match &amp; Dealbreaker Firewall:</strong> Outbound Candidate applications and outbound Employer pitches require a minimum <strong>40% 5-Point AI Match Score</strong>. Employers are automatically blocked from pitching Candidates whose minimum annual salary expectation, preferred work model, or accepted employment types (W-2, 1099/Corp-to-Corp, Contract-to-Hire, Part-Time) conflict with the role.
+                <strong>70%+ AI Fit &amp; Dealbreaker Firewall:</strong> Outbound Candidate blind applications and outbound Employer pitches are governed by our <strong>5-Point AI Fit Radar</strong> (70%+ AI Fit threshold for outbound blind applications). Employers are automatically blocked from pitching Candidates whose minimum annual salary expectation, preferred work model, or accepted employment types (W-2, 1099/Corp-to-Corp, Contract-to-Hire, Part-Time) conflict with the role.
               </li>
             </ul>
           </section>
@@ -118,44 +118,35 @@ export default function TermsOfServicePage() {
             <p className="text-slate-700 leading-relaxed mt-3">
               We reserve the right, at our sole discretion and without prior notice, to throttle, suspend, or permanently terminate any account that exhibits behavior consistent with resume harvesting, phishing, prompt injection, or Acceptable Use violations.{' '}
               <strong>
-                In the event of account termination due to a violation of these Terms, you forfeit any right to a refund for active subscriptions, unused Connection Credits, or Candidate Pro Passes.
+                In the event of account termination due to a violation of these Terms, you forfeit any right to a refund for active subscriptions, unused Pitch Credits, Rollover Top-Up Packs, or Candidate Professional/Prestige memberships.
               </strong>
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl">
-              7. Subscriptions, Connection Credits, Team Seats &amp; Billing
-            </h2>
-            <div className="text-slate-600 leading-relaxed mt-2 space-y-3">
+              <h2 className="text-xl">
+                7. Subscriptions, Pitch Credits, Team Seats &amp; Billing
+              </h2>
+              <div className="text-slate-600 leading-relaxed mt-2 space-y-3">
                 <p>
                   All paid subscription tiers and on-demand add-on packs are billed in U.S. Dollars via Stripe Checkout. Recurring monthly plans renew automatically unless canceled or downgraded prior to the next billing cycle:
                 </p>
                 <ul className="list-disc pl-5 space-y-1.5">
                   <li>
-                    <strong className="text-slate-800">Candidate Plans:</strong> Explorer Vault ($0/mo — includes 4 lifetime blind applications), Professional (<h2 className="text-xl">
-              7. Subscriptions, Connection Credits, Team Seats &amp; Billing
-            </h2>
-            0/mo — 30 blind applications per monthly cycle), and Prestige (<h2 className="text-xl">
-              7. Subscriptions, Connection Credits, Team Seats &amp; Billing
-            </h2>
-            9/mo — 75 blind applications per monthly cycle plus Founding Member status; Prestige subscribers may switch or downgrade to the Professional plan at any time).
+                    <strong className="text-slate-800">Candidate Plans:</strong> Explorer Career Vault ($0/forever — anonymous talent profile, unlimited 5-Point AI Fit Radar checks, and real-time inbound employer pitch alerts), Professional ($9/mo — includes 1-time Stripe Biometric ID Verification, unlimited inbound employer pitch unlocks, and 15 outbound blind applications per monthly cycle at 70%+ AI Fit), and Prestige ($15/mo — includes 1-time Stripe Biometric ID Verification, unlimited outbound blind applications at 70%+ AI Fit, unlimited pitch unlocks, and Top-Priority Spotlight placement in Employer Talent Search; subscribers may switch or downgrade anytime).
                   </li>
                   <li>
-                    <strong className="text-slate-800">Employer Subscription Plans:</strong> Free Preview ($0/mo — Corporate Domain Verification and passive talent search preview), Starter ($149/mo Founding ($299 Retail) — up to 2 active roles, 15 monthly Pitch Credits, 1 seat), Growth ($499/mo Founding ($799 Retail) — up to 10 active roles, 75 monthly Pitch Credits, up to 3 seats), and Enterprise ($1,250/mo Founding ($1,999 Retail) — unlimited active roles, 250 monthly Pitch Credits, up to 10 seats).
+                    <strong className="text-slate-800">Employer Subscription Plans (12-Month Founding Partner Rate Lock):</strong> Free Explorer ($0/mo — Corporate Domain Verification and passive talent search preview), Starter ($149/mo Founding Rate locked for 12 months, $299/mo Retail thereafter — up to 5 simultaneous active roles, 10 monthly Pitch Credits, 2 Team/BPO collaborator seats), Growth ($499/mo Founding Rate locked for 12 months, $799/mo Retail thereafter — up to 15 simultaneous active roles, 35 monthly Pitch Credits, up to 5 Team/BPO seats), and Enterprise ($1,250/mo Founding Rate locked for 12 months, $1,999/mo Retail thereafter — unlimited simultaneous active roles, 120 monthly Pitch Credits, unlimited Team &amp; W-2 BPO/RPO seats, plus Workday &amp; Greenhouse ATS/Webhook Hub).
                   </li>
                   <li>
-                    <strong className="text-slate-800">On-Demand Pitch Credit Top-Ups &amp; Role Slot Add-Ons:</strong> Subscribed Employers may purchase non-expiring Pitch Credit Top-Up Packs (10 Credits for $75, 25 Credits for <h2 className="text-xl">
-              7. Subscriptions, Connection Credits, Team Seats &amp; Billing
-            </h2>
-            50, or 100 Credits for $500) and Extra Active Job Slot Packs (+1 Active Job Slot for $39 one-time).
+                    <strong className="text-slate-800">Two-Bucket Rollover Pitch Credit Top-Up Packs:</strong> Active Starter, Growth, and Enterprise subscribers may purchase non-expiring Rollover Pitch Credit Top-Up Packs: Boost Pack (+10 Credits for $150), Surge Pack (+25 Credits for $325), or Scale Pack (+75 Credits for $825). Monthly plan credits (Bucket 1) are always depleted first, and Rollover Top-Up credits (Bucket 2) never expire as long as the base subscription remains active.
                   </li>
                   <li>
-                    <strong className="text-slate-800">Credit Integrity &amp; Finalized Decisions:</strong> Inbound Candidate applications are free for Employers to review and unlock in Stage 1. Outbound Employer pitches deduct one (1) Pitch Credit per pitch. Duplicate pitches or repeat applications for the same role are automatically blocked, and archived or declined decisions become permanent once the 10-second inline Undo grace window completes. All payments and top-up packs are non-refundable except as required by applicable law.
+                    <strong className="text-slate-800">100% Accepted-Only Credit Protection &amp; Finalized Decisions:</strong> Inbound Candidate applications are 100% free (0 credits) for subscribed Employers to review and unlock in Stage 1. Outbound Employer pitches deduct one (1) Pitch Credit per pitch; if a Candidate declines an outbound pitch, the credit is automatically refunded to the exact bucket it was drawn from. All subscription payments and top-up packs are non-refundable except as required by applicable law.
                   </li>
                 </ul>
               </div>
-          </section>
+            </section>
 
           <section>
             <h2 className="text-xl">8. Artificial Intelligence Disclaimer</h2>

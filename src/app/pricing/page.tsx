@@ -17,10 +17,10 @@ export default function PricingMatrixPage() {
         {/* Hero Header */}
         <section className="py-14 md:py-20 px-6 md:px-12 max-w-5xl mx-auto text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs font-extrabold uppercase tracking-wide">
-            <span>★ Founding Launch Window • Free Candidate Explorer Vault &amp; Charter Employer Rates</span>
+            <span>★ Founding Launch Window • Free Candidate Explorer Vault &amp; Founding Partner Rates</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
-            Transparent Plans &amp; Verified Signal
+            Transparent Plans &amp; Verified Signals
           </h1>
           <p className="text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
             Candidates build their anonymous career vault on <strong className="text-slate-900">Explorer for $0 forever</strong> and only upgrade + verify identity when ready to apply or accept a pitch. Employers lock in <strong className="text-slate-900">Founding Partner Launch Rates</strong> backed by 100% Accepted-Only Credit Protection.
