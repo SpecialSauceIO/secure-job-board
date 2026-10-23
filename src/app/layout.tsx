@@ -15,25 +15,31 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.specialsauce.io"),
   title: {
-    template: '%s | Special Sauce',
-    default: 'Special Sauce | Hire for Talent, Not Background',
+    template: "%s | Special Sauce",
+    default: "Special Sauce | Hire for Talent, Not Background",
   },
-  description: 'The AI-driven blind hiring platform that strips away bias and focuses purely on verified skills and experience.',
+  description:
+    "The double-blind, ID-verified hiring platform that strips away bias and connects verified employers and professionals based purely on skills and experience.",
+  applicationName: "Special Sauce",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: 'Special Sauce | Hire for Talent, Not Background',
-    description: 'Bypass the resume black hole. Apply anonymously and let your true capabilities unlock top-tier roles.',
-    url: 'https://specialsauce.io',
-    siteName: 'Special Sauce',
-    images: [
-      {
-        url: 'https://specialsauce.io/og-image.jpg',
-        width: 1200,
-        height: 630,
-      },
-    ],
-    locale: 'en_US',
-    type: 'website',
+    title: "Special Sauce | Hire for Talent, Not Background",
+    description:
+      "Bypass the resume black hole. Connect through double-blind AI skill matching and candidate-controlled identity vault release.",
+    url: "https://www.specialsauce.io",
+    siteName: "Special Sauce",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Special Sauce | Hire for Talent, Not Background",
+    description:
+      "Double-blind, Stripe ID-verified hiring. Match on verified skills first—unlock identity only by mutual consent.",
   },
 };
 
