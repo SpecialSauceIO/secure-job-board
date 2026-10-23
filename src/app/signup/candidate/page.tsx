@@ -1,6 +1,8 @@
 'use client'
 
-import { useState, use } from 'react'
+import { useState, useEffect, use } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 import { signupCandidate } from '@/app/signup/actions'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -16,7 +18,21 @@ export default function CandidateSignupPage({
       ? resolvedParams.plan
       : 'explorer'
 
+  const router = useRouter()
   const [showPassword, setShowPassword] = useState<boolean>(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) {
+        if (selectedPlan === 'professional' || selectedPlan === 'prestige') {
+          router.replace(`/dashboard/billing?select=${selectedPlan}`)
+        } else {
+          router.replace('/dashboard')
+        }
+      }
+    })
+  }, [router, selectedPlan])
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4 sm:p-8">
@@ -202,7 +218,11 @@ export default function CandidateSignupPage({
           </Link>
         </p>
         <Link
-          href="/signup"
+          href={
+            selectedPlan === 'professional' || selectedPlan === 'prestige'
+              ? `/signup?plan=${selectedPlan}`
+              : '/signup'
+          }
           className="text-slate-500 hover:text-slate-900 font-bold text-sm transition-colors block"
         >
           &larr; Back to account selection

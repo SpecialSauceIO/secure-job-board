@@ -3,14 +3,15 @@
 import { signupEmployer } from '@/app/signup/actions'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState, use } from 'react'
+import { useState, useEffect, use } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 
 export default function EmployerSignupPage({
   searchParams,
 }: {
   searchParams: Promise<{ message?: string; plan?: string }>
 }) {
-  const [showPassword, setShowPassword] = useState<boolean>(false)
   const resolvedParams = use(searchParams)
   const selectedPlan =
     resolvedParams.plan === 'starter' ||
@@ -18,6 +19,21 @@ export default function EmployerSignupPage({
     resolvedParams.plan === 'enterprise'
       ? resolvedParams.plan
       : ''
+  const router = useRouter()
+  const [showPassword, setShowPassword] = useState<boolean>(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) {
+        if (selectedPlan) {
+          router.replace(`/dashboard/employer/billing?select=${selectedPlan}`)
+        } else {
+          router.replace('/dashboard')
+        }
+      }
+    })
+  }, [router, selectedPlan])
   const [emailError, setEmailError] = useState('')
 
   // Client-side instant firewall for free email providers

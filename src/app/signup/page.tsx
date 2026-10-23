@@ -1,6 +1,44 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { createClient } from '@/utils/supabase/server'
 
-export default function SignupSelectionPage() {
+export default async function SignupSelectionPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ plan?: string }>
+}) {
+  const resolvedParams = await searchParams
+  const rawPlan = (resolvedParams?.plan || '').trim().toLowerCase()
+  const isCandidatePlan = rawPlan === 'professional' || rawPlan === 'prestige'
+  const isEmployerPlan =
+    rawPlan === 'starter' || rawPlan === 'growth' || rawPlan === 'enterprise'
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (user) {
+    if (isCandidatePlan) {
+      redirect('/dashboard/billing?select=' + encodeURIComponent(rawPlan))
+    }
+    if (isEmployerPlan) {
+      redirect('/dashboard/employer/billing?select=' + encodeURIComponent(rawPlan))
+    }
+    redirect('/dashboard')
+  }
+
+  const candidateHref = isCandidatePlan
+    ? `/signup/candidate?plan=${encodeURIComponent(rawPlan)}`
+    : '/signup/candidate'
+  const employerHref = isEmployerPlan
+    ? `/signup/employer?plan=${encodeURIComponent(rawPlan)}`
+    : '/signup/employer'
+  const loginHref =
+    isCandidatePlan || isEmployerPlan
+      ? `/login?plan=${encodeURIComponent(rawPlan)}`
+      : '/login'
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
       <div className="mb-8 flex justify-center">
@@ -21,7 +59,7 @@ export default function SignupSelectionPage() {
 
         <div className="p-10 bg-white grid grid-cols-1 md:grid-cols-2 gap-6">
           <Link
-            href="/signup/candidate"
+            href={candidateHref}
             className="group relative p-8 border-2 border-slate-300 rounded-2xl hover:border-indigo-600 hover:bg-indigo-50 transition-all text-left shadow-sm hover:shadow-md block"
           >
             <div className="flex items-center justify-between mb-5">
@@ -42,7 +80,7 @@ export default function SignupSelectionPage() {
           </Link>
 
           <Link
-            href="/signup/employer"
+            href={employerHref}
             className="group relative p-8 border-2 border-slate-300 rounded-2xl hover:border-emerald-600 hover:bg-emerald-50 transition-all text-left shadow-sm hover:shadow-md block"
           >
             <div className="flex items-center justify-between mb-5">
@@ -65,7 +103,7 @@ export default function SignupSelectionPage() {
       </div>
 
       <div className="mt-8 text-center">
-        <Link href="/login" className="text-slate-500 hover:text-slate-900 font-bold text-sm transition-colors">
+        <Link href={loginHref} className="text-slate-500 hover:text-slate-900 font-bold text-sm transition-colors">
           Already have an account? Sign In
         </Link>
       </div>
