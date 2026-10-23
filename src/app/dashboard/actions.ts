@@ -1021,7 +1021,7 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
           groq.chat.completions.create({
             model: gModel,
             temperature: 0.1,
-            max_tokens: 700,
+            max_tokens: 900,
             response_format: { type: "json_object" },
             messages: [
               { role: "system", content: "You are an expert technical recruiter and document parser. Output strictly valid JSON matching the requested schema." },
@@ -3509,7 +3509,7 @@ async function analyzeMatchRouter(
           ],
           model: "openai/gpt-oss-120b",
           temperature: 0.1,
-          max_tokens: 450,
+          max_tokens: 900,
           response_format: { type: 'json_object' },
         }),
         6000,
@@ -3539,7 +3539,7 @@ async function analyzeMatchRouter(
           ],
           model: "openai/gpt-oss-20b",
           temperature: 0.1,
-          max_tokens: 450,
+          max_tokens: 900,
           response_format: { type: 'json_object' },
         }),
         5000,
