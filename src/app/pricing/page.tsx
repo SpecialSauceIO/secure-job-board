@@ -160,11 +160,11 @@ export default function PricingMatrixPage() {
                   </ul>
                 </div>
                 <Link
-                  href="/signup/candidate"
-                  className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl text-center transition-colors shadow-sm"
-                >
-                  Choose Professional ($9/mo) →
-                </Link>
+                      href="/signup/candidate?plan=professional"
+                      className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl text-center transition-colors shadow-sm"
+                    >
+                      Choose Professional ($9/mo) →
+                    </Link>
               </div>
 
               {/* Tier 3: Prestige ($15/mo) */}
@@ -216,11 +216,11 @@ export default function PricingMatrixPage() {
                   </ul>
                 </div>
                 <Link
-                  href="/signup/candidate"
-                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm"
-                >
-                  Choose Prestige ($15/mo) →
-                </Link>
+                      href="/signup/candidate?plan=prestige"
+                      className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm"
+                    >
+                      Choose Prestige (w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm5/mo) →
+                    </Link>
               </div>
             </div>
           </div>
@@ -312,11 +312,11 @@ export default function PricingMatrixPage() {
                   </ul>
                 </div>
                 <Link
-                  href="/signup/employer"
-                  className="w-full py-3 bg-slate-900 hover:bg-indigo-600 text-white font-extrabold text-xs rounded-xl text-center transition-colors shadow-sm"
-                >
-                  Get Started with Starter ($149/mo) →
-                </Link>
+                      href="/signup/employer?plan=starter"
+                      className="w-full py-3 bg-slate-900 hover:bg-indigo-600 text-white font-extrabold text-xs rounded-xl text-center transition-colors shadow-sm"
+                    >
+                      Get Started with Starter (w-full py-3 bg-slate-900 hover:bg-indigo-600 text-white font-extrabold text-xs rounded-xl text-center transition-colors shadow-sm49/mo) →
+                    </Link>
               </div>
 
               {/* Employer Tier 2: Growth ($499 Founding / $799 Retail) */}
@@ -377,11 +377,11 @@ export default function PricingMatrixPage() {
                   </ul>
                 </div>
                 <Link
-                  href="/signup/employer"
-                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm"
-                >
-                  Get Started with Growth ($499/mo) →
-                </Link>
+                      href="/signup/employer?plan=growth"
+                      className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm"
+                    >
+                      Get Started with Growth ($499/mo) →
+                    </Link>
               </div>
 
               {/* Employer Tier 3: Enterprise ($1,250 Founding / $1,999 Retail) */}
@@ -442,11 +442,11 @@ export default function PricingMatrixPage() {
                   </ul>
                 </div>
                 <Link
-                  href="/signup/employer"
-                  className="w-full py-3 bg-slate-900 hover:bg-indigo-600 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm"
-                >
-                  Get Started with Enterprise ($1,250/mo) →
-                </Link>
+                      href="/signup/employer?plan=enterprise"
+                      className="w-full py-3 bg-slate-900 hover:bg-indigo-600 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm"
+                    >
+                      Get Started with Enterprise (w-full py-3 bg-slate-900 hover:bg-indigo-600 text-white font-black text-xs rounded-xl text-center transition-colors shadow-sm,250/mo) →
+                    </Link>
               </div>
             </div>
 

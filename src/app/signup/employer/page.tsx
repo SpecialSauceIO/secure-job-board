@@ -214,7 +214,13 @@ export default function EmployerSignupPage({
                   : 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-600 cursor-pointer'
               }`}
             >
-              Create Employer Account →
+              {selectedPlan === 'enterprise'
+                  ? 'Continue to Enterprise ($1,250/mo) →'
+                  : selectedPlan === 'growth'
+                    ? 'Continue to Growth ($499/mo) →'
+                    : selectedPlan === 'starter'
+                      ? 'Continue to Starter ($149/mo) →'
+                      : 'Create Employer Account →'}
             </button>
           </div>
 
