@@ -142,6 +142,7 @@ export async function GET(req: NextRequest) {
       const chat = await groq.chat.completions.create({
         model: targetModel,
         temperature: 0.1,
+          max_tokens: 900,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: "Return strictly JSON: {\"overall_score\": number, \"radar_data\": [{\"subject\": \"Core Competencies\", \"score\": number}, {\"subject\": \"Skill Tenure\", \"score\": number}, {\"subject\": \"Logistics & Pay\", \"score\": number}, {\"subject\": \"Industry & Creds\", \"score\": number}, {\"subject\": \"Execution & Comm.\", \"score\": number}], \"brief_analysis\": string}" },
