@@ -165,18 +165,16 @@ export default async function DashboardPage({
         stripeIdentityReturnState = 'verified'
         await supabase
           .from('profiles')
-          .update({ identity_verified: true })
-          .eq('id', user.id)
-
-        await supabase
-          .from('profiles')
-          .update({ verification_status: 'verified' })
+          .update({
+            identity_verified: true,
+            is_verified: true,
+          })
           .eq('id', user.id)
 
         profile = {
           ...profile,
           identity_verified: true,
-          verification_status: 'verified',
+          is_verified: true,
         }
       } else {
         stripeIdentityReturnState = 'processing'

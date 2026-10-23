@@ -351,7 +351,7 @@ export async function POST(req: Request) {
         .from('profiles')
         .update({
           identity_verified: true,
-          verification_status: 'verified',
+          is_verified: true,
         })
         .eq('id', userId)
 
