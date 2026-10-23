@@ -31,7 +31,7 @@ export default async function SupportPage({
   const [{ data: profile }, initialTickets] = await Promise.all([
     supabase
       .from('profiles')
-      .select('role, full_name, identity_verified, is_verified, verification_status')
+      .select('*')
       .eq('id', user.id)
       .single(),
     getUserOpsTickets(user.id, user.email),

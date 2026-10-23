@@ -283,13 +283,12 @@ export async function autoSyncStage2VaultToEnterpriseAts(
         profiles:candidate_id (
           id,
           full_name,
-          email,
           experience_years,
           location,
           skills,
           resume_url,
           identity_verified,
-          verification_status
+          is_verified
         )
       `
       )

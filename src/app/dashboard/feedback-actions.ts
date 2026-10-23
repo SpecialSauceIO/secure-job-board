@@ -48,7 +48,7 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
   const [{ data: profile }, existingTickets] = await Promise.all([
     supabase
       .from('profiles')
-      .select('role, identity_verified, is_verified, verification_status')
+      .select('*')
       .eq('id', user.id)
       .maybeSingle(),
     getUserOpsTickets(user.id, user.email),

@@ -1126,12 +1126,10 @@ export async function forceVerifyCandidateIdentity() {
 
   await supabase
     .from('profiles')
-    .update({ is_verified: true })
-    .eq('id', user.id)
-
-  await supabase
-    .from('profiles')
-    .update({ verification_status: 'verified' })
+    .update({
+      identity_verified: true,
+      is_verified: true,
+    })
     .eq('id', user.id)
 
   revalidatePath('/dashboard')
@@ -5935,7 +5933,7 @@ export async function submitSupportTicket(formData: FormData) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role, full_name, name, email, contact_email, identity_verified, is_verified, verification_status')
+    .select('*')
     .eq('id', user.id)
     .single()
 

@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     const [{ data: profile }, tierInfo] = await Promise.all([
       supabase
         .from('profiles')
-        .select('identity_verified, verification_status, email, contact_email')
+        .select('*')
         .eq('id', user.id)
         .single(),
       resolveCandidateTierInfo(user.id),

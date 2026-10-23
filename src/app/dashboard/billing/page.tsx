@@ -56,7 +56,7 @@ export default function CandidateBillingPage() {
     const [{ data: profile }, info] = await Promise.all([
       supabase
         .from('profiles')
-        .select('identity_verified, is_verified, verification_status')
+        .select('*')
         .eq('id', user.id)
         .single(),
       resolveCandidateTierInfo(user.id),
