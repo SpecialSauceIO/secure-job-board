@@ -413,7 +413,7 @@ export default function LandingPage() {
               </div>
 
               {/* Candidate Feature 3 */}
-              <div className="p-8 rounded-2xl bg-slate-900 border border-slate-800 relative overflow-hidden group">
+              <div className="p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group border-slate-300">
                 <div className="absolute inset-0 opacity-15 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400 via-slate-900 to-slate-900 pointer-events-none"></div>
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-slate-800 rounded-xl border border-slate-700 flex items-center justify-center mb-6 text-emerald-400 group-hover:scale-110 transition-transform">
@@ -506,7 +506,7 @@ export default function LandingPage() {
               </div>
 
               {/* Employer Feature 3 */}
-              <div className="p-8 rounded-2xl bg-slate-900 border border-slate-800 relative overflow-hidden group">
+              <div className="p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group border-slate-300">
                 <div className="absolute inset-0 opacity-15 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-400 via-slate-900 to-slate-900 pointer-events-none"></div>
                 <div className="relative z-10">
                   <div className="w-12 h-12 bg-slate-800 rounded-xl border border-slate-700 flex items-center justify-center mb-6 text-indigo-400 group-hover:scale-110 transition-transform">
@@ -524,11 +524,11 @@ export default function LandingPage() {
                       ></path>
                     </svg>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">
+                  <h3 className="text-xl font-bold text-slate-900 mb-3">
                     3. Direct Messaging &amp; Team Collaboration
                   </h3>
-                  <p className="text-slate-400 leading-relaxed">
-                    Reviewing and messaging candidates who apply to your jobs is 100% free. Start a direct conversation to confirm mutual interest, invite team members or BPO partners to collaborate, and download the candidate’s resume once released.
+                  <p className="text-slate-500 leading-relaxed">
+                    Reviewing and messaging candidates who apply to your jobs is 100% free. Start a direct conversation to confirm mutual interest, invite team members or recruiting partners to collaborate, and download the candidate’s resume once released.
                   </p>
                 </div>
               </div>
@@ -653,7 +653,7 @@ export default function LandingPage() {
                   Curious how our security, identity verification, and matching work under the hood?
                 </h4>
                 <p className="text-sm text-slate-500 mt-1">
-                  Read our plain-English and technical documentation covering Stripe Identity verification, 2-Stage Resume Vaulting, and our anti-harvesting protections.
+                  Read our plain-English and technical documentation covering Stripe Identity verification, Step-by-Step Resume Protection, and our anti-harvesting protections.
                 </p>
               </div>
             </div>
