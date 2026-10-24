@@ -108,12 +108,12 @@ export default function LandingPage() {
               </span>
               <br />
               <span className="sm:whitespace-nowrap">
-                100% ID-Verified. Protected Credits.
+                100% ID-Verified. Protected Pitch Credits.
               </span>
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
               Join during our launch window to unlock{' '}
-              <strong className="text-slate-700">$3/mo ID-Verified Explorer Career Vaults</strong> for candidates, <strong className="text-slate-700">12-Month Founding Partner Rate Locks</strong> for employers, and <strong className="text-slate-700">100% Accepted-Only Credit Protection</strong>.
+              <strong className="text-slate-700">$3/mo ID-Verified Explorer Career Vaults</strong> for candidates, <strong className="text-slate-700">12-Month Founding Partner Rate Locks</strong> for employers, and <strong className="text-slate-700">100% Accepted-Only Pitch Credit Protection</strong>.
             </p>
           </div>
 

@@ -2574,7 +2574,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
           `Anonymous Candidate #${String(user.id).slice(0, 6)} respectfully declined your connection pitch for "${declineRoleTitle}".`,
           `Candidate Feedback Reason: "${chosenDeclineReason}"`,
           refundedCreditNow
-            ? `✓ Accepted-Only Credit Protection: +1 Pitch Credit has been automatically refunded to your organization (${bucketToRestore === "rollover" ? "Rollover Top-Up Bucket" : "Monthly Plan Bucket"}). Current Balance: ${updatedEmployerCredits} Credits.`
+            ? `✓ Accepted-Only Pitch Credit Protection: +1 Pitch Credit has been automatically refunded to your organization (${bucketToRestore === "rollover" ? "Rollover Top-Up Bucket" : "Monthly Plan Bucket"}). Current Balance: ${updatedEmployerCredits} Credits.`
             : `Connection Reference ID: ${referenceId}`,
           'Because the candidate declined before opening a private chat, their identity remains vaulted.',
         ],

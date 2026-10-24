@@ -108,7 +108,7 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
       },
       {
         step: 'Step 4',
-        title: 'Stage 1 Unlock & 100% Accepted-Only Credit Protection',
+        title: 'Stage 1 Unlock & 100% Accepted-Only Pitch Credit Protection',
         description:
           'Unlocking inbound applicants (40%+ AI Fit) is 100% free (0 credits). Pitching passive candidates from your search or Shortlist uses 1 Pitch Credit backed by our 100% Accepted-Only Guarantee—if a candidate declines your pitch, the credit is automatically refunded to the exact bucket it came from. Stage 1 opens a real-time encrypted message thread and reveals the candidate’s First Name + Last Initial.',
       },
@@ -130,7 +130,7 @@ Special Sauce is a verified, identity-protected technical & professional recruit
 - Step 1 — Domain Verification & 12-Month Rate Lock: Verify our corporate domain to lock in 12-Month Founding Partner Rates, search the anonymous talent pool, filter by employment type (W-2, 1099/C2C, Contract-to-Hire), and bookmark candidates into our Shortlist.
 - Step 2 — Shared Team & BPO Partner Seats: Collaborators (Hiring Managers & authorized external recruiters) share our organization's active role slots and Two-Bucket pitch credit pool.
 - Step 3 — Publishing Protected Roles (30-Day Auto-Expiry): Every role displays transparent pay ($/yr or $/hr), standardized US State & Metro location, and employment type while keeping our company name protected. Roles auto-expire after 30 days to guarantee freshness and can be renewed in 1 click.
-- Step 4 — Stage 1 Unlock & Accepted-Only Credit Protection: Inbound applications (40%+ AI Fit) are 100% FREE to unlock; outbound pitches to passive talent use 1 Pitch Credit and are auto-refunded if declined. Stage 1 opens a live encrypted chat thread (Ref: SS-XXXXXXXX) and reveals the candidate's First Name + Last Initial.
+- Step 4 — Stage 1 Unlock & Accepted-Only Pitch Credit Protection: Inbound applications (40%+ AI Fit) are 100% FREE to unlock; outbound pitches to passive talent use 1 Pitch Credit and are auto-refunded if declined. Stage 1 opens a live encrypted chat thread (Ref: SS-XXXXXXXX) and reveals the candidate's First Name + Last Initial.
 - Step 5 — Stage 2 Unlock (Full Resume & Email Release): Once we message the candidate in the thread, they click "Release Resume & Contact Vault" to unlock their Full Name, direct email, and downloadable PDF resume.
 
 3. EMPLOYER PLANS (12-MONTH FOUNDING PARTNER RATE LOCK) & TOP-UPS:

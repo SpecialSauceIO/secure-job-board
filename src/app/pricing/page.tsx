@@ -23,7 +23,7 @@ export default function PricingMatrixPage() {
             Transparent Plans &amp; Verified Signals
           </h1>
           <p className="text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
-            Every candidate on Special Sauce is <strong className="text-slate-900">Real-Person ID-Verified</strong>—starting at <strong className="text-slate-900">$3/mo on Explorer</strong> for passive inbound pitches, or <strong className="text-slate-900">$9/mo &amp; $15/mo</strong> to proactively apply to roles. Employers lock in <strong className="text-slate-900">Founding Partner Launch Rates</strong> backed by 100% Accepted-Only Credit Protection.
+            Every candidate on Special Sauce is <strong className="text-slate-900">Real-Person ID-Verified</strong>—starting at <strong className="text-slate-900">$3/mo on Explorer</strong> for passive inbound pitches, or <strong className="text-slate-900">$9/mo &amp; $15/mo</strong> to proactively apply to roles. Employers lock in <strong className="text-slate-900">Founding Partner Launch Rates</strong> backed by 100% Accepted-Only Pitch Credit Protection.
           </p>
         </section>
 
@@ -290,7 +290,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-emerald-700 font-bold">
                       <span>🛡️</span>
-                      <span><strong>100% Accepted-Only Credit Protection</strong> (Declined pitches auto-refunded)</span>
+                      <span><strong>100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches auto-refunded)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
@@ -355,7 +355,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-emerald-300 font-bold">
                       <span>🛡️</span>
-                      <span><strong>100% Accepted-Only Credit Protection</strong> (Declined pitches auto-refunded)</span>
+                      <span><strong>100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches auto-refunded)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>
@@ -420,7 +420,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-emerald-700 font-bold">
                       <span>🛡️</span>
-                      <span><strong>100% Accepted-Only Credit Protection</strong> (Declined pitches auto-refunded)</span>
+                      <span><strong>100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches auto-refunded)</span>
                     </li>
                     <li className="flex items-start gap-2 text-indigo-700 font-bold">
                       <span>⚡</span>

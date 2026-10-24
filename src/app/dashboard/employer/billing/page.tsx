@@ -506,7 +506,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>10 Monthly Plan Pitch Credits / month</strong>
               </li>
               <li className="text-emerald-700 font-bold">
-                🛡️ <strong>100% Accepted-Only Credit Protection</strong> (Declined pitches auto-refunded)
+                🛡️ <strong>100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches auto-refunded)
               </li>
               <li>
                 ✓ <strong>2 Team or Recruiter Seats</strong>
@@ -580,7 +580,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>35 Monthly Plan Pitch Credits / month</strong>
               </li>
               <li className="text-emerald-300 font-bold">
-                🛡️ <strong>100% Accepted-Only Credit Protection</strong> (Declined pitches auto-refunded)
+                🛡️ <strong>100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches auto-refunded)
               </li>
               <li>
                 ✓ <strong>Up to 5 Team &amp; External Recruiter Seats</strong>
@@ -656,7 +656,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>120 Monthly Plan Pitch Credits / month</strong>
               </li>
               <li className="text-emerald-700 font-bold">
-                🛡️ <strong>100% Accepted-Only Credit Protection</strong> (Declined pitches auto-refunded)
+                🛡️ <strong>100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches auto-refunded)
               </li>
               <li>
                 ✓ <strong>Unlimited Team &amp; External Recruiter Seats</strong>

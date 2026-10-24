@@ -143,7 +143,7 @@ export default function TermsOfServicePage() {
                     <strong className="text-slate-800">Two-Bucket Rollover Pitch Credit Top-Up Packs:</strong> Active Starter, Growth, and Enterprise subscribers may purchase non-expiring Rollover Pitch Credit Top-Up Packs: Boost Pack (+10 Credits for $150), Surge Pack (+25 Credits for $325), or Scale Pack (+75 Credits for $825). Monthly plan credits (Bucket 1) are always depleted first, and Rollover Top-Up credits (Bucket 2) never expire as long as the base subscription remains active.
                   </li>
                   <li>
-                    <strong className="text-slate-800">100% Accepted-Only Credit Protection &amp; Finalized Decisions:</strong> Inbound Candidate applications are 100% free (0 credits) for subscribed Employers to review and unlock in Stage 1. Outbound Employer pitches deduct one (1) Pitch Credit per pitch; if a Candidate declines an outbound pitch, the credit is automatically refunded to the exact bucket it was drawn from. All subscription payments and top-up packs are non-refundable except as required by applicable law.
+                    <strong className="text-slate-800">100% Accepted-Only Pitch Credit Protection &amp; Finalized Decisions:</strong> Inbound Candidate applications are 100% free (0 credits) for subscribed Employers to review and unlock in Stage 1. Outbound Employer pitches deduct one (1) Pitch Credit per pitch; if a Candidate declines an outbound pitch, the credit is automatically refunded to the exact bucket it was drawn from. All subscription payments and top-up packs are non-refundable except as required by applicable law.
                   </li>
                 </ul>
               </div>
