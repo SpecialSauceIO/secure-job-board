@@ -1439,7 +1439,7 @@ export async function updateProfile(formData: FormData) {
 
   const { data: currentProfile } = await supabase
     .from('profiles')
-    .select('structured_skills, identity_verified, is_verified, verification_status, is_discoverable')
+    .select('structured_skills, identity_verified, is_verified, is_discoverable')
     .eq('id', user.id)
     .single()
 
@@ -1447,9 +1447,7 @@ export async function updateProfile(formData: FormData) {
     currentProfile?.identity_verified === true ||
       String(currentProfile?.identity_verified) === 'true' ||
       currentProfile?.is_verified === true ||
-      String(currentProfile?.is_verified) === 'true' ||
-      currentProfile?.verification_status === 'verified' ||
-      currentProfile?.verification_status === 'approved'
+      String(currentProfile?.is_verified) === 'true'
   )
 
   const existingMeta = extractCandidateMeta(currentProfile?.structured_skills)
@@ -1576,7 +1574,7 @@ export async function parseResumeAutoFill(formData: FormData) {
   try {
     const { data: currentProfile } = await supabase
       .from('profiles')
-      .select('structured_skills, identity_verified, is_verified, verification_status, is_discoverable')
+      .select('structured_skills, identity_verified, is_verified, is_discoverable')
       .eq('id', user.id)
       .single()
 
@@ -1584,9 +1582,7 @@ export async function parseResumeAutoFill(formData: FormData) {
       currentProfile?.identity_verified === true ||
         String(currentProfile?.identity_verified) === 'true' ||
         currentProfile?.is_verified === true ||
-        String(currentProfile?.is_verified) === 'true' ||
-        currentProfile?.verification_status === 'verified' ||
-        currentProfile?.verification_status === 'approved'
+        String(currentProfile?.is_verified) === 'true'
     )
 
     const existingMeta = extractCandidateMeta(currentProfile?.structured_skills)
