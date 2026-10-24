@@ -311,7 +311,7 @@ export default function CandidateRequestsInboxPage() {
         </div>
 
         <span className="text-xs font-bold text-emerald-700">
-          🛡️ Receiving &amp; accepting employer pitches is 100% free
+          🛡️ Unlimited inbound pitch unlocks included on all ID-Verified plans ($3 / $9 / $15)
         </span>
       </div>
 

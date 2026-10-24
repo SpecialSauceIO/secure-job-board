@@ -1070,10 +1070,10 @@ export default async function DashboardPage({
         <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/80 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
           <div>
             <h2 className="text-sm font-extrabold text-slate-900">
-              Step 1: Verify Your Identity to Unlock Blind Applications
+              Step 1: Activate Your Plan & Verify Identity to Go Live in Employer Search
             </h2>
             <p className="mt-0.5 text-xs text-slate-600">
-              Once verified via Stripe Identity, your 30-Day Founding Member access (15 free blind applications) begins automatically.
+              Every candidate on Special Sauce is Biometric ID-Verified (included with Explorer $3/mo, Professional $9/mo, and Prestige $15/mo) to guarantee a 100% bot-free talent directory.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
@@ -1196,7 +1196,7 @@ export default async function DashboardPage({
               {unreadPitchMsgsCount > 0
                 ? 'An employer sent you a message in your pitch inbox'
                 : pendingRequestsCount > 0
-                ? `${pendingRequestsCount} pending pitch — free to accept & unlock`
+                ? `${pendingRequestsCount} pending pitch — included with your verified plan`
                 : 'Direct role pitches from verified employers'}
             </p>
           </div>
