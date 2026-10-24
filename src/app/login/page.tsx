@@ -862,7 +862,7 @@ export default function LoginPage() {
       <div className="mb-8 flex justify-center">
         <Link href="/" className="group block">
           <img
-            src="/logo.png"
+            src="/logo.png?v=20261024"
             alt="specialsauce.io Logo"
             className="h-20 w-auto group-hover:scale-105 transition-transform"
           />

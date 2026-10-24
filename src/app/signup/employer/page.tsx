@@ -71,7 +71,7 @@ export default function EmployerSignupPage({
       <div className="mb-6 flex justify-center">
         <Link href="/" className="group block hover:opacity-90 transition-opacity">
           <Image
-            src="/logo.png"
+            src="/logo.png?v=20261024"
             alt="specialsauce.io Logo"
             width={340}
             height={85}
