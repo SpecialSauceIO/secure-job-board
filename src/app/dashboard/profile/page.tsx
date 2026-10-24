@@ -64,7 +64,7 @@ async function saveCandidateProfilePreservingMeta(formData: FormData) {
   // Fetch current profile so we never lose hidden _ss_pref_meta or _ss_meta objects
   const { data: existingProfile } = await supabase
     .from('profiles')
-    .select('structured_skills, min_salary_expectation, preferred_work_model')
+    .select('structured_skills, min_salary_expectation, preferred_work_model, location')
     .eq('id', user.id)
     .single()
 
@@ -179,6 +179,9 @@ async function saveCandidateProfilePreservingMeta(formData: FormData) {
       'preferred_work_model',
       String(existingProfile.preferred_work_model)
     )
+  }
+  if (!formData.get('location') && existingProfile?.location) {
+    formData.set('location', String(existingProfile.location))
   }
 
   await updateProfile(formData)
@@ -317,19 +320,22 @@ export default async function ProfilePage() {
       </div>
 
       <div className="space-y-8 bg-slate-50 p-6 border-2 border-slate-300 rounded-xl border-slate-300">
-        {/* US Cascading Location Selector */}
-        <div>
-          <label className="block text-sm font-bold text-slate-700 mb-1">
-            Target Work Location
-          </label>
-          <p className="text-xs text-slate-500 mb-3">
-            Select your preferred US state and metro area for hybrid/on-site roles or remote search alignment.
-          </p>
-          <UsLocationSelector
-            name="location"
-            value={profile?.location || ''}
-            workModel={profile?.preferred_work_model || 'remote'}
-          />
+        {/* Clean Pointer to Match Preferences & Dealbreakers */}
+        <div className="p-4 rounded-xl bg-white border border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div>
+            <p className="text-xs font-extrabold text-slate-900">
+              Looking for Salary Minimums, Work Model, Employment Types, Target Location, or Availability?
+            </p>
+            <p className="text-xs text-slate-500 mt-0.5">
+              This page only captures your professional credentials and capabilities. Configure your search logistics and pitch firewall rules in Match Preferences.
+            </p>
+          </div>
+          <Link
+            href="/dashboard/preferences"
+            className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-extrabold border border-indigo-200 transition-colors"
+          >
+            Manage Dealbreakers &rarr;
+          </Link>
         </div>
 
         {/* Row 1: Experience Years + Primary Industry Vertical */}
@@ -408,61 +414,6 @@ export default async function ProfilePage() {
             />
           </div>
 
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-bold text-slate-700 mb-1.5">
-              ⚡ Candidate Search Status &amp; Start Availability
-            </label>
-            <p className="text-xs text-slate-500 mb-2">
-              Lets verified employers know whether you are actively interviewing, selectively open to high-fit pitches, or paused.
-            </p>
-            <select
-              name="availability_window"
-              defaultValue={currentAvailability}
-              className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
-            >
-              {CANDIDATE_AVAILABILITY_STATUSES.map((statusOpt) => (
-                <option key={statusOpt} value={statusOpt}>
-                  {statusOpt}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="sm:col-span-2 pt-2 border-t border-slate-300">
-            <label className="block text-sm font-bold text-slate-700 mb-1">
-              💼 Accepted Employment Types (Select All That Apply)
-            </label>
-            <p className="text-xs text-slate-500 mb-3">
-              Select all employment structures you are open to (Full-Time W-2, Contract 1099/C2C, Contract-to-Hire, Part-Time, or Seasonal/Temporary). Synced automatically with your Match Dealbreakers.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-              {CANDIDATE_EMPLOYMENT_TYPE_OPTIONS.map((opt) => {
-                const isChecked = currentEmploymentTypes.includes(opt.value)
-                return (
-                  <label
-                    key={opt.value}
-                    className="relative flex items-start gap-2.5 p-3 rounded-xl border border-slate-300 bg-white hover:border-indigo-400 transition-colors cursor-pointer shadow-2xs"
-                  >
-                    <input
-                      type="checkbox"
-                      name="employment_types"
-                      value={opt.value}
-                      defaultChecked={isChecked}
-                      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <div className="text-xs">
-                      <span className="font-bold text-slate-900 block">
-                        {opt.label}
-                      </span>
-                      <span className="text-slate-500 leading-snug block mt-0.5 text-[11px]">
-                        {opt.desc}
-                      </span>
-                    </div>
-                  </label>
-                )
-              })}
-            </div>
-          </div>
         </div>
 
         {/* Row 3: The Structured Language Proficiency Matrix */}
@@ -532,7 +483,7 @@ export default async function ProfilePage() {
             Anonymous Profile
           </h1>
           <p className="text-slate-500 mt-2">
-            Manage your extracted skills, education, certifications, language capabilities, primary industry vertical, target location, and vaulted contact identity.
+            Manage your professional credentials, extracted skills, primary industry vertical, education, active certifications, language capabilities, and vaulted contact identity.
           </p>
         </header>
 

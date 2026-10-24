@@ -117,9 +117,9 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
   const rawSubmittedEducation = String(
     formData.get('education_level') || ''
   ).trim()
-  const submittedCertifications = String(
-    formData.get('certifications') || ''
-  ).trim()
+  const submittedCertifications = formData.has('certifications')
+    ? String(formData.get('certifications') || '').trim()
+    : ''
   const rawSubmittedAvailability = String(
     formData.get('availability_window') || ''
   ).trim()
@@ -166,7 +166,9 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
     employment_types: finalEmploymentTypes,
     industry_vertical: finalIndustryVertical,
     education_level: finalEducationLevel,
-    certifications: submittedCertifications,
+    certifications: formData.has('certifications')
+      ? submittedCertifications
+      : existingPrefMeta.certifications || '',
     availability_window: finalAvailabilityWindow,
     languages: finalLanguages,
   })
@@ -174,7 +176,12 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
   formData.set('structured_skills', JSON.stringify(cleanedSkills))
   formData.set('industry_vertical', finalIndustryVertical)
   formData.set('education_level', finalEducationLevel)
-  formData.set('certifications', submittedCertifications)
+  formData.set(
+    'certifications',
+    formData.has('certifications')
+      ? submittedCertifications
+      : existingPrefMeta.certifications || ''
+  )
   formData.set('availability_window', finalAvailabilityWindow)
   formData.set('languages', JSON.stringify(finalLanguages))
 
@@ -248,7 +255,7 @@ export default async function MatchPreferencesPage() {
             Match Preferences &amp; Dealbreakers
           </h1>
           <p className="text-slate-500 mt-1">
-            Configure your minimum salary expectations, accepted employment types, primary industry vertical, education, certifications, language proficiencies, preferred work model, and target US location.
+            Configure your hard outbound pitch firewall rules and search logistics: minimum salary expectations, accepted employment types, preferred work model, target US location, and search availability.
           </p>
         </header>
 
@@ -350,25 +357,24 @@ export default async function MatchPreferencesPage() {
               </div>
             </div>
 
-            {/* 3. PRIMARY INDUSTRY VERTICAL & PREFERRED WORK MODEL */}
+            {/* 3. PREFERRED WORK MODEL & SEARCH AVAILABILITY */}
             <div className="pt-2 border-t border-slate-300 grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-bold text-slate-700">
-                  Primary Industry Vertical
+                  Preferred Work Model (Dealbreaker)
                 </label>
                 <p className="text-xs text-slate-500 mt-0.5 mb-2">
-                  Used for domain alignment &amp; employer talent filtering.
+                  Controls which work arrangements verified employers are permitted to pitch you.
                 </p>
                 <select
-                  name="industry_vertical"
-                  defaultValue={industryVertical}
+                  name="preferred_work_model"
+                  defaultValue={profile?.preferred_work_model || 'remote'}
                   className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
                 >
-                  {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
-                    <option key={vertical} value={vertical}>
-                      {vertical}
-                    </option>
-                  ))}
+                  <option value="remote">Remote Only</option>
+                  <option value="hybrid">Hybrid</option>
+                  <option value="onsite">On-site</option>
+                  <option value="any">Open to Any Model</option>
                 </select>
               </div>
 
@@ -391,83 +397,39 @@ export default async function MatchPreferencesPage() {
                   ))}
                 </select>
               </div>
-
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-bold text-slate-700">
-                  Preferred Work Model (Dealbreaker)
-                </label>
-                <p className="text-xs text-slate-500 mt-0.5 mb-2">
-                  Controls which work arrangements employers can pitch you.
-                </p>
-                <select
-                  name="preferred_work_model"
-                  defaultValue={profile?.preferred_work_model || 'remote'}
-                  className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
-                >
-                  <option value="remote">Remote Only</option>
-                  <option value="hybrid">Hybrid</option>
-                  <option value="onsite">On-site</option>
-                  <option value="any">Open to Any Model</option>
-                </select>
-              </div>
             </div>
 
-            {/* 4. EDUCATION & ACTIVE INDUSTRY CERTIFICATIONS */}
-            <div className="pt-2 border-t border-slate-300 grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-bold text-slate-700">
-                  🎓 Education &amp; Academic Background
-                </label>
-                <p className="text-xs text-slate-500 mt-0.5 mb-2">
-                  Practical experience is weighted equally for roles accepting equivalent experience.
-                </p>
-                <select
-                  name="education_level"
-                  defaultValue={educationLevel}
-                  className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
-                >
-                  {CANDIDATE_EDUCATION_LEVELS.map((level) => (
-                    <option key={level} value={level}>
-                      {level}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-slate-700">
-                  🏅 Active Certifications &amp; Licenses (Optional)
-                </label>
-                <p className="text-xs text-slate-500 mt-0.5 mb-2">
-                  Select standardized credentials by industry vertical or search by keyword for exact 5-Point AI Fit Radar matching.
-                </p>
-                <StructuredCertificationSelector
-                  name="certifications"
-                  initialValue={certifications}
-                  industryVertical={industryVertical}
-                />
-              </div>
-            </div>
-
-            {/* 5. LANGUAGE PROFICIENCY MATRIX */}
-            <StructuredLanguageEditor
-              name="languages"
-              initialLanguages={languages}
-            />
-
-            {/* 6. US CASCADING LOCATION SELECTOR */}
+            {/* 4. US CASCADING LOCATION SELECTOR */}
             <div className="pt-2 border-t border-slate-300">
               <label className="block text-sm font-bold text-slate-700 mb-1">
-                Target Location
+                Target Work Location
               </label>
               <p className="text-xs text-slate-500 mb-3">
-                Select your preferred US state and metro area for hybrid/on-site roles (or remote preference).
+                Select your preferred US state and metro area for hybrid/on-site roles or remote search alignment.
               </p>
               <UsLocationSelector
                 name="location"
                 value={profile?.location || ''}
                 workModel={profile?.preferred_work_model || 'remote'}
               />
+            </div>
+
+            {/* Clean Pointer to Candidate Profile */}
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-extrabold text-slate-900">
+                  Looking for Industry Vertical, Education, Certifications, Languages, or Core Skills?
+                </p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Your professional capabilities and credentials live exclusively on your Anonymous Profile so you never have to maintain duplicate fields.
+                </p>
+              </div>
+              <Link
+                href="/dashboard/profile"
+                className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-extrabold border border-indigo-200 transition-colors"
+              >
+                Edit My Profile &rarr;
+              </Link>
             </div>
           </div>
 
