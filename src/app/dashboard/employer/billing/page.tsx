@@ -293,7 +293,7 @@ export default function EmployerBillingPage() {
             Employer Billing, Role Slots &amp; Pitch Credits
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Reviewing and unlocking candidates who apply to your blind job listings is 100% free (0 credits) on every active plan.
+            Reviewing and unlocking candidates who apply to your protected job listings is 100% free (0 credits) on every active plan.
           </p>
         </div>
 
@@ -406,7 +406,7 @@ export default function EmployerBillingPage() {
                 </strong>{' '}
                 including{' '}
                 <strong className="text-amber-300">
-                  5 Active Blind Job Slots
+                  5 Active Protected Job Slots
                 </strong>
                 ,{' '}
                 <strong className="text-amber-300">
@@ -500,7 +500,7 @@ export default function EmployerBillingPage() {
                 ★ <strong className="text-amber-800">$149/mo Locked for First 12 Months</strong> ($299/mo retail after)
               </li>
               <li>
-                ✓ <strong>Up to 5 Simultaneous Active Blind Roles</strong>
+                ✓ <strong>Up to 5 Simultaneous Active Protected Roles</strong>
               </li>
               <li>
                 ✓ <strong>10 Monthly Plan Pitch Credits / month</strong>
@@ -574,7 +574,7 @@ export default function EmployerBillingPage() {
                 ★ <strong className="text-amber-300">$499/mo Locked for First 12 Months</strong> ($799/mo retail after)
               </li>
               <li>
-                ✓ <strong>Up to 15 Simultaneous Active Blind Roles</strong>
+                ✓ <strong>Up to 15 Simultaneous Active Protected Roles</strong>
               </li>
               <li>
                 ✓ <strong>35 Monthly Plan Pitch Credits / month</strong>
@@ -650,7 +650,7 @@ export default function EmployerBillingPage() {
                 ★ <strong className="text-amber-800">$1,250/mo Locked for First 12 Months</strong> ($1,999/mo retail after)
               </li>
               <li>
-                ✓ <strong>Unlimited Simultaneous Active Blind Roles</strong>
+                ✓ <strong>Unlimited Simultaneous Active Protected Roles</strong>
               </li>
               <li>
                 ✓ <strong>120 Monthly Plan Pitch Credits / month</strong>

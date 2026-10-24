@@ -132,9 +132,9 @@ export default function CandidateBillingPage() {
         type: 'success',
         text:
           selectParam === 'prestige'
-            ? 'Welcome to Special Sauce: Click "Activate Prestige ($15/mo)" below to unlock Real-Person ID Verification, unlimited blind applications, and top-priority search placement.'
+            ? 'Welcome to Special Sauce: Click "Activate Prestige ($15/mo)" below to unlock Real-Person ID Verification, unlimited protected applications, and top-priority search placement.'
             : selectParam === 'professional'
-            ? 'Welcome to Special Sauce: Click "Activate Professional ($9/mo)" below to unlock Real-Person ID Verification and 15 monthly blind applications.'
+            ? 'Welcome to Special Sauce: Click "Activate Professional ($9/mo)" below to unlock Real-Person ID Verification and 15 monthly protected applications.'
             : 'Welcome to Special Sauce: Click "Activate Explorer ($3/mo)" below to unlock Real-Person ID Verification, live placement in Employer Search, and unlimited inbound employer pitches.',
       })
     }
@@ -338,7 +338,7 @@ export default function CandidateBillingPage() {
               so employers know 100% of our directory is real human talent. Choose{" "}
               <strong className="text-emerald-300">Explorer ($3/mo)</strong> to be discovered and accept unlimited inbound employer pitches, or upgrade to{" "}
               <strong className="text-white">Professional ($9/mo)</strong> or{" "}
-              <strong className="text-white">Prestige ($15/mo)</strong> to proactively submit outbound blind applications.
+              <strong className="text-white">Prestige ($15/mo)</strong> to proactively submit outbound protected applications.
             </p>
           </div>
 
@@ -359,13 +359,13 @@ export default function CandidateBillingPage() {
                     <strong className="text-white">
                       {tierInfo?.freeAppsRemaining} of 15
                     </strong>{" "}
-                    monthly blind applications remaining •{" "}
+                    monthly protected applications remaining •{" "}
                     <strong className="text-amber-300">Active Tier Unlocked</strong>
                   </p>
                 )}
                 {normalizedTier === 'prestige' && (
                   <p className="text-xs text-emerald-400 font-bold">
-                    ✓ Unlimited Blind Applications + Priority Search Placement Active
+                    ✓ Unlimited Protected Applications + Priority Search Placement Active
                   </p>
                 )}
                 {normalizedTier === 'explorer' && (
@@ -426,9 +426,9 @@ export default function CandidateBillingPage() {
                 <li>
                   ✓ <strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong> (Private Chat)
                 </li>
-                <li>✓ Browse blind role feed &amp; run 5-Point AI Fit Radar checks</li>
+                <li>✓ Browse protected role feed &amp; run 5-Point AI Fit Radar checks</li>
                 <li className="text-slate-400">
-                  ✕ Outbound Blind Applications (Upgrade to Professional $9/mo or Prestige $15/mo to apply)
+                  ✕ Outbound Protected Applications (Upgrade to Professional $9/mo or Prestige $15/mo to apply)
                 </li>
               </ul>
             </div>
@@ -485,7 +485,7 @@ export default function CandidateBillingPage() {
                   🛡️ <strong>Includes Real-Person ID Verification</strong> &amp; Verified Shield
                 </li>
                 <li>
-                  ✓ <strong>15 Outbound Blind Applications / month</strong> (40%+ AI Fit)
+                  ✓ <strong>15 Outbound Protected Applications / month</strong> (40%+ AI Fit)
                 </li>
                 <li>
                   ✓ <strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong>
@@ -545,7 +545,7 @@ export default function CandidateBillingPage() {
                   </span>
                 </div>
                 <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                  Unlimited outbound blind applications, unlimited pitch unlocks, and top-priority placement in Employer Talent Search.
+                  Unlimited outbound protected applications, unlimited pitch unlocks, and top-priority placement in Employer Talent Search.
                 </p>
               </div>
 
@@ -554,7 +554,7 @@ export default function CandidateBillingPage() {
                   🛡️ <strong>Includes Real-Person ID Verification</strong> &amp; Verified Shield
                 </li>
                 <li>
-                  ✓ <strong>Unlimited Outbound Blind Applications</strong> (40%+ AI Fit)
+                  ✓ <strong>Unlimited Outbound Protected Applications</strong> (40%+ AI Fit)
                 </li>
                 <li>
                   ✓ <strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong>
@@ -624,7 +624,7 @@ export default function CandidateBillingPage() {
               onClick={() => handlePlanSwitch('professional')}
               className="px-3 py-2 rounded-xl bg-white border-2 border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-amber-50 transition-colors cursor-pointer"
             >
-              2. Professional ($9/mo · 15 Monthly Blind Apps)
+              2. Professional ($9/mo · 15 Monthly Protected Apps)
             </button>
             <button
               type="button"
@@ -632,7 +632,7 @@ export default function CandidateBillingPage() {
               onClick={() => handlePlanSwitch('prestige')}
               className="px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors cursor-pointer"
             >
-              3. Prestige ($15/mo · Unlimited Blind Apps + Priority Placement)
+              3. Prestige ($15/mo · Unlimited Protected Apps + Priority Placement)
             </button>
           </div>
         </div>

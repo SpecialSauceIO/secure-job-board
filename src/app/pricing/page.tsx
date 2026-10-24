@@ -43,7 +43,7 @@ export default function PricingMatrixPage() {
                   Every Plan Includes Real-Person ID Verification &amp; Unlimited Inbound Pitches
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
-                  Get discovered by verified employers and unlock unlimited inbound pitches on <strong className="text-emerald-300">Explorer for $3/mo</strong> (includes 1-time <strong className="text-amber-300">Stripe Real-Person ID Verification</strong>). Ready to proactively apply to roles? Choose <strong className="text-white">Professional ($9/mo for 15 monthly blind applications)</strong> or <strong className="text-white">Prestige ($15/mo for unlimited blind applications &amp; Top-Priority Spotlight)</strong>.
+                  Get discovered by verified employers and unlock unlimited inbound pitches on <strong className="text-emerald-300">Explorer for $3/mo</strong> (includes 1-time <strong className="text-amber-300">Stripe Real-Person ID Verification</strong>). Ready to proactively apply to roles? Choose <strong className="text-white">Professional ($9/mo for 15 monthly protected applications)</strong> or <strong className="text-white">Prestige ($15/mo for unlimited protected applications &amp; Top-Priority Spotlight)</strong>.
                 </p>
               </div>
               <div className="shrink-0">
@@ -94,11 +94,11 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span>Browse blind role feed &amp; run 5-Point AI Fit Radar checks</span>
+                      <span>Browse protected role feed &amp; run 5-Point AI Fit Radar checks</span>
                     </li>
                     <li className="flex items-start gap-2 text-slate-400">
                       <span>✕</span>
-                      <span>Proactive Outbound Blind Applications (Upgrade to Professional $9/mo or Prestige $15/mo anytime)</span>
+                      <span>Proactive Outbound Protected Applications (Upgrade to Professional $9/mo or Prestige $15/mo anytime)</span>
                     </li>
                   </ul>
                 </div>
@@ -129,7 +129,7 @@ export default function PricingMatrixPage() {
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Built for selective professionals ready to unlock inbound employer pitches, complete real-person ID verification, and submit targeted blind applications.
+                    Built for selective professionals ready to unlock inbound employer pitches, complete real-person ID verification, and submit targeted protected applications.
                   </p>
                   <ul className="space-y-2.5 pt-3 border-t border-slate-300 text-xs text-slate-700 font-medium">
                     <li className="flex items-start gap-2 text-emerald-700 font-bold">
@@ -142,7 +142,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span><strong>15 Outbound Blind Applications / month</strong> (40%+ AI Fit)</span>
+                      <span><strong>15 Outbound Protected Applications / month</strong> (40%+ AI Fit)</span>
                     </li>
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
@@ -194,7 +194,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>
-                      <span><strong>Unlimited Outbound Blind Applications</strong> (40%+ AI Fit)</span>
+                      <span><strong>Unlimited Outbound Protected Applications</strong> (40%+ AI Fit)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>
@@ -278,7 +278,7 @@ export default function PricingMatrixPage() {
                   <ul className="space-y-2.5 pt-3 border-t border-slate-300 text-xs text-slate-700 font-medium">
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span><strong>Up to 5 Simultaneous Active Blind Roles</strong></span>
+                      <span><strong>Up to 5 Simultaneous Active Protected Roles</strong></span>
                     </li>
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
@@ -343,7 +343,7 @@ export default function PricingMatrixPage() {
                   <ul className="space-y-2.5 pt-3 border-t border-slate-800 text-xs text-slate-200 font-medium">
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>
-                      <span><strong>Up to 15 Simultaneous Active Blind Roles</strong></span>
+                      <span><strong>Up to 15 Simultaneous Active Protected Roles</strong></span>
                     </li>
                     <li className="flex items-start gap-2 text-amber-300 font-bold">
                       <span>★</span>
@@ -408,7 +408,7 @@ export default function PricingMatrixPage() {
                   <ul className="space-y-2.5 pt-3 border-t border-slate-300 text-xs text-slate-700 font-medium">
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span><strong>Unlimited Simultaneous Active Blind Roles</strong></span>
+                      <span><strong>Unlimited Simultaneous Active Protected Roles</strong></span>
                     </li>
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>

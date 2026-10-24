@@ -667,10 +667,10 @@ export async function activateSandboxCandidateTier(
         : 'Welcome to Candidate Professional ($9/mo)',
       bodyLines: [
         isPrestige
-          ? 'Your Candidate Prestige plan is active with Real-Person ID Verification access, Unlimited Outbound Blind Applications, Top-Priority Employer Search placement, and Founding Member status.'
+          ? 'Your Candidate Prestige plan is active with Real-Person ID Verification access, Unlimited Outbound Protected Applications, Top-Priority Employer Search placement, and Founding Member status.'
           : isExplorer
           ? 'Your Candidate Explorer plan ($3/mo) is active with Real-Person ID Verification access, live placement in Employer Talent Search once verified, and unlimited inbound employer pitch unlocks.'
-          : 'Your Candidate Professional plan is active with Real-Person ID Verification access, 15 Outbound Blind Applications per month, and Founding Member status.',
+          : 'Your Candidate Professional plan is active with Real-Person ID Verification access, 15 Outbound Protected Applications per month, and Founding Member status.',
         `Subscription Reference ID: ${refId}`,
       ],
       ctaUrl: '/dashboard',
@@ -1367,7 +1367,7 @@ export async function revealProfile(formData: FormData) {
     referenceId,
     heading: 'Application Unlocked: Private Chat Open!',
     bodyLines: [
-      `${companyName} reviewed your blind application for "${roleTitle}" and opened an encrypted in-platform thread.`,
+      `${companyName} reviewed your protected application for "${roleTitle}" and opened an encrypted in-platform thread.`,
       `Connection Reference ID: ${referenceId}`,
       `🔒 Anti-Harvesting Protection Active: Your raw email address and PDF resume are still vaulted. Log in to message ${companyName} and release your full resume vault whenever you are ready.`,
     ],
@@ -1407,7 +1407,7 @@ export async function updateProfile(formData: FormData) {
       actorRole: 'candidate',
       text: bio,
       platformArea: '2-Stage Resume & Contact Vault',
-      contextLabel: 'Candidate Public Blind Bio',
+      contextLabel: 'Candidate Public Protected Bio',
       isStage2Unlocked: false,
     })
   }
@@ -1771,8 +1771,8 @@ export async function applyBlind(formData: FormData) {
     const isExplorer = candidateTier.tier === 'explorer' || candidateTier.tier === 'free'
     return {
       error: isExplorer
-        ? 'Active Membership Required: Upgrade to Candidate Professional ($9/mo for 15 monthly blind applications) or Prestige ($15/mo for unlimited blind applications) on your Membership & Billing page to submit outbound blind applications.'
-        : `Monthly Application Quota Reached (${CANDIDATE_TRIAL_MAX_APPS}/${CANDIDATE_TRIAL_MAX_APPS} Used): Upgrade to Candidate Prestige ($15/mo) on your Membership & Billing page to unlock Unlimited Outbound Blind Applications.`,
+        ? 'Active Membership Required: Upgrade to Candidate Professional ($9/mo for 15 monthly protected applications) or Prestige ($15/mo for unlimited protected applications) on your Membership & Billing page to submit outbound protected applications.'
+        : `Monthly Application Quota Reached (${CANDIDATE_TRIAL_MAX_APPS}/${CANDIDATE_TRIAL_MAX_APPS} Used): Upgrade to Candidate Prestige ($15/mo) on your Membership & Billing page to unlock Unlimited Outbound Protected Applications.`,
     }
   }
 
@@ -1800,7 +1800,7 @@ export async function applyBlind(formData: FormData) {
       actorRole: 'candidate',
       text: employerPitch,
       platformArea: '2-Stage Resume & Contact Vault',
-      contextLabel: 'Candidate Blind Application Pitch',
+      contextLabel: 'Candidate Protected Application Pitch',
       isStage2Unlocked: false,
     })
     if (pitchScan.blocked) {
@@ -1905,7 +1905,7 @@ export async function applyBlind(formData: FormData) {
       console.error('Error applying to job:', insertError)
       await recordHandshakeTelemetry({
         handshakeId: 'marketplace_pitch_application_engine',
-        label: 'Blind Application Execution',
+        label: 'Protected Application Execution',
         platformArea: '2-Stage Resume & Contact Vault',
         ok: false,
         errorDetail: insertError.message,
@@ -1915,7 +1915,7 @@ export async function applyBlind(formData: FormData) {
 
     await recordHandshakeTelemetry({
       handshakeId: 'marketplace_pitch_application_engine',
-      label: 'Blind Application Execution',
+      label: 'Protected Application Execution',
       platformArea: '2-Stage Resume & Contact Vault',
       ok: true,
     })
@@ -1931,9 +1931,9 @@ export async function applyBlind(formData: FormData) {
 
   await sendPlatformNotification({
     to: candidateLiveEmail,
-    subject: `Blind Application Submitted: ${roleTitle} (${parsedMatchScore}% Match)`,
+    subject: `Protected Application Submitted: ${roleTitle} (${parsedMatchScore}% Match)`,
     referenceId: refId,
-    heading: 'Your Blind Application Has Been Submitted!',
+    heading: 'Your Protected Application Has Been Submitted!',
     bodyLines: [
       `Your anonymous profile was submitted for "${roleTitle}" with a ${parsedMatchScore}% AI Match Score (+150 Profile XP).`,
       `Connection Reference ID: ${refId}`,
@@ -1945,11 +1945,11 @@ export async function applyBlind(formData: FormData) {
 
   await sendPlatformNotification({
     to: employerTargetEmail,
-    subject: `New ${parsedMatchScore}% Match Blind Application for ${roleTitle}`,
+    subject: `New ${parsedMatchScore}% Match Protected Application for ${roleTitle}`,
     referenceId: refId,
     heading: `New Verified Candidate Application (${parsedMatchScore}% AI Match)`,
     bodyLines: [
-      `An Identity-Verified candidate just submitted a blind application for "${roleTitle}".`,
+      `An Identity-Verified candidate just submitted a protected application for "${roleTitle}".`,
       `AI Match Score: ${parsedMatchScore}%`,
       `Transaction Reference ID: ${refId}`,
       `Open your Inbound Applications pipeline to review their anonymous skill matrix and open a private chat thread.`,
@@ -3712,7 +3712,7 @@ export async function parseJobAutoFill(formData: FormData) {
       Extract the core requirements and return ONLY a raw JSON object with no markdown formatting.
       The JSON object must have these keys:
       1. "title": The job title (string).
-      2. "description": A 3-4 sentence summary of the role (string, do NOT include the company name so the listing stays blind).
+      2. "description": A 3-4 sentence summary of the role (string, do NOT include the company name so the listing stays protected).
       3. "work_model": Either "remote", "hybrid", or "onsite" (string).
       4. "location": City/State or Remote Region/Timezone (e.g., "Dallas-Fort Worth-Arlington (DFW Metro), TX" or "Remote — US Nationwide") (string).
       5. "pay_type": Either "annual" or "hourly" (string).
@@ -4998,12 +4998,12 @@ export async function updateInboundApplicationDecision(applicationId: string, de
         to: candidateEmail,
         subject: `Application Status Update for ${jobObj?.title || 'Open Role'}`,
         referenceId,
-        heading: 'Update on Your Blind Application',
+        heading: 'Update on Your Protected Application',
         bodyLines: [
-          `The hiring team reviewed your blind application for "${jobObj?.title || 'Open Role'}" and decided not to move forward to a private chat at this time.`,
+          `The hiring team reviewed your protected application for "${jobObj?.title || 'Open Role'}" and decided not to move forward to a private chat at this time.`,
           `Employer Feedback Reason: "${chosenArchiveReason}"`,
           `Connection Reference ID: ${referenceId}`,
-          '🔒 Zero-Ghosting & Privacy Guarantee: Because your application was archived prior to unlock, your identity, raw email, and PDF resume remained 100% blind.',
+          '🔒 Zero-Ghosting & Privacy Guarantee: Because your application was archived prior to unlock, your identity, raw email, and PDF resume remained 100% protected.',
         ],
         ctaUrl: '/dashboard/applications',
         ctaLabel: 'View Application Tracker →',
@@ -6557,7 +6557,7 @@ export async function submitSafetyReport(payload: {
   formData.set('related_ref_id', referenceId)
   formData.set(
     'message',
-    `Violation Reason: ${reason}\nFlagged Entity Type: ${payload.targetType}\nTarget Reference ID: ${referenceId}\nReporter Blind/Account ID: #${String(user.id).replace(/-/g, '').slice(0, 6).toUpperCase()}\n\nAdditional Context:\n${details || 'No additional notes provided.'}`
+    `Violation Reason: ${reason}\nFlagged Entity Type: ${payload.targetType}\nTarget Reference ID: ${referenceId}\nReporter Protected/Account ID: #${String(user.id).replace(/-/g, '').slice(0, 6).toUpperCase()}\n\nAdditional Context:\n${details || 'No additional notes provided.'}`
   )
 
   return await submitSupportTicket(formData)

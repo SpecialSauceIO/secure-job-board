@@ -240,7 +240,7 @@ export default function EmployerOrganizationForm({
                 {verificationStatus === 'verified'
                   ? `Your organization domain (${
                       cleanedDomain || 'company domain'
-                    }) is verified. The "✓ Verified Company" trust badge and your Primary Industry Vertical (${industryVertical}) now power your blind job listings and outbound candidate pitches.`
+                    }) is verified. The "✓ Verified Company" trust badge and your Primary Industry Vertical (${industryVertical}) now power your protected job listings and outbound candidate pitches.`
                   : 'Verify your corporate domain via work-email match + live DNS check or DNS TXT record to unlock the "✓ Verified Company" badge and your 30-Day Founding Partner Trial.'}
               </p>
             </div>
@@ -362,7 +362,7 @@ export default function EmployerOrganizationForm({
             Organization Details
           </h2>
           <p className="text-sm text-slate-500 mt-1">
-            Your company name and description remain hidden on blind job listings until a mutual connection is unlocked, while your Primary Industry Vertical and Company Stage power your anonymous role teasers.
+            Your company name and description remain hidden on protected job listings until a mutual connection is unlocked, while your Primary Industry Vertical and Company Stage power your anonymous role teasers.
           </p>
         </div>
 
@@ -421,7 +421,7 @@ export default function EmployerOrganizationForm({
                 ))}
               </select>
               <p className="text-[11px] text-slate-500 mt-1">
-                Shown as your anonymous company teaser on blind job cards (e.g., &ldquo;Blind Role • {industryVertical}&rdquo;).
+                Shown as your anonymous company teaser on protected job cards (e.g., &ldquo;Protected Role • {industryVertical}&rdquo;).
               </p>
             </div>
 

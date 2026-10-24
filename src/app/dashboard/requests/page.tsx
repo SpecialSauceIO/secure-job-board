@@ -385,7 +385,7 @@ export default function CandidateRequestsInboxPage() {
               ? req.unlocked_employer_name ||
                 job.organizations?.name ||
                 'Verified Employer'
-              : `Blind Employer Pitch • ${industryLabel}`
+              : `Protected Employer Pitch • ${industryLabel}`
 
             return (
               <div

@@ -370,7 +370,7 @@ export default function EnterpriseAtsIntegrationPanel() {
 
         <div className="pt-2 border-t border-slate-300 flex items-center justify-between gap-4">
           <span className="text-xs text-slate-500">
-            🛡️ <strong>Double-Blind Privacy Guarantee:</strong> Candidate personal contact info never touches your external HR software until the candidate explicitly clicks &ldquo;Release Resume &amp; Contact Vault&rdquo; in Stage 2.
+            🛡️ <strong>Identity-Protected Privacy Guarantee:</strong> Candidate personal contact info never touches your external HR software until the candidate explicitly clicks &ldquo;Release Resume &amp; Contact Vault&rdquo; in Stage 2.
           </span>
 
           <button

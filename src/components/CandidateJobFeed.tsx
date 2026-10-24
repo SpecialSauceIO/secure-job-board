@@ -393,7 +393,7 @@ export function CandidateJobFeed({
       ...prev,
       [jobId]: {
         type: 'success',
-        text: `Blind Application Submitted (Ref: ${refCode})! Your identity remains hidden until the employer unlocks your profile.`,
+        text: `Protected Application Submitted (Ref: ${refCode})! Your identity remains hidden until the employer unlocks your profile.`,
       },
     }))
 
@@ -703,12 +703,12 @@ export function CandidateJobFeed({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <span
-                      title={`Blind Role • ${anonymousTeaserParts.join(' • ')}`}
+                      title={`Protected Role • ${anonymousTeaserParts.join(' • ')}`}
                       className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-slate-900 text-white text-[11px] font-extrabold uppercase tracking-wider min-w-0 shrink overflow-hidden"
                     >
                       <span className="shrink-0">🔒</span>
                       <span className="truncate">
-                        Blind Role • {anonymousTeaserParts.join(' • ')}
+                        Protected Role • {anonymousTeaserParts.join(' • ')}
                       </span>
                     </span>
 
@@ -1006,7 +1006,7 @@ export function CandidateJobFeed({
                       </div>
                       <div>
                         <h4 className="text-sm font-extrabold text-emerald-950">
-                          Blind Application Submitted (+150 XP! Ref:{' '}
+                          Protected Application Submitted (+150 XP! Ref:{' '}
                           {appliedRef})
                         </h4>
                         <p className="text-xs text-emerald-800 mt-0.5 leading-relaxed">
@@ -1080,7 +1080,7 @@ export function CandidateJobFeed({
                     {matchData &&
                       (isApplied ? (
                         <span className="px-4 py-2 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-extrabold">
-                          ✓ Applied Blindly
+                          ✓ Protected Application Sent
                         </span>
                       ) : (
                         <button
@@ -1099,7 +1099,7 @@ export function CandidateJobFeed({
                             ? '🔒 Verify Identity to Apply'
                             : score < MIN_MATCH_THRESHOLD
                             ? `Locked (<${MIN_MATCH_THRESHOLD}% Match)`
-                            : 'Submit Blind Application →'}
+                            : 'Submit Protected Application →'}
                         </button>
                       ))}
                   </div>

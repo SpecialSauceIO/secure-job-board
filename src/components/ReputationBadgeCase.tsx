@@ -198,7 +198,7 @@ export default function ReputationBadgeCase({
                         badge.unlocked
                           ? isFounder
                             ? "bg-amber-300/90 text-amber-950 border-amber-500"
-                            : palette.tag
+                            : `distinction-active-tag ${palette.tag}`
                           : "bg-white text-slate-600 border-slate-300"
                       }`}
                     >

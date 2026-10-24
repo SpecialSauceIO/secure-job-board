@@ -256,7 +256,7 @@ export default async function ProfilePage() {
               </span>
             </label>
             <p className="text-xs text-indigo-800/80 mt-0.5 mb-3">
-              Employers cannot see your name while browsing the talent pool or reviewing blind applications. In Stage 1 (initial thread unlock), only your First Name + Last Initial is shown; your full name and PDF resume are only revealed when you approve Stage 2 Vault Release.
+              Employers cannot see your name while browsing the talent pool or reviewing protected applications. In Stage 1 (initial thread unlock), only your First Name + Last Initial is shown; your full name and PDF resume are only revealed when you approve Stage 2 Vault Release.
             </p>
             <input
               type="text"

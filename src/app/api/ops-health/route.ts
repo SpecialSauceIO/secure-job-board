@@ -101,7 +101,7 @@ export async function GET(req: NextRequest) {
 
   checks.push({
     id: 'marketplace_pitch_application_engine',
-    name: 'Blind Application, Pitch & Stage 1/2 Messaging Ledger',
+    name: 'Protected Application, Pitch & Stage 1/2 Messaging Ledger',
     platform_area: 'Encrypted Stage 1/2 Messaging',
     category: 'Marketplace_Core',
     status: dbHealthy ? 'healthy' : 'critical',

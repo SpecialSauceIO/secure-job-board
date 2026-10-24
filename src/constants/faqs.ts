@@ -102,7 +102,7 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
       },
       {
         step: 'Step 3',
-        title: 'Publish Blind Roles (30-Day Freshness Window)',
+        title: 'Publish Protected Roles (30-Day Freshness Window)',
         description:
           'Upload a job description PDF for AI auto-extraction or select your US State & Metro area, Work Model, Employment Type (W-2, 1099/C2C, Contract-to-Hire, Part-Time), and Annual (/yr) or Hourly (/hr) pay band. To prevent ghost jobs, roles automatically expire after 30 days and can be manually renewed in 1 click.',
       },
@@ -124,12 +124,12 @@ SPECIAL SAUCE — HIRING TEAM QUICK-START GUIDE
 ====================================================================
 
 1. WHAT IS SPECIAL SAUCE?
-Special Sauce is a verified, double-blind technical & professional recruitment marketplace protected by a 2-Stage Identity Vault. Active candidates are Stripe Biometric Identity-Verified and evaluated by a 5-Point AI Fit Radar before any contact information is exchanged.
+Special Sauce is a verified, identity-protected technical & professional recruitment marketplace protected by a 2-Stage Identity Vault. Active candidates are Stripe Biometric Identity-Verified and evaluated by a 5-Point AI Fit Radar before any contact information is exchanged.
 
 2. HOW OUR TEAM USES THE PLATFORM (5 STEPS):
 - Step 1 — Domain Verification & 12-Month Rate Lock: Verify our corporate domain to lock in 12-Month Founding Partner Rates, search the anonymous talent pool, filter by employment type (W-2, 1099/C2C, Contract-to-Hire), and bookmark candidates into our Shortlist.
 - Step 2 — Shared Team & BPO Partner Seats: Collaborators (Hiring Managers & authorized external recruiters) share our organization's active role slots and Two-Bucket pitch credit pool.
-- Step 3 — Publishing Blind Roles (30-Day Auto-Expiry): Every role displays transparent pay ($/yr or $/hr), standardized US State & Metro location, and employment type while keeping our company name blind. Roles auto-expire after 30 days to guarantee freshness and can be renewed in 1 click.
+- Step 3 — Publishing Protected Roles (30-Day Auto-Expiry): Every role displays transparent pay ($/yr or $/hr), standardized US State & Metro location, and employment type while keeping our company name protected. Roles auto-expire after 30 days to guarantee freshness and can be renewed in 1 click.
 - Step 4 — Stage 1 Unlock & Accepted-Only Credit Protection: Inbound applications (40%+ AI Fit) are 100% FREE to unlock; outbound pitches to passive talent use 1 Pitch Credit and are auto-refunded if declined. Stage 1 opens a live encrypted chat thread (Ref: SS-XXXXXXXX) and reveals the candidate's First Name + Last Initial.
 - Step 5 — Stage 2 Unlock (Full Resume & Email Release): Once we message the candidate in the thread, they click "Release Resume & Contact Vault" to unlock their Full Name, direct email, and downloadable PDF resume.
 
@@ -163,13 +163,13 @@ Special Sauce is a verified, double-blind technical & professional recruitment m
         step: 'Step 3',
         title: 'Run Free 5-Point AI Fit Checks & Receive Pitch Alerts',
         description:
-          'Browse active blind roles (all verified fresh within 30 days), bookmark favorites into Saved Roles, run unlimited 5-Point AI Fit Radar checks, and receive real-time alerts whenever a verified employer pitches you.',
+          'Browse active protected roles (all verified fresh within 30 days), bookmark favorites into Saved Roles, run unlimited 5-Point AI Fit Radar checks, and receive real-time alerts whenever a verified employer pitches you.',
       },
       {
         step: 'Step 4',
         title: 'Upgrade & Complete 1-Time Real-Person ID Verification When Ready',
         description:
-          'When you spot a role you want to apply for (40%+ AI Fit) or want to unlock an incoming employer pitch, upgrade to Professional ($9/mo for 15 monthly blind applications + unlimited pitch unlocks) or Prestige ($15/mo for unlimited blind applications + Top-Priority Employer Search placement) and complete your 1-time Stripe Real-Person ID Verification.',
+          'When you spot a role you want to apply for (40%+ AI Fit) or want to unlock an incoming employer pitch, upgrade to Professional ($9/mo for 15 monthly protected applications + unlimited pitch unlocks) or Prestige ($15/mo for unlimited protected applications + Top-Priority Employer Search placement) and complete your 1-time Stripe Real-Person ID Verification.',
       },
       {
         step: 'Step 5',
@@ -194,8 +194,8 @@ SPECIAL SAUCE — CANDIDATE HOW-IT-WORKS & 2-STAGE VAULT REFERENCE GUIDE
 
 3. CANDIDATE MEMBERSHIP TIERS ($3 / $9 / $15):
 - Explorer ($3/mo): Includes 1-time Stripe Real-Person ID Verification, live anonymous profile in Employer Search, unlimited Inbound Employer Pitch unlocks, and unlimited 5-Point AI Fit Radar checks.
-- Professional ($9/mo): Includes 1-time Stripe Real-Person ID Verification, unlimited Inbound Employer Pitch unlocks, 15 Outbound Blind Applications/month (40%+ AI Fit), and Permanent Founding Member status.
-- Prestige ($15/mo): Includes 1-time Stripe Real-Person ID Verification, Unlimited Outbound Blind Applications (40%+ AI Fit), unlimited pitch unlocks, and Top-Priority Spotlight placement in Employer Talent Search.
+- Professional ($9/mo): Includes 1-time Stripe Real-Person ID Verification, unlimited Inbound Employer Pitch unlocks, 15 Outbound Protected Applications/month (40%+ AI Fit), and Permanent Founding Member status.
+- Prestige ($15/mo): Includes 1-time Stripe Real-Person ID Verification, Unlimited Outbound Protected Applications (40%+ AI Fit), unlimited pitch unlocks, and Top-Priority Spotlight placement in Employer Talent Search.
 ====================================================================`,
   },
 }
@@ -245,9 +245,9 @@ export const SUPPORT_FAQS: FAQ[] = [
     target: 'candidate',
     category: 'Applications, Bookmarks & Freshness',
     question:
-      'Can I bookmark or save roles to compare before using my blind applications?',
+      'Can I bookmark or save roles to compare before using my protected applications?',
     answer:
-      'Yes! Click the "Save Role" button on any job card to bookmark it. You can filter by your bookmarked listings at any time using the "Saved Roles" button at the top of your Candidate Dashboard or the Discover Blind Roles page.',
+      'Yes! Click the "Save Role" button on any job card to bookmark it. You can filter by your bookmarked listings at any time using the "Saved Roles" button at the top of your Candidate Dashboard or the Discover Protected Roles page.',
   },
   {
     id: 'c6',
@@ -265,7 +265,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'What is the difference between Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo)?',
     answer:
-      'All three candidate tiers include 1-time Stripe Real-Person ID Verification so our talent pool remains 100% bot-free. Explorer ($3/mo) is built for passive discovery: your verified anonymous profile is live in Employer Search and you can unlock and accept unlimited Inbound Employer Pitches. Professional ($9/mo) adds 15 proactive Outbound Blind Applications/month (for roles where you score 40%+ AI Fit). Prestige ($15/mo) includes Unlimited Outbound Blind Applications (40%+ AI Fit) and Top-Priority Spotlight placement in Employer Talent Search. You can switch or downgrade plans anytime.',
+      'All three candidate tiers include 1-time Stripe Real-Person ID Verification so our talent pool remains 100% bot-free. Explorer ($3/mo) is built for passive discovery: your verified anonymous profile is live in Employer Search and you can unlock and accept unlimited Inbound Employer Pitches. Professional ($9/mo) adds 15 proactive Outbound Protected Applications/month (for roles where you score 40%+ AI Fit). Prestige ($15/mo) includes Unlimited Outbound Protected Applications (40%+ AI Fit) and Top-Priority Spotlight placement in Employer Talent Search. You can switch or downgrade plans anytime.',
   },
 
   // ------------------------------------------------------------------
@@ -311,9 +311,9 @@ export const SUPPORT_FAQS: FAQ[] = [
     target: 'employer',
     category: 'Billing, Credits & Shortlisting',
     question:
-      'Does unlocking an Inbound Blind Application cost a Pitch Credit?',
+      'Does unlocking an Inbound Protected Application cost a Pitch Credit?',
     answer:
-      'No! Reviewing, unlocking Stage 1 threads, messaging, and shortlisting candidates who proactively submit an inbound blind application to your roles is 100% FREE (0 credits) on all active subscription plans. Pitch Credits are only used (1 credit per pitch) when you proactively send an outbound pitch to a passive candidate from the Candidate Search pool.',
+      'No! Reviewing, unlocking Stage 1 threads, messaging, and shortlisting candidates who proactively submit an inbound protected application to your roles is 100% FREE (0 credits) on all active subscription plans. Pitch Credits are only used (1 credit per pitch) when you proactively send an outbound pitch to a passive candidate from the Candidate Search pool.',
   },
   {
     id: 'e6',

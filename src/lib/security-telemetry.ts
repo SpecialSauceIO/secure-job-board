@@ -449,7 +449,7 @@ export async function inspectStage1TextForContactLeakOrInjection(params: {
       return {
         blocked: true,
         reason:
-          "2-Stage Vault Guardrail: Direct email addresses, phone numbers, and off-platform contact links cannot be embedded inside Stage 1 blind pitches or messages prior to Stage 2 Vault Release.",
+          "2-Stage Vault Guardrail: Direct email addresses, phone numbers, and off-platform contact links cannot be embedded inside Stage 1 protected pitches or messages prior to Stage 2 Vault Release.",
       }
     }
   }

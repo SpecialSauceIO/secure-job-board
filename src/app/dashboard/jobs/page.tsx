@@ -330,10 +330,10 @@ export default function CandidateJobsPage() {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-300">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Discover Blind Roles
+            Discover Protected Roles
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Upfront pay transparency (/yr or /hr) and instant 5-Point AI Fit checks—while company identities stay blind until mutual unlock.
+            Upfront pay transparency (/yr or /hr) and instant 5-Point AI Fit checks—while company identities stay protected until mutual unlock.
           </p>
         </div>
 
@@ -640,7 +640,7 @@ export default function CandidateJobsPage() {
         <div className="py-16 text-center bg-white rounded-2xl border-2 border-slate-300 shadow-xs border-slate-300">
           <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-4" />
           <p className="text-slate-500 font-medium text-sm">
-            Loading blind roles...
+            Loading protected roles...
           </p>
         </div>
       ) : (

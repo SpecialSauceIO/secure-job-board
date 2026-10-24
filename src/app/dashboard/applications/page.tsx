@@ -119,7 +119,7 @@ export default function CandidateApplicationsPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            My Blind Application Tracker
+            My Protected Application Tracker
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Track your anonymous applications, chat privately with verified employers, and share your full resume and contact info when ready.
@@ -143,7 +143,7 @@ export default function CandidateApplicationsPage() {
               { id: 'all', label: 'All Applications' },
               { id: 'shortlisted', label: '★ Shortlisted' },
               { id: 'unlocked', label: '💬 Private Chat Open' },
-              { id: 'pending', label: '🔒 Blind / Pending Review' },
+              { id: 'pending', label: '🔒 Protected / Pending Review' },
               { id: 'rejected', label: 'Archived' },
             ].map((tab) => (
               <button
@@ -227,10 +227,10 @@ export default function CandidateApplicationsPage() {
       ) : applications.length === 0 ? (
         <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs space-y-3 border-slate-300">
           <h3 className="text-lg font-extrabold text-slate-900">
-            No blind applications match your current filter
+            No protected applications match your current filter
           </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Run a free 5-Point AI Fit check on open roles and submit a blind application (+150 Profile XP) whenever you score 40%+.
+            Run a free 5-Point AI Fit check on open roles and submit a protected application (+150 Profile XP) whenever you score 40%+.
           </p>
           <Link
             href="/dashboard/jobs"
@@ -287,7 +287,7 @@ export default function CandidateApplicationsPage() {
               ? app.unlocked_employer_name ||
                 job.organizations?.name ||
                 'Verified Employer'
-              : `Blind Role • ${industryLabel}`
+              : `Protected Role • ${industryLabel}`
 
             return (
               <div
@@ -376,7 +376,7 @@ export default function CandidateApplicationsPage() {
 
                         {normStatus === 'pending' && (
                           <span className="px-3 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300">
-                            🔒 Blind Review Pending
+                            🔒 Protected Review Pending
                           </span>
                         )}
 
@@ -554,7 +554,7 @@ export default function CandidateApplicationsPage() {
                   {!isUnlocked && normStatus === 'pending' && (
                     <div className="pt-3 border-t border-slate-300 flex items-center justify-between text-xs text-slate-500">
                       <span>
-                        🛡️ <strong className="text-slate-700">Stage 0 Blind Protection:</strong> Your name, email, and PDF resume are hidden while the hiring team reviews your skill matrix.
+                        🛡️ <strong className="text-slate-700">Stage 0 Identity Protection:</strong> Your name, email, and PDF resume are hidden while the hiring team reviews your skill matrix.
                       </span>
                     </div>
                   )}

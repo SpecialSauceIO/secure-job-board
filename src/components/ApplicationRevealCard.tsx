@@ -423,7 +423,7 @@ export function ApplicationRevealCard({
             )}
             {status === 'unrevealed' && (
               <span className="text-amber-700 font-bold">
-                Blind Application
+                Protected Application
               </span>
             )}
             {status === 'unlocked' && (

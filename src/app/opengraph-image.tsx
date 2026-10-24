@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 
 export const runtime = 'nodejs'
-export const alt = 'Special Sauce | Double-Blind, ID-Verified Hiring Platform'
+export const alt = 'Special Sauce | Identity-Protected, ID-Verified Hiring Platform'
 export const size = {
   width: 1200,
   height: 630,
@@ -49,7 +49,7 @@ export default async function Image() {
             textTransform: 'uppercase',
           }}
         >
-          <span>Double-Blind</span>
+          <span>Identity-Protected</span>
           <span style={{ color: '#f97316' }}>•</span>
           <span>Stripe ID-Verified</span>
           <span style={{ color: '#f97316' }}>•</span>

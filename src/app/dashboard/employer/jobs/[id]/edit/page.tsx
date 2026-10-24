@@ -239,7 +239,7 @@ export default function EditJobPage() {
         </div>
 
         <h2 className="text-2xl font-bold text-slate-900">
-          Edit Blind Role Listing
+          Edit Protected Role Listing
         </h2>
         <p className="text-sm text-slate-500 mt-1">
           Update the compensation band (/yr or /hr), US metro location, education, certifications, required languages, standardized industry vertical, and core skill requirements.
@@ -435,7 +435,7 @@ export default function EditJobPage() {
               )
             </h3>
             <span className="text-xs font-bold text-emerald-700">
-              Displayed publicly on blind listing
+              Displayed publicly on protected listing
             </span>
           </div>
 

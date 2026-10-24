@@ -25,7 +25,7 @@ export default async function PostJobPage() {
             Post a New Role
           </h2>
           <p className="text-sm text-gray-500 mt-1">
-            Create a blind posting to attract unbiased talent.
+            Create a protected posting to attract unbiased talent.
           </p>
         </div>
         <Link 
@@ -153,7 +153,7 @@ export default async function PostJobPage() {
               Enable AI Application Screening
             </label>
             <p className="text-sm text-indigo-700 mt-1">
-              Our AI will automatically score incoming blind resumes against your job description to highlight the best matches.
+              Our AI will automatically score incoming protected resumes against your job description to highlight the best matches.
             </p>
           </div>
         </div>

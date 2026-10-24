@@ -477,7 +477,7 @@ export function CandidateApplications() {
           </h3>
           <p className="text-slate-500 max-w-md mx-auto text-sm mb-6">
             {statusFilter === 'all' && industryFilter === 'all'
-              ? "You haven't submitted any blind applications yet. Browse open roles to run AI fit predictions and apply."
+              ? "You haven't submitted any protected applications yet. Browse open roles to run AI fit predictions and apply."
               : 'No applications match your current status or Industry Vertical filter.'}
           </p>
           {statusFilter !== 'all' || industryFilter !== 'all' ? (
@@ -612,7 +612,7 @@ export function CandidateApplications() {
                           <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-600">
                             {isEmployerRevealed
                               ? org.name || 'Unlocked Employer'
-                              : 'Anonymous Employer (Blind Listing)'}
+                              : 'Anonymous Employer (Protected Listing)'}
                           </span>
                           {org.verification_status === 'verified' && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold border border-emerald-300">

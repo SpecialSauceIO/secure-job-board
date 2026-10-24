@@ -32,7 +32,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-xl">1. Introduction</h2>
             <p className="text-slate-600 leading-relaxed mt-2">
-              At specialsauce.io, operated by <strong>{LEGAL_CONFIG.legalEntityName}</strong> (&ldquo;Special Sauce,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;), trust and anti-harvesting protection are the foundation of our double-blind hiring marketplace. This Privacy Policy explains how we collect, use, vault, disclose, and safeguard your information when you visit our platform or use our services.
+              At specialsauce.io, operated by <strong>{LEGAL_CONFIG.legalEntityName}</strong> (&ldquo;Special Sauce,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;), trust and anti-harvesting protection are the foundation of our identity-protected hiring marketplace. This Privacy Policy explains how we collect, use, vault, disclose, and safeguard your information when you visit our platform or use our services.
             </p>
           </section>
 
@@ -70,10 +70,10 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-5 mt-3 space-y-2 text-slate-700">
               <li>
-                <strong>Default Blind Discovery:</strong> While browsing or evaluating AI Match Radar scores, Employers only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">Anonymous Candidate #ID</code>, extracted skills, experience years, target US Metro location, and a third-person bio. Candidates only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">Blind Role • Verified Employer</code> alongside transparent pay bands, employment type, and core skill requirements.
+                <strong>Default Protected Discovery:</strong> While browsing or evaluating AI Match Radar scores, Employers only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">Anonymous Candidate #ID</code>, extracted skills, experience years, target US Metro location, and a third-person bio. Candidates only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">Protected Role • Verified Employer</code> alongside transparent pay bands, employment type, and core skill requirements.
               </li>
               <li>
-                <strong>Stage 1 (Encrypted Thread Unlock):</strong> When an Employer unlocks an inbound blind application—or when a Candidate accepts an outbound Employer Pitch—an encrypted in-platform message thread opens under a shared Reference ID (<code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">SS-XXXXXXXX</code>). At Stage 1, the Employer’s verified company name and domain are revealed to the Candidate, and only the Candidate’s <strong>First Name and Last Initial</strong> (e.g., <em>Alex M.</em>) are revealed to the Employer. <strong>The Candidate’s raw email address and original PDF resume remain locked inside the Special Sauce Vault.</strong>
+                <strong>Stage 1 (Encrypted Thread Unlock):</strong> When an Employer unlocks an inbound protected application—or when a Candidate accepts an outbound Employer Pitch—an encrypted in-platform message thread opens under a shared Reference ID (<code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">SS-XXXXXXXX</code>). At Stage 1, the Employer’s verified company name and domain are revealed to the Candidate, and only the Candidate’s <strong>First Name and Last Initial</strong> (e.g., <em>Alex M.</em>) are revealed to the Employer. <strong>The Candidate’s raw email address and original PDF resume remain locked inside the Special Sauce Vault.</strong>
               </li>
               <li>
                 <strong>Stage 2 (Candidate-Controlled Full Vault Release):</strong> The Candidate retains 100% control over when to click the <strong>&ldquo;Release Resume &amp; Contact Vault&rdquo;</strong> button inside the message thread. Only after the Candidate explicitly approves Stage 2 release does the platform reveal their Full Name, direct email address, and a time-limited (1-hour expiring) signed URL to view their original PDF resume.
@@ -115,7 +115,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-5 mt-4 space-y-2 text-slate-600">
               <li>
-                <strong className="text-slate-800">With Verified Employers (Staged Consent):</strong> Stage 1 thread access occurs only when you apply blindly to an Employer’s role or accept their outbound pitch; Stage 2 disclosure (Full Name, direct email, and signed PDF resume link) occurs strictly when you click &ldquo;Release Resume &amp; Contact Vault.&rdquo;
+                <strong className="text-slate-800">With Verified Employers (Staged Consent):</strong> Stage 1 thread access occurs only when you submit a protected application to an Employer’s role or accept their outbound pitch; Stage 2 disclosure (Full Name, direct email, and signed PDF resume link) occurs strictly when you click &ldquo;Release Resume &amp; Contact Vault.&rdquo;
               </li>
               <li>
                 <strong className="text-slate-800">With Infrastructure &amp; Security Providers:</strong> Trusted enterprise infrastructure providers who power our global edge cloud hosting, encrypted Row-Level Security (RLS) databases and isolated private storage buckets, payment and biometric identity vaulting (Stripe), transactional email delivery, and multi-tier AI matching inference.

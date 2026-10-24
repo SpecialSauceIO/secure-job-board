@@ -457,7 +457,7 @@ export default function EmployerInboundApplicationsPage() {
             </h3>
             <p className="text-slate-500 max-w-md mx-auto text-sm mb-4">
               {statusFilter === 'all' && industryFilter === 'all'
-                ? 'When verified candidates apply to your open roles, their blind applications and full review history will appear here.'
+                ? 'When verified candidates apply to your open roles, their protected applications and full review history will appear here.'
                 : 'Try switching status tabs or resetting your Industry Vertical filter.'}
             </p>
             {(statusFilter !== 'all' || industryFilter !== 'all') && (

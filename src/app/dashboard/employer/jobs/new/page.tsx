@@ -197,7 +197,7 @@ export default function NewJobPage() {
               Corporate Domain Verification Required
             </h2>
             <p className="text-slate-600 text-sm leading-relaxed max-w-lg mx-auto mb-6">
-              To maintain platform trust, employers must verify their corporate domain before publishing blind job listings or searching the candidate pool.
+              To maintain platform trust, employers must verify their corporate domain before publishing protected job listings or searching the candidate pool.
             </p>
             <Link
               href="/dashboard/employer/organization"
@@ -234,7 +234,7 @@ export default function NewJobPage() {
           Back to Employer Dashboard
         </Link>
         <h2 className="text-2xl font-bold text-slate-900">
-          Post a New Blind Role
+          Post a New Protected Role
         </h2>
         <p className="text-sm text-slate-500 mt-1">
           Candidates will see your compensation band, US metro location, education/certification/language alignment, and standardized industry vertical, while your company name and domain remain hidden until unlock.
@@ -428,7 +428,7 @@ export default function NewJobPage() {
               )
             </h3>
             <span className="text-xs font-bold text-emerald-700">
-              Displayed publicly on blind listing
+              Displayed publicly on protected listing
             </span>
           </div>
 
@@ -668,7 +668,7 @@ export default function NewJobPage() {
               Job Description Overview
             </label>
             <p className="text-xs text-slate-500 mb-2 mt-1">
-              Describe day-to-day responsibilities and team culture. Avoid using your company name so the role remains blind until unlock.
+              Describe day-to-day responsibilities and team culture. Avoid using your company name so the role remains protected until unlock.
             </p>
             <textarea
               name="description"
@@ -689,7 +689,7 @@ export default function NewJobPage() {
             pendingText="Publishing..."
             className="rounded-xl bg-indigo-600 px-8 py-3.5 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer"
           >
-            Publish Blind Job Post
+            Publish Protected Job Post
           </SubmitButton>
         </div>
       </form>

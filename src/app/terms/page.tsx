@@ -39,7 +39,7 @@ export default function TermsOfServicePage() {
           <section>
             <h2 className="text-xl">2. Description of Service</h2>
             <p className="text-slate-600 leading-relaxed mt-2">
-              Special Sauce provides a verified, double-blind hiring marketplace protected by a 2-Stage Identity Vault and a 5-Point AI Match Radar. We connect identity-verified professionals (&ldquo;Candidates&rdquo;) with domain-verified hiring organizations (&ldquo;Employers&rdquo;) based on objective skill alignment, transparent compensation, and mutual intent. We do not guarantee employment, interview outcomes, or the on-the-job performance of any user.
+              Special Sauce provides a verified, identity-protected hiring marketplace protected by a 2-Stage Identity Vault and a 5-Point AI Match Radar. We connect identity-verified professionals (&ldquo;Candidates&rdquo;) with domain-verified hiring organizations (&ldquo;Employers&rdquo;) based on objective skill alignment, transparent compensation, and mutual intent. We do not guarantee employment, interview outcomes, or the on-the-job performance of any user.
             </p>
           </section>
 
@@ -52,7 +52,7 @@ export default function TermsOfServicePage() {
             </p>
             <ul className="list-disc pl-5 mt-3 space-y-2 text-slate-600">
               <li>
-                <strong className="text-slate-800">Candidates:</strong> Must activate a Candidate membership plan (Explorer $3/mo, Professional $9/mo, or Prestige $15/mo) and complete 1-time biometric and government ID verification via Stripe Identity before appearing in Employer Talent Search, accepting inbound employer pitches, or submitting outbound blind applications. Creating duplicate accounts or submitting falsified credentials is grounds for immediate termination.
+                <strong className="text-slate-800">Candidates:</strong> Must activate a Candidate membership plan (Explorer $3/mo, Professional $9/mo, or Prestige $15/mo) and complete 1-time biometric and government ID verification via Stripe Identity before appearing in Employer Talent Search, accepting inbound employer pitches, or submitting outbound protected applications. Creating duplicate accounts or submitting falsified credentials is grounds for immediate termination.
               </li>
               <li>
                 <strong className="text-slate-800">Employers &amp; Delegated Partners:</strong> Must verify a dedicated corporate domain (via matching corporate email or DNS TXT record) before posting active roles or searching the passive talent pool. W-2 Consultancies and authorized BPO delivery partners are supported; however, unauthorized third-party contingency headhunters may not post duplicate or unverified client listings.
@@ -78,7 +78,7 @@ export default function TermsOfServicePage() {
                 <strong>30-Day Automatic Role Expiration:</strong> Every active job listing automatically expires <strong>thirty (30) days</strong> after creation unless manually renewed by the Employer for a fresh 30-day cycle. Roles may only remain active while a genuine hiring need exists.
               </li>
               <li>
-                <strong>40%+ AI Fit &amp; Dealbreaker Firewall:</strong> Outbound Candidate blind applications and outbound Employer pitches are governed by our <strong>5-Point AI Fit Radar</strong> (40%+ AI Fit threshold for outbound blind applications). Employers are automatically blocked from pitching Candidates whose minimum annual salary expectation, preferred work model, or accepted employment types (W-2, 1099/Corp-to-Corp, Contract-to-Hire, Part-Time) conflict with the role.
+                <strong>40%+ AI Fit &amp; Dealbreaker Firewall:</strong> Outbound Candidate protected applications and outbound Employer pitches are governed by our <strong>5-Point AI Fit Radar</strong> (40%+ AI Fit threshold for outbound protected applications). Employers are automatically blocked from pitching Candidates whose minimum annual salary expectation, preferred work model, or accepted employment types (W-2, 1099/Corp-to-Corp, Contract-to-Hire, Part-Time) conflict with the role.
               </li>
             </ul>
           </section>
@@ -134,7 +134,7 @@ export default function TermsOfServicePage() {
                 </p>
                 <ul className="list-disc pl-5 space-y-1.5">
                   <li>
-                    <strong className="text-slate-800">Candidate Plans:</strong> Explorer Career Vault ($3/mo — includes 1-time Stripe Real-Person ID Verification, live anonymous talent profile in Employer Search, unlimited 5-Point AI Fit Radar checks, and unlimited inbound employer pitch unlocks), Professional ($9/mo — includes 1-time Stripe Real-Person ID Verification, unlimited inbound employer pitch unlocks, and 15 outbound blind applications per monthly cycle at 40%+ AI Fit), and Prestige ($15/mo — includes 1-time Stripe Real-Person ID Verification, unlimited outbound blind applications at 40%+ AI Fit, unlimited pitch unlocks, and Top-Priority Spotlight placement in Employer Talent Search; subscribers may switch or downgrade anytime).
+                    <strong className="text-slate-800">Candidate Plans:</strong> Explorer Career Vault ($3/mo — includes 1-time Stripe Real-Person ID Verification, live anonymous talent profile in Employer Search, unlimited 5-Point AI Fit Radar checks, and unlimited inbound employer pitch unlocks), Professional ($9/mo — includes 1-time Stripe Real-Person ID Verification, unlimited inbound employer pitch unlocks, and 15 outbound protected applications per monthly cycle at 40%+ AI Fit), and Prestige ($15/mo — includes 1-time Stripe Real-Person ID Verification, unlimited outbound protected applications at 40%+ AI Fit, unlimited pitch unlocks, and Top-Priority Spotlight placement in Employer Talent Search; subscribers may switch or downgrade anytime).
                   </li>
                   <li>
                     <strong className="text-slate-800">Employer Subscription Plans (12-Month Founding Partner Rate Lock):</strong> Free Explorer ($0/mo — Corporate Domain Verification and passive talent search preview), Starter ($149/mo Founding Rate locked for 12 months, $299/mo Retail thereafter — up to 5 simultaneous active roles, 10 monthly Pitch Credits, 2 Team/BPO collaborator seats), Growth ($499/mo Founding Rate locked for 12 months, $799/mo Retail thereafter — up to 15 simultaneous active roles, 35 monthly Pitch Credits, up to 5 Team/BPO seats), and Enterprise ($1,250/mo Founding Rate locked for 12 months, $1,999/mo Retail thereafter — unlimited simultaneous active roles, 120 monthly Pitch Credits, unlimited Team &amp; W-2 BPO/RPO seats, plus Workday &amp; Greenhouse ATS/Webhook Hub).

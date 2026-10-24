@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     default: "Special Sauce | Hire for Talent, Not Background",
   },
   description:
-    "The double-blind, ID-verified hiring platform that strips away bias and connects verified employers and professionals based purely on skills and experience.",
+    "The identity-protected, ID-verified hiring platform that strips away bias and connects verified employers and professionals based purely on skills and experience.",
   applicationName: "Special Sauce",
   alternates: {
     canonical: "/",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Special Sauce | Hire for Talent, Not Background",
     description:
-      "Bypass the resume black hole. Connect through double-blind AI skill matching and candidate-controlled identity vault release.",
+      "Bypass the resume black hole. Connect through identity-protected AI skill matching and candidate-controlled identity vault release.",
     url: "https://www.specialsauce.io",
     siteName: "Special Sauce",
     locale: "en_US",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Special Sauce | Hire for Talent, Not Background",
     description:
-      "Double-blind, Stripe ID-verified hiring. Match on verified skills first—unlock identity only by mutual consent.",
+      "Identity-protected, Stripe ID-verified hiring. Match on verified skills first—unlock identity only by mutual consent.",
   },
 };
 

@@ -1216,7 +1216,7 @@ export default function EmployerCandidateSearch({
                   {/* Row 2: Dedicated Trust, Industry & Availability Sub-Bar */}
                   <div className="pb-3 border-b border-slate-300 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs">
                     <span className="text-emerald-700 font-bold">
-                      {isCandidateVerified ? '✓ Identity Verified' : '✓ Blind Vault Active'}
+                      {isCandidateVerified ? '✓ Identity Verified' : '✓ Protected Vault Active'}
                     </span>
                     <span className="text-slate-300">•</span>
                     <span className="font-bold text-slate-800">

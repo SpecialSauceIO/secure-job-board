@@ -39,7 +39,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zEQeqE0pvy',
     description:
-      'ID-Verified Active Tier: Unlock and accept unlimited inbound employer pitches, plus 15 outbound blind applications/month (40%+ AI Fit).',
+      'ID-Verified Active Tier: Unlock and accept unlimited inbound employer pitches, plus 15 outbound protected applications/month (40%+ AI Fit).',
   },
   candidate_pro: {
     id: 'professional',
@@ -48,7 +48,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zEQeqE0pvy',
     description:
-      'ID-Verified Active Tier: Unlock and accept unlimited inbound employer pitches, plus 15 outbound blind applications/month (40%+ AI Fit).',
+      'ID-Verified Active Tier: Unlock and accept unlimited inbound employer pitches, plus 15 outbound protected applications/month (40%+ AI Fit).',
   },
   prestige: {
     id: 'prestige',
@@ -57,7 +57,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zETADS2cmp',
     description:
-      'Priority Spotlight & Unlimited: Unlimited outbound blind applications (40%+ AI Fit), top-priority placement in Employer Talent Search, and priority shortlist placement.',
+      'Priority Spotlight & Unlimited: Unlimited outbound protected applications (40%+ AI Fit), top-priority placement in Employer Talent Search, and priority shortlist placement.',
   },
   candidate_prestige: {
     id: 'prestige',
@@ -66,7 +66,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zETADS2cmp',
     description:
-      'Priority Spotlight & Unlimited: Unlimited outbound blind applications (40%+ AI Fit), top-priority placement in Employer Talent Search, and priority shortlist placement.',
+      'Priority Spotlight & Unlimited: Unlimited outbound protected applications (40%+ AI Fit), top-priority placement in Employer Talent Search, and priority shortlist placement.',
   },
 }
 
@@ -100,7 +100,7 @@ export const EMPLOYER_SAAS_TIERS: Record<
     monthlyCredits: 10,
     maxSeats: 2,
     description:
-      'Up to 5 simultaneous active blind job postings, 10 monthly passive candidate pitch credits, and 2 team seats.',
+      'Up to 5 simultaneous active protected job postings, 10 monthly passive candidate pitch credits, and 2 team seats.',
   },
   growth: {
     id: 'growth',
@@ -115,7 +115,7 @@ export const EMPLOYER_SAAS_TIERS: Record<
     monthlyCredits: 35,
     maxSeats: 5,
     description:
-      'Up to 15 simultaneous active blind job postings, 35 monthly passive candidate pitch credits, and 5 team/recruiter seats.',
+      'Up to 15 simultaneous active protected job postings, 35 monthly passive candidate pitch credits, and 5 team/recruiter seats.',
   },
   enterprise: {
     id: 'enterprise',
@@ -130,7 +130,7 @@ export const EMPLOYER_SAAS_TIERS: Record<
     monthlyCredits: 120,
     maxSeats: 999,
     description:
-      'Unlimited simultaneous active blind job postings, 120 monthly pitch credits, unlimited seats, and Workday/Greenhouse ATS webhook integration.',
+      'Unlimited simultaneous active protected job postings, 120 monthly pitch credits, unlimited seats, and Workday/Greenhouse ATS webhook integration.',
   },
 }
 
@@ -281,7 +281,7 @@ export async function POST(req: Request) {
         custom_text: {
           submit: {
             message:
-              '🔒 Double-Blind Privacy Guarantee: Your payment details are encrypted by Stripe and never shared with employers. Cancel anytime in 1 click.',
+              '🔒 Identity-Protected Privacy Guarantee: Your payment details are encrypted by Stripe and never shared with employers. Cancel anytime in 1 click.',
           },
         },
         success_url: `${origin}/dashboard/billing?billing=success&plan=${candidateTier.id}&session_id={CHECKOUT_SESSION_ID}`,

@@ -371,7 +371,7 @@ export default async function JobManagementPage() {
                   Corporate Domain Verification Required to Post New Roles
                 </h3>
                 <p className="text-xs text-amber-800 mt-0.5">
-                  You must verify your company domain on your Company Profile before creating new blind job listings.
+                  You must verify your company domain on your Company Profile before creating new protected job listings.
                 </p>
               </div>
             </div>
@@ -407,8 +407,8 @@ export default async function JobManagementPage() {
               </h3>
               <p className="text-slate-500 mb-6">
                 {isOrgVerified
-                  ? 'Create your first blind job listing to start receiving anonymous applications.'
-                  : 'Verify your corporate domain first to unlock blind job postings.'}
+                  ? 'Create your first protected job listing to start receiving anonymous applications.'
+                  : 'Verify your corporate domain first to unlock protected job postings.'}
               </p>
               {isOrgVerified ? (
                 <Link

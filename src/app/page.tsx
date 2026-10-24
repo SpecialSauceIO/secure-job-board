@@ -55,7 +55,7 @@ export default function LandingPage() {
               For good.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Whether you work in Healthcare, Hospitality, Finance, Skilled Trades, Government, or Tech—we replace black-hole job boards with upfront pay transparency, verified credentials, and complete double-blind privacy until you choose to connect.
+              Whether you work in Healthcare, Hospitality, Finance, Skilled Trades, Government, or Tech—we replace black-hole job boards with upfront pay transparency, verified credentials, and complete identity protection until you choose to connect.
             </p>
           </div>
 

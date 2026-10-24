@@ -59,7 +59,7 @@ export default function DashboardAnalyticsReport({
       'Reference ID',
       'Channel',
       'Role Title',
-      mode === 'employer' ? 'Candidate Blind ID' : 'Organization / Role Ref',
+      mode === 'employer' ? 'Candidate Protected ID' : 'Organization / Role Ref',
       '5-Point AI Match %',
       'Vault Stage',
       'Decision Status',
@@ -231,7 +231,7 @@ export default function DashboardAnalyticsReport({
                     <th className="py-2.5 px-3.5">Channel</th>
                     <th className="py-2.5 px-3.5">Role</th>
                     <th className="py-2.5 px-3.5">
-                      {mode === 'employer' ? 'Candidate Blind ID' : 'Role / Org Ref'}
+                      {mode === 'employer' ? 'Candidate Protected ID' : 'Role / Org Ref'}
                     </th>
                     <th className="py-2.5 px-3.5">AI Fit</th>
                     <th className="py-2.5 px-3.5">Vault Stage</th>

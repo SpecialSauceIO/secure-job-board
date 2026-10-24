@@ -640,7 +640,7 @@ export async function exportEnterpriseCandidatesCsv() {
       ? 'Stage 2 Vault Released'
       : app.is_revealed || app.status === 'accepted'
       ? 'Stage 1 Thread Active'
-      : 'Stage 0 Blind'
+      : 'Stage 0 Protected'
 
     const candidateName = vaultReleased
       ? matchData.candidate_full_name || cand?.full_name || 'Released Candidate'

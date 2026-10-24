@@ -233,7 +233,7 @@ export default async function DashboardPage({
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed">
                   Create an anonymous skill profile, run AI match checks, and
-                  apply blind to verified roles.
+                  submit protected applications to verified roles.
                 </p>
               </button>
 
@@ -391,7 +391,7 @@ export default async function DashboardPage({
         counterpartyId: `#${String(app.candidate_id || app.id).replace(/-/g, '').slice(0, 6).toUpperCase()}`,
         matchScore: typeof app.match_score === 'number' ? app.match_score : null,
         status: String(app.status || 'pending'),
-        vaultStage: stage2Released ? 'Stage 2 Full Release' : stage1Unlocked ? 'Stage 1 Chat Unlocked' : 'Blind Vaulted',
+        vaultStage: stage2Released ? 'Stage 2 Full Release' : stage1Unlocked ? 'Stage 1 Chat Unlocked' : 'Identity Protected',
       }
     })
 
@@ -807,7 +807,7 @@ export default async function DashboardPage({
                       inboundUnreadMsgsCount === 1 ? 'message' : 'messages'
                     }`
                   : pendingAppsCount > 0
-                  ? `${pendingAppsCount} new blind applications (free to unlock)`
+                  ? `${pendingAppsCount} new protected applications (free to unlock)`
                   : 'Candidates who applied to your roles (free unlock)'}
               </p>
             </div>
@@ -895,7 +895,7 @@ export default async function DashboardPage({
       counterpartyId: app.match_data?.employer_org_domain || `#${String(app.job_id || app.id).replace(/-/g, '').slice(0, 6).toUpperCase()}`,
       matchScore: typeof app.match_score === 'number' ? app.match_score : null,
       status: String(app.status || 'pending'),
-      vaultStage: stage2Released ? 'Stage 2 Full Release' : stage1Unlocked ? 'Stage 1 Chat Unlocked' : 'Blind Vaulted',
+      vaultStage: stage2Released ? 'Stage 2 Full Release' : stage1Unlocked ? 'Stage 1 Chat Unlocked' : 'Identity Protected',
     }
   })
 
@@ -983,10 +983,10 @@ export default async function DashboardPage({
             <span>2-Stage Identity &amp; Resume Vault Active</span>
             <span>·</span>
             <span
-              title="Your Anonymous Marketplace Identifier shown on Blind Applications & Talent Search"
+              title="Your Anonymous Marketplace Identifier shown on Protected Applications & Talent Search"
               className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 border border-indigo-200 font-mono text-[11px] font-bold text-indigo-800"
             >
-              Blind ID: #{String(user.id).slice(0, 6).toUpperCase()}
+              Protected ID: #{String(user.id).slice(0, 6).toUpperCase()}
             </span>
           </div>
         </div>
@@ -1033,7 +1033,7 @@ export default async function DashboardPage({
         <div className="rounded-2xl border-2 border-emerald-400 bg-emerald-50/90 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
           <div>
             <h2 className="text-sm font-extrabold text-emerald-950">
-              ✅ Identity Verified via Stripe! Your Blind Profile Is Now Active
+              ✅ Identity Verified via Stripe! Your Protected Profile Is Now Active
             </h2>
             <p className="mt-0.5 text-xs text-emerald-800">
               Your photo ID check succeeded. Employers can now trust your verified status while your personal identity remains 100% hidden until you accept a reveal.
@@ -1283,7 +1283,7 @@ export default async function DashboardPage({
                 ? 'An employer messaged you about your application'
                 : unlockedOutboundAppsCount > 0 || archivedOutboundAppsCount > 0
                 ? `${unlockedOutboundAppsCount} unlocked · ${archivedOutboundAppsCount} archived (view employer feedback)`
-                : 'Track blind applications & unlocked employers'}
+                : 'Track protected applications & unlocked employers'}
             </p>
           </div>
           <p
