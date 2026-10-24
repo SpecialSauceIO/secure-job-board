@@ -1,4 +1,5 @@
 'use client'
+import { trackAdConversion } from '@/components/MarketingPixels'
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
@@ -118,6 +119,13 @@ export default function EmployerBillingPage() {
         if (res?.error) {
           setFeedback({ type: 'error', text: res.error })
         } else {
+          const tierPriceMap = { starter: 149, growth: 499, enterprise: 1250 }
+          trackAdConversion('Purchase', {
+            value: tierPriceMap[tierParam] || 149,
+            currency: 'USD',
+            plan: `employer_${tierParam}`,
+            role: 'employer',
+          })
           setFeedback({
             type: 'success',
             text: res?.message || `Stripe Subscription Confirmed: Activated ${tierParam.toUpperCase()} plan.`,

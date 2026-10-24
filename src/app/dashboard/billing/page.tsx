@@ -1,4 +1,5 @@
 'use client'
+import { trackAdConversion } from '@/components/MarketingPixels'
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
@@ -92,7 +93,16 @@ export default function CandidateBillingPage() {
       (planParam === 'explorer' || planParam === 'professional' || planParam === 'prestige')
     ) {
       window.history.replaceState({}, '', '/dashboard/billing')
-      activateSandboxCandidateTier(planParam, sessionIdParam).then((res) => {
+      activateSandboxCandidateTier(planParam, sessionIdParam).then((res: any) => {
+        if (!res?.error) {
+          const priceMap = { explorer: 3, professional: 9, prestige: 15 }
+          trackAdConversion('Purchase', {
+            value: priceMap[planParam] || 3,
+            currency: 'USD',
+            plan: `candidate_${planParam}`,
+            role: 'candidate',
+          })
+        }
         if (res?.tierInfo) setTierInfo(res.tierInfo)
         const planTitle =
           planParam === 'prestige'
