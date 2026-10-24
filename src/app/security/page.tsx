@@ -11,7 +11,7 @@ export const metadata = {
 
 export default function SecurityTrustPage() {
   return (
-    <div className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900 flex flex-col justify-between">
+    <div className="min-h-screen w-full overflow-x-hidden bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900 flex flex-col justify-between">
       <div>
         <PublicHeader />
 
