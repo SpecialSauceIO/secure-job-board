@@ -418,7 +418,7 @@ export default function EmployerBillingPage() {
                 </strong>
                 , and{' '}
                 <strong className="text-emerald-300">
-                  ✓ Permanent Founding Partner Status &amp; Trust Signals
+                  ✓ Permanent Founding Partner Status &amp; Distinctions
                 </strong>
                 .
               </p>
@@ -515,7 +515,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong>
               </li>
               <li>✓ Eligible for Non-Expiring Rollover Top-Up Packs</li>
-              <li>✓ Permanent Founding Partner Status &amp; Trust Signals</li>
+              <li>✓ Permanent Founding Partner Status &amp; Distinctions</li>
             </ul>
           </div>
 
@@ -589,7 +589,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong>
               </li>
               <li>✓ Eligible for Non-Expiring Rollover Top-Up Packs</li>
-              <li>✓ Permanent Founding Partner Status &amp; Trust Signals</li>
+              <li>✓ Permanent Founding Partner Status &amp; Distinctions</li>
             </ul>
           </div>
 

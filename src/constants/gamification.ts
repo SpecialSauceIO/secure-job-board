@@ -24,7 +24,7 @@ export interface MetalTierConfig {
 export const SEASON_0_CUTOFF_ISO = '2027-01-31T23:59:59.000Z'
 export const FOUNDER_XP_MULTIPLIER = 1
 
-// Preserved for type compatibility, but mapped to clean behavioral status labels
+// Preserved for type compatibility, mapped to clean distinction labels
 export const METAL_TIERS: MetalTierConfig[] = [
   {
     id: 'bronze',
@@ -100,6 +100,26 @@ export function resolveTierFromXp(unlockedCount: number, totalCount: number) {
     nextLevelXp: totalCount,
     levelProgressPct: pct,
   }
+}
+
+function respondedWithinHours(app: any, maxHours: number, role: 'candidate' | 'employer'): boolean {
+  const createdMs = app?.created_at ? new Date(app.created_at).getTime() : NaN
+  const msgs = Array.isArray(app?.match_data?.messages) ? app.match_data.messages : []
+  const firstReply = msgs.find((m: any) => m?.sender_role === role && m?.created_at)
+
+  if (firstReply && !isNaN(createdMs)) {
+    const replyMs = new Date(firstReply.created_at).getTime()
+    if (!isNaN(replyMs) && replyMs >= createdMs) {
+      return (replyMs - createdMs) <= maxHours * 3600 * 1000
+    }
+  }
+
+  const updatedMs = app?.updated_at ? new Date(app.updated_at).getTime() : NaN
+  if (!isNaN(createdMs) && !isNaN(updatedMs) && updatedMs >= createdMs) {
+    return (updatedMs - createdMs) <= maxHours * 3600 * 1000
+  }
+
+  return true
 }
 
 export function calculateCandidateGamification(
@@ -181,33 +201,72 @@ export function calculateCandidateGamification(
       p.status === 'declined' ||
       p.is_revealed === true
   )
-  const activeThreads = (applications || []).filter(
+  const candidateRepliedThreads = (applications || []).filter(
     (a) =>
-      a.is_revealed === true ||
-      a.status === 'accepted' ||
-      a.status === 'shortlisted' ||
-      (Array.isArray(a.match_data?.messages) &&
-        a.match_data.messages.length > 0)
+      Array.isArray(a.match_data?.messages) &&
+      a.match_data.messages.some((m: any) => m.sender_role === 'candidate')
   )
+
+  // Fast 24-hour responses across inbound pitches or active message threads
+  const fastResponseSet = new Set<string>()
+  respondedPitches.forEach((p, idx) => {
+    if (respondedWithinHours(p, 24, 'candidate')) {
+      fastResponseSet.add(String(p.id || `pitch-${idx}`))
+    }
+  })
+  candidateRepliedThreads.forEach((t, idx) => {
+    if (respondedWithinHours(t, 24, 'candidate')) {
+      fastResponseSet.add(String(t.id || `thread-${idx}`))
+    }
+  })
+  const fastRepliesCount = fastResponseSet.size
+
   const stage2Releases = (applications || []).filter(
     (a) => a.match_data?.candidate_vault_released === true
   )
-  const highMatchApps = outboundApps.filter(
+
+  // 75%+ and 85%+ Fit counts across outbound applications and accepted pitches
+  const qualifiedFitApps = (applications || []).filter(
+    (a) =>
+      a.initiated_by !== 'employer' ||
+      a.status === 'accepted' ||
+      a.is_revealed === true
+  )
+  const highMatchApps75 = qualifiedFitApps.filter(
     (a) => Number(a.match_score ?? a.match_data?.overall_score ?? 0) >= 75
   )
+  const eliteMatchApps85 = qualifiedFitApps.filter(
+    (a) => Number(a.match_score ?? a.match_data?.overall_score ?? 0) >= 85
+  )
+
+  // Inbound demand count: employer pitches received + outbound applications unlocked/shortlisted by employers
+  const employerUnlockedOutbound = outboundApps.filter(
+    (a) =>
+      a.is_revealed === true ||
+      a.status === 'accepted' ||
+      a.status === 'shortlisted'
+  )
+  const inboundDemandCount = inboundPitches.length + employerUnlockedOutbound.length
 
   const commendationsCount =
     Number(prefMeta?.employer_commendations || 0) + stage2Releases.length
+
+  // Account tenure in days for long-term Seasoned Vet distinction
+  const createdMs = profile?.created_at ? new Date(profile.created_at).getTime() : Date.now()
+  const accountAgeDays = !isNaN(createdMs)
+    ? Math.max(1, Math.floor((Date.now() - createdMs) / (1000 * 60 * 60 * 24)))
+    : 1
 
   const isFounder = isSeasonZeroFounder(
     profile?.created_at,
     prefMeta?.founding_member
   )
 
-  const isResponsiveCandidate =
-    activeThreads.length >= 1 || respondedPitches.length >= 1
-  const isHighPrecision =
-    highMatchApps.length >= 1 || respondedPitches.length >= 1
+  const isResponsiveCandidate = fastRepliesCount >= 3
+  const isHighPrecision = highMatchApps75.length >= 3
+  const isInDemand = inboundDemandCount >= 5
+  const isEliteMatch = eliteMatchApps85.length >= 5
+  const isSeasonedVet = commendationsCount >= 3 && accountAgeDays >= 60
 
   const badges: EarnedBadgeItem[] = [
     {
@@ -215,10 +274,10 @@ export function calculateCandidateGamification(
       title: 'Founding Member',
       shortLabel: 'Founding Member',
       description:
-        'Charter professional onboarded during the Founding Launch Cohort.',
+        'Early-access professional onboarded during the Founding Launch window.',
       icon: '✓',
       unlocked: isFounder,
-      progressText: isFounder ? 'Active' : 'Founding Cohort',
+      progressText: isFounder ? 'Active' : 'Founding Launch Cohort',
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {
@@ -226,38 +285,12 @@ export function calculateCandidateGamification(
       title: 'Vault-Ready Profile',
       shortLabel: 'Vault Ready',
       description:
-        'Identity verified via Stripe, structured skill matrix extracted, and match preferences configured.',
+        'Real-person identity verified via Stripe, resume skills extracted, and minimum pay & work preferences saved.',
       icon: '✓',
       unlocked: isVaultReady,
       progressText: isVaultReady
         ? 'Active'
-        : 'Complete profile, preferences & ID verification',
-      accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
-    },
-    {
-      id: 'responsive_pro',
-      title: 'Responsive Candidate',
-      shortLabel: 'Responsive',
-      description:
-        'Actively responds to employer connection pitches and encrypted Stage 1 interview threads.',
-      icon: '✓',
-      unlocked: isResponsiveCandidate,
-      progressText: isResponsiveCandidate
-        ? 'Active'
-        : 'Respond to an employer pitch or thread',
-      accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
-    },
-    {
-      id: 'precision_applicant',
-      title: 'High-Precision Applicant',
-      shortLabel: 'High-Fit Applicant',
-      description:
-        'Submitted blind applications or accepted pitches at a 75%+ 5-Point AI Fit score.',
-      icon: '✓',
-      unlocked: isHighPrecision,
-      progressText: isHighPrecision
-        ? `Active (${highMatchApps.length + respondedPitches.length} high-fit)`
-        : 'Apply to a role at 75%+ AI Fit',
+        : 'Complete Stripe ID check, resume skills & Match Preferences',
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {
@@ -265,13 +298,39 @@ export function calculateCandidateGamification(
       title: 'Verified Credentials',
       shortLabel: 'Certified',
       description:
-        'Documented active industry certifications, licenses, or multilingual fluency on profile.',
+        'Holds active industry certifications, professional licenses, or Advanced/Fluent multilingual proficiency on profile.',
       icon: '✓',
       unlocked: hasCertifications || isMultilingual,
       progressText:
         hasCertifications || isMultilingual
           ? 'Active'
-          : 'Add certifications or secondary language on Profile',
+          : 'Add a license, certification, or secondary language on My Profile',
+      accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
+    },
+    {
+      id: 'responsive_pro',
+      title: '24-Hour Responder',
+      shortLabel: '24h Responder',
+      description:
+        'Consistently replies to employer connection pitches and active chat messages within 24 hours.',
+      icon: '✓',
+      unlocked: isResponsiveCandidate,
+      progressText: isResponsiveCandidate
+        ? 'Active'
+        : `Reply to 3 employer pitches or chats within 24h (${fastRepliesCount}/3 completed)`,
+      accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
+    },
+    {
+      id: 'precision_applicant',
+      title: 'High-Precision Applicant',
+      shortLabel: 'High-Fit Applicant',
+      description:
+        'Applies selectively to strong-fit roles, maintaining a 75%+ 5-Point AI Fit score across 3+ applications or pitches.',
+      icon: '✓',
+      unlocked: isHighPrecision,
+      progressText: isHighPrecision
+        ? `Active (${highMatchApps75.length} roles at 75%+ Fit)`
+        : `Submit 3 applications at 75%+ AI Fit (${highMatchApps75.length}/3 completed)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {
@@ -279,13 +338,52 @@ export function calculateCandidateGamification(
       title: 'Verified Connection',
       shortLabel: 'Resume Shared',
       description:
-        'Completed mutual Stage 2 Resume & Contact Vault release with a verified employer.',
+        'Completed a private chat and voluntarily released full resume and contact details to a verified hiring team.',
       icon: '✓',
       unlocked: commendationsCount >= 1,
       progressText:
         commendationsCount >= 1
           ? 'Active'
-          : 'Release Stage 2 Vault in an active thread',
+          : 'Release your full resume & contact card in 1 active employer chat',
+      accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
+    },
+    {
+      id: 'in_demand_talent',
+      title: 'In-Demand Talent',
+      shortLabel: 'In-Demand',
+      description:
+        'Repeatedly pitched or unlocked for private interviews by verified hiring teams searching the talent pool.',
+      icon: '✓',
+      unlocked: isInDemand,
+      progressText: isInDemand
+        ? 'Active'
+        : `Receive 5 employer pitches or interview unlocks (${inboundDemandCount}/5 earned)`,
+      accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
+    },
+    {
+      id: 'elite_match_85',
+      title: 'Top-Tier Match (85%+)',
+      shortLabel: '85%+ Top Match',
+      description:
+        'Elite role targeting—matched and applied or connected across 5+ roles at an 85%+ 5-Point AI Fit score.',
+      icon: '✓',
+      unlocked: isEliteMatch,
+      progressText: isEliteMatch
+        ? 'Active'
+        : `Apply or connect on 5 roles at 85%+ AI Fit (${eliteMatchApps85.length}/5 completed)`,
+      accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
+    },
+    {
+      id: 'seasoned_vet',
+      title: 'Seasoned Vet',
+      shortLabel: 'Seasoned Vet',
+      description:
+        'Long-term platform distinction—completed 3+ full resume releases with verified employers and 60+ days active.',
+      icon: '✓',
+      unlocked: isSeasonedVet,
+      progressText: isSeasonedVet
+        ? 'Active'
+        : `Complete 3 resume releases (${commendationsCount}/3) & 60 days active (${Math.min(accountAgeDays, 60)}/60d)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
   ]
@@ -293,8 +391,10 @@ export function calculateCandidateGamification(
   const unlockedCount = badges.filter((b) => b.unlocked).length
   const rankData = resolveTierFromXp(unlockedCount, badges.length)
 
-  const primaryBehavioralSignal = isResponsiveCandidate
-    ? 'Responsive Candidate'
+  const primaryBehavioralSignal = isSeasonedVet
+    ? 'Seasoned Vet'
+    : isResponsiveCandidate
+    ? '24-Hour Responder'
     : isVaultReady
     ? 'Vault Ready'
     : isHighPrecision
@@ -351,13 +451,23 @@ export function calculateEmployerGamification(
       a.match_data.messages.some((m: any) => m.sender_role === 'employer')
   )
 
-  const isResponsiveEmployer =
-    unlockedOrReviewed.length >= 1 ||
-    messagedThreads.length >= 1 ||
-    totalOutreachCount >= 1
+  const fastEmployerReviews = unlockedOrReviewed.filter((a) =>
+    respondedWithinHours(a, 48, 'employer')
+  )
+  const employerActionCount = Math.max(
+    fastEmployerReviews.length,
+    messagedThreads.length
+  )
+
+  const isResponsiveEmployer = employerActionCount >= 3
 
   const isActiveTalentScout =
-    activeJobs.length >= 2 || totalOutreachCount >= 3
+    activeJobs.length >= 2 || totalOutreachCount >= 5
+
+  const mutualVaultReleases = (applications || []).filter(
+    (a) => a.match_data?.candidate_vault_released === true
+  )
+  const isTrustedHiringTeam = mutualVaultReleases.length >= 3
 
   const isFounder = isSeasonZeroFounder(org?.created_at, true)
 
@@ -367,7 +477,7 @@ export function calculateEmployerGamification(
       title: 'Founding Partner',
       shortLabel: 'Founding Partner',
       description:
-        'Charter employer organization onboarded during the Founding Launch Cohort.',
+        'Early-access employer organization onboarded during the Founding Launch window.',
       icon: '✓',
       unlocked: isFounder,
       progressText: 'Active',
@@ -378,25 +488,12 @@ export function calculateEmployerGamification(
       title: 'Verified Corporate Domain',
       shortLabel: 'Verified Domain',
       description:
-        'Passed corporate domain & DNS verification confirming authentic employer identity.',
+        'Passed corporate domain & DNS verification confirming authentic company identity.',
       icon: '✓',
       unlocked: isDomainVerified,
       progressText: isDomainVerified
         ? 'Active'
-        : 'Verify domain on Manage Profile',
-      accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
-    },
-    {
-      id: 'active_reviewer',
-      title: 'Responsive Employer',
-      shortLabel: 'Responsive Employer',
-      description:
-        'Actively reviews applicants, unlocks profiles, or replies to candidates in Stage 1 threads.',
-      icon: '✓',
-      unlocked: isResponsiveEmployer,
-      progressText: isResponsiveEmployer
-        ? 'Active'
-        : 'Review an applicant or send a pitch',
+        : 'Complete DNS domain verification on Company Profile',
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {
@@ -404,12 +501,25 @@ export function calculateEmployerGamification(
       title: 'Upfront Pay Transparency',
       shortLabel: 'Pay Transparency',
       description:
-        'Publishes blind role listings with upfront minimum and maximum compensation bands.',
+        'Publishes open job listings with upfront minimum and maximum annual or hourly pay bands.',
       icon: '✓',
       unlocked: hasPayTransparency,
       progressText: hasPayTransparency
         ? 'Active'
-        : 'Publish a role with salary/hourly band',
+        : 'Publish an active role with a minimum and maximum pay band',
+      accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
+    },
+    {
+      id: 'active_reviewer',
+      title: '48-Hour Reviewer',
+      shortLabel: '48h Reviewer',
+      description:
+        'Reviews inbound applicants, unlocks profiles, or messages candidates within 48 hours across 3+ candidates.',
+      icon: '✓',
+      unlocked: isResponsiveEmployer,
+      progressText: isResponsiveEmployer
+        ? 'Active'
+        : `Review or message 3 candidates within 48h (${employerActionCount}/3 completed)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {
@@ -417,12 +527,25 @@ export function calculateEmployerGamification(
       title: 'Active Hiring Pipeline',
       shortLabel: 'Active Hiring',
       description:
-        'Maintains 2+ active blind role listings or sent 3+ direct outbound candidate pitches.',
+        'Maintains 2+ active job listings or has sent 5+ direct outbound candidate pitches.',
       icon: '✓',
       unlocked: isActiveTalentScout,
       progressText: isActiveTalentScout
         ? 'Active'
-        : `${activeJobs.length}/2 roles or ${totalOutreachCount}/3 pitches`,
+        : `${activeJobs.length}/2 active roles or ${totalOutreachCount}/5 candidate pitches`,
+      accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
+    },
+    {
+      id: 'trusted_hiring_team',
+      title: 'Trusted Hiring Team',
+      shortLabel: 'Candidate Vetted',
+      description:
+        'Earned mutual trust with 3+ candidates who voluntarily released their full resume and contact details after chatting.',
+      icon: '✓',
+      unlocked: isTrustedHiringTeam,
+      progressText: isTrustedHiringTeam
+        ? 'Active'
+        : `Complete 3 mutual candidate resume releases (${mutualVaultReleases.length}/3 completed)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
   ]
@@ -430,8 +553,10 @@ export function calculateEmployerGamification(
   const unlockedCount = badges.filter((b) => b.unlocked).length
   const rankData = resolveTierFromXp(unlockedCount, badges.length)
 
-  const primaryBehavioralSignal = isResponsiveEmployer
-    ? 'Responsive Employer'
+  const primaryBehavioralSignal = isTrustedHiringTeam
+    ? 'Trusted Hiring Team'
+    : isResponsiveEmployer
+    ? '48-Hour Reviewer'
     : hasPayTransparency
     ? 'Pay Transparency'
     : isDomainVerified

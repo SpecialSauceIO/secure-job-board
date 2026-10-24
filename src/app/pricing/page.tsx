@@ -146,7 +146,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
-                      <span><strong>Verified Behavioral Trust Signals</strong> (Vault-Ready &amp; Responsive Badges)</span>
+                      <span><strong>Verified Profile Distinctions</strong> (Vault-Ready &amp; Responsive Badges)</span>
                     </li>
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
@@ -206,7 +206,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-amber-300 font-bold">
                       <span>★</span>
-                      <span><strong>Verified Behavioral Trust Signals</strong> &amp; Priority Shortlist Placement</span>
+                      <span><strong>Verified Profile Distinctions</strong> &amp; Priority Shortlist Placement</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>
@@ -302,7 +302,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
-                      <span><strong>Permanent Founding Partner Status &amp; Trust Signals</strong></span>
+                      <span><strong>Permanent Founding Partner Status &amp; Distinctions</strong></span>
                     </li>
                     <li className="flex items-start gap-2 text-slate-400">
                       <span>✕</span>
@@ -367,7 +367,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-amber-300 font-bold">
                       <span>★</span>
-                      <span><strong>Permanent Founding Partner Status &amp; Trust Signals</strong></span>
+                      <span><strong>Permanent Founding Partner Status &amp; Distinctions</strong></span>
                     </li>
                     <li className="flex items-start gap-2 text-slate-500">
                       <span>✕</span>
@@ -436,7 +436,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
-                      <span><strong>Permanent Founding Partner Status &amp; Trust Signals</strong></span>
+                      <span><strong>Permanent Founding Partner Status &amp; Distinctions</strong></span>
                     </li>
                   </ul>
                 </div>

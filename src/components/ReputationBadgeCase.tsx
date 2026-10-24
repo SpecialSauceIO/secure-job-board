@@ -98,7 +98,7 @@ export default function ReputationBadgeCase({
       <div className="px-6 py-3.5 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 mr-1">
-            Earned Signals
+            Earned Distinctions
           </span>
 
           {unlockedBadges.map((badge, idx) => {
@@ -139,7 +139,7 @@ export default function ReputationBadgeCase({
             onClick={() => setIsExpanded((prev) => !prev)}
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border-2 border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold transition-colors cursor-pointer shadow-2xs"
           >
-            <span>{isExpanded ? "Hide Details" : "Signal Criteria"}</span>
+            <span>{isExpanded ? "Hide Details" : "Distinction Criteria"}</span>
             <svg
               className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
                 isExpanded ? "rotate-180" : ""
@@ -159,11 +159,11 @@ export default function ReputationBadgeCase({
         </div>
       </div>
 
-      {/* Collapsible Behavioral Signal Criteria Drawer */}
+      {/* Collapsible Behavioral Distinction Criteria Drawer */}
       {isExpanded && (
         <div className="px-6 py-5 bg-slate-50/70 border-t-2 border-slate-200 space-y-3.5 animate-in fade-in duration-150">
           <p className="text-xs font-medium text-slate-600">
-            Behavioral signals are earned automatically through verified account setup, responsiveness, and platform activity.
+            Profile distinctions are earned automatically through verified account setup, timely responsiveness, and milestone activity.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">

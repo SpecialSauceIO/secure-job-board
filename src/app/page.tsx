@@ -408,7 +408,7 @@ export default function LandingPage() {
                   2. See Your Fit Before You Apply
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Every job listing shows real pay bands (annual or hourly) and closes after 30 days so you never apply to dead roles. Check your instant 5-Point AI Fit score before submitting an anonymous application and earn verified behavioral responsiveness signals.
+                  Every job listing shows real pay bands (annual or hourly) and closes after 30 days so you never apply to dead roles. Check your instant 5-Point AI Fit score before submitting an anonymous application and earn verified profile distinctions.
                 </p>
               </div>
 
