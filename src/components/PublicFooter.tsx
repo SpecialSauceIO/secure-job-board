@@ -20,13 +20,7 @@ export function PublicFooter() {
         </Link>
 
         {/* Legal, Support Ticket Form & General Contact Links */}
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-          <Link
-            href="/pricing"
-            className="text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors whitespace-nowrap"
-          >
-            Pricing &amp; Perks
-          </Link>
+        <div className="flex flex-wrap lg:flex-nowrap items-center justify-center gap-x-5 gap-y-2">
           <Link
             href="/security"
             className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors whitespace-nowrap"
