@@ -1,5 +1,7 @@
 'use server'
 
+import { evaluateCertificationMatch, parseAndNormalizeCertifications } from '@/constants/certifications'
+
 import { createClient } from '@/utils/supabase/server'
 import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
@@ -1533,9 +1535,7 @@ export async function updateProfile(formData: FormData) {
     ? normalizeCandidateEducation(education_level_raw)
     : ''
   const hasCertificationsField = formData.has('certifications')
-  const certifications_raw = (
-    (formData.get('certifications') as string) || ''
-  ).trim()
+  const certifications_raw = parseAndNormalizeCertifications((formData.get('certifications') as string) || '').join(', ')
 
   const hasLanguagesField = formData.has('languages')
   const languages_raw = ((formData.get('languages') as string) || '').trim()
@@ -3580,21 +3580,15 @@ function computeMultiVariablePillarBaseline(profile: any, job: any) {
     eduPoints = Math.min(eduPoints, 8)
   }
 
-  const reqCertsRaw = String(job?.required_certifications || job?.job_meta?.required_certifications || '').toLowerCase().trim()
+  const reqCertsRaw = String(job?.required_certifications || job?.job_meta?.required_certifications || '').trim()
   let certPoints = 10
-  if (!reqCertsRaw || reqCertsRaw === 'none' || reqCertsRaw === 'none specified') {
+  if (!reqCertsRaw || reqCertsRaw.toLowerCase() === 'none' || reqCertsRaw.toLowerCase() === 'none specified') {
     certPoints = exactIndustryMatch || combinedSkillSignal >= 0.4 ? 18 : 6
   } else {
-    const reqCertTokens = reqCertsRaw.split(/[,/•]+/).map((c) => c.trim()).filter(Boolean)
-    const matchedCerts = reqCertTokens.filter((rc) =>
-      rc
-        .split(/\s+/)
-        .filter((w) => w.length >= 3)
-        .some((w) => candFullCorpus.includes(w.toLowerCase()))
-    )
+    const certEval = evaluateCertificationMatch(candCerts, candFullCorpus, reqCertsRaw)
     certPoints =
-      matchedCerts.length > 0
-        ? Math.round(10 + (matchedCerts.length / reqCertTokens.length) * 10)
+      certEval.matchedCount > 0 && certEval.totalRequired > 0
+        ? Math.round(10 + (certEval.matchedCount / certEval.totalRequired) * 10)
         : 4
   }
 
@@ -3906,9 +3900,7 @@ function buildJobRequirementsWithMeta(
     : prevMeta.education_req ||
       "Bachelor's Degree OR Equivalent Practical Experience"
 
-  const required_certifications = formData.has('required_certifications')
-    ? ((formData.get('required_certifications') as string) || '').trim()
-    : prevMeta.required_certifications || ''
+  const required_certifications = formData.has('required_certifications') ? parseAndNormalizeCertifications((formData.get('required_certifications') as string) || '').join(', ') : prevMeta.required_certifications || ''
 
   const required_languages = formData.has('required_languages')
     ? normalizeLanguageList(formData.get('required_languages') as string, true)

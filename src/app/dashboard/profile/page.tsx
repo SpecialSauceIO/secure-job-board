@@ -1,3 +1,4 @@
+import StructuredCertificationSelector from '@/components/StructuredCertificationSelector'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
@@ -354,12 +355,10 @@ export default async function ProfilePage() {
             <p className="text-xs text-slate-500 mb-2">
               Comma-separated credentials matched directly against certification-required roles.
             </p>
-            <input
-              type="text"
+            <StructuredCertificationSelector
               name="certifications"
-              defaultValue={currentCertifications}
-              placeholder="e.g. AWS Solutions Architect, CompTIA Security+, PMP"
-              className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+              initialValue={currentCertifications}
+              industryVertical={currentIndustryVertical}
             />
           </div>
 
