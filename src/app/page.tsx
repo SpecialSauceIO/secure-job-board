@@ -112,8 +112,7 @@ export default function LandingPage() {
               </span>
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Join during our launch window to unlock{' '}
-              <strong className="text-slate-700">$3/mo ID-Verified Explorer Career Vaults</strong> for candidates, <strong className="text-slate-700">12-Month Founding Partner Rate Locks</strong> for employers, and <strong className="text-slate-700">100% Accepted-Only Pitch Credit Protection</strong>.
+              Join during our launch window to claim a <strong className="text-slate-700">permanent ★ Founding Member Charter distinction</strong> on your candidate profile, <strong className="text-slate-700">12-Month Founding Partner Rate Locks</strong> for employers, and <strong className="text-slate-700">100% Accepted-Only Pitch Credit Protection</strong>.
             </p>
           </div>
 
