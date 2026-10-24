@@ -90,7 +90,7 @@ async function isAuthorizedFounderOrCron(req: NextRequest): Promise<boolean> {
     const email = (user?.email || "").toLowerCase()
     if (email.endsWith("@specialsauce.io") || email.includes("sbriley")) return true
   } catch {}
-  return !cronSecret
+  return false
 }
 
 export async function POST(req: NextRequest) {

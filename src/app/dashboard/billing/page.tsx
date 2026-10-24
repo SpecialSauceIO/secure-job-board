@@ -34,7 +34,7 @@ export default function CandidateBillingPage() {
     const isLocal =
       window.location.hostname === 'localhost' ||
       window.location.hostname === '127.0.0.1'
-    if (isLocal || params.get('qa') === '1' || params.get('qa') === 'true') {
+    if (isLocal) {
       setShowQaControls(true)
     }
   }, [])
@@ -86,13 +86,15 @@ export default function CandidateBillingPage() {
     const params = new URLSearchParams(window.location.search)
     const billingStatus = params.get('billing')
     const planParam = params.get('plan') as 'explorer' | 'professional' | 'prestige' | null
+    const sessionIdParam = params.get('session_id')
     const selectParam = params.get('select') as 'explorer' | 'professional' | 'prestige' | null
     if (
       billingStatus === 'success' &&
+      sessionIdParam &&
       (planParam === 'explorer' || planParam === 'professional' || planParam === 'prestige')
     ) {
       window.history.replaceState({}, '', '/dashboard/billing')
-      activateSandboxCandidateTier(planParam).then((res) => {
+      activateSandboxCandidateTier(planParam, sessionIdParam).then((res) => {
         if (res?.tierInfo) setTierInfo(res.tierInfo)
         const planTitle =
           planParam === 'prestige'

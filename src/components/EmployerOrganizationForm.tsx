@@ -55,7 +55,7 @@ export default function EmployerOrganizationForm({
     const isLocal =
       window.location.hostname === 'localhost' ||
       window.location.hostname === '127.0.0.1'
-    if (isLocal || params.get('qa') === '1' || params.get('qa') === 'true') {
+    if (isLocal) {
       setShowQaControls(true)
     }
   }, [])

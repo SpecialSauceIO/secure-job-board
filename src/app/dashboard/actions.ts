@@ -7,6 +7,7 @@ import { cookies } from 'next/headers'
 import { GoogleGenAI } from '@google/genai'
 import Groq from 'groq-sdk'
 import OpenAI from 'openai'
+import Stripe from 'stripe'
 import dns from 'node:dns/promises'
 import {
   STANDARD_INDUSTRY_VERTICALS,
@@ -34,8 +35,8 @@ const MIN_MATCH_THRESHOLD = 40
 const CANDIDATE_TRIAL_MAX_APPS = 15
 const CANDIDATE_TRIAL_DAYS = 30
 const EMPLOYER_FOUNDER_GRANT_DAYS = 30
-const EMPLOYER_FOUNDER_GRANT_JOBS = 5
-const EMPLOYER_FOUNDER_GRANT_CREDITS = 10
+const EMPLOYER_FOUNDER_GRANT_JOBS = 0
+const EMPLOYER_FOUNDER_GRANT_CREDITS = 0
 const JOB_EXPIRATION_DAYS = 30
 const MAX_SILENT_UNLOCKS = 5
 
@@ -56,11 +57,64 @@ const FREE_EMAIL_DOMAINS = new Set([
   'ymail.com',
   'mail.com',
   'gmx.com',
+  'test.com',
+  'example.com',
 ])
 
 // ------------------------------------------------------------------
 // HELPER: SANITIZE ENV KEYS (STRIPS ACCIDENTAL QUOTES & WHITESPACE)
 // ------------------------------------------------------------------
+function isFounderAdminEmail(email?: string | null): boolean {
+  if (!email) return false
+  const lower = email.toLowerCase().trim()
+  return lower.endsWith('@specialsauce.io')
+}
+
+async function verifyPaidStripeCheckoutSession(params: {
+  sessionId?: string | null
+  expectedUserId?: string
+  expectedOrgId?: string
+}): Promise<{ verified: boolean; session?: Stripe.Checkout.Session; error?: string }> {
+  const sid = (params.sessionId || '').trim()
+  if (!sid || !sid.startsWith('cs_')) {
+    return { verified: false, error: 'Missing or invalid Stripe Checkout session ID.' }
+  }
+  const stripeKey = cleanEnvKey(process.env.STRIPE_SECRET_KEY || process.env.STRIPE_IDENTITY_SECRET_KEY)
+  if (!stripeKey) {
+    return { verified: false, error: 'Stripe configuration missing.' }
+  }
+  try {
+    const stripe = new Stripe(stripeKey, { apiVersion: '2026-09-30.endive' as any })
+    const session = await stripe.checkout.sessions.retrieve(sid)
+    const isPaidOrComplete =
+      session.payment_status === 'paid' ||
+      session.payment_status === 'no_payment_required' ||
+      session.status === 'complete'
+    if (!isPaidOrComplete) {
+      return { verified: false, error: 'Stripe Checkout session is not completed or paid.' }
+    }
+    if (params.expectedUserId) {
+      const refMatch =
+        session.client_reference_id === params.expectedUserId ||
+        session.metadata?.userId === params.expectedUserId
+      if (!refMatch) {
+        return { verified: false, error: 'Stripe session does not belong to the current user.' }
+      }
+    }
+    if (params.expectedOrgId) {
+      const orgMatch =
+        session.client_reference_id === params.expectedOrgId ||
+        session.metadata?.organizationId === params.expectedOrgId
+      if (!orgMatch) {
+        return { verified: false, error: 'Stripe session does not belong to your organization.' }
+      }
+    }
+    return { verified: true, session }
+  } catch (err: any) {
+    return { verified: false, error: err?.message || 'Failed to verify Stripe Checkout session.' }
+  }
+}
+
 function cleanEnvKey(rawKey?: string | null): string {
   if (!rawKey) return ''
   return rawKey.trim().replace(/^["']+|["']+$/g, '').trim()
@@ -524,13 +578,27 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
 }
 
 export async function activateSandboxCandidateTier(
-  targetMode: 'explorer' | 'professional' | 'prestige' | 'trial' | 'expired' | 'pro' | 'free'
+  targetMode: 'explorer' | 'professional' | 'prestige' | 'trial' | 'expired' | 'pro' | 'free',
+  stripeSessionId?: string
 ) {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Unauthorized' }
+
+  if (!isFounderAdminEmail(user.email)) {
+    const check = await verifyPaidStripeCheckoutSession({
+      sessionId: stripeSessionId,
+      expectedUserId: user.id,
+    })
+    if (!check.verified) {
+      return {
+        error:
+          'Security Block: Direct plan switching requires a verified Stripe Checkout session. Please subscribe via Stripe Checkout.',
+      }
+    }
+  }
 
   const normalizedMode =
     targetMode === 'expired' || targetMode === 'free'
@@ -5079,17 +5147,6 @@ export async function saveOrganizationProfile(formData: FormData) {
     `${cleanUserDesc} ${existingTierMarker} ${existingSeatsTag} ${existingAtsTag}`.trim()
 
   if (orgId) {
-    const { data: existingOrgCredits } = await supabase
-      .from('organizations')
-      .select('connection_credits, total_requests_sent')
-      .eq('id', orgId)
-      .single()
-
-    const shouldGrantFounderCredits =
-      currentStatus === 'verified' &&
-      (existingOrgCredits?.connection_credits || 0) === 0 &&
-      (existingOrgCredits?.total_requests_sent || 0) === 0
-
     const { error } = await supabase
       .from('organizations')
       .update({
@@ -5098,28 +5155,20 @@ export async function saveOrganizationProfile(formData: FormData) {
         description: storedDescription,
         logo_url,
         verification_status: currentStatus,
-        ...(shouldGrantFounderCredits
-          ? { connection_credits: EMPLOYER_FOUNDER_GRANT_CREDITS }
-          : {}),
       })
       .eq('id', orgId)
 
     if (error) return { error: error.message }
   } else {
-    const initialTierTag =
-      currentStatus === 'verified' ? '[TIER:starter]' : '[TIER:free]'
-    const initialCredits =
-      currentStatus === 'verified' ? EMPLOYER_FOUNDER_GRANT_CREDITS : 0
-
     const { data: newOrg, error: orgError } = await supabase
       .from('organizations')
       .insert({
         name,
         domain: cleanedDomain,
-        description: `${cleanUserDesc} ${initialTierTag}`.trim(),
+        description: `${cleanUserDesc} [TIER:free]`.trim(),
         logo_url,
         verification_status: currentStatus,
-        connection_credits: initialCredits,
+        connection_credits: 0,
       })
       .select()
       .single()
@@ -5153,7 +5202,7 @@ export async function saveOrganizationProfile(formData: FormData) {
     domain: cleanedDomain,
     verification_status: currentStatus,
     message: autoVerified
-      ? `Profile saved & ${cleanedDomain} automatically verified via your matching work email (${user.email})! Your Founding Partner Charter Status & 12-Month Rate Lock eligibility (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Launch Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`
+      ? `Profile saved & ${cleanedDomain} automatically verified via your matching work email (${user.email})! Your Founding Partner 12-Month Rate Lock is now unlocked on your Billing page.`
       : 'Company profile saved successfully.',
   }
 }
@@ -5598,34 +5647,17 @@ export async function verifyOrganizationDomain(domainInput?: string) {
     }
   }
 
-  if (!hasActiveDns && targetDomain !== 'test.com') {
+  if (!hasActiveDns) {
     return {
       error: `DNS Lookup Failed: "${targetDomain}" does not appear to have active DNS or MX mail records configured.`,
     }
   }
-
-  const shouldGrantFounderCredits =
-    (org?.connection_credits || 0) === 0 &&
-    (org?.total_requests_sent || 0) === 0
-
-  const cleanDesc = await stripTierTag(org?.description)
-  const seatsMatch = (org?.description || '').match(/\[SEATS:[^\]]+\]/i)
-  const existingSeatsTag = seatsMatch ? seatsMatch[0] : ''
-  const upgradedDesc = shouldGrantFounderCredits
-    ? `${cleanDesc} [TIER:starter] ${existingSeatsTag}`.trim()
-    : org?.description
 
   const { error: updateErr } = await supabase
     .from('organizations')
     .update({
       domain: targetDomain,
       verification_status: 'verified',
-      ...(shouldGrantFounderCredits
-        ? {
-            connection_credits: EMPLOYER_FOUNDER_GRANT_CREDITS,
-            description: upgradedDesc,
-          }
-        : {}),
     })
     .eq('id', member.organization_id)
 
@@ -5643,8 +5675,8 @@ export async function verifyOrganizationDomain(domainInput?: string) {
     domain: targetDomain,
     verification_status: 'verified',
     message: hasMatchingTxtToken
-      ? `Domain ${targetDomain} verified via DNS TXT record! Your Founding Partner Charter Status & 12-Month Rate Lock eligibility (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Launch Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`
-      : `Domain ${targetDomain} verified via corporate email match (${user.email}) & live DNS check! Your Founding Partner Charter Status & 12-Month Rate Lock eligibility (+${EMPLOYER_FOUNDER_GRANT_CREDITS} Launch Pitch Credits & ${EMPLOYER_FOUNDER_GRANT_JOBS} Active Role Slots) is now active.`,
+      ? `Domain ${targetDomain} verified via DNS TXT record! Your Founding Partner 12-Month Rate Lock is now unlocked on your Billing page.`
+      : `Domain ${targetDomain} verified via corporate email match (${user.email}) & live DNS check! Your Founding Partner 12-Month Rate Lock is now unlocked on your Billing page.`,
   }
 }
 
@@ -5656,6 +5688,9 @@ export async function toggleSandboxDomainVerification(
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Unauthorized' }
+  if (!isFounderAdminEmail(user.email)) {
+    return { error: 'Forbidden: Sandbox verification override is restricted.' }
+  }
 
   const { data: member } = await supabase
     .from('organization_members')
@@ -5711,7 +5746,8 @@ export async function toggleSandboxDomainVerification(
 }
 
 export async function activateSandboxEmployerTier(
-  targetTier: 'free' | 'starter' | 'growth' | 'enterprise'
+  targetTier: 'free' | 'starter' | 'growth' | 'enterprise',
+  stripeSessionId?: string
 ) {
   const supabase = await createClient()
   const {
@@ -5728,6 +5764,19 @@ export async function activateSandboxEmployerTier(
 
   if (!member?.organization_id) {
     return { error: 'Please set up your Company Profile first.' }
+  }
+
+  if (!isFounderAdminEmail(user.email)) {
+    const check = await verifyPaidStripeCheckoutSession({
+      sessionId: stripeSessionId,
+      expectedOrgId: member.organization_id,
+    })
+    if (!check.verified) {
+      return {
+        error:
+          'Security Block: Employer subscription activation requires a verified Stripe Checkout session.',
+      }
+    }
   }
 
   const { data: orgObj } = await supabase
@@ -5843,7 +5892,8 @@ export async function activateSandboxEmployerTier(
 }
 
 export async function purchaseEmployerCreditTopUp(
-  packId: 'boost' | 'surge' | 'scale'
+  packId: 'boost' | 'surge' | 'scale',
+  stripeSessionId?: string
 ) {
   const supabase = await createClient()
   const {
@@ -5869,6 +5919,28 @@ export async function purchaseEmployerCreditTopUp(
     .single()
 
   if (!orgObj) return { error: 'Organization not found.' }
+
+  if (!isFounderAdminEmail(user.email)) {
+    const check = await verifyPaidStripeCheckoutSession({
+      sessionId: stripeSessionId,
+      expectedOrgId: member.organization_id,
+    })
+    if (!check.verified) {
+      return {
+        error:
+          'Security Block: Top-Up credit purchases require a verified Stripe Checkout payment session.',
+      }
+    }
+    // If webhook already applied this top-up session, return current balance without double-crediting
+    if (stripeSessionId && (orgObj.description || '').includes(stripeSessionId.slice(-12))) {
+      return {
+        success: true,
+        packId,
+        totalCredits: orgObj.connection_credits || 0,
+        message: '✓ Stripe Payment Confirmed: Your Rollover Pitch Credits are active in your balance.',
+      }
+    }
+  }
 
   const tierInfo = await resolveEmployerTierInfo(orgObj)
   if (tierInfo.tier === 'free') {

@@ -24,7 +24,7 @@ export default function EmployerBillingPage() {
     const isLocal =
       window.location.hostname === 'localhost' ||
       window.location.hostname === '127.0.0.1'
-    if (isLocal || params.get('qa') === '1' || params.get('qa') === 'true') {
+    if (isLocal) {
       setShowQaControls(true)
     }
   }, [])
@@ -109,20 +109,25 @@ export default function EmployerBillingPage() {
     const billingStatus = params.get('billing')
     const tierParam = params.get('tier') as 'starter' | 'growth' | 'enterprise' | null
     const packParam = params.get('pack') as 'boost' | 'surge' | 'scale' | null
+    const sessionIdParam = params.get('session_id')
     const selectParam = params.get('select') as 'starter' | 'growth' | 'enterprise' | null
 
-    if (billingStatus === 'success' && tierParam && ['starter', 'growth', 'enterprise'].includes(tierParam)) {
+    if (billingStatus === 'success' && sessionIdParam && tierParam && ['starter', 'growth', 'enterprise'].includes(tierParam)) {
       window.history.replaceState({}, '', '/dashboard/employer/billing')
-      activateSandboxEmployerTier(tierParam).then((res) => {
-        setFeedback({
-          type: 'success',
-          text: res?.message || `Stripe Subscription Confirmed: Activated ${tierParam.toUpperCase()} plan.`,
-        })
+      activateSandboxEmployerTier(tierParam, sessionIdParam).then((res) => {
+        if (res?.error) {
+          setFeedback({ type: 'error', text: res.error })
+        } else {
+          setFeedback({
+            type: 'success',
+            text: res?.message || `Stripe Subscription Confirmed: Activated ${tierParam.toUpperCase()} plan.`,
+          })
+        }
         loadBillingState()
       })
-    } else if (billingStatus === 'topup_success' && packParam && ['boost', 'surge', 'scale'].includes(packParam)) {
+    } else if (billingStatus === 'topup_success' && sessionIdParam && packParam && ['boost', 'surge', 'scale'].includes(packParam)) {
       window.history.replaceState({}, '', '/dashboard/employer/billing')
-      purchaseEmployerCreditTopUp(packParam).then((res) => {
+      purchaseEmployerCreditTopUp(packParam, sessionIdParam).then((res) => {
         setFeedback({
           type: 'success',
           text: res?.message || 'Stripe Payment Confirmed: Added non-expiring Rollover Pitch Credits to your organization.',
