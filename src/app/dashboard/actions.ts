@@ -5986,7 +5986,8 @@ export async function purchaseEmployerCreditTopUp(
   const existingSeatsTag = seatsMatch ? seatsMatch[0] : ''
   const atsMatch = (orgObj.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i)
   const existingAtsTag = atsMatch ? atsMatch[0] : ''
-  const taggedDesc = `${cleanDesc} [TIER:${tierInfo.tier}] [TOPUP:${newRollover}] ${existingSeatsTag} ${existingAtsTag}`.replace(/\s+/g, ' ').trim()
+  const csTag = stripeSessionId ? `[CS:${stripeSessionId.slice(-12)}]` : ''
+  const taggedDesc = `${cleanDesc} [TIER:${tierInfo.tier}] [TOPUP:${newRollover}] ${existingSeatsTag} ${existingAtsTag} ${csTag}`.replace(/\s+/g, ' ').trim()
 
   const { error: updateErr } = await supabase
     .from('organizations')

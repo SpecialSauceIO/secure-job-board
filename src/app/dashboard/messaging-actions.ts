@@ -771,7 +771,7 @@ export async function getVaultReleasedResumeUrl(
       id,
       candidate_id,
       match_data,
-      jobs (organization_id),
+      jobs (employer_id, organization_id),
       profiles (resume_url)
     `
     )
@@ -779,6 +779,23 @@ export async function getVaultReleasedResumeUrl(
     .single()
 
   if (!appRow) return { error: 'Application not found' }
+
+  const isCandidateOwner = appRow.candidate_id === user.id
+  const resumeJobObj: any = Array.isArray(appRow.jobs) ? appRow.jobs[0] : appRow.jobs
+  let isAuthorizedEmployer = resumeJobObj?.employer_id === user.id
+  if (!isCandidateOwner && !isAuthorizedEmployer && resumeJobObj?.organization_id) {
+    const { data: member } = await supabase
+      .from('organization_members')
+      .select('id')
+      .eq('organization_id', resumeJobObj.organization_id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (member) isAuthorizedEmployer = true
+  }
+
+  if (!isCandidateOwner && !isAuthorizedEmployer) {
+    return { error: 'Forbidden: You do not have permission to access this resume vault.' }
+  }
 
   if (appRow.match_data?.candidate_vault_released !== true) {
     return {
@@ -825,7 +842,7 @@ export async function getApplicationThreadState(
 
   const { data: appRow, error } = await supabase
     .from('applications')
-    .select('id, candidate_id, is_revealed, status, match_data')
+    .select('id, candidate_id, is_revealed, status, match_data, jobs (employer_id, organization_id)')
     .eq('id', applicationId)
     .single()
 
@@ -838,6 +855,30 @@ export async function getApplicationThreadState(
     }
   }
 
+  const isThreadCandidate = appRow.candidate_id === user.id
+  const threadJobObj: any = Array.isArray((appRow as any).jobs)
+    ? (appRow as any).jobs[0]
+    : (appRow as any).jobs
+  let isThreadEmployer = threadJobObj?.employer_id === user.id
+  if (!isThreadCandidate && !isThreadEmployer && threadJobObj?.organization_id) {
+    const { data: member } = await supabase
+      .from('organization_members')
+      .select('id')
+      .eq('organization_id', threadJobObj.organization_id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (member) isThreadEmployer = true
+  }
+
+  if (!isThreadCandidate && !isThreadEmployer) {
+    return {
+      messages: [],
+      vaultReleased: false,
+      isRevealed: false,
+      error: 'Forbidden: Access denied to this application thread.',
+    }
+  }
+
   const matchData = appRow.match_data || {}
   const messages: ThreadMessage[] = Array.isArray(matchData.messages)
     ? matchData.messages
@@ -845,8 +886,7 @@ export async function getApplicationThreadState(
   const vaultReleased = Boolean(matchData.candidate_vault_released === true)
 
   const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null
-  const role: 'employer' | 'candidate' =
-    viewerRole || (appRow.candidate_id === user.id ? 'candidate' : 'employer')
+  const role: 'employer' | 'candidate' = isThreadCandidate ? 'candidate' : 'employer'
 
   if (lastMsg && lastMsg.sender_role !== role) {
     const readKey =

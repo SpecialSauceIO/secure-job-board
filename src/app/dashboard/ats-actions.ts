@@ -258,6 +258,10 @@ export async function autoSyncStage2VaultToEnterpriseAts(
 ) {
   try {
     const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { skipped: true, reason: 'Not authenticated' }
 
     const { data: app } = await supabase
       .from('applications')
@@ -298,6 +302,23 @@ export async function autoSyncStage2VaultToEnterpriseAts(
     if (!app) return { skipped: true, reason: 'Application not found' }
 
     const jobObj: any = Array.isArray(app.jobs) ? app.jobs[0] : app.jobs
+    const isCandidateCaller = app.candidate_id === user.id
+    let isEmployerCaller = false
+    if (!isCandidateCaller && jobObj?.organization_id) {
+      const { data: member } = await supabase
+        .from('organization_members')
+        .select('id')
+        .eq('organization_id', jobObj.organization_id)
+        .eq('user_id', user.id)
+        .maybeSingle()
+      if (member) isEmployerCaller = true
+    }
+    if (!isCandidateCaller && !isEmployerCaller) {
+      return { skipped: true, reason: 'Unauthorized caller for ATS sync' }
+    }
+    if (!app.match_data?.candidate_vault_released && !releasedVaultOverride) {
+      return { skipped: true, reason: 'Candidate Stage 2 vault has not been released yet' }
+    }
     const candObj: any = Array.isArray(app.profiles) ? app.profiles[0] : app.profiles
     const orgId = jobObj?.organization_id
     if (!orgId) return { skipped: true, reason: 'No organization linked to job' }
