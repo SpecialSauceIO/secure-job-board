@@ -28,8 +28,14 @@ export function PublicHeader({
           </Link>
         </div>
 
-        {/* RIGHT: Pricing & Perks, Sign In & Get Started */}
+        {/* RIGHT: Home, Pricing & Perks, Sign In & Get Started */}
         <div className="flex items-center gap-4 sm:gap-5 shrink-0">
+          <Link
+            href="/"
+            className="hidden sm:inline text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors"
+          >
+            Home
+          </Link>
           <Link
             href="/pricing"
             className="hidden sm:inline text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors"
