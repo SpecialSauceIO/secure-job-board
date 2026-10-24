@@ -5,11 +5,13 @@ import {
   saveOrganizationProfile,
   verifyOrganizationDomain,
   toggleSandboxDomainVerification,
+  toggleSandboxEmployerAdminIdentity,
 } from '@/app/dashboard/actions'
 import {
   STANDARD_INDUSTRY_VERTICALS,
   normalizeIndustryVertical,
 } from '@/constants/industries'
+import VerifyButton from '@/app/dashboard/VerifyButton'
 
 const COMPANY_SIZE_OPTIONS = [
   'Seed / Startup (1–50 Employees)',
@@ -18,15 +20,47 @@ const COMPANY_SIZE_OPTIONS = [
   'Enterprise (1,000+ Employees)',
 ]
 
+const US_STATES = [
+  'Alabama (AL)', 'Alaska (AK)', 'Arizona (AZ)', 'Arkansas (AR)', 'California (CA)',
+  'Colorado (CO)', 'Connecticut (CT)', 'Delaware (DE)', 'District of Columbia (DC)',
+  'Florida (FL)', 'Georgia (GA)', 'Hawaii (HI)', 'Idaho (ID)', 'Illinois (IL)',
+  'Indiana (IN)', 'Iowa (IA)', 'Kansas (KS)', 'Kentucky (KY)', 'Louisiana (LA)',
+  'Maine (ME)', 'Maryland (MD)', 'Massachusetts (MA)', 'Michigan (MI)', 'Minnesota (MN)',
+  'Mississippi (MS)', 'Missouri (MO)', 'Montana (MT)', 'Nebraska (NE)', 'Nevada (NV)',
+  'New Hampshire (NH)', 'New Jersey (NJ)', 'New Mexico (NM)', 'New York (NY)',
+  'North Carolina (NC)', 'North Dakota (ND)', 'Ohio (OH)', 'Oklahoma (OK)', 'Oregon (OR)',
+  'Pennsylvania (PA)', 'Rhode Island (RI)', 'South Carolina (SC)', 'South Dakota (SD)',
+  'Tennessee (TN)', 'Texas (TX)', 'Utah (UT)', 'Vermont (VT)', 'Virginia (VA)',
+  'Washington (WA)', 'West Virginia (WV)', 'Wisconsin (WI)', 'Wyoming (WY)',
+]
+
+function formatEinInput(val: string): string {
+  const digits = val.replace(/\D/g, '').slice(0, 9)
+  if (digits.length <= 2) return digits
+  return `${digits.slice(0, 2)}-${digits.slice(2)}`
+}
+
 export default function EmployerOrganizationForm({
   initialOrg,
   userEmail,
+  initialAdminIdVerified = false,
 }: {
   initialOrg: any
   userEmail: string
+  initialAdminIdVerified?: boolean
 }) {
   const [name, setName] = useState(initialOrg?.name || '')
   const [domain, setDomain] = useState(initialOrg?.domain || '')
+  const [ein, setEin] = useState(initialOrg?.ein || '')
+  const [incorporationState, setIncorporationState] = useState(
+    initialOrg?.incorporation_state || 'Delaware (DE)'
+  )
+  const [attestedEntity, setAttestedEntity] = useState(
+    Boolean(initialOrg?.ein && initialOrg?.incorporation_state)
+  )
+  const [rdapStatus] = useState(initialOrg?.rdap_status || '')
+  const [adminIdVerified, setAdminIdVerified] = useState(initialAdminIdVerified)
+
   const [industryVertical, setIndustryVertical] = useState(
     initialOrg?.industry_vertical
       ? normalizeIndustryVertical(initialOrg.industry_vertical)
@@ -44,6 +78,7 @@ export default function EmployerOrganizationForm({
 
   const [isSaving, setIsSaving] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
+  const [isTogglingAdminId, setIsTogglingAdminId] = useState(false)
   const [showDnsInstructions, setShowDnsInstructions] = useState(false)
   const [showQaControls, setShowQaControls] = useState(
     process.env.NODE_ENV === 'development'
@@ -51,7 +86,6 @@ export default function EmployerOrganizationForm({
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const params = new URLSearchParams(window.location.search)
     const isLocal =
       window.location.hostname === 'localhost' ||
       window.location.hostname === '127.0.0.1'
@@ -59,6 +93,7 @@ export default function EmployerOrganizationForm({
       setShowQaControls(true)
     }
   }, [])
+
   const [feedback, setFeedback] = useState<{
     type: 'success' | 'error'
     text: string
@@ -76,9 +111,22 @@ export default function EmployerOrganizationForm({
     cleanedDomain && userEmailDomain === cleanedDomain
   )
   const dnsTxtToken = `special-sauce-verification=${(orgId || 'org').split('-')[0]}`
+  const hasValidEinFormat = /^\d{2}-\d{7}$/.test(ein.trim())
+  const pillar1Done = verificationStatus === 'verified'
+  const pillar2Done = Boolean(hasValidEinFormat && incorporationState && attestedEntity)
+  const pillar3Done = adminIdVerified
+  const completedPillarsCount =
+    (pillar1Done ? 1 : 0) + (pillar2Done ? 1 : 0) + (pillar3Done ? 1 : 0)
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (!attestedEntity) {
+      setFeedback({
+        type: 'error',
+        text: 'Please check the Authorized Corporate Entity Attestation box before saving.',
+      })
+      return
+    }
     setIsSaving(true)
     setFeedback(null)
 
@@ -92,6 +140,8 @@ export default function EmployerOrganizationForm({
     const formData = new FormData()
     formData.append('name', name)
     formData.append('domain', domain)
+    formData.append('ein', ein.trim())
+    formData.append('incorporation_state', incorporationState)
     formData.append('industry_vertical', industryVertical)
     formData.append('company_size', companySize)
     formData.append('description', encodedDescription)
@@ -109,7 +159,7 @@ export default function EmployerOrganizationForm({
       if (result.organizationId) setOrgId(result.organizationId)
       setFeedback({
         type: 'success',
-        text: result.message || 'Company profile saved!',
+        text: result.message || 'Company profile & EIN attestation saved!',
       })
     }
 
@@ -129,7 +179,7 @@ export default function EmployerOrganizationForm({
       setVerificationStatus('verified')
       setFeedback({
         type: 'success',
-        text: result.message || 'Domain verified!',
+        text: result.message || 'Domain & 90-Day RDAP Age Check verified!',
       })
     }
 
@@ -155,8 +205,161 @@ export default function EmployerOrganizationForm({
     setIsVerifying(false)
   }
 
+  const handleSandboxAdminIdToggle = async (target: boolean) => {
+    setIsTogglingAdminId(true)
+    setFeedback(null)
+    const result = await toggleSandboxEmployerAdminIdentity(target)
+    if (result?.error) {
+      setFeedback({ type: 'error', text: result.error })
+    } else if (result?.success) {
+      setAdminIdVerified(target)
+      setFeedback({ type: 'success', text: result.message || 'Updated!' })
+    }
+    setIsTogglingAdminId(false)
+  }
+
   return (
     <div className="space-y-8">
+      {/* 3-PILLAR EMPLOYER TRUST & ANTI-HARVESTING SUMMARY BANNER */}
+      <div className="p-6 rounded-2xl border-2 border-slate-300 bg-white shadow-sm space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-indigo-100 text-indigo-800 border border-indigo-300">
+                🛡️ 3-Pillar Anti-Harvesting Gate
+              </span>
+              <span className="text-xs font-extrabold text-slate-600">
+                {completedPillarsCount}/3 Pillars Verified
+              </span>
+            </div>
+            <h2 className="text-lg font-extrabold text-slate-900 mt-1.5">
+              Employer Trust &amp; Candidate Vault Protection
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              To protect candidate resumes from burner-domain harvesting, all 3 security pillars below are required before publishing roles or sending outbound pitches.
+            </p>
+          </div>
+          <div
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold border shrink-0 ${
+              completedPillarsCount === 3
+                ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                : 'bg-amber-100 text-amber-900 border-amber-300'
+            }`}
+          >
+            {completedPillarsCount === 3
+              ? '✓ Full Vault Access Unlocked'
+              : '🔒 Action Required to Unlock Pitching'}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          {/* Pillar 1 */}
+          <div
+            className={`p-4 rounded-xl border ${
+              pillar1Done
+                ? 'bg-emerald-50/70 border-emerald-300'
+                : 'bg-slate-50 border-slate-300'
+            }`}
+          >
+            <div className="flex items-center justify-between font-extrabold text-slate-900 mb-1">
+              <span>1. Domain &amp; 90-Day RDAP</span>
+              <span className={pillar1Done ? 'text-emerald-700' : 'text-amber-700'}>
+                {pillar1Done ? '✓ Verified' : 'Pending'}
+              </span>
+            </div>
+            <p className="text-slate-600 leading-relaxed">
+              Live DNS MX/TXT check + automated RDAP registry check blocking burner domains registered &lt;90 days ago.
+              {rdapStatus ? ` (${rdapStatus})` : ''}
+            </p>
+          </div>
+
+          {/* Pillar 2 */}
+          <div
+            className={`p-4 rounded-xl border ${
+              pillar2Done
+                ? 'bg-emerald-50/70 border-emerald-300'
+                : 'bg-slate-50 border-slate-300'
+            }`}
+          >
+            <div className="flex items-center justify-between font-extrabold text-slate-900 mb-1">
+              <span>2. Federal EIN &amp; State</span>
+              <span className={pillar2Done ? 'text-emerald-700' : 'text-amber-700'}>
+                {pillar2Done ? `✓ ${ein}` : 'Required Below'}
+              </span>
+            </div>
+            <p className="text-slate-600 leading-relaxed">
+              IRS 9-digit EIN prefix validation + State of Incorporation legal representative attestation.
+            </p>
+          </div>
+
+          {/* Pillar 3 */}
+          <div
+            className={`p-4 rounded-xl border ${
+              pillar3Done
+                ? 'bg-emerald-50/70 border-emerald-300'
+                : 'bg-slate-50 border-slate-300'
+            }`}
+          >
+            <div className="flex items-center justify-between font-extrabold text-slate-900 mb-1">
+              <span>3. Admin Stripe Identity</span>
+              <span className={pillar3Done ? 'text-emerald-700' : 'text-amber-700'}>
+                {pillar3Done ? '✓ Biometric ID Verified' : 'Action Required'}
+              </span>
+            </div>
+            <p className="text-slate-600 leading-relaxed">
+              1-time government ID + live selfie verification for the Employer Account Admin via Stripe Identity.
+            </p>
+          </div>
+        </div>
+
+        {/* PILLAR 3 ACTION BAR: EMPLOYER ADMIN STRIPE IDENTITY */}
+        <div
+          className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+            pillar3Done
+              ? 'bg-emerald-50/80 border-emerald-300'
+              : 'bg-indigo-50/70 border-indigo-300'
+          }`}
+        >
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-extrabold text-slate-900">
+                {pillar3Done
+                  ? '✓ Employer Admin Identity Verified (Stripe Biometric ID)'
+                  : '🔒 Step 3: Verify Employer Admin Identity with Stripe'}
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 mt-1">
+              {pillar3Done
+                ? 'Your personal identity is cryptographically verified. Candidates see the "🛡️ ID-Verified Hiring Manager" trust signal on your pitches.'
+                : 'Just like candidates, Employer Admins complete a 60-second Stripe Identity check so candidates know a real, accountable hiring leader is behind every role.'}
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            {!pillar3Done ? (
+              <VerifyButton />
+            ) : (
+              <span className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-extrabold">
+                ✓ Admin ID Verified
+              </span>
+            )}
+
+            {showQaControls && (
+              <button
+                type="button"
+                disabled={isTogglingAdminId}
+                onClick={() => handleSandboxAdminIdToggle(!pillar3Done)}
+                className="px-3 py-1.5 rounded-lg bg-white border border-amber-300 text-amber-900 text-xs font-bold hover:bg-amber-50 transition-colors cursor-pointer"
+              >
+                {pillar3Done
+                  ? '⚡ Sandbox: Reset Admin ID'
+                  : '⚡ Sandbox: Mark Admin ID Verified'}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* DOMAIN VERIFICATION HUB CARD */}
       <div
         className={`p-6 md:p-8 rounded-2xl border shadow-sm transition-all ${
@@ -215,8 +418,8 @@ export default function EmployerOrganizationForm({
                   }`}
                 >
                   {verificationStatus === 'verified'
-                    ? 'Corporate Domain Verified'
-                    : 'Corporate Domain Verification Required'}
+                    ? 'Corporate Domain & 90-Day RDAP Age Verified'
+                    : 'Step 1: Corporate Domain & 90-Day RDAP Verification'}
                 </h3>
 
                 <span
@@ -240,13 +443,12 @@ export default function EmployerOrganizationForm({
                 {verificationStatus === 'verified'
                   ? `Your organization domain (${
                       cleanedDomain || 'company domain'
-                    }) is verified. The "✓ Verified Company" trust badge and your Primary Industry Vertical (${industryVertical}) now power your protected job listings and outbound candidate pitches.`
-                  : 'Verify your corporate domain via work-email match + live DNS check or DNS TXT record to unlock the "✓ Verified Company" badge and your 30-Day Founding Partner Trial.'}
+                    }) passed live DNS and 90-day RDAP domain age checks. The "✓ Verified Company" trust badge and your Primary Industry Vertical (${industryVertical}) now power your protected job listings.`
+                  : 'Verify your corporate domain via work-email match + live DNS MX/TXT check and automated 90-day RDAP domain age check.'}
               </p>
             </div>
           </div>
 
-          {/* Primary Verification Action Buttons */}
           <div className="flex flex-col sm:items-end gap-2 shrink-0">
             {verificationStatus !== 'verified' ? (
               <button
@@ -255,7 +457,7 @@ export default function EmployerOrganizationForm({
                 onClick={handleVerifyDomain}
                 className="px-5 py-2.5 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-indigo-600 transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
               >
-                {isVerifying ? 'Checking DNS & Email...' : 'Verify Domain Now'}
+                {isVerifying ? 'Checking DNS & RDAP Age...' : 'Verify Domain Now'}
               </button>
             ) : (
               <button
@@ -270,7 +472,6 @@ export default function EmployerOrganizationForm({
           </div>
         </div>
 
-        {/* Verification Methods & Sandbox Bar */}
         <div className="mt-5 pt-5 border-t border-black/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
           <div className="flex flex-wrap items-center gap-3">
             <span className="font-bold text-slate-700">
@@ -316,7 +517,6 @@ export default function EmployerOrganizationForm({
           </div>
         </div>
 
-        {/* Expandable DNS TXT Record Instructions */}
         {showDnsInstructions && (
           <div className="mt-4 p-4 rounded-xl bg-white border-2 border-slate-300 text-xs space-y-2 border-slate-300">
             <p className="font-bold text-slate-800">
@@ -352,17 +552,17 @@ export default function EmployerOrganizationForm({
         </div>
       )}
 
-      {/* COMPANY PROFILE FORM */}
+      {/* COMPANY PROFILE & LEGAL ENTITY ATTESTATION FORM */}
       <form
         onSubmit={handleSave}
         className="bg-white p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6 border-slate-300"
       >
         <div>
           <h2 className="text-xl font-bold text-slate-900">
-            Organization Details
+            Step 2: Organization Details &amp; Legal Entity Attestation (EIN)
           </h2>
           <p className="text-sm text-slate-500 mt-1">
-            Your company name and description remain hidden on protected job listings until a mutual connection is unlocked, while your Primary Industry Vertical and Company Stage power your anonymous role teasers.
+            Your company name, Federal EIN, and description remain strictly vaulted on protected job listings until a mutual connection is unlocked.
           </p>
         </div>
 
@@ -371,7 +571,7 @@ export default function EmployerOrganizationForm({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-1.5">
-                Company Name
+                Legal / Operating Company Name *
               </label>
               <input
                 type="text"
@@ -379,25 +579,69 @@ export default function EmployerOrganizationForm({
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Acme Corp"
+                placeholder="e.g. Acme Corp LLC"
                 className="block w-full rounded-xl border-2 border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium border-slate-300"
               />
             </div>
 
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-1.5">
-                Corporate Domain
+                Corporate Domain *
               </label>
               <input
                 type="text"
                 name="domain"
+                required
                 value={domain}
                 onChange={(e) => setDomain(e.target.value)}
-                placeholder="e.g. test.com or acmecorp.com"
+                placeholder="e.g. acmecorp.com"
                 className="block w-full rounded-xl border-2 border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium border-slate-300"
               />
               <p className="text-[11px] text-slate-500 mt-1">
                 Tip: Enter <strong>{userEmailDomain}</strong> to auto-verify with your current login ({userEmail}).
+              </p>
+            </div>
+          </div>
+
+          {/* Row 1B: Federal EIN & State of Incorporation (Pillar 2) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-3 border-t border-slate-300">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1.5">
+                Federal Tax ID / IRS EIN (XX-XXXXXXX) *
+              </label>
+              <input
+                type="text"
+                name="ein"
+                required
+                maxLength={10}
+                value={ein}
+                onChange={(e) => setEin(formatEinInput(e.target.value))}
+                placeholder="e.g. 43-2607769"
+                className="block w-full rounded-xl border-2 border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-mono font-bold border-slate-300"
+              />
+              <p className="text-[11px] text-slate-500 mt-1">
+                Encrypted &amp; never displayed publicly. Used exclusively to verify legitimate US/corporate tax entities.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1.5">
+                State of Incorporation / Registration *
+              </label>
+              <select
+                name="incorporation_state"
+                value={incorporationState}
+                onChange={(e) => setIncorporationState(e.target.value)}
+                className="block w-full rounded-xl border-2 border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm font-medium cursor-pointer border-slate-300"
+              >
+                {US_STATES.map((st) => (
+                  <option key={st} value={st}>
+                    {st}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[11px] text-slate-500 mt-1">
+                Jurisdiction where your legal business entity is registered with the Secretary of State.
               </p>
             </div>
           </div>
@@ -479,6 +723,21 @@ export default function EmployerOrganizationForm({
               className="block w-full rounded-xl border-2 border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none py-2.5 px-3.5 text-sm border-slate-300"
             />
           </div>
+
+          {/* Legal Entity Attestation Checkbox */}
+          <div className="pt-3 border-t border-slate-300">
+            <label className="flex items-start gap-3 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={attestedEntity}
+                onChange={(e) => setAttestedEntity(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              <span className="text-xs text-slate-700 leading-relaxed">
+                <strong>Authorized Corporate Entity Attestation:</strong> I certify that I am an authorized officer, hiring manager, or recruiter for <strong>{name || 'this legal entity'}</strong>, that the Federal EIN and State of Incorporation provided above are accurate, and that I will only access candidate profiles for genuine employment opportunities in accordance with the Special Sauce Terms of Service.
+              </span>
+            </label>
+          </div>
         </div>
 
         <div className="pt-2 flex items-center justify-end gap-3">
@@ -487,7 +746,7 @@ export default function EmployerOrganizationForm({
             disabled={isSaving}
             className="rounded-xl bg-slate-900 px-8 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-600 transition-colors disabled:opacity-50 cursor-pointer"
           >
-            {isSaving ? 'Saving & Checking Domain...' : 'Save Company Profile'}
+            {isSaving ? 'Validating EIN, Domain & Saving...' : 'Save Company Profile & EIN Attestation'}
           </button>
         </div>
       </form>

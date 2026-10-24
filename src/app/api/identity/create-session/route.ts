@@ -37,13 +37,16 @@ export async function POST(req: Request) {
       resolveCandidateTierInfo(user.id),
     ])
 
+    const isEmployer = profile?.role === 'employer'
+    const effectiveTier = isEmployer ? 'employer' : tierInfo.tier
+
     const isVerified =
       profile?.identity_verified === true
 
     const guard = await checkAndRecordStripeIdentityCircuitBreaker({
       userId: user.id,
       userEmail: profile?.contact_email || profile?.email || user.email || '',
-      candidateTier: tierInfo.tier,
+      candidateTier: effectiveTier,
       isAlreadyVerified: isVerified,
     })
 
@@ -72,7 +75,7 @@ export async function POST(req: Request) {
             require_matching_selfie: true,
           },
         },
-        return_url: `${origin}/dashboard?verification=pending`,
+        return_url: isEmployer ? `${origin}/dashboard/employer/organization?verification=pending` : `${origin}/dashboard?verification=pending`,
       })
 
     const cookieStore = await cookies()

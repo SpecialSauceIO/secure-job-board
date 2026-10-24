@@ -223,7 +223,11 @@ export async function checkAndRecordStripeIdentityCircuitBreaker(params: {
     tierLower !== "professional" &&
     tierLower !== "prestige" &&
     tierLower !== "pro" &&
-    tierLower !== "trial"
+    tierLower !== "trial" &&
+    tierLower !== "employer" &&
+    tierLower !== "starter" &&
+    tierLower !== "growth" &&
+    tierLower !== "enterprise"
   ) {
     await raiseSecurityAlertAndFlag({
       flagType: "Manual_Trust_Audit",

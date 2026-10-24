@@ -105,7 +105,7 @@ export default async function DashboardPage({
   const stripeKey =
     process.env.STRIPE_IDENTITY_SECRET_KEY || process.env.STRIPE_SECRET_KEY
 
-  if (profile?.role === 'candidate' && isReturningFromStripe && stripeKey) {
+  if ((profile?.role === 'candidate' || profile?.role === 'employer') && isReturningFromStripe && stripeKey) {
     try {
       const stripe = new Stripe(stripeKey, {
         apiVersion: '2026-09-30.endive' as any,
@@ -165,11 +165,11 @@ export default async function DashboardPage({
         stripeIdentityReturnState = 'verified'
         await supabase
           .from('profiles')
-          .update({
-            identity_verified: true,
-            is_verified: true,
-            is_discoverable: true,
-          })
+          .update(
+            profile?.role === 'employer'
+              ? { identity_verified: true, is_verified: true }
+              : { identity_verified: true, is_verified: true, is_discoverable: true }
+          )
           .eq('id', user.id)
 
         profile = {

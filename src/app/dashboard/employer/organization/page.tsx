@@ -1,6 +1,8 @@
 import { createClient } from '@/utils/supabase/server'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Stripe from 'stripe'
 import EmployerOrganizationForm from '@/components/EmployerOrganizationForm'
 import EmployerTeamSeatsPanel from '@/components/EmployerTeamSeatsPanel'
 import EnterpriseAtsIntegrationPanel from '@/components/EnterpriseAtsIntegrationPanel'
@@ -16,11 +18,17 @@ export const dynamic = 'force-dynamic'
 function extractOrgIndustryAndSize(rawDescription?: string | null): {
   industry_vertical: string
   company_size: string
+  ein: string
+  incorporation_state: string
+  rdap_status: string
   cleanDescription: string
 } {
   const raw = rawDescription || ''
   const indMatch = raw.match(/\[IND:([^\]]+)\]/i)
   const sizeMatch = raw.match(/\[SIZE:([^\]]+)\]/i)
+  const einMatch = raw.match(/\[EIN:([^\]]+)\]/i)
+  const stateMatch = raw.match(/\[INC_STATE:([^\]]+)\]/i)
+  const rdapMatch = raw.match(/\[RDAP:([^\]]+)\]/i)
 
   const extractedIndustry = indMatch?.[1]
     ? normalizeIndustryVertical(indMatch[1].trim())
@@ -30,21 +38,35 @@ function extractOrgIndustryAndSize(rawDescription?: string | null): {
     ? sizeMatch[1].trim()
     : 'Growth (50–250 Employees)'
 
-  // Strip [IND:...], [SIZE:...], and [ATS_CFG:...] metadata tags so the form textarea stays clean
+  const ein = einMatch?.[1]?.trim() || ''
+  const incorporation_state = stateMatch?.[1]?.trim() || ''
+  const rdap_status = rdapMatch?.[1]?.trim() || ''
+
   const cleanDescription = raw
     .replace(/\s*\[IND:[^\]]*\]/gi, '')
     .replace(/\s*\[SIZE:[^\]]*\]/gi, '')
+    .replace(/\s*\[EIN:[^\]]*\]/gi, '')
+    .replace(/\s*\[INC_STATE:[^\]]*\]/gi, '')
+    .replace(/\s*\[RDAP:[^\]]*\]/gi, '')
     .replace(/\s*\[ATS_CFG:[A-Za-z0-9+/=]+\]/gi, '')
     .trim()
 
   return {
     industry_vertical: extractedIndustry,
     company_size: extractedSize,
+    ein,
+    incorporation_state,
+    rdap_status,
     cleanDescription,
   }
 }
 
-export default async function EmployerOrganizationPage() {
+export default async function EmployerOrganizationPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ verification?: string; session_id?: string }>
+}) {
+  const resolvedParams = searchParams ? await searchParams : {}
   const supabase = await createClient()
   const {
     data: { user },
@@ -52,13 +74,84 @@ export default async function EmployerOrganizationPage() {
 
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, identity_verified, is_verified')
     .eq('id', user.id)
     .single()
 
   if (profile?.role !== 'employer') redirect('/dashboard')
+
+  // Sync Stripe Identity if returning from Stripe flow
+  const isReturningFromStripe = Boolean(
+    resolvedParams?.verification === 'pending' || resolvedParams?.session_id
+  )
+  const stripeKey =
+    process.env.STRIPE_IDENTITY_SECRET_KEY || process.env.STRIPE_SECRET_KEY
+
+  if (isReturningFromStripe && stripeKey) {
+    try {
+      const stripe = new Stripe(stripeKey, {
+        apiVersion: '2026-09-30.endive' as any,
+      })
+      const isTestKey = stripeKey.includes('_test_')
+      const isCompletedStatus = (status?: string) =>
+        status === 'verified' || (isTestKey && status === 'processing')
+      const belongsToCurrentUser = (s: any) =>
+        s &&
+        (s.metadata?.userId === user.id ||
+          s.metadata?.user_id === user.id ||
+          s.client_reference_id === user.id)
+
+      const cookieStore = await cookies()
+      const cookieSessionId =
+        cookieStore.get('stripe_vs_id')?.value || resolvedParams?.session_id
+
+      let matchedSession: any = null
+      if (cookieSessionId) {
+        try {
+          const retrieved =
+            await stripe.identity.verificationSessions.retrieve(cookieSessionId)
+          if (
+            belongsToCurrentUser(retrieved) &&
+            isCompletedStatus(retrieved.status)
+          ) {
+            matchedSession = retrieved
+          }
+        } catch {}
+      }
+
+      if (!matchedSession) {
+        try {
+          const sessions = await stripe.identity.verificationSessions.list({
+            limit: 10,
+          })
+          matchedSession = sessions.data.find(
+            (s) => belongsToCurrentUser(s) && isCompletedStatus(s.status)
+          )
+        } catch {}
+      }
+
+      if (matchedSession) {
+        await supabase
+          .from('profiles')
+          .update({ identity_verified: true, is_verified: true })
+          .eq('id', user.id)
+        profile = {
+          ...profile,
+          identity_verified: true,
+          is_verified: true,
+        }
+      }
+    } catch {}
+  }
+
+  const isAdminIdVerified = Boolean(
+    profile?.identity_verified === true ||
+      String(profile?.identity_verified) === 'true' ||
+      profile?.is_verified === true ||
+      String(profile?.is_verified) === 'true'
+  )
 
   const { data: member } = await supabase
     .from('organization_members')
@@ -79,23 +172,29 @@ export default async function EmployerOrganizationPage() {
 
     if (orgData) {
       rawOrgData = orgData
-      const strippedTierAndSeats = await stripTierTag(orgData.description)
-      const { industry_vertical, company_size, cleanDescription } =
-        extractOrgIndustryAndSize(strippedTierAndSeats)
+      const {
+        industry_vertical,
+        company_size,
+        ein,
+        incorporation_state,
+        rdap_status,
+      } = extractOrgIndustryAndSize(orgData.description)
+      const strippedAllTags = await stripTierTag(orgData.description)
+      const { cleanDescription } = extractOrgIndustryAndSize(strippedAllTags)
 
       cleanOrgForForm = {
         ...orgData,
         industry_vertical:
-          orgData.industry_vertical ||
-          orgData.industry ||
-          industry_vertical,
+          orgData.industry_vertical || orgData.industry || industry_vertical,
         company_size: orgData.company_size || company_size,
+        ein,
+        incorporation_state,
+        rdap_status,
         description: cleanDescription,
       }
     }
   }
 
-  // IMPORTANT: Resolve tier info from rawOrgData BEFORE stripping [TIER:...] tags!
   const tierInfo = await resolveEmployerTierInfo(rawOrgData)
   const seats = await getOrganizationSeats()
 
@@ -104,10 +203,10 @@ export default async function EmployerOrganizationPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-300">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Company Profile, Team Seats &amp; HR Software Sync
+            Company Profile, 3-Pillar Trust Gate &amp; Team Seats
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Verify your corporate domain, configure your Primary Industry Vertical, manage collaborator seats, and connect Workday or Greenhouse.
+            Complete your 3-Pillar Employer Trust Verification (Corporate Domain + 90-Day RDAP Age Check, Federal EIN Attestation, and Admin Stripe Identity) to publish roles and pitch candidates.
           </p>
         </div>
 
@@ -122,6 +221,7 @@ export default async function EmployerOrganizationPage() {
       <EmployerOrganizationForm
         initialOrg={cleanOrgForForm}
         userEmail={user.email || ''}
+        initialAdminIdVerified={isAdminIdVerified}
       />
 
       {cleanOrgForForm && (
