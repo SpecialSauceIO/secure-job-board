@@ -305,7 +305,7 @@ export default function CandidateApplicationsPage() {
                 }`}
               >
                 <div className="p-6 md:p-8 space-y-5">
-                  {/* Top Bar: Employer Status / Blind Badge, Metal Rank & Founder Pill, Ref ID, Pay Band */}
+                  {/* Top Bar: Employer Status / Protected Badge, Metal Rank & Founder Pill, Ref ID, Pay Band */}
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-slate-300">
                     <div className="space-y-1.5">
                       <div className="flex flex-wrap items-center gap-2">

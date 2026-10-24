@@ -442,7 +442,7 @@ export async function inspectStage1TextForContactLeakOrInjection(params: {
         actorRole: params.actorRole,
         userId: params.userId,
         platformArea: params.platformArea,
-        summary: `Stage 1 Blind Vault Circumvention Attempt in ${params.contextLabel}`,
+        summary: `Stage 1 Protected Vault Circumvention Attempt in ${params.contextLabel}`,
         evidenceSnippet: raw.slice(0, 240),
         createSecTicket: true,
       })
