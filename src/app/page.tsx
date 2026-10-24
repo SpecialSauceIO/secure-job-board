@@ -600,8 +600,7 @@ export default function LandingPage() {
             </div>
 
             {/* Widget 3: Step-by-Step Privacy */}
-            <div className="p-8 rounded-2xl bg-slate-900 border border-slate-800 shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-transform">
-              <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-orange-400 via-slate-900 to-slate-900 pointer-events-none"></div>
+            <div className="p-8 rounded-2xl bg-white border-2 border-slate-300 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-transform border-slate-300">
               <div className="relative z-10">
                 <div className="w-12 h-12 bg-slate-800 rounded-xl border border-slate-700 flex items-center justify-center mb-6 text-orange-400">
                   <svg
@@ -618,10 +617,10 @@ export default function LandingPage() {
                     ></path>
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">
+                <h3 className="text-xl font-bold text-slate-900 mb-3">
                   You Control Your Information
                 </h3>
-                <p className="text-slate-400 leading-relaxed">
+                <p className="text-slate-500 leading-relaxed">
                   Instead of blasting your name, phone number, and resume across public job boards, you connect in two simple steps: chat privately first, then release your resume and contact card only when you’re comfortable.
                 </p>
               </div>
