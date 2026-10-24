@@ -431,10 +431,10 @@ export default function LandingPage() {
                       ></path>
                     </svg>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">
+                  <h3 className="text-xl font-bold text-slate-900 mb-3">
                     3. Chat First, Share Your Resume Later
                   </h3>
-                  <p className="text-slate-400 leading-relaxed">
+                  <p className="text-slate-500 leading-relaxed">
                     When an employer wants to connect, you’ll see their verified company name and can message them directly on the platform—while your email and full resume stay private until you decide you’re ready to release them.
                   </p>
                 </div>
