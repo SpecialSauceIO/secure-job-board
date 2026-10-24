@@ -23,7 +23,7 @@ export function PublicFooter() {
         <div className="flex flex-wrap lg:flex-nowrap items-center justify-center gap-x-5 gap-y-2">
           <Link
             href="/security"
-            className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors whitespace-nowrap"
+            className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
           >
             Security &amp; Trust
           </Link>
