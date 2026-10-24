@@ -37,7 +37,7 @@ export function PublicHeader({
           <span className="h-5 w-px bg-slate-400"></span>
         </div>
 
-        {/* RIGHT: Home, Pricing & Perks, Sign In & Get Started */}
+        {/* RIGHT: Home, Pricing & Perks & Sign In */}
         <div className="flex items-center gap-4 sm:gap-5 shrink-0">
           <Link
             href="/"
@@ -56,12 +56,6 @@ export function PublicHeader({
             className="text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors"
           >
             Sign In
-          </Link>
-          <Link
-            href="/signup"
-            className="px-4 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-indigo-600 transition-colors shadow-sm"
-          >
-            Get Started
           </Link>
         </div>
       </div>
