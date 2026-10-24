@@ -1756,9 +1756,7 @@ export async function applyBlind(formData: FormData) {
     profile?.identity_verified === true ||
       String(profile?.identity_verified) === 'true' ||
       profile?.is_verified === true ||
-      String(profile?.is_verified) === 'true' ||
-      profile?.verification_status === 'verified' ||
-      profile?.verification_status === 'approved'
+      String(profile?.is_verified) === 'true'
   )
 
   if (!isVerified) {
@@ -2605,9 +2603,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
     candidateProfileObj?.identity_verified === true ||
       String(candidateProfileObj?.identity_verified) === 'true' ||
       candidateProfileObj?.is_verified === true ||
-      String(candidateProfileObj?.is_verified) === 'true' ||
-      candidateProfileObj?.verification_status === 'verified' ||
-      candidateProfileObj?.verification_status === 'approved'
+      String(candidateProfileObj?.is_verified) === 'true'
   )
   if (!isCandidateVerified) {
     return {
@@ -4269,9 +4265,7 @@ export async function sendConnectionRequest(
     candidate.identity_verified === true ||
       String(candidate.identity_verified) === 'true' ||
       candidate.is_verified === true ||
-      String(candidate.is_verified) === 'true' ||
-      candidate.verification_status === 'verified' ||
-      candidate.verification_status === 'approved'
+      String(candidate.is_verified) === 'true'
   )
   if (!isTargetCandidateVerified || candidate.is_discoverable === false) {
     return {
@@ -6120,9 +6114,7 @@ export async function submitSupportTicket(formData: FormData) {
     profile?.identity_verified === true ||
     String(profile?.identity_verified) === 'true' ||
     profile?.is_verified === true ||
-    String(profile?.is_verified) === 'true' ||
-    profile?.verification_status === 'verified' ||
-    profile?.verification_status === 'approved'
+    String(profile?.is_verified) === 'true'
   const tierUpper = accountTierLabel.toUpperCase()
   const isFreeTier = tierUpper.includes('FREE')
   const isPaidSub = isFreeTier === false

@@ -44,9 +44,7 @@ export default async function SupportPage({
     profile?.identity_verified === true ||
     String(profile?.identity_verified) === 'true' ||
     profile?.is_verified === true ||
-    String(profile?.is_verified) === 'true' ||
-    profile?.verification_status === 'verified' ||
-    profile?.verification_status === 'approved'
+    String(profile?.is_verified) === 'true'
 
   let isPaidSubscriber = false
   let isVerifiedAccount = isProfileVerified

@@ -126,9 +126,7 @@ export function calculateCandidateGamification(
     profile?.identity_verified === true ||
       String(profile?.identity_verified) === 'true' ||
       profile?.is_verified === true ||
-      String(profile?.is_verified) === 'true' ||
-      profile?.verification_status === 'verified' ||
-      profile?.verification_status === 'approved'
+      String(profile?.is_verified) === 'true'
   )
 
   const hasBioAndSkills =

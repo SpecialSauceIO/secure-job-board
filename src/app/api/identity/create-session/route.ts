@@ -38,8 +38,7 @@ export async function POST(req: Request) {
     ])
 
     const isVerified =
-      profile?.identity_verified === true ||
-      profile?.verification_status === 'verified'
+      profile?.identity_verified === true
 
     const guard = await checkAndRecordStripeIdentityCircuitBreaker({
       userId: user.id,

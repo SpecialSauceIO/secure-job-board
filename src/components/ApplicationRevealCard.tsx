@@ -261,9 +261,7 @@ export function ApplicationRevealCard({
     candidate?.identity_verified === true ||
       String(candidate?.identity_verified) === 'true' ||
       candidate?.is_verified === true ||
-      String(candidate?.is_verified) === 'true' ||
-      candidate?.verification_status === 'verified' ||
-      candidate?.verification_status === 'approved'
+      String(candidate?.is_verified) === 'true'
   )
 
   const stageAwareDisplayName = isRevealed

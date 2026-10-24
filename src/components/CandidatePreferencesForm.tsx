@@ -12,9 +12,7 @@ export default function CandidatePreferencesForm({ profile }: { profile: any }) 
     profile?.identity_verified === true ||
       String(profile?.identity_verified) === 'true' ||
       profile?.is_verified === true ||
-      String(profile?.is_verified) === 'true' ||
-      profile?.verification_status === 'verified' ||
-      profile?.verification_status === 'approved'
+      String(profile?.is_verified) === 'true'
   )
 
   // Initialize state with the user's existing database values (forced false if unverified)

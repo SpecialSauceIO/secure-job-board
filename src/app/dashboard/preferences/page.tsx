@@ -208,8 +208,7 @@ export default async function MatchPreferencesPage() {
 
   const isVerified = Boolean(
     profile?.identity_verified === true ||
-      profile?.is_verified === true ||
-      profile?.verification_status === 'verified'
+      profile?.is_verified === true
   )
 
   const savedEmploymentTypes = extractSavedEmploymentTypes(profile)
