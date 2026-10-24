@@ -376,7 +376,8 @@ export default async function DashboardPage({
     const employerGamification = calculateEmployerGamification(
       orgData,
       orgJobsList,
-      orgAppsList
+      orgAppsList,
+      profile
     )
 
     const employerAnalyticsRecords: AnalyticsRecordItem[] = orgAppsList.map((app: any) => {

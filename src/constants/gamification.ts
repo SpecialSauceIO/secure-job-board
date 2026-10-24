@@ -422,13 +422,29 @@ export function calculateCandidateGamification(
 export function calculateEmployerGamification(
   org: any,
   jobs: any[] = [],
-  applications: any[] = []
+  applications: any[] = [],
+  adminProfile?: any
 ): GamificationSummary {
   const isDomainVerified = org?.verification_status === 'verified'
-  const activeJobs = (jobs || []).filter((j) => j.is_active !== false)
-  const hasPayTransparency = (jobs || []).some(
-    (j) => Number(j.salary_min) > 0 && Number(j.salary_max) > 0
+  const rawDesc = String(org?.description || '')
+  const einMatch = rawDesc.match(/\[EIN:([^\]]+)\]/i)
+  const stateMatch = rawDesc.match(/\[INC_STATE:([^\]]+)\]/i)
+  const hasVerifiedEin = Boolean(
+    einMatch?.[1] && /^\d{2}-\d{7}$/.test(einMatch[1].trim()) && stateMatch?.[1]?.trim()
   )
+
+  const isAdminIdVerified = Boolean(
+    adminProfile?.identity_verified === true ||
+      String(adminProfile?.identity_verified) === 'true' ||
+      adminProfile?.is_verified === true ||
+      String(adminProfile?.is_verified) === 'true' ||
+      org?.admin_identity_verified === true
+  )
+
+  const activeJobs = (jobs || []).filter((j) => j.is_active !== false)
+  const hasPayTransparency =
+    activeJobs.length > 0 &&
+    activeJobs.every((j) => Number(j.salary_min) > 0 && Number(j.salary_max) > 0)
 
   const sentPitches = (applications || []).filter(
     (a) => a.initiated_by === 'employer'
@@ -458,14 +474,19 @@ export function calculateEmployerGamification(
     fastEmployerReviews.length,
     messagedThreads.length
   )
-
   const isResponsiveEmployer = employerActionCount >= 3
+
+  const feedbackOrDecisionCount = unlockedOrReviewed.length
+  const hasConstructiveFeedback = feedbackOrDecisionCount >= 3
 
   const isActiveTalentScout =
     activeJobs.length >= 2 || totalOutreachCount >= 5
 
   const mutualVaultReleases = (applications || []).filter(
-    (a) => a.match_data?.candidate_vault_released === true
+    (a) =>
+      a.match_data?.candidate_vault_released === true ||
+      a.match_data?.stage_2_released === true ||
+      a.match_data?.contact_released === true
   )
   const isTrustedHiringTeam = mutualVaultReleases.length >= 3
 
@@ -477,7 +498,7 @@ export function calculateEmployerGamification(
       title: 'Founding Partner',
       shortLabel: 'Founding Partner',
       description:
-        'Early-access employer organization onboarded during the Founding Launch window.',
+        'Early-access employer organization onboarded during the Founding Launch window with a 12-Month Founding Partner Rate Lock.',
       icon: '✓',
       unlocked: isFounder,
       progressText: 'Active',
@@ -485,15 +506,41 @@ export function calculateEmployerGamification(
     },
     {
       id: 'domain_verified_org',
-      title: 'Verified Corporate Domain',
+      title: 'Domain & 90-Day RDAP Verified',
       shortLabel: 'Verified Domain',
       description:
-        'Passed corporate domain & DNS verification confirming authentic company identity.',
+        'Passed live corporate DNS (MX/TXT) ownership verification and automated 90-day RDAP registry domain-age screening.',
       icon: '✓',
       unlocked: isDomainVerified,
       progressText: isDomainVerified
         ? 'Active'
-        : 'Complete DNS domain verification on Company Profile',
+        : 'Verify corporate domain & pass 90-day RDAP check on Manage Company',
+      accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
+    },
+    {
+      id: 'ein_tax_verified',
+      title: 'Verified US Tax Entity (EIN)',
+      shortLabel: 'Verified EIN',
+      description:
+        'Submitted a validated 9-digit IRS Federal EIN, State of Incorporation, and legally binding corporate officer attestation.',
+      icon: '✓',
+      unlocked: hasVerifiedEin,
+      progressText: hasVerifiedEin
+        ? 'Active'
+        : 'Save your 9-digit IRS Federal EIN & State of Incorporation on Manage Company',
+      accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
+    },
+    {
+      id: 'admin_identity_verified',
+      title: 'ID-Verified Hiring Leader',
+      shortLabel: 'Admin ID Verified',
+      description:
+        'Employer Account Admin completed 1-time government ID and live biometric selfie verification via Stripe Identity.',
+      icon: '✓',
+      unlocked: isAdminIdVerified,
+      progressText: isAdminIdVerified
+        ? 'Active'
+        : 'Complete 1-time Admin Stripe Identity verification on Manage Company',
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {
@@ -501,25 +548,38 @@ export function calculateEmployerGamification(
       title: 'Upfront Pay Transparency',
       shortLabel: 'Pay Transparency',
       description:
-        'Publishes open job listings with upfront minimum and maximum annual or hourly pay bands.',
+        'Publishes 100% of active job listings with upfront minimum and maximum annual salary or hourly pay bands.',
       icon: '✓',
       unlocked: hasPayTransparency,
       progressText: hasPayTransparency
         ? 'Active'
-        : 'Publish an active role with a minimum and maximum pay band',
+        : 'Publish at least 1 active role with upfront minimum and maximum pay bands',
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {
       id: 'active_reviewer',
-      title: '48-Hour Reviewer',
-      shortLabel: '48h Reviewer',
+      title: '48-Hour Rapid Responder',
+      shortLabel: '48h Responder',
       description:
-        'Reviews inbound applicants, unlocks profiles, or messages candidates within 48 hours across 3+ candidates.',
+        'Reviews inbound applications (unlocking or declining) or replies to candidate chat messages within 48 hours.',
       icon: '✓',
       unlocked: isResponsiveEmployer,
       progressText: isResponsiveEmployer
         ? 'Active'
-        : `Review or message 3 candidates within 48h (${employerActionCount}/3 completed)`,
+        : `Action or message 3 candidates within 48 hours (${Math.min(employerActionCount, 3)}/3 completed)`,
+      accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
+    },
+    {
+      id: 'constructive_feedback_pledge',
+      title: 'Zero-Ghosting Feedback Leader',
+      shortLabel: 'Zero-Ghosting',
+      description:
+        'Eliminates candidate ghosting by recording clear Stage 1 decisions (shortlist, unlock, or structured pass) across 3+ applications.',
+      icon: '✓',
+      unlocked: hasConstructiveFeedback,
+      progressText: hasConstructiveFeedback
+        ? 'Active'
+        : `Record Stage 1 decisions on 3 candidate applications (${Math.min(feedbackOrDecisionCount, 3)}/3 completed)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {
@@ -527,25 +587,25 @@ export function calculateEmployerGamification(
       title: 'Active Hiring Pipeline',
       shortLabel: 'Active Hiring',
       description:
-        'Maintains 2+ active job listings or has sent 5+ direct outbound candidate pitches.',
+        'Actively recruiting on Special Sauce with 2+ live protected job roles or 5+ direct outbound candidate pitches sent.',
       icon: '✓',
       unlocked: isActiveTalentScout,
       progressText: isActiveTalentScout
         ? 'Active'
-        : `${activeJobs.length}/2 active roles or ${totalOutreachCount}/5 candidate pitches`,
+        : `Maintain 2 active roles (${Math.min(activeJobs.length, 2)}/2) OR send 5 outbound pitches (${Math.min(totalOutreachCount, 5)}/5)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {
       id: 'trusted_hiring_team',
-      title: 'Trusted Hiring Team',
-      shortLabel: 'Candidate Vetted',
+      title: 'Trusted Stage 2 Vault Partner',
+      shortLabel: 'Vault Partner',
       description:
-        'Earned mutual trust with 3+ candidates who voluntarily released their full resume and contact details after chatting.',
+        'Earned candidate trust in live Stage 1 chat, resulting in 3+ candidates voluntarily releasing their Stage 2 Resume & Contact Vault.',
       icon: '✓',
       unlocked: isTrustedHiringTeam,
       progressText: isTrustedHiringTeam
         ? 'Active'
-        : `Complete 3 mutual candidate resume releases (${mutualVaultReleases.length}/3 completed)`,
+        : `Earn 3 voluntary Stage 2 candidate resume vault releases (${Math.min(mutualVaultReleases.length, 3)}/3 completed)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
   ]
@@ -554,13 +614,15 @@ export function calculateEmployerGamification(
   const rankData = resolveTierFromXp(unlockedCount, badges.length)
 
   const primaryBehavioralSignal = isTrustedHiringTeam
-    ? 'Trusted Hiring Team'
+    ? 'Trusted Stage 2 Vault Partner'
     : isResponsiveEmployer
-    ? '48-Hour Reviewer'
+    ? '48-Hour Rapid Responder'
+    : isAdminIdVerified
+    ? 'ID-Verified Hiring Leader'
     : hasPayTransparency
-    ? 'Pay Transparency'
+    ? 'Upfront Pay Transparency'
     : isDomainVerified
-    ? 'Verified Domain'
+    ? 'Domain & RDAP Verified'
     : ''
 
   return {

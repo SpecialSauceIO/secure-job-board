@@ -313,5 +313,7 @@ html.dark .founder-gold-card p {
   color: #78350f !important;
 }
 html.dark .distinction-active-tag {
+  background-color: #7dd3fc !important;
+  border-color: #38bdf8 !important;
   color: #0f172a !important;
 }
