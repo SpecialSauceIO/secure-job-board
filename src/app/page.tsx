@@ -414,9 +414,8 @@ export default function LandingPage() {
 
               {/* Candidate Feature 3 */}
               <div className="p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group border-slate-300">
-                <div className="absolute inset-0 opacity-15 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400 via-slate-900 to-slate-900 pointer-events-none"></div>
                 <div className="relative z-10">
-                  <div className="w-12 h-12 bg-slate-800 rounded-xl border border-slate-700 flex items-center justify-center mb-6 text-emerald-400 group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-xl border border-emerald-300 flex items-center justify-center mb-6 text-emerald-600 group-hover:scale-110 transition-transform">
                     <svg
                       className="w-6 h-6"
                       fill="none"
@@ -507,9 +506,8 @@ export default function LandingPage() {
 
               {/* Employer Feature 3 */}
               <div className="p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group border-slate-300">
-                <div className="absolute inset-0 opacity-15 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-400 via-slate-900 to-slate-900 pointer-events-none"></div>
                 <div className="relative z-10">
-                  <div className="w-12 h-12 bg-slate-800 rounded-xl border border-slate-700 flex items-center justify-center mb-6 text-indigo-400 group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 bg-indigo-100 rounded-xl border border-indigo-300 flex items-center justify-center mb-6 text-indigo-600 group-hover:scale-110 transition-transform">
                     <svg
                       className="w-6 h-6"
                       fill="none"
