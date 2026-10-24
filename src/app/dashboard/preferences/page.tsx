@@ -5,10 +5,8 @@ import Link from 'next/link'
 import { SubmitButton } from '@/components/SubmitButton'
 import UsLocationSelector from '@/components/UsLocationSelector'
 import { StructuredLanguageEditor } from '@/components/StructuredLanguageEditor'
-import {
-  updateProfile,
-  forceVerifyCandidateIdentity,
-} from '@/app/dashboard/actions'
+import { updateProfile } from '@/app/dashboard/actions'
+import VerifyButton from '@/app/dashboard/VerifyButton'
 import {
   STANDARD_INDUSTRY_VERTICALS,
   normalizeIndustryVertical,
@@ -264,14 +262,9 @@ export default async function MatchPreferencesPage() {
                 Complete Stripe Identity verification to unlock receiving inbound connection pitches from verified employers.
               </p>
             </div>
-            <form action={forceVerifyCandidateIdentity}>
-              <button
-                type="submit"
-                className="shrink-0 px-4 py-2.5 bg-amber-600 text-white text-xs font-extrabold rounded-xl hover:bg-amber-700 transition-colors shadow-sm cursor-pointer"
-              >
-                ⚡ Complete Verification
-              </button>
-            </form>
+            <div className="shrink-0">
+              <VerifyButton />
+            </div>
           </div>
         )}
 

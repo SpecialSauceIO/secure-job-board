@@ -363,6 +363,7 @@ export async function POST(req: Request) {
         .update({
           identity_verified: true,
           is_verified: true,
+          is_discoverable: true,
         })
         .eq('id', userId)
 

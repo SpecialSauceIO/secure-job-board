@@ -168,6 +168,7 @@ export default async function DashboardPage({
           .update({
             identity_verified: true,
             is_verified: true,
+            is_discoverable: true,
           })
           .eq('id', user.id)
 
@@ -175,6 +176,7 @@ export default async function DashboardPage({
           ...profile,
           identity_verified: true,
           is_verified: true,
+          is_discoverable: true,
         }
       } else {
         stripeIdentityReturnState = 'processing'

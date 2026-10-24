@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import VerifyButton from '@/app/dashboard/VerifyButton'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import {
@@ -261,6 +262,26 @@ export default function CandidateBillingPage() {
           </Link>
         </div>
       </header>
+
+      {/* Mandatory Step 2 Verification Quarantine Callout for Subscribed Candidates */}
+      {!isLoading && normalizedTier !== 'free' && !isVerified && (
+        <div className="p-6 rounded-2xl border-2 border-amber-400 bg-amber-50 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-200/80 text-amber-950 text-[11px] font-black uppercase tracking-wider">
+              🔒 Profile Quarantined Until Verified • Step 2 of 2 Required
+            </div>
+            <h2 className="text-base sm:text-lg font-black text-slate-900">
+              Complete Your 1-Time Biometric ID Check to Go Live in Employer Search
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-700 max-w-2xl leading-relaxed">
+              Your <strong>{tierInfo?.label}</strong> subscription is active, but your profile remains <strong>100% hidden from employers</strong> until you pass Stripe Identity verification. This stops bots and burner accounts from harvesting employer pitches.
+            </p>
+          </div>
+          <div className="shrink-0">
+            <VerifyButton />
+          </div>
+        </div>
+      )}
 
       {/* Feedback Banner */}
       {feedback && (

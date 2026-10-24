@@ -8,8 +8,19 @@ export default function CandidatePreferencesForm({ profile }: { profile: any }) 
   const router = useRouter()
   const supabase = createClient()
   
-  // Initialize state with the user's existing database values
-  const [isDiscoverable, setIsDiscoverable] = useState(profile?.is_discoverable ?? true)
+  const isVerified = Boolean(
+    profile?.identity_verified === true ||
+      String(profile?.identity_verified) === 'true' ||
+      profile?.is_verified === true ||
+      String(profile?.is_verified) === 'true' ||
+      profile?.verification_status === 'verified' ||
+      profile?.verification_status === 'approved'
+  )
+
+  // Initialize state with the user's existing database values (forced false if unverified)
+  const [isDiscoverable, setIsDiscoverable] = useState(
+    isVerified ? (profile?.is_discoverable ?? true) : false
+  )
   const [minSalary, setMinSalary] = useState(profile?.min_salary_expectation?.toString() || '')
   const [workModel, setWorkModel] = useState(profile?.preferred_work_model || 'any')
   
@@ -27,7 +38,7 @@ export default function CandidatePreferencesForm({ profile }: { profile: any }) 
     const { error } = await supabase
       .from('profiles')
       .update({
-        is_discoverable: isDiscoverable,
+        is_discoverable: isVerified ? isDiscoverable : false,
         min_salary_expectation: cleanedSalary,
         preferred_work_model: workModel
       })
@@ -62,8 +73,9 @@ export default function CandidatePreferencesForm({ profile }: { profile: any }) 
             <input 
               type="checkbox" 
               className="sr-only peer"
-              checked={isDiscoverable}
-              onChange={() => setIsDiscoverable(!isDiscoverable)}
+              checked={isVerified ? isDiscoverable : false}
+              disabled={!isVerified}
+              onChange={() => isVerified && setIsDiscoverable(!isDiscoverable)}
             />
             <div className="w-14 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-indigo-600"></div>
           </label>

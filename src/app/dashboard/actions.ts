@@ -1139,27 +1139,9 @@ export async function setRole(formData: FormData) {
 }
 
 export async function forceVerifyCandidateIdentity() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return
-
-  await supabase
-    .from('profiles')
-    .update({ identity_verified: true })
-    .eq('id', user.id)
-
-  await supabase
-    .from('profiles')
-    .update({
-      identity_verified: true,
-      is_verified: true,
-    })
-    .eq('id', user.id)
-
-  revalidatePath('/dashboard')
-  revalidatePath('/dashboard/jobs')
+  // Security policy: Manual/direct DB verification bypass is permanently disabled.
+  // All candidates must verify via Stripe Identity (/api/identity/create-session).
+  return
 }
 
 export async function updateApplicationStatus(formData: FormData) {
@@ -1389,9 +1371,18 @@ export async function updateProfile(formData: FormData) {
 
   const { data: currentProfile } = await supabase
     .from('profiles')
-    .select('structured_skills')
+    .select('structured_skills, identity_verified, is_verified, verification_status, is_discoverable')
     .eq('id', user.id)
     .single()
+
+  const isCurrentProfileVerified = Boolean(
+    currentProfile?.identity_verified === true ||
+      String(currentProfile?.identity_verified) === 'true' ||
+      currentProfile?.is_verified === true ||
+      String(currentProfile?.is_verified) === 'true' ||
+      currentProfile?.verification_status === 'verified' ||
+      currentProfile?.verification_status === 'approved'
+  )
 
   const existingMeta = extractCandidateMeta(currentProfile?.structured_skills)
   const existingPrefMeta = extractCandidatePrefMeta(
@@ -1440,7 +1431,7 @@ export async function updateProfile(formData: FormData) {
     skills: skills_string,
     structured_skills,
     bio,
-    is_discoverable: true,
+    is_discoverable: isCurrentProfileVerified ? (currentProfile?.is_discoverable ?? true) : false,
   }
 
   if (min_salary_expectation) {
@@ -1517,9 +1508,18 @@ export async function parseResumeAutoFill(formData: FormData) {
   try {
     const { data: currentProfile } = await supabase
       .from('profiles')
-      .select('structured_skills')
+      .select('structured_skills, identity_verified, is_verified, verification_status, is_discoverable')
       .eq('id', user.id)
       .single()
+
+    const isCurrentProfileVerified = Boolean(
+      currentProfile?.identity_verified === true ||
+        String(currentProfile?.identity_verified) === 'true' ||
+        currentProfile?.is_verified === true ||
+        String(currentProfile?.is_verified) === 'true' ||
+        currentProfile?.verification_status === 'verified' ||
+        currentProfile?.verification_status === 'approved'
+    )
 
     const existingMeta = extractCandidateMeta(currentProfile?.structured_skills)
     const existingPrefMeta = extractCandidatePrefMeta(
@@ -1632,7 +1632,7 @@ export async function parseResumeAutoFill(formData: FormData) {
       skills: skillsString,
       structured_skills: extractedSkills,
       bio: extractedData.bio || '',
-      is_discoverable: true,
+      is_discoverable: isCurrentProfileVerified ? (currentProfile?.is_discoverable ?? true) : false,
     }
 
     if (resumeStorageRef) {
@@ -2531,6 +2531,24 @@ export async function respondToConnectionRequest(applicationId: string, decision
       storedStatus: 'rejected',
       referenceId,
       creditRefunded: refundedCreditNow,
+    }
+  }
+
+  const candidateProfileObj: any = Array.isArray(existingApp?.profiles)
+    ? existingApp?.profiles[0]
+    : existingApp?.profiles
+  const isCandidateVerified = Boolean(
+    candidateProfileObj?.identity_verified === true ||
+      String(candidateProfileObj?.identity_verified) === 'true' ||
+      candidateProfileObj?.is_verified === true ||
+      String(candidateProfileObj?.is_verified) === 'true' ||
+      candidateProfileObj?.verification_status === 'verified' ||
+      candidateProfileObj?.verification_status === 'approved'
+  )
+  if (!isCandidateVerified) {
+    return {
+      error:
+        'Verification Required: You must complete your 1-time Stripe Biometric ID Verification on your Dashboard before accepting employer pitches.',
     }
   }
 
@@ -4182,6 +4200,21 @@ export async function sendConnectionRequest(
     .single()
 
   if (!candidate) return { error: 'Candidate profile not found.' }
+
+  const isTargetCandidateVerified = Boolean(
+    candidate.identity_verified === true ||
+      String(candidate.identity_verified) === 'true' ||
+      candidate.is_verified === true ||
+      String(candidate.is_verified) === 'true' ||
+      candidate.verification_status === 'verified' ||
+      candidate.verification_status === 'approved'
+  )
+  if (!isTargetCandidateVerified || candidate.is_discoverable === false) {
+    return {
+      error:
+        'Pitch Blocked: This candidate has not completed Biometric ID Verification or is currently hidden from Employer Search.',
+    }
+  }
 
   const annualizedMaxPay =
     job.pay_type === 'hourly' && job.salary_max
