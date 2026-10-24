@@ -353,7 +353,7 @@ export default async function ProfilePage() {
               🏅 Active Certifications &amp; Licenses (Optional)
             </label>
             <p className="text-xs text-slate-500 mb-2">
-              Comma-separated credentials matched directly against certification-required roles.
+              Select standardized credentials by industry vertical or search by keyword for exact 5-Point AI Fit Radar matching.
             </p>
             <StructuredCertificationSelector
               name="certifications"

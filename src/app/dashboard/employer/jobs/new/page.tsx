@@ -387,7 +387,7 @@ export default function NewJobPage() {
                 Required / Preferred Certifications (Optional)
               </label>
               <p className="text-xs text-slate-500 mt-0.5 mb-2">
-                Comma-separated credentials (e.g., AWS Solutions Architect, PMP, Security+).
+                Select standardized industry credentials or licenses evaluated directly by the 5-Point AI Fit Radar.
               </p>
               <StructuredCertificationSelector
                 name="required_certifications"
