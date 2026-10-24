@@ -53,7 +53,7 @@ export function PublicHeader({
           </Link>
           <Link
             href="/login"
-            className="text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors"
+            className="inline-flex items-center px-4 py-2 rounded-xl border-2 border-slate-300 bg-slate-50 hover:bg-slate-100 hover:border-indigo-400 text-slate-800 hover:text-indigo-600 text-sm font-bold transition-all shadow-2xs"
           >
             Sign In
           </Link>
