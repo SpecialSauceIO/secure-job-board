@@ -25,6 +25,34 @@ import {
 
 export const dynamic = 'force-dynamic'
 
+const CANDIDATE_EMPLOYMENT_TYPE_OPTIONS = [
+  {
+    value: 'Full-Time (W-2)',
+    label: 'Full-Time (W-2)',
+    desc: 'Standard salaried or hourly W-2 employment with benefits',
+  },
+  {
+    value: 'Contract (1099 / Corp-to-Corp)',
+    label: 'Contract (1099 / C2C)',
+    desc: 'Independent contractor or Corp-to-Corp project engagements',
+  },
+  {
+    value: 'Contract-to-Hire',
+    label: 'Contract-to-Hire',
+    desc: 'Initial contract period with intent to convert to Full-Time',
+  },
+  {
+    value: 'Part-Time',
+    label: 'Part-Time',
+    desc: 'Reduced weekly hours or flexible fractional roles',
+  },
+  {
+    value: 'Seasonal / Temporary',
+    label: 'Seasonal / Temporary',
+    desc: 'Fixed-term, holiday, peak-season, or temporary staffing roles',
+  },
+]
+
 async function saveCandidateProfilePreservingMeta(formData: FormData) {
   'use server'
   const supabase = await createClient()
@@ -83,9 +111,22 @@ async function saveCandidateProfilePreservingMeta(formData: FormData) {
     ? normalizeLanguageList(rawSubmittedLanguages, true)
     : normalizeLanguageList(existingPrefObj.languages, true)
 
+  const selectedEmpTypes = formData
+    .getAll('employment_types')
+    .map(String)
+    .filter(Boolean)
+  const finalEmploymentTypes =
+    selectedEmpTypes.length > 0
+      ? selectedEmpTypes
+      : Array.isArray(existingPrefObj.employment_types) &&
+        existingPrefObj.employment_types.length > 0
+      ? existingPrefObj.employment_types
+      : CANDIDATE_EMPLOYMENT_TYPE_OPTIONS.map((o) => o.value)
+
   const updatedPrefObj = {
     ...existingPrefObj,
     _ss_pref_meta: true,
+    employment_types: finalEmploymentTypes,
     industry_vertical: normalizedIndustry,
     education_level: normalizedEducation,
     certifications: submittedCertifications,
@@ -194,6 +235,11 @@ export default async function ProfilePage() {
     : 'Practical Experience & Industry Certifications'
 
   const currentCertifications = prefMetaObj?.certifications || ''
+  const currentEmploymentTypes: string[] =
+    Array.isArray(prefMetaObj?.employment_types) &&
+    prefMetaObj.employment_types.length > 0
+      ? prefMetaObj.employment_types
+      : CANDIDATE_EMPLOYMENT_TYPE_OPTIONS.map((o) => o.value)
   const currentAvailability = normalizeCandidateAvailability(prefMetaObj?.availability_window)
   const currentLanguages = normalizeLanguageList(prefMetaObj?.languages, true)
 
@@ -380,6 +426,42 @@ export default async function ProfilePage() {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="sm:col-span-2 pt-2 border-t border-slate-300">
+            <label className="block text-sm font-bold text-slate-700 mb-1">
+              💼 Accepted Employment Types (Select All That Apply)
+            </label>
+            <p className="text-xs text-slate-500 mb-3">
+              Select all employment structures you are open to (Full-Time W-2, Contract 1099/C2C, Contract-to-Hire, Part-Time, or Seasonal/Temporary). Synced automatically with your Match Dealbreakers.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              {CANDIDATE_EMPLOYMENT_TYPE_OPTIONS.map((opt) => {
+                const isChecked = currentEmploymentTypes.includes(opt.value)
+                return (
+                  <label
+                    key={opt.value}
+                    className="relative flex items-start gap-2.5 p-3 rounded-xl border border-slate-300 bg-white hover:border-indigo-400 transition-colors cursor-pointer shadow-2xs"
+                  >
+                    <input
+                      type="checkbox"
+                      name="employment_types"
+                      value={opt.value}
+                      defaultChecked={isChecked}
+                      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <div className="text-xs">
+                      <span className="font-bold text-slate-900 block">
+                        {opt.label}
+                      </span>
+                      <span className="text-slate-500 leading-snug block mt-0.5 text-[11px]">
+                        {opt.desc}
+                      </span>
+                    </div>
+                  </label>
+                )
+              })}
+            </div>
           </div>
         </div>
 

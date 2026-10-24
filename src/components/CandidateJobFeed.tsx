@@ -182,8 +182,18 @@ export function CandidateJobFeed({
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [itemsPerPage, setItemsPerPage] = useState<number>(5)
   const [sortBy, setSortBy] = useState<SortOption>('newest')
-  const [employmentTypeFilter, setEmploymentTypeFilter] =
-    useState<string>('all')
+  const [employmentTypeFilters, setEmploymentTypeFilters] =
+    useState<string[]>([])
+
+  const toggleEmploymentTypeFilter = (id: string) => {
+    if (id === 'all') {
+      setEmploymentTypeFilters([])
+      return
+    }
+    setEmploymentTypeFilters((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    )
+  }
   const [industryFilter, setIndustryFilter] = useState<string>('all')
   const [languageFilter, setLanguageFilter] = useState<string>('all')
   const [internalSavedIds, setInternalSavedIds] = useState<string[]>([])
@@ -409,12 +419,14 @@ export function CandidateJobFeed({
       .filter((item) => !item.meta.isExpired)
 
     const filteredByType =
-      employmentTypeFilter === 'all'
+      employmentTypeFilters.length === 0
         ? freshWithMeta
         : freshWithMeta.filter((item) =>
-            item.meta.employmentType
-              .toLowerCase()
-              .includes(employmentTypeFilter.toLowerCase())
+            employmentTypeFilters.some((selectedType) =>
+              item.meta.employmentType
+                .toLowerCase()
+                .includes(selectedType.toLowerCase())
+            )
           )
 
     const filteredByIndustry =
@@ -474,7 +486,7 @@ export function CandidateJobFeed({
   }, [
     jobList,
     sortBy,
-    employmentTypeFilter,
+    employmentTypeFilters,
     industryFilter,
     languageFilter,
   ])
@@ -548,14 +560,15 @@ export function CandidateJobFeed({
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setEmploymentTypeFilter(tab.id)}
+                  onClick={() => toggleEmploymentTypeFilter(tab.id)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    employmentTypeFilter === tab.id
+                    (tab.id === 'all' && employmentTypeFilters.length === 0) ||
+                    employmentTypeFilters.includes(tab.id)
                       ? 'bg-slate-900 text-white shadow-2xs'
                       : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-300'
                   }`}
                 >
-                  {tab.label}
+                  {employmentTypeFilters.includes(tab.id) ? `✓ ${tab.label}` : tab.label}
                 </button>
               ))}
             </div>
@@ -657,7 +670,7 @@ export function CandidateJobFeed({
           <button
             type="button"
             onClick={() => {
-              setEmploymentTypeFilter('all')
+              setEmploymentTypeFilters([])
               setIndustryFilter('all')
               setLanguageFilter('all')
             }}
