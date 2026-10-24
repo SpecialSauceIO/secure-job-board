@@ -32,7 +32,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-xl">1. Introduction</h2>
             <p className="text-slate-600 leading-relaxed mt-2">
-              At specialsauce.io (&ldquo;Special Sauce,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;), trust and anti-harvesting protection are the foundation of our double-blind hiring marketplace. This Privacy Policy explains how we collect, use, vault, disclose, and safeguard your information when you visit our platform or use our services.
+              At specialsauce.io, operated by <strong>{LEGAL_CONFIG.legalEntityName}</strong> (&ldquo;Special Sauce,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;), trust and anti-harvesting protection are the foundation of our double-blind hiring marketplace. This Privacy Policy explains how we collect, use, vault, disclose, and safeguard your information when you visit our platform or use our services.
             </p>
           </section>
 
@@ -152,6 +152,12 @@ export default function PrivacyPolicyPage() {
               </a>
               .
             </p>
+            <div className="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-300 text-xs text-slate-600 space-y-1">
+              <p className="font-bold text-slate-900">{LEGAL_CONFIG.legalEntityName}</p>
+              <p>Attn: Privacy &amp; Data Protection Officer</p>
+              <p>{LEGAL_CONFIG.legalEntityAddress}</p>
+              <p>Email: {LEGAL_CONFIG.privacyEmail} • {LEGAL_CONFIG.supportEmail}</p>
+            </div>
           </section>
         </div>
       </div>

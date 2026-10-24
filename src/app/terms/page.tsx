@@ -32,7 +32,7 @@ export default function TermsOfServicePage() {
           <section>
             <h2 className="text-xl">1. Acceptance of Terms</h2>
             <p className="text-slate-600 leading-relaxed mt-2">
-              By accessing or using the specialsauce.io website, platform, and related services (collectively, the &ldquo;Platform&rdquo;), you agree to be bound by these Terms of Service (&ldquo;Terms&rdquo;). If you do not agree to these Terms, you may not access or use the Platform. These Terms apply to all visitors, Candidates, Employers, Hiring Managers, and Delegated W-2 BPO/RPO Partners who access the Platform.
+              By accessing or using the specialsauce.io website, platform, and related services (collectively, the &ldquo;Platform&rdquo;), operated by <strong>{LEGAL_CONFIG.legalEntityName}</strong> (&ldquo;Special Sauce,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;), you agree to be bound by these Terms of Service (&ldquo;Terms&rdquo;). If you do not agree to these Terms, you may not access or use the Platform. These Terms apply to all visitors, Candidates, Employers, Hiring Managers, and Delegated W-2 BPO/RPO Partners who access the Platform.
             </p>
           </section>
 
@@ -52,7 +52,7 @@ export default function TermsOfServicePage() {
             </p>
             <ul className="list-disc pl-5 mt-3 space-y-2 text-slate-600">
               <li>
-                <strong className="text-slate-800">Candidates:</strong> Must complete biometric and government ID verification via Stripe Identity before submitting outbound blind applications. Creating duplicate accounts to reset trial application quotas or submitting falsified credentials is grounds for immediate termination.
+                <strong className="text-slate-800">Candidates:</strong> Must activate a Candidate membership plan (Explorer $3/mo, Professional $9/mo, or Prestige $15/mo) and complete 1-time biometric and government ID verification via Stripe Identity before appearing in Employer Talent Search, accepting inbound employer pitches, or submitting outbound blind applications. Creating duplicate accounts or submitting falsified credentials is grounds for immediate termination.
               </li>
               <li>
                 <strong className="text-slate-800">Employers &amp; Delegated Partners:</strong> Must verify a dedicated corporate domain (via matching corporate email or DNS TXT record) before posting active roles or searching the passive talent pool. W-2 Consultancies and authorized BPO delivery partners are supported; however, unauthorized third-party contingency headhunters may not post duplicate or unverified client listings.
@@ -159,7 +159,7 @@ export default function TermsOfServicePage() {
           <section>
             <h2 className="text-xl">9. Limitation of Liability</h2>
             <p className="text-slate-600 leading-relaxed mt-2">
-              To the maximum extent permitted by applicable law, Special Sauce and its officers, affiliates, and licensors shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of profits, data, goodwill, or hiring delays, arising out of or related to your use of or inability to use the Platform.
+              To the maximum extent permitted by applicable law, {LEGAL_CONFIG.legalEntityName}, its parent holding company, officers, affiliates, and licensors shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of profits, data, goodwill, or hiring delays, arising out of or related to your use of or inability to use the Platform.
             </p>
           </section>
 
@@ -198,6 +198,11 @@ export default function TermsOfServicePage() {
               </a>
               .
             </p>
+            <div className="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-300 text-xs text-slate-600 space-y-1">
+              <p className="font-bold text-slate-900">{LEGAL_CONFIG.legalEntityName}</p>
+              <p>{LEGAL_CONFIG.legalEntityAddress}</p>
+              <p>Email: {LEGAL_CONFIG.legalEmail} • {LEGAL_CONFIG.supportEmail}</p>
+            </div>
           </section>
         </div>
       </div>

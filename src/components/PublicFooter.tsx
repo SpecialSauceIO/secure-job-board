@@ -53,9 +53,14 @@ export function PublicFooter() {
           </a>
         </div>
 
-        <p className="text-sm text-slate-500 text-center md:text-right">
-          © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName}. All rights reserved.
-        </p>
+        <div className="text-center md:text-right space-y-0.5">
+          <p className="text-sm font-semibold text-slate-600">
+            © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName}. All rights reserved.
+          </p>
+          <p className="text-[11px] text-slate-400">
+            {LEGAL_CONFIG.legalEntityAddress}
+          </p>
+        </div>
       </div>
     </footer>
   )
