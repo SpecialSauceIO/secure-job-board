@@ -19,8 +19,8 @@ export function PublicFooter() {
           />
         </Link>
 
-        {/* Legal, Workflows, Support Ticket Form & General Contact Links */}
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+        {/* Legal, Workflows & Help Center Links */}
+        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
           <Link
             href="/workflows"
             className="text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
@@ -51,12 +51,6 @@ export function PublicFooter() {
           >
             Help &amp; Support
           </Link>
-          <a
-            href={`mailto:${LEGAL_CONFIG.supportEmail}`}
-            className="text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
-          >
-            Contact Us
-          </a>
         </div>
 
         <p className="text-xs text-slate-500 text-center xl:text-right shrink-0">
