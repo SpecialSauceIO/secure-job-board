@@ -39,7 +39,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zEQeqE0pvy',
     description:
-      'ID-Verified Active Tier: Unlock and accept unlimited inbound employer pitches, plus 15 outbound blind applications/month (70%+ AI Fit).',
+      'ID-Verified Active Tier: Unlock and accept unlimited inbound employer pitches, plus 15 outbound blind applications/month (40%+ AI Fit).',
   },
   candidate_pro: {
     id: 'professional',
@@ -48,7 +48,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zEQeqE0pvy',
     description:
-      'ID-Verified Active Tier: Unlock and accept unlimited inbound employer pitches, plus 15 outbound blind applications/month (70%+ AI Fit).',
+      'ID-Verified Active Tier: Unlock and accept unlimited inbound employer pitches, plus 15 outbound blind applications/month (40%+ AI Fit).',
   },
   prestige: {
     id: 'prestige',
@@ -57,7 +57,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zETADS2cmp',
     description:
-      'Priority Spotlight & Unlimited: Unlimited outbound blind applications (70%+ AI Fit), top-priority placement in Employer Talent Search, and priority shortlist placement.',
+      'Priority Spotlight & Unlimited: Unlimited outbound blind applications (40%+ AI Fit), top-priority placement in Employer Talent Search, and priority shortlist placement.',
   },
   candidate_prestige: {
     id: 'prestige',
@@ -66,7 +66,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zETADS2cmp',
     description:
-      'Priority Spotlight & Unlimited: Unlimited outbound blind applications (70%+ AI Fit), top-priority placement in Employer Talent Search, and priority shortlist placement.',
+      'Priority Spotlight & Unlimited: Unlimited outbound blind applications (40%+ AI Fit), top-priority placement in Employer Talent Search, and priority shortlist placement.',
   },
 }
 

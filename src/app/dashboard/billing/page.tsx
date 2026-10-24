@@ -485,7 +485,7 @@ export default function CandidateBillingPage() {
                   🛡️ <strong>Includes Real-Person ID Verification</strong> &amp; Verified Shield
                 </li>
                 <li>
-                  ✓ <strong>15 Outbound Blind Applications / month</strong> (70%+ AI Fit)
+                  ✓ <strong>15 Outbound Blind Applications / month</strong> (40%+ AI Fit)
                 </li>
                 <li>
                   ✓ <strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong>
@@ -554,7 +554,7 @@ export default function CandidateBillingPage() {
                   🛡️ <strong>Includes Real-Person ID Verification</strong> &amp; Verified Shield
                 </li>
                 <li>
-                  ✓ <strong>Unlimited Outbound Blind Applications</strong> (70%+ AI Fit)
+                  ✓ <strong>Unlimited Outbound Blind Applications</strong> (40%+ AI Fit)
                 </li>
                 <li>
                   ✓ <strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong>

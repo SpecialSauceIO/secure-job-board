@@ -142,7 +142,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span><strong>15 Outbound Blind Applications / month</strong> (70%+ AI Fit)</span>
+                      <span><strong>15 Outbound Blind Applications / month</strong> (40%+ AI Fit)</span>
                     </li>
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
@@ -194,7 +194,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>
-                      <span><strong>Unlimited Outbound Blind Applications</strong> (70%+ AI Fit)</span>
+                      <span><strong>Unlimited Outbound Blind Applications</strong> (40%+ AI Fit)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>

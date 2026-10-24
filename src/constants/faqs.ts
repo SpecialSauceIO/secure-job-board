@@ -110,7 +110,7 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
         step: 'Step 4',
         title: 'Stage 1 Unlock & 100% Accepted-Only Credit Protection',
         description:
-          'Unlocking inbound applicants (70%+ AI Fit) is 100% free (0 credits). Pitching passive candidates from your search or Shortlist uses 1 Pitch Credit backed by our 100% Accepted-Only Guarantee—if a candidate declines your pitch, the credit is automatically refunded to the exact bucket it came from. Stage 1 opens a real-time encrypted message thread and reveals the candidate’s First Name + Last Initial.',
+          'Unlocking inbound applicants (40%+ AI Fit) is 100% free (0 credits). Pitching passive candidates from your search or Shortlist uses 1 Pitch Credit backed by our 100% Accepted-Only Guarantee—if a candidate declines your pitch, the credit is automatically refunded to the exact bucket it came from. Stage 1 opens a real-time encrypted message thread and reveals the candidate’s First Name + Last Initial.',
       },
       {
         step: 'Step 5',
@@ -130,7 +130,7 @@ Special Sauce is a verified, double-blind technical & professional recruitment m
 - Step 1 — Domain Verification & 12-Month Rate Lock: Verify our corporate domain to lock in 12-Month Founding Partner Rates, search the anonymous talent pool, filter by employment type (W-2, 1099/C2C, Contract-to-Hire), and bookmark candidates into our Shortlist.
 - Step 2 — Shared Team & BPO Partner Seats: Collaborators (Hiring Managers & authorized external recruiters) share our organization's active role slots and Two-Bucket pitch credit pool.
 - Step 3 — Publishing Blind Roles (30-Day Auto-Expiry): Every role displays transparent pay ($/yr or $/hr), standardized US State & Metro location, and employment type while keeping our company name blind. Roles auto-expire after 30 days to guarantee freshness and can be renewed in 1 click.
-- Step 4 — Stage 1 Unlock & Accepted-Only Credit Protection: Inbound applications (70%+ AI Fit) are 100% FREE to unlock; outbound pitches to passive talent use 1 Pitch Credit and are auto-refunded if declined. Stage 1 opens a live encrypted chat thread (Ref: SS-XXXXXXXX) and reveals the candidate's First Name + Last Initial.
+- Step 4 — Stage 1 Unlock & Accepted-Only Credit Protection: Inbound applications (40%+ AI Fit) are 100% FREE to unlock; outbound pitches to passive talent use 1 Pitch Credit and are auto-refunded if declined. Stage 1 opens a live encrypted chat thread (Ref: SS-XXXXXXXX) and reveals the candidate's First Name + Last Initial.
 - Step 5 — Stage 2 Unlock (Full Resume & Email Release): Once we message the candidate in the thread, they click "Release Resume & Contact Vault" to unlock their Full Name, direct email, and downloadable PDF resume.
 
 3. EMPLOYER PLANS (12-MONTH FOUNDING PARTNER RATE LOCK) & TOP-UPS:
@@ -169,7 +169,7 @@ Special Sauce is a verified, double-blind technical & professional recruitment m
         step: 'Step 4',
         title: 'Upgrade & Complete 1-Time Real-Person ID Verification When Ready',
         description:
-          'When you spot a role you want to apply for (70%+ AI Fit) or want to unlock an incoming employer pitch, upgrade to Professional ($9/mo for 15 monthly blind applications + unlimited pitch unlocks) or Prestige ($15/mo for unlimited blind applications + Top-Priority Employer Search placement) and complete your 1-time Stripe Real-Person ID Verification.',
+          'When you spot a role you want to apply for (40%+ AI Fit) or want to unlock an incoming employer pitch, upgrade to Professional ($9/mo for 15 monthly blind applications + unlimited pitch unlocks) or Prestige ($15/mo for unlimited blind applications + Top-Priority Employer Search placement) and complete your 1-time Stripe Real-Person ID Verification.',
       },
       {
         step: 'Step 5',
@@ -194,8 +194,8 @@ SPECIAL SAUCE — CANDIDATE HOW-IT-WORKS & 2-STAGE VAULT REFERENCE GUIDE
 
 3. CANDIDATE MEMBERSHIP TIERS ($3 / $9 / $15):
 - Explorer ($3/mo): Includes 1-time Stripe Real-Person ID Verification, live anonymous profile in Employer Search, unlimited Inbound Employer Pitch unlocks, and unlimited 5-Point AI Fit Radar checks.
-- Professional ($9/mo): Includes 1-time Stripe Real-Person ID Verification, unlimited Inbound Employer Pitch unlocks, 15 Outbound Blind Applications/month (70%+ AI Fit), and Permanent Founding Member status.
-- Prestige ($15/mo): Includes 1-time Stripe Real-Person ID Verification, Unlimited Outbound Blind Applications (70%+ AI Fit), unlimited pitch unlocks, and Top-Priority Spotlight placement in Employer Talent Search.
+- Professional ($9/mo): Includes 1-time Stripe Real-Person ID Verification, unlimited Inbound Employer Pitch unlocks, 15 Outbound Blind Applications/month (40%+ AI Fit), and Permanent Founding Member status.
+- Prestige ($15/mo): Includes 1-time Stripe Real-Person ID Verification, Unlimited Outbound Blind Applications (40%+ AI Fit), unlimited pitch unlocks, and Top-Priority Spotlight placement in Employer Talent Search.
 ====================================================================`,
   },
 }
@@ -265,7 +265,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'What is the difference between Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo)?',
     answer:
-      'All three candidate tiers include 1-time Stripe Real-Person ID Verification so our talent pool remains 100% bot-free. Explorer ($3/mo) is built for passive discovery: your verified anonymous profile is live in Employer Search and you can unlock and accept unlimited Inbound Employer Pitches. Professional ($9/mo) adds 15 proactive Outbound Blind Applications/month (for roles where you score 70%+ AI Fit). Prestige ($15/mo) includes Unlimited Outbound Blind Applications (70%+ AI Fit) and Top-Priority Spotlight placement in Employer Talent Search. You can switch or downgrade plans anytime.',
+      'All three candidate tiers include 1-time Stripe Real-Person ID Verification so our talent pool remains 100% bot-free. Explorer ($3/mo) is built for passive discovery: your verified anonymous profile is live in Employer Search and you can unlock and accept unlimited Inbound Employer Pitches. Professional ($9/mo) adds 15 proactive Outbound Blind Applications/month (for roles where you score 40%+ AI Fit). Prestige ($15/mo) includes Unlimited Outbound Blind Applications (40%+ AI Fit) and Top-Priority Spotlight placement in Employer Talent Search. You can switch or downgrade plans anytime.',
   },
 
   // ------------------------------------------------------------------

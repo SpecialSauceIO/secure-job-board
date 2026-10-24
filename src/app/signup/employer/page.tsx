@@ -99,7 +99,7 @@ export default function EmployerSignupPage({
             <span className="text-emerald-600 font-black mt-0.5">✓</span>
             <span>
               <strong className="text-slate-900">
-                70%+ AI Fit Firewall:
+                40%+ AI Fit Firewall:
               </strong>{' '}
               Every applicant is Stripe Identity-Verified and pre-scored on a 5-Point AI Match Radar.
             </span>
