@@ -46,6 +46,12 @@ export function PublicHeader({
             Home
           </Link>
           <Link
+            href="/workflows"
+            className="hidden sm:inline text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors"
+          >
+            How It Works
+          </Link>
+          <Link
             href="/pricing"
             className="hidden sm:inline text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors"
           >

@@ -22,6 +22,12 @@ export function PublicFooter() {
         {/* Legal, Support Ticket Form & General Contact Links */}
         <div className="flex flex-wrap lg:flex-nowrap items-center justify-center gap-x-5 gap-y-2">
           <Link
+            href="/workflows"
+            className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
+          >
+            Platform Workflows
+          </Link>
+          <Link
             href="/security"
             className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
           >

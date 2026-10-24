@@ -99,6 +99,12 @@ export default async function DashboardLayout({
               Help Center &amp; Playbooks
             </Link>
             <Link
+              href="/dashboard/workflows"
+              className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
+            >
+              Platform Workflows
+            </Link>
+            <Link
               href="/dashboard/security"
               className="text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors"
             >
