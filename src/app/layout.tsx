@@ -48,7 +48,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
   const themeCookie = cookieStore.get("ss_theme")?.value;
-  const serverDarkClass = themeCookie === "dark" ? "dark" : "";
+  const serverDarkClass = themeCookie === "light" ? "" : "dark";
 
   return (
     <html
@@ -63,10 +63,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               (function() {
                 try {
                   var saved = localStorage.getItem('ss_theme');
+                  if (!saved) {
+                    var match = document.cookie.match(/(?:^|; )ss_theme=([^;]*)/);
+                    if (match) saved = decodeURIComponent(match[1]);
+                  }
                   if (saved === 'light') {
                     document.documentElement.classList.remove('dark');
+                    document.cookie = 'ss_theme=light; path=/; max-age=31536000; SameSite=Lax';
                   } else {
                     document.documentElement.classList.add('dark');
+                    document.cookie = 'ss_theme=dark; path=/; max-age=31536000; SameSite=Lax';
                   }
                 } catch (e) {
                   document.documentElement.classList.add('dark');

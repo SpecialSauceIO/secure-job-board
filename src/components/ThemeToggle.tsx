@@ -8,7 +8,7 @@ export function syncLogoImages(_isDark?: boolean) {
 }
 
 export function resolvePreferredThemeIsDark(): boolean {
-  if (typeof window === 'undefined') return false
+  if (typeof window === 'undefined') return true
   try {
     const saved = localStorage.getItem('ss_theme')
     if (saved === 'dark') return true
@@ -20,7 +20,7 @@ export function resolvePreferredThemeIsDark(): boolean {
       if (val === 'light') return false
     }
   } catch {}
-  return document.documentElement.classList.contains('dark')
+  return true
 }
 
 export function applyPreferredTheme(isDark: boolean) {
@@ -45,7 +45,7 @@ export function applyPreferredTheme(isDark: boolean) {
 }
 
 export default function ThemeToggle() {
-  const [dark, setDark] = useState(false)
+  const [dark, setDark] = useState(true)
   const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
 
