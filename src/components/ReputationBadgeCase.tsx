@@ -176,7 +176,7 @@ export default function ReputationBadgeCase({
                   className={`p-4 rounded-xl border-2 transition-all ${
                     badge.unlocked
                       ? isFounder
-                        ? "bg-gradient-to-br from-amber-100 via-yellow-50 to-amber-200/80 border-amber-400 shadow-xs"
+                        ? "founder-gold-card bg-gradient-to-br from-amber-100 via-yellow-50 to-amber-200/80 border-amber-400 shadow-xs"
                         : palette.card
                       : "bg-slate-50/80 border-slate-200 opacity-75"
                   }`}

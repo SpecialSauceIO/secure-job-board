@@ -300,3 +300,18 @@ html.dark .recharts-polar-grid-concentric-polygon {
 html.dark .text-rose-600 {
   color: #fb7185 !important;
 }
+
+
+/* Keep Founding Member distinction card & Active pastel tags high-contrast in Dark Mode */
+html.dark .founder-gold-card,
+html.dark .founder-gold-card h4,
+html.dark .founder-gold-card p,
+html.dark .founder-gold-card span {
+  color: #451a03 !important;
+}
+html.dark .founder-gold-card p {
+  color: #78350f !important;
+}
+html.dark .distinction-active-tag {
+  color: #0f172a !important;
+}
