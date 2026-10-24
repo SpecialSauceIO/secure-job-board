@@ -11,9 +11,9 @@ export function PublicHeader({
         fixed ? 'fixed top-0 left-0 right-0' : 'sticky top-0'
       } z-40 bg-white/85 backdrop-blur-md border-b border-slate-300`}
     >
-      <div className="max-w-7xl mx-auto px-6 md:px-10 h-24 flex items-center justify-between gap-6">
-        {/* LEFT: Clickable Full-Size Logo + Docked Tagline (No absolute center collision) */}
-        <div className="flex items-center gap-5 min-w-0 shrink-0">
+      <div className="max-w-7xl mx-auto px-6 md:px-10 h-24 flex items-center justify-between gap-4">
+        {/* LEFT: Clickable Full-Size Logo */}
+        <div className="flex items-center shrink-0">
           <Link
             href="/"
             className="flex items-center hover:opacity-90 transition-opacity shrink-0"
@@ -26,14 +26,15 @@ export function PublicHeader({
               className="h-13 sm:h-15 md:h-16 w-auto object-contain"
             />
           </Link>
+        </div>
 
-          <div className="hidden xl:flex items-center gap-3.5 pointer-events-none pl-1">
-            <span className="h-5 w-px bg-slate-400"></span>
-            <p className="text-[11px] font-semibold text-slate-700 tracking-[0.13em] uppercase whitespace-nowrap">
-              SECURELY CONNECTING PROFESSIONALS &amp; EMPLOYERS
-            </p>
-            <span className="h-5 w-px bg-slate-400"></span>
-          </div>
+        {/* CENTER: Tagline centered in the exact available space between Logo and Home */}
+        <div className="hidden xl:flex flex-1 items-center justify-center gap-3.5 pointer-events-none px-4 min-w-0">
+          <span className="h-5 w-px bg-slate-400 shrink-0"></span>
+          <p className="text-[11px] font-semibold text-slate-700 tracking-[0.13em] uppercase whitespace-nowrap">
+            SECURELY CONNECTING PROFESSIONALS &amp; EMPLOYERS
+          </p>
+          <span className="h-5 w-px bg-slate-400 shrink-0"></span>
         </div>
 
         {/* RIGHT: Navigation Links & Sign In */}
