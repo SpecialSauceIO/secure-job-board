@@ -420,8 +420,8 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
 
   if (!targetUserId) {
     return {
-      tier: 'explorer',
-      label: 'Explorer Plan ($0/Forever · Passive Career Vault)',
+      tier: 'free',
+      label: 'Unsubscribed Vault (Activate Explorer $3/mo, Professional $9/mo, or Prestige $15/mo)',
       canApply: false,
       appsUsed: 0,
       freeAppsRemaining: 0,
@@ -498,10 +498,23 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
     }
   }
 
-  // Default for all new/un-tagged candidates: Explorer ($0/forever - Passive Career Vault)
+  // Explorer ($3/mo - ID-Verified Passive & Inbound Career Vault)
+  if (rawPlan === 'explorer') {
+    return {
+      tier: 'explorer',
+      label: '★ Explorer Plan ($3/mo · ID-Verified Inbound & Passive Vault)',
+      canApply: false,
+      appsUsed: totalOutboundApps || 0,
+      freeAppsRemaining: 0,
+      daysRemaining: 30,
+      trialExpired: false,
+    }
+  }
+
+  // Default for newly registered/un-subscribed candidates before selecting a paid plan
   return {
-    tier: 'explorer',
-    label: 'Explorer Plan ($0/Forever · Passive Career Vault)',
+    tier: 'free',
+    label: 'Unsubscribed Vault (Activate Explorer $3/mo, Professional $9/mo, or Prestige $15/mo)',
     canApply: false,
     appsUsed: totalOutboundApps || 0,
     freeAppsRemaining: 0,
@@ -511,7 +524,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
 }
 
 export async function activateSandboxCandidateTier(
-  targetMode: 'explorer' | 'professional' | 'prestige' | 'trial' | 'expired' | 'pro'
+  targetMode: 'explorer' | 'professional' | 'prestige' | 'trial' | 'expired' | 'pro' | 'free'
 ) {
   const supabase = await createClient()
   const {
@@ -520,8 +533,8 @@ export async function activateSandboxCandidateTier(
   if (!user) return { error: 'Unauthorized' }
 
   const normalizedMode =
-    (targetMode as string) === 'free' || targetMode === 'expired'
-      ? 'explorer'
+    targetMode === 'expired' || targetMode === 'free'
+      ? 'free'
       : targetMode === 'trial'
       ? 'professional'
       : targetMode === 'pro'
@@ -563,26 +576,37 @@ export async function activateSandboxCandidateTier(
 
   if (error) return { error: error.message }
 
-  if (normalizedMode === 'prestige' || normalizedMode === 'professional') {
+  if (
+    normalizedMode === 'prestige' ||
+    normalizedMode === 'professional' ||
+    normalizedMode === 'explorer'
+  ) {
     const refId = `SS-CAND${Date.now().toString().slice(-5)}`
     const isPrestige = normalizedMode === 'prestige'
+    const isExplorer = normalizedMode === 'explorer'
     await sendPlatformNotification({
       to: user.email,
       subject: isPrestige
-        ? 'Candidate Prestige Plan ($15/mo) Activated!'
-        : 'Candidate Professional Plan ($9/mo) Activated!',
+        ? 'Candidate Prestige Plan ($15/mo) Activated'
+        : isExplorer
+        ? 'Candidate Explorer Plan ($3/mo) Activated'
+        : 'Candidate Professional Plan ($9/mo) Activated',
       referenceId: refId,
       heading: isPrestige
         ? 'Welcome to Candidate Prestige ($15/mo)'
+        : isExplorer
+        ? 'Welcome to Candidate Explorer ($3/mo)'
         : 'Welcome to Candidate Professional ($9/mo)',
       bodyLines: [
         isPrestige
-          ? 'Your Candidate Prestige plan is active with Unlimited Outbound Blind Applications, Top-Priority Employer Search placement, and Founding Member status.'
-          : 'Your Candidate Professional plan is active with 15 Outbound Blind Applications per month and Founding Member status.',
+          ? 'Your Candidate Prestige plan is active with Biometric ID Verification access, Unlimited Outbound Blind Applications, Top-Priority Employer Search placement, and Founding Member status.'
+          : isExplorer
+          ? 'Your Candidate Explorer plan ($3/mo) is active with Biometric ID Verification access, live placement in Employer Talent Search once verified, and unlimited inbound employer pitch unlocks.'
+          : 'Your Candidate Professional plan is active with Biometric ID Verification access, 15 Outbound Blind Applications per month, and Founding Member status.',
         `Subscription Reference ID: ${refId}`,
       ],
-      ctaUrl: '/dashboard/jobs',
-      ctaLabel: 'Browse & Apply to Roles →',
+      ctaUrl: '/dashboard',
+      ctaLabel: 'Complete ID Verification & View Dashboard →',
     })
   }
 
@@ -600,7 +624,9 @@ export async function activateSandboxCandidateTier(
         ? '✓ Activated Prestige Plan ($15/mo)! Unlimited outbound applications and pitch unlocks active.'
         : normalizedMode === 'professional'
         ? '✓ Activated Professional Plan ($9/mo)! 15 monthly outbound applications and pitch unlocks active.'
-        : '✓ Switched to Explorer Plan ($0/Forever Passive Vault). Inbound employer pitches remain 100% free; outbound applications paused.',
+        : normalizedMode === 'explorer'
+        ? '✓ Activated Explorer Plan ($3/mo)! Biometric ID Verification and unlimited inbound employer pitch unlocks are active. Upgrade to Professional ($9/mo) or Prestige ($15/mo) anytime to submit outbound applications.'
+        : '✓ Reset candidate plan to Unsubscribed Vault.',
   }
 }
 
@@ -3985,6 +4011,7 @@ export async function searchCandidates(
     )
     .eq('role', 'candidate')
     .eq('is_discoverable', true)
+    .eq('identity_verified', true)
 
   if (workModel) {
     const modelTerm = workModel.toLowerCase().trim()
@@ -5981,7 +6008,7 @@ export async function submitSupportTicket(formData: FormData) {
     profile?.verification_status === 'verified' ||
     profile?.verification_status === 'approved'
   const tierUpper = accountTierLabel.toUpperCase()
-  const isFreeTier = tierUpper.includes('EXPLORER') || tierUpper.includes('FREE')
+  const isFreeTier = tierUpper.includes('FREE')
   const isPaidSub = isFreeTier === false
   const canUploadServer = Boolean(isPaidSub && (isProfVer || orgContext.toLowerCase().includes('verified')))
 

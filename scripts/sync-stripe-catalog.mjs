@@ -53,8 +53,18 @@ const stripe = new Stripe(stripeKey, {
 
 const CATALOG_ITEMS = [
   // ==========================================================================
-  // 1. CANDIDATE SUBSCRIPTIONS ($9/mo & $15/mo)
+  // 1. CANDIDATE SUBSCRIPTIONS ($3/mo, $9/mo & $15/mo)
   // ==========================================================================
+  {
+    catalogKey: 'candidate_explorer',
+    envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER',
+    productName: 'Special Sauce - Candidate Explorer Plan ($3/mo)',
+    description:
+      'ID-Verified Passive & Inbound Tier: Includes 1-time Biometric ID Verification, live placement in Employer Talent Search, and unlimited inbound employer pitch unlocks.',
+    unitAmount: 300,
+    recurringInterval: 'month',
+    metadata: { audience: 'candidate', tierId: 'explorer' },
+  },
   {
     catalogKey: 'candidate_professional',
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL',

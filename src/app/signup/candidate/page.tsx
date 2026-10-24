@@ -25,11 +25,7 @@ export default function CandidateSignupPage({
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => {
       if (data?.user) {
-        if (selectedPlan === 'professional' || selectedPlan === 'prestige') {
-          router.replace(`/dashboard/billing?select=${selectedPlan}`)
-        } else {
-          router.replace('/dashboard')
-        }
+        router.replace(`/dashboard/billing?select=${selectedPlan}`)
       }
     })
   }, [router, selectedPlan])
@@ -61,7 +57,7 @@ export default function CandidateSignupPage({
               ? 'Create your account to activate Candidate Prestige ($15/mo).'
               : selectedPlan === 'professional'
                 ? 'Create your account to activate Candidate Professional ($9/mo).'
-                : 'Create your anonymous Explorer Vault for $0/forever. Zero resume harvesting.'}
+                : 'Create your account to activate Candidate Explorer ($3/mo · Includes Biometric ID Verification).'}
           </p>
         </div>
 
@@ -185,7 +181,7 @@ export default function CandidateSignupPage({
                 ? 'Continue to Prestige ($15/mo) →'
                 : selectedPlan === 'professional'
                   ? 'Continue to Professional ($9/mo) →'
-                  : 'Create Free Explorer Vault →'}
+                  : 'Continue to Explorer ($3/mo) →'}
             </button>
           </div>
 

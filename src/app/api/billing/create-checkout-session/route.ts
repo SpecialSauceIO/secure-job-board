@@ -6,7 +6,7 @@ import Stripe from 'stripe'
 export const CANDIDATE_SAAS_TIERS: Record<
   string,
   {
-    id: 'professional' | 'prestige'
+    id: 'explorer' | 'professional' | 'prestige'
     name: string
     priceCents: number
     envVar: string
@@ -14,6 +14,24 @@ export const CANDIDATE_SAAS_TIERS: Record<
     description: string
   }
 > = {
+  explorer: {
+    id: 'explorer',
+    name: 'Special Sauce - Candidate Explorer Plan ($3/mo)',
+    priceCents: 300,
+    envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER',
+    defaultPriceId: 'price_1UU2OnR0rSVwN0zEdfBhqFRZ',
+    description:
+      'ID-Verified Passive & Inbound Tier: Includes 1-time Biometric ID Verification, live placement in Employer Talent Search, and unlimited inbound employer pitch unlocks.',
+  },
+  candidate_explorer: {
+    id: 'explorer',
+    name: 'Special Sauce - Candidate Explorer Plan ($3/mo)',
+    priceCents: 300,
+    envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER',
+    defaultPriceId: 'price_1UU2OnR0rSVwN0zEdfBhqFRZ',
+    description:
+      'ID-Verified Passive & Inbound Tier: Includes 1-time Biometric ID Verification, live placement in Employer Talent Search, and unlimited inbound employer pitch unlocks.',
+  },
   professional: {
     id: 'professional',
     name: 'Special Sauce - Candidate Professional Plan ($9/mo)',

@@ -218,7 +218,13 @@ export async function checkAndRecordStripeIdentityCircuitBreaker(params: {
   }
 
   const tierLower = String(params.candidateTier || "").toLowerCase()
-  if (tierLower === "explorer" || tierLower === "free" || tierLower === "expired") {
+  if (
+    tierLower !== "explorer" &&
+    tierLower !== "professional" &&
+    tierLower !== "prestige" &&
+    tierLower !== "pro" &&
+    tierLower !== "trial"
+  ) {
     await raiseSecurityAlertAndFlag({
       flagType: "Manual_Trust_Audit",
       severity: "medium",
@@ -226,14 +232,14 @@ export async function checkAndRecordStripeIdentityCircuitBreaker(params: {
       actorRole: "candidate",
       userId: params.userId,
       platformArea: "Stripe Identity Verification (Candidate)",
-      summary: "Blocked $0 Explorer tier attempt to initiate Stripe Identity session",
-      evidenceSnippet: `User ${params.userEmail} on tier="${tierLower}" attempted to trigger /api/identity/create-session.`,
+      summary: "Blocked unsubscribed candidate attempt to initiate Stripe Identity session",
+      evidenceSnippet: `User ${params.userEmail} on tier="${tierLower}" attempted to trigger /api/identity/create-session without an active subscription.`,
       createSecTicket: false,
     })
     return {
       allowed: false,
       reason:
-        "Stripe Identity biometric verification is included with active Professional ($9/mo) and Prestige ($15/mo) plans. Please upgrade your plan to verify your identity.",
+        "Stripe Identity biometric verification is included with all active Candidate subscriptions: Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo). Please activate a plan on your Billing page first.",
     }
   }
 

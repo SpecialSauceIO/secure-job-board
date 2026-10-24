@@ -5,7 +5,7 @@ import { PublicFooter } from "@/components/PublicFooter"
 export const metadata = {
   title: "Pricing, Plans & Founding Partner Rates | specialsauce.io",
   description:
-    "Compare Special Sauce Candidate plans (Free Explorer Vault, ID-Verified Professional $9/mo & Prestige $15/mo) and Employer plans (Starter $149/mo, Growth $499/mo, Enterprise $1,250/mo Founding Partner Rates).",
+    "Compare 100% ID-Verified Special Sauce Candidate plans (Explorer $3/mo, Professional $9/mo & Prestige $15/mo) and Employer plans (Starter $149/mo, Growth $499/mo, Enterprise $1,250/mo Founding Partner Rates).",
 }
 
 export default function PricingMatrixPage() {
@@ -17,33 +17,33 @@ export default function PricingMatrixPage() {
         {/* Hero Header */}
         <section className="py-14 md:py-20 px-6 md:px-12 max-w-5xl mx-auto text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs font-extrabold uppercase tracking-wide">
-            <span>★ Founding Launch Window • Free Candidate Explorer Vault &amp; Founding Partner Rates</span>
+            <span>★ Founding Launch Window • 100% ID-Verified Talent Pool &amp; Founding Partner Rates</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
             Transparent Plans &amp; Verified Signals
           </h1>
           <p className="text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
-            Candidates build their anonymous career vault on <strong className="text-slate-900">Explorer for $0 forever</strong> and only upgrade + verify identity when ready to apply or accept a pitch. Employers lock in <strong className="text-slate-900">Founding Partner Launch Rates</strong> backed by 100% Accepted-Only Credit Protection.
+            Every candidate on Special Sauce is <strong className="text-slate-900">Biometric ID-Verified</strong>—starting at <strong className="text-slate-900">$3/mo on Explorer</strong> for passive inbound pitches, or <strong className="text-slate-900">$9/mo &amp; $15/mo</strong> to proactively apply to roles. Employers lock in <strong className="text-slate-900">Founding Partner Launch Rates</strong> backed by 100% Accepted-Only Credit Protection.
           </p>
         </section>
 
         {/* Main 3x3 Matrix Container */}
         <main className="max-w-7xl mx-auto px-6 md:px-12 pb-24 space-y-20">
           {/* ================================================================
-              SECTION 1: CANDIDATE PLANS (Explorer $0 / Professional $9 / Prestige $15)
+              SECTION 1: CANDIDATE PLANS (Explorer $3 / Professional $9 / Prestige $15)
              ================================================================ */}
           <div className="rounded-3xl border-2 border-slate-300 bg-gradient-to-b from-amber-50/60 via-white to-white p-6 sm:p-10 shadow-md space-y-8 relative overflow-hidden">
             {/* Top Unified Candidate Banner */}
             <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-7 border border-slate-300/60 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div className="space-y-1.5">
                 <div className="inline-flex items-center gap-2 text-amber-300 text-xs font-extrabold uppercase tracking-wider">
-                  <span>🛡️ Zero-Friction Onboarding • Pay &amp; Verify Only When Ready</span>
+                  <span>🛡️ 100% ID-Verified Marketplace • Zero Bots, Scams, or Ghost Jobs</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  Start Free on Explorer + Upgrade to Apply or Unlock Pitches
+                  Every Plan Includes Biometric ID Verification &amp; Unlimited Inbound Pitches
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
-                  Create your anonymous profile, browse verified salary bands, and run unlimited 5-Point AI Fit checks for <strong className="text-emerald-300">$0 forever on Explorer</strong>. When you spot a role you want to apply for—or a verified employer sends you an outbound pitch—upgrade to <strong className="text-white">Professional ($9/mo)</strong> or <strong className="text-white">Prestige ($15/mo)</strong> and complete 1-time <strong className="text-amber-300">Biometric ID Verification</strong> to unlock full Stage 1/2 engagement.
+                  Get discovered by verified employers and unlock unlimited inbound pitches on <strong className="text-emerald-300">Explorer for $3/mo</strong> (includes 1-time <strong className="text-amber-300">Stripe Biometric ID Verification</strong>). Ready to proactively apply to roles? Choose <strong className="text-white">Professional ($9/mo for 15 monthly blind applications)</strong> or <strong className="text-white">Prestige ($15/mo for unlimited blind applications &amp; Top-Priority Spotlight)</strong>.
                 </p>
               </div>
               <div className="shrink-0">
@@ -51,63 +51,62 @@ export default function PricingMatrixPage() {
                   href="/signup/candidate"
                   className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs sm:text-sm font-black transition-colors shadow-sm"
                 >
-                  Create Free Explorer Vault →
+                  Get Started on Explorer ($3/mo) →
                 </Link>
               </div>
             </div>
 
             {/* 3 Candidate Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Tier 1: Explorer ($0) */}
-              <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-col justify-between space-y-6">
+              {/* Tier 1: Explorer ($3/mo) */}
+              <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-col justify-between space-y-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
+                  🛡️ ID-Verified Inbound Vault
+                </div>
                 <div className="space-y-4">
                   <div>
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                      Passive Career Vault
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-700">
+                      Passive &amp; Inbound Discovery
                     </span>
                     <h3 className="text-2xl font-black text-slate-900 mt-0.5">
                       Explorer
                     </h3>
                     <div className="mt-3 flex items-baseline gap-1.5">
-                      <span className="text-3xl font-black text-slate-900">$0</span>
-                      <span className="text-xs font-bold text-slate-500">/ forever</span>
+                      <span className="text-3xl font-black text-slate-900">$3</span>
+                      <span className="text-xs font-bold text-slate-500">/ month</span>
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Ideal when you&apos;re exploring privately. Build your anonymous profile, test AI role fit, and receive pitch notifications from verified employers before deciding to upgrade.
+                    Ideal when you want verified employers to come to you. Includes 1-time Biometric ID Verification, live placement in Employer Search, and unlimited inbound employer pitch unlocks.
                   </p>
                   <ul className="space-y-2.5 pt-3 border-t border-slate-300 text-xs text-slate-700 font-medium">
+                    <li className="flex items-start gap-2 text-emerald-700 font-bold">
+                      <span>🛡️</span>
+                      <span><strong>Includes Biometric ID Verification</strong> &amp; Verified Candidate Shield</span>
+                    </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
                       <span><strong>Live Anonymous Talent Profile</strong> in Employer Search</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span>Browse blind role feed &amp; transparent pay bands</span>
+                      <span><strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong> (Stage 1/2 Chat)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span>Unlimited 5-Point AI Fit Radar checks</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-600 font-bold">✓</span>
-                      <span>Receive real-time <strong>Inbound Employer Pitch Alerts</strong></span>
-                    </li>
-                    <li className="flex items-start gap-2 text-amber-800 font-bold">
-                      <span>★</span>
-                      <span>Prompted to upgrade &amp; verify ID only when ready to open a pitch or apply</span>
+                      <span>Browse blind role feed &amp; run 5-Point AI Fit Radar checks</span>
                     </li>
                     <li className="flex items-start gap-2 text-slate-400">
                       <span>✕</span>
-                      <span>Outbound Blind Applications &amp; Pitch Unlocks (Requires Professional or Prestige + ID Verification)</span>
+                      <span>Proactive Outbound Blind Applications (Upgrade to Professional $9/mo or Prestige $15/mo anytime)</span>
                     </li>
                   </ul>
                 </div>
                 <Link
-                  href="/signup/candidate"
-                  className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-xs rounded-xl text-center transition-colors"
+                  href="/signup/candidate?plan=explorer"
+                  className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl text-center transition-colors shadow-sm"
                 >
-                  Create Free Explorer Vault →
+                  Choose Explorer ($3/mo) →
                 </Link>
               </div>
 

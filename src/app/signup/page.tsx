@@ -9,7 +9,7 @@ export default async function SignupSelectionPage({
 }) {
   const resolvedParams = await searchParams
   const rawPlan = (resolvedParams?.plan || '').trim().toLowerCase()
-  const isCandidatePlan = rawPlan === 'professional' || rawPlan === 'prestige'
+  const isCandidatePlan = rawPlan === 'explorer' || rawPlan === 'professional' || rawPlan === 'prestige'
   const isEmployerPlan =
     rawPlan === 'starter' || rawPlan === 'growth' || rawPlan === 'enterprise'
 
@@ -67,15 +67,15 @@ export default async function SignupSelectionPage({
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
               </div>
               <span className="px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-extrabold uppercase tracking-wider">
-                $0 Explorer Vault
+                Starts at $3/mo • ID-Verified
               </span>
             </div>
             <h3 className="text-2xl font-bold text-slate-900 mb-2">I&apos;m a Candidate</h3>
             <p className="text-slate-500 leading-relaxed text-sm">
-              Build your anonymous career vault &amp; get discovered for $0/forever. Upgrade to Professional ($9/mo) or Prestige ($15/mo) only when you&apos;re ready to engage.
+              Join a 100% Biometric ID-Verified talent pool with zero bots or ghost jobs. Start on Explorer ($3/mo) for inbound employer pitches, or Professional ($9/mo) &amp; Prestige ($15/mo) to proactively apply.
             </p>
             <div className="mt-6 flex items-center text-indigo-600 font-bold text-sm opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
-              Create Free Explorer Vault <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+              Create Verified Candidate Vault <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
             </div>
           </Link>
 

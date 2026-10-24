@@ -60,9 +60,20 @@ export async function POST(req: Request) {
     const userId = session.metadata?.userId || session.client_reference_id || ''
     const organizationId = session.metadata?.organizationId || session.client_reference_id || ''
 
-    // A) Candidate Subscription (professional $9/mo or prestige $15/mo)
-    if (audience === 'candidate' || tierId === 'professional' || tierId === 'prestige' || tierId === 'pro') {
-      const normalizedPlan = tierId === 'pro' || tierId === 'prestige' ? 'prestige' : 'professional'
+    // A) Candidate Subscription (explorer $3/mo, professional $9/mo, or prestige $15/mo)
+    if (
+      audience === 'candidate' ||
+      tierId === 'explorer' ||
+      tierId === 'professional' ||
+      tierId === 'prestige' ||
+      tierId === 'pro'
+    ) {
+      const normalizedPlan =
+        tierId === 'pro' || tierId === 'prestige'
+          ? 'prestige'
+          : tierId === 'explorer'
+          ? 'explorer'
+          : 'professional'
       if (userId) {
         const { data: profile } = await supabaseAdmin
           .from('profiles')
@@ -324,7 +335,7 @@ export async function POST(req: Request) {
           )
           const downgradedMeta = {
             ...meta,
-            plan: 'explorer',
+            plan: 'free',
           }
           await supabaseAdmin
             .from('profiles')

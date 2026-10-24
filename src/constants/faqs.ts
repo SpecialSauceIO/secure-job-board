@@ -149,9 +149,9 @@ Special Sauce is a verified, double-blind technical & professional recruitment m
     steps: [
       {
         step: 'Step 1',
-        title: 'Free Explorer Career Vault ($0/Forever) & AI Resume Extraction',
+        title: 'Explorer Career Vault ($3/mo) & AI Resume Extraction',
         description:
-          'Upload your PDF resume on your Profile page for $0 forever on the Explorer plan. Our AI extracts your skills, years of experience, and a third-person bio while locking your Full Name, email, and original PDF inside the Special Sauce Vault.',
+          'Upload your PDF resume on your Profile page and activate Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo). Our AI extracts your skills, years of experience, and a third-person bio while locking your Full Name, email, and original PDF inside the Special Sauce Vault.',
       },
       {
         step: 'Step 2',
@@ -192,8 +192,8 @@ SPECIAL SAUCE — CANDIDATE HOW-IT-WORKS & 2-STAGE VAULT REFERENCE GUIDE
 - Bookmark interesting listings using "Save Role" to compare 5-Point AI Fit Radar scores side-by-side before applying.
 - All job listings automatically close after 30 days unless manually renewed by the employer—so you never waste applications on stale "ghost jobs."
 
-3. CANDIDATE MEMBERSHIP TIERS ($0 / $9 / $15):
-- Explorer ($0/forever): Live anonymous profile in Employer Search, unlimited 5-Point AI Fit Radar checks, and real-time Inbound Employer Pitch alerts.
+3. CANDIDATE MEMBERSHIP TIERS ($3 / $9 / $15):
+- Explorer ($3/mo): Includes 1-time Stripe Biometric ID Verification, live anonymous profile in Employer Search, unlimited Inbound Employer Pitch unlocks, and unlimited 5-Point AI Fit Radar checks.
 - Professional ($9/mo): Includes 1-time Stripe Biometric ID Verification, unlimited Inbound Employer Pitch unlocks, 15 Outbound Blind Applications/month (70%+ AI Fit), and Permanent Founding Member status.
 - Prestige ($15/mo): Includes 1-time Stripe Biometric ID Verification, Unlimited Outbound Blind Applications (70%+ AI Fit), unlimited pitch unlocks, and Top-Priority Spotlight placement in Employer Talent Search.
 ====================================================================`,
@@ -211,7 +211,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'Why do I need to verify my identity, and is my government ID stored by Special Sauce?',
     answer:
-      'Identity verification ensures the integrity of the Special Sauce talent pool, eliminating bots and duplicate accounts. You can build your anonymous Explorer vault and run 5-Point AI Fit checks for $0 without verifying upfront, and complete your 1-time Biometric ID Verification (included with Professional $9/mo and Prestige $15/mo) only when you are ready to apply or unlock a pitch. Your government ID and biometric selfie are NEVER stored on Special Sauce servers—they are vaulted exclusively by Stripe Identity using AES-256 encryption.',
+      'Identity verification ensures the integrity of the Special Sauce talent pool, eliminating bots and duplicate accounts. Every candidate plan—Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo)—includes 1-time Stripe Biometric ID Verification so 100% of candidates in Employer Talent Search are verified real professionals. Your government ID and biometric selfie are NEVER stored on Special Sauce servers—they are vaulted exclusively by Stripe Identity using AES-256 encryption.',
   },
   {
     id: 'c2',
@@ -261,11 +261,11 @@ export const SUPPORT_FAQS: FAQ[] = [
   {
     id: 'c7',
     target: 'candidate',
-    category: 'Plans, Biometric ID & Candidate Tiers ($0 / $9 / $15)',
+    category: 'Plans, Biometric ID & Candidate Tiers ($3 / $9 / $15)',
     question:
-      'What is the difference between Explorer ($0), Professional ($9/mo), and Prestige ($15/mo)?',
+      'What is the difference between Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo)?',
     answer:
-      'Explorer ($0/forever) lets you keep your anonymous profile live in Employer Search, browse verified salary bands, run unlimited 5-Point AI Fit Radar checks, and receive real-time Inbound Employer Pitch alerts. When you are ready to engage, Professional ($9/mo) includes 1-time Biometric ID Verification, unlimited Inbound Employer Pitch unlocks, and 15 Outbound Blind Applications/month (for roles where you score 70%+ AI Fit). Prestige ($15/mo) includes everything in Professional plus Unlimited Outbound Blind Applications (70%+ AI Fit) and Top-Priority Spotlight placement in Employer Talent Search. You can switch or downgrade plans anytime.',
+      'All three candidate tiers include 1-time Stripe Biometric ID Verification so our talent pool remains 100% bot-free. Explorer ($3/mo) is built for passive discovery: your verified anonymous profile is live in Employer Search and you can unlock and accept unlimited Inbound Employer Pitches. Professional ($9/mo) adds 15 proactive Outbound Blind Applications/month (for roles where you score 70%+ AI Fit). Prestige ($15/mo) includes Unlimited Outbound Blind Applications (70%+ AI Fit) and Top-Priority Spotlight placement in Employer Talent Search. You can switch or downgrade plans anytime.',
   },
 
   // ------------------------------------------------------------------
