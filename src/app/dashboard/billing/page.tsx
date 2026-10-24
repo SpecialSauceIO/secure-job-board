@@ -102,7 +102,7 @@ export default function CandidateBillingPage() {
             : 'Professional ($9/mo)'
         setFeedback({
           type: 'success',
-          text: `Stripe Subscription Confirmed: Your Candidate ${planTitle} plan is now active. Complete your 1-time Biometric ID Verification on your Dashboard to go live in Employer Search.`,
+          text: `Stripe Subscription Confirmed: Your Candidate ${planTitle} plan is now active. Complete your 1-time Real-Person ID Verification on your Dashboard to go live in Employer Search.`,
         })
         loadCandidateBillingState()
       })
@@ -122,10 +122,10 @@ export default function CandidateBillingPage() {
         type: 'success',
         text:
           selectParam === 'prestige'
-            ? 'Welcome to Special Sauce: Click "Activate Prestige ($15/mo)" below to unlock Biometric ID Verification, unlimited blind applications, and top-priority search placement.'
+            ? 'Welcome to Special Sauce: Click "Activate Prestige ($15/mo)" below to unlock Real-Person ID Verification, unlimited blind applications, and top-priority search placement.'
             : selectParam === 'professional'
-            ? 'Welcome to Special Sauce: Click "Activate Professional ($9/mo)" below to unlock Biometric ID Verification and 15 monthly blind applications.'
-            : 'Welcome to Special Sauce: Click "Activate Explorer ($3/mo)" below to unlock Biometric ID Verification, live placement in Employer Search, and unlimited inbound employer pitches.',
+            ? 'Welcome to Special Sauce: Click "Activate Professional ($9/mo)" below to unlock Real-Person ID Verification and 15 monthly blind applications.'
+            : 'Welcome to Special Sauce: Click "Activate Explorer ($3/mo)" below to unlock Real-Person ID Verification, live placement in Employer Search, and unlimited inbound employer pitches.',
       })
     }
   }, [loadCandidateBillingState])
@@ -233,7 +233,7 @@ export default function CandidateBillingPage() {
             Candidate Membership &amp; 100% ID-Verified Access
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Every candidate in the Special Sauce talent pool is biometric ID-verified to guarantee zero bots and zero spam. Choose Explorer ($3/mo) for passive inbound pitches, or Professional ($9/mo) &amp; Prestige ($15/mo) to proactively apply to roles.
+            Every candidate in the Special Sauce talent pool is real-person ID-verified to guarantee zero bots and zero spam. Choose Explorer ($3/mo) for passive inbound pitches, or Professional ($9/mo) &amp; Prestige ($15/mo) to proactively apply to roles.
           </p>
         </div>
 
@@ -271,7 +271,7 @@ export default function CandidateBillingPage() {
               🔒 Profile Quarantined Until Verified • Step 2 of 2 Required
             </div>
             <h2 className="text-base sm:text-lg font-black text-slate-900">
-              Complete Your 1-Time Biometric ID Check to Go Live in Employer Search
+              Complete Your 1-Time Photo ID Check to Go Live in Employer Search
             </h2>
             <p className="text-xs sm:text-sm text-slate-700 max-w-2xl leading-relaxed">
               Your <strong>{tierInfo?.label}</strong> subscription is active, but your profile remains <strong>100% hidden from employers</strong> until you pass Stripe Identity verification. This stops bots and burner accounts from harvesting employer pitches.
@@ -303,11 +303,11 @@ export default function CandidateBillingPage() {
           <div className="space-y-2 max-w-2xl">
             <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
               <span className="text-amber-300">
-                🛡️ 100% Biometric ID-Verified Network • Zero Bots or Fake Profiles
+                🛡️ 100% Real-Person ID-Verified Network • Zero Bots or Fake Profiles
               </span>
               <span className="text-slate-600">•</span>
               {isVerified ? (
-                <span className="text-emerald-400">✓ Biometric Identity Verified</span>
+                <span className="text-emerald-400">✓ Real-Person ID Verified</span>
               ) : (
                 <Link
                   href="/dashboard"
@@ -324,7 +324,7 @@ export default function CandidateBillingPage() {
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
               Every plan includes 1-time{" "}
-              <strong className="text-amber-300">Stripe Biometric ID Verification</strong>{" "}
+              <strong className="text-amber-300">Stripe Real-Person ID Verification</strong>{" "}
               so employers know 100% of our directory is real human talent. Choose{" "}
               <strong className="text-emerald-300">Explorer ($3/mo)</strong> to be discovered and accept unlimited inbound employer pitches, or upgrade to{" "}
               <strong className="text-white">Professional ($9/mo)</strong> or{" "}
@@ -408,13 +408,13 @@ export default function CandidateBillingPage() {
 
               <ul className="space-y-2.5 pt-4 border-t border-slate-300 text-xs text-slate-700 font-medium">
                 <li className="text-emerald-700 font-bold">
-                  🛡️ <strong>Includes Biometric ID Verification</strong> &amp; Verified Shield
+                  🛡️ <strong>Includes Real-Person ID Verification</strong> &amp; Verified Shield
                 </li>
                 <li>
                   ✓ <strong>Live Anonymous Profile</strong> in Employer Talent Search
                 </li>
                 <li>
-                  ✓ <strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong> (Stage 1/2 Chat)
+                  ✓ <strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong> (Private Chat)
                 </li>
                 <li>✓ Browse blind role feed &amp; run 5-Point AI Fit Radar checks</li>
                 <li className="text-slate-400">
@@ -472,7 +472,7 @@ export default function CandidateBillingPage() {
 
               <ul className="space-y-2.5 pt-4 border-t border-slate-300 text-xs text-slate-700 font-medium">
                 <li className="text-emerald-700 font-bold">
-                  🛡️ <strong>Includes Biometric ID Verification</strong> &amp; Verified Shield
+                  🛡️ <strong>Includes Real-Person ID Verification</strong> &amp; Verified Shield
                 </li>
                 <li>
                   ✓ <strong>15 Outbound Blind Applications / month</strong> (70%+ AI Fit)
@@ -541,7 +541,7 @@ export default function CandidateBillingPage() {
 
               <ul className="space-y-2.5 pt-4 border-t border-slate-800 text-xs text-slate-200 font-medium">
                 <li className="text-emerald-300 font-bold">
-                  🛡️ <strong>Includes Biometric ID Verification</strong> &amp; Verified Shield
+                  🛡️ <strong>Includes Real-Person ID Verification</strong> &amp; Verified Shield
                 </li>
                 <li>
                   ✓ <strong>Unlimited Outbound Blind Applications</strong> (70%+ AI Fit)

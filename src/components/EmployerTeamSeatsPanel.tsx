@@ -57,7 +57,7 @@ export default function EmployerTeamSeatsPanel({
       setInviteEmail('')
       setFeedback({
         type: 'success',
-        text: result.message || 'Team / BPO Partner seat invited and notified via email!',
+        text: result.message || 'Team / Recruiter seat invited and notified via email!',
       })
     }
 
@@ -89,14 +89,14 @@ export default function EmployerTeamSeatsPanel({
         <div>
           <div className="flex flex-wrap items-center gap-2.5">
             <h2 className="text-xl font-extrabold text-slate-900">
-              Team & Delegated BPO Partner Seats
+              Team & External Recruiter Seats
             </h2>
             <span className="px-3 py-1 rounded-full bg-slate-900 text-white text-xs font-extrabold">
               {seatsUsed} / {maxSeats} {maxSeats === 1 ? 'Seat' : 'Seats'} Used ({tierLabel})
             </span>
           </div>
           <p className="text-sm text-slate-500 mt-1">
-            Invite internal hiring managers or authorized W-2 BPO delivery partners to collaborate inside{' '}
+            Invite internal hiring managers or authorized external recruiters to collaborate inside{' '}
             <strong>{orgName || 'your organization'}</strong> and share your verified domain, active roles, and pitch credit pool.
           </p>
         </div>
@@ -136,12 +136,12 @@ export default function EmployerTeamSeatsPanel({
         <div className="p-5 rounded-xl bg-indigo-50/70 border border-indigo-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <h3 className="text-sm font-extrabold text-indigo-950">
-              Need to add a Hiring Manager or BPO / RPO Delivery Partner?
+              Need to add a Hiring Manager or External Recruiting Partner?
             </h3>
             <p className="text-xs text-indigo-800/90 leading-relaxed">
-              The <strong>Starter Tier ($149/mo Founding ($299 Retail))</strong> includes 2 Team / BPO Collaborator seats. Upgrade to the{' '}
+              The <strong>Starter Tier ($149/mo Founding ($299 Retail))</strong> includes 2 Team or Recruiter seats. Upgrade to the{' '}
               <strong>Growth Tier ($499/mo Founding ($799 Retail))</strong> to unlock up to <strong>5 Team & W-2 BPO Partner Seats</strong>, or{' '}
-              <strong>Enterprise ($1,250/mo Founding ($1,999 Retail))</strong> for <strong>Unlimited Team & BPO Seats + ATS Auto-Sync</strong>.
+              <strong>Enterprise ($1,250/mo Founding ($1,999 Retail))</strong> for <strong>Unlimited Team & Recruiter Seats + HR Software Auto-Sync</strong>.
             </p>
           </div>
           <Link
@@ -161,7 +161,7 @@ export default function EmployerTeamSeatsPanel({
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-              Invite Collaborator or BPO Partner Seat
+              Invite Team Member or Recruiter Seat
             </span>
             <span className="text-xs font-bold text-indigo-600">
               {Math.max(0, maxSeats - seatsUsed)} {maxSeats - seatsUsed === 1 ? 'Seat' : 'Seats'} Remaining
@@ -191,7 +191,7 @@ export default function EmployerTeamSeatsPanel({
                 className="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:outline-none disabled:bg-slate-100 border-slate-300"
               >
                 <option value="hiring_manager">Internal Hiring Manager</option>
-                <option value="bpo_partner">Delegated BPO / W-2 Partner</option>
+                <option value="bpo_partner">External Recruiting Partner</option>
               </select>
             </div>
 
@@ -246,7 +246,7 @@ export default function EmployerTeamSeatsPanel({
                     {seat.role === 'owner'
                       ? 'Account Owner'
                       : seat.role === 'bpo_partner'
-                      ? 'Delegated BPO Partner'
+                      ? 'External Recruiter'
                       : 'Hiring Manager'}
                   </span>
                   <span

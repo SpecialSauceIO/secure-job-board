@@ -72,7 +72,7 @@ export default async function SignupSelectionPage({
             </div>
             <h3 className="text-2xl font-bold text-slate-900 mb-2">I&apos;m a Candidate</h3>
             <p className="text-slate-500 leading-relaxed text-sm">
-              Join a 100% Biometric ID-Verified talent pool with zero bots or ghost jobs. Start on Explorer ($3/mo) for inbound employer pitches, or Professional ($9/mo) &amp; Prestige ($15/mo) to proactively apply.
+              Join a 100% Real-Person ID-Verified talent pool with zero bots or ghost jobs. Start on Explorer ($3/mo) for inbound employer pitches, or Professional ($9/mo) &amp; Prestige ($15/mo) to proactively apply.
             </p>
             <div className="mt-6 flex items-center text-indigo-600 font-bold text-sm opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
               Create Verified Candidate Vault <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>

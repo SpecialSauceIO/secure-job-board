@@ -21,7 +21,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER',
     defaultPriceId: 'price_1UU2OnR0rSVwN0zEdfBhqFRZ',
     description:
-      'ID-Verified Passive & Inbound Tier: Includes 1-time Biometric ID Verification, live placement in Employer Talent Search, and unlimited inbound employer pitch unlocks.',
+      'ID-Verified Passive & Inbound Tier: Includes 1-time Real-Person ID Verification, live placement in Employer Talent Search, and unlimited inbound employer pitch unlocks.',
   },
   candidate_explorer: {
     id: 'explorer',
@@ -30,7 +30,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER',
     defaultPriceId: 'price_1UU2OnR0rSVwN0zEdfBhqFRZ',
     description:
-      'ID-Verified Passive & Inbound Tier: Includes 1-time Biometric ID Verification, live placement in Employer Talent Search, and unlimited inbound employer pitch unlocks.',
+      'ID-Verified Passive & Inbound Tier: Includes 1-time Real-Person ID Verification, live placement in Employer Talent Search, and unlimited inbound employer pitch unlocks.',
   },
   professional: {
     id: 'professional',
@@ -115,11 +115,11 @@ export const EMPLOYER_SAAS_TIERS: Record<
     monthlyCredits: 35,
     maxSeats: 5,
     description:
-      'Up to 15 simultaneous active blind job postings, 35 monthly passive candidate pitch credits, and 5 team/BPO seats.',
+      'Up to 15 simultaneous active blind job postings, 35 monthly passive candidate pitch credits, and 5 team/recruiter seats.',
   },
   enterprise: {
     id: 'enterprise',
-    name: 'Enterprise Plan ($1,250/mo Founding Partner Rate — $1,999/mo Retail — Unlimited Roles, 120 Credits + ATS Sync)',
+    name: 'Enterprise Plan ($1,250/mo Founding Partner Rate — $1,999/mo Retail — Unlimited Roles, 120 Credits + HR Software Sync)',
     priceCents: 125000,
     retailPriceCents: 199900,
     foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_ENTERPRISE_FOUNDING',

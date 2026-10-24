@@ -188,7 +188,7 @@ export default function CalibrationOpsCard() {
       )}
 
       {loading && !calib ? (
-        <div className="text-xs text-slate-400 py-4">Loading latest calibration telemetry from public.calibration_runs...</div>
+        <div className="text-xs text-slate-400 py-4">Loading latest latest AI scoring accuracy check...</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {tierKeys.map((tKey) => {

@@ -83,7 +83,7 @@ export default function EmployerSignupPage({
       <div className="w-full max-w-md rounded-2xl bg-white p-8 sm:p-10 shadow-sm border border-slate-300 border-t-4 border-t-emerald-600">
         <div className="text-center mb-6">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-[11px] font-extrabold uppercase tracking-wider mb-3">
-            🏢 Verified Employers &amp; W-2 BPO Partners
+            🏢 Verified Employers &amp; Recruiting Teams
           </span>
           <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             Employer Sign Up
@@ -117,9 +117,9 @@ export default function EmployerSignupPage({
             <span className="text-emerald-600 font-black mt-0.5">✓</span>
             <span>
               <strong className="text-slate-900">
-                Shared Team &amp; BPO Seats:
+                Shared Team &amp; Recruiter Seats:
               </strong>{' '}
-              Collaborate with internal hiring managers or authorized W-2 BPO partners.
+              Collaborate with internal hiring managers or authorized external recruiters.
             </span>
           </div>
         </div>

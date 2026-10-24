@@ -549,7 +549,7 @@ export default function SupportCenterClient({
                         <option value="2-Stage Vault & Encrypted Messaging">2-Stage Identity Vault &amp; Messaging</option>
                         <option value="Billing, Plans & Pitch Credits">Billing, Plans &amp; Pitch Credits</option>
                         <option value="Account & Domain Verification">Stripe ID / Corporate Domain Verification</option>
-                        <option value="Enterprise ATS & Webhook Integration">Enterprise ATS &amp; Webhook Hub</option>
+                        <option value="Enterprise ATS & Webhook Integration">HR Software Sync Hub</option>
                         <option value="Technical Issue / Bug Report">Technical Issue / Bug Report</option>
                         <option value="Feature Request / Documentation Feedback">Feature Request / Documentation Feedback</option>
                       </select>
@@ -570,7 +570,7 @@ export default function SupportCenterClient({
                         <option value="2-Stage Resume & Contact Vault">2-Stage Resume &amp; Contact Vault</option>
                         <option value="5-Point AI Fit Radar & Dealbreakers">5-Point AI Fit Radar &amp; Dealbreakers</option>
                         <option value="Billing, Subscriptions & Credits">Billing, Subscriptions &amp; Credits</option>
-                        <option value="Enterprise ATS & Webhook Hub">Enterprise ATS &amp; Webhook Hub</option>
+                        <option value="HR Software Sync Hub">HR Software Sync Hub</option>
                         <option value="Encrypted Stage 1/2 Messaging">Encrypted Stage 1/2 Messaging</option>
                         <option value="Other / General Platform">Other / General Platform</option>
                       </select>
@@ -1409,7 +1409,7 @@ export default function SupportCenterClient({
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                🏢 Employer &amp; BPO Guide
+                🏢 Employer &amp; Recruiter Guide
               </button>
               <button
                 type="button"
@@ -1608,7 +1608,7 @@ export default function SupportCenterClient({
           <div className="p-6 rounded-2xl bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-slate-300/30 text-emerald-300 text-xs font-extrabold">
-                PCI-DSS Level 1 • Biometric Isolation • 2-Stage Anti-Harvesting Vault
+                PCI-DSS Level 1 • Stripe ID Protection • 2-Stage Anti-Harvesting Vault
               </div>
               <h2 className="text-2xl font-extrabold tracking-tight">
                 {SECURITY_ARCHITECTURE_DATA.title}

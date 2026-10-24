@@ -6,7 +6,7 @@ import { LEGAL_CONFIG } from '@/constants/legal'
 export const metadata = {
   title: 'Security & Trust Architecture | specialsauce.io',
   description:
-    'How Special Sauce works under the hood: 2-Stage Identity & Resume Vault, Stripe Identity Biometric Isolation, Anti-Harvesting Guardrails, and 5-Point AI Fit Radar.',
+    'How Special Sauce works under the hood: 2-Stage Identity & Resume Vault, Stripe Identity Stripe ID Protection, Anti-Harvesting Guardrails, and 5-Point AI Fit Radar.',
 }
 
 export default function SecurityTrustPage() {
@@ -63,7 +63,7 @@ export default function SecurityTrustPage() {
                 Zero Sensitive IDs or Cards on Our Servers
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Special Sauce never stores government ID images, biometric selfies, Social Security Numbers, or raw credit card numbers in our database.
+                Special Sauce never stores government ID images, verification selfies, Social Security Numbers, or raw credit card numbers in our database.
               </p>
               <ul className="text-xs text-slate-600 space-y-2 pt-3 border-t border-slate-300">
                 <li>

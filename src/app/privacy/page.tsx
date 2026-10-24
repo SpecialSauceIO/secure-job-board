@@ -6,7 +6,7 @@ import { LEGAL_CONFIG } from '@/constants/legal'
 export const metadata = {
   title: 'Privacy Policy | specialsauce.io',
   description:
-    'How Special Sauce collects, uses, and protects your data through our 2-Stage Identity Vault and Stripe biometric isolation.',
+    'How Special Sauce collects, uses, and protects your data through our 2-Stage Identity Vault and Stripe Stripe ID protection.',
 }
 
 export default function PrivacyPolicyPage() {
@@ -49,7 +49,7 @@ export default function PrivacyPolicyPage() {
                 <strong className="text-slate-800">Professional &amp; Preference Data:</strong> Uploaded PDF resumes, extracted skill matrices, years of experience, third-person bios, US State/Metro locations, saved bookmarks/shortlists, and candidate dealbreakers (minimum salary expectations, work models, and accepted W-2/1099 employment types).
               </li>
               <li>
-                <strong className="text-slate-800">Biometric Identity &amp; Payment Data (Vaulted Exclusively by Stripe):</strong> When Candidates complete identity verification via Stripe Identity or when Users purchase subscriptions via Stripe Checkout, government ID images, biometric selfies, and payment credentials are transmitted directly to Stripe over TLS 1.3 and encrypted (AES-256) inside Stripe’s PCI-DSS Level 1 infrastructure.{' '}
+                <strong className="text-slate-800">Biometric Identity &amp; Payment Data (Vaulted Exclusively by Stripe):</strong> When Candidates complete identity verification via Stripe Identity or when Users purchase subscriptions via Stripe Checkout, government ID images, verification selfies, and payment credentials are transmitted directly to Stripe over TLS 1.3 and encrypted (AES-256) inside Stripe’s PCI-DSS Level 1 infrastructure.{' '}
                 <span className="font-semibold text-slate-800">
                   Special Sauce never stores your raw government ID documents, facial scans, credit card numbers, or bank account details on our servers.
                 </span>{' '}

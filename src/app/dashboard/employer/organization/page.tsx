@@ -104,7 +104,7 @@ export default async function EmployerOrganizationPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-300">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Company Profile, Seats &amp; ATS Integrations
+            Company Profile, Team Seats &amp; HR Software Sync
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Verify your corporate domain, configure your Primary Industry Vertical, manage collaborator seats, and connect Workday or Greenhouse.

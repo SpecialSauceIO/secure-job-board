@@ -24,7 +24,7 @@ const REPORT_REASONS: Record<string, string[]> = {
   job: [
     'Suspected Ghost Job / No Active Hiring Intent',
     'Misleading Compensation or Work Model',
-    'Request for Sensitive PII or Off-Platform Payment',
+    'Request for Personal Contact Info or Off-Platform Payment',
   ],
 }
 

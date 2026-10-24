@@ -120,7 +120,7 @@ export async function saveEnterpriseAtsSettings(formData: FormData) {
   const tierInfo = await resolveEmployerTierInfo(org)
   if (tierInfo.tier !== 'enterprise') {
     return {
-      error: 'Enterprise Tier ($1,250/mo Founding ($1,999 Retail)) is required to configure Workday & Greenhouse ATS integrations.',
+      error: 'Enterprise Tier ($1,250/mo Founding ($1,999 Retail)) is required to configure Workday & Greenhouse HR software connections.',
     }
   }
 
@@ -243,7 +243,7 @@ export async function fireTestAtsWebhook() {
 /**
  * LIVE STAGE 2 VAULT TRIGGER:
  * Automatically dispatches the unlocked Candidate Vault & 5-Point AI Match Radar
- * to the employer's Workday/Enterprise Webhook and/or Greenhouse Harvest API
+ * to the employer's Workday/Enterprise Webhook and/or Greenhouse HR Software
  * when a candidate releases their Stage 2 Vault.
  */
 export async function autoSyncStage2VaultToEnterpriseAts(
@@ -448,7 +448,7 @@ export async function autoSyncStage2VaultToEnterpriseAts(
         await recordHandshakeTelemetry({
           handshakeId: 'enterprise_ats_webhook',
           label: 'Enterprise ATS Outbound Webhook',
-          platformArea: 'Enterprise ATS & Webhook Hub',
+          platformArea: 'HR Software Sync Hub',
           ok: res.ok,
           errorDetail: res.ok ? undefined : `ATS Webhook HTTP ${res.status}`,
         })
@@ -457,14 +457,14 @@ export async function autoSyncStage2VaultToEnterpriseAts(
         await recordHandshakeTelemetry({
           handshakeId: 'enterprise_ats_webhook',
           label: 'Enterprise ATS Outbound Webhook',
-          platformArea: 'Enterprise ATS & Webhook Hub',
+          platformArea: 'HR Software Sync Hub',
           ok: false,
           errorDetail: wErr?.message || 'Webhook delivery exception',
         })
       }
     }
 
-    // 2. Dispatch to Native Greenhouse Harvest API (if API key configured)
+    // 2. Dispatch to Native Greenhouse HR Software (if API key configured)
     if (hasGreenhouse) {
       try {
         const nameParts = String(fullName).trim().split(/\s+/)
@@ -570,7 +570,7 @@ export async function exportEnterpriseCandidatesCsv() {
   const tierInfo = await resolveEmployerTierInfo(org)
   if (tierInfo.tier !== 'enterprise') {
     return {
-      error: 'Enterprise Tier ($1,250/mo Founding ($1,999 Retail)) is required for bulk ATS CSV exports.',
+      error: 'Enterprise Tier ($1,250/mo Founding ($1,999 Retail)) is required for bulk CSV candidate exports.',
     }
   }
 

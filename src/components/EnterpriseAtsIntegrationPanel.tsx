@@ -121,7 +121,7 @@ export default function EnterpriseAtsIntegrationPanel() {
     return (
       <div className="bg-white rounded-2xl border-2 border-slate-300 p-6 text-center shadow-xs border-slate-300">
         <p className="text-xs font-bold text-slate-400">
-          Loading Enterprise ATS &amp; Webhook Hub...
+          Loading HR Software Sync Hub...
         </p>
       </div>
     )
@@ -144,17 +144,17 @@ export default function EnterpriseAtsIntegrationPanel() {
             </div>
 
             <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-              Workday &amp; Greenhouse ATS Sync + Signed Webhook API
+              Workday &amp; Greenhouse HR Software Sync
             </h3>
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
               Upgrade to the{' '}
               <strong className="text-white">Enterprise Tier ($1,250/mo Founding ($1,999 Retail))</strong>{' '}
-              to unlock automated <strong className="text-amber-300">Stage 2 Vault exports</strong> directly into{' '}
-              <strong className="text-white">Greenhouse Harvest API</strong>, real-time{' '}
+              to unlock automated <strong className="text-amber-300">unlocked resume exports</strong> directly into{' '}
+              <strong className="text-white">Greenhouse HR Software</strong>, real-time{' '}
               <strong className="text-white">HMAC-SHA256 Signed Webhooks</strong> for{' '}
               <strong className="text-white">Workday Integration Studio</strong>, and 1-click{' '}
-              <strong className="text-emerald-300">ATS-Ready Bulk CSV Pipeline Exports</strong>, plus 50 active roles, 100 monthly pitch credits, and 10 team/BPO seats.
+              <strong className="text-emerald-300">Bulk CSV Candidate Exports</strong>, plus 50 active roles, 100 monthly pitch credits, and 10 team/recruiter seats.
             </p>
           </div>
 
@@ -180,14 +180,14 @@ export default function EnterpriseAtsIntegrationPanel() {
             <span>✓ Enterprise Tier Active</span>
             <span className="text-slate-600">•</span>
             <span className="text-amber-300">
-              Workday &amp; Greenhouse ATS Bridge
+              Workday &amp; Greenhouse HR Software Sync
             </span>
           </div>
           <h3 className="text-xl font-black text-white mt-1">
-            ATS &amp; Webhook API Integration Hub
+            HR Software Connection Hub
           </h3>
           <p className="text-xs text-slate-300 mt-0.5">
-            Automatically push Stage 2 Released Candidate Vaults and 5-Point AI Fit Scorecards to Greenhouse or your Workday webhook receiver.
+            Automatically push unlocked candidate resumes and 5-Point AI Fit Scorecards to Greenhouse or your Workday webhook receiver.
           </p>
         </div>
 
@@ -200,7 +200,7 @@ export default function EnterpriseAtsIntegrationPanel() {
           <span>
             {isExportingCsv
               ? 'Generating CSV...'
-              : '⬇ Export Pipeline CSV (Workday / ATS)'}
+              : '⬇ Download Candidate List (CSV)'}
           </span>
         </button>
       </div>
@@ -288,11 +288,11 @@ export default function EnterpriseAtsIntegrationPanel() {
             </div>
           </div>
 
-          {/* Column 2: Native Greenhouse Harvest API Connector */}
+          {/* Column 2: Native Greenhouse HR Software Connector */}
           <div className="p-5 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-4 border-slate-300">
             <div>
               <h4 className="text-sm font-extrabold text-slate-900">
-                2. Native Greenhouse Harvest API Connector
+                2. Native Greenhouse HR Software Connector
               </h4>
               <p className="text-xs text-slate-500 mt-0.5">
                 Automatically creates a candidate record in Greenhouse with their released PDF resume and attaches their 5-Point AI Fit Radar as an interview note.
@@ -301,7 +301,7 @@ export default function EnterpriseAtsIntegrationPanel() {
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Greenhouse Harvest API Key
+                Greenhouse HR Software Key
               </label>
               <input
                 type="password"
@@ -342,7 +342,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                 className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
               />
               <span className="text-xs font-bold text-slate-700">
-                Auto-sync candidates to ATS immediately upon Stage 2 Vault Release
+                Auto-send unlocked candidates to HR software immediately when a candidate unlocks their resume
               </span>
             </label>
           </div>
@@ -370,7 +370,7 @@ export default function EnterpriseAtsIntegrationPanel() {
 
         <div className="pt-2 border-t border-slate-300 flex items-center justify-between gap-4">
           <span className="text-xs text-slate-500">
-            🛡️ <strong>Double-Blind Privacy Guarantee:</strong> Candidate PII never touches your external ATS until the candidate explicitly clicks &ldquo;Release Resume &amp; Contact Vault&rdquo; in Stage 2.
+            🛡️ <strong>Double-Blind Privacy Guarantee:</strong> Candidate personal contact info never touches your external HR software until the candidate explicitly clicks &ldquo;Release Resume &amp; Contact Vault&rdquo; in Stage 2.
           </span>
 
           <button

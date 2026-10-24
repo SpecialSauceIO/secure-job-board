@@ -57,7 +57,7 @@ export default function CandidateSignupPage({
               ? 'Create your account to activate Candidate Prestige ($15/mo).'
               : selectedPlan === 'professional'
                 ? 'Create your account to activate Candidate Professional ($9/mo).'
-                : 'Create your account to activate Candidate Explorer ($3/mo · Includes Biometric ID Verification).'}
+                : 'Create your account to activate Candidate Explorer ($3/mo · Includes Real-Person ID Verification).'}
           </p>
         </div>
 

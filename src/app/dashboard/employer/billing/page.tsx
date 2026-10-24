@@ -145,7 +145,7 @@ export default function EmployerBillingPage() {
       const planNames: Record<string, string> = {
         starter: 'Starter ($149/mo Founding Rate — 5 Active Roles & 10 Pitch Credits)',
         growth: 'Growth ($499/mo Founding Rate — 15 Active Roles & 35 Pitch Credits)',
-        enterprise: 'Enterprise ($1,250/mo Founding Rate — Unlimited Roles, 120 Credits & ATS Sync)',
+        enterprise: 'Enterprise ($1,250/mo Founding Rate — Unlimited Roles, 120 Credits & HR Software Sync)',
       }
       setFeedback({
         type: 'success',
@@ -302,7 +302,7 @@ export default function EmployerBillingPage() {
             href="/dashboard/employer/organization"
             className="px-4 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors"
           >
-            Company, Seats &amp; ATS Hub
+            Company, Team Seats &amp; HR Sync
           </Link>
           <Link
             href="/dashboard/employer/search"
@@ -406,7 +406,7 @@ export default function EmployerBillingPage() {
                 </strong>
                 ,{' '}
                 <strong className="text-amber-300">
-                  2 Team / BPO Collaborator Seats
+                  2 Team or Recruiter Seats
                 </strong>
                 , and{' '}
                 <strong className="text-emerald-300">
@@ -443,7 +443,7 @@ export default function EmployerBillingPage() {
               href="/dashboard/employer/organization"
               className="shrink-0 px-3.5 py-1.5 rounded-lg bg-emerald-700 text-white text-xs font-extrabold hover:bg-emerald-800 transition-colors"
             >
-              Open Enterprise ATS &amp; Webhook Hub →
+              Open HR Software Sync Hub →
             </Link>
           )}
         </div>
@@ -501,7 +501,7 @@ export default function EmployerBillingPage() {
                 🛡️ <strong>100% Accepted-Only Credit Protection</strong> (Declined pitches auto-refunded)
               </li>
               <li>
-                ✓ <strong>2 Team / BPO Collaborator Seats</strong>
+                ✓ <strong>2 Team or Recruiter Seats</strong>
               </li>
               <li>
                 ✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong>
@@ -575,7 +575,7 @@ export default function EmployerBillingPage() {
                 🛡️ <strong>100% Accepted-Only Credit Protection</strong> (Declined pitches auto-refunded)
               </li>
               <li>
-                ✓ <strong>Up to 5 Team &amp; Delegated W-2 BPO Partner Seats</strong>
+                ✓ <strong>Up to 5 Team &amp; External Recruiter Seats</strong>
               </li>
               <li>
                 ✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong>
@@ -612,7 +612,7 @@ export default function EmployerBillingPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between text-xs font-extrabold">
               <span className="text-emerald-700">
-                High-Volume, ATS &amp; BPO Ready
+                High-Volume, HR Software &amp; Recruiter Ready
               </span>
               {activeTier === 'enterprise' && (
                 <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-300">
@@ -633,7 +633,7 @@ export default function EmployerBillingPage() {
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                Built for high-velocity talent acquisition teams, multi-location enterprises, and W-2/BPO partners.
+                Built for high-velocity talent acquisition teams, multi-location enterprises, and external recruiting partners.
               </p>
             </div>
 
@@ -651,10 +651,10 @@ export default function EmployerBillingPage() {
                 🛡️ <strong>100% Accepted-Only Credit Protection</strong> (Declined pitches auto-refunded)
               </li>
               <li>
-                ✓ <strong>Unlimited Team &amp; Delegated W-2 BPO/RPO Seats</strong>
+                ✓ <strong>Unlimited Team &amp; External Recruiter Seats</strong>
               </li>
               <li>
-                ✓ <strong>Workday &amp; Greenhouse ATS / Webhook API Sync</strong>
+                ✓ <strong>Workday &amp; Greenhouse HR Software Sync</strong>
               </li>
               <li>
                 ✓ <strong>Automated Stage 2 Vault Export to ATS</strong>
@@ -831,7 +831,7 @@ export default function EmployerBillingPage() {
               🧪 QA Stress-Testing Controls (Remove Before Public Launch)
             </span>
             <p className="text-xs text-slate-600 mt-0.5">
-              Instant 1-click plan switching across all 4 Employer Tiers to test role-slot limits, seat caps, Two-Bucket rollover credits, and the Enterprise ATS &amp; Webhook Hub.
+              Instant 1-click plan switching across all 4 Employer Tiers to test role-slot limits, seat caps, Two-Bucket rollover credits, and the HR Software Sync Hub.
             </p>
           </div>
         </div>

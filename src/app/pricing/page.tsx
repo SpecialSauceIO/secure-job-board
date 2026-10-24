@@ -23,7 +23,7 @@ export default function PricingMatrixPage() {
             Transparent Plans &amp; Verified Signals
           </h1>
           <p className="text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
-            Every candidate on Special Sauce is <strong className="text-slate-900">Biometric ID-Verified</strong>—starting at <strong className="text-slate-900">$3/mo on Explorer</strong> for passive inbound pitches, or <strong className="text-slate-900">$9/mo &amp; $15/mo</strong> to proactively apply to roles. Employers lock in <strong className="text-slate-900">Founding Partner Launch Rates</strong> backed by 100% Accepted-Only Credit Protection.
+            Every candidate on Special Sauce is <strong className="text-slate-900">Real-Person ID-Verified</strong>—starting at <strong className="text-slate-900">$3/mo on Explorer</strong> for passive inbound pitches, or <strong className="text-slate-900">$9/mo &amp; $15/mo</strong> to proactively apply to roles. Employers lock in <strong className="text-slate-900">Founding Partner Launch Rates</strong> backed by 100% Accepted-Only Credit Protection.
           </p>
         </section>
 
@@ -40,10 +40,10 @@ export default function PricingMatrixPage() {
                   <span>🛡️ 100% ID-Verified Marketplace • Zero Bots, Scams, or Ghost Jobs</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  Every Plan Includes Biometric ID Verification &amp; Unlimited Inbound Pitches
+                  Every Plan Includes Real-Person ID Verification &amp; Unlimited Inbound Pitches
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
-                  Get discovered by verified employers and unlock unlimited inbound pitches on <strong className="text-emerald-300">Explorer for $3/mo</strong> (includes 1-time <strong className="text-amber-300">Stripe Biometric ID Verification</strong>). Ready to proactively apply to roles? Choose <strong className="text-white">Professional ($9/mo for 15 monthly blind applications)</strong> or <strong className="text-white">Prestige ($15/mo for unlimited blind applications &amp; Top-Priority Spotlight)</strong>.
+                  Get discovered by verified employers and unlock unlimited inbound pitches on <strong className="text-emerald-300">Explorer for $3/mo</strong> (includes 1-time <strong className="text-amber-300">Stripe Real-Person ID Verification</strong>). Ready to proactively apply to roles? Choose <strong className="text-white">Professional ($9/mo for 15 monthly blind applications)</strong> or <strong className="text-white">Prestige ($15/mo for unlimited blind applications &amp; Top-Priority Spotlight)</strong>.
                 </p>
               </div>
               <div className="shrink-0">
@@ -77,12 +77,12 @@ export default function PricingMatrixPage() {
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Ideal when you want verified employers to come to you. Includes 1-time Biometric ID Verification, live placement in Employer Search, and unlimited inbound employer pitch unlocks.
+                    Ideal when you want verified employers to come to you. Includes 1-time Real-Person ID Verification, live placement in Employer Search, and unlimited inbound employer pitch unlocks.
                   </p>
                   <ul className="space-y-2.5 pt-3 border-t border-slate-300 text-xs text-slate-700 font-medium">
                     <li className="flex items-start gap-2 text-emerald-700 font-bold">
                       <span>🛡️</span>
-                      <span><strong>Includes Biometric ID Verification</strong> &amp; Verified Candidate Shield</span>
+                      <span><strong>Includes Real-Person ID Verification</strong> &amp; Verified Candidate Shield</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
@@ -90,7 +90,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span><strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong> (Stage 1/2 Chat)</span>
+                      <span><strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong> (Private Chat)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
@@ -129,16 +129,16 @@ export default function PricingMatrixPage() {
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Built for selective professionals ready to unlock inbound employer pitches, complete biometric ID verification, and submit targeted blind applications.
+                    Built for selective professionals ready to unlock inbound employer pitches, complete real-person ID verification, and submit targeted blind applications.
                   </p>
                   <ul className="space-y-2.5 pt-3 border-t border-slate-300 text-xs text-slate-700 font-medium">
                     <li className="flex items-start gap-2 text-emerald-700 font-bold">
                       <span>🛡️</span>
-                      <span><strong>Includes Biometric ID Verification</strong> &amp; Verified Candidate Shield</span>
+                      <span><strong>Includes Real-Person ID Verification</strong> &amp; Verified Candidate Shield</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span><strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong> (Stage 1/2 Chat)</span>
+                      <span><strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong> (Private Chat)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
@@ -190,7 +190,7 @@ export default function PricingMatrixPage() {
                   <ul className="space-y-2.5 pt-3 border-t border-slate-800 text-xs text-slate-200 font-medium">
                     <li className="flex items-start gap-2 text-emerald-300 font-bold">
                       <span>🛡️</span>
-                      <span><strong>Includes Biometric ID Verification</strong> &amp; Verified Candidate Shield</span>
+                      <span><strong>Includes Real-Person ID Verification</strong> &amp; Verified Candidate Shield</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>
@@ -298,7 +298,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span><strong>2 Team / BPO Collaborator Seats</strong></span>
+                      <span><strong>2 Team or Recruiter Seats</strong></span>
                     </li>
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>
@@ -306,7 +306,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-slate-400">
                       <span>✕</span>
-                      <span>Workday &amp; Greenhouse ATS / Webhook Hub (Enterprise)</span>
+                      <span>Workday &amp; Greenhouse HR Software Sync (Enterprise)</span>
                     </li>
                   </ul>
                 </div>
@@ -338,7 +338,7 @@ export default function PricingMatrixPage() {
                     </div>
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed">
-                    Designed for scaling companies actively sourcing biometric ID-verified talent across multiple departments.
+                    Designed for scaling companies actively sourcing real-person ID-verified talent across multiple departments.
                   </p>
                   <ul className="space-y-2.5 pt-3 border-t border-slate-800 text-xs text-slate-200 font-medium">
                     <li className="flex items-start gap-2">
@@ -363,7 +363,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-400 font-bold">✓</span>
-                      <span><strong>Up to 5 Team &amp; Delegated W-2 BPO Partner Seats</strong></span>
+                      <span><strong>Up to 5 Team &amp; External Recruiter Seats</strong></span>
                     </li>
                     <li className="flex items-start gap-2 text-amber-300 font-bold">
                       <span>★</span>
@@ -371,7 +371,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-slate-500">
                       <span>✕</span>
-                      <span>Workday &amp; Greenhouse ATS / Webhook Hub (Enterprise)</span>
+                      <span>Workday &amp; Greenhouse HR Software Sync (Enterprise)</span>
                     </li>
                   </ul>
                 </div>
@@ -386,12 +386,12 @@ export default function PricingMatrixPage() {
               {/* Employer Tier 3: Enterprise ($1,250 Founding / $1,999 Retail) */}
               <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
-                  ★ ATS &amp; Webhook Hub • 12-Mo Rate Lock
+                  ★ HR Software Sync • 12-Mo Rate Lock
                 </div>
                 <div className="space-y-4">
                   <div>
                     <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-700">
-                      Enterprise, High-Volume &amp; ATS Connected
+                      Enterprise, High-Volume &amp; HR Software Connected
                     </span>
                     <h3 className="text-2xl font-black text-slate-900 mt-0.5">
                       Enterprise
@@ -403,7 +403,7 @@ export default function PricingMatrixPage() {
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Built for high-velocity talent acquisition teams, multi-location enterprises, and W-2 RPOs requiring automated HRIS/ATS synchronization.
+                    Built for high-velocity talent acquisition teams, multi-location enterprises, and recruiting agencies requiring automated HR software sync.
                   </p>
                   <ul className="space-y-2.5 pt-3 border-t border-slate-300 text-xs text-slate-700 font-medium">
                     <li className="flex items-start gap-2">
@@ -428,11 +428,11 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2 text-indigo-700 font-bold">
                       <span>⚡</span>
-                      <span><strong>Native Greenhouse Harvest API Connector</strong> — auto-syncs Stage 2 PDF resumes &amp; 5-Point AI Fit scorecards</span>
+                      <span><strong>Native Greenhouse HR Software Connector</strong> — auto-syncs unlocked PDF resumes &amp; 5-Point AI Fit scorecards</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span><strong>Unlimited Team &amp; Delegated W-2 BPO/RPO Seats</strong> + CSV Pipeline Export</span>
+                      <span><strong>Unlimited Team &amp; External Recruiter Seats</strong> + CSV Pipeline Export</span>
                     </li>
                     <li className="flex items-start gap-2 text-amber-800 font-bold">
                       <span>★</span>

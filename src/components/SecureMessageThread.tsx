@@ -316,8 +316,8 @@ export default function SecureMessageThread({
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs font-extrabold text-slate-900">
                 {vaultReleased
-                  ? 'Stage 2 Complete: Full Contact & Resume Vault Released'
-                  : 'Stage 1 Active: Encrypted In-Platform Thread (Anti-Harvesting Protection)'}
+                  ? 'Resume Unlocked: Full Contact Info & PDF Shared'
+                  : 'Private Chat Active: Your Name, Email & PDF Resume Remain Hidden'}
               </span>
               <span className="px-2 py-0.5 rounded bg-white/80 border border-slate-300 text-[10px] font-mono font-bold text-slate-600">
                 {referenceId}
@@ -353,7 +353,7 @@ export default function SecureMessageThread({
                   ? 'Candidate has released their full name, direct email, and signed PDF resume.'
                   : `You have released your direct contact details and PDF resume to ${employerName}.`
                 : viewerRole === 'employer'
-                ? 'To prevent passive resume harvesting, raw email & PDF resume remain vaulted until you message the candidate and they approve Stage 2 release.'
+                ? 'To prevent passive resume harvesting, raw email & PDF resume remain vaulted until you message the candidate and they choose to share it.'
                 : `Your raw email & PDF resume are still hidden from ${employerName}. Chat below first, then click "Release Resume & Contact Vault" whenever you feel comfortable.`}
             </p>
           </div>

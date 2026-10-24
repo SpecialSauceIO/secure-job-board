@@ -560,7 +560,7 @@ export async function sendApplicationMessage(
         `"${trimmed}"`,
         isVaultReleased
           ? 'Your contact card and resume are unlocked for this employer.'
-          : '🔒 Stage 1 Privacy Active: Your raw email and PDF resume are still vaulted. You can reply in the thread and release your full resume whenever you are ready.',
+          : '🔒 Privacy Lock Active: Your raw email and PDF resume are still vaulted. You can reply in the thread and release your full resume whenever you are ready.',
       ],
       ctaUrl: isEmployerInitiatedPitch
         ? '/dashboard/requests'
@@ -724,13 +724,13 @@ export async function releaseCandidateVaultToEmployer(
     referenceId: refId,
     heading: 'Candidate Released Full Resume & Contact Vault!',
     bodyLines: [
-      `${fullName} has approved Stage 2 Vault Release for "${
+      `${fullName} has shared their full Resume & Contact Info for "${
         jobObj?.title || 'Open Role'
       }".`,
       `Candidate Full Name: ${fullName}`,
       `Direct Email: ${candidateEmail || 'Available in dashboard'}`,
       atsSyncResult?.success
-        ? `✓ Enterprise ATS Auto-Sync: Candidate vault & 5-Point AI Match Radar were automatically pushed to your configured ATS/Webhook (${atsSyncResult.syncStatus}).`
+        ? `✓ Enterprise HR Software Auto-Sync: Candidate vault & 5-Point AI Match Radar were automatically pushed to your connected HR software (${atsSyncResult.syncStatus}).`
         : `You can now download their original PDF resume and contact them directly.`,
     ],
     ctaUrl:

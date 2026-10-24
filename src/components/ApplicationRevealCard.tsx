@@ -428,7 +428,7 @@ export function ApplicationRevealCard({
             )}
             {status === 'unlocked' && (
               <span className="text-indigo-700 font-bold">
-                🛡️ Stage 1 Thread Open
+                💬 Private Chat Open
               </span>
             )}
             {status === 'shortlisted' && (
@@ -717,7 +717,7 @@ export function ApplicationRevealCard({
           ) : !isRevealed && status !== 'rejected' ? (
             <>
               <span className="text-slate-500">
-                <strong>Free Unlock:</strong> Opening a Stage 1 thread costs 0 credits.
+                <strong>Free Unlock:</strong> Opening a private chat costs 0 credits.
               </span>
               <div className="flex items-center gap-2 shrink-0">
                 <button
@@ -753,7 +753,7 @@ export function ApplicationRevealCard({
                   ? '★ Candidate is Shortlisted.'
                   : status === 'rejected'
                   ? `Archived (${archiveReason})`
-                  : '✓ Stage 1 Thread Open.'}
+                  : '✓ Private Chat Open.'}
               </span>
               <div className="flex items-center gap-2">
                 {status !== 'shortlisted' && status !== 'rejected' && (

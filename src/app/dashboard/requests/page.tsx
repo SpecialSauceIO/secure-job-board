@@ -211,7 +211,7 @@ export default function CandidateRequestsInboxPage() {
         type: 'success',
         text:
           decision === 'accepted'
-            ? `Pitch Accepted (Ref: ${res.referenceId})! Stage 1 Thread is now open below.`
+            ? `Pitch Accepted (Ref: ${res.referenceId})! Your private chat thread is now open below.`
             : `Pitch declined (Ref: ${res.referenceId}).`,
       },
     }))
@@ -274,7 +274,7 @@ export default function CandidateRequestsInboxPage() {
             Employer Connection Pitches
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Domain-verified employers spent a credit to pitch you these roles. Accepting opens a secure Stage 1 thread.
+            Domain-verified employers spent a credit to pitch you these roles. Accepting opens a private chat thread.
           </p>
         </div>
 
@@ -691,7 +691,7 @@ export default function CandidateRequestsInboxPage() {
                       )}
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <span className="text-slate-500">
-                          <strong>Stage 1 Safe Connection:</strong> Accepting opens a secure chat thread while keeping your resume vaulted.
+                          <strong>Private First Connection:</strong> Accepting opens a secure chat thread while keeping your resume vaulted.
                         </span>
 
                         <div className="flex items-center gap-2 shrink-0">

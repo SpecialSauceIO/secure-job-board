@@ -215,7 +215,7 @@ export default function EmployerInboundApplicationsPage() {
               Inbound Candidate Applications
             </h1>
             <p className="text-slate-500 mt-1">
-              Sort applicants by 5-Point AI Match score, open Stage 1 encrypted message threads for free, and manage shortlisted talent.
+              Sort applicants by 5-Point AI Match score, open private message threads for free, and manage shortlisted talent.
             </p>
           </div>
 

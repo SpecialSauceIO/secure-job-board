@@ -22,7 +22,7 @@ export interface PlaybookGuide {
 export const SECURITY_ARCHITECTURE_DATA = {
   title: 'Data Security, 2-Stage Identity Vault & Stripe Architecture',
   subtitle:
-    'Special Sauce is engineered on a Zero-Sensitive-PII-Storage and Anti-Harvesting architecture. Biometric identity documents and payment credentials are vaulted exclusively by Stripe, while candidate resumes and direct contact details remain locked behind our 2-Stage Identity Vault until the candidate explicitly releases them.',
+    'Special Sauce is engineered on a Zero-ID-Storage and Anti-Harvesting architecture. Biometric identity documents and payment credentials are vaulted exclusively by Stripe, while candidate resumes and direct contact details remain locked behind our 2-Stage Identity Vault until the candidate explicitly releases them.',
   stripeVaultItems: [
     {
       title: 'Government IDs & Passports (Stripe Identity)',
@@ -30,7 +30,7 @@ export const SECURITY_ARCHITECTURE_DATA = {
         'Photos of driver’s licenses, passports, and national ID cards uploaded during candidate verification are transmitted directly to Stripe Identity over TLS 1.3 and encrypted using AES-256 inside Stripe’s isolated biometric vault.',
     },
     {
-      title: 'Biometric Selfie & Liveness Checks',
+      title: 'Photo ID & Selfie Checks',
       detail:
         'Facial recognition vectors and selfie verification captures are processed exclusively by Stripe Identity. Special Sauce only receives a boolean verification status ("verified" or "requires_input") and a session reference token.',
     },
@@ -67,10 +67,10 @@ SPECIAL SAUCE — DATA SECURITY, 2-STAGE VAULT & STRIPE COMPLIANCE BRIEF
 ====================================================================
 
 1. ZERO BIOMETRIC OR PAYMENT CARD STORAGE ON PLATFORM SERVERS:
-Special Sauce does NOT store government ID images, biometric selfies, credit card numbers, or bank account details in our application database.
+Special Sauce does NOT store government ID images, verification selfies, credit card numbers, or bank account details in our application database.
 
 2. WHAT IS STORED EXCLUSIVELY INSIDE STRIPE (PCI-DSS LEVEL 1 & SOC 2):
-- Candidate Identity Verification (Stripe Identity): Government IDs and biometric liveness checks are captured and encrypted (AES-256) directly inside Stripe's isolated vault. Special Sauce only stores a boolean "Identity Verified" status token.
+- Candidate Identity Verification (Stripe Identity): Government IDs and selfie checks are captured and encrypted (AES-256) directly inside Stripe's isolated vault. Special Sauce only stores a boolean "Identity Verified" status token.
 - Subscription & Billing Data (Stripe Checkout): All payment methods for Employer Tiers ($149/$499/$1,250 Founding Partner Rates; $299/$799/$1,999 Retail), Rollover Top-Up Packs ($150/$325/$825), and Candidate Professional ($9/mo) & Prestige ($15/mo) plans are tokenized and vaulted by Stripe.
 
 3. 2-STAGE ANTI-HARVESTING IDENTITY VAULT & IN-PLATFORM MESSAGING:
@@ -83,10 +83,10 @@ Special Sauce does NOT store government ID images, biometric selfies, credit car
 export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = {
   employer: {
     id: 'employer',
-    title: 'Employer & BPO Partner Playbook',
+    title: 'Employer & Recruiter Playbook',
     subtitle:
-      'How Special Sauce works for Hiring Managers, Talent Acquisition Teams, and Delegated W-2 BPO Partners.',
-    badge: 'Hiring Team & BPO Guide',
+      'How Special Sauce works for Hiring Managers, Talent Acquisition Teams, and External Recruiting Partners.',
+    badge: 'Hiring Team Guide',
     steps: [
       {
         step: 'Step 1',
@@ -98,7 +98,7 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
         step: 'Step 2',
         title: 'Activate Your Tier & Assign Team / BPO Partner Seats',
         description:
-          'Choose Starter ($149/mo Founding / $299 Retail: 5 Active Roles, 10 Monthly Pitch Credits, 2 Collaborator Seats), Growth ($499/mo Founding / $799 Retail: 15 Active Roles, 35 Monthly Pitch Credits, up to 5 Team/BPO Seats), or Enterprise ($1,250/mo Founding / $1,999 Retail: Unlimited Active Roles, 120 Monthly Pitch Credits, Unlimited Seats + Workday/Greenhouse ATS Sync).',
+          'Choose Starter ($149/mo Founding / $299 Retail: 5 Active Roles, 10 Monthly Pitch Credits, 2 Collaborator Seats), Growth ($499/mo Founding / $799 Retail: 15 Active Roles, 35 Monthly Pitch Credits, up to 5 Team/Recruiter Seats), or Enterprise ($1,250/mo Founding / $1,999 Retail: Unlimited Active Roles, 120 Monthly Pitch Credits, Unlimited Seats + Workday/Greenhouse HR Software Sync).',
       },
       {
         step: 'Step 3',
@@ -120,7 +120,7 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
       },
     ],
     copyPasteText: `====================================================================
-SPECIAL SAUCE — HIRING TEAM & BPO PARTNER QUICK-START GUIDE
+SPECIAL SAUCE — HIRING TEAM QUICK-START GUIDE
 ====================================================================
 
 1. WHAT IS SPECIAL SAUCE?
@@ -128,15 +128,15 @@ Special Sauce is a verified, double-blind technical & professional recruitment m
 
 2. HOW OUR TEAM USES THE PLATFORM (5 STEPS):
 - Step 1 — Domain Verification & 12-Month Rate Lock: Verify our corporate domain to lock in 12-Month Founding Partner Rates, search the anonymous talent pool, filter by employment type (W-2, 1099/C2C, Contract-to-Hire), and bookmark candidates into our Shortlist.
-- Step 2 — Shared Team & BPO Partner Seats: Collaborators (Hiring Managers & authorized W-2 BPO delivery partners) share our organization's active role slots and Two-Bucket pitch credit pool.
+- Step 2 — Shared Team & BPO Partner Seats: Collaborators (Hiring Managers & authorized external recruiters) share our organization's active role slots and Two-Bucket pitch credit pool.
 - Step 3 — Publishing Blind Roles (30-Day Auto-Expiry): Every role displays transparent pay ($/yr or $/hr), standardized US State & Metro location, and employment type while keeping our company name blind. Roles auto-expire after 30 days to guarantee freshness and can be renewed in 1 click.
 - Step 4 — Stage 1 Unlock & Accepted-Only Credit Protection: Inbound applications (70%+ AI Fit) are 100% FREE to unlock; outbound pitches to passive talent use 1 Pitch Credit and are auto-refunded if declined. Stage 1 opens a live encrypted chat thread (Ref: SS-XXXXXXXX) and reveals the candidate's First Name + Last Initial.
 - Step 5 — Stage 2 Unlock (Full Resume & Email Release): Once we message the candidate in the thread, they click "Release Resume & Contact Vault" to unlock their Full Name, direct email, and downloadable PDF resume.
 
 3. EMPLOYER PLANS (12-MONTH FOUNDING PARTNER RATE LOCK) & TOP-UPS:
-- Starter ($149/mo Founding · $299/mo Retail after Mo 12): Up to 5 Active Roles | 10 Pitch Credits/mo | 2 Team/BPO Seats
-- Growth ($499/mo Founding · $799/mo Retail after Mo 12): Up to 15 Active Roles | 35 Pitch Credits/mo | Up to 5 Team/BPO Seats
-- Enterprise ($1,250/mo Founding · $1,999/mo Retail after Mo 12): Unlimited Active Roles | 120 Pitch Credits/mo | Unlimited Seats + Workday/Greenhouse ATS Sync
+- Starter ($149/mo Founding · $299/mo Retail after Mo 12): Up to 5 Active Roles | 10 Pitch Credits/mo | 2 Team/Recruiter Seats
+- Growth ($499/mo Founding · $799/mo Retail after Mo 12): Up to 15 Active Roles | 35 Pitch Credits/mo | Up to 5 Team/Recruiter Seats
+- Enterprise ($1,250/mo Founding · $1,999/mo Retail after Mo 12): Unlimited Active Roles | 120 Pitch Credits/mo | Unlimited Seats + Workday/Greenhouse HR Software Sync
 - Non-Expiring Rollover Top-Up Packs (Bucket 2): Boost (+10 Credits for $150), Surge (+25 Credits for $325), Scale (+75 Credits for $825)
 ====================================================================`,
   },
@@ -167,9 +167,9 @@ Special Sauce is a verified, double-blind technical & professional recruitment m
       },
       {
         step: 'Step 4',
-        title: 'Upgrade & Complete 1-Time Biometric ID Verification When Ready',
+        title: 'Upgrade & Complete 1-Time Real-Person ID Verification When Ready',
         description:
-          'When you spot a role you want to apply for (70%+ AI Fit) or want to unlock an incoming employer pitch, upgrade to Professional ($9/mo for 15 monthly blind applications + unlimited pitch unlocks) or Prestige ($15/mo for unlimited blind applications + Top-Priority Employer Search placement) and complete your 1-time Stripe Biometric ID Verification.',
+          'When you spot a role you want to apply for (70%+ AI Fit) or want to unlock an incoming employer pitch, upgrade to Professional ($9/mo for 15 monthly blind applications + unlimited pitch unlocks) or Prestige ($15/mo for unlimited blind applications + Top-Priority Employer Search placement) and complete your 1-time Stripe Real-Person ID Verification.',
       },
       {
         step: 'Step 5',
@@ -193,9 +193,9 @@ SPECIAL SAUCE — CANDIDATE HOW-IT-WORKS & 2-STAGE VAULT REFERENCE GUIDE
 - All job listings automatically close after 30 days unless manually renewed by the employer—so you never waste applications on stale "ghost jobs."
 
 3. CANDIDATE MEMBERSHIP TIERS ($3 / $9 / $15):
-- Explorer ($3/mo): Includes 1-time Stripe Biometric ID Verification, live anonymous profile in Employer Search, unlimited Inbound Employer Pitch unlocks, and unlimited 5-Point AI Fit Radar checks.
-- Professional ($9/mo): Includes 1-time Stripe Biometric ID Verification, unlimited Inbound Employer Pitch unlocks, 15 Outbound Blind Applications/month (70%+ AI Fit), and Permanent Founding Member status.
-- Prestige ($15/mo): Includes 1-time Stripe Biometric ID Verification, Unlimited Outbound Blind Applications (70%+ AI Fit), unlimited pitch unlocks, and Top-Priority Spotlight placement in Employer Talent Search.
+- Explorer ($3/mo): Includes 1-time Stripe Real-Person ID Verification, live anonymous profile in Employer Search, unlimited Inbound Employer Pitch unlocks, and unlimited 5-Point AI Fit Radar checks.
+- Professional ($9/mo): Includes 1-time Stripe Real-Person ID Verification, unlimited Inbound Employer Pitch unlocks, 15 Outbound Blind Applications/month (70%+ AI Fit), and Permanent Founding Member status.
+- Prestige ($15/mo): Includes 1-time Stripe Real-Person ID Verification, Unlimited Outbound Blind Applications (70%+ AI Fit), unlimited pitch unlocks, and Top-Priority Spotlight placement in Employer Talent Search.
 ====================================================================`,
   },
 }
@@ -211,7 +211,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'Why do I need to verify my identity, and is my government ID stored by Special Sauce?',
     answer:
-      'Identity verification ensures the integrity of the Special Sauce talent pool, eliminating bots and duplicate accounts. Every candidate plan—Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo)—includes 1-time Stripe Biometric ID Verification so 100% of candidates in Employer Talent Search are verified real professionals. Your government ID and biometric selfie are NEVER stored on Special Sauce servers—they are vaulted exclusively by Stripe Identity using AES-256 encryption.',
+      'Identity verification ensures the integrity of the Special Sauce talent pool, eliminating bots and duplicate accounts. Every candidate plan—Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo)—includes 1-time Stripe Real-Person ID Verification so 100% of candidates in Employer Talent Search are verified real professionals. Your government ID and biometric selfie are NEVER stored on Special Sauce servers—they are vaulted exclusively by Stripe Identity using AES-256 encryption.',
   },
   {
     id: 'c2',
@@ -265,7 +265,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'What is the difference between Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo)?',
     answer:
-      'All three candidate tiers include 1-time Stripe Biometric ID Verification so our talent pool remains 100% bot-free. Explorer ($3/mo) is built for passive discovery: your verified anonymous profile is live in Employer Search and you can unlock and accept unlimited Inbound Employer Pitches. Professional ($9/mo) adds 15 proactive Outbound Blind Applications/month (for roles where you score 70%+ AI Fit). Prestige ($15/mo) includes Unlimited Outbound Blind Applications (70%+ AI Fit) and Top-Priority Spotlight placement in Employer Talent Search. You can switch or downgrade plans anytime.',
+      'All three candidate tiers include 1-time Stripe Real-Person ID Verification so our talent pool remains 100% bot-free. Explorer ($3/mo) is built for passive discovery: your verified anonymous profile is live in Employer Search and you can unlock and accept unlimited Inbound Employer Pitches. Professional ($9/mo) adds 15 proactive Outbound Blind Applications/month (for roles where you score 70%+ AI Fit). Prestige ($15/mo) includes Unlimited Outbound Blind Applications (70%+ AI Fit) and Top-Priority Spotlight placement in Employer Talent Search. You can switch or downgrade plans anytime.',
   },
 
   // ------------------------------------------------------------------
@@ -304,7 +304,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How do Employer Plans, Two-Bucket Rollover Credits, and 100% Accepted-Only Protection work?',
     answer:
-      'Starter ($149/mo Founding · $299/mo Retail after Month 12) includes up to 5 Active Roles, 10 Monthly Pitch Credits, and 2 Team/BPO Seats. Growth ($499/mo Founding · $799/mo Retail) includes up to 15 Active Roles, 35 Monthly Pitch Credits, and up to 5 Team/BPO Seats. Enterprise ($1,250/mo Founding · $1,999/mo Retail) includes Unlimited Active Roles, 120 Monthly Pitch Credits, Unlimited Seats, and Workday/Greenhouse ATS Sync. Your Monthly Plan Credits (Bucket 1) are always spent first; if you need extra reach, you can add non-expiring Rollover Top-Up Packs (Bucket 2: +10 for $150, +25 for $325, or +75 for $825). Every outbound pitch is protected by our 100% Accepted-Only Guarantee—if a candidate declines your pitch, the credit is automatically refunded to the exact bucket it came from.',
+      'Starter ($149/mo Founding · $299/mo Retail after Month 12) includes up to 5 Active Roles, 10 Monthly Pitch Credits, and 2 Team/Recruiter Seats. Growth ($499/mo Founding · $799/mo Retail) includes up to 15 Active Roles, 35 Monthly Pitch Credits, and up to 5 Team/Recruiter Seats. Enterprise ($1,250/mo Founding · $1,999/mo Retail) includes Unlimited Active Roles, 120 Monthly Pitch Credits, Unlimited Seats, and Workday/Greenhouse HR Software Sync. Your Monthly Plan Credits (Bucket 1) are always spent first; if you need extra reach, you can add non-expiring Rollover Top-Up Packs (Bucket 2: +10 for $150, +25 for $325, or +75 for $825). Every outbound pitch is protected by our 100% Accepted-Only Guarantee—if a candidate declines your pitch, the credit is automatically refunded to the exact bucket it came from.',
   },
   {
     id: 'e5',
@@ -322,7 +322,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How do we invite Hiring Managers or W-2 BPO / RPO Partners into our workspace?',
     answer:
-      'Every paid Employer plan includes collaborator seats: Starter ($149/mo Founding) includes 2 seats, Growth ($499/mo Founding) includes up to 5 seats, and Enterprise ($1,250/mo Founding) includes Unlimited Team & Delegated W-2 BPO/RPO Partner seats. Open your Company Profile (/dashboard/employer/organization) and scroll to the "Team & Delegated BPO Partner Seats" panel. Enter their email, choose "Internal Hiring Manager" or "Delegated BPO / W-2 Partner", and click Assign Seat.',
+      'Every paid Employer plan includes collaborator seats: Starter ($149/mo Founding) includes 2 seats, Growth ($499/mo Founding) includes up to 5 seats, and Enterprise ($1,250/mo Founding) includes Unlimited Team & Delegated W-2 BPO/RPO Partner seats. Open your Company Profile (/dashboard/employer/organization) and scroll to the "Team & External Recruiter Seats" panel. Enter their email, choose "Internal Hiring Manager" or "External Recruiting Partner", and click Assign Seat.',
   },
   {
     id: 'e7',

@@ -276,8 +276,8 @@ export function calculateCandidateGamification(
     },
     {
       id: 'stage2_veteran',
-      title: 'Stage 2 Vault Verified',
-      shortLabel: 'Stage 2 Verified',
+      title: 'Verified Connection',
+      shortLabel: 'Resume Shared',
       description:
         'Completed mutual Stage 2 Resume & Contact Vault release with a verified employer.',
       icon: '✓',

@@ -165,7 +165,7 @@ export default function DashboardAnalyticsReport({
             </div>
             <div className="bg-white p-3.5 rounded-xl border border-slate-300">
               <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                Stage 1 Connected
+                Private Chat Open
               </span>
               <span className="text-xl font-black text-sky-700 mt-0.5 block">
                 {stats.stage1}
@@ -173,7 +173,7 @@ export default function DashboardAnalyticsReport({
             </div>
             <div className="bg-white p-3.5 rounded-xl border border-slate-300">
               <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                Stage 2 Released
+                Full Resume Shared
               </span>
               <span className="text-xl font-black text-violet-700 mt-0.5 block">
                 {stats.stage2}

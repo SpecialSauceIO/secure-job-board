@@ -88,7 +88,7 @@ export default function EmployerSentPitchesPage() {
             Sent Connection Pitches
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Track outbound role pitches sent to passive candidates, message accepted matches in Stage 1 threads, and access released Stage 2 Resume Vaults.
+            Track outbound role pitches sent to passive candidates, message accepted matches in private chat, and access unlocked resumes and contact info.
           </p>
         </div>
 
@@ -312,13 +312,13 @@ export default function EmployerSentPitchesPage() {
 
                       {isAccepted && !vaultReleased && (
                         <span className="text-emerald-700 font-extrabold">
-                          ✓ Pitch Accepted • Stage 1 Thread Open
+                          ✓ Pitch Accepted • Private Chat Open
                         </span>
                       )}
 
                       {isAccepted && vaultReleased && (
                         <span className="px-2.5 py-0.5 rounded-md bg-emerald-600 text-white font-extrabold">
-                          🔓 Stage 2 Vault Released
+                          🔓 Full Resume & Contact Shared
                         </span>
                       )}
 

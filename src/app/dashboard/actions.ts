@@ -667,10 +667,10 @@ export async function activateSandboxCandidateTier(
         : 'Welcome to Candidate Professional ($9/mo)',
       bodyLines: [
         isPrestige
-          ? 'Your Candidate Prestige plan is active with Biometric ID Verification access, Unlimited Outbound Blind Applications, Top-Priority Employer Search placement, and Founding Member status.'
+          ? 'Your Candidate Prestige plan is active with Real-Person ID Verification access, Unlimited Outbound Blind Applications, Top-Priority Employer Search placement, and Founding Member status.'
           : isExplorer
-          ? 'Your Candidate Explorer plan ($3/mo) is active with Biometric ID Verification access, live placement in Employer Talent Search once verified, and unlimited inbound employer pitch unlocks.'
-          : 'Your Candidate Professional plan is active with Biometric ID Verification access, 15 Outbound Blind Applications per month, and Founding Member status.',
+          ? 'Your Candidate Explorer plan ($3/mo) is active with Real-Person ID Verification access, live placement in Employer Talent Search once verified, and unlimited inbound employer pitch unlocks.'
+          : 'Your Candidate Professional plan is active with Real-Person ID Verification access, 15 Outbound Blind Applications per month, and Founding Member status.',
         `Subscription Reference ID: ${refId}`,
       ],
       ctaUrl: '/dashboard',
@@ -693,7 +693,7 @@ export async function activateSandboxCandidateTier(
         : normalizedMode === 'professional'
         ? '✓ Activated Professional Plan ($9/mo)! 15 monthly outbound applications and pitch unlocks active.'
         : normalizedMode === 'explorer'
-        ? '✓ Activated Explorer Plan ($3/mo)! Biometric ID Verification and unlimited inbound employer pitch unlocks are active. Upgrade to Professional ($9/mo) or Prestige ($15/mo) anytime to submit outbound applications.'
+        ? '✓ Activated Explorer Plan ($3/mo)! Real-Person ID Verification and unlimited inbound employer pitch unlocks are active. Upgrade to Professional ($9/mo) or Prestige ($15/mo) anytime to submit outbound applications.'
         : '✓ Reset candidate plan to Unsubscribed Vault.',
   }
 }
@@ -1365,7 +1365,7 @@ export async function revealProfile(formData: FormData) {
     to: candidateEmail,
     subject: `${companyName} opened a secure message thread for ${roleTitle}`,
     referenceId,
-    heading: 'Stage 1 Unlocked: Encrypted Thread Open!',
+    heading: 'Application Unlocked: Private Chat Open!',
     bodyLines: [
       `${companyName} reviewed your blind application for "${roleTitle}" and opened an encrypted in-platform thread.`,
       `Connection Reference ID: ${referenceId}`,
@@ -1937,7 +1937,7 @@ export async function applyBlind(formData: FormData) {
     bodyLines: [
       `Your anonymous profile was submitted for "${roleTitle}" with a ${parsedMatchScore}% AI Match Score (+150 Profile XP).`,
       `Connection Reference ID: ${refId}`,
-      `Your identity and contact details remain hidden until the employer unlocks your application. Even after Stage 1 unlock, your PDF resume and raw email stay vaulted until you approve Stage 2 release.`,
+      `Your identity and contact details remain hidden until the employer unlocks your application. Even after Stage 1 unlock, your PDF resume and raw email stay vaulted until you choose to share it.`,
     ],
     ctaUrl: '/dashboard/applications',
     ctaLabel: 'Track Application Status →',
@@ -1952,7 +1952,7 @@ export async function applyBlind(formData: FormData) {
       `An Identity-Verified candidate just submitted a blind application for "${roleTitle}".`,
       `AI Match Score: ${parsedMatchScore}%`,
       `Transaction Reference ID: ${refId}`,
-      `Open your Inbound Applications pipeline to review their anonymous skill matrix and open a Stage 1 message thread.`,
+      `Open your Inbound Applications pipeline to review their anonymous skill matrix and open a private chat thread.`,
     ],
     ctaUrl: '/dashboard/employer/applications',
     ctaLabel: 'Review Application in Pipeline →',
@@ -2576,7 +2576,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
           refundedCreditNow
             ? `✓ Accepted-Only Credit Protection: +1 Pitch Credit has been automatically refunded to your organization (${bucketToRestore === "rollover" ? "Rollover Top-Up Bucket" : "Monthly Plan Bucket"}). Current Balance: ${updatedEmployerCredits} Credits.`
             : `Connection Reference ID: ${referenceId}`,
-          'Because the candidate declined before opening a Stage 1 thread, their identity remains vaulted.',
+          'Because the candidate declined before opening a private chat, their identity remains vaulted.',
         ],
         ctaUrl: '/dashboard/employer/pitches',
         ctaLabel: 'View Outbound Pitches & Credit Balance →',
@@ -2608,7 +2608,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
   if (!isCandidateVerified) {
     return {
       error:
-        'Verification Required: You must complete your 1-time Stripe Biometric ID Verification on your Dashboard before accepting employer pitches.',
+        'Verification Required: You must complete your 1-time Stripe Real-Person ID Verification on your Dashboard before accepting employer pitches.',
     }
   }
 
@@ -2693,7 +2693,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
     to: employerEmail,
     subject: `${maskedCandidateName} Accepted Your Pitch for ${jobObj?.title || 'Open Role'}!`,
     referenceId,
-    heading: 'Pitch Accepted — Stage 1 Encrypted Thread Open!',
+    heading: 'Pitch Accepted — Private Chat Open!',
     bodyLines: [
       `${maskedCandidateName} accepted your connection request for "${jobObj?.title || 'Open Role'}".`,
       `Connection Reference ID: ${referenceId}`,
@@ -2707,7 +2707,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
     to: user.email,
     subject: `You Opened an Encrypted Thread with ${resolvedOrgName} for ${jobObj?.title || 'Open Role'}`,
     referenceId,
-    heading: 'Stage 1 Connected — Encrypted Thread Active!',
+    heading: 'Connected — Private Chat Active!',
     bodyLines: [
       `You accepted the connection pitch from ${resolvedOrgName} for "${jobObj?.title || 'Open Role'}" (+150 Profile XP).`,
       `Connection Reference ID: ${referenceId}`,
@@ -4270,7 +4270,7 @@ export async function sendConnectionRequest(
   if (!isTargetCandidateVerified || candidate.is_discoverable === false) {
     return {
       error:
-        'Pitch Blocked: This candidate has not completed Biometric ID Verification or is currently hidden from Employer Search.',
+        'Pitch Blocked: This candidate has not completed Real-Person ID Verification or is currently hidden from Employer Search.',
     }
   }
 
@@ -4501,7 +4501,7 @@ export async function sendConnectionRequest(
     bodyLines: [
       `A Domain-Verified Employer matched with your anonymous profile and spent a connection credit to pitch you their "${job.title}" role.`,
       `Transaction Reference ID: ${refId}`,
-      `Accepting opens an encrypted Stage 1 chat thread (+150 Profile XP) while keeping your raw email and PDF resume vaulted until you choose to release them.`,
+      `Accepting opens a private chat thread (+150 Profile XP) while keeping your raw email and PDF resume vaulted until you choose to release them.`,
     ],
     ctaUrl: '/dashboard/requests',
     ctaLabel: 'Review Pitch in Inbox →',
@@ -5000,7 +5000,7 @@ export async function updateInboundApplicationDecision(applicationId: string, de
         referenceId,
         heading: 'Update on Your Blind Application',
         bodyLines: [
-          `The hiring team reviewed your blind application for "${jobObj?.title || 'Open Role'}" and decided not to move forward to Stage 1 unlock at this time.`,
+          `The hiring team reviewed your blind application for "${jobObj?.title || 'Open Role'}" and decided not to move forward to a private chat at this time.`,
           `Employer Feedback Reason: "${chosenArchiveReason}"`,
           `Connection Reference ID: ${referenceId}`,
           '🔒 Zero-Ghosting & Privacy Guarantee: Because your application was archived prior to unlock, your identity, raw email, and PDF resume remained 100% blind.',
@@ -5041,7 +5041,7 @@ export async function updateInboundApplicationDecision(applicationId: string, de
       bodyLines: [
         `${resolvedOrgName} shortlisted your application for "${jobObj?.title || 'Open Role'}".`,
         `Connection Reference ID: ${referenceId}`,
-        `Open your Application Tracker to message ${resolvedOrgName} in your encrypted thread and release your Stage 2 Resume Vault when ready.`,
+        `Open your Application Tracker to message ${resolvedOrgName} in your encrypted thread and share your full resume and contact info when ready.`,
       ],
       ctaUrl: '/dashboard/applications',
       ctaLabel: 'Open Encrypted Thread →',
@@ -5457,7 +5457,7 @@ export async function inviteOrganizationSeat(formData: FormData) {
   const inviteRef = `SS-SEAT${Date.now().toString().slice(-5)}`
   const roleLabel =
     seatRole === 'bpo_partner'
-      ? 'Delegated BPO / W-2 Recruiting Partner'
+      ? 'External Recruiting Partner'
       : 'Hiring Manager'
 
   await sendPlatformNotification({
@@ -6438,14 +6438,14 @@ export async function releaseCandidateVaultAndSyncAts(applicationId: string) {
 
   await sendPlatformNotification({
     to: employerEmail,
-    subject: `Stage 2 Vault Released: ${fullName} shared their Resume & Contact Info for ${jobObj?.title || 'Open Role'}`,
+    subject: `Resume & Contact Info Shared: ${fullName} shared their Resume & Contact Info for ${jobObj?.title || 'Open Role'}`,
     referenceId,
     heading: `Stage 2 Resume & Contact Vault Unlocked!`,
     bodyLines: [
       `${fullName} (${candidateEmail}) just released their full Stage 2 Resume & Contact Vault for "${jobObj?.title || 'Open Role'}".`,
       `Transaction Reference ID: ${referenceId}`,
       atsSyncResult?.success
-        ? `✓ Enterprise ATS Auto-Sync: Candidate vault and 5-Point AI Match Radar were automatically pushed to your configured ATS/Webhook (${atsSyncResult.syncStatus}).`
+        ? `✓ Enterprise HR Software Auto-Sync: Candidate vault and 5-Point AI Match Radar were automatically pushed to your connected HR software (${atsSyncResult.syncStatus}).`
         : `Log in to your Employer Pipeline to view ${fullName}'s full contact details and download their verified PDF resume.`,
     ],
     ctaUrl: '/dashboard/employer/applications',

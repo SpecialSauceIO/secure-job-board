@@ -567,7 +567,7 @@ export default async function DashboardPage({
                   ? `Domain verified · Up to ${tierInfo.maxSeats} team ${
                       tierInfo.maxSeats === 1 ? 'seat' : 'seats'
                     }`
-                  : 'Verify domain, manage seats & ATS webhooks'}
+                  : 'Verify domain, manage team seats & HR software sync'}
               </p>
             </div>
             <p className="text-xs font-semibold text-slate-700 group-hover:text-slate-950 mt-5">
@@ -1036,7 +1036,7 @@ export default async function DashboardPage({
               ✅ Identity Verified via Stripe! Your Blind Profile Is Now Active
             </h2>
             <p className="mt-0.5 text-xs text-emerald-800">
-              Your biometric ID check succeeded. Employers can now trust your verified status while your personal identity remains 100% hidden until you accept a reveal.
+              Your photo ID check succeeded. Employers can now trust your verified status while your personal identity remains 100% hidden until you accept a reveal.
             </p>
           </div>
           <Link
@@ -1074,7 +1074,7 @@ export default async function DashboardPage({
               Step 1: Activate Your Plan & Verify Identity to Go Live in Employer Search
             </h2>
             <p className="mt-0.5 text-xs text-slate-600">
-              Every candidate on Special Sauce is Biometric ID-Verified (included with Explorer $3/mo, Professional $9/mo, and Prestige $15/mo) to guarantee a 100% bot-free talent directory.
+              Every candidate on Special Sauce is Real-Person ID-Verified (included with Explorer $3/mo, Professional $9/mo, and Prestige $15/mo) to guarantee a 100% bot-free talent directory.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">

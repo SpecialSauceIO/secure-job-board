@@ -146,7 +146,7 @@ export default function QuickFeedbackWidget() {
 
               <div className="flex items-center justify-between gap-2 pt-1">
                 <span className="text-[10px] text-slate-400 font-medium">
-                  Includes browser &amp; route telemetry
+                  Includes current page link
                 </span>
                 <button
                   type="submit"

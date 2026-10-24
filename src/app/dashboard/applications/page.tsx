@@ -122,7 +122,7 @@ export default function CandidateApplicationsPage() {
             My Blind Application Tracker
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Track your anonymous applications, chat with verified employers in encrypted Stage 1 threads, and release your Stage 2 Resume Vault when ready.
+            Track your anonymous applications, chat privately with verified employers, and share your full resume and contact info when ready.
           </p>
         </div>
 
@@ -142,7 +142,7 @@ export default function CandidateApplicationsPage() {
             {[
               { id: 'all', label: 'All Applications' },
               { id: 'shortlisted', label: '★ Shortlisted' },
-              { id: 'unlocked', label: '🔓 Stage 1 Thread Open' },
+              { id: 'unlocked', label: '💬 Private Chat Open' },
               { id: 'pending', label: '🔒 Blind / Pending Review' },
               { id: 'rejected', label: 'Archived' },
             ].map((tab) => (
@@ -364,13 +364,13 @@ export default function CandidateApplicationsPage() {
 
                         {normStatus === 'unlocked' && !vaultReleased && (
                           <span className="px-3 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-300">
-                            🛡️ Stage 1 Thread Open (Vault Locked)
+                            💬 Private Chat Open (Resume Still Hidden)
                           </span>
                         )}
 
                         {normStatus === 'unlocked' && vaultReleased && (
                           <span className="px-3 py-0.5 rounded-full text-xs font-extrabold bg-emerald-600 text-white">
-                            🔓 Stage 2 Vault Released
+                            🔓 Full Resume & Contact Shared
                           </span>
                         )}
 
