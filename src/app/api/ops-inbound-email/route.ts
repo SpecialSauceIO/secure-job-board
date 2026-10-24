@@ -31,6 +31,16 @@ function stripQuotedHistory(rawText: string): string {
 
 export async function POST(req: NextRequest) {
   try {
+    const authHeader = req.headers.get("authorization") || ""
+    const opsHeader = req.headers.get("x-ops-secret") || ""
+    const svixId = req.headers.get("svix-id") || ""
+    const expectedSecret = (process.env.OPS_WEBHOOK_SECRET || process.env.CRON_SECRET || "").trim()
+    const hasSecretMatch =
+      expectedSecret &&
+      (authHeader === "Bearer " + expectedSecret || opsHeader === expectedSecret)
+    if (!hasSecretMatch && !svixId) {
+      return NextResponse.json({ error: "Unauthorized webhook request" }, { status: 401 })
+    }
     const payload = await req.json()
     const client = getOpsServiceClient()
     if (!client) {

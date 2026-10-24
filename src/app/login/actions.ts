@@ -360,11 +360,27 @@ export async function lookupAccountEmailHint(
   hintItems?: AccountHintItem[]
   message: string
 }> {
-  const trimmed = (queryInput || '').trim()
-  if (!trimmed || trimmed.length < 2) {
+  const trimmed = (queryInput || '').replace(/[,()*%\\]/g, '').trim()
+  if (!trimmed || trimmed.length < 4) {
     return {
       found: false,
-      message: 'Please enter at least 2 characters to search.',
+      message: 'Please enter at least 4 characters (your full name or company domain) to search.',
+    }
+  }
+
+  const hintVelocity = await checkActionVelocityAndSpray({
+    actorKey: 'account_hint_' + trimmed.slice(0, 12).toLowerCase(),
+    actorEmail: '',
+    actorRole: 'unknown',
+    actionType: 'login_failure',
+    maxAllowedInWindow: 8,
+    windowMinutes: 5,
+    platformArea: 'Onboarding & Authentication',
+  })
+  if (!hintVelocity.allowed) {
+    return {
+      found: false,
+      message: 'Too many account lookup requests. Please wait a few minutes and try again.',
     }
   }
 
@@ -440,7 +456,7 @@ export async function lookupAccountEmailHint(
       const { data: profiles } = await db
         .from('profiles')
         .select('*')
-        .ilike('full_name', '%' + trimmed + '%')
+        .ilike('full_name', trimmed)
         .limit(8)
 
       if (profiles && profiles.length > 0) {
@@ -472,7 +488,7 @@ export async function lookupAccountEmailHint(
           const cEmail = String(app?.match_data?.candidate_contact_email || '')
           if (
             cName &&
-            cName.toLowerCase().includes(trimmed.toLowerCase()) &&
+            cName.trim().toLowerCase() === trimmed.toLowerCase() &&
             cEmail
           ) {
             registerRawEmail(cEmail, 'Candidate Vault')

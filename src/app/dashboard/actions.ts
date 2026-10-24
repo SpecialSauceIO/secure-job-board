@@ -5208,11 +5208,16 @@ export async function saveOrganizationProfile(formData: FormData) {
 }
 
 export async function claimInvitedOrganizationSeatIfAny(
-  userId?: string | null,
-  userEmail?: string | null
+  _userId?: string | null,
+  _userEmail?: string | null
 ): Promise<{ claimed: boolean; organizationId?: string }> {
-  const cleanEmail = (userEmail || '').trim().toLowerCase()
-  if (!userId || !cleanEmail) return { claimed: false }
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user || !user.id || !user.email) return { claimed: false }
+  const userId = user.id
+  const cleanEmail = user.email.trim().toLowerCase()
 
   const adminClient = getAdminSupabaseClient()
   if (!adminClient) return { claimed: false }
@@ -5263,8 +5268,11 @@ export async function claimInvitedOrganizationSeatIfAny(
           seats[matchIdx] = { ...matchedSeat, status: 'active' }
           const tierInfo = await resolveEmployerTierInfo(org)
           const cleanDesc = await stripTierTag(org.description)
+          const topupTag = ((org.description || '').match(/\[TOPUP:\d+\]/i) || [''])[0]
+          const atsTag = ((org.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
+          const csTags = ((org.description || '').match(/\[CS:[^\]]+\]/gi) || []).join(' ')
           const seatsTag = encodeStoredSeatsTag(seats)
-          const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${seatsTag}`.trim()
+          const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${topupTag} ${seatsTag} ${atsTag} ${csTags}`.replace(/\s+/g, ' ').trim()
 
           await adminClient
             .from('organizations')
@@ -5443,8 +5451,11 @@ export async function inviteOrganizationSeat(formData: FormData) {
 
   const updatedInvited = [...existingInvited, newSeat]
   const cleanDesc = await stripTierTag(org?.description)
+  const topupTag = ((org?.description || '').match(/\[TOPUP:\d+\]/i) || [''])[0]
+  const atsTag = ((org?.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
+  const csTags = ((org?.description || '').match(/\[CS:[^\]]+\]/gi) || []).join(' ')
   const seatsTag = encodeStoredSeatsTag(updatedInvited)
-  const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${seatsTag}`.trim()
+  const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${topupTag} ${seatsTag} ${atsTag} ${csTags}`.replace(/\s+/g, ' ').trim()
 
   const { error: updateErr } = await supabase
     .from('organizations')
@@ -5519,8 +5530,11 @@ export async function removeOrganizationSeat(
   )
 
   const cleanDesc = await stripTierTag(org?.description)
+  const topupTag = ((org?.description || '').match(/\[TOPUP:\d+\]/i) || [''])[0]
+  const atsTag = ((org?.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
+  const csTags = ((org?.description || '').match(/\[CS:[^\]]+\]/gi) || []).join(' ')
   const seatsTag = encodeStoredSeatsTag(updatedInvited)
-  const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${seatsTag}`.trim()
+  const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${topupTag} ${seatsTag} ${atsTag} ${csTags}`.replace(/\s+/g, ' ').trim()
 
   const { error } = await supabase
     .from('organizations')
