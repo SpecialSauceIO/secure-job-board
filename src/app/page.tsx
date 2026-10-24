@@ -602,7 +602,7 @@ export default function LandingPage() {
             {/* Widget 3: Step-by-Step Privacy */}
             <div className="p-8 rounded-2xl bg-white border-2 border-slate-300 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-transform border-slate-300">
               <div className="relative z-10">
-                <div className="w-12 h-12 bg-slate-800 rounded-xl border border-slate-700 flex items-center justify-center mb-6 text-orange-400">
+                <div className="w-12 h-12 bg-orange-100 rounded-xl border border-orange-300 flex items-center justify-center mb-6 text-orange-600">
                   <svg
                     className="w-6 h-6"
                     fill="none"
