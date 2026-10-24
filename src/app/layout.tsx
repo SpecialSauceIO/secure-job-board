@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
-import "./globals.css";
+import "./globals.css"
+import { Suspense } from "react"
+import MarketingPixels from "@/components/MarketingPixels";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const geistSans = Geist({
@@ -81,6 +83,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="min-h-full flex flex-col">
         {children}
         <ThemeToggle />
+        <Suspense fallback={null}>
+          <MarketingPixels />
+        </Suspense>
       </body>
     </html>
   );
