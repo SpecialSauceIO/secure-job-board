@@ -494,16 +494,12 @@ export default function CandidateBillingPage() {
             <div className="mt-6 pt-4 border-t border-slate-300">
               <button
                 type="button"
-                disabled={isProcessing}
-                onClick={() =>
-                  normalizedTier === 'professional'
-                    ? handlePlanSwitch('professional')
-                    : handleStripeCandidateCheckout('professional')
-                }
+                disabled={isProcessing || normalizedTier === "professional"}
+                  onClick={() => handleStripeCandidateCheckout("professional")}
                 className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
               >
                 {normalizedTier === 'professional'
-                  ? `Active (${tierInfo?.freeAppsRemaining ?? 15}/15 Apps Left) — Reset Quota`
+                  ? `✓ Professional Plan Active (${tierInfo?.freeAppsRemaining ?? 15}/15 Apps Left)`
                   : 'Activate Professional ($9/mo) →'}
               </button>
             </div>
@@ -563,12 +559,8 @@ export default function CandidateBillingPage() {
             <div className="mt-6 pt-4 border-t border-slate-800">
               <button
                 type="button"
-                disabled={isProcessing}
-                onClick={() =>
-                  normalizedTier === 'prestige'
-                    ? handlePlanSwitch('prestige')
-                    : handleStripeCandidateCheckout('prestige')
-                }
+                disabled={isProcessing || normalizedTier === "prestige"}
+                  onClick={() => handleStripeCandidateCheckout("prestige")}
                 className="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
               >
                 {normalizedTier === 'prestige'
