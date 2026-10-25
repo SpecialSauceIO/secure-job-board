@@ -1,78 +1,118 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 
-const CANDIDATE_WORKFLOW_STEPS = [
+interface WorkflowStep {
+  step: string
+  title: string
+  bullets: string[]
+  unlockBadge: string
+}
+
+const CANDIDATE_WORKFLOW_STEPS: WorkflowStep[] = [
   {
-    step: 'Step 1 • Account & Plan Activation',
-    title: '1. Create Account & Claim Founding Member Status',
-    detail:
-      'Register as a Candidate and activate Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo). Joining during our launch window permanently awards the ★ Founding Member Charter distinction on your profile.',
-    unlockBadge: 'Unlocks: ★ Founding Member Charter Badge & Billing Access',
+    step: 'Step 1 • Account & Plan',
+    title: '1. Create Account & Claim Founding Status',
+    bullets: [
+      'Choose Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo).',
+      'Earn the permanent ★ Founding Member Charter distinction on your profile.',
+      'Zero bots or fake accounts—every member is a verified professional.',
+    ],
+    unlockBadge: 'Unlocks: ★ Founding Member Badge & Vault Access',
   },
   {
     step: 'Step 2 • Biometric Trust Gate',
-    title: '2. Complete 1-Time Stripe Identity Verification',
-    detail:
-      'Complete a 60-second government photo ID and live biometric selfie check powered directly by Stripe Identity. Zero raw ID images or biometrics ever touch Special Sauce servers—only a verified boolean token is stored.',
-    unlockBadge: 'Unlocks: ✓ Identity Verified Badge & Marketplace Discoverability',
+    title: '2. Pass 1-Time Stripe Photo ID Check',
+    bullets: [
+      'Complete a 60-second government photo ID and live selfie check via Stripe.',
+      'Zero raw ID photos or biometrics ever touch Special Sauce servers.',
+      'Stores only a verified security token to prove you are a real human.',
+    ],
+    unlockBadge: 'Unlocks: ✓ Identity Verified Badge & Search Visibility',
   },
   {
-    step: 'Step 3 • Vault & AI Structuring',
-    title: '3. Upload PDF Resume to Your Stage 2 Vault & Auto-Fill',
-    detail:
-      'Upload your PDF resume once. Our AI parser automatically extracts your core skills, tenure, certifications, and languages into an anonymized profile (Candidate #ID) while locking your raw PDF, full name, phone, and email inside your private Stage 2 Vault.',
-    unlockBadge: 'Unlocks: ✓ Resume Vault Ready Badge & Hard Dealbreaker Firewall',
+    step: 'Step 3 • Stage 2 Resume Vault',
+    title: '3. Upload Resume & Set Dealbreakers',
+    bullets: [
+      'Upload your PDF resume once to auto-extract skills, tenure, and certifications.',
+      'Your name, email, phone, and raw PDF stay locked inside your Stage 2 Vault.',
+      'Set minimum pay bands and hard dealbreakers upfront.',
+    ],
+    unlockBadge: 'Unlocks: ✓ Anonymized Candidate #ID & Dealbreaker Firewall',
   },
   {
-    step: 'Step 4 • Active Search & Passive Discovery',
-    title: '4. Search Protected Jobs & Receive Direct Employer Pitches',
-    detail:
-      'Actively search and filter verified open roles with instant 5-Point AI Fit Radar scores and 1-click blind applications—or sit back passively while verified hiring managers discover your anonymous profile and send direct pitches.',
-    unlockBadge: 'Unlocks: Live Job Search, 5-Point AI Fit Radar & Inbound Pitch Inbox',
+    step: 'Step 4 • Search & Inbound Pitches',
+    title: '4. Check 5-Point AI Fit & Field Offers',
+    bullets: [
+      'See upfront salary bands and your instant 5-Point AI Fit score (40%+ minimum).',
+      'Every job post expires after 30 days—zero 6-month-old ghost jobs.',
+      'Apply anonymously in 1 click or sit back and receive direct employer pitches.',
+    ],
+    unlockBadge: 'Unlocks: Live Job Search, AI Fit Radar & Pitch Inbox',
   },
   {
-    step: 'Step 5 • The 2-Stage Handshake',
-    title: '5. Stage 1 Safe Chat → Stage 2 Voluntary Vault Release',
-    detail:
-      'When you accept an employer pitch (or an employer unlocks your application), Stage 1 opens an encrypted chat revealing the company name while showing only your First Name + Last Initial. You remain in 100% control and click "Release Resume & Contact Vault" (Stage 2) only when ready.',
-    unlockBadge: 'Unlocks: Full Mutual Introduction & Time-Limited Signed Resume Access',
+    step: 'Step 5 • 2-Stage Handshake',
+    title: '5. Chat First, Release Your Resume Later',
+    bullets: [
+      'Stage 1 reveals the verified company name and opens encrypted live chat.',
+      'Employers only see your First Name + Last Initial during Stage 1 chat.',
+      'Click "Release Resume & Contact Vault" (Stage 2) only when you are ready.',
+    ],
+    unlockBadge: 'Unlocks: Full Mutual Intro & 1-Hour Signed Resume Link',
   },
 ]
 
-const EMPLOYER_WORKFLOW_STEPS = [
+const EMPLOYER_WORKFLOW_STEPS: WorkflowStep[] = [
   {
-    step: 'Step 1 • Organization & Plan Setup',
-    title: '1. Register Organization & Lock In Founding Partner Rate',
-    detail:
-      'Create your Employer account, select your Primary Industry Vertical and Company Size, and activate Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) with a 12-Month Founding Partner Rate Lock.',
-    unlockBadge: 'Unlocks: ★ Founding Partner Charter Badge & Seat Allocation',
+    step: 'Step 1 • Organization Setup',
+    title: '1. Register & Lock In 12-Month Founding Rate',
+    bullets: [
+      'Select your Industry Vertical, Company Size, and team seat allocation.',
+      'Activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo).',
+      'Locks in your Founding Partner rate for a full 12 months.',
+    ],
+    unlockBadge: 'Unlocks: ★ Founding Partner Badge & Recruiter Seats',
   },
   {
     step: 'Step 2 • Trust Gate Pillar 1',
-    title: '2. Verify Corporate Domain & Pass 90-Day RDAP Age Check',
-    detail:
-      'Verify corporate domain ownership via work-email match or DNS TXT token alongside live DNS MX validation and an automated IANA/RDAP registry check that blocks newly registered burner domains (<90 days old) from harvesting talent.',
+    title: '2. Verify Corporate Domain & 90-Day Age',
+    bullets: [
+      'Confirm domain ownership via work-email match or DNS TXT verification.',
+      'Automated DNS MX and IANA/RDAP registry lookup verifies domain age.',
+      'Blocks newly registered burner domains (<90 days old) from harvesting talent.',
+    ],
     unlockBadge: 'Unlocks: ✓ Domain & 90-Day RDAP Verified Distinction',
   },
   {
     step: 'Step 3 • Trust Gate Pillars 2 & 3',
-    title: '3. Attest IRS Federal EIN & Verify Admin Stripe Identity',
-    detail:
-      'Enter your 9-digit IRS Federal Tax ID (EIN) and State of Incorporation with formal corporate officer attestation, then complete a 1-time 60-second Stripe Identity biometric check for the Employer Account Admin.',
-    unlockBadge: 'Unlocks: ✓ Verified US Tax Entity (EIN) & ✓ ID-Verified Hiring Leader',
+    title: '3. Attest IRS EIN & Admin Stripe ID',
+    bullets: [
+      'Submit your 9-digit IRS Federal Tax ID (EIN) and State of Incorporation.',
+      'Complete a 60-second Stripe Identity biometric check for the Account Admin.',
+      'Proves to candidates that every role belongs to a real, accountable company.',
+    ],
+    unlockBadge: 'Unlocks: ✓ Verified US Tax Entity & ID-Verified Leader',
   },
   {
-    step: 'Step 4 • Role Publishing & Passive Talent Search',
-    title: '4. Post Protected Roles & Passively Search Verified Candidates',
-    detail:
-      'Publish protected job listings (displaying your Industry Vertical, Company Stage, and upfront salary bands while keeping your company name hidden) and passively search/filter the ID-verified candidate pool using 100% Accepted-Only Protected Pitch Credits.',
-    unlockBadge: 'Unlocks: Active Job Publishing, Passive Talent Search & Outbound Pitching',
+    step: 'Step 4 • Roles & Talent Search',
+    title: '4. Publish Blind Roles & Pitch Verified Pros',
+    bullets: [
+      'Post protected roles showing salary bands and industry while hiding company name.',
+      'Unlocking inbound 40%+ AI-fit applicants is 100% free (0 credits).',
+      'Outbound talent pitches are 100% refunded if a candidate declines.',
+    ],
+    unlockBadge: 'Unlocks: Role Publishing & Refund-Protected Pitching',
   },
   {
-    step: 'Step 5 • Mutual Handshake & ATS Sync',
-    title: '5. Stage 1 Chat, Stage 2 Vault Release & HR Sync',
-    detail:
-      'Chat with accepted or unlocked candidates in Stage 1. Once the candidate clicks "Release Resume & Contact Vault" (Stage 2), access their 1-hour cryptographically signed PDF resume, full contact details, and 1-click export/sync to Workday or Greenhouse.',
-    unlockBadge: 'Unlocks: ✓ Trusted Stage 2 Vault Partner & Enterprise ATS Sync',
+    step: 'Step 5 • Handshake & ATS Sync',
+    title: '5. Stage 1 Chat, Stage 2 Vault & HR Sync',
+    bullets: [
+      'Message accepted or unlocked candidates directly in Stage 1 encrypted chat.',
+      'Receive 1-hour cryptographically signed PDF resumes upon Stage 2 release.',
+      'Export or sync unlocked candidates directly to Workday or Greenhouse.',
+    ],
+    unlockBadge: 'Unlocks: ✓ Stage 2 Resume Access & Enterprise ATS Sync',
   },
 ]
 
@@ -81,139 +121,191 @@ export default function PlatformWorkflowsView({
 }: {
   isDashboard?: boolean
 }) {
+  const [activeTab, setActiveTab] = useState<'candidate' | 'employer'>('candidate')
+  const isCandidate = activeTab === 'candidate'
+  const activeSteps = isCandidate ? CANDIDATE_WORKFLOW_STEPS : EMPLOYER_WORKFLOW_STEPS
+
   return (
     <div className="space-y-8">
-      {/* Dark Top Summary Banner matching 2-Stage Vault & Stripe */}
-      <div className="p-6 sm:p-8 rounded-2xl bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 border-2 border-slate-800 shadow-2xs">
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-slate-300/30 text-emerald-300 text-xs font-extrabold uppercase tracking-wider">
-            End-to-End Double-Blind Onboarding • Verification • Marketplace Access
+      {/* Top Hero Banner */}
+      <div className="p-6 sm:p-8 rounded-2xl bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 border border-slate-700 shadow-lg">
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-extrabold uppercase tracking-wider">
+            Privacy, Transparency &amp; Verified Signal
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-            Candidate &amp; Employer Platform Workflows
-          </h2>
-          <p className="text-sm text-slate-300 max-w-3xl leading-relaxed">
-            A side-by-side visual walkthrough of how Candidates and Employers enroll, complete biometric and corporate entity verification, and unlock active job search, role publishing, and passive talent discovery.
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
+            How Special Sauce Works{' '}
+            <span className={isCandidate ? 'text-indigo-400' : 'text-emerald-400'}>
+              {isCandidate ? 'for Candidates' : 'for Employers'}
+            </span>
+          </h1>
+          <p className="text-base sm:text-lg text-slate-200 max-w-3xl leading-relaxed">
+            Use the toggle below to explore how Candidates and Employers verify their identity, protect their privacy, and connect without bot spam or resume harvesting.
           </p>
         </div>
 
-        <div className="shrink-0 flex flex-wrap items-center gap-2.5">
+        <div className="shrink-0 flex flex-wrap items-center gap-3">
           <Link
             href={isDashboard ? '/dashboard/security' : '/security'}
-            className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 text-white text-xs font-extrabold transition-colors"
+            className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white text-sm font-bold transition-colors"
           >
-            🛡️ View 2-Stage Vault &amp; Stripe Architecture →
+            🛡️ View 2-Stage Vault &amp; Security →
           </Link>
         </div>
       </div>
 
-      {/* Two-Column Side-by-Side Workflow Grid matching SupportCenterClient security tab */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* LEFT COLUMN: CANDIDATE WORKFLOW (Indigo Theme) */}
-        <div className="rounded-2xl border-2 border-indigo-300 bg-indigo-50/40 p-6 space-y-5">
-          <div className="flex items-center gap-3 border-b border-indigo-300/80 pb-4">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 font-black text-base shadow-xs">
+      {/* Interactive Segmented Toggle (Candidate vs Employer) */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-slate-900 p-3 rounded-2xl border border-slate-700">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+          <button
+            type="button"
+            onClick={() => setActiveTab('candidate')}
+            className={`flex items-center justify-center gap-3 px-6 py-4 rounded-xl text-base sm:text-lg font-extrabold transition-all cursor-pointer ${
+              isCandidate
+                ? 'bg-indigo-600 text-white shadow-md ring-2 ring-indigo-400'
+                : 'bg-slate-800/80 text-slate-200 hover:bg-slate-800 hover:text-white'
+            }`}
+          >
+            <span className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center text-sm font-black">
               C
+            </span>
+            <span>Candidate Workflow (5 Steps)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('employer')}
+            className={`flex items-center justify-center gap-3 px-6 py-4 rounded-xl text-base sm:text-lg font-extrabold transition-all cursor-pointer ${
+              !isCandidate
+                ? 'bg-emerald-600 text-white shadow-md ring-2 ring-emerald-400'
+                : 'bg-slate-800/80 text-slate-200 hover:bg-slate-800 hover:text-white'
+            }`}
+          >
+            <span className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center text-sm font-black">
+              E
+            </span>
+            <span>Employer Workflow (5 Steps)</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Active Workflow Section Header + Spacious Landing-Page Card Grid */}
+      <div
+        className={`rounded-2xl border-2 p-6 sm:p-8 space-y-6 bg-slate-950 ${
+          isCandidate ? 'border-indigo-500/60' : 'border-emerald-500/60'
+        }`}
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+          <div className="flex items-center gap-4">
+            <div
+              className={`w-12 h-12 rounded-xl text-white flex items-center justify-center shrink-0 font-black text-xl shadow-md ${
+                isCandidate ? 'bg-indigo-600' : 'bg-emerald-600'
+              }`}
+            >
+              {isCandidate ? 'C' : 'E'}
             </div>
             <div>
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600 block">
-                Stripe Biometric ID • Stage 2 Resume Vault • 5-Point AI Fit
+              <span
+                className={`text-xs sm:text-sm font-extrabold uppercase tracking-wider block ${
+                  isCandidate ? 'text-indigo-400' : 'text-emerald-400'
+                }`}
+              >
+                {isCandidate
+                  ? 'Stripe Biometric ID • Stage 2 Resume Vault • 5-Point AI Fit'
+                  : '3-Pillar Anti-Harvesting Gate • Protected Pitch Credits'}
               </span>
-              <h3 className="text-lg font-extrabold text-slate-900">
-                Candidate Workflow: Enroll to Job Search
-              </h3>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-white mt-0.5">
+                {isCandidate
+                  ? 'Candidate Workflow: Enroll to Job Search'
+                  : 'Employer Workflow: Enroll to Talent Search'}
+              </h2>
             </div>
           </div>
 
-          <div className="space-y-3.5">
-            {CANDIDATE_WORKFLOW_STEPS.map((item, i) => (
-              <div
-                key={i}
-                className="bg-white p-4 sm:p-5 rounded-xl border border-indigo-300 shadow-sm space-y-2"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-extrabold uppercase tracking-wider">
-                    {item.step}
-                  </span>
-                  <span className="text-[11px] font-extrabold text-emerald-700">
-                    {item.unlockBadge}
-                  </span>
-                </div>
-                <div className="text-sm font-extrabold text-slate-900">
-                  {item.title}
-                </div>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  {item.detail}
-                </p>
-              </div>
-            ))}
-          </div>
+          {!isDashboard && (
+            <Link
+              href={isCandidate ? '/signup/candidate' : '/signup/employer'}
+              className={`px-5 py-3 rounded-xl text-white text-sm font-extrabold transition-colors shrink-0 text-center ${
+                isCandidate
+                  ? 'bg-indigo-600 hover:bg-indigo-500'
+                  : 'bg-emerald-600 hover:bg-emerald-500'
+              }`}
+            >
+              {isCandidate ? 'Start Candidate Signup →' : 'Start Employer Signup →'}
+            </Link>
+          )}
         </div>
 
-        {/* RIGHT COLUMN: EMPLOYER WORKFLOW (Emerald Theme) */}
-        <div className="rounded-2xl border-2 border-emerald-300 bg-emerald-50/40 p-6 space-y-5">
-          <div className="flex items-center gap-3 border-b border-emerald-300/80 pb-4">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 font-black text-base shadow-xs">
-              E
-            </div>
-            <div>
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 block">
-                3-Pillar Anti-Harvesting Gate • Protected Pitch Credits
-              </span>
-              <h3 className="text-lg font-extrabold text-slate-900">
-                Employer Workflow: Enroll to Talent Search
-              </h3>
-            </div>
-          </div>
-
-          <div className="space-y-3.5">
-            {EMPLOYER_WORKFLOW_STEPS.map((item, i) => (
-              <div
-                key={i}
-                className="bg-white p-4 sm:p-5 rounded-xl border border-emerald-300 shadow-sm space-y-2"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-extrabold uppercase tracking-wider">
+        {/* 3-Column Card Grid matching Landing Page Typography & Contrast */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {activeSteps.map((item, i) => (
+            <div
+              key={i}
+              className="bg-slate-900 p-6 rounded-2xl border border-slate-700/90 flex flex-col justify-between space-y-5 shadow-md"
+            >
+              <div className="space-y-4">
+                <div className="flex items-center justify-between gap-2">
+                  <span
+                    className={`px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wider border ${
+                      isCandidate
+                        ? 'bg-indigo-500/20 text-indigo-300 border-indigo-400/40'
+                        : 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40'
+                    }`}
+                  >
                     {item.step}
                   </span>
-                  <span className="text-[11px] font-extrabold text-indigo-700">
-                    {item.unlockBadge}
-                  </span>
                 </div>
-                <div className="text-sm font-extrabold text-slate-900">
+
+                <h3 className="text-xl font-extrabold text-white leading-snug">
                   {item.title}
-                </div>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  {item.detail}
-                </p>
+                </h3>
+
+                <ul className="space-y-2.5 text-base text-slate-100 leading-relaxed">
+                  {item.bullets.map((bullet, idx) => (
+                    <li key={idx} className="flex items-start gap-2.5">
+                      <span
+                        className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${
+                          isCandidate ? 'bg-indigo-400' : 'bg-emerald-400'
+                        }`}
+                      />
+                      <span>{bullet}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            ))}
-          </div>
+
+              <div className="pt-4 border-t border-slate-800">
+                <span className="text-xs sm:text-sm font-bold text-emerald-300 block">
+                  {item.unlockBadge}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Bottom Handshake Convergence Banner */}
-      <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border-2 border-slate-800 space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border border-slate-700 space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
           <div>
-            <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400 block">
+            <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400 block">
               Where Both Workflows Meet • The Double-Blind Handshake
             </span>
-            <h3 className="text-base sm:text-lg font-extrabold text-white mt-0.5">
+            <h3 className="text-xl sm:text-2xl font-extrabold text-white mt-1">
               Zero Unsolicited Spam, Zero Burner-Domain Harvesting &amp; 100% Candidate-Controlled Disclosure
             </h3>
           </div>
           {!isDashboard && (
-            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
               <Link
                 href="/signup/candidate"
-                className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold transition-colors"
+                className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-extrabold transition-colors"
               >
                 Start Candidate Workflow →
               </Link>
               <Link
                 href="/signup/employer"
-                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold transition-colors"
+                className="px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-extrabold transition-colors"
               >
                 Start Employer Workflow →
               </Link>
@@ -221,29 +313,29 @@ export default function PlatformWorkflowsView({
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-300">
-          <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1">
-            <div className="font-extrabold text-white">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
+            <div className="text-lg font-extrabold text-white">
               1. Pre-Match (100% Double-Blind)
             </div>
-            <p className="leading-relaxed">
-              Candidates appear as <code className="text-emerald-300">Candidate #ID</code> with verified skills and AI Fit scores. Employers appear by Primary Industry Vertical, Company Stage, and upfront salary bands.
+            <p className="text-base text-slate-100 leading-relaxed">
+              Candidates appear as <code className="text-emerald-300 font-bold">Candidate #ID</code> with verified skills and AI Fit scores. Employers appear by Industry Vertical, Company Stage, and upfront salary bands.
             </p>
           </div>
-          <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1">
-            <div className="font-extrabold text-white">
+          <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
+            <div className="text-lg font-extrabold text-white">
               2. Stage 1 Unlock (Encrypted Chat)
             </div>
-            <p className="leading-relaxed">
-              When a candidate accepts a pitch or an employer unlocks an inbound application, the employer&apos;s company identity is revealed and live chat opens using <code className="text-emerald-300">First Name + Last Initial</code>.
+            <p className="text-base text-slate-100 leading-relaxed">
+              When a candidate accepts a pitch or an employer unlocks an inbound application, the company identity is revealed and live chat opens using <code className="text-emerald-300 font-bold">First Name + Last Initial</code>.
             </p>
           </div>
-          <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1">
-            <div className="font-extrabold text-white">
+          <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
+            <div className="text-lg font-extrabold text-white">
               3. Stage 2 Release (Full Resume &amp; ATS)
             </div>
-            <p className="leading-relaxed">
-              Only when the candidate clicks <strong className="text-white">Release Resume &amp; Contact Vault</strong> does the employer receive the 1-hour signed PDF resume URL and direct contact credentials.
+            <p className="text-base text-slate-100 leading-relaxed">
+              Only when the candidate clicks <strong className="text-white">Release Resume &amp; Contact Vault</strong> does the employer receive the 1-hour signed PDF resume link and direct contact credentials.
             </p>
           </div>
         </div>
