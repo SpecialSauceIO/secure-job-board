@@ -23,6 +23,7 @@ export default function DashboardNav({
   const pathname = usePathname()
   const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [colorTilesEnabled, setColorTilesEnabled] = useState(false)
   const [darkModeEnabled, setDarkModeEnabled] = useState(false)
 
@@ -80,6 +81,7 @@ export default function DashboardNav({
 
   useEffect(() => {
     setMenuOpen(false)
+    setMobileNavOpen(false)
   }, [pathname])
 
   const candidateLinks = [
@@ -120,11 +122,14 @@ export default function DashboardNav({
     return pathname === href || pathname?.startsWith(`${href}/`)
   }
 
+  const activeNavItem =
+    navLinks.find((item) => isActive(item.href, item.exact)) || navLinks[0]
+
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-300 shadow-2xs">
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
-        {/* ROW 1: Identical to PublicHeader (Full-Size Logo Left, Centered Tagline, Feedback + Account Right) */}
-        <div className="h-24 flex items-center justify-between relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
+        {/* ROW 1: Logo Left, Centered Tagline (xl+), Feedback + Account + Mobile Hamburger Right */}
+        <div className="h-20 sm:h-24 flex items-center justify-between gap-3 relative">
           {/* LEFT: Clickable Full-Size Logo */}
           <div className="flex items-center shrink-0">
             <Link
@@ -134,34 +139,36 @@ export default function DashboardNav({
               <img
                 src="/logo.png?v=20261024"
                 alt="specialsauce.io Logo"
-                className="h-14 sm:h-16 md:h-[72px] w-auto object-contain"
+                className="h-12 sm:h-16 md:h-[68px] w-auto object-contain"
               />
             </Link>
           </div>
 
-                  {/* CENTERED: Tagline */}
-        <div className="absolute left-1/2 -translate-x-1/2 hidden xl:flex items-center gap-4 pointer-events-none">
-          <span className="h-5 w-px bg-slate-400"></span>
-          <p className="text-xs font-semibold text-slate-700 tracking-[0.14em] uppercase whitespace-nowrap">
-            SECURELY CONNECTING PROFESSIONALS &amp; EMPLOYERS
-          </p>
-          <span className="h-5 w-px bg-slate-400"></span>
-        </div>
+          {/* CENTERED IN AVAILABLE SPACE: Tagline (xl+) */}
+          <div className="hidden xl:flex items-center justify-center gap-3 mx-auto px-2 pointer-events-none shrink-0">
+            <span className="h-5 w-px bg-slate-400"></span>
+            <p className="text-[11px] font-semibold text-slate-700 tracking-[0.12em] uppercase whitespace-nowrap">
+              SECURELY CONNECTING PROFESSIONALS &amp; EMPLOYERS
+            </p>
+            <span className="h-5 w-px bg-slate-400"></span>
+          </div>
 
-          {/* RIGHT: Quick Feedback + Unified Account & Plan Dropdown */}
-          <div className="flex items-center gap-3 shrink-0">
-            <QuickFeedbackWidget />
+          {/* RIGHT: Quick Feedback + Unified Account Dropdown + Mobile Hamburger Button */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="hidden sm:block">
+              <QuickFeedbackWidget />
+            </div>
 
             <div className="relative" ref={dropdownRef}>
               <button
                 type="button"
                 onClick={() => setMenuOpen((prev) => !prev)}
-                className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl border-2 border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50 text-slate-900 text-xs font-bold transition-all cursor-pointer shadow-xs"
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50 text-slate-900 text-xs font-bold transition-all cursor-pointer shadow-xs"
               >
                 <span className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[11px] font-extrabold uppercase shrink-0">
                   {userEmail ? userEmail.charAt(0) : 'U'}
                 </span>
-                <span className="hidden sm:inline-block max-w-[170px] truncate text-slate-700">
+                <span className="hidden md:inline-block max-w-[160px] truncate text-slate-700">
                   {userEmail || 'Account'}
                 </span>
                 <svg
@@ -301,11 +308,30 @@ export default function DashboardNav({
                 </div>
               )}
             </div>
+
+            {/* MOBILE / TABLET SQUARE HAMBURGER MENU BUTTON (< lg) */}
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen((prev) => !prev)}
+              aria-label={mobileNavOpen ? 'Close workspace navigation' : 'Open workspace navigation'}
+              aria-expanded={mobileNavOpen}
+              className="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border-2 border-slate-300 bg-white hover:bg-slate-100 text-slate-800 transition-colors cursor-pointer shadow-xs"
+            >
+              {mobileNavOpen ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
 
-        {/* ROW 2: Clean Core Workspace Navigation Tabs */}
-        <div className="flex items-center justify-between gap-4 py-2 border-t border-slate-300 overflow-x-auto no-scrollbar">
+        {/* ROW 2 (Desktop lg+): Horizontal Workspace Navigation Tabs */}
+        <div className="hidden lg:flex items-center justify-between gap-4 py-2 border-t border-slate-300">
           <nav className="flex items-center gap-1.5 shrink-0">
             {navLinks.map((item) => {
               const active = isActive(item.href, item.exact)
@@ -325,6 +351,64 @@ export default function DashboardNav({
             })}
           </nav>
         </div>
+
+        {/* ROW 2 (Mobile & Tablet < lg): Active Page Bar + Quick Menu Toggle */}
+        <div className="flex lg:hidden items-center justify-between py-2 border-t border-slate-300">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-indigo-600"></span>
+            <span className="text-xs font-extrabold text-slate-800">
+              {activeNavItem?.label || 'Workspace'}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setMobileNavOpen((prev) => !prev)}
+            className="text-xs font-extrabold text-indigo-600 hover:text-indigo-500 flex items-center gap-1 cursor-pointer"
+          >
+            <span>{mobileNavOpen ? 'Hide Menu ▲' : 'All Workspace Tabs ▼'}</span>
+          </button>
+        </div>
+
+        {/* COLLAPSIBLE MOBILE / TABLET WORKSPACE DRAWER (< lg) */}
+        {mobileNavOpen && (
+          <div className="lg:hidden border-t border-slate-300 py-3 space-y-3 animate-in fade-in slide-in-from-top-2 duration-150">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+              {navLinks.map((item) => {
+                const active = isActive(item.href, item.exact)
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileNavOpen(false)}
+                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-colors ${
+                      active
+                        ? 'bg-slate-900 text-white shadow-xs'
+                        : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    <span className="text-[11px] opacity-75">→</span>
+                  </Link>
+                )
+              })}
+            </div>
+
+            <div className="pt-2 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
+              <Link
+                href={billingHref}
+                onClick={() => setMobileNavOpen(false)}
+                className="text-xs font-extrabold text-indigo-600 hover:text-indigo-500 px-2 py-1"
+              >
+                {role === 'employer'
+                  ? '★ Billing, Plan & Pitch Credits →'
+                  : '★ Membership & Plan Settings →'}
+              </Link>
+              <div className="sm:hidden">
+                <QuickFeedbackWidget />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   )
