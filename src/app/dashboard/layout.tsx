@@ -67,7 +67,7 @@ export default async function DashboardLayout({
     const shortTierMap = { enterprise: "Enterprise Plan", growth: "Growth Plan", starter: "Starter Plan", free: "No Active Plan" }; const shortLabel = shortTierMap[tInfo.tier] || tInfo.label; const seatText = tInfo.tier === "free" ? "Select Tier" : (tInfo.maxSeats >= 100 ? "Unlimited Seats" : `${tInfo.maxSeats} ${tInfo.maxSeats === 1 ? "Seat" : "Seats"}`); tierLabel = `${shortLabel} · ${seatText}`
   } else if (role === 'candidate') {
     const cInfo = await resolveCandidateTierInfo(user.id)
-    tierLabel = cInfo.label
+    tierLabel = cInfo.tier === "prestige" || cInfo.tier === "pro" ? "★ Prestige Plan · Unlimited Apps" : cInfo.tier === "professional" || cInfo.tier === "trial" ? `★ Professional Plan · ${cInfo.freeAppsRemaining}/15 Apps` : cInfo.tier === "explorer" ? "★ Explorer Plan · Verified Vault" : "Unsubscribed · Select Plan"
   }
 
   return (

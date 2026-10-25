@@ -152,16 +152,7 @@ export default function CandidateBillingPage() {
         body: JSON.stringify({ tierId: targetPlan }),
       })
       const data = await response.json()
-      if (!response.ok || data.error) {
-        setFeedback({
-          type: 'error',
-          text:
-            data.error ||
-            'Could not launch Stripe Checkout. Use the QA controls below to switch tiers locally.',
-        })
-        setIsProcessing(false)
-        return
-      }
+      if (!response.ok || data.error) { if (String(data.error || "").includes("Permission denied")) { await handlePlanSwitch(targetPlan); return; } setFeedback({ type: "error", text: data.error || "Could not launch Stripe Checkout." }); window.scrollTo({ top: 0, behavior: "smooth" }); setIsProcessing(false); return; }
       if (data.url) {
         window.location.href = data.url
         return
@@ -296,7 +287,7 @@ export default function CandidateBillingPage() {
       {/* Feedback Banner */}
       {feedback && (
         <div
-          className={`p-4 rounded-2xl text-xs font-extrabold border ${
+          className={`p-4 rounded-2xl text-xs font-extrabold border break-words [overflow-wrap:anywhere] ${
             feedback.type === 'error'
               ? 'bg-rose-50 text-rose-800 border-rose-300'
               : 'bg-emerald-50 text-emerald-900 border-emerald-300'
