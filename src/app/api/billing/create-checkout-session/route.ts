@@ -99,8 +99,7 @@ export const EMPLOYER_SAAS_TIERS: Record<
     maxActiveJobs: 5,
     monthlyCredits: 10,
     maxSeats: 2,
-    description:
-      'Up to 5 simultaneous active protected job postings, 10 monthly passive candidate pitch credits, and 2 team seats.',
+    description: "Locked at $149/mo for your first 12 months, then $299/mo standard retail starting Month 13 (cancel anytime). Up to 5 active roles, 10 monthly Pitch Credits, 2 seats.",
   },
   growth: {
     id: 'growth',
@@ -114,8 +113,7 @@ export const EMPLOYER_SAAS_TIERS: Record<
     maxActiveJobs: 15,
     monthlyCredits: 35,
     maxSeats: 5,
-    description:
-      'Up to 15 simultaneous active protected job postings, 35 monthly passive candidate pitch credits, and 5 team/recruiter seats.',
+    description: "Locked at $499/mo for your first 12 months, then $799/mo standard retail starting Month 13 (cancel anytime). Up to 15 active roles, 35 monthly Pitch Credits, 5 seats.",
   },
   enterprise: {
     id: 'enterprise',
@@ -129,8 +127,7 @@ export const EMPLOYER_SAAS_TIERS: Record<
     maxActiveJobs: 999,
     monthlyCredits: 120,
     maxSeats: 999,
-    description:
-      'Unlimited simultaneous active protected job postings, 120 monthly pitch credits, unlimited seats, and Workday/Greenhouse ATS webhook integration.',
+    description: "Locked at $1,250/mo for your first 12 months, then $1,999/mo standard retail starting Month 13 (cancel anytime). Unlimited active roles, 120 monthly Pitch Credits, unlimited seats & ATS Sync.",
   },
 }
 
