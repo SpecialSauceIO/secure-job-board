@@ -543,7 +543,7 @@ export default function LandingPage() {
               Why Both Sides Trust Special Sauce
             </h2>
             <p className="mt-4 text-lg text-slate-500 max-w-2xl mx-auto">
-              A respectful, common-sense hiring community built for real people and real businesses.
+              A respectful, straightforward hiring community built for real people and real businesses.
             </p>
           </div>
 
