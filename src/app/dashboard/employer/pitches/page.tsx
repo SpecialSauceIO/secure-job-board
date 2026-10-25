@@ -286,7 +286,7 @@ export default function EmployerSentPitchesPage() {
                     : 'border-slate-300 hover:border-slate-400'
                 }`}
               >
-                <div className="p-6 md:p-8 space-y-4">
+                <div className="p-4 sm:p-6 md:p-8 space-y-4">
                   {/* Top Bar: Clean Inline Role, Ref, Date + Match & Status */}
                   <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-300 text-xs font-semibold text-slate-500">
                     <div className="flex flex-wrap items-center gap-2">

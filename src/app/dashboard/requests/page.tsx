@@ -400,7 +400,7 @@ export default function CandidateRequestsInboxPage() {
                     : 'border-slate-300 hover:border-slate-400'
                 }`}
               >
-                <div className="p-6 md:p-8 space-y-4">
+                <div className="p-4 sm:p-6 md:p-8 space-y-4">
                   {/* Top Bar: Company Heading & Pay Band */}
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-3 border-b border-slate-300">
                     <div className="space-y-1.5">
