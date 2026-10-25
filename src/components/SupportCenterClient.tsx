@@ -1,3 +1,4 @@
+import Link from 'next/link'
 'use client'
 
 import { useState, useMemo, useEffect, useCallback } from 'react'
@@ -97,7 +98,7 @@ export default function SupportCenterClient({
   userRole,
   userName = 'You',
   userEmail = '',
-  initialTab = 'guides',
+  initialTab = 'kb',
   initialTickets = [],
   initialSelectedTicketId,
   canUploadAttachments = false,
@@ -115,7 +116,7 @@ export default function SupportCenterClient({
 }) {
   const [activeTab, setActiveTab] = useState<
     'guides' | 'kb' | 'security' | 'ticket'
-  >(initialTab)
+  >(initialTab === 'guides' ? 'kb' : initialTab)
   const [securityVaultTab, setSecurityVaultTab] = useState<'stripe' | 'platform'>('stripe')
   const [selectedGuide, setSelectedGuide] = useState<'employer' | 'candidate'>(
     userRole === 'employer' ? 'employer' : 'candidate'
@@ -428,60 +429,48 @@ export default function SupportCenterClient({
 
   return (
     <div className="bg-white rounded-2xl border-2 border-slate-300 shadow-sm overflow-hidden">
-      {/* Top Sub-Navigation Tabs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-b border-slate-300">
-        <button
-          type="button"
-          onClick={() => switchTab('guides')}
-          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
-            activeTab === 'guides'
-              ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
-              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
-          }`}
-        >
-          1. How It Works &amp; Guides
-        </button>
-
+      {/* Top Sub-Navigation Tabs (Streamlined 3-Tab Bar) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 border-b border-slate-700 bg-slate-900">
         <button
           type="button"
           onClick={() => switchTab('kb')}
-          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
+          className={`py-4 px-5 text-sm sm:text-base font-extrabold transition-colors border-b-2 cursor-pointer ${
             activeTab === 'kb'
-              ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
-              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+              ? 'border-indigo-400 text-white bg-indigo-600/20'
+              : 'border-transparent text-slate-300 hover:text-white hover:bg-slate-800/60'
           }`}
         >
-          2. Searchable FAQs
+          1. Searchable FAQs &amp; Knowledge Base
         </button>
 
         <button
           type="button"
           onClick={() => switchTab('security')}
-          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer ${
+          className={`py-4 px-5 text-sm sm:text-base font-extrabold transition-colors border-b-2 cursor-pointer ${
             activeTab === 'security'
-              ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50'
-              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+              ? 'border-emerald-400 text-white bg-emerald-600/20'
+              : 'border-transparent text-slate-300 hover:text-white hover:bg-slate-800/60'
           }`}
         >
-          3. 2-Stage Vault &amp; Stripe
+          2. 2-Stage Vault &amp; Stripe Security
         </button>
 
         <button
           type="button"
           onClick={() => switchTab('ticket')}
-          className={`py-4 px-4 text-xs sm:text-sm font-extrabold transition-colors border-b-2 cursor-pointer flex items-center justify-center gap-2 ${
+          className={`py-4 px-5 text-sm sm:text-base font-extrabold transition-colors border-b-2 cursor-pointer flex items-center justify-center gap-2 ${
             activeTab === 'ticket'
-              ? 'border-indigo-600 text-indigo-700 bg-indigo-50/50'
-              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+              ? 'border-indigo-400 text-white bg-indigo-600/20'
+              : 'border-transparent text-slate-300 hover:text-white hover:bg-slate-800/60'
           }`}
         >
-          <span>4. Support &amp; My Tickets</span>
+          <span>3. Support &amp; My Tickets</span>
           {myTickets.length > 0 && (
             <span
-              className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
+              className={`px-2.5 py-0.5 rounded-full text-xs font-black ${
                 awaitingCustomerCount > 0
                   ? 'bg-amber-400 text-slate-950 animate-pulse'
-                  : 'bg-indigo-100 text-indigo-700'
+                  : 'bg-indigo-500 text-white'
               }`}
             >
               {awaitingCustomerCount > 0
@@ -1387,133 +1376,63 @@ export default function SupportCenterClient({
         </div>
       )}
 
-      {/* TAB 2: HOW IT WORKS & GUIDES */}
-      {activeTab === 'guides' && (
+      {/* TAB 1: SEARCHABLE FAQS & KNOWLEDGE BASE */}
+      {activeTab === 'kb' && (
         <div className="p-6 md:p-8 space-y-8 animate-in fade-in duration-300">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 p-4 rounded-xl border-2 border-slate-300">
-            <div>
-              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">
-                Select Playbook View
+          {/* Top Shortcut Banner to /workflows + 1-Click Copy Team Brief */}
+          <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 border border-slate-700 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-400 block">
+                Looking for the Step-by-Step Visual Walkthrough?
               </span>
-              <p className="text-xs text-slate-600 mt-0.5">
-                View step-by-step workflows (including the 2-Stage Identity Vault &amp; 30-Day Freshness rules) or copy the plain-text reference guide.
+              <h3 className="text-lg sm:text-xl font-extrabold text-white">
+                Explore the Interactive 5-Step Candidate &amp; Employer Workflows
+              </h3>
+              <p className="text-sm sm:text-base text-slate-200">
+                Our full visual walkthrough is available anytime on the public Platform Workflows page—or copy a plain-text team briefing sheet below.
               </p>
             </div>
-
-            <div className="inline-flex rounded-xl bg-white p-1 border-2 border-slate-300 shadow-sm shrink-0">
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
               <button
                 type="button"
-                onClick={() => setSelectedGuide('employer')}
-                className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
-                  selectedGuide === 'employer'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
+                onClick={() => handleCopyGuide(userRole === 'employer' ? 'employer' : 'candidate')}
+                className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-colors cursor-pointer border ${
+                  copiedGuideId
+                    ? 'bg-emerald-600 text-white border-emerald-400'
+                    : 'bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-600'
                 }`}
               >
-                🏢 Employer &amp; Recruiter Guide
+                {copiedGuideId ? '✓ Copied Quick-Start Brief!' : '📋 Copy Quick-Start Brief'}
               </button>
-              <button
-                type="button"
-                onClick={() => setSelectedGuide('candidate')}
-                className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
-                  selectedGuide === 'candidate'
-                    ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
+              <Link
+                href="/workflows"
+                className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-extrabold transition-colors"
               >
-                👤 Candidate Guide
-              </button>
+                View Platform Workflows →
+              </Link>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <span className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 border border-indigo-300 text-indigo-700 text-xs font-extrabold">
-              {currentGuide.badge}
-            </span>
-            <h2 className="text-2xl font-extrabold text-slate-900">
-              {currentGuide.title}
-            </h2>
-            <p className="text-sm text-slate-500 leading-relaxed">
-              {currentGuide.subtitle}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4">
-            {currentGuide.steps.map((item, idx) => (
-              <div
-                key={idx}
-                className="p-5 rounded-xl bg-white border-2 border-slate-300 shadow-sm flex flex-col sm:flex-row sm:items-start gap-4 transition-colors"
-              >
-                <span className="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-black uppercase tracking-wider shrink-0">
-                  {item.step}
-                </span>
-                <div>
-                  <h3 className="text-base font-extrabold text-slate-900">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-slate-600 mt-1 leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="rounded-2xl bg-slate-900 text-white p-6 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-              <div>
-                <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-400 block">
-                  Copy-Paste Team Briefing Sheet
-                </span>
-                <h3 className="text-base font-bold text-white mt-0.5">
-                  Share this summary in Slack, Microsoft Teams, or Email
-                </h3>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handleCopyGuide(currentGuide.id)}
-                className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-colors shrink-0 flex items-center gap-2 cursor-pointer ${
-                  copiedGuideId === currentGuide.id
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-indigo-600 text-white hover:bg-indigo-500'
-                }`}
-              >
-                {copiedGuideId === currentGuide.id
-                  ? 'Copied to Clipboard!'
-                  : 'Copy Briefing Sheet'}
-              </button>
-            </div>
-
-            <pre className="text-xs text-slate-300 font-mono whitespace-pre-wrap leading-relaxed bg-slate-950/70 p-4 rounded-xl border border-slate-800 overflow-x-auto">
-              {currentGuide.copyPasteText}
-            </pre>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 3: SEARCHABLE FAQS */}
-      {activeTab === 'kb' && (
-        <div className="p-6 md:p-8 space-y-6 animate-in fade-in duration-300">
-          <div className="flex flex-col md:flex-row gap-3">
+          {/* Search & Role Filter Bar */}
+          <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
               <input
                 type="text"
                 placeholder="Search FAQs (e.g. 2-Stage Vault, 30-day expiry, shortlist, W-2 vs 1099, Stripe)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border-2 border-slate-300 bg-slate-50 focus:bg-white focus:border-indigo-500 text-sm font-medium text-slate-900 transition-all"
+                className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-600 bg-slate-900 focus:border-indigo-400 text-base font-medium text-white placeholder:text-slate-400 transition-all"
               />
             </div>
 
-            <div className="inline-flex rounded-xl bg-slate-100 p-1 border-2 border-slate-300 shrink-0">
+            <div className="inline-flex rounded-xl bg-slate-900 p-1.5 border border-slate-700 shrink-0">
               <button
                 type="button"
                 onClick={() => setFaqRoleFilter('all')}
-                className={`px-3.5 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
+                className={`px-4 py-2.5 rounded-lg text-xs sm:text-sm font-extrabold transition-colors cursor-pointer ${
                   faqRoleFilter === 'all'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-slate-300 hover:text-white'
                 }`}
               >
                 All FAQs
@@ -1521,10 +1440,10 @@ export default function SupportCenterClient({
               <button
                 type="button"
                 onClick={() => setFaqRoleFilter('employer')}
-                className={`px-3.5 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
+                className={`px-4 py-2.5 rounded-lg text-xs sm:text-sm font-extrabold transition-colors cursor-pointer ${
                   faqRoleFilter === 'employer'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-emerald-600 text-white shadow-sm'
+                    : 'text-slate-300 hover:text-white'
                 }`}
               >
                 Employer FAQs
@@ -1532,10 +1451,10 @@ export default function SupportCenterClient({
               <button
                 type="button"
                 onClick={() => setFaqRoleFilter('candidate')}
-                className={`px-3.5 py-2 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
+                className={`px-4 py-2.5 rounded-lg text-xs sm:text-sm font-extrabold transition-colors cursor-pointer ${
                   faqRoleFilter === 'candidate'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-slate-300 hover:text-white'
                 }`}
               >
                 Candidate FAQs
@@ -1544,7 +1463,7 @@ export default function SupportCenterClient({
           </div>
 
           {Object.keys(groupedFaqs).length === 0 ? (
-            <div className="text-center py-12 text-slate-500 font-medium">
+            <div className="text-center py-12 text-slate-200 text-base font-medium">
               No articles found matching &ldquo;{searchQuery}&rdquo;.
               <br />
               <button
@@ -1553,7 +1472,7 @@ export default function SupportCenterClient({
                   switchTab('ticket')
                   setIsComposingNewTicket(true)
                 }}
-                className="text-indigo-600 font-bold hover:underline mt-2 cursor-pointer"
+                className="text-indigo-400 font-bold hover:underline mt-2 cursor-pointer"
               >
                 Submit a support ticket instead →
               </button>
@@ -1561,8 +1480,8 @@ export default function SupportCenterClient({
           ) : (
             <div className="space-y-8">
               {Object.entries(groupedFaqs).map(([category, items]) => (
-                <div key={category}>
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-3 ml-1">
+                <div key={category} className="space-y-3">
+                  <h3 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-indigo-400 ml-1">
                     {category}
                   </h3>
                   <div className="space-y-3">
@@ -1571,24 +1490,24 @@ export default function SupportCenterClient({
                       return (
                         <div
                           key={faq.id}
-                          className="border-2 border-slate-300 rounded-xl overflow-hidden transition-colors"
+                          className="border border-slate-700 bg-slate-900 rounded-xl overflow-hidden transition-colors"
                         >
                           <button
                             type="button"
                             onClick={() =>
                               setExpandedFaqId(isExpanded ? null : faq.id)
                             }
-                            className="w-full px-5 py-4 text-left flex items-center justify-between bg-white focus:outline-none cursor-pointer"
+                            className="w-full px-6 py-4 text-left flex items-center justify-between bg-slate-900 hover:bg-slate-800/80 focus:outline-none cursor-pointer"
                           >
-                            <span className="font-bold text-slate-800 text-sm pr-4">
+                            <span className="font-extrabold text-white text-base sm:text-lg pr-4">
                               {faq.question}
                             </span>
-                            <span className="text-indigo-600 font-extrabold text-xs">
-                              {isExpanded ? 'Hide' : 'View'}
+                            <span className="text-indigo-400 font-extrabold text-xs sm:text-sm shrink-0">
+                              {isExpanded ? 'Hide ▲' : 'View ▼'}
                             </span>
                           </button>
                           {isExpanded && (
-                            <div className="px-5 pb-4 text-sm text-slate-600 leading-relaxed bg-slate-50/50 border-t border-slate-300 pt-3">
+                            <div className="px-6 pb-5 text-base text-slate-100 leading-relaxed bg-slate-950 border-t border-slate-800 pt-4">
                               {faq.answer}
                             </div>
                           )}
