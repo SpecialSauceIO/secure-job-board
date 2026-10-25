@@ -330,7 +330,7 @@ export default function EmployerBillingPage() {
           </p>
         </div>
       ) : isOrgVerified ? (
-        <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border-2 border-slate-300 shadow-sm space-y-6">
+        <div className="rounded-2xl bg-slate-900 text-white p-4 sm:p-8 border-2 border-slate-300 shadow-sm space-y-6">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-2 max-w-2xl">
               <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
@@ -390,7 +390,7 @@ export default function EmployerBillingPage() {
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border-2 border-slate-300 shadow-sm">
+        <div className="rounded-2xl bg-slate-900 text-white p-4 sm:p-8 border-2 border-slate-300 shadow-sm">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-2 max-w-3xl">
               <div className="text-xs font-extrabold uppercase tracking-wider text-amber-300">
@@ -461,7 +461,7 @@ export default function EmployerBillingPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Tier 1: Starter Tier */}
         <div
-          className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
+          className={`bg-white rounded-2xl p-4 sm:p-6 flex flex-col justify-between transition-all ${
             activeTier === 'starter'
               ? 'border-2 border-indigo-600 shadow-sm'
               : 'border-2 border-slate-300 shadow-xs'
@@ -537,7 +537,7 @@ export default function EmployerBillingPage() {
 
         {/* Tier 2: Growth Tier */}
         <div
-          className={`bg-slate-900 text-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
+          className={`bg-slate-900 text-white rounded-2xl p-4 sm:p-6 flex flex-col justify-between transition-all ${
             activeTier === 'growth'
               ? 'border-2 border-amber-400 shadow-lg'
               : 'border-2 border-indigo-500 shadow-md'
@@ -611,7 +611,7 @@ export default function EmployerBillingPage() {
 
         {/* Tier 3: Enterprise & Agency Tier */}
         <div
-          className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
+          className={`bg-white rounded-2xl p-4 sm:p-6 flex flex-col justify-between transition-all ${
             activeTier === 'enterprise'
               ? 'border-2 border-indigo-600 shadow-sm'
               : 'border-2 border-slate-300 shadow-xs'
@@ -691,7 +691,7 @@ export default function EmployerBillingPage() {
       {/* ====================================================================
           ON-DEMAND ROLLOVER PITCH CREDIT TOP-UP PACKS (Two-Bucket System)
          ==================================================================== */}
-      <section className="rounded-2xl bg-white border-2 border-slate-300 p-6 sm:p-8 shadow-xs space-y-6">
+      <section className="rounded-2xl bg-white border-2 border-slate-300 p-4 sm:p-8 shadow-xs space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-200">
           <div className="space-y-1 max-w-3xl">
             <div className="inline-flex items-center gap-2 text-indigo-600 text-xs font-extrabold uppercase tracking-wider">
@@ -727,7 +727,7 @@ export default function EmployerBillingPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Boost Pack: +10 Credits ($150) */}
-          <div className="rounded-2xl border-2 border-slate-300 bg-slate-50/50 p-6 flex flex-col justify-between space-y-5">
+          <div className="rounded-2xl border-2 border-slate-300 bg-slate-50/50 p-4 sm:p-6 flex flex-col justify-between space-y-5">
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
@@ -761,7 +761,7 @@ export default function EmployerBillingPage() {
           </div>
 
           {/* Surge Pack: +25 Credits ($325) */}
-          <div className="rounded-2xl border-2 border-indigo-500 bg-white p-6 flex flex-col justify-between space-y-5 shadow-sm relative">
+          <div className="rounded-2xl border-2 border-indigo-500 bg-white p-4 sm:p-6 flex flex-col justify-between space-y-5 shadow-sm relative">
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-600">
@@ -795,7 +795,7 @@ export default function EmployerBillingPage() {
           </div>
 
           {/* Scale Pack: +75 Credits ($825) */}
-          <div className="rounded-2xl border-2 border-slate-300 bg-slate-50/50 p-6 flex flex-col justify-between space-y-5">
+          <div className="rounded-2xl border-2 border-slate-300 bg-slate-50/50 p-4 sm:p-6 flex flex-col justify-between space-y-5">
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-700">

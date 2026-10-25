@@ -529,7 +529,7 @@ export default async function DashboardPage({
           {/* Card 1: Manage Profile */}
           <Link
             href="/dashboard/employer/organization"
-            className={`group p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
+            className={`group p-4 sm:p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
               a11yColorTiles
                 ? 'bg-slate-100/90 hover:bg-slate-200/70 border-slate-400 hover:border-slate-500 shadow-xs'
                 : 'bg-white hover:bg-slate-50/60 border-slate-300 hover:border-slate-400 shadow-xs'
@@ -583,7 +583,7 @@ export default async function DashboardPage({
                 ? '/dashboard/employer/jobs'
                 : '/dashboard/employer/organization'
             }
-            className={`group p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
+            className={`group p-4 sm:p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
               a11yColorTiles
                 ? 'bg-blue-100/75 hover:bg-blue-200/60 border-blue-400 hover:border-blue-500 shadow-xs'
                 : 'bg-white hover:bg-slate-50/60 border-slate-300 hover:border-slate-400 shadow-xs'
@@ -654,7 +654,7 @@ export default async function DashboardPage({
                 ? '/dashboard/employer/pitches'
                 : '/dashboard/employer/organization'
             }
-            className={`group p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
+            className={`group p-4 sm:p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
               a11yColorTiles
                 ? 'bg-amber-100/80 hover:bg-amber-200/65 border-slate-300 hover:border-slate-300 shadow-xs'
                 : 'bg-white hover:bg-slate-50/60 border-slate-300 hover:border-slate-400 shadow-xs'
@@ -745,7 +745,7 @@ export default async function DashboardPage({
                 ? '/dashboard/employer/applications'
                 : '/dashboard/employer/organization'
             }
-            className={`group p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
+            className={`group p-4 sm:p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
               a11yColorTiles
                 ? 'bg-purple-100/75 hover:bg-purple-200/60 border-purple-400 hover:border-purple-500 shadow-xs'
                 : 'bg-white hover:bg-slate-50/60 border-slate-300 hover:border-slate-400 shadow-xs'
@@ -1089,7 +1089,7 @@ export default async function DashboardPage({
         {/* Card 1: Manage Profile */}
         <Link
           href="/dashboard/profile"
-          className={`group p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
+          className={`group p-4 sm:p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
             a11yColorTiles
               ? 'bg-slate-100/90 hover:bg-slate-200/70 border-slate-400 hover:border-slate-500 shadow-xs'
               : 'bg-white hover:bg-slate-50/60 border-slate-300 hover:border-slate-400 shadow-xs'
@@ -1137,7 +1137,7 @@ export default async function DashboardPage({
         {/* Card 2: Inbound Pitches */}
         <Link
           href="/dashboard/requests"
-          className={`group p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
+          className={`group p-4 sm:p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
             a11yColorTiles
               ? 'bg-blue-100/75 hover:bg-blue-200/60 border-blue-400 hover:border-blue-500 shadow-xs'
               : 'bg-white hover:bg-slate-50/60 border-slate-300 hover:border-slate-400 shadow-xs'
@@ -1216,7 +1216,7 @@ export default async function DashboardPage({
         {/* Card 3: Outbound Applications */}
         <Link
           href="/dashboard/applications"
-          className={`group p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
+          className={`group p-4 sm:p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
             a11yColorTiles
               ? 'bg-amber-100/80 hover:bg-amber-200/65 border-slate-300 hover:border-slate-300 shadow-xs'
               : 'bg-white hover:bg-slate-50/60 border-slate-300 hover:border-slate-400 shadow-xs'
@@ -1301,7 +1301,7 @@ export default async function DashboardPage({
         {/* Card 4: Match Preferences */}
         <Link
           href="/dashboard/preferences"
-          className={`group p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
+          className={`group p-4 sm:p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
             a11yColorTiles
               ? 'bg-purple-100/75 hover:bg-purple-200/60 border-purple-400 hover:border-purple-500 shadow-xs'
               : 'bg-white hover:bg-slate-50/60 border-slate-300 hover:border-slate-400 shadow-xs'

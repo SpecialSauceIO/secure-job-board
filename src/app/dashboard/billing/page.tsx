@@ -307,9 +307,9 @@ export default function CandidateBillingPage() {
       )}
 
       {/* Unified Gold Launch Frame Wrapping All 3 Candidate Tiers */}
-      <div className="rounded-3xl border-2 border-slate-300 bg-gradient-to-b from-amber-50/60 via-white to-white p-6 sm:p-8 shadow-md space-y-8">
+      <div className="rounded-3xl border-2 border-slate-300 bg-gradient-to-b from-amber-50/60 via-white to-white p-4 sm:p-8 shadow-md space-y-8">
         {/* Top Founding Launch Banner */}
-        <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-7 border border-slate-300/60 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="rounded-2xl bg-slate-900 text-white p-4 sm:p-7 border border-slate-300/60 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
               <span className="text-amber-300">
@@ -343,7 +343,7 @@ export default function CandidateBillingPage() {
           </div>
 
           {/* Live Status Box */}
-          <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 shrink-0 min-w-[260px] space-y-1.5">
+          <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 sm:p-5 shrink-0 w-full lg:w-auto lg:min-w-[260px] space-y-1.5">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">
               Current Membership Plan
             </span>
@@ -387,7 +387,7 @@ export default function CandidateBillingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Card 1: Explorer ($3/mo) */}
           <div
-            className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
+            className={`bg-white rounded-2xl p-4 sm:p-6 flex flex-col justify-between transition-all ${
               normalizedTier === 'explorer'
                 ? 'border-2 border-slate-900 shadow-md'
                 : 'border border-slate-300 shadow-xs'
@@ -449,7 +449,7 @@ export default function CandidateBillingPage() {
 
           {/* Card 2: Professional ($9/mo) */}
           <div
-            className={`bg-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
+            className={`bg-white rounded-2xl p-4 sm:p-6 flex flex-col justify-between transition-all ${
               normalizedTier === 'professional'
                 ? 'border-2 border-amber-500 shadow-md'
                 : 'border border-slate-300 shadow-xs'
@@ -520,7 +520,7 @@ export default function CandidateBillingPage() {
 
           {/* Card 3: Prestige ($15/mo) */}
           <div
-            className={`bg-slate-900 text-white rounded-2xl p-6 flex flex-col justify-between transition-all ${
+            className={`bg-slate-900 text-white rounded-2xl p-4 sm:p-6 flex flex-col justify-between transition-all ${
               normalizedTier === 'prestige'
                 ? 'border-2 border-amber-400 shadow-lg'
                 : 'border-2 border-indigo-500 shadow-md'
