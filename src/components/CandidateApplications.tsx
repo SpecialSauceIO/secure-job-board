@@ -367,17 +367,17 @@ export function CandidateApplications() {
         </div>
 
         {/* Keyword Search */}
-        <form onSubmit={handleSearch} className="flex gap-3">
+        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Filter applications by Reference ID (e.g. SS-...), role title, skill, or unlocked company..."
-            className="flex-1 rounded-xl border-2 border-slate-300 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none border-slate-300"
+            className="w-full min-w-0 sm:flex-1 rounded-xl border-2 border-slate-300 bg-slate-50 px-3.5 sm:px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
           />
           <button
             type="submit"
-            className="px-6 py-2.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-300 hover:bg-indigo-100 transition-colors cursor-pointer"
+            className="w-full sm:w-auto px-6 py-2.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-300 hover:bg-indigo-100 transition-colors cursor-pointer shrink-0"
           >
             Filter
           </button>

@@ -182,18 +182,18 @@ export default function CandidateApplicationsPage() {
         {/* Keyword Search */}
         <form
           onSubmit={handleSearchSubmit}
-          className="pt-3 border-t border-slate-300 flex gap-2"
+          className="pt-3 border-t border-slate-300 flex flex-col sm:flex-row gap-2"
         >
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by role title, skill, Reference ID (SS-...), or unlocked company name..."
-            className="flex-1 rounded-xl border-2 border-slate-300 bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none border-slate-300"
+            className="w-full min-w-0 sm:flex-1 rounded-xl border-2 border-slate-300 bg-slate-50 px-3.5 sm:px-4 py-2.5 sm:py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
           />
           <button
             type="submit"
-            className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors cursor-pointer"
+            className="w-full sm:w-auto px-4 py-2.5 sm:py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors cursor-pointer shrink-0"
           >
             Search
           </button>
