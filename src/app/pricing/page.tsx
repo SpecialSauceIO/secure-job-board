@@ -15,7 +15,7 @@ export default function PricingMatrixPage() {
         <PublicHeader />
 
         {/* Hero Header */}
-        <section className="py-14 md:py-20 px-6 md:px-12 max-w-5xl mx-auto text-center space-y-4">
+        <section className="py-10 sm:py-14 md:py-20 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs font-extrabold uppercase tracking-wide">
             <span>★ Founding Launch Window • 100% ID-Verified Talent Pool &amp; Founding Partner Rates</span>
           </div>
@@ -28,11 +28,11 @@ export default function PricingMatrixPage() {
         </section>
 
         {/* Main 3x3 Matrix Container */}
-        <main className="max-w-7xl mx-auto px-6 md:px-12 pb-24 space-y-20">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 pb-20 sm:pb-24 space-y-14 sm:space-y-20">
           {/* ================================================================
               SECTION 1: CANDIDATE PLANS (Explorer $3 / Professional $9 / Prestige $15)
              ================================================================ */}
-          <div className="rounded-3xl border-2 border-slate-300 bg-gradient-to-b from-amber-50/60 via-white to-white p-6 sm:p-10 shadow-md space-y-8 relative overflow-hidden">
+          <div className="rounded-3xl border-2 border-slate-300 bg-gradient-to-b from-amber-50/60 via-white to-white p-4 sm:p-8 md:p-10 shadow-md space-y-6 sm:space-y-8 relative overflow-hidden">
             {/* Top Unified Candidate Banner */}
             <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-7 border border-slate-300/60 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div className="space-y-1.5">
@@ -59,7 +59,7 @@ export default function PricingMatrixPage() {
             {/* 3 Candidate Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Tier 1: Explorer ($3/mo) */}
-              <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-col justify-between space-y-6 relative overflow-hidden">
+              <div className="bg-white p-5 sm:p-8 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
                   🛡️ ID-Verified Inbound Vault
                 </div>
@@ -111,7 +111,7 @@ export default function PricingMatrixPage() {
               </div>
 
               {/* Tier 2: Professional ($9/mo) */}
-              <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
+              <div className="bg-white p-5 sm:p-8 rounded-2xl border-2 border-slate-300 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
                   🛡️ ID-Verified Active Tier
                 </div>
@@ -167,7 +167,7 @@ export default function PricingMatrixPage() {
               </div>
 
               {/* Tier 3: Prestige ($15/mo) */}
-              <div className="bg-slate-900 text-white p-8 rounded-2xl border-2 border-indigo-500 shadow-lg flex flex-col justify-between space-y-6 relative overflow-hidden">
+              <div className="bg-slate-900 text-white p-5 sm:p-8 rounded-2xl border-2 border-indigo-500 shadow-lg flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
                   ★ Priority Spotlight &amp; Unlimited
                 </div>
@@ -227,7 +227,7 @@ export default function PricingMatrixPage() {
           {/* ================================================================
               SECTION 2: EMPLOYER PLANS (Starter $149 / Growth $499 / Enterprise $1,250)
              ================================================================ */}
-          <div className="rounded-3xl border-2 border-slate-300 bg-gradient-to-b from-indigo-50/50 via-white to-white p-6 sm:p-10 shadow-md space-y-8 relative overflow-hidden">
+          <div className="rounded-3xl border-2 border-slate-300 bg-gradient-to-b from-indigo-50/50 via-white to-white p-4 sm:p-8 md:p-10 shadow-md space-y-6 sm:space-y-8 relative overflow-hidden">
             {/* Top Unified Employer Launch Banner */}
             <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-7 border border-slate-300/60 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div className="space-y-1.5">
@@ -254,7 +254,7 @@ export default function PricingMatrixPage() {
             {/* 3 Employer Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Employer Tier 1: Starter ($149 Founding / $299 Retail) */}
-              <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-col justify-between space-y-6 relative overflow-hidden">
+              <div className="bg-white p-5 sm:p-8 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
                   ★ 12-Mo Founding Rate (-50%)
                 </div>
@@ -319,7 +319,7 @@ export default function PricingMatrixPage() {
               </div>
 
               {/* Employer Tier 2: Growth ($499 Founding / $799 Retail) */}
-              <div className="bg-slate-900 text-white p-8 rounded-2xl border-2 border-indigo-500 shadow-lg flex flex-col justify-between space-y-6 relative overflow-hidden">
+              <div className="bg-slate-900 text-white p-5 sm:p-8 rounded-2xl border-2 border-indigo-500 shadow-lg flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
                   ★ Most Popular • 12-Mo Rate Lock
                 </div>
@@ -384,7 +384,7 @@ export default function PricingMatrixPage() {
               </div>
 
               {/* Employer Tier 3: Enterprise ($1,250 Founding / $1,999 Retail) */}
-              <div className="bg-white p-8 rounded-2xl border-2 border-slate-300 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
+              <div className="bg-white p-5 sm:p-8 rounded-2xl border-2 border-slate-300 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
                   ★ HR Software Sync • 12-Mo Rate Lock
                 </div>

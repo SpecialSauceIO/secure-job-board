@@ -191,9 +191,9 @@ export default async function DashboardPage({
   // ============================================================================
   if (!profile?.role) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center p-6">
+      <div className="min-h-[80vh] flex items-center justify-center p-2 sm:p-6">
         <div className="max-w-3xl w-full bg-white rounded-3xl shadow-xl border-2 border-slate-300 overflow-hidden border-slate-300">
-          <div className="p-10 text-center bg-slate-900 text-white">
+          <div className="p-6 sm:p-10 text-center bg-slate-900 text-white">
             <h1 className="text-3xl md:text-4xl font-extrabold mb-3 tracking-tight">
               Welcome to Special Sauce
             </h1>
@@ -202,7 +202,7 @@ export default async function DashboardPage({
             </p>
           </div>
 
-          <div className="p-10 bg-white">
+          <div className="p-5 sm:p-10 bg-white">
             <form
               action={setRole}
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
@@ -211,7 +211,7 @@ export default async function DashboardPage({
                 type="submit"
                 name="role"
                 value="candidate"
-                className="group relative p-8 border-2 border-slate-300 rounded-2xl hover:border-indigo-600 hover:bg-indigo-50 transition-all text-left shadow-sm hover:shadow-md cursor-pointer"
+                className="group relative p-5 sm:p-8 border-2 border-slate-300 rounded-2xl hover:border-indigo-600 hover:bg-indigo-50 transition-all text-left shadow-sm hover:shadow-md cursor-pointer"
               >
                 <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-5">
                   <svg
@@ -241,7 +241,7 @@ export default async function DashboardPage({
                 type="submit"
                 name="role"
                 value="employer"
-                className="group relative p-8 border-2 border-slate-300 rounded-2xl hover:border-emerald-600 hover:bg-emerald-50 transition-all text-left shadow-sm hover:shadow-md cursor-pointer"
+                className="group relative p-5 sm:p-8 border-2 border-slate-300 rounded-2xl hover:border-emerald-600 hover:bg-emerald-50 transition-all text-left shadow-sm hover:shadow-md cursor-pointer"
               >
                 <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mb-5">
                   <svg

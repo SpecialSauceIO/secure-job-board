@@ -83,10 +83,10 @@ export default async function DashboardLayout({
       />
 
       {/* Main Page Content */}
-      <main className="flex-1 p-8">{children}</main>
+      <main className="flex-1 px-4 py-6 sm:p-6 md:p-8">{children}</main>
 
       {/* Subtle Dashboard Footer */}
-      <footer className="border-t border-slate-300 bg-white py-6 px-8 mt-auto">
+      <footer className="border-t border-slate-300 bg-white py-6 px-4 sm:px-8 mt-auto">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-gray-500">
             © {new Date().getFullYear()} Special Sauce. All rights reserved.
