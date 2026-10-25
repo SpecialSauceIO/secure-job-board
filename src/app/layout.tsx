@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.specialsauce.io"),
   title: {
     template: "%s | Special Sauce",
-    default: "Special Sauce | Hire for Talent, Not Background",
+    default: "Special Sauce | Welcome to your future",
   },
   description:
     "The identity-protected, ID-verified hiring platform that strips away bias and connects verified employers and professionals based purely on skills and experience.",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Special Sauce | Hire for Talent, Not Background",
+    title: "Special Sauce | Welcome to your future",
     description:
       "Bypass the resume black hole. Connect through identity-protected AI skill matching and candidate-controlled identity vault release.",
     url: "https://www.specialsauce.io",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Special Sauce | Hire for Talent, Not Background",
+    title: "Special Sauce | Welcome to your future",
     description:
       "Identity-protected, Stripe ID-verified hiring. Match on verified skills first—unlock identity only by mutual consent.",
   },
