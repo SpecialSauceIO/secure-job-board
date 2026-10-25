@@ -296,7 +296,7 @@ export default function LandingPage() {
 
         {/* High-Visibility Operational Trust Strip — Frameless with Thin Vertical Dividers */}
         <div className="mt-9 w-full max-w-5xl z-20 relative">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 lg:divide-x divide-slate-300 dark:divide-slate-700/80 border-y border-slate-200/80 dark:border-slate-800/80 py-3.5">
+          <div className="grid grid-cols-2 lg:grid-cols-4 lg:divide-x divide-slate-400 dark:divide-white/70 py-2">
             <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
               <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
                 100% US-Based Company

@@ -8,13 +8,13 @@ export function PublicFooter() {
         {/* Global Operational Provenance & Trust Bar — Frameless with Thin Vertical Borders */}
         <div className="flex flex-col lg:flex-row items-center justify-between gap-3 pb-6 border-b border-slate-200/80 text-xs">
           <div className="flex flex-wrap items-center justify-center lg:justify-start">
-            <span className="px-3.5 py-0.5 border-l border-r border-slate-300 text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-700">
+            <span className="px-3.5 py-0.5 border-l border-r border-slate-400 dark:border-white/70 text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-700 dark:text-slate-200">
               100% US-Based Company &amp; Operations
             </span>
-            <span className="px-3.5 py-0.5 border-r border-slate-300 text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-700">
+            <span className="px-3.5 py-0.5 border-r border-slate-400 dark:border-white/70 text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-700 dark:text-slate-200">
               100% US Human Support
             </span>
-            <span className="px-3.5 py-0.5 border-r border-slate-300 text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-700">
+            <span className="px-3.5 py-0.5 border-r border-slate-400 dark:border-white/70 text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-700 dark:text-slate-200">
               AI Tooling Calibrated Daily
             </span>
           </div>
