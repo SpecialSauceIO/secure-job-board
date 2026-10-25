@@ -770,33 +770,10 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
     }
   }
 
-  const isVerifiedOrg = org?.verification_status === 'verified'
-  const isFounderOrg = isSeasonZeroFounder(org?.created_at, true)
-  if (isVerifiedOrg && isFounderOrg && cookieTier !== 'free') {
-    const createdMs = org?.created_at
-      ? new Date(org.created_at).getTime()
-      : Date.now()
-    const elapsedDays = Math.floor(
-      (Date.now() - createdMs) / (1000 * 60 * 60 * 24)
-    )
-    const daysLeft = Math.max(0, EMPLOYER_FOUNDER_GRANT_DAYS - elapsedDays)
-
-    if (daysLeft > 0 && EMPLOYER_FOUNDER_GRANT_JOBS > 0) {
-      return {
-        tier: 'starter',
-        label: `★ Founding Partner Charter (${daysLeft}d Starter Launch Access)`,
-        maxActiveJobs: EMPLOYER_FOUNDER_GRANT_JOBS,
-        monthlyCredits: EMPLOYER_FOUNDER_GRANT_CREDITS,
-        maxSeats: 2,
-      ...bucketFields,
-      }
-    }
-  }
-
   if (explicitTier === 'free') {
     return {
       tier: 'free',
-      label: isFounderOrg ? '★ Founding Partner (Free Explorer)' : 'Free Explorer',
+      label: 'No Active Plan · Select Employer Tier',
       maxActiveJobs: 0,
       monthlyCredits: 0,
       maxSeats: 1,
@@ -841,7 +818,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
 
   return {
     tier: 'free',
-    label: 'Free Explorer',
+    label: 'No Active Plan · Select Employer Tier',
     maxActiveJobs: 0,
     monthlyCredits: 0,
     maxSeats: 1,
