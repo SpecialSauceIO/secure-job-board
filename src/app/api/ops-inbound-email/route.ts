@@ -65,12 +65,37 @@ export async function POST(req: NextRequest) {
                   ...chk,
                   status: "healthy",
                   latency_ms: 0,
-                  detail: "Last Gmail poll check-in 0m ago (threshold: 15m)",
+                  detail: "Last Gmail poll check-in 0m ago (healthy <= 25m)",
                   checked_at: nowIso,
                 }
               : chk
           )
         : undefined
+
+      if (Array.isArray(vault.work_items)) {
+        for (const w of vault.work_items) {
+          if (
+            w.state === "open" &&
+            w.work_item_type === "System_Outage" &&
+            (w.related_ref_id === "OPS-HEALTH-WATCHDOG" ||
+              (typeof w.subject === "string" &&
+                w.subject.includes("Gmail Poller Heartbeat Stale")))
+          ) {
+            w.state = "closed"
+            w.status = "resolved"
+            w.closed_at = nowIso
+            w.updated_at = nowIso
+            w.thread = Array.isArray(w.thread) ? w.thread : []
+            w.thread.push({
+              id: `MSG-${Date.now()}`,
+              sender_name: "Special Sauce Watchdog",
+              sender_role: "SYSTEM",
+              body: "Auto-resolved: Fresh Gmail Inbound Support Sync heartbeat received.",
+              created_at: nowIso,
+            })
+          }
+        }
+      }
 
       vault.monitor_meta = {
         ...(vault.monitor_meta || {}),
