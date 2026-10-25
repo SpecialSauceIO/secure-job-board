@@ -271,7 +271,7 @@ export default async function JobManagementPage() {
   const slotsFull = activeJobsCount >= tierInfo.maxActiveJobs
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-12">
+    <div className="py-2">
       <div className="max-w-6xl mx-auto space-y-8">
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -307,7 +307,7 @@ export default async function JobManagementPage() {
             {isOrgVerified ? (
               <Link
                 href="/dashboard/employer/jobs/new"
-                className="px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-sm transition-all text-sm"
+                className="w-full sm:w-auto text-center justify-center px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-sm transition-all text-sm"
               >
                 + Post New Job
               </Link>

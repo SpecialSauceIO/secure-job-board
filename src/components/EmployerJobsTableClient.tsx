@@ -164,7 +164,7 @@ export default function EmployerJobsTableClient({
   return (
     <div className="space-y-5">
       {/* Organizer Toolbar: Status Tabs + Search + Industry + Work Type + Sort By */}
-      <div className="bg-white p-5 rounded-2xl border-2 border-slate-300 shadow-sm space-y-4 border-slate-300">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-300 shadow-sm space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* Status Filter Tabs */}
           <div className="flex flex-wrap items-center gap-2">
@@ -336,8 +336,139 @@ export default function EmployerJobsTableClient({
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border-2 border-slate-300 shadow-sm overflow-hidden border-slate-300">
-          <div className="overflow-x-auto">
+        <div className="bg-white rounded-2xl border-2 border-slate-300 shadow-sm overflow-hidden">
+          {/* Mobile Stacked Cards (md:hidden) */}
+          <div className="md:hidden divide-y divide-slate-300">
+            {filteredAndSortedJobs.map((job) => {
+              const isExpiringSoon =
+                job.is_active && !job.isExpired && job.daysRemaining <= 7
+              return (
+                <div key={job.id} className="p-4 space-y-3">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <p className="font-extrabold text-slate-900 text-sm leading-snug">
+                      {job.title}
+                    </p>
+                    <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-300 text-xs font-black shrink-0">
+                      {job.formattedPay}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500 font-medium">
+                    {job.industry && (
+                      <span className="font-bold text-slate-700">{job.industry}</span>
+                    )}
+                    <span className="font-semibold text-slate-700 capitalize">
+                      • {job.work_model}
+                    </span>
+                    {job.employmentType && <span>• {job.employmentType}</span>}
+                    {job.location && <span>• {job.location}</span>}
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200 text-xs">
+                    <div className="flex flex-col gap-0.5">
+                      {job.is_active ? (
+                        <span className="inline-flex items-center gap-1.5 font-extrabold text-emerald-700">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                          Active ({job.daysRemaining}d left)
+                        </span>
+                      ) : job.isExpired ? (
+                        <span className="inline-flex items-center gap-1.5 font-extrabold text-amber-700">
+                          <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                          Auto-Expired (30d Limit)
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 font-bold text-slate-500">
+                          <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                          Closed
+                        </span>
+                      )}
+                      {job.is_active && (
+                        <span className={`text-[11px] font-semibold ${isExpiringSoon ? 'text-amber-700' : 'text-slate-400'}`}>
+                          Closes {new Date(job.expiresAtIso).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+
+                    <Link
+                      href="/dashboard/employer/applications"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-300 font-bold text-slate-800"
+                    >
+                      <span className="font-extrabold">{job.applicantCount}</span>
+                      <span className="text-slate-500">
+                        {job.applicantCount === 1 ? 'applicant' : 'applicants'}
+                      </span>
+                    </Link>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:flex items-center gap-2 pt-1">
+                    <Link
+                      href={`/dashboard/employer/jobs/${job.id}/edit`}
+                      className="px-3 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 text-center"
+                    >
+                      Edit Role
+                    </Link>
+
+                    {job.is_active && (
+                      <form action={toggleOrRenewJobStatus} className="w-full">
+                        <input type="hidden" name="job_id" value={job.id} />
+                        <input type="hidden" name="action_type" value="renew" />
+                        <input type="hidden" name="current_status" value="true" />
+                        <SubmitButton
+                          pendingText="Renewing..."
+                          className="w-full px-3 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 cursor-pointer"
+                        >
+                          ↻ Renew +30d
+                        </SubmitButton>
+                      </form>
+                    )}
+
+                    <form
+                      action={toggleOrRenewJobStatus}
+                      className={job.is_active ? 'col-span-2' : 'w-full'}
+                    >
+                      <input type="hidden" name="job_id" value={job.id} />
+                      <input
+                        type="hidden"
+                        name="current_status"
+                        value={job.is_active.toString()}
+                      />
+                      {job.is_active ? (
+                        <>
+                          <input type="hidden" name="action_type" value="close" />
+                          <SubmitButton
+                            pendingText="..."
+                            className="w-full px-3 py-2 text-xs font-bold text-slate-600 bg-white border border-slate-300 rounded-xl hover:bg-rose-50 hover:text-rose-600 cursor-pointer"
+                          >
+                            Close Listing
+                          </SubmitButton>
+                        </>
+                      ) : slotsFull ? (
+                        <Link
+                          href="/dashboard/employer/billing"
+                          className="block w-full text-center px-3 py-2 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-300 rounded-xl"
+                        >
+                          Slots Full · Upgrade
+                        </Link>
+                      ) : (
+                        <>
+                          <input type="hidden" name="action_type" value="renew" />
+                          <SubmitButton
+                            pendingText="Renewing..."
+                            className="w-full px-3 py-2 text-xs font-extrabold text-white bg-slate-900 rounded-xl hover:bg-indigo-600 cursor-pointer"
+                          >
+                            ↻ Reopen (+30d)
+                          </SubmitButton>
+                        </>
+                      )}
+                    </form>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Desktop Table (hidden md:block) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse border-slate-300">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-300">
