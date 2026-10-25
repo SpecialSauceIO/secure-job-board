@@ -22,17 +22,17 @@ export interface PlaybookGuide {
 export const SECURITY_ARCHITECTURE_DATA = {
   title: 'Data Security, 2-Stage Identity Vault & Stripe Architecture',
   subtitle:
-    'Special Sauce is engineered on a Zero-ID-Storage and Anti-Harvesting architecture. Biometric identity documents and payment credentials are vaulted exclusively by Stripe, while candidate resumes and direct contact details remain locked behind our 2-Stage Identity Vault until the candidate explicitly releases them.',
+    'Special Sauce is engineered on a Zero-ID-Storage and Anti-Harvesting architecture. Biometric identity documents and payment credentials for both Candidates and Employer Admins are vaulted exclusively by Stripe, while candidate resumes and direct contact details remain locked behind our 2-Stage Identity Vault until the candidate explicitly releases them.',
   stripeVaultItems: [
     {
-      title: 'Government IDs & Passports (Stripe Identity)',
+      title: 'Government IDs & Passports (Candidate & Employer Admin Stripe Identity)',
       detail:
-        'Photos of driver’s licenses, passports, and national ID cards uploaded during candidate verification are transmitted directly to Stripe Identity over TLS 1.3 and encrypted using AES-256 inside Stripe’s isolated biometric vault.',
+        'Photos of driver’s licenses, passports, and national ID cards uploaded during Candidate onboarding and Employer Account Admin verification are transmitted directly to Stripe Identity over TLS 1.3 and encrypted using AES-256 inside Stripe’s isolated biometric vault.',
     },
     {
-      title: 'Photo ID & Selfie Checks',
+      title: 'Biometric Selfie Checks & Zero-Knowledge Tokens',
       detail:
-        'Facial recognition vectors and selfie verification captures are processed exclusively by Stripe Identity. Special Sauce only receives a boolean verification status ("verified" or "requires_input") and a session reference token.',
+        'Live facial recognition vectors and selfie verification captures are processed exclusively by Stripe Identity. Special Sauce never touches raw biometric images and only receives a boolean verification status ("verified" or "requires_input") and a session reference token.',
     },
     {
       title: 'Credit Cards, ACH & Banking Details (PCI-DSS Level 1)',
@@ -47,6 +47,11 @@ export const SECURITY_ARCHITECTURE_DATA = {
         'Stage 1 (Initial Unlock / Pitch Acceptance) opens an encrypted in-platform message thread and reveals only the candidate’s First Name + Last Initial alongside the employer’s verified company identity. Stage 2 requires the candidate’s explicit 1-click consent ("Release Resume & Contact Vault") before their full name, direct email, and 1-hour signed PDF resume URL are revealed.',
     },
     {
+      title: '3-Pillar Employer Anti-Harvesting Trust Gate',
+      detail:
+        'Every employer organization must pass three mandatory trust checks before publishing roles or searching talent: Pillar 1 (Corporate Domain DNS MX/TXT validation + automated 90-Day RDAP registry age check blocking burner domains), Pillar 2 (9-digit IRS Federal EIN & State of Incorporation officer attestation), and Pillar 3 (1-time Stripe Identity biometric check for the Account Admin).',
+    },
+    {
       title: 'In-Platform Encrypted Messaging & AI Phishing Firewall',
       detail:
         'All initial candidate-employer conversations occur inside real-time threads tied to a shared Reference ID (SS-XXXXXXXX). Every message passes through an automated AI/heuristic safety scanner that blocks requests for SSNs, banking details, off-platform chat lures (WhatsApp/Telegram), or external harvesting forms.',
@@ -55,11 +60,6 @@ export const SECURITY_ARCHITECTURE_DATA = {
       title: '30-Day Job Auto-Expiration & 5-Unlock Anti-Scraping Ceiling',
       detail:
         'To eliminate ghost roles and bulk resume scraping, all job listings automatically close after 30 days unless manually renewed by the employer. Employers are also capped at a maximum of 5 unmessaged unlocked threads at a time.',
-    },
-    {
-      title: 'Anonymous Skill Matrix, Bookmarks & Organization Seats',
-      detail:
-        'Extracted technical skills, years of experience, third-person bio, US State/Metro location, employment type dealbreakers (W-2, 1099/C2C, Contract-to-Hire, Part-Time), saved bookmarks, and authorized Hiring Manager / W-2 BPO Partner seats.',
     },
   ],
   copyPasteSecurityBrief: `====================================================================
@@ -70,10 +70,15 @@ SPECIAL SAUCE — DATA SECURITY, 2-STAGE VAULT & STRIPE COMPLIANCE BRIEF
 Special Sauce does NOT store government ID images, verification selfies, credit card numbers, or bank account details in our application database.
 
 2. WHAT IS STORED EXCLUSIVELY INSIDE STRIPE (PCI-DSS LEVEL 1 & SOC 2):
-- Candidate Identity Verification (Stripe Identity): Government IDs and selfie checks are captured and encrypted (AES-256) directly inside Stripe's isolated vault. Special Sauce only stores a boolean "Identity Verified" status token.
-- Subscription & Billing Data (Stripe Checkout): All payment methods for Employer Tiers ($149/$499/$1,250 Founding Partner Rates; $299/$799/$1,999 Retail), Rollover Top-Up Packs ($150 / $350 / $900), and Candidate Explorer ($3/mo), Professional ($9/mo) & Prestige ($15/mo) plans are tokenized and vaulted by Stripe.
+- Biometric Identity Verification (Stripe Identity): Government IDs and live selfie checks for both Candidates and Employer Account Admins are captured and encrypted (AES-256) directly inside Stripe's isolated vault. Special Sauce only stores a boolean "Identity Verified" status token.
+- Subscription & Billing Data (Stripe Checkout): All payment methods for Employer Tiers ($149/$499/$1,250 Founding Partner Rates locked for 12 months; $299/$799/$1,999 Retail), Rollover Top-Up Packs ($150 / $350 / $900), and Candidate Explorer ($3/mo), Professional ($9/mo) & Prestige ($15/mo) plans are tokenized and vaulted by Stripe.
 
-3. 2-STAGE ANTI-HARVESTING IDENTITY VAULT & IN-PLATFORM MESSAGING:
+3. 3-PILLAR EMPLOYER ANTI-HARVESTING GATE:
+- Pillar 1 (Domain & 90-Day RDAP Age Check): Work-email or DNS TXT verification paired with live DNS MX validation and an automated IANA/RDAP lookup blocking burner domains (<90 days old).
+- Pillar 2 (US Tax Entity Attestation): 9-digit IRS Federal Tax ID (EIN) and State of Incorporation officer attestation.
+- Pillar 3 (Admin Biometric ID): 1-time Stripe Identity photo ID & live selfie verification for the Employer Account Admin.
+
+4. 2-STAGE ANTI-HARVESTING IDENTITY VAULT & IN-PLATFORM MESSAGING:
 - Stage 1 (Encrypted Thread Unlock): When an employer unlocks an inbound application or a candidate accepts an outbound pitch, an encrypted in-platform chat thread opens (Ref: SS-XXXXXXXX). The employer's verified company name/domain and the candidate's First Name + Last Initial are revealed, while the candidate's raw email and PDF resume remain strictly vaulted.
 - Stage 2 (Candidate-Controlled Vault Release): Only after the employer engages in the thread and the candidate clicks "Release Resume & Contact Vault" are the candidate's Full Name, direct email, and 1-hour signed PDF resume URL unlocked.
 - Anti-Scraping & Phishing Guardrails: Employers cannot hold more than 5 unlocked threads without sending an introductory message. All job postings automatically expire after 30 days unless manually renewed, and in-platform messages are scanned in real time to block SSN/banking requests and off-platform phishing links.
@@ -90,33 +95,33 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
     steps: [
       {
         step: 'Step 1',
-        title: 'Corporate Domain Verification & 12-Month Founding Rate Lock',
+        title: 'Register Organization & Lock In 12-Month Founding Partner Rate',
         description:
-          'Create your Company Profile and verify your corporate domain via work email match or DNS TXT record. Verifying your domain during our launch window locks in Founding Partner Rates (up to 50% off standard retail pricing for your first 12 full months) and Permanent Founding Partner trust badges.',
+          'Create your Employer account, select your Primary Industry Vertical and Company Size, and activate Starter ($149/mo Founding / $299 Retail), Growth ($499/mo Founding / $799 Retail), or Enterprise ($1,250/mo Founding / $1,999 Retail) with a 12-Month Founding Partner Rate Lock.',
       },
       {
         step: 'Step 2',
-        title: 'Activate Your Tier & Assign Team / BPO Partner Seats',
+        title: 'Complete the 3-Pillar Anti-Harvesting Trust Gate',
         description:
-          'Choose Starter ($149/mo Founding / $299 Retail: 5 Active Roles, 10 Monthly Pitch Credits, 2 Collaborator Seats), Growth ($499/mo Founding / $799 Retail: 15 Active Roles, 35 Monthly Pitch Credits, up to 5 Team/Recruiter Seats), or Enterprise ($1,250/mo Founding / $1,999 Retail: Unlimited Active Roles, 120 Monthly Pitch Credits, Unlimited Seats + Workday/Greenhouse HR Software Sync).',
+          'Verify your corporate domain (via work-email match or DNS TXT token + automated 90-day RDAP domain age check), attest your 9-digit IRS Federal Tax ID (EIN) and State of Incorporation, and complete a 60-second Stripe Identity biometric check for the Account Admin.',
       },
       {
         step: 'Step 3',
         title: 'Publish Protected Roles (30-Day Freshness Window)',
         description:
-          'Upload a job description PDF for AI auto-extraction or select your US State & Metro area, Work Model, Employment Type (W-2, 1099/C2C, Contract-to-Hire, Part-Time), and Annual (/yr) or Hourly (/hr) pay band. To prevent ghost jobs, roles automatically expire after 30 days and can be manually renewed in 1 click.',
+          'Upload a job description PDF for AI auto-extraction or select your US State & Metro area, Work Model, Employment Type (W-2, 1099/C2C, Contract-to-Hire, Part-Time), and Annual (/yr) or Hourly (/hr) pay band. Roles automatically expire after 30 days and can be renewed in 1 click.',
       },
       {
         step: 'Step 4',
         title: 'Stage 1 Unlock & 100% Accepted-Only Pitch Credit Protection',
         description:
-          'Unlocking inbound applicants (40%+ AI Fit) is 100% free (0 credits). Pitching passive candidates from your search or Shortlist uses 1 Pitch Credit backed by our 100% Accepted-Only Guarantee—if a candidate declines your pitch, the credit is automatically refunded to the exact bucket it came from. Stage 1 opens a real-time encrypted message thread and reveals the candidate’s First Name + Last Initial.',
+          'Unlocking inbound applicants (40%+ AI Fit) is 100% free (0 credits). Pitching passive candidates uses 1 Pitch Credit backed by our 100% Accepted-Only Guarantee—declined pitches are automatically refunded. Stage 1 opens a live encrypted chat thread and reveals the candidate’s First Name + Last Initial.',
       },
       {
         step: 'Step 5',
         title: 'Stage 2 Unlock: Candidate Releases Full Resume & Contact Vault',
         description:
-          'Send an introductory message in the thread to discuss the role or schedule an interview. Once the candidate clicks "Release Resume & Contact Vault", their Full Name, direct email, and signed PDF resume unlock permanently (and auto-sync to Workday or Greenhouse on Enterprise).',
+          'Message the candidate in Stage 1 chat to discuss the role. Once the candidate clicks "Release Resume & Contact Vault", their Full Name, direct email, and 1-hour cryptographically signed PDF resume unlock (and auto-sync to Workday or Greenhouse on Enterprise).',
       },
     ],
     copyPasteText: `====================================================================
@@ -124,19 +129,19 @@ SPECIAL SAUCE — HIRING TEAM QUICK-START GUIDE
 ====================================================================
 
 1. WHAT IS SPECIAL SAUCE?
-Special Sauce is a verified, identity-protected technical & professional recruitment marketplace protected by a 2-Stage Identity Vault. Active candidates are Stripe Biometric Identity-Verified and evaluated by a 5-Point AI Fit Radar before any contact information is exchanged.
+Special Sauce is a 100% ID-verified, double-blind recruitment marketplace protected by a 2-Stage Identity Vault. Every candidate is Stripe Biometric Identity-Verified and evaluated by a 5-Point AI Fit Radar before any contact information is exchanged.
 
 2. HOW OUR TEAM USES THE PLATFORM (5 STEPS):
-- Step 1 — Domain Verification & 12-Month Rate Lock: Verify our corporate domain to lock in 12-Month Founding Partner Rates, search the anonymous talent pool, filter by employment type (W-2, 1099/C2C, Contract-to-Hire), and bookmark candidates into our Shortlist.
-- Step 2 — Shared Team & BPO Partner Seats: Collaborators (Hiring Managers & authorized external recruiters) share our organization's active role slots and Two-Bucket pitch credit pool.
-- Step 3 — Publishing Protected Roles (30-Day Auto-Expiry): Every role displays transparent pay ($/yr or $/hr), standardized US State & Metro location, and employment type while keeping our company name protected. Roles auto-expire after 30 days to guarantee freshness and can be renewed in 1 click.
-- Step 4 — Stage 1 Unlock & Accepted-Only Pitch Credit Protection: Inbound applications (40%+ AI Fit) are 100% FREE to unlock; outbound pitches to passive talent use 1 Pitch Credit and are auto-refunded if declined. Stage 1 opens a live encrypted chat thread (Ref: SS-XXXXXXXX) and reveals the candidate's First Name + Last Initial.
-- Step 5 — Stage 2 Unlock (Full Resume & Email Release): Once we message the candidate in the thread, they click "Release Resume & Contact Vault" to unlock their Full Name, direct email, and downloadable PDF resume.
+- Step 1 — Organization Setup & 12-Month Rate Lock: Activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo) to lock in Founding Partner Rates for a full 12 months.
+- Step 2 — 3-Pillar Anti-Harvesting Trust Gate: Complete corporate domain verification (including automated 90-day RDAP domain age verification), IRS 9-digit Federal EIN attestation, and a 1-time 60-second Stripe Identity check for the Account Admin.
+- Step 3 — Publishing Protected Roles (30-Day Auto-Expiry): Every role displays transparent pay ($/yr or $/hr), US State & Metro location, and employment type while keeping our company name protected until Stage 1 match. Roles auto-expire after 30 days to guarantee freshness.
+- Step 4 — Stage 1 Unlock & Accepted-Only Pitch Credit Protection: Inbound applications (40%+ AI Fit) are 100% FREE to unlock (0 credits); outbound pitches to passive talent use 1 Pitch Credit and are 100% auto-refunded if declined. Stage 1 opens live encrypted chat (Ref: SS-XXXXXXXX) and reveals the candidate's First Name + Last Initial.
+- Step 5 — Stage 2 Unlock (Full Resume & Email Release): Once we chat with the candidate, they click "Release Resume & Contact Vault" to unlock their Full Name, direct email, and 1-hour signed PDF resume link.
 
 3. EMPLOYER PLANS (12-MONTH FOUNDING PARTNER RATE LOCK) & TOP-UPS:
-- Starter ($149/mo Founding · $299/mo Retail after Mo 12): Up to 5 Active Roles | 10 Pitch Credits/mo | 2 Team/Recruiter Seats
-- Growth ($499/mo Founding · $799/mo Retail after Mo 12): Up to 15 Active Roles | 35 Pitch Credits/mo | Up to 5 Team/Recruiter Seats
-- Enterprise ($1,250/mo Founding · $1,999/mo Retail after Mo 12): Unlimited Active Roles | 120 Pitch Credits/mo | Unlimited Seats + Workday/Greenhouse HR Software Sync
+- Starter ($149/mo Founding · $299/mo Retail starting Mo 13): Up to 5 Active Roles | 10 Pitch Credits/mo | 2 Team/Recruiter Seats
+- Growth ($499/mo Founding · $799/mo Retail starting Mo 13): Up to 15 Active Roles | 35 Pitch Credits/mo | Up to 5 Team/Recruiter Seats
+- Enterprise ($1,250/mo Founding · $1,999/mo Retail starting Mo 13): Unlimited Active Roles | 120 Pitch Credits/mo | Unlimited Seats + Workday/Greenhouse HR Software Sync
 - Non-Expiring Rollover Top-Up Packs (Bucket 2): Boost (+10 Credits for $150), Surge (+25 Credits for $350), Scale (+75 Credits for $900)
 ====================================================================`,
   },
@@ -149,33 +154,33 @@ Special Sauce is a verified, identity-protected technical & professional recruit
     steps: [
       {
         step: 'Step 1',
-        title: 'Explorer Career Vault ($3/mo) & AI Resume Extraction',
+        title: 'Create Account & Activate Your Candidate Plan ($3 / $9 / $15)',
         description:
-          'Upload your PDF resume on your Profile page and activate Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo). Our AI extracts your skills, years of experience, and a third-person bio while locking your Full Name, email, and original PDF inside the Special Sauce Vault.',
+          'Register and activate Explorer ($3/mo for passive inbound discovery), Professional ($9/mo for 15 monthly protected applications), or Prestige ($15/mo for unlimited protected applications & Top-Priority Spotlight). Joining during launch awards the permanent ★ Founding Member Charter badge.',
       },
       {
         step: 'Step 2',
-        title: 'Set Your Dealbreaker Firewall (Pay, Work Model & Employment Type)',
+        title: 'Complete 1-Time Stripe Biometric Identity Verification',
         description:
-          'Configure your minimum annual salary expectation, preferred work model (Remote, Hybrid, On-site), target US State & Metro area, and accepted Employment Types (Full-Time W-2, Contract 1099/C2C, Contract-to-Hire, Part-Time). Employers who fail your dealbreakers are automatically blocked from pitching you.',
+          'Complete a 60-second government photo ID and live selfie check powered by Stripe Identity. Zero raw ID photos or biometrics ever touch Special Sauce servers—only a verified token is stored to prove you are a real human.',
       },
       {
         step: 'Step 3',
-        title: 'Run Free 5-Point AI Fit Checks & Receive Pitch Alerts',
+        title: 'Upload PDF Resume to Your Stage 2 Vault & Set Dealbreakers',
         description:
-          'Browse active protected roles (all verified fresh within 30 days), bookmark favorites into Saved Roles, run unlimited 5-Point AI Fit Radar checks, and receive real-time alerts whenever a verified employer pitches you.',
+          'Upload your PDF resume once. Our AI parser extracts your skills, tenure, certifications, and languages into an anonymized profile (Candidate #ID) while locking your name, email, phone, and raw PDF inside your Stage 2 Vault. Set your minimum pay and dealbreakers upfront.',
       },
       {
         step: 'Step 4',
-        title: 'Upgrade & Complete 1-Time Real-Person ID Verification When Ready',
+        title: 'Check 5-Point AI Fit & Field Direct Employer Pitches',
         description:
-          'When you spot a role you want to apply for (40%+ AI Fit) or want to unlock an incoming employer pitch, upgrade to Professional ($9/mo for 15 monthly protected applications + unlimited pitch unlocks) or Prestige ($15/mo for unlimited protected applications + Top-Priority Employer Search placement) and complete your 1-time Stripe Real-Person ID Verification.',
+          'Browse active roles (all verified fresh within 30 days with upfront pay bands), check your instant 5-Point AI Fit score (40%+ minimum to apply), and receive direct pitches from verified hiring managers who pass your Dealbreaker Firewall.',
       },
       {
         step: 'Step 5',
-        title: '2-Stage Unlock: Chat Safely First, Release Your Resume Vault When Ready',
+        title: '2-Stage Handshake: Chat Safely First, Release Resume Later',
         description:
-          'When an employer unlocks your application—or when you accept an incoming Employer Pitch—Stage 1 opens an encrypted in-platform chat and reveals the employer’s verified company name while keeping your email and PDF resume vaulted. Only when you click "Release Resume & Contact Vault" (Stage 2) does the employer receive your direct email and PDF resume!',
+          'When you accept an employer pitch or an employer unlocks your application, Stage 1 opens an encrypted chat revealing their verified company name while showing only your First Name + Last Initial. Click "Release Resume & Contact Vault" (Stage 2) only when you are ready!',
       },
     ],
     copyPasteText: `====================================================================
@@ -185,12 +190,12 @@ SPECIAL SAUCE — CANDIDATE HOW-IT-WORKS & 2-STAGE VAULT REFERENCE GUIDE
 1. ZERO RESUME HARVESTING (2-STAGE IDENTITY VAULT):
 - While browsing, employers only see "Anonymous Candidate #ID" with your extracted skills, experience level, US Metro location, and third-person bio.
 - Stage 1 (Encrypted Thread): When an employer unlocks your application or you accept an employer pitch, an encrypted in-platform chat opens. You see the employer's verified company name and domain, and they see only your First Name + Last Initial. Your raw email and PDF resume stay LOCKED in the vault.
-- Stage 2 (You Control the Vault Key): After chatting with the employer in the thread to confirm genuine interview interest, click "Release Resume & Contact Vault" in 1 click to share your Full Name, direct email, and PDF resume.
+- Stage 2 (You Control the Vault Key): After chatting with the employer in the thread to confirm genuine interview interest, click "Release Resume & Contact Vault" in 1 click to share your Full Name, direct email, and 1-hour signed PDF resume link.
 
-2. YOUR DEALBREAKER FIREWALL & SAVED ROLES:
+2. 100% VERIFIED EMPLOYERS & YOUR DEALBREAKER FIREWALL:
+- Every employer on Special Sauce must pass a 3-Pillar Anti-Harvesting Gate: Corporate Domain + 90-Day RDAP Age Check, IRS Federal EIN Attestation, and a 1-time Stripe Identity biometric check for their Account Admin.
 - Set your Minimum Salary ($/yr), Work Model (Remote, Hybrid, On-site), Accepted Employment Types (W-2, 1099/C2C, Contract-to-Hire, Part-Time), and US State/Metro on your Preferences page.
-- Bookmark interesting listings using "Save Role" to compare 5-Point AI Fit Radar scores side-by-side before applying.
-- All job listings automatically close after 30 days unless manually renewed by the employer—so you never waste applications on stale "ghost jobs."
+- All job listings automatically close after 30 days unless manually renewed by the employer—eliminating stale "ghost jobs."
 
 3. CANDIDATE MEMBERSHIP TIERS ($3 / $9 / $15):
 - Explorer ($3/mo): Includes 1-time Stripe Real-Person ID Verification, live anonymous profile in Employer Search, unlimited Inbound Employer Pitch unlocks, and unlimited 5-Point AI Fit Radar checks.
@@ -211,7 +216,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'Why do I need to verify my identity, and is my government ID stored by Special Sauce?',
     answer:
-      'Identity verification ensures the integrity of the Special Sauce talent pool, eliminating bots and duplicate accounts. Every candidate plan—Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo)—includes 1-time Stripe Real-Person ID Verification so 100% of candidates in Employer Talent Search are verified real professionals. Your government ID and biometric selfie are NEVER stored on Special Sauce servers—they are vaulted exclusively by Stripe Identity using AES-256 encryption.',
+      'Identity verification protects the integrity of the Special Sauce marketplace, eliminating AI spam bots and fake profiles. Every candidate plan—Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo)—includes 1-time Stripe Real-Person ID Verification (a 60-second photo ID and live selfie check) so 100% of candidates in Employer Search are real professionals. Your government ID and biometric selfie are NEVER stored on Special Sauce servers—they are vaulted exclusively by Stripe Identity using AES-256 encryption.',
   },
   {
     id: 'c2',
@@ -220,25 +225,34 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How does the 2-Stage Identity Vault protect me from resume harvesters?',
     answer:
-      'Unlike traditional job boards that hand over your resume and email immediately, Special Sauce uses a 2-Stage Unlock. In Stage 1 (when an employer unlocks your application or you accept their pitch), an encrypted in-platform chat thread opens: you see the employer’s verified company name, and they see only your First Name + Last Initial. Your raw email address and PDF resume remain locked inside the vault until you chat with them and click the "Release Resume & Contact Vault" button (Stage 2).',
+      'Unlike traditional job boards that expose your resume, phone number, and email to anyone with a recruiter login, Special Sauce enforces a strict 2-Stage Unlock. During discovery, you appear only as "Candidate #ID". In Stage 1 (when an employer unlocks your application or you accept their pitch), an encrypted chat thread opens: you see the employer’s verified company name, and they see only your First Name + Last Initial. Your raw email, phone, and PDF resume remain locked inside your Stage 2 Vault until you decide to click "Release Resume & Contact Vault" (which generates a 1-hour cryptographically signed resume link).',
+  },
+  {
+    id: 'c8',
+    target: 'candidate',
+    category: 'Verification & 2-Stage Vault Privacy',
+    question:
+      'How do I know the Employers on Special Sauce are legitimate companies and not data harvesters?',
+    answer:
+      'Every Employer organization must pass our 3-Pillar Anti-Harvesting Trust Gate before they can publish a role or search the candidate pool: 1) Corporate Domain & 90-Day RDAP Age Check (work-email or DNS TXT verification plus an automated registry check that blocks newly registered burner domains under 90 days old), 2) IRS Federal Tax ID (EIN) & State of Incorporation corporate officer attestation, and 3) A mandatory 1-time Stripe Identity biometric photo ID check for the Employer Account Admin.',
   },
   {
     id: 'c3',
     target: 'candidate',
     category: 'Verification & 2-Stage Vault Privacy',
     question:
-      'How do I know if an employer has messaged me in an encrypted thread?',
+      'How do I know if an employer has pitched me or messaged me in an encrypted thread?',
     answer:
-      'Whenever an employer sends you a message, three things happen automatically: 1) We send an email notification to your inbox with a direct link to the thread, 2) Your Candidate Dashboard displays a pulsing "New Msg" badge on your Applications or Employer Pitches card in real time, and 3) If you have the dashboard or thread open in your browser, a gentle two-note audio chime plays automatically (which you can mute anytime).',
+      'Whenever a verified employer pitches you or sends a Stage 1 chat message, three things happen automatically: 1) We send an instant email alert to your inbox with a direct link to the thread, 2) Your Candidate Dashboard displays a pulsing "New Msg" badge on your Applications or Employer Pitches card in real time, and 3) If you have the dashboard open in your browser, a gentle audio chime plays automatically (which you can mute anytime).',
   },
   {
     id: 'c4',
     target: 'candidate',
     category: 'Applications, Bookmarks & Freshness',
     question:
-      'How does Special Sauce prevent stale "ghost jobs" on the job board?',
+      'How does Special Sauce eliminate stale "ghost jobs" and low-fit resume black holes?',
     answer:
-      'Every job listing on Special Sauce is governed by a strict 30-Day Anti-Harvesting Expiration policy. Each job card displays a live "Closes in Xd" countdown badge. When a role reaches 30 days, it is automatically closed and removed from candidate feeds unless the employer manually renews it for a fresh 30-day cycle.',
+      'First, every job listing on Special Sauce is governed by a strict 30-Day Auto-Expiration policy—each card displays a live "Closes in Xd" countdown and automatically closes after 30 days unless manually renewed by the hiring team. Second, every listing shows transparent Annual (/yr) or Hourly (/hr) pay bands upfront and calculates your instant 5-Point AI Fit Radar score before you apply. A minimum 40%+ AI Fit score is required to submit a protected application, ensuring hiring managers review high-signal matches instead of drowning in spam.',
   },
   {
     id: 'c5',
@@ -247,16 +261,16 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'Can I bookmark or save roles to compare before using my protected applications?',
     answer:
-      'Yes! Click the "Save Role" button on any job card to bookmark it. You can filter by your bookmarked listings at any time using the "Saved Roles" button at the top of your Candidate Dashboard or the Discover Protected Roles page.',
+      'Yes! Click the "Save Role" button on any job card to bookmark it. You can filter by your bookmarked listings at any time using the "Saved Roles" view on your Candidate Dashboard or the Discover Protected Roles page.',
   },
   {
     id: 'c6',
     target: 'candidate',
     category: 'Dealbreakers & Compensation',
     question:
-      'How do Employment Type dealbreakers (W-2 vs. 1099) and Hourly (/hr) pay conversions work?',
+      'How do my Hard Dealbreaker Firewall (W-2 vs. 1099, Remote/Hybrid, and Minimum Pay) rules work?',
     answer:
-      'On your Match Preferences page, you can select which Employment Types you accept (Full-Time W-2, Contract 1099/Corp-to-Corp, Contract-to-Hire, or Part-Time) in addition to your Minimum Annual Salary and Work Model. Employers are blocked from pitching you roles that don’t match your accepted employment types, and hourly roles are automatically annualized at 2,080 hours/year to verify they meet your minimum pay expectation.',
+      'On your Match Preferences page, you set your Minimum Annual Salary, preferred Work Models (Remote, Hybrid, On-site), target US State & Metro area, and accepted Employment Types (Full-Time W-2, Contract 1099/Corp-to-Corp, Contract-to-Hire, or Part-Time). Our Hard Dealbreaker Firewall automatically blocks employers from pitching you if their role violates your minimum pay band (hourly roles are annualized at 2,080 hrs/yr), work model, or employment type preferences.',
   },
   {
     id: 'c7',
@@ -265,7 +279,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'What is the difference between Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo)?',
     answer:
-      'All three candidate tiers include 1-time Stripe Real-Person ID Verification so our talent pool remains 100% bot-free. Explorer ($3/mo) is built for passive discovery: your verified anonymous profile is live in Employer Search and you can unlock and accept unlimited Inbound Employer Pitches. Professional ($9/mo) adds 15 proactive Outbound Protected Applications/month (for roles where you score 40%+ AI Fit). Prestige ($15/mo) includes Unlimited Outbound Protected Applications (40%+ AI Fit) and Top-Priority Spotlight placement in Employer Talent Search. You can switch or downgrade plans anytime.',
+      'All three candidate tiers include 1-time Stripe Real-Person ID Verification, your private Stage 2 Resume Vault, and the permanent ★ Founding Member Charter badge during our launch window. Explorer ($3/mo) is built for passive discovery: your verified anonymous profile is live in Employer Search, you can run unlimited 5-Point AI Fit checks, and you can unlock and accept unlimited Inbound Employer Pitches. Professional ($9/mo) adds 15 proactive Outbound Protected Applications/month (for roles where you score 40%+ AI Fit) plus Verified Profile Distinctions. Prestige ($15/mo) unlocks Unlimited Outbound Protected Applications (40%+ AI Fit) and Top-Priority Spotlight placement at the top of Employer Talent Search. You can upgrade, switch, or downgrade plans anytime.',
   },
 
   // ------------------------------------------------------------------
@@ -274,63 +288,73 @@ export const SUPPORT_FAQS: FAQ[] = [
   {
     id: 'e1',
     target: 'employer',
-    category: 'Verification & Anti-Harvesting Security',
-    question: 'How do I verify my Corporate Domain and lock in Founding Partner Rates?',
+    category: '3-Pillar Trust Gate & Anti-Harvesting Security',
+    question:
+      'How does the 3-Pillar Employer Anti-Harvesting Trust Gate work during onboarding?',
     answer:
-      'You can verify your domain in two ways on your Company Profile page: 1) Sign up with a corporate email address that matches your company domain for instant auto-verification, or 2) Add the unique "special-sauce-verification" TXT record to your domain’s DNS settings and click Verify. Verifying your domain during our launch window locks in Founding Partner Rates ($149 / $499 / $1,250 per month—up to 50% off retail) for your first 12 full months.',
+      'To protect candidates from burner-domain scrapers and fake job postings, every Employer organization completes three verification pillars on the Organization & Trust Gate page: 1) Corporate Domain & 90-Day RDAP Age Check (verify ownership via work-email match or DNS TXT token alongside live DNS MX validation and an automated IANA/RDAP registry lookup that blocks burner domains registered less than 90 days ago), 2) IRS Federal Tax ID (EIN) & State of Incorporation corporate officer attestation, and 3) Admin Stripe Identity Verification (a 1-time 60-second photo ID and live biometric selfie check for the Employer Account Admin). Completing verification during our launch window locks in your 12-Month Founding Partner Rate.',
+  },
+  {
+    id: 'e1b',
+    target: 'employer',
+    category: '3-Pillar Trust Gate & Anti-Harvesting Security',
+    question:
+      'Why does the Employer Account Admin complete a 1-time Stripe Identity check and IRS EIN attestation?',
+    answer:
+      'Senior passive candidates refuse to upload resumes to traditional job boards because anonymous third-party harvesters set up $10 burner domains to scrape contact data. Requiring every Employer Account Admin to complete a 1-time Stripe Identity biometric check alongside IRS Federal EIN attestation proves that a real, accountable hiring leader stands behind the organization—which is why candidates trust Special Sauce enough to make their skills discoverable and accept your outbound pitches.',
   },
   {
     id: 'e2',
     target: 'employer',
-    category: 'Verification & Anti-Harvesting Security',
+    category: '3-Pillar Trust Gate & Anti-Harvesting Security',
     question:
       'How does the 2-Stage Unlock & 5-Unmessaged-Unlock cap work for Employers?',
     answer:
-      'When you unlock an inbound applicant (100% free) or a passive candidate accepts your outbound pitch (1 Pitch Credit), Stage 1 opens an encrypted in-platform message thread and reveals the candidate’s First Name + Last Initial. Send a quick introductory message in the thread to invite them to interview—once they click "Release Resume & Contact Vault" (Stage 2), their Full Name, direct email, and signed PDF resume unlock immediately. To prevent automated scraping, an organization can hold at most 5 unlocked threads awaiting an initial employer message at a time.',
+      'When you unlock an inbound applicant (100% free / 0 credits) or a passive candidate accepts your outbound pitch (1 Pitch Credit), Stage 1 opens an encrypted in-platform message thread and reveals the candidate’s First Name + Last Initial alongside your verified company identity. Send a quick message in the thread to discuss the role—once the candidate clicks "Release Resume & Contact Vault" (Stage 2), their Full Name, direct email, phone, and 1-hour cryptographically signed PDF resume unlock immediately. To prevent bulk scraping, an organization can hold at most 5 unlocked Stage 1 threads awaiting an initial introductory message at a time.',
   },
   {
     id: 'e3',
     target: 'employer',
-    category: 'Verification & Anti-Harvesting Security',
+    category: '3-Pillar Trust Gate & Anti-Harvesting Security',
     question:
       'Why do job postings expire after 30 days, and how do we renew them?',
     answer:
-      'To guarantee candidates that every role on Special Sauce is actively hiring, listings automatically expire 30 days after creation. You can see the exact days remaining on your Job Management page (/dashboard/employer/jobs) and click "Renew +30d" (or "Reopen & Renew (+30d)") at any time to reset the 30-day clock.',
+      'To guarantee candidates that every role on Special Sauce is actively hiring (zero 6-month-old ghost jobs), listings automatically expire 30 days after publication. You can see the exact days remaining on your Job Management page (/dashboard/employer/jobs) and click "Renew +30d" (or "Reopen & Renew (+30d)") in 1 click at any time to reset the 30-day clock.',
   },
   {
     id: 'e4',
     target: 'employer',
-    category: 'Billing, Credits & Shortlisting',
+    category: 'Billing, 12-Month Rate Lock & Pitch Credits',
     question:
-      'How do Employer Plans, Two-Bucket Rollover Credits, and 100% Accepted-Only Protection work?',
+      'How do the 12-Month Founding Partner Rate Lock, Two-Bucket Rollover Credits, and 100% Accepted-Only Protection work?',
     answer:
-      'Starter ($149/mo Founding · $299/mo Retail after Month 12) includes up to 5 Active Roles, 10 Monthly Pitch Credits, and 2 Team/Recruiter Seats. Growth ($499/mo Founding · $799/mo Retail) includes up to 15 Active Roles, 35 Monthly Pitch Credits, and up to 5 Team/Recruiter Seats. Enterprise ($1,250/mo Founding · $1,999/mo Retail) includes Unlimited Active Roles, 120 Monthly Pitch Credits, Unlimited Seats, and Workday/Greenhouse HR Software Sync. Your Monthly Plan Credits (Bucket 1) are always spent first; if you need extra reach, you can add non-expiring Rollover Top-Up Packs (Bucket 2: +10 for $150, +25 for $325, or +75 for $825). Every outbound pitch is protected by our 100% Accepted-Only Guarantee—if a candidate declines your pitch, the credit is automatically refunded to the exact bucket it came from.',
+      'Employers who enroll during our launch window lock in Founding Partner Rates for their first 12 full months before standard retail pricing applies in Month 13: Starter ($149/mo Founding · $299/mo Retail: up to 5 Active Roles, 10 Monthly Pitch Credits, 2 Seats), Growth ($499/mo Founding · $799/mo Retail: up to 15 Active Roles, 35 Monthly Pitch Credits, up to 5 Seats), and Enterprise ($1,250/mo Founding · $1,999/mo Retail: Unlimited Active Roles, 120 Monthly Pitch Credits, Unlimited Seats + Workday/Greenhouse HR Software Sync). Your Monthly Plan Credits (Bucket 1) are always spent first; if you need extra outbound reach, you can add non-expiring Rollover Top-Up Packs (Bucket 2: Boost +10 Credits for $150, Surge +25 Credits for $350, or Scale +75 Credits for $900). Every outbound pitch is backed by our 100% Accepted-Only Guarantee—if a candidate declines your pitch, the credit is automatically refunded to the exact bucket it came from.',
   },
   {
     id: 'e5',
     target: 'employer',
-    category: 'Billing, Credits & Shortlisting',
+    category: 'Billing, 12-Month Rate Lock & Pitch Credits',
     question:
       'Does unlocking an Inbound Protected Application cost a Pitch Credit?',
     answer:
-      'No! Reviewing, unlocking Stage 1 threads, messaging, and shortlisting candidates who proactively submit an inbound protected application to your roles is 100% FREE (0 credits) on all active subscription plans. Pitch Credits are only used (1 credit per pitch) when you proactively send an outbound pitch to a passive candidate from the Candidate Search pool.',
+      'No! Reviewing, unlocking Stage 1 chat threads, messaging, and shortlisting candidates who proactively submit an inbound protected application (40%+ AI Fit) to your roles is 100% FREE (0 credits) on all active Employer plans. Pitch Credits are only used (1 credit per pitch) when you proactively send an outbound pitch to a passive candidate from the Candidate Search pool.',
   },
   {
     id: 'e6',
     target: 'employer',
-    category: 'Team Seats & BPO Partners',
+    category: 'Team Seats, BPO Partners & ATS Sync',
     question:
-      'How do we invite Hiring Managers or W-2 BPO / RPO Partners into our workspace?',
+      'How do we invite Hiring Managers or W-2 BPO / RPO Partners, and how does Workday / Greenhouse sync work?',
     answer:
-      'Every paid Employer plan includes collaborator seats: Starter ($149/mo Founding) includes 2 seats, Growth ($499/mo Founding) includes up to 5 seats, and Enterprise ($1,250/mo Founding) includes Unlimited Team & Delegated W-2 BPO/RPO Partner seats. Open your Company Profile (/dashboard/employer/organization) and scroll to the "Team & External Recruiter Seats" panel. Enter their email, choose "Internal Hiring Manager" or "External Recruiting Partner", and click Assign Seat.',
+      'Every Employer plan includes collaborator seats: Starter ($149/mo) includes 2 seats, Growth ($499/mo) includes up to 5 seats, and Enterprise ($1,250/mo) includes Unlimited Team & External Recruiter seats. Open your Organization page (/dashboard/employer/organization) to assign seats. On Enterprise, whenever a candidate clicks "Release Resume & Contact Vault" (Stage 2), Special Sauce can automatically push a cryptographically signed HMAC-SHA256 webhook payload (candidate.vault_released) to Workday/MuleSoft or sync the candidate’s PDF resume and 5-Point AI Fit scorecard directly into Greenhouse.',
   },
   {
     id: 'e7',
     target: 'employer',
-    category: 'Pipeline & Real-Time Messaging',
+    category: 'Team Seats, BPO Partners & ATS Sync',
     question:
-      'How do we know when a candidate replies or releases their Resume Vault?',
+      'How do we know when a candidate accepts our pitch, replies, or releases their Resume Vault?',
     answer:
-      'Whenever a candidate replies in an encrypted thread or approves Stage 2 Vault Release, your team receives an instant email notification with the SS-XXXXXXXX Reference ID, a pulsing "New Msg" badge appears on your Employer Dashboard cards in real time, and an audio chime plays if your browser tab is open.',
+      'Whenever a candidate accepts an outbound pitch, replies in a Stage 1 thread, or triggers Stage 2 Vault Release, your team receives an instant email notification with the SS-XXXXXXXX Reference ID, a pulsing "New Msg" badge appears on your Employer Dashboard in real time, and an audio chime plays if your browser tab is open.',
   },
 ]
