@@ -457,7 +457,7 @@ export default async function ProfilePage() {
   )
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-12">
+    <div className="py-2">
       <div className="max-w-4xl mx-auto space-y-8">
         <header className="mb-8">
           <Link

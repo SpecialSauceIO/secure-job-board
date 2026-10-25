@@ -229,7 +229,7 @@ export default async function MatchPreferencesPage() {
   } = extractSavedPrefMeta(profile)
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-12">
+    <div className="py-2">
       <div className="max-w-3xl mx-auto space-y-8">
         <header>
           <Link
