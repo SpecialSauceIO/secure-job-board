@@ -5,24 +5,22 @@ export function PublicFooter() {
   return (
     <footer className="bg-white border-t border-slate-300 py-8 px-6 w-full overflow-hidden">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Global Operational Provenance & Trust Bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200/90 text-xs">
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1.5 text-slate-700 font-bold">
-            <span className="inline-flex items-center gap-1.5">
-              <span aria-hidden="true">🇺🇸</span> Proudly US-Based Company &amp; Operations
+        {/* Global Operational Provenance & Trust Bar — Frameless with Thin Vertical Borders */}
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-3 pb-6 border-b border-slate-200/80 text-xs">
+          <div className="flex flex-wrap items-center justify-center lg:justify-start">
+            <span className="px-3.5 py-0.5 border-l border-r border-slate-300 text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-700">
+              100% US-Based Company &amp; Operations
             </span>
-            <span className="hidden sm:inline text-slate-300">•</span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" /> 100% US-Based Human Support
+            <span className="px-3.5 py-0.5 border-r border-slate-300 text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-700">
+              100% US Human Support
             </span>
-            <span className="hidden sm:inline text-slate-300">•</span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#0077D4]" /> AI Matching Tested &amp; Calibrated Daily
+            <span className="px-3.5 py-0.5 border-r border-slate-300 text-[11px] font-extrabold uppercase tracking-[0.12em] text-slate-700">
+              AI Tooling Calibrated Daily
             </span>
           </div>
           <Link
             href="/security"
-            className="text-[11px] font-extrabold text-[#0077D4] hover:underline whitespace-nowrap"
+            className="text-[11px] font-extrabold uppercase tracking-[0.1em] text-[#0077D4] hover:underline whitespace-nowrap"
           >
             Verify Our Security &amp; AI Standards →
           </Link>

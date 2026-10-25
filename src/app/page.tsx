@@ -294,36 +294,43 @@ export default function LandingPage() {
           />
         </div>
 
-        {/* High-Visibility Operational Trust Strip */}
-        <div className="mt-8 pt-6 border-t border-slate-200/90 w-full max-w-5xl z-20 relative">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-left">
-            <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
-              <span className="text-base shrink-0" aria-hidden="true">🇺🇸</span>
-              <div>
-                <div className="text-[11px] font-extrabold text-slate-900 uppercase tracking-tight">100% US-Based Company</div>
-                <div className="text-[11px] text-slate-500 font-medium">US-Owned &amp; Operated</div>
-              </div>
+        {/* High-Visibility Operational Trust Strip — Frameless with Thin Vertical Dividers */}
+        <div className="mt-9 w-full max-w-5xl z-20 relative">
+          <div className="grid grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 lg:divide-x divide-slate-300 dark:divide-slate-700/80 border-y border-slate-200/80 dark:border-slate-800/80 py-3.5">
+            <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
+              <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
+                100% US-Based Company
+              </span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                US-Owned &amp; Operated
+              </span>
             </div>
-            <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 ring-4 ring-emerald-500/15" />
-              <div>
-                <div className="text-[11px] font-extrabold text-slate-900 uppercase tracking-tight">100% US Human Support</div>
-                <div className="text-[11px] text-slate-500 font-medium">Zero Offshore Call Centers</div>
-              </div>
+
+            <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
+              <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
+                100% US Human Support
+              </span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                Zero Offshore Call Centers
+              </span>
             </div>
-            <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-[#0077D4] shrink-0 ring-4 ring-sky-500/15" />
-              <div>
-                <div className="text-[11px] font-extrabold text-slate-900 uppercase tracking-tight">Daily-Calibrated AI</div>
-                <div className="text-[11px] text-slate-500 font-medium">Tested Daily for Accuracy</div>
-              </div>
+
+            <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
+              <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
+                Daily-Calibrated AI
+              </span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                Tested Daily for Accuracy
+              </span>
             </div>
-            <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-[#EA580C] shrink-0 ring-4 ring-orange-500/15" />
-              <div>
-                <div className="text-[11px] font-extrabold text-slate-900 uppercase tracking-tight">2-Stage Privacy Vault</div>
-                <div className="text-[11px] text-slate-500 font-medium">Stripe ID &amp; DNS Verified</div>
-              </div>
+
+            <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
+              <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
+                2-Stage Privacy Vault
+              </span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                Stripe ID &amp; DNS Verified
+              </span>
             </div>
           </div>
         </div>
