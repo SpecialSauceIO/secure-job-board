@@ -711,7 +711,7 @@ export function CandidateJobFeed({
                   : 'border-2 border-slate-300 shadow-sm hover:border-slate-400'
               }`}
             >
-              <div className="p-6 md:p-7 space-y-4">
+              <div className="p-4 sm:p-6 md:p-7 space-y-4">
                 {/* Row 1: Fixed Top Identity Bar & Save / Compensation Action Group */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -1074,13 +1074,13 @@ export function CandidateJobFeed({
                       : `Requires ${MIN_MATCH_THRESHOLD}%+ AI Match Score to apply (Current: ${score}%).`}
                   </p>
 
-                  <div className="flex items-center gap-2.5 shrink-0">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto shrink-0">
                     {!isApplied && (
                       <button
                         type="button"
                         disabled={isAnalyzing || isApplying}
                         onClick={() => handleAnalyzeFit(jobId)}
-                        className="px-4 py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer border-slate-300"
+                        className="w-full sm:w-auto text-center justify-center px-4 py-2.5 sm:py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer whitespace-nowrap"
                       >
                         {isAnalyzing
                           ? 'Analyzing Fit...'
@@ -1092,7 +1092,7 @@ export function CandidateJobFeed({
 
                     {matchData &&
                       (isApplied ? (
-                        <span className="px-4 py-2 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-extrabold">
+                        <span className="w-full sm:w-auto text-center justify-center px-4 py-2 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-extrabold">
                           ✓ Protected Application Sent
                         </span>
                       ) : (
@@ -1104,7 +1104,7 @@ export function CandidateJobFeed({
                             score < MIN_MATCH_THRESHOLD
                           }
                           onClick={() => handleBlindApply(jobId)}
-                          className="px-5 py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-2xs disabled:opacity-40 cursor-pointer"
+                          className="w-full sm:w-auto text-center justify-center px-5 py-2.5 sm:py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-2xs disabled:opacity-40 cursor-pointer whitespace-nowrap"
                         >
                           {isApplying
                             ? 'Submitting...'

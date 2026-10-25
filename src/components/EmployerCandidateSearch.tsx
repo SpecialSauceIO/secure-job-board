@@ -1144,7 +1144,7 @@ export default function EmployerCandidateSearch({
             return (
               <div
                 key={candidate.id}
-                className={`bg-white p-6 md:p-8 rounded-2xl border shadow-sm space-y-5 transition-all ${
+                className={`bg-white p-4 sm:p-6 md:p-8 rounded-2xl border shadow-sm space-y-5 transition-all ${
                   isShortlisted
                     ? 'border-2 border-slate-300 shadow-sm'
                     : rankInfo.isFounder
@@ -1357,7 +1357,7 @@ export default function EmployerCandidateSearch({
                               onClick={() =>
                                 handleRoleSelect(selectedJobId, candidate.id, true)
                               }
-                              className="px-3.5 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-100 transition-colors cursor-pointer border-slate-300"
+                              className="px-3.5 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-100 transition-colors cursor-pointer whitespace-nowrap"
                             >
                               ↻ Re-Run Fit
                             </button>
@@ -1566,7 +1566,7 @@ export default function EmployerCandidateSearch({
                             )}
                           </div>
 
-                          <div className="flex items-center gap-2.5 shrink-0">
+                          <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
                             <button
                               type="button"
                               onClick={handlePitch}
