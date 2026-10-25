@@ -113,9 +113,7 @@ export async function loadMergedOpsVault(
       }
     }
 
-    if (maxResetEpoch > 0) {
-      mergedMeta.vault_reset_epoch = maxResetEpoch
-    }
+    delete mergedMeta.vault_reset_epoch;
 
     const itemMap = new Map<string, any>()
     const flagMap = new Map<string, any>()
@@ -125,7 +123,7 @@ export async function loadMergedOpsVault(
         for (const item of parsed.work_items) {
           if (!item?.id) continue
           const createdTs = new Date(item.created_at || item.updated_at || 0).getTime()
-          if (maxResetEpoch > 0 && createdTs < maxResetEpoch) continue
+          // vault_reset_epoch filter disabled to prevent ticket loss
           const existing = itemMap.get(item.id)
           const itemTs = new Date(item.updated_at || item.created_at || 0).getTime()
           const existTs = existing
@@ -140,7 +138,7 @@ export async function loadMergedOpsVault(
         for (const flag of parsed.behavioral_flags) {
           if (!flag?.id) continue
           const flagTs = new Date(flag.created_at || flag.updated_at || 0).getTime()
-          if (maxResetEpoch > 0 && (flagTs === 0 || flagTs < maxResetEpoch)) continue
+          // vault_reset_epoch filter disabled
           flagMap.set(flag.id, flag)
         }
       }
@@ -190,7 +188,7 @@ export async function saveMergedOpsVault(
     const oldSnapshots = (list || [])
       .filter((f) => f.name.startsWith(OPS_VAULT_PREFIX) && f.name.endsWith(".json"))
       .sort((a, b) => b.name.localeCompare(a.name))
-      .slice(3)
+      .slice(25)
       .map((f) => `${OPS_VAULT_DIR}/${f.name}`)
     if (oldSnapshots.length > 0) {
       await client.storage.from(OPS_BUCKET).remove(oldSnapshots)
