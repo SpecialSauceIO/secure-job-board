@@ -25,6 +25,47 @@ export default function PricingMatrixPage() {
           <p className="text-base sm:text-xl text-slate-100 max-w-3xl mx-auto leading-relaxed">
             Every candidate on Special Sauce is <strong className="text-white">Real-Person ID-Verified</strong>—starting at <strong className="text-emerald-300">$3/mo on Explorer</strong> for passive inbound pitches, or <strong className="text-white">$9/mo &amp; $15/mo</strong> to proactively apply to roles. Employers lock in <strong className="text-amber-300">12-Month Founding Partner Rates</strong> backed by 100% Accepted-Only Pitch Credit Protection.
           </p>
+
+          {/* Frameless Operational Trust Strip — Matching Landing Page Vertical Hairlines */}
+          <div className="pt-6 w-full max-w-5xl mx-auto">
+            <div className="grid grid-cols-2 lg:grid-cols-4 lg:divide-x divide-slate-400 dark:divide-white/70 py-2">
+              <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
+                <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
+                  100% US-Based Company
+                </span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                  US-Owned &amp; Operated
+                </span>
+              </div>
+
+              <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
+                <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
+                  100% US Human Support
+                </span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                  Zero Offshore Call Centers
+                </span>
+              </div>
+
+              <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
+                <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
+                  Daily-Calibrated AI
+                </span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                  Tested Daily for Accuracy
+                </span>
+              </div>
+
+              <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
+                <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
+                  2-Stage Privacy Vault
+                </span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                  Stripe ID &amp; DNS Verified
+                </span>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Main 3x3 Matrix Container */}
