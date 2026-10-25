@@ -345,17 +345,17 @@ export default function EmployerInboundApplicationsPage() {
           </div>
 
           {/* Keyword Search */}
-          <form onSubmit={handleSearch} className="flex gap-3">
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search applications by Reference ID (SS-...), role title, skill, bio, or unlocked candidate name..."
-              className="flex-1 rounded-xl border-2 border-slate-300 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none border-slate-300"
+              className="w-full min-w-0 sm:flex-1 rounded-xl border-2 border-slate-300 bg-slate-50 px-3.5 sm:px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
             />
             <button
               type="submit"
-              className="px-6 py-2.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-300 hover:bg-indigo-100 transition-colors cursor-pointer"
+              className="w-full sm:w-auto px-6 py-2.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-300 hover:bg-indigo-100 transition-colors cursor-pointer shrink-0"
             >
               Filter
             </button>
@@ -478,13 +478,13 @@ export default function EmployerInboundApplicationsPage() {
             {paginatedApplications.map((app) => {
               const appIndustry = getAppIndustry(app)
               return (
-                <div key={app.id} className="relative">
-                  <div className="absolute -top-3 left-4 flex items-center gap-2 z-10">
-                    <span className="bg-slate-900 text-white text-xs font-bold px-4 py-1 rounded-full shadow-sm">
+                <div key={app.id} className="space-y-2">
+                  <div className="flex flex-wrap items-center gap-2 px-1">
+                    <span className="bg-slate-900 text-white text-xs font-bold px-3.5 py-1.5 rounded-xl shadow-xs leading-snug">
                       Applied for: {app.jobs?.title || 'Open Role'}
                     </span>
                     {appIndustry && (
-                      <span className="bg-indigo-50 text-indigo-800 border border-indigo-300 text-[11px] font-extrabold px-3 py-0.5 rounded-full shadow-2xs">
+                      <span className="bg-indigo-50 text-indigo-800 border border-indigo-300 text-[11px] font-extrabold px-3 py-1 rounded-xl shadow-2xs leading-snug">
                         {appIndustry}
                       </span>
                     )}
@@ -511,7 +511,7 @@ export default function EmployerInboundApplicationsPage() {
                 </strong>{' '}
                 {totalFilteredInbound === 1 ? 'application' : 'applications'}
               </span>
-              <span className="text-slate-300">|</span>
+              <span className="hidden sm:inline text-slate-300">|</span>
               <label className="inline-flex items-center gap-2 font-bold text-slate-700">
                 <span>Per page:</span>
                 <select
@@ -542,7 +542,7 @@ export default function EmployerInboundApplicationsPage() {
                   setCurrentPage(Math.max(1, safeCurrentPage - 1))
                   if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
                 }}
-                className="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-extrabold hover:bg-slate-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                className="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-extrabold hover:bg-slate-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed whitespace-nowrap shrink-0"
               >
                 ← Prev
               </button>
@@ -589,7 +589,7 @@ export default function EmployerInboundApplicationsPage() {
                   setCurrentPage(Math.min(totalPages, safeCurrentPage + 1))
                   if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
                 }}
-                className="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-extrabold hover:bg-slate-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                className="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-extrabold hover:bg-slate-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed whitespace-nowrap shrink-0"
               >
                 Next →
               </button>

@@ -1730,7 +1730,7 @@ export default function EmployerCandidateSearch({
               </strong>{' '}
               verified {totalFilteredCandidates === 1 ? 'candidate' : 'candidates'}
             </span>
-            <span className="text-slate-300">|</span>
+            <span className="hidden sm:inline text-slate-300">|</span>
             <label className="inline-flex items-center gap-2 font-bold text-slate-700">
               <span>Per page:</span>
               <select
@@ -1761,7 +1761,7 @@ export default function EmployerCandidateSearch({
                 setCurrentPage(Math.max(1, safeCurrentPage - 1))
                 if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
               }}
-              className="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-extrabold hover:bg-slate-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+              className="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-extrabold hover:bg-slate-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed whitespace-nowrap shrink-0"
             >
               ← Prev
             </button>
@@ -1808,7 +1808,7 @@ export default function EmployerCandidateSearch({
                 setCurrentPage(Math.min(totalPages, safeCurrentPage + 1))
                 if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
               }}
-              className="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-extrabold hover:bg-slate-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+              className="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-extrabold hover:bg-slate-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed whitespace-nowrap shrink-0"
             >
               Next →
             </button>

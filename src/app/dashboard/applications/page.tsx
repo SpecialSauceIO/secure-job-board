@@ -517,7 +517,7 @@ export default function CandidateApplicationsPage() {
                           <RadarChart
                             cx="50%"
                             cy="50%"
-                            outerRadius="52%" margin={{ top: 10, right: 28, bottom: 10, left: 28 }}
+                            outerRadius="44%" margin={{ top: 14, right: 62, bottom: 14, left: 62 }}
                             data={radarData}
                           >
                             <PolarGrid stroke="#cbd5e1" />
@@ -575,7 +575,7 @@ export default function CandidateApplicationsPage() {
                 </strong>{' '}
                 {totalApplications === 1 ? 'application' : 'applications'}
               </span>
-              <span className="text-slate-300">|</span>
+              <span className="hidden sm:inline text-slate-300">|</span>
               <label className="inline-flex items-center gap-2 font-bold text-slate-700">
                 <span>Per page:</span>
                 <select
@@ -606,7 +606,7 @@ export default function CandidateApplicationsPage() {
                   setCurrentPage(Math.max(1, safeCurrentPage - 1))
                   if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
                 }}
-                className="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-extrabold hover:bg-slate-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                className="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-extrabold hover:bg-slate-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed whitespace-nowrap shrink-0"
               >
                 ← Prev
               </button>
@@ -653,7 +653,7 @@ export default function CandidateApplicationsPage() {
                   setCurrentPage(Math.min(totalPages, safeCurrentPage + 1))
                   if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
                 }}
-                className="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-extrabold hover:bg-slate-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                className="px-3 py-1.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-extrabold hover:bg-slate-50 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed whitespace-nowrap shrink-0"
               >
                 Next →
               </button>

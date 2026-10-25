@@ -402,16 +402,12 @@ export function ApplicationRevealCard({
           : 'border-slate-300 hover:border-slate-400'
       }`}
     >
-      <div className="p-6 md:p-8 space-y-4">
+      <div className="p-4 sm:p-6 md:p-8 space-y-4">
         {/* Top Row: Role, Ref, Date, and Match Badge */}
         <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-300 text-xs font-semibold text-slate-500">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-slate-900 font-extrabold">
-              Role: {job?.title || 'Open Role'}
-            </span>
-            <span>•</span>
-            <span className="font-mono text-slate-600">Ref: {referenceId}</span>
-            <span>•</span>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="font-mono text-slate-600 font-bold">Ref: {referenceId}</span>
+            <span className="hidden sm:inline text-slate-300">•</span>
             <span>Applied {safeFormatDate(app?.created_at)}</span>
           </div>
 
@@ -600,13 +596,13 @@ export function ApplicationRevealCard({
                 </div>
               ))}
             </div>
-            <div className="w-full max-w-[300px] h-[205px] shrink-0 mx-auto">
+            <div className="w-full max-w-[340px] h-[220px] shrink-0 mx-auto">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart
                   cx="50%"
                   cy="50%"
-                  outerRadius="52%"
-                  margin={{ top: 10, right: 28, bottom: 10, left: 28 }}
+                  outerRadius="44%"
+                  margin={{ top: 14, right: 62, bottom: 14, left: 62 }}
                   data={radarData}
                 >
                   <PolarGrid stroke="#cbd5e1" />
@@ -719,12 +715,12 @@ export function ApplicationRevealCard({
               <span className="text-slate-500">
                 <strong>Free Unlock:</strong> Opening a private chat costs 0 credits.
               </span>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto shrink-0">
                 <button
                   type="button"
                   disabled={isProcessing}
                   onClick={() => setShowArchivePrompt(true)}
-                  className="px-3 py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer"
+                  className="px-3 py-2.5 sm:py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer whitespace-nowrap text-center justify-center"
                 >
                   Not a Fit
                 </button>
@@ -732,7 +728,7 @@ export function ApplicationRevealCard({
                   type="button"
                   disabled={isProcessing}
                   onClick={() => handleDecision('shortlisted')}
-                  className="px-3 py-2 rounded-xl bg-emerald-600 text-white font-extrabold hover:bg-emerald-700 transition-colors shadow-2xs cursor-pointer"
+                  className="px-3 py-2.5 sm:py-2 rounded-xl bg-emerald-600 text-white font-extrabold hover:bg-emerald-700 transition-colors shadow-2xs cursor-pointer whitespace-nowrap text-center justify-center"
                 >
                   ★ Shortlist
                 </button>
@@ -740,7 +736,7 @@ export function ApplicationRevealCard({
                   type="button"
                   disabled={isProcessing}
                   onClick={handleUnlock}
-                  className="px-4 py-2 rounded-xl bg-slate-900 text-white font-extrabold hover:bg-indigo-600 transition-colors shadow-2xs cursor-pointer"
+                  className="col-span-2 sm:col-span-1 px-4 py-2.5 sm:py-2 rounded-xl bg-slate-900 text-white font-extrabold hover:bg-indigo-600 transition-colors shadow-2xs cursor-pointer whitespace-nowrap text-center justify-center"
                 >
                   {isProcessing ? 'Unlocking...' : '🔓 Unlock Thread'}
                 </button>
