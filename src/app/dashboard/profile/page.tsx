@@ -249,7 +249,7 @@ export default async function ProfilePage() {
   const hasProfileData = !!profile?.bio
 
   const AiSection = (
-    <div className="bg-white p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm border-slate-300">
+    <div className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm border-slate-300">
       <div className="mb-6">
         <h2 className="text-xl font-bold text-slate-800">
           {hasProfileData
@@ -269,7 +269,7 @@ export default async function ProfilePage() {
   const FormSection = (
     <form
       action={saveCandidateProfilePreservingMeta}
-      className="bg-white p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6 border-slate-300"
+      className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6 border-slate-300"
     >
       <div>
         <h2 className="text-xl font-bold text-slate-800">
@@ -319,7 +319,7 @@ export default async function ProfilePage() {
         </div>
       </div>
 
-      <div className="space-y-8 bg-slate-50 p-6 border-2 border-slate-300 rounded-xl border-slate-300">
+      <div className="space-y-6 bg-slate-50 p-4 sm:p-6 border-2 border-slate-300 rounded-xl">
         {/* Clean Pointer to Match Preferences & Dealbreakers */}
         <div className="p-4 rounded-xl bg-white border border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
           <div>

@@ -260,7 +260,7 @@ export default async function MatchPreferencesPage() {
         </header>
 
         {!isVerified && (
-          <div className="p-6 rounded-2xl bg-amber-50 border-2 border-slate-300 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-4 sm:p-6 rounded-2xl bg-amber-50 border-2 border-slate-300 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-sm font-extrabold text-amber-950">
                 Identity Verification Required
@@ -277,7 +277,7 @@ export default async function MatchPreferencesPage() {
 
         <form
           action={saveCandidatePreferencesWithEmploymentTypes}
-          className="bg-white p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6 border-slate-300"
+          className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6 border-slate-300"
         >
           <input
             type="hidden"
