@@ -163,6 +163,27 @@ export async function saveMergedOpsVault(
   client: NonNullable<ReturnType<typeof getOpsServiceClient>>,
   vault: { work_items: any[]; behavioral_flags: any[]; monitor_meta?: Record<string, any> }
 ) {
+  try {
+    const { data: currentData } = await client.storage.from(OPS_BUCKET).download(OPS_VAULT_PATH)
+    if (currentData) {
+      const currentParsed = JSON.parse(await currentData.text())
+      if (Array.isArray(currentParsed?.work_items) && currentParsed.work_items.length > 0) {
+        const mergedMap = new Map<string, any>()
+        for (const item of currentParsed.work_items) {
+          if (item?.id) mergedMap.set(item.id, item)
+        }
+        for (const item of vault.work_items || []) {
+          if (item?.id) mergedMap.set(item.id, item)
+        }
+        vault.work_items = Array.from(mergedMap.values()).sort(
+          (a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+        )
+      }
+    }
+  } catch {}
+  if (vault.monitor_meta) {
+    delete vault.monitor_meta.vault_reset_epoch
+  }
   const nowTs = Date.now()
   const newVersionPath = `${OPS_VAULT_DIR}/${OPS_VAULT_PREFIX}${nowTs}.json`
   const payloadBuffer = Buffer.from(JSON.stringify(vault, null, 2), "utf-8")
