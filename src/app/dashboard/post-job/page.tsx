@@ -18,7 +18,7 @@ export default async function PostJobPage() {
   if (profile?.role !== 'employer') redirect('/dashboard')
 
   return (
-    <div className="mx-auto max-w-3xl rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
+    <div className="mx-auto max-w-3xl rounded-xl bg-white p-5 sm:p-8 shadow-sm ring-1 ring-gray-200">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">

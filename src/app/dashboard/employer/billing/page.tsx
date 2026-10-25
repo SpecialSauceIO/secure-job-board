@@ -323,7 +323,7 @@ export default function EmployerBillingPage() {
 
       {/* Dynamic Founding Partner Status & Live Two-Bucket Plan Summary Banner */}
       {isLoading ? (
-        <div className="rounded-2xl bg-white border-2 border-slate-300 p-8 text-center shadow-xs">
+        <div className="rounded-2xl bg-white border-2 border-slate-300 p-5 sm:p-8 text-center shadow-xs">
           <div className="inline-block w-6 h-6 border-3 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-2" />
           <p className="text-xs font-bold text-slate-500">
             Syncing organization verification &amp; two-bucket credit ledger...

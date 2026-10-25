@@ -16,7 +16,7 @@ export default function SecurityTrustPage() {
         <PublicHeader />
 
         {/* Dark Hero Header */}
-        <section className="bg-slate-900 text-white py-16 sm:py-20 px-6 md:px-12 border-b border-slate-800">
+        <section className="bg-slate-900 text-white py-12 sm:py-20 px-4 sm:px-6 md:px-12 border-b border-slate-800">
           <div className="max-w-5xl mx-auto space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-slate-300/30 text-emerald-300 text-xs font-extrabold uppercase tracking-wider">
               🛡️ Security &amp; Privacy Architecture
@@ -31,7 +31,7 @@ export default function SecurityTrustPage() {
         </section>
 
         {/* 4 Pillars Grid */}
-        <main className="max-w-5xl mx-auto px-6 md:px-12 py-16 space-y-10">
+        <main className="max-w-5xl mx-auto px-4 sm:px-6 md:px-12 py-10 sm:py-16 space-y-8 sm:space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Pillar 1 */}
             <div className="bg-white p-7 rounded-2xl border-2 border-slate-300 shadow-2xs space-y-3 border-slate-300">

@@ -686,7 +686,7 @@ export default function NewJobPage() {
         <div className="pt-2 flex justify-end">
           <SubmitButton
             pendingText="Publishing..."
-            className="rounded-xl bg-indigo-600 px-8 py-3.5 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer"
+            className="w-full sm:w-auto rounded-xl bg-indigo-600 px-8 py-3.5 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer"
           >
             Publish Protected Job Post
           </SubmitButton>

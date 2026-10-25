@@ -13,7 +13,7 @@ export default function PublicWorkflowsPage() {
     <div className="min-h-screen w-full overflow-x-hidden bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900 flex flex-col justify-between">
       <div>
         <PublicHeader />
-        <main className="max-w-6xl mx-auto px-6 md:px-12 py-12">
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 md:px-12 py-8 sm:py-12">
           <PlatformWorkflowsView isDashboard={false} />
         </main>
       </div>

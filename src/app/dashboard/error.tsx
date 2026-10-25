@@ -15,7 +15,7 @@ export default function DashboardError({
   }, [error])
 
   return (
-    <div className="max-w-2xl mx-auto my-12 p-8 bg-white rounded-2xl border-2 border-slate-300 shadow-sm text-center space-y-5">
+    <div className="max-w-2xl mx-auto my-8 sm:my-12 p-5 sm:p-8 bg-white rounded-2xl border-2 border-slate-300 shadow-sm text-center space-y-5">
       <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 border border-amber-300 flex items-center justify-center mx-auto font-black text-xl">
         !
       </div>
