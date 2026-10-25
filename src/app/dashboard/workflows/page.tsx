@@ -21,7 +21,7 @@ export default async function DashboardWorkflowsPage() {
 
   return (
     <div className="py-2">
-      <div className="max-w-5xl mx-auto space-y-8">
+      <div className="max-w-6xl mx-auto py-3 space-y-6">
         <header>
           <Link
             href="/dashboard"
@@ -42,7 +42,7 @@ export default async function DashboardWorkflowsPage() {
             </svg>
             Back to Dashboard
           </Link>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
             Platform Workflows &amp; Verification Roadmap
           </h1>
           <p className="text-slate-500 mt-1">

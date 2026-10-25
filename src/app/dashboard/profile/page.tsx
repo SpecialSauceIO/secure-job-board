@@ -458,7 +458,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="py-2">
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-6xl mx-auto py-3 space-y-6">
         <header className="mb-8">
           <Link
             href="/dashboard"
@@ -479,7 +479,7 @@ export default async function ProfilePage() {
             </svg>
             Back to Candidate Dashboard
           </Link>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
             Anonymous Profile
           </h1>
           <p className="text-slate-500 mt-2">

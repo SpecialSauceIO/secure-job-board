@@ -230,34 +230,10 @@ export default async function MatchPreferencesPage() {
 
   return (
     <div className="py-2">
-      <div className="max-w-3xl mx-auto space-y-8">
-        <header>
-          <Link
-            href="/dashboard"
-            className="text-indigo-600 font-bold text-sm inline-flex items-center gap-1 mb-3 hover:text-indigo-700"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Back to Candidate Dashboard
-          </Link>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            Match Preferences &amp; Dealbreakers
-          </h1>
-          <p className="text-slate-500 mt-1">
+      <div className="max-w-6xl mx-auto py-3 space-y-6">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-300 pb-4"><div><h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Match Preferences &amp; Dealbreakers</h1><p className="text-sm text-slate-500 mt-1">
             Configure your hard outbound pitch firewall rules and search logistics: minimum salary expectations, accepted employment types, preferred work model, target US location, and search availability.
-          </p>
-        </header>
+          </p></div></header>
 
         {!isVerified && (
           <div className="p-4 sm:p-6 rounded-2xl bg-amber-50 border-2 border-slate-300 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">

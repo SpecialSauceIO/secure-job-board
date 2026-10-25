@@ -199,7 +199,7 @@ export default function EditJobPage() {
   if (isLoading) {
     return (
       <div className="py-2">
-        <div className="mx-auto max-w-4xl rounded-2xl bg-white p-12 text-center shadow-sm border-2 border-slate-300 mt-8 border-slate-300">
+        <div className="mx-auto max-w-6xl rounded-2xl bg-white p-12 text-center shadow-sm border-2 border-slate-300 mt-8 border-slate-300">
           <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
           <p className="text-slate-500 font-medium">Loading role details...</p>
         </div>
@@ -208,7 +208,7 @@ export default function EditJobPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl rounded-2xl bg-white p-4 sm:p-8 shadow-sm border-2 border-slate-300 mt-4 mb-12">
+    <div className="mx-auto max-w-6xl rounded-2xl bg-white p-4 sm:p-8 shadow-sm border-2 border-slate-300 mt-4 mb-12">
       <div className="mb-8">
         <div className="flex flex-wrap items-center gap-4 mb-3">
           <Link

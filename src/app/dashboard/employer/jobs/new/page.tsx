@@ -213,7 +213,7 @@ export default function NewJobPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl rounded-2xl bg-white p-4 sm:p-8 shadow-sm border-2 border-slate-300 mt-4 mb-12">
+    <div className="mx-auto max-w-6xl rounded-2xl bg-white p-4 sm:p-8 shadow-sm border-2 border-slate-300 mt-4 mb-12">
       <div className="mb-8">
         <Link
           href="/dashboard"

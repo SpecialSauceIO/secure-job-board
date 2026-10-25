@@ -199,10 +199,10 @@ export default async function EmployerOrganizationPage({
   const seats = await getOrganizationSeats()
 
   return (
-    <div className="max-w-5xl mx-auto py-4 space-y-8">
+    <div className="max-w-6xl mx-auto py-3 space-y-6">
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-300">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
             Company Profile, 3-Pillar Trust Gate &amp; Team Seats
           </h1>
           <p className="text-sm text-slate-500 mt-1">

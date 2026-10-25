@@ -194,7 +194,7 @@ export default async function DashboardPage({
       <div className="min-h-[80vh] flex items-center justify-center p-2 sm:p-6">
         <div className="max-w-3xl w-full bg-white rounded-3xl shadow-xl border-2 border-slate-300 overflow-hidden border-slate-300">
           <div className="p-6 sm:p-10 text-center bg-slate-900 text-white">
-            <h1 className="text-3xl md:text-4xl font-extrabold mb-3 tracking-tight">
+            <h1 className="text-xl sm:text-2xl md:text-4xl font-extrabold mb-3 tracking-tight">
               Welcome to Special Sauce
             </h1>
             <p className="text-slate-400 text-lg max-w-xl mx-auto">
@@ -422,7 +422,7 @@ export default async function DashboardPage({
             />
             <div>
               <div className="flex flex-wrap items-center gap-2.5">
-                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                   {companyDisplayName}
                 </h1>
                 <RankAndFounderPill
@@ -959,7 +959,7 @@ export default async function DashboardPage({
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b-2 border-slate-300">
         <div>
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
               {candidateDisplayName}
             </h1>
             <RankAndFounderPill

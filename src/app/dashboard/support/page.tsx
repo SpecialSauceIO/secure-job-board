@@ -102,7 +102,7 @@ export default async function SupportPage({
     <div className="max-w-6xl mx-auto py-3 space-y-6">
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700 pb-5">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
             Help Center &amp; Support Desk
           </h1>
           <p className="text-sm sm:text-base text-slate-200 mt-1">
