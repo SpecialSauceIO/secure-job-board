@@ -83,7 +83,7 @@ export default function EmployerTeamSeatsPanel({
   }
 
   return (
-    <div className="bg-white p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6 border-slate-300">
+    <div className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6">
       {/* Header & Live Seat Counter */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-300 pb-5">
         <div>
@@ -157,9 +157,9 @@ export default function EmployerTeamSeatsPanel({
       {(tier === 'growth' || tier === 'enterprise') && (
         <form
           onSubmit={handleInviteSubmit}
-          className="p-5 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-4 border-slate-300"
+          className="p-4 sm:p-5 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-4"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
               Invite Team Member or Recruiter Seat
             </span>

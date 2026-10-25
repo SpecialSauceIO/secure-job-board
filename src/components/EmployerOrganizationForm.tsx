@@ -221,7 +221,7 @@ export default function EmployerOrganizationForm({
   return (
     <div className="space-y-8">
       {/* 3-PILLAR EMPLOYER TRUST & ANTI-HARVESTING SUMMARY BANNER */}
-      <div className="p-6 rounded-2xl border-2 border-slate-300 bg-white shadow-sm space-y-5">
+      <div className="p-4 sm:p-6 rounded-2xl border-2 border-slate-300 bg-white shadow-sm space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
           <div>
             <div className="flex items-center gap-2.5">
@@ -362,7 +362,7 @@ export default function EmployerOrganizationForm({
 
       {/* DOMAIN VERIFICATION HUB CARD */}
       <div
-        className={`p-6 md:p-8 rounded-2xl border shadow-sm transition-all ${
+        className={`p-4 sm:p-6 md:p-8 rounded-2xl border shadow-sm transition-all ${
           verificationStatus === 'verified'
             ? 'bg-emerald-50/70 border-emerald-300'
             : 'bg-amber-50/70 border-amber-300'
@@ -555,7 +555,7 @@ export default function EmployerOrganizationForm({
       {/* COMPANY PROFILE & LEGAL ENTITY ATTESTATION FORM */}
       <form
         onSubmit={handleSave}
-        className="bg-white p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6 border-slate-300"
+        className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6"
       >
         <div>
           <h2 className="text-xl font-bold text-slate-900">
@@ -566,7 +566,7 @@ export default function EmployerOrganizationForm({
           </p>
         </div>
 
-        <div className="space-y-5 rounded-xl bg-slate-50 p-6 border-2 border-slate-300 border-slate-300">
+        <div className="space-y-5 rounded-xl bg-slate-50 p-4 sm:p-6 border-2 border-slate-300">
           {/* Row 1: Company Name & Corporate Domain */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
@@ -740,7 +740,7 @@ export default function EmployerOrganizationForm({
           </div>
         </div>
 
-        <div className="pt-2 flex items-center justify-end gap-3">
+        <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
           <button
             type="submit"
             disabled={isSaving}

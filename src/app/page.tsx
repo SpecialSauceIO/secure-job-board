@@ -627,7 +627,7 @@ export default function LandingPage() {
           </div>
 
           {/* Dedicated Trigger to Open Technical & Security Documentation Page */}
-          <div className="mt-14 p-6 sm:p-5 sm:p-8 rounded-2xl bg-white border-2 border-slate-300 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-slate-300">
+          <div className="mt-14 p-5 sm:p-8 rounded-2xl bg-white border-2 border-slate-300 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-slate-300">
             <div className="flex items-start gap-4">
               <div className="w-11 h-11 rounded-xl bg-indigo-50 border border-indigo-300 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
                 <svg

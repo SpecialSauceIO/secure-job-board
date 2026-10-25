@@ -130,7 +130,7 @@ export default function EnterpriseAtsIntegrationPanel() {
   // UPSELL CARD FOR STARTER / GROWTH / FREE TIERS
   if (!isEnterprise) {
     return (
-      <div className="bg-slate-900 text-white rounded-2xl border-2 border-slate-300 shadow-sm  p-6 sm:p-8">
+      <div className="bg-slate-900 text-white rounded-2xl border-2 border-slate-300 shadow-sm p-4 sm:p-8">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2.5 max-w-2xl">
             <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
@@ -174,7 +174,7 @@ export default function EnterpriseAtsIntegrationPanel() {
   // UNLOCKED CONSOLE FOR ENTERPRISE TIER ($1,250/MO FOUNDING · $1,999/MO RETAIL)
   return (
     <div className="bg-white rounded-2xl border-2 border-slate-300 shadow-sm  overflow-hidden">
-      <div className="bg-slate-900 text-white p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-slate-900 text-white p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-emerald-400">
             <span>✓ Enterprise Tier Active</span>
@@ -205,7 +205,7 @@ export default function EnterpriseAtsIntegrationPanel() {
         </button>
       </div>
 
-      <form onSubmit={(e) => handleSave(e, false)} className="p-6 space-y-6">
+      <form onSubmit={(e) => handleSave(e, false)} className="p-4 sm:p-6 space-y-6">
         {feedback && (
           <div
             className={`p-3.5 rounded-xl text-xs font-extrabold border ${
@@ -368,7 +368,7 @@ export default function EnterpriseAtsIntegrationPanel() {
           </div>
         )}
 
-        <div className="pt-2 border-t border-slate-300 flex items-center justify-between gap-4">
+        <div className="pt-3 border-t border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <span className="text-xs text-slate-500">
             🛡️ <strong>Identity-Protected Privacy Guarantee:</strong> Candidate personal contact info never touches your external HR software until the candidate explicitly clicks &ldquo;Release Resume &amp; Contact Vault&rdquo; in Stage 2.
           </span>
@@ -376,7 +376,7 @@ export default function EnterpriseAtsIntegrationPanel() {
           <button
             type="submit"
             disabled={isSaving}
-            className="shrink-0 px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+            className="w-full sm:w-auto text-center justify-center shrink-0 px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors cursor-pointer shadow-xs disabled:opacity-50"
           >
             {isSaving ? 'Saving...' : 'Save ATS & Webhook Settings'}
           </button>
