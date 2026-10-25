@@ -37,8 +37,14 @@ export function PublicHeader({
           <span className="h-5 w-px bg-slate-400"></span>
         </div>
 
-        {/* RIGHT: How It Works, Pricing & Perks & Sign In */}
+        {/* RIGHT: Home, How It Works, Pricing & Perks & Sign In */}
         <div className="flex items-center gap-4 sm:gap-5 shrink-0">
+          <Link
+            href="/"
+            className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors whitespace-nowrap"
+          >
+            Home
+          </Link>
           <Link
             href="/workflows"
             className="hidden sm:inline text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors whitespace-nowrap"
