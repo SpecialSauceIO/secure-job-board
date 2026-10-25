@@ -127,7 +127,7 @@ export default function EnterpriseAtsIntegrationPanel() {
     )
   }
 
-  // UPSELL CARD FOR STARTER / GROWTH / FREE TIERS
+  // UPSELL CARD FOR STARTER / GROWTH / UNSUBSCRIBED TIERS
   if (!isEnterprise) {
     return (
       <div className="bg-slate-900 text-white rounded-2xl border-2 border-slate-300 shadow-sm p-4 sm:p-8">

@@ -5956,7 +5956,7 @@ export async function activateSandboxEmployerTier(
 
   const tierMap = {
     free: {
-      label: 'No Active Plan ($0/mo)',
+      label: 'No Active Plan (Unsubscribed)',
       maxActiveJobs: 0,
       credits: 0,
       maxSeats: 1,
@@ -6055,7 +6055,7 @@ export async function activateSandboxEmployerTier(
     rolloverCredits: preservedRollover,
     message:
       targetTier === 'free'
-        ? 'Organization reset to No Active Plan ($0/mo — 0 Active Role Slots, 0 Pitch Credits, 1 Seat).'
+        ? 'Organization reset to No Active Plan (Unsubscribed — 0 Active Role Slots, 0 Pitch Credits, 1 Seat).'
         : `✓ Activated ${chosen.label}! Monthly Plan Allowance set to ${chosen.credits} Pitch Credits${preservedRollover > 0 ? ` + ${preservedRollover} Rollover Top-Up Credits preserved (${newCredits} total)` : ''}.`,
   }
 }
