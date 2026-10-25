@@ -276,12 +276,6 @@ export async function POST(req: Request) {
         ],
         allow_promotion_codes: true,
         billing_address_collection: 'auto',
-        custom_text: {
-          submit: {
-            message:
-              '🔒 Identity-Protected Privacy Guarantee: Your payment details are encrypted by Stripe and never shared with employers. Cancel anytime in 1 click.',
-          },
-        },
         success_url: `${origin}/dashboard/billing?billing=success&plan=${candidateTier.id}&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/dashboard/billing?billing=cancelled`,
       })
@@ -346,12 +340,6 @@ export async function POST(req: Request) {
         billing_address_collection: 'auto',
         tax_id_collection: { enabled: true },
         invoice_creation: { enabled: true },
-        custom_text: {
-          submit: {
-            message:
-              '🔒 100% Accepted-Only Guarantee: Rollover Pitch Credits never expire and are added to your organization balance immediately.',
-          },
-        },
         success_url: `${origin}/dashboard/employer/billing?billing=topup_success&pack=${topupPack.id}&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/dashboard/employer/billing?billing=cancelled`,
       })
@@ -419,12 +407,6 @@ export async function POST(req: Request) {
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
       tax_id_collection: { enabled: true },
-      custom_text: {
-        submit: {
-          message:
-            '🔒 Protected by our 100% Accepted-Only Pitch Credit Guarantee. Manage seats, invoices, or cancel anytime from your Employer Billing dashboard.',
-        },
-      },
       success_url: `${origin}/dashboard/employer/billing?billing=success&tier=${tier.id}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/dashboard/employer/billing?billing=cancelled`,
     })

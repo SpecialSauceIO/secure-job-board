@@ -438,7 +438,7 @@ export default function EmployerBillingPage() {
           }`}
         >
           <span>{feedback.text}</span>
-          {activeTier === 'enterprise' && (
+          {feedback?.type === 'success' && activeTier === 'enterprise' && (
             <Link
               href="/dashboard/employer/organization"
               className="shrink-0 px-3.5 py-1.5 rounded-lg bg-emerald-700 text-white text-xs font-extrabold hover:bg-emerald-800 transition-colors"
