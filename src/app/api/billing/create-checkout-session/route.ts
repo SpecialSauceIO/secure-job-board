@@ -247,7 +247,7 @@ export async function POST(req: Request) {
     // =========================================================================
     const candidateTier = CANDIDATE_SAAS_TIERS[rawKey]
     if (candidateTier) {
-      const catalogPriceId = process.env[candidateTier.envVar] || ""
+      const catalogPriceId = process.env[candidateTier.envVar] || candidateTier.defaultPriceId
 
       const checkoutSession = await stripe.checkout.sessions.create({
         mode: 'subscription',
@@ -267,8 +267,7 @@ export async function POST(req: Request) {
                   currency: 'usd',
                   unit_amount: candidateTier.priceCents,
                   recurring: { interval: 'month' },
-                  product_data: {
-                    name: candidateTier.name,
+                  product_data: { tax_code: "txcd_10103001", name: candidateTier.name,
                     description: candidateTier.description,
                   },
                 },
@@ -316,7 +315,7 @@ export async function POST(req: Request) {
         )
       }
 
-      const catalogPriceId = process.env[topupPack.envVar] || ""
+      const catalogPriceId = process.env[topupPack.envVar] || topupPack.defaultPriceId
 
       const checkoutSession = await stripe.checkout.sessions.create({
         mode: 'payment',
@@ -336,8 +335,7 @@ export async function POST(req: Request) {
                 price_data: {
                   currency: 'usd',
                   unit_amount: topupPack.priceCents,
-                  product_data: {
-                    name: topupPack.name,
+                  product_data: { tax_code: "txcd_10103001", name: topupPack.name,
                     description: topupPack.description,
                   },
                 },
@@ -387,7 +385,7 @@ export async function POST(req: Request) {
     }
 
     const isRetail = rateType === 'retail'
-    const catalogPriceId = isRetail ? (process.env[tier.retailEnvVar] || "") : (process.env[tier.foundingEnvVar] || "")
+    const catalogPriceId = isRetail ? (process.env[tier.retailEnvVar] || tier.defaultRetailPriceId) : (process.env[tier.foundingEnvVar] || tier.defaultFoundingPriceId)
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -411,8 +409,7 @@ export async function POST(req: Request) {
                 currency: 'usd',
                 unit_amount: isRetail ? tier.retailPriceCents : tier.priceCents,
                 recurring: { interval: 'month' },
-                product_data: {
-                  name: tier.name,
+                product_data: { tax_code: "txcd_10103001", name: tier.name,
                   description: tier.description,
                 },
               },
