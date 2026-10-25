@@ -1522,36 +1522,36 @@ export default function SupportCenterClient({
         </div>
       )}
 
-      {/* TAB 4: 2-STAGE VAULT & STRIPE */}
+      {/* TAB 2: 2-STAGE VAULT & STRIPE */}
       {activeTab === 'security' && (
-        <div className="p-6 md:p-8 space-y-8 animate-in fade-in duration-300">
-          <div className="p-6 sm:p-8 rounded-2xl bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 border border-slate-700 shadow-lg">
-            <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider">
+        <div className="p-6 md:p-8 space-y-6 animate-in fade-in duration-300">
+          <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-4 border border-slate-700">
+            <div className="space-y-1.5">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-extrabold uppercase tracking-wider">
                 PCI-DSS Level 1 • Stripe ID Protection • 2-Stage Anti-Harvesting Vault
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+              <h2 className="text-lg sm:text-xl font-extrabold tracking-tight text-white">
                 {SECURITY_ARCHITECTURE_DATA.title}
               </h2>
-              <p className="text-base sm:text-lg text-slate-100 max-w-3xl leading-relaxed">
+              <p className="text-sm text-slate-200 max-w-4xl leading-relaxed">
                 {SECURITY_ARCHITECTURE_DATA.subtitle}
               </p>
             </div>
           </div>
 
           {/* Interactive Segmented Toggle: Stripe Vault (S) vs Special Sauce Vault (SS) */}
-          <div className="bg-slate-900 p-3 rounded-2xl border border-slate-700">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="bg-slate-900 p-2 rounded-2xl border border-slate-700">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <button
                 type="button"
                 onClick={() => setSecurityVaultTab('stripe')}
-                className={`flex items-center justify-center gap-3 px-6 py-4 rounded-xl text-base sm:text-lg font-extrabold transition-all cursor-pointer ${
+                className={`flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl text-sm sm:text-base font-extrabold transition-all cursor-pointer ${
                   securityVaultTab === 'stripe'
-                    ? 'bg-indigo-600 text-white shadow-md ring-2 ring-indigo-400'
+                    ? 'bg-indigo-600 text-white shadow-sm ring-1 ring-indigo-400'
                     : 'bg-slate-800/80 text-slate-200 hover:bg-slate-800 hover:text-white'
                 }`}
               >
-                <span className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-sm font-black">
+                <span className="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center text-xs font-black">
                   S
                 </span>
                 <span>Stored Exclusively in Stripe (3 Pillars)</span>
@@ -1560,13 +1560,13 @@ export default function SupportCenterClient({
               <button
                 type="button"
                 onClick={() => setSecurityVaultTab('platform')}
-                className={`flex items-center justify-center gap-3 px-6 py-4 rounded-xl text-base sm:text-lg font-extrabold transition-all cursor-pointer ${
+                className={`flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl text-sm sm:text-base font-extrabold transition-all cursor-pointer ${
                   securityVaultTab === 'platform'
-                    ? 'bg-emerald-600 text-white shadow-md ring-2 ring-emerald-400'
+                    ? 'bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-400'
                     : 'bg-slate-800/80 text-slate-200 hover:bg-slate-800 hover:text-white'
                 }`}
               >
-                <span className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-sm font-black">
+                <span className="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center text-xs font-black">
                   SS
                 </span>
                 <span>Protected by Special Sauce (4 Pillars)</span>
@@ -1576,33 +1576,33 @@ export default function SupportCenterClient({
 
           {/* Active Vault Section */}
           {securityVaultTab === 'stripe' ? (
-            <div className="rounded-2xl border-2 border-indigo-500/60 bg-slate-950 p-6 sm:p-8 space-y-6">
-              <div className="flex items-center gap-4 border-b border-slate-800 pb-5">
-                <div className="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 font-black text-xl shadow-md">
+            <div className="rounded-2xl border border-indigo-500/50 bg-slate-950 p-5 sm:p-6 space-y-5">
+              <div className="flex items-center gap-3.5 border-b border-slate-800 pb-4">
+                <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 font-black text-base shadow-sm">
                   S
                 </div>
                 <div>
-                  <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-indigo-400 block">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-400 block">
                     Zero Platform Access • Vaulted by Stripe
                   </span>
-                  <h3 className="text-xl sm:text-2xl font-extrabold text-white mt-0.5">
+                  <h3 className="text-base sm:text-lg font-extrabold text-white mt-0.5">
                     Stored Exclusively in Stripe
                   </h3>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {SECURITY_ARCHITECTURE_DATA.stripeVaultItems.map((item, i) => (
                   <div
                     key={i}
-                    className="bg-slate-900 p-6 rounded-2xl border border-slate-700 shadow-md space-y-3"
+                    className="bg-slate-900 p-5 rounded-xl border border-slate-700 space-y-2.5"
                   >
-                    <div className="inline-block px-3 py-1 rounded-lg bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-xs font-extrabold uppercase tracking-wider">
+                    <div className="inline-block px-2.5 py-1 rounded-md bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-[11px] font-extrabold uppercase tracking-wider">
                       Stripe Vault Pillar {i + 1}
                     </div>
-                    <h4 className="text-xl font-extrabold text-white leading-snug">
+                    <h4 className="text-base font-extrabold text-white leading-snug">
                       {item.title}
                     </h4>
-                    <p className="text-base text-slate-100 leading-relaxed">
+                    <p className="text-sm text-slate-200 leading-relaxed">
                       {item.detail}
                     </p>
                   </div>
@@ -1610,33 +1610,33 @@ export default function SupportCenterClient({
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border-2 border-emerald-500/60 bg-slate-950 p-6 sm:p-8 space-y-6">
-              <div className="flex items-center gap-4 border-b border-slate-800 pb-5">
-                <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 font-black text-xl shadow-md">
+            <div className="rounded-2xl border border-emerald-500/50 bg-slate-950 p-5 sm:p-6 space-y-5">
+              <div className="flex items-center gap-3.5 border-b border-slate-800 pb-4">
+                <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 font-black text-base shadow-sm">
                   SS
                 </div>
                 <div>
-                  <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400 block">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400 block">
                     Row-Level Security (RLS) &amp; 2-Stage Identity Vault
                   </span>
-                  <h3 className="text-xl sm:text-2xl font-extrabold text-white mt-0.5">
+                  <h3 className="text-base sm:text-lg font-extrabold text-white mt-0.5">
                     Protected by Special Sauce
                   </h3>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {SECURITY_ARCHITECTURE_DATA.platformStoredItems.map((item, i) => (
                   <div
                     key={i}
-                    className="bg-slate-900 p-6 rounded-2xl border border-slate-700 shadow-md space-y-3"
+                    className="bg-slate-900 p-5 rounded-xl border border-slate-700 space-y-2.5"
                   >
-                    <div className="inline-block px-3 py-1 rounded-lg bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-extrabold uppercase tracking-wider">
+                    <div className="inline-block px-2.5 py-1 rounded-md bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[11px] font-extrabold uppercase tracking-wider">
                       Special Sauce Pillar {i + 1}
                     </div>
-                    <h4 className="text-xl font-extrabold text-white leading-snug">
+                    <h4 className="text-base font-extrabold text-white leading-snug">
                       {item.title}
                     </h4>
-                    <p className="text-base text-slate-100 leading-relaxed">
+                    <p className="text-sm text-slate-200 leading-relaxed">
                       {item.detail}
                     </p>
                   </div>
