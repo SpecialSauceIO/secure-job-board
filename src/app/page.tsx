@@ -294,6 +294,40 @@ export default function LandingPage() {
           />
         </div>
 
+        {/* High-Visibility Operational Trust Strip */}
+        <div className="mt-8 pt-6 border-t border-slate-200/90 w-full max-w-5xl z-20 relative">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-left">
+            <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
+              <span className="text-base shrink-0" aria-hidden="true">🇺🇸</span>
+              <div>
+                <div className="text-[11px] font-extrabold text-slate-900 uppercase tracking-tight">100% US-Based Company</div>
+                <div className="text-[11px] text-slate-500 font-medium">US-Owned &amp; Operated</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 ring-4 ring-emerald-500/15" />
+              <div>
+                <div className="text-[11px] font-extrabold text-slate-900 uppercase tracking-tight">100% US Human Support</div>
+                <div className="text-[11px] text-slate-500 font-medium">Zero Offshore Call Centers</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-[#0077D4] shrink-0 ring-4 ring-sky-500/15" />
+              <div>
+                <div className="text-[11px] font-extrabold text-slate-900 uppercase tracking-tight">Daily-Calibrated AI</div>
+                <div className="text-[11px] text-slate-500 font-medium">Tested Daily for Accuracy</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-[#EA580C] shrink-0 ring-4 ring-orange-500/15" />
+              <div>
+                <div className="text-[11px] font-extrabold text-slate-900 uppercase tracking-tight">2-Stage Privacy Vault</div>
+                <div className="text-[11px] text-slate-500 font-medium">Stripe ID &amp; DNS Verified</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Single Clean Scroll-Down Cue */}
         <button
           type="button"
@@ -622,6 +656,83 @@ export default function LandingPage() {
                 <p className="text-slate-500 leading-relaxed">
                   Instead of blasting your name, phone number, and resume across public job boards, you connect in two simple steps: chat privately first, then release your resume and contact card only when you’re comfortable.
                 </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Operational Standards: US-Based Company, US Support & Daily AI Calibration */}
+          <div className="mt-16 pt-14 border-t border-slate-200">
+            <div className="text-center max-w-3xl mx-auto mb-10">
+              <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-50 border border-sky-300 text-[#0284C7] text-[11px] font-extrabold uppercase tracking-wider mb-3">
+                <span>🇺🇸</span> Operational Integrity &amp; Standards
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Built, Supported, and Rigorously Tested in the United States
+              </h3>
+              <p className="text-sm sm:text-base text-slate-500 mt-2.5 leading-relaxed">
+                Your career and hiring pipeline deserve real accountability. We combine domestic operational standards with daily automated quality assurance so you always know who and what is behind the platform.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Pillar 1: US-Based Company & Sovereign Operations */}
+              <div className="p-6 rounded-2xl bg-slate-50 border-2 border-slate-300 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-[11px] font-extrabold text-slate-800">
+                      🇺🇸 US-OWNED &amp; OPERATED
+                    </span>
+                    <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> US Jurisdiction
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-extrabold text-slate-900 mb-2">
+                    100% US-Based Company &amp; Data Governance
+                  </h4>
+                  <p className="text-sm text-slate-500 leading-relaxed">
+                    Special Sauce is proudly incorporated, engineered, and operated in the United States. Your identity verification handshakes, private messages, and vaulted resumes are governed strictly under US data privacy laws—never sold or routed through offshore data brokers.
+                  </p>
+                </div>
+              </div>
+
+              {/* Pillar 2: 100% US-Based Human Support */}
+              <div className="p-6 rounded-2xl bg-slate-50 border-2 border-slate-300 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-[11px] font-extrabold text-[#0077D4]">
+                      🎧 US SUPPORT DESK
+                    </span>
+                    <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Direct Specialists
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-extrabold text-slate-900 mb-2">
+                    Real, US-Based Human Support Team
+                  </h4>
+                  <p className="text-sm text-slate-500 leading-relaxed">
+                    When you open a service request, need corporate domain assistance, or have a billing question, you never get trapped in offshore call centers or endless bot loops. Every ticket is reviewed and answered directly by our US-based support and operations specialists.
+                  </p>
+                </div>
+              </div>
+
+              {/* Pillar 3: Daily AI Tooling Calibration */}
+              <div className="p-6 rounded-2xl bg-slate-50 border-2 border-slate-300 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-[11px] font-extrabold text-[#EA580C]">
+                      🎯 DAILY AI AUDIT
+                    </span>
+                    <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Verified Daily
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-extrabold text-slate-900 mb-2">
+                    AI Tooling Tested &amp; Calibrated Daily
+                  </h4>
+                  <p className="text-sm text-slate-500 leading-relaxed">
+                    We never rely on &ldquo;set-and-forget&rdquo; AI. Our 5-Point AI Fit Radar™ undergoes automated daily calibration and benchmark auditing to verify scoring precision, prevent model drift, and guarantee that our 70% match threshold stays fair, transparent, and accurate.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
