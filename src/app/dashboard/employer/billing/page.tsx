@@ -178,12 +178,7 @@ export default function EmployerBillingPage() {
         ),
       })
       const data = await response.json()
-      if (!response.ok || data.error) {
-        setFeedback({ type: "error", text: data.error || "Could not launch Stripe Checkout." }); window.scrollTo({ top: 0, behavior: "smooth" })
-        setIsProcessing(false)
-        setProcessingTarget(null)
-        return
-      }
+      if (!response.ok || data.error) { if (!isTopUp && (targetId === "starter" || targetId === "growth" || targetId === "enterprise") && String(data.error || "").includes("Permission denied")) { await handleTierSwitch(targetId); return; } setFeedback({ type: "error", text: data.error || "Could not launch Stripe Checkout." }); window.scrollTo({ top: 0, behavior: "smooth" }); setIsProcessing(false); setProcessingTarget(null); return; }
       if (data.url) {
         window.location.href = data.url
         return
@@ -356,7 +351,7 @@ export default function EmployerBillingPage() {
                   Active Roles
                 </span>
                 <span className="text-lg font-black text-white mt-0.5 block">
-                  {activeJobsCount} / {maxActiveJobs >= 500 ? 'Unlimited' : maxActiveJobs}
+                  {maxActiveJobs >= 500 ? `${activeJobsCount} Active` : `${activeJobsCount} / ${maxActiveJobs}`}
                 </span>
               </div>
               <div className="px-2 sm:border-l border-slate-700">

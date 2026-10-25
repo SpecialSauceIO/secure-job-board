@@ -64,9 +64,7 @@ export default async function DashboardLayout({
     }
 
     const tInfo = await resolveEmployerTierInfo(orgData)
-    tierLabel = `${tInfo.label} (${tInfo.maxSeats} ${
-      tInfo.maxSeats === 1 ? 'Seat' : 'Seats'
-    })`
+    const shortTierMap = { enterprise: "Enterprise Plan", growth: "Growth Plan", starter: "Starter Plan", free: "No Active Plan" }; const shortLabel = shortTierMap[tInfo.tier] || tInfo.label; const seatText = tInfo.tier === "free" ? "Select Tier" : (tInfo.maxSeats >= 100 ? "Unlimited Seats" : `${tInfo.maxSeats} ${tInfo.maxSeats === 1 ? "Seat" : "Seats"}`); tierLabel = `${shortLabel} · ${seatText}`
   } else if (role === 'candidate') {
     const cInfo = await resolveCandidateTierInfo(user.id)
     tierLabel = cInfo.label
