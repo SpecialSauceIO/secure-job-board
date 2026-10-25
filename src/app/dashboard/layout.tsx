@@ -91,7 +91,7 @@ export default async function DashboardLayout({
           <p className="text-xs text-gray-500">
             © {new Date().getFullYear()} Special Sauce. All rights reserved.
           </p>
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2 text-center">
             <Link
               href="/dashboard/support"
               className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors"

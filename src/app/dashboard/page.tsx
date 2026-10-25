@@ -466,11 +466,11 @@ export default async function DashboardPage({
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 shrink-0 w-full sm:w-auto">
             {isOrgVerified && (
               <Link
                 href="/dashboard/employer/search?saved=true"
-                className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border-2 text-xs font-extrabold transition-colors shadow-xs ${
+                className={`inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2.5 rounded-xl border-2 text-xs font-extrabold transition-colors shadow-xs ${
                   savedCandidatesCount > 0
                     ? 'bg-amber-50 border-slate-300 text-amber-900 hover:bg-amber-100'
                     : 'bg-white border-slate-300 text-slate-700 hover:border-slate-400'
@@ -500,21 +500,21 @@ export default async function DashboardPage({
             {!isOrgVerified ? (
               <Link
                 href="/dashboard/employer/organization"
-                className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold shadow-sm transition-colors"
+                className="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold shadow-sm transition-colors"
               >
                 Verify Domain to Start →
               </Link>
             ) : canPostNewJob ? (
               <Link
                 href="/dashboard/employer/jobs/new"
-                className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold shadow-sm transition-colors"
+                className="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold shadow-sm transition-colors"
               >
                 + Post New Role
               </Link>
             ) : (
               <Link
                 href="/dashboard/employer/billing"
-                className="inline-flex items-center px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-colors"
+                className="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-colors"
               >
                 {tierInfo.tier === 'free'
                   ? 'Choose Plan to Post Roles →'
@@ -995,7 +995,7 @@ export default async function DashboardPage({
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <Link
             href="/dashboard/jobs?saved=true"
-            className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border-2 text-xs font-extrabold transition-colors shadow-xs ${
+            className={`inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2.5 rounded-xl border-2 text-xs font-extrabold transition-colors shadow-xs ${
               savedJobsCount > 0
                 ? 'bg-amber-50 border-slate-300 text-amber-900 hover:bg-amber-100'
                 : 'bg-white border-slate-300 text-slate-700 hover:border-slate-400'
@@ -1023,7 +1023,7 @@ export default async function DashboardPage({
 
           <Link
             href="/dashboard/jobs"
-            className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold shadow-sm transition-colors"
+            className="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold shadow-sm transition-colors"
           >
             Browse Open Roles →
           </Link>
