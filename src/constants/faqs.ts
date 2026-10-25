@@ -37,7 +37,7 @@ export const SECURITY_ARCHITECTURE_DATA = {
     {
       title: 'Credit Cards, ACH & Banking Details (PCI-DSS Level 1)',
       detail:
-        'All Employer subscription payments ($149 / $499 / $1,250 Founding Partner Rates locked for 12 months; $299 / $799 / $1,999 Retail), Rollover Pitch Credit Top-Up Packs ($150 / $325 / $825), and Candidate Professional ($9/mo) or Prestige ($15/mo) transactions are processed on Stripe-hosted Checkout pages. Raw card numbers, CVV codes, and banking details never touch Special Sauce servers.',
+        'All Employer subscription payments ($149 / $499 / $1,250 Founding Partner Rates locked for 12 months; $299 / $799 / $1,999 Retail), Rollover Pitch Credit Top-Up Packs ($150 / $350 / $900), and Candidate Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo) transactions are processed on Stripe-hosted Checkout pages. Raw card numbers, CVV codes, and banking details never touch Special Sauce servers.',
     },
   ],
   platformStoredItems: [
@@ -71,7 +71,7 @@ Special Sauce does NOT store government ID images, verification selfies, credit 
 
 2. WHAT IS STORED EXCLUSIVELY INSIDE STRIPE (PCI-DSS LEVEL 1 & SOC 2):
 - Candidate Identity Verification (Stripe Identity): Government IDs and selfie checks are captured and encrypted (AES-256) directly inside Stripe's isolated vault. Special Sauce only stores a boolean "Identity Verified" status token.
-- Subscription & Billing Data (Stripe Checkout): All payment methods for Employer Tiers ($149/$499/$1,250 Founding Partner Rates; $299/$799/$1,999 Retail), Rollover Top-Up Packs ($150/$325/$825), and Candidate Professional ($9/mo) & Prestige ($15/mo) plans are tokenized and vaulted by Stripe.
+- Subscription & Billing Data (Stripe Checkout): All payment methods for Employer Tiers ($149/$499/$1,250 Founding Partner Rates; $299/$799/$1,999 Retail), Rollover Top-Up Packs ($150 / $350 / $900), and Candidate Explorer ($3/mo), Professional ($9/mo) & Prestige ($15/mo) plans are tokenized and vaulted by Stripe.
 
 3. 2-STAGE ANTI-HARVESTING IDENTITY VAULT & IN-PLATFORM MESSAGING:
 - Stage 1 (Encrypted Thread Unlock): When an employer unlocks an inbound application or a candidate accepts an outbound pitch, an encrypted in-platform chat thread opens (Ref: SS-XXXXXXXX). The employer's verified company name/domain and the candidate's First Name + Last Initial are revealed, while the candidate's raw email and PDF resume remain strictly vaulted.
@@ -137,7 +137,7 @@ Special Sauce is a verified, identity-protected technical & professional recruit
 - Starter ($149/mo Founding · $299/mo Retail after Mo 12): Up to 5 Active Roles | 10 Pitch Credits/mo | 2 Team/Recruiter Seats
 - Growth ($499/mo Founding · $799/mo Retail after Mo 12): Up to 15 Active Roles | 35 Pitch Credits/mo | Up to 5 Team/Recruiter Seats
 - Enterprise ($1,250/mo Founding · $1,999/mo Retail after Mo 12): Unlimited Active Roles | 120 Pitch Credits/mo | Unlimited Seats + Workday/Greenhouse HR Software Sync
-- Non-Expiring Rollover Top-Up Packs (Bucket 2): Boost (+10 Credits for $150), Surge (+25 Credits for $325), Scale (+75 Credits for $825)
+- Non-Expiring Rollover Top-Up Packs (Bucket 2): Boost (+10 Credits for $150), Surge (+25 Credits for $350), Scale (+75 Credits for $900)
 ====================================================================`,
   },
   candidate: {
