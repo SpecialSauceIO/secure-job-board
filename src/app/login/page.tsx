@@ -11,6 +11,7 @@ import {
   type AccountHintItem,
 } from './actions'
 import Link from 'next/link'
+import { PublicHeader } from '@/components/PublicHeader'
 import { createClient } from '@/utils/supabase/client'
 
 function LoginContent() {
@@ -22,7 +23,7 @@ function LoginContent() {
   const authCode = searchParams.get('code')
   const planParam = (searchParams.get('plan') || '').trim().toLowerCase()
   const postLoginDestination =
-    planParam === 'professional' || planParam === 'prestige'
+    planParam === 'explorer' || planParam === 'professional' || planParam === 'prestige'
       ? `/dashboard/billing?select=${encodeURIComponent(planParam)}`
       : planParam === 'starter' || planParam === 'growth' || planParam === 'enterprise'
         ? `/dashboard/employer/billing?select=${encodeURIComponent(planParam)}`
@@ -283,7 +284,7 @@ function LoginContent() {
   }
 
   return (
-    <div className="w-full max-w-md rounded-2xl bg-white p-8 sm:p-10 shadow-sm border-2 border-slate-300 border-slate-300">
+    <div className="w-full max-w-md rounded-2xl bg-white p-6 sm:p-10 shadow-sm border-2 border-slate-300">
       <div className="text-center mb-7">
         <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
           {mode === 'new_password'
@@ -857,40 +858,32 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4 sm:p-8">
-      {/* Brand Header */}
-      <div className="mb-8 flex justify-center">
-        <Link href="/" className="group block">
-          <img
-            src="/logo.png?v=20261024"
-            alt="specialsauce.io Logo"
-            className="h-20 w-auto group-hover:scale-105 transition-transform"
-          />
-        </Link>
+    <div className="min-h-screen flex flex-col bg-slate-50">
+      <PublicHeader />
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:p-8">
+        <Suspense
+          fallback={
+            <div className="w-full max-w-md rounded-2xl bg-white p-6 sm:p-10 shadow-sm border-2 border-slate-300 text-center text-xs font-bold text-slate-400">
+              Loading secure sign-in...
+            </div>
+          }
+        >
+          <LoginContent />
+        </Suspense>
+
+        {/* Footer text */}
+        <p className="mt-8 text-center text-xs text-slate-500 font-medium px-4">
+          By continuing, you agree to Special Sauce&apos;s{' '}
+          <Link href="/terms" className="text-indigo-600 hover:underline">
+            Terms of Service
+          </Link>{' '}
+          and{' '}
+          <Link href="/privacy" className="text-indigo-600 hover:underline">
+            Privacy Policy
+          </Link>
+          .
+        </p>
       </div>
-
-      <Suspense
-        fallback={
-          <div className="w-full max-w-md rounded-2xl bg-white p-10 shadow-sm border-2 border-slate-300 text-center text-xs font-bold text-slate-400 border-slate-300">
-            Loading secure sign-in...
-          </div>
-        }
-      >
-        <LoginContent />
-      </Suspense>
-
-      {/* Footer text */}
-      <p className="mt-8 text-center text-xs text-slate-500 font-medium">
-        By continuing, you agree to Special Sauce&apos;s{' '}
-        <Link href="/terms" className="text-indigo-600 hover:underline">
-          Terms of Service
-        </Link>{' '}
-        and{' '}
-        <Link href="/privacy" className="text-indigo-600 hover:underline">
-          Privacy Policy
-        </Link>
-        .
-      </p>
     </div>
   )
 }
