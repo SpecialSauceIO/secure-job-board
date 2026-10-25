@@ -1,4 +1,3 @@
-import CalibrationOpsCard from "@/components/CalibrationOpsCard"
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import SupportCenterClient from '@/components/SupportCenterClient'
@@ -76,6 +75,7 @@ export default async function SupportPage({
   } else {
     const cInfo = await resolveCandidateTierInfo(user.id)
     isPaidSubscriber =
+      cInfo.tier === 'explorer' ||
       cInfo.tier === 'professional' ||
       cInfo.tier === 'prestige' ||
       cInfo.tier === 'pro'
@@ -96,24 +96,20 @@ export default async function SupportPage({
       ? 'ticket'
       : rawTab === 'kb' || rawTab === 'security'
       ? rawTab
-      : 'guides'
+      : 'kb'
 
   return (
     <div className="max-w-6xl mx-auto py-3 space-y-6">
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-300 pb-5">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700 pb-5">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             Help Center &amp; Support Desk
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Manage your live support conversations, submit a new ticket, or browse platform guides and security documentation.
+          <p className="text-sm sm:text-base text-slate-200 mt-1">
+            Search the Knowledge Base, review our 2-Stage Vault &amp; Stripe security architecture, or manage your live support tickets.
           </p>
         </div>
       </header>
-
-      {((user.email || "").toLowerCase().endsWith("@specialsauce.io") || (user.email || "").toLowerCase().includes("sbriley")) && (
-        <CalibrationOpsCard />
-      )}
 
       <SupportCenterClient
         faqs={SUPPORT_FAQS}
