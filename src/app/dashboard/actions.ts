@@ -3975,7 +3975,7 @@ export async function createStructuredJob(formData: FormData) {
   if (tierInfo.tier === 'free' || tierInfo.maxActiveJobs < 1) {
     return {
       error:
-        'Subscription Required: Your account is currently on the Free Explorer plan (browse-only). Subscribe to Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) on your Billing page to publish active roles.',
+        'Subscription Required: Your account is currently on the No Active Plan plan (browse-only). Subscribe to Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) on your Billing page to publish active roles.',
     }
   }
 
@@ -5956,7 +5956,7 @@ export async function activateSandboxEmployerTier(
 
   const tierMap = {
     free: {
-      label: 'Free Explorer ($0/mo)',
+      label: 'No Active Plan ($0/mo)',
       maxActiveJobs: 0,
       credits: 0,
       maxSeats: 1,
@@ -6055,7 +6055,7 @@ export async function activateSandboxEmployerTier(
     rolloverCredits: preservedRollover,
     message:
       targetTier === 'free'
-        ? 'Organization reset to Free Explorer ($0/mo — 0 Active Role Slots, 0 Pitch Credits, 1 Seat).'
+        ? 'Organization reset to No Active Plan ($0/mo — 0 Active Role Slots, 0 Pitch Credits, 1 Seat).'
         : `✓ Activated ${chosen.label}! Monthly Plan Allowance set to ${chosen.credits} Pitch Credits${preservedRollover > 0 ? ` + ${preservedRollover} Rollover Top-Up Credits preserved (${newCredits} total)` : ''}.`,
   }
 }

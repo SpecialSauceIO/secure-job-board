@@ -131,7 +131,7 @@ export default function EmployerTeamSeatsPanel({
         </div>
       )}
 
-      {/* Upgrade Callout for Starter / Free Explorer */}
+      {/* Upgrade Callout for Starter / No Active Plan */}
       {(tier === 'free' || tier === 'starter') && (
         <div className="p-5 rounded-xl bg-indigo-50/70 border border-indigo-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">

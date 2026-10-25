@@ -857,7 +857,7 @@ export default function EmployerBillingPage() {
           >
             {processingTarget === 'free'
               ? 'Switching...'
-              : '1. Free Explorer (0 Roles / 0 Credits)'}
+              : '1. No Active Plan (0 Roles / 0 Credits)'}
           </button>
 
           <button
