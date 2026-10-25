@@ -3975,7 +3975,7 @@ export async function createStructuredJob(formData: FormData) {
   if (tierInfo.tier === 'free' || tierInfo.maxActiveJobs < 1) {
     return {
       error:
-        'Subscription Required: Your account is currently on the No Active Plan plan (browse-only). Subscribe to Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) on your Billing page to publish active roles.',
+        'Subscription Required: Your organization does not currently have an active employer plan (browse-only). Subscribe to Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) on your Billing page to publish active roles.',
     }
   }
 
