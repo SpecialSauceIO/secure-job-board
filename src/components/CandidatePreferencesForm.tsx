@@ -134,7 +134,7 @@ export default function CandidatePreferencesForm({ profile }: { profile: any }) 
         <button
           type="submit"
           disabled={isSaving}
-          className="px-8 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-indigo-600 focus:ring-4 focus:ring-indigo-500/30 transition-all disabled:opacity-50 flex items-center gap-2"
+          className="w-full sm:w-auto justify-center px-8 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-indigo-600 focus:ring-4 focus:ring-indigo-500/30 transition-all disabled:opacity-50 flex items-center gap-2"
         >
           {isSaving ? 'Locking in...' : 'Save Preferences'}
         </button>

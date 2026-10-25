@@ -744,7 +744,7 @@ export default function EmployerOrganizationForm({
           <button
             type="submit"
             disabled={isSaving}
-            className="rounded-xl bg-slate-900 px-8 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-600 transition-colors disabled:opacity-50 cursor-pointer"
+            className="w-full sm:w-auto rounded-xl bg-slate-900 px-8 py-3 text-sm font-bold text-white shadow-sm hover:bg-indigo-600 transition-colors disabled:opacity-50 cursor-pointer"
           >
             {isSaving ? 'Validating EIN, Domain & Saving...' : 'Save Company Profile & EIN Attestation'}
           </button>

@@ -663,7 +663,7 @@ export function CandidateJobFeed({
       )}
 
       {sortedAndFilteredJobs.length === 0 ? (
-        <div className="bg-white p-10 rounded-2xl border-2 border-slate-300 text-center shadow-xs border-slate-300">
+        <div className="bg-white p-6 sm:p-10 rounded-2xl border-2 border-slate-300 text-center shadow-xs border-slate-300">
           <p className="text-sm font-bold text-slate-700 mb-2">
             No open roles match your selected Work Type, Industry Vertical, or Language filter.
           </p>
