@@ -781,7 +781,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
     )
     const daysLeft = Math.max(0, EMPLOYER_FOUNDER_GRANT_DAYS - elapsedDays)
 
-    if (daysLeft > 0) {
+    if (daysLeft > 0 && EMPLOYER_FOUNDER_GRANT_JOBS > 0) {
       return {
         tier: 'starter',
         label: `★ Founding Partner Charter (${daysLeft}d Starter Launch Access)`,
@@ -796,7 +796,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   if (explicitTier === 'free') {
     return {
       tier: 'free',
-      label: 'Free Explorer',
+      label: isFounderOrg ? '★ Founding Partner (Free Explorer)' : 'Free Explorer',
       maxActiveJobs: 0,
       monthlyCredits: 0,
       maxSeats: 1,

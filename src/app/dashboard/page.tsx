@@ -404,7 +404,7 @@ export default async function DashboardPage({
     const companyDisplayName =
       orgData?.name || orgData?.domain || 'Set Up Your Company'
     const rolesBadgeText =
-      tierInfo.maxActiveJobs >= 500
+      tierInfo.maxActiveJobs >= 500 || tierInfo.maxActiveJobs === 0
         ? `${activeJobsCount} Active`
         : `${activeJobsCount} / ${tierInfo.maxActiveJobs}`
 
@@ -448,14 +448,16 @@ export default async function DashboardPage({
                     Verify Corporate Domain →
                   </Link>
                 )}
-                <span>·</span>
-                <span>{rolesBadgeText} Roles</span>
-                <span>·</span>
-                <span>
-                  {connectionCredits} Pitch{' '}
-                  {connectionCredits === 1 ? 'Credit' : 'Credits'}
+                <span className="hidden sm:inline">·</span>
+                <span className="inline-flex items-center gap-2 basis-full sm:basis-auto">
+                  <span>{rolesBadgeText} Roles</span>
+                  <span>·</span>
+                  <span>
+                    {connectionCredits} Pitch{' '}
+                    {connectionCredits === 1 ? 'Credit' : 'Credits'}
+                  </span>
                 </span>
-                <span>·</span>
+                <span className="hidden sm:inline">·</span>
                 <span
                   title="Your Organization Reference ID for Support & Verification"
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-300 font-mono text-[11px] font-bold text-slate-700"
