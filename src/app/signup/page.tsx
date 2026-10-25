@@ -47,7 +47,7 @@ export default async function SignupSelectionPage({
 
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:p-6">
         <div className="max-w-3xl w-full bg-white rounded-3xl shadow-xl border-2 border-slate-300 overflow-hidden">
-          <div className="p-6 sm:p-10 text-center bg-slate-900 text-white">
+          <div className="p-5 sm:p-10 text-center bg-slate-900 text-white">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-2 sm:mb-3 tracking-tight">
               Join the Platform
             </h1>
@@ -56,10 +56,10 @@ export default async function SignupSelectionPage({
             </p>
           </div>
 
-          <div className="p-6 sm:p-10 bg-white grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+          <div className="p-4 sm:p-10 bg-white grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <Link
               href={candidateHref}
-              className="group relative p-6 sm:p-8 border-2 border-slate-300 rounded-2xl hover:border-indigo-600 hover:bg-indigo-50 transition-all text-left shadow-sm hover:shadow-md block"
+              className="group relative p-4 sm:p-8 border-2 border-slate-300 rounded-2xl hover:border-indigo-600 hover:bg-indigo-50 transition-all text-left shadow-sm hover:shadow-md block"
             >
               <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -87,7 +87,7 @@ export default async function SignupSelectionPage({
 
             <Link
               href={employerHref}
-              className="group relative p-6 sm:p-8 border-2 border-slate-300 rounded-2xl hover:border-emerald-600 hover:bg-emerald-50 transition-all text-left shadow-sm hover:shadow-md block"
+              className="group relative p-4 sm:p-8 border-2 border-slate-300 rounded-2xl hover:border-emerald-600 hover:bg-emerald-50 transition-all text-left shadow-sm hover:shadow-md block"
             >
               <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">

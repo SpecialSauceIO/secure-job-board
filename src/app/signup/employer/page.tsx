@@ -71,7 +71,7 @@ export default function EmployerSignupPage({
       <PublicHeader />
 
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:p-8">
-        <div className="w-full max-w-md rounded-2xl bg-white p-6 sm:p-10 shadow-sm border border-slate-300 border-t-4 border-t-emerald-600">
+        <div className="w-full max-w-md rounded-2xl bg-white p-5 sm:p-10 shadow-sm border border-slate-300 border-t-4 border-t-emerald-600">
           <div className="text-center mb-6">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-[11px] font-extrabold uppercase tracking-wider mb-3">
               🏢 Verified Employers &amp; Recruiting Teams

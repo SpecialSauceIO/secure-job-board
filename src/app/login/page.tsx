@@ -284,7 +284,7 @@ function LoginContent() {
   }
 
   return (
-    <div className="w-full max-w-md rounded-2xl bg-white p-6 sm:p-10 shadow-sm border-2 border-slate-300">
+    <div className="w-full max-w-md rounded-2xl bg-white p-5 sm:p-10 shadow-sm border-2 border-slate-300">
       <div className="text-center mb-7">
         <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
           {mode === 'new_password'
@@ -863,7 +863,7 @@ export default function LoginPage() {
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:p-8">
         <Suspense
           fallback={
-            <div className="w-full max-w-md rounded-2xl bg-white p-6 sm:p-10 shadow-sm border-2 border-slate-300 text-center text-xs font-bold text-slate-400">
+            <div className="w-full max-w-md rounded-2xl bg-white p-5 sm:p-10 shadow-sm border-2 border-slate-300 text-center text-xs font-bold text-slate-400">
               Loading secure sign-in...
             </div>
           }
