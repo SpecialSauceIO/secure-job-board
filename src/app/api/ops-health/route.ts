@@ -8,7 +8,8 @@ import {
 
 export const dynamic = 'force-dynamic'
 
-const MAX_HEARTBEAT_AGE_MINUTES = 15
+const MAX_HEARTBEAT_AGE_MINUTES = 25
+const MAX_HEARTBEAT_CRITICAL_MINUTES = 45
 const ALERT_COOLDOWN_MINUTES = 60
 
 export interface HandshakeCheckResult {
@@ -246,6 +247,10 @@ export async function GET(req: NextRequest) {
     lastHeartbeatAt !== null &&
     heartbeatAgeMin !== null &&
     heartbeatAgeMin <= MAX_HEARTBEAT_AGE_MINUTES
+  const gmailCritical =
+    lastHeartbeatAt !== null &&
+    heartbeatAgeMin !== null &&
+    heartbeatAgeMin > MAX_HEARTBEAT_CRITICAL_MINUTES
 
   checks.push({
     id: 'gmail_inbound_poller',
@@ -256,25 +261,53 @@ export async function GET(req: NextRequest) {
       ? 'degraded'
       : gmailHealthy
       ? 'healthy'
-      : 'critical',
+      : gmailCritical
+      ? 'critical'
+      : 'degraded',
     latency_ms: heartbeatAgeMin !== null ? heartbeatAgeMin * 1000 : 0,
     detail: !lastHeartbeatAt
       ? 'Heartbeat enabled (run syncSupportRepliesToOps once in Google Apps Script to register first check-in)'
       : gmailHealthy
-      ? `Last Gmail poll check-in ${heartbeatAgeMin}m ago (threshold: ${MAX_HEARTBEAT_AGE_MINUTES}m)`
-      : `STALE HEARTBEAT: Last Gmail sync was ${heartbeatAgeMin}m ago (> ${MAX_HEARTBEAT_AGE_MINUTES}m)`,
+      ? `Last Gmail poll check-in ${heartbeatAgeMin}m ago (healthy <= ${MAX_HEARTBEAT_AGE_MINUTES}m)`
+      : gmailCritical
+      ? `STALE HEARTBEAT: Last Gmail sync was ${heartbeatAgeMin}m ago (> ${MAX_HEARTBEAT_CRITICAL_MINUTES}m critical threshold)`
+      : `Heartbeat delayed: Last Gmail sync was ${heartbeatAgeMin}m ago (degraded ${MAX_HEARTBEAT_AGE_MINUTES}-${MAX_HEARTBEAT_CRITICAL_MINUTES}m; absorbs Google Apps Script timer jitter)`,
     checked_at: nowIso,
   })
 
-  if (lastHeartbeatAt && !gmailHealthy) {
+  let autoResolvedWatchdog = false
+  if (lastHeartbeatAt && gmailCritical) {
     criticalIssues.push({
       area: 'Other / General Platform',
       summary: 'Google Apps Script Gmail Poller Heartbeat Stale',
       detail: `Last check-in was ${heartbeatAgeMin} minutes ago (at ${lastHeartbeatAt}). Verify trigger in script.google.com.`,
     })
+  } else if (lastHeartbeatAt && !gmailCritical && Array.isArray(vault.work_items)) {
+    for (const w of vault.work_items) {
+      if (
+        w.state === 'open' &&
+        w.work_item_type === 'System_Outage' &&
+        (w.related_ref_id === 'OPS-HEALTH-WATCHDOG' ||
+          (typeof w.subject === 'string' && w.subject.includes('Gmail Poller Heartbeat Stale')))
+      ) {
+        w.state = 'closed'
+        w.status = 'resolved'
+        w.closed_at = nowIso
+        w.updated_at = nowIso
+        w.thread = Array.isArray(w.thread) ? w.thread : []
+        w.thread.push({
+          id: `MSG-${Date.now()}`,
+          sender_name: 'Special Sauce Watchdog',
+          sender_role: 'SYSTEM',
+          body: `Auto-resolved: Gmail Inbound Support Sync heartbeat is active (last check-in ${heartbeatAgeMin}m ago, within ${MAX_HEARTBEAT_CRITICAL_MINUTES}m threshold).`,
+          created_at: nowIso,
+        })
+        autoResolvedWatchdog = true
+      }
+    }
   }
 
-  let vaultModified = false
+  let vaultModified = autoResolvedWatchdog
   for (const issue of criticalIssues) {
     const existingInc = vault.work_items.find(
       (w: any) =>
