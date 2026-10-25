@@ -110,7 +110,7 @@ const EMPLOYER_WORKFLOW_STEPS: WorkflowStep[] = [
     bullets: [
       'Message accepted or unlocked candidates directly in Stage 1 encrypted chat.',
       'Receive 1-hour cryptographically signed PDF resumes upon Stage 2 release.',
-      'Export or sync unlocked candidates directly to Workday or Greenhouse.',
+      'Export unlocked candidates via CSV (all plans) or sync directly to Workday & Greenhouse (Enterprise plan only).',
     ],
     unlockBadge: 'Unlocks: ✓ Stage 2 Resume Access & Enterprise ATS Sync',
   },
