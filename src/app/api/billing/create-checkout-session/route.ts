@@ -247,8 +247,7 @@ export async function POST(req: Request) {
     // =========================================================================
     const candidateTier = CANDIDATE_SAAS_TIERS[rawKey]
     if (candidateTier) {
-      const catalogPriceId =
-        process.env[candidateTier.envVar] || candidateTier.defaultPriceId
+      const catalogPriceId = process.env[candidateTier.envVar] || ""
 
       const checkoutSession = await stripe.checkout.sessions.create({
         mode: 'subscription',
@@ -317,8 +316,7 @@ export async function POST(req: Request) {
         )
       }
 
-      const catalogPriceId =
-        process.env[topupPack.envVar] || topupPack.defaultPriceId
+      const catalogPriceId = process.env[topupPack.envVar] || ""
 
       const checkoutSession = await stripe.checkout.sessions.create({
         mode: 'payment',
@@ -389,9 +387,7 @@ export async function POST(req: Request) {
     }
 
     const isRetail = rateType === 'retail'
-    const catalogPriceId = isRetail
-      ? process.env[tier.retailEnvVar] || tier.defaultRetailPriceId
-      : process.env[tier.foundingEnvVar] || tier.defaultFoundingPriceId
+    const catalogPriceId = isRetail ? (process.env[tier.retailEnvVar] || "") : (process.env[tier.foundingEnvVar] || "")
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',

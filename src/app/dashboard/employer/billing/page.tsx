@@ -179,10 +179,7 @@ export default function EmployerBillingPage() {
       })
       const data = await response.json()
       if (!response.ok || data.error) {
-        setFeedback({
-          type: 'error',
-          text: data.error || 'Could not launch Stripe Checkout. Use the QA Sandbox controls below to test locally.',
-        })
+        setFeedback({ type: "error", text: data.error || "Could not launch Stripe Checkout." }); window.scrollTo({ top: 0, behavior: "smooth" })
         setIsProcessing(false)
         setProcessingTarget(null)
         return
@@ -523,7 +520,7 @@ export default function EmployerBillingPage() {
             <button
               type="button"
               disabled={isProcessing}
-              onClick={() => activeTier === 'starter' ? handleTierSwitch('starter') : handleStripeEmployerCheckout('starter')}
+              onClick={() => handleStripeEmployerCheckout('starter')}
               className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {processingTarget === 'starter'
@@ -597,7 +594,7 @@ export default function EmployerBillingPage() {
             <button
               type="button"
               disabled={isProcessing}
-              onClick={() => activeTier === 'growth' ? handleTierSwitch('growth') : handleStripeEmployerCheckout('growth')}
+              onClick={() => handleStripeEmployerCheckout('growth')}
               className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {processingTarget === 'growth'
@@ -675,7 +672,7 @@ export default function EmployerBillingPage() {
             <button
               type="button"
               disabled={isProcessing}
-              onClick={() => activeTier === 'enterprise' ? handleTierSwitch('enterprise') : handleStripeEmployerCheckout('enterprise')}
+              onClick={() => handleStripeEmployerCheckout('enterprise')}
               className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {processingTarget === 'enterprise'
