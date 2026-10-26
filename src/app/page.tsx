@@ -737,7 +737,7 @@ export default function LandingPage() {
                     AI Tooling Tested &amp; Calibrated Daily
                   </h4>
                   <p className="text-sm text-slate-500 leading-relaxed">
-                    We never rely on &ldquo;set-and-forget&rdquo; AI. Our 5-Point AI Fit Radar™ undergoes automated daily calibration and benchmark auditing to verify scoring precision, prevent model drift, and guarantee that our 70% match threshold stays fair, transparent, and accurate.
+                    We never rely on &ldquo;set-and-forget&rdquo; AI. Our 5-Point AI Fit Radar™ undergoes automated daily calibration and benchmark auditing to verify scoring precision, prevent model drift, and guarantee that our 40% minimum match threshold stays fair, transparent, and accurate.
                   </p>
                 </div>
               </div>
