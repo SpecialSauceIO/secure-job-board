@@ -1147,40 +1147,32 @@ async function sendPlatformNotification({
 // ------------------------------------------------------------------
 // HELPER: CASCADING MULTI-MODEL PDF EXTRACTOR (GROQ 120B TIER 1 + GEMINI MULTIMODAL)
 // ------------------------------------------------------------------
-function tryExtractReadablePdfText(base64Data: string): string {
+async function tryExtractReadablePdfText(base64Data: string): Promise<string> {
+  // 1. Primary True-Unicode PDF Parser via unpdf (handles Word, Google Docs, macOS Quartz, CID/ToUnicode fonts)
+  try {
+    const { extractText } = await import("unpdf")
+    const uint8 = new Uint8Array(Buffer.from(base64Data, "base64"))
+    const { text } = await extractText(uint8, { mergePages: true })
+    const cleaned = (text || "").replace(/\s+/g, " ").trim()
+    if (cleaned.length >= 120) {
+      return cleaned.slice(0, 22000)
+    }
+  } catch (err: any) {
+    console.warn("unpdf extraction warning, falling back to stream inflate:", err?.message || err)
+  }
+
+  // 2. Secondary Fallback: Raw zlib stream inflate
   try {
     const zlib = require("node:zlib")
     const buf = Buffer.from(base64Data, "base64")
     const rawLat1 = buf.toString("latin1")
     const chunks: string[] = []
-
-    const NOISE_PATTERNS = /sRGB|IEC61966|Hewlett-Packard|Quartz PDFContext|Adobe|Identity-H|FlateDecode|Filter|FontDescriptor|BaseFont|MediaBox|Resources|CreationDate|ModDate|Producer|Creator/i
+    const NOISE_PATTERNS = /sRGB|IEC61966|Hewlett-Packard|Quartz PDFContext|Adobe|Identity-H|FlateDecode|Filter|FontDescriptor/i
 
     const collectFromDecompressedStream = (src: string) => {
-      // 1. Reconstruct TJ arrays e.g. [(S)-12(enior) -5 (Training)] -> "Senior Training"
-      const tjArrayMatches = src.match(/\[([^\[\]]{2,2000})\]\s*TJ/g) || []
-      for (const arr of tjArrayMatches) {
-        const parts = arr.match(/\(([^()\\]|\\.)*\)/g) || []
-        if (parts.length > 0) {
-          const line = parts
-            .map((p) => p.slice(1, -1).replace(/\\([nrt()])/g, "$1"))
-            .join("")
-            .replace(/[^\x20-\x7E]/g, " ")
-            .trim()
-          if (line.length >= 2 && !NOISE_PATTERNS.test(line)) {
-            chunks.push(line)
-          }
-        }
-      }
-
-      // 2. Collect standard (text) Tj literals inside decompressed streams
       const matches = src.match(/\(([^()\\]{2,300})\)/g) || []
       for (const m of matches) {
-        const inner = m
-          .slice(1, -1)
-          .replace(/\\[nrt]/g, " ")
-          .replace(/[^\x20-\x7E]/g, " ")
-          .trim()
+        const inner = m.slice(1, -1).replace(/\\[nrt]/g, " ").replace(/[^\x20-\x7E]/g, " ").trim()
         if (inner.length >= 2 && /[a-zA-Z]{2,}/.test(inner) && !NOISE_PATTERNS.test(inner)) {
           chunks.push(inner)
         }
@@ -1194,35 +1186,20 @@ function tryExtractReadablePdfText(base64Data: string): string {
       let startByte = pos + 6
       if (rawLat1[startByte] === "\r" && rawLat1[startByte + 1] === "\n") startByte += 2
       else if (rawLat1[startByte] === "\n" || rawLat1[startByte] === "\r") startByte += 1
-
       let endByte = endPos
       while (endByte > startByte && (rawLat1[endByte - 1] === "\n" || rawLat1[endByte - 1] === "\r" || rawLat1[endByte - 1] === " ")) {
         endByte--
       }
-
       const streamSlice = buf.subarray(startByte, endByte)
       try {
         const inflated = zlib.inflateSync(streamSlice).toString("latin1")
         collectFromDecompressedStream(inflated)
-      } catch {
-        // Uncompressed stream fallback (e.g. clean ASCII PDF streams)
-        const rawStreamStr = streamSlice.toString("latin1")
-        if (rawStreamStr.includes("BT") && rawStreamStr.includes("ET")) {
-          collectFromDecompressedStream(rawStreamStr)
-        }
-      }
+      } catch {}
       pos = endPos + 9
     }
 
     const combined = Array.from(new Set(chunks)).join(" ").replace(/\s+/g, " ").trim()
-    // Ensure extracted text actually contains real career/job content & timeline years before trusting text-only fast path
-    const hasTimelineYear = /\b(199\d|200\d|201\d|202\d)\b/.test(combined)
-    const hasCareerKeywords = /\b(experience|skills|work|education|project|lead|manager|engineer|architect|director|specialist|training|support|operations|certified|university|college)\b/i.test(combined)
-
-    if (combined.length >= 350 && (hasTimelineYear || hasCareerKeywords)) {
-      return combined.slice(0, 18000)
-    }
-    return ""
+    return combined.length >= 250 ? combined.slice(0, 18000) : ""
   } catch {
     return ""
   }
@@ -1232,7 +1209,6 @@ function isExtractedResumeOrJobValid(rawJsonText: string): boolean {
   try {
     const clean = rawJsonText.replace(/```json/gi, "").replace(/```/g, "").trim()
     const parsed = JSON.parse(clean)
-    // If it's a resume extraction payload, ensure it didn't hallucinate 0 years + empty skills
     if ("experience_years" in parsed || "structured_skills" in parsed) {
       const yrs = Number(parsed.experience_years) || 0
       const skillsLen = Array.isArray(parsed.structured_skills) ? parsed.structured_skills.length : 0
@@ -1249,9 +1225,9 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
   const groqKey = cleanEnvKey(process.env.GROQ_API_KEY)
   const geminiKey = cleanEnvKey(process.env.GEMINI_API_KEY)
 
-  // 1. Fast Path: Only if verified, high-signal readable text streams exist in the PDF
-  const extractedText = tryExtractReadablePdfText(base64Data)
-  if (groqKey && extractedText.length >= 350) {
+  // 1. Primary High-Speed Path: True Unicode PDF extraction via unpdf + Groq Tier 1 (120B) / Tier 2 (20B)
+  const extractedText = await tryExtractReadablePdfText(base64Data)
+  if (groqKey && extractedText.length >= 120) {
     const groqModels = ["openai/gpt-oss-120b", "openai/gpt-oss-20b"]
     for (const gModel of groqModels) {
       try {
@@ -1260,19 +1236,25 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
           groq.chat.completions.create({
             model: gModel,
             temperature: 0.1,
-            max_tokens: 1400,
+            max_tokens: 1600,
             response_format: { type: "json_object" },
             messages: [
-              { role: "system", content: "You are an expert technical recruiter and document parser. Output strictly valid JSON matching the requested schema." },
-              { role: "user", content: prompt + "\n\n=== DOCUMENT TEXT ===\n" + extractedText }
+              {
+                role: "system",
+                content: "You are an expert technical recruiter and document parser. Output strictly valid JSON matching the requested schema."
+              },
+              {
+                role: "user",
+                content: prompt + "\n\n=== DOCUMENT TEXT ===\n" + extractedText
+              }
             ]
           }),
-          7500,
+          8500,
           "Groq Document Extractor (" + gModel + ")"
         )
         const content = chat.choices[0]?.message?.content
         if (content && isExtractedResumeOrJobValid(content)) {
-          console.log("Document successfully extracted using Groq model: " + gModel)
+          console.log("Document successfully extracted using unpdf + Groq model: " + gModel)
           return content
         }
       } catch (err: any) {
@@ -1281,7 +1263,7 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
     }
   }
 
-  // 2. Native Multimodal PDF Engine: Reads Word/Google Docs/macOS CID-font PDFs and complex multi-column layouts directly
+  // 2. Multimodal Fallback: Gemini Flash cascade for scanned image-only PDFs
   if (geminiKey) {
     const ai = new GoogleGenAI({ apiKey: geminiKey })
     const modelsToTry = [
@@ -1306,17 +1288,18 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
             ],
             config: {
               responseMimeType: "application/json",
+              thinkingConfig: { thinkingBudget: 0 },
             },
           }),
-          14000,
+          9500,
           "PDF Extractor (" + model + ")"
         )
         if (response.text && isExtractedResumeOrJobValid(response.text)) {
-          console.log("PDF successfully extracted using native multimodal model: " + model)
+          console.log("PDF successfully extracted using multimodal model: " + model)
           return response.text
         }
       } catch (error: any) {
-        console.warn("Model " + model + " warning (" + (error?.message || error) + "), falling back to next model...")
+        console.warn("Model " + model + " rate-limited or timed out, falling back to next model...")
         continue
       }
     }
