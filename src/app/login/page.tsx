@@ -233,6 +233,16 @@ function LoginContent() {
       return
     }
 
+    if ((res as any).bypassedOtp) {
+      setFeedback({
+        type: "success",
+        text: "✓ Demo Studio session verified! Redirecting to your workspace...",
+      })
+      router.replace(postLoginDestination)
+      router.refresh()
+      return
+    }
+
     setOtpMaskedEmail(res.maskedEmail || loginEmail)
     setOtpCode("")
     setMode("otp")

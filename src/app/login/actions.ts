@@ -242,7 +242,7 @@ export async function requestBrandedPasswordReset(
   const refId = 'SS-REC' + Date.now().toString().slice(-5)
 
   const isFakeTestAddress =
-    email.endsWith('@test.com') || email.endsWith('@example.com')
+    email.endsWith("@test.com") || email.endsWith("@example.com") || email.endsWith(".demo@specialsauce.io")
   const primaryRecipient =
     isFakeTestAddress && fallbackInbox ? fallbackInbox : email
 
@@ -576,6 +576,7 @@ export async function requestAccountLoginOtp(
   success: boolean
   maskedEmail?: string
   routedToFallback?: boolean
+  bypassedOtp?: boolean
   error?: string
 }> {
   const email = (emailInput || "").trim().toLowerCase()
@@ -626,6 +627,37 @@ export async function requestAccountLoginOtp(
     }
   }
 
+  const isOfficialDemoStudioAccount =
+    email === "alex.mercer.demo@specialsauce.io" ||
+    email === "apex.hiring.demo@specialsauce.io"
+
+  if (isOfficialDemoStudioAccount) {
+    await applySessionLifetimePolicy(Boolean(rememberMe))
+    const supabase = await createClient()
+    const { error: sessionErr } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+    if (sessionErr) {
+      return {
+        success: false,
+        error: sessionErr.message || "Could not establish demo session.",
+      }
+    }
+    await recordHandshakeTelemetry({
+      handshakeId: "auth_and_profiles_rls",
+      label: "Demo Studio Account Sign-In",
+      platformArea: "Onboarding & Authentication",
+      ok: true,
+    })
+    revalidatePath("/", "layout")
+    return {
+      success: true,
+      bypassedOtp: true,
+      maskedEmail: maskEmailAddress(email) || email,
+    }
+  }
+
   const otpCode = String(crypto.randomInt(100000, 999999))
   const otpHash = crypto
     .createHmac("sha256", getEncryptionKey())
@@ -655,7 +687,7 @@ export async function requestAccountLoginOtp(
   }
 
   const isFakeTestAddress =
-    email.endsWith("@test.com") || email.endsWith("@example.com")
+    email.endsWith("@test.com") || email.endsWith("@example.com") || email.endsWith(".demo@specialsauce.io")
   const primaryRecipient =
     isFakeTestAddress && fallbackInbox ? fallbackInbox : email
   let routedToFallback = primaryRecipient !== email
