@@ -69,7 +69,7 @@ const FREE_EMAIL_DOMAINS = new Set([
 function isFounderAdminEmail(email?: string | null): boolean {
   if (!email) return false
   const lower = email.toLowerCase().trim()
-  return lower.endsWith('@specialsauce.io')
+  return lower.endsWith('@specialsauce.io') && !lower.includes('.demo@')
 }
 
 async function verifyPaidStripeCheckoutSession(params: {

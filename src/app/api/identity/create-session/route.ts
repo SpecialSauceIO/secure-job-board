@@ -57,7 +57,7 @@ export async function POST(req: Request) {
         subTier === 'starter' ||
         subTier === 'growth' ||
         subTier === 'enterprise' ||
-        (user.email || '').toLowerCase().endsWith('@specialsauce.io')
+        ((user.email || '').toLowerCase().endsWith('@specialsauce.io') && !(user.email || '').toLowerCase().includes('.demo@'))
       if (!hasEmployerPlan) {
         return NextResponse.json(
           {
