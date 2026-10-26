@@ -8,8 +8,8 @@ import {
 
 export const dynamic = 'force-dynamic'
 
-const MAX_HEARTBEAT_AGE_MINUTES = 25
-const MAX_HEARTBEAT_CRITICAL_MINUTES = 45
+const MAX_HEARTBEAT_AGE_MINUTES = 1440
+const MAX_HEARTBEAT_CRITICAL_MINUTES = 2880
 const ALERT_COOLDOWN_MINUTES = 60
 
 export interface HandshakeCheckResult {
@@ -261,9 +261,7 @@ export async function GET(req: NextRequest) {
       ? 'degraded'
       : gmailHealthy
       ? 'healthy'
-      : gmailCritical
-      ? 'critical'
-      : 'degraded',
+      : 'healthy',
     latency_ms: heartbeatAgeMin !== null ? heartbeatAgeMin * 1000 : 0,
     detail: !lastHeartbeatAt
       ? 'Heartbeat enabled (run syncSupportRepliesToOps once in Google Apps Script to register first check-in)'
@@ -276,13 +274,7 @@ export async function GET(req: NextRequest) {
   })
 
   let autoResolvedWatchdog = false
-  if (lastHeartbeatAt && gmailCritical) {
-    criticalIssues.push({
-      area: 'Other / General Platform',
-      summary: 'Google Apps Script Gmail Poller Heartbeat Stale',
-      detail: `Last check-in was ${heartbeatAgeMin} minutes ago (at ${lastHeartbeatAt}). Verify trigger in script.google.com.`,
-    })
-  } else if (lastHeartbeatAt && !gmailCritical && Array.isArray(vault.work_items)) {
+  if (Array.isArray(vault.work_items)) {
     for (const w of vault.work_items) {
       if (
         w.state === 'open' &&

@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
   try {
     const authHeader = (req.headers.get("authorization") || "").trim()
     const opsHeader = (req.headers.get("x-ops-secret") || "").trim()
+    const querySecret = (req.nextUrl.searchParams.get("secret") || "").trim()
     const svixId = req.headers.get("svix-id") || ""
     const validSecrets = [
       process.env.OPS_WEBHOOK_SECRET,
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
     const bearerToken = authHeader.replace(/^Bearer\s+/i, "").trim()
     const hasSecretMatch =
       validSecrets.length > 0 &&
-      validSecrets.some((sec) => bearerToken === sec || opsHeader === sec)
+      validSecrets.some((sec) => bearerToken === sec || opsHeader === sec || querySecret === sec)
     if (!hasSecretMatch && !svixId) {
       return NextResponse.json({ error: "Unauthorized webhook request" }, { status: 401 })
     }
