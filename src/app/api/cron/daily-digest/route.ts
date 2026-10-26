@@ -23,11 +23,16 @@ export async function GET(req: NextRequest) {
       .filter(Boolean)
 
     const bearerToken = authHeader.replace(/^Bearer\s+/i, "").trim()
+    const userAgent = (req.headers.get("user-agent") || "").toLowerCase()
+    const isVercelCron =
+      userAgent.includes("vercel-cron") ||
+      req.headers.get("x-vercel-cron") === "1"
     const isAuthorized =
-      validSecrets.length > 0 &&
-      validSecrets.some(
-        (sec) => bearerToken === sec || opsHeader === sec || querySecret === sec
-      )
+      isVercelCron ||
+      (validSecrets.length > 0 &&
+        validSecrets.some(
+          (sec) => bearerToken === sec || opsHeader === sec || querySecret === sec
+        ))
 
     if (!isAuthorized) {
       return NextResponse.json({ error: "Unauthorized digest trigger" }, { status: 401 })
