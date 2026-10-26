@@ -433,7 +433,7 @@ export async function GET(req: NextRequest) {
         </div>
 
         <div style="background: #020617; padding: 14px 28px; text-align: center; font-size: 11px; color: #64748b; border-top: 1px solid #1e293b;">
-          Delivered automatically to steve@specialsauce.io • Generated at ${nowIso}
+          Delivered automatically to steve@specialsauce.io &amp; rochelle@specialsauce.io • Generated at ${nowIso}
         </div>
       </div>
     `
@@ -444,10 +444,17 @@ export async function GET(req: NextRequest) {
       fromEmail && !fromEmail.includes("resend.dev")
         ? fromEmail
         : "Special Sauce Ops <support@specialsauce.io>"
-    const recipient =
-      cleanEnv(req.nextUrl.searchParams.get("to")) ||
-      cleanEnv(process.env.OPS_DAILY_DIGEST_EMAIL) ||
-      "steve@specialsauce.io"
+    const queryTo = cleanEnv(req.nextUrl.searchParams.get("to"))
+    const envTo = cleanEnv(process.env.OPS_DAILY_DIGEST_EMAIL)
+    const recipients = queryTo
+      ? queryTo.split(",").map((e) => e.trim()).filter(Boolean)
+      : Array.from(
+          new Set([
+            "steve@specialsauce.io",
+            "rochelle@specialsauce.io",
+            ...envTo.split(",").map((e) => e.trim()).filter(Boolean),
+          ])
+        )
 
     let emailDispatched = false
     let emailResponse: any = null
@@ -461,7 +468,7 @@ export async function GET(req: NextRequest) {
         },
         body: JSON.stringify({
           from: sender,
-          to: [recipient],
+          to: recipients,
           reply_to: "support@specialsauce.io",
           subject: `📊 SpecialSauce.io Daily Ops Summary (${dateLabel}) — +${newCandidates24h.length + newOrgs24h.length} Members, +${candidateApps24h.length} Apps, +${newSupport24h.length} Tickets`,
           html,
@@ -473,7 +480,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       ok: true,
-      dispatched_to: recipient,
+      dispatched_to: recipients,
       email_dispatched: emailDispatched,
       resend_response: emailResponse,
       summary: {
