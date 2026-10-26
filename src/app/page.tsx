@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { PublicHeader } from '@/components/PublicHeader'
 import { PublicFooter } from '@/components/PublicFooter'
-import { CandidateVisualVignette, EmployerVisualVignette } from '@/components/InteractiveProductShowcase'
 
 export default function LandingPage() {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -481,8 +480,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Auto-Playing Visual Proof for Candidates */}
-            <CandidateVisualVignette />
           </div>
 
           {/* TRACK 2: EMPLOYERS */}
@@ -576,8 +573,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Auto-Playing Visual Proof for Employers */}
-            <EmployerVisualVignette />
           </div>
 
         </div>
