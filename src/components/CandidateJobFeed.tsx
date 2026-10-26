@@ -233,30 +233,33 @@ export function CandidateJobFeed({
       }
     } catch {}
 
-    const hasLocalCandCache = Boolean(localStorage.getItem('ss_cand_match_results_v1'))
-    if (!hasLocalCandCache) {
-      getPersistedMatchCache()
-        .then((res) => {
+    getPersistedMatchCache()
+      .then((res) => {
         if (!mounted || !res?.cache) return
         const serverMatches: Record<string, any> = {}
         for (const [k, v] of Object.entries(res.cache)) {
-          if (k.startsWith('cand_') && v && typeof v === 'object') {
+          if (k.startsWith('cand_v4_') && v && typeof v === 'object') {
+            const jId = k.slice('cand_v4_'.length)
+            serverMatches[jId] = v
+          } else if (k.startsWith('cand_') && v && typeof v === 'object') {
             const jId = k.slice('cand_'.length)
             serverMatches[jId] = v
           }
         }
-        if (Object.keys(serverMatches).length > 0) {
-          setMatchResults((prev) => {
-            const merged = { ...serverMatches, ...prev }
-            try {
-              localStorage.setItem('ss_cand_match_results_v1', JSON.stringify(merged))
-            } catch {}
-            return merged
-          })
+        if (Object.keys(serverMatches).length === 0) {
+          // Server cache was wiped/reset -> clear stale browser localStorage!
+          try {
+            localStorage.removeItem('ss_cand_match_results_v1')
+          } catch {}
+          setMatchResults({})
+        } else {
+          setMatchResults(serverMatches)
+          try {
+            localStorage.setItem('ss_cand_match_results_v1', JSON.stringify(serverMatches))
+          } catch {}
         }
       })
-        .catch(() => {})
-    }
+      .catch(() => {})
 
     return () => {
       mounted = false
@@ -912,7 +915,7 @@ export function CandidateJobFeed({
                           5-Point AI Fit Prediction
                         </span>
                         <p className="text-sm font-semibold text-slate-800 mt-1">
-                          {matchData.brief_analysis}
+                          {matchData.brief_analysis || matchData.summary || (score >= 40 ? `Verified alignment (${score}% overall fit) across Core Competencies, Skill Tenure, Logistics & Pay, and Industry Credentials.` : `Low role alignment (${score}% overall fit): Core competency and skill tenure requirements do not meet the 40% threshold for this role.`)}
                         </p>
                       </div>
 

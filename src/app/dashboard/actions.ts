@@ -3245,10 +3245,26 @@ function normalizeMatchDataObject(
     weightedOverall = Math.min(weightedOverall, coreScore + 6)
   }
 
+  const finalOverall = Math.max(8, Math.min(99, weightedOverall));
+  const rawBrief = String(
+    matchData.brief_analysis ||
+      matchData.summary ||
+      matchData.analysis ||
+      matchData.explanation ||
+      matchData.fit_summary ||
+      ""
+  ).trim();
+
+  const fallbackBrief =
+    finalOverall < 40
+      ? `Low role alignment (${finalOverall}%): Your profile matched ${baseline.reqMatchCount} of ${baseline.totalReqCount} core requirements for ${job?.title || "this role"} (Core Competencies: ${coreScore}%).`
+      : `Strong technical alignment (${finalOverall}% overall fit): Matched ${baseline.reqMatchCount} of ${baseline.totalReqCount} core requirements across Core Competencies (${coreScore}%) and Skill Tenure (${calibratedTenure}%).`;
+
   return {
     ...matchData,
-    overall_score: Math.max(8, Math.min(99, weightedOverall)),
+    overall_score: finalOverall,
     radar_data: finalRadar,
+    brief_analysis: rawBrief || fallbackBrief,
   }
 }
 
