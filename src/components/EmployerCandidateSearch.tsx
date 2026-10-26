@@ -589,6 +589,11 @@ export default function EmployerCandidateSearch({
     return [...filtered].sort((a, b) => {
       switch (sortBy) {
         case 'rank_high': {
+          const verA = Boolean(a.identity_verified === true || String(a.identity_verified) === 'true' || a.is_verified === true) ? 1 : 0
+          const verB = Boolean(b.identity_verified === true || String(b.identity_verified) === 'true' || b.is_verified === true) ? 1 : 0
+          if (verB !== verA) {
+            return verB - verA
+          }
           const rankA = getQuickCandidateCardRank(a)
           const rankB = getQuickCandidateCardRank(b)
           if (rankB.totalXp !== rankA.totalXp) {
@@ -1215,8 +1220,8 @@ export default function EmployerCandidateSearch({
 
                   {/* Row 2: Dedicated Trust, Industry & Availability Sub-Bar */}
                   <div className="pb-3 border-b border-slate-300 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs">
-                    <span className="text-emerald-700 font-bold">
-                      {isCandidateVerified ? '✓ Identity Verified' : '✓ Protected Vault Active'}
+                    <span className={isCandidateVerified ? "text-emerald-700 font-bold" : "text-indigo-700 font-bold"}>
+                      {isCandidateVerified ? '✓ Biometric ID Verified' : '🛡️ Vault-Staged (ID Gate on Connect)'}
                     </span>
                     <span className="text-slate-300">•</span>
                     <span className="font-bold text-slate-800">
