@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { PublicHeader } from '@/components/PublicHeader'
 import { PublicFooter } from '@/components/PublicFooter'
-import { InteractiveProductShowcase } from '@/components/InteractiveProductShowcase'
+import { CandidateVisualVignette, EmployerVisualVignette } from '@/components/InteractiveProductShowcase'
 
 export default function LandingPage() {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -390,9 +390,6 @@ export default function LandingPage() {
         className="scroll-mt-20 py-20 px-4 sm:px-6 md:px-12 bg-white border-t border-slate-300"
       >
         <div className="max-w-7xl mx-auto">
-          {/* LIVE INTERACTIVE PLATFORM SHOWCASE */}
-          <InteractiveProductShowcase />
-
           {/* TRACK 1: CANDIDATES */}
           <div className="mb-24">
             <div className="text-center mb-12">
@@ -483,6 +480,9 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
+
+            {/* Auto-Playing Visual Proof for Candidates */}
+            <CandidateVisualVignette />
           </div>
 
           {/* TRACK 2: EMPLOYERS */}
@@ -575,6 +575,9 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
+
+            {/* Auto-Playing Visual Proof for Employers */}
+            <EmployerVisualVignette />
           </div>
 
         </div>
