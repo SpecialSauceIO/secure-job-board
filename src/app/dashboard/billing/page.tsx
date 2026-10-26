@@ -132,10 +132,10 @@ export default function CandidateBillingPage() {
         type: 'success',
         text:
           selectParam === 'prestige'
-            ? 'Welcome to Special Sauce: Click "Activate Prestige ($15/mo)" below to unlock Real-Person ID Verification, unlimited protected applications, and top-priority search placement.'
+            ? 'Welcome to Special Sauce: Start your 30-Day Free Trial of Prestige ($0.00 due today, $15/mo after) below to unlock 1-Time Biometric ID Verification, unlimited protected applications, and top-priority search placement.'
             : selectParam === 'professional'
-            ? 'Welcome to Special Sauce: Click "Activate Professional ($9/mo)" below to unlock Real-Person ID Verification and 15 monthly protected applications.'
-            : 'Welcome to Special Sauce: Click "Activate Explorer ($3/mo)" below to unlock Real-Person ID Verification, live placement in Employer Search, and unlimited inbound employer pitches.',
+            ? 'Welcome to Special Sauce: Start your 30-Day Free Trial of Professional ($0.00 due today, $9/mo after) below to unlock 1-Time Biometric ID Verification and 15 monthly protected applications.'
+            : 'Welcome to Special Sauce: Start your 30-Day Free Trial of Explorer ($0.00 due today, $3/mo after) below to unlock 1-Time Biometric ID Verification and unlimited inbound employer pitch acceptances.',
       })
     }
   }, [loadCandidateBillingState])
@@ -269,13 +269,13 @@ export default function CandidateBillingPage() {
         <div className="p-6 rounded-2xl border-2 border-amber-400 bg-amber-50 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-200/80 text-amber-950 text-[11px] font-black uppercase tracking-wider">
-              🔒 Profile Quarantined Until Verified • Step 2 of 2 Required
+              🛡️ Step 2 of 2 Unlocked • Complete 1-Time Biometric ID Check
             </div>
             <h2 className="text-base sm:text-lg font-black text-slate-900">
-              Complete Your 1-Time Photo ID Check to Go Live in Employer Search
+              Complete Your 1-Time Photo ID Check to Unlock Applications & Employer Pitches
             </h2>
             <p className="text-xs sm:text-sm text-slate-700 max-w-2xl leading-relaxed">
-              Your <strong>{tierInfo?.label}</strong> subscription is active, but your profile remains <strong>100% hidden from employers</strong> until you pass Stripe Identity verification. This stops bots and burner accounts from harvesting employer pitches.
+              Your <strong>{tierInfo?.label}</strong> 30-Day Free Trial is active! Your anonymous skill matrix is currently <strong>Vault-Staged</strong> in Employer Search—complete your 1-time Stripe Identity check now to earn the <strong>✓ Biometric ID Verified</strong> badge, rank at the top of employer searches, and submit applications or accept pitches.
             </p>
           </div>
           <div className="shrink-0">
@@ -433,7 +433,7 @@ export default function CandidateBillingPage() {
               >
                 {normalizedTier === 'explorer'
                   ? '✓ Explorer Plan Active ($3/mo)'
-                  : 'Activate Explorer ($3/mo) →'}
+                  : 'Start 30-Day Free Trial ($0 Today • $3/mo After) →'}
               </button>
             </div>
           </div>
@@ -500,7 +500,7 @@ export default function CandidateBillingPage() {
               >
                 {normalizedTier === 'professional'
                   ? `✓ Professional Plan Active (${tierInfo?.freeAppsRemaining ?? 15}/15 Apps Left)`
-                  : 'Activate Professional ($9/mo) →'}
+                  : 'Start 30-Day Free Trial ($0 Today • $9/mo After) →'}
               </button>
             </div>
           </div>
@@ -565,7 +565,7 @@ export default function CandidateBillingPage() {
               >
                 {normalizedTier === 'prestige'
                   ? '✓ Prestige Plan Active (Unlimited Apps)'
-                  : 'Activate Prestige ($15/mo) →'}
+                  : 'Start 30-Day Free Trial ($0 Today • $15/mo After) →'}
               </button>
             </div>
           </div>

@@ -522,7 +522,7 @@ export default function EmployerBillingPage() {
                 ? 'Activating Starter...'
                 : activeTier === 'starter'
                 ? 'Reset Monthly Plan Bucket (10 Plan Credits) →'
-                : 'Switch to Starter (10 Plan Credits / mo) →'}
+                : 'Start 30-Day Free Trial ($0 Today • 10 Plan Credits) →'}
             </button>
           </div>
         </div>
@@ -596,7 +596,7 @@ export default function EmployerBillingPage() {
                 ? 'Activating Growth...'
                 : activeTier === 'growth'
                 ? 'Reset Monthly Plan Bucket (35 Plan Credits) →'
-                : 'Switch to Growth (35 Plan Credits & 15 Roles) →'}
+                : 'Start 30-Day Free Trial ($0 Today • 35 Plan Credits) →'}
             </button>
           </div>
         </div>
@@ -674,7 +674,7 @@ export default function EmployerBillingPage() {
                 ? 'Activating Enterprise...'
                 : activeTier === 'enterprise'
                 ? 'Reset Monthly Plan Bucket (120 Plan Credits) →'
-                : 'Switch to Enterprise (120 Plan Credits & Unlimited Roles) →'}
+                : 'Start 30-Day Free Trial ($0 Today • 120 Plan Credits) →'}
             </button>
           </div>
         </div>
