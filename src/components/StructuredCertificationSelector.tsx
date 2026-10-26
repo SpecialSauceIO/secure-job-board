@@ -36,12 +36,14 @@ export default function StructuredCertificationSelector({
   const [showAllVerticals, setShowAllVerticals] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
-  // Sync controlled value changes (e.g. AI Resume/Job Parser auto-fill)
+  // Sync controlled value OR updated server initialValue (e.g. AI Resume/Job Parser auto-fill)
   useEffect(() => {
     if (isControlled) {
       setSelectedCerts(parseAndNormalizeCertifications(value))
+    } else {
+      setSelectedCerts(parseAndNormalizeCertifications(initialValue))
     }
-  }, [isControlled, value])
+  }, [isControlled, value, initialValue])
 
   // Sync prop industryVertical changes
   useEffect(() => {

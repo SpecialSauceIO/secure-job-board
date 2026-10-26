@@ -246,7 +246,14 @@ export default async function ProfilePage() {
   const currentAvailability = normalizeCandidateAvailability(prefMetaObj?.availability_window)
   const currentLanguages = normalizeLanguageList(prefMetaObj?.languages, true)
 
-  const hasProfileData = !!profile?.bio
+  const hasProfileData = Boolean(profile?.bio && String(profile.bio).trim().length > 0 && visibleStructuredSkills.length > 0)
+  const formSyncKey = JSON.stringify({
+    b: profile?.bio || '',
+    e: profile?.experience_years || '',
+    c: currentCertifications || '',
+    s: visibleStructuredSkills.length,
+    u: profile?.resume_url || '',
+  })
 
   const AiSection = (
     <div className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm border-slate-300">
@@ -268,6 +275,7 @@ export default async function ProfilePage() {
 
   const FormSection = (
     <form
+      key={formSyncKey}
       action={saveCandidateProfilePreservingMeta}
       className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6 border-slate-300"
     >
@@ -353,7 +361,6 @@ export default async function ProfilePage() {
               defaultValue={profile?.experience_years || ''}
               placeholder="e.g. 5"
               className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
-              required
             />
           </div>
 
@@ -440,7 +447,6 @@ export default async function ProfilePage() {
             defaultValue={profile?.bio || ''}
             placeholder="An experienced professional with a track record of..."
             className="block w-full rounded-md border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3"
-            required
           />
         </div>
       </div>
