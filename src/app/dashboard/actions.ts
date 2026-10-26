@@ -1622,7 +1622,7 @@ export async function updateProfile(formData: FormData) {
     skills: skills_string,
     structured_skills,
     bio,
-    is_discoverable: isCurrentProfileVerified ? (currentProfile?.is_discoverable ?? true) : false,
+    is_discoverable: currentProfile?.is_discoverable ?? true,
   }
 
   if (min_salary_expectation) {
@@ -1695,6 +1695,20 @@ export async function parseResumeAutoFill(formData: FormData) {
 
   const file = formData.get('resume') as File
   if (!file) return
+
+  const parseVelocity = await checkActionVelocityAndSpray({
+    actorKey: `resume_parse:${user.id}`,
+    actorEmail: user.email || 'unknown@candidate',
+    actorRole: 'candidate',
+    actionType: 'resume_parse',
+    maxAllowedInWindow: 4,
+    windowMinutes: 60,
+    platformArea: '2-Stage Resume & Contact Vault',
+  })
+  if (!parseVelocity.allowed) {
+    console.warn('[SECURITY] Blocked rapid resume parse:', parseVelocity.reason)
+    return
+  }
 
   try {
     const { data: currentProfile } = await supabase
@@ -1821,7 +1835,7 @@ export async function parseResumeAutoFill(formData: FormData) {
       skills: skillsString,
       structured_skills: extractedSkills,
       bio: extractedData.bio || '',
-      is_discoverable: isCurrentProfileVerified ? (currentProfile?.is_discoverable ?? true) : false,
+      is_discoverable: currentProfile?.is_discoverable ?? true,
     }
 
     if (resumeStorageRef) {
@@ -2471,9 +2485,33 @@ export async function recalculatePitchMatch(applicationId: string) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('experience_years, skills, structured_skills, bio, preferred_work_model, min_salary_expectation, location')
+    .select('experience_years, skills, structured_skills, bio, preferred_work_model, min_salary_expectation, location, identity_verified, is_verified')
     .eq('id', user.id)
     .single()
+
+  const rawSkillsArr = Array.isArray(profile?.structured_skills)
+    ? profile.structured_skills.filter((s: any) => s && !s._ss_meta && !s._ss_pref_meta && (s.skill || s.name))
+    : []
+  const hasSeededSkills = rawSkillsArr.length > 0 || Boolean(profile?.skills && String(profile.skills).trim().length > 2)
+  if (!hasSeededSkills) {
+    return {
+      error: 'Please upload your resume or add your core skills on My Profile before running 5-Point AI Fit checks.',
+    }
+  }
+
+  const isCandVerified = Boolean(profile?.identity_verified === true || profile?.is_verified === true)
+  const fitVelocity = await checkActionVelocityAndSpray({
+    actorKey: `cand_fit:${user.id}`,
+    actorEmail: user.email || 'unknown@candidate',
+    actorRole: 'candidate',
+    actionType: 'ai_fit_check',
+    maxAllowedInWindow: isCandVerified ? 25 : 8,
+    windowMinutes: 15,
+    platformArea: '5-Point AI Fit Radar & Dealbreakers',
+  })
+  if (!fitVelocity.allowed) {
+    return { error: fitVelocity.reason || 'Rate limit exceeded for AI Fit checks. Please wait a few minutes.' }
+  }
 
   const visibleSkills = filterVisibleSkills(profile?.structured_skills)
   const prefMeta = extractCandidatePrefMeta(profile?.structured_skills)
@@ -3012,6 +3050,19 @@ export async function analyzeCandidateFit(
     if (existingCache[cacheKey]?.overall_score !== undefined) {
       return { data: existingCache[cacheKey] }
     }
+  }
+
+  const empFitVelocity = await checkActionVelocityAndSpray({
+    actorKey: `emp_fit:${user.id}`,
+    actorEmail: user.email || 'unknown@employer',
+    actorRole: 'employer',
+    actionType: 'ai_fit_check',
+    maxAllowedInWindow: 25,
+    windowMinutes: 15,
+    platformArea: '5-Point AI Fit Radar & Dealbreakers',
+  })
+  if (!empFitVelocity.allowed) {
+    return { error: empFitVelocity.reason || 'Rate limit exceeded for AI Fit checks. Please wait a few minutes.' }
   }
 
   const { data: profile } = await supabase
@@ -4301,7 +4352,6 @@ export async function searchCandidates(
     )
     .eq('role', 'candidate')
     .eq('is_discoverable', true)
-    .eq('identity_verified', true)
 
   if (workModel) {
     const modelTerm = workModel.toLowerCase().trim()
@@ -4510,10 +4560,10 @@ export async function sendConnectionRequest(
       candidate.is_verified === true ||
       String(candidate.is_verified) === 'true'
   )
-  if (!isTargetCandidateVerified || candidate.is_discoverable === false) {
+  if (candidate.is_discoverable === false) {
     return {
       error:
-        'Pitch Blocked: This candidate has not completed Real-Person ID Verification or is currently hidden from Employer Search.',
+        'Pitch Blocked: This candidate is currently hidden from Employer Search.',
     }
   }
 

@@ -271,6 +271,15 @@ export async function POST(req: Request) {
                 quantity: 1,
               },
         ],
+        payment_method_collection: 'always',
+        subscription_data: {
+          trial_period_days: 30,
+          metadata: {
+            audience: 'candidate',
+            userId: user.id,
+            tierId: candidateTier.id,
+          },
+        },
         allow_promotion_codes: true,
         billing_address_collection: 'auto',
         success_url: `${origin}/dashboard/billing?billing=success&plan=${candidateTier.id}&session_id={CHECKOUT_SESSION_ID}`,
@@ -401,6 +410,16 @@ export async function POST(req: Request) {
               quantity: 1,
             },
       ],
+      payment_method_collection: 'always',
+      subscription_data: {
+        trial_period_days: 30,
+        metadata: {
+          audience: 'employer',
+          organizationId: member.organization_id,
+          userId: user.id,
+          tierId: tier.id,
+        },
+      },
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
       tax_id_collection: { enabled: true },

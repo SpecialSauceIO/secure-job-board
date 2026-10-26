@@ -243,7 +243,7 @@ export async function checkAndRecordStripeIdentityCircuitBreaker(params: {
     return {
       allowed: false,
       reason:
-        "Stripe Identity biometric verification is included with all active Candidate subscriptions: Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo). Please activate a plan on your Billing page first.",
+        "1-Time Stripe Identity Verification unlocks automatically as soon as you start your $0.00 30-Day Free Trial (Explorer, Professional, or Prestige) with a valid card on file on your Billing page.",
     }
   }
 
@@ -465,7 +465,7 @@ export async function checkActionVelocityAndSpray(params: {
   actorKey: string
   actorEmail: string
   actorRole: "candidate" | "employer" | "unknown"
-  actionType: "blind_apply" | "employer_pitch" | "login_failure"
+  actionType: "blind_apply" | "employer_pitch" | "login_failure" | "ai_fit_check" | "resume_parse"
   maxAllowedInWindow: number
   windowMinutes: number
   platformArea: string

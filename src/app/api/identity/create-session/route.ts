@@ -38,7 +38,37 @@ export async function POST(req: Request) {
     ])
 
     const isEmployer = profile?.role === 'employer'
-    const effectiveTier = isEmployer ? 'employer' : tierInfo.tier
+    let effectiveTier: string = tierInfo.tier
+    if (isEmployer) {
+      const { data: memberRow } = await supabase
+        .from('organization_members')
+        .select('organization_id, organizations(subscription_status, subscription_tier)')
+        .eq('user_id', user.id)
+        .limit(1)
+        .maybeSingle()
+      const orgObj: any = Array.isArray(memberRow?.organizations)
+        ? memberRow?.organizations[0]
+        : memberRow?.organizations
+      const subStatus = String(orgObj?.subscription_status || '').toLowerCase()
+      const subTier = String(orgObj?.subscription_tier || '').toLowerCase()
+      const hasEmployerPlan =
+        subStatus === 'active' ||
+        subStatus === 'trialing' ||
+        subTier === 'starter' ||
+        subTier === 'growth' ||
+        subTier === 'enterprise' ||
+        (user.email || '').toLowerCase().endsWith('@specialsauce.io')
+      if (!hasEmployerPlan) {
+        return NextResponse.json(
+          {
+            error:
+              '1-Time Admin Stripe Identity Verification unlocks automatically as soon as you activate your $0.00 30-Day Founding Partner Free Trial (with a corporate card on file) on Employer Billing & Plans.',
+          },
+          { status: 403 }
+        )
+      }
+      effectiveTier = 'employer'
+    }
 
     const isVerified =
       profile?.identity_verified === true
