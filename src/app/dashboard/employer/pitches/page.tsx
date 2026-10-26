@@ -479,8 +479,11 @@ export default function EmployerSentPitchesPage() {
                       )}
                     </div>
                     <p className="leading-relaxed">
-                      {pitch.match_data?.brief_analysis ||
-                        'Candidate matched role requirements and dealbreakers.'}
+                      {toEmployerPerspective(
+    pitch.match_data?.employer_brief_analysis ||
+      pitch.match_data?.brief_analysis ||
+      "Candidate matched role requirements and dealbreakers."
+  )}
                     </p>
                   </div>
 
@@ -657,4 +660,47 @@ export default function EmployerSentPitchesPage() {
       )}
     </div>
   )
+}
+
+function toEmployerPerspective(text?: string | null): string {
+  if (!text) return "";
+  let s = String(text).trim();
+  if (!s) return "";
+  s = s
+    .replace(/\bYour anonymous profile and skill matrix\b/gi, "This candidate's anonymous profile and skill matrix")
+    .replace(/\bYour profile\b/g, "The candidate's profile")
+    .replace(/\byour profile\b/g, "the candidate's profile")
+    .replace(/\bYour background\b/g, "The candidate's background")
+    .replace(/\byour background\b/g, "the candidate's background")
+    .replace(/\bYour experience\b/g, "The candidate's experience")
+    .replace(/\byour experience\b/g, "the candidate's experience")
+    .replace(/\bYou are\b/g, "This candidate is")
+    .replace(/\byou are\b/g, "this candidate is")
+    .replace(/\bYou're\b/g, "This candidate is")
+    .replace(/\byou're\b/g, "this candidate is")
+    .replace(/\bYou have\b/g, "This candidate has")
+    .replace(/\byou have\b/g, "this candidate has")
+    .replace(/\bYou've\b/g, "This candidate has")
+    .replace(/\byou've\b/g, "this candidate has")
+    .replace(/\bYou bring\b/g, "This candidate brings")
+    .replace(/\byou bring\b/g, "this candidate brings")
+    .replace(/\bYou matched\b/g, "This candidate matched")
+    .replace(/\byou matched\b/g, "this candidate matched")
+    .replace(/\bYou demonstrate\b/g, "This candidate demonstrates")
+    .replace(/\byou demonstrate\b/g, "this candidate demonstrates")
+    .replace(/\bYou possess\b/g, "This candidate possesses")
+    .replace(/\byou possess\b/g, "this candidate possesses")
+    .replace(/\bYou meet\b/g, "This candidate meets")
+    .replace(/\byou meet\b/g, "this candidate meets")
+    .replace(/\bYou exceed\b/g, "This candidate exceeds")
+    .replace(/\byou exceed\b/g, "this candidate exceeds")
+    .replace(/\bYou lack\b/g, "This candidate lacks")
+    .replace(/\byou lack\b/g, "this candidate lacks")
+    .replace(/\bYou hold\b/g, "This candidate holds")
+    .replace(/\byou hold\b/g, "this candidate holds")
+    .replace(/\bYou\b/g, "This candidate")
+    .replace(/\byou\b/g, "the candidate")
+    .replace(/\bYour\b/g, "The candidate's")
+    .replace(/\byour\b/g, "their");
+  return s;
 }

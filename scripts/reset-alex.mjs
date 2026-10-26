@@ -63,7 +63,7 @@ await supabase.from("applications").delete().eq("candidate_id", alexUser.id);
 // 2. Wipe Alex's server-side AI Match Cache in Supabase Storage ('resumes' bucket)
 const { data: buckets } = await supabase.storage.listBuckets();
 for (const b of buckets || []) {
-  for (const prefix of ["match-cache-v4", "match-cache-v3", "match-cache-v2", "match-cache"]) {
+  for (const prefix of ["_isolated_match_cache_v3", "match-cache-v4", "match-cache-v3"]) {
     await supabase.storage.from(b.name).remove([`${prefix}/${alexUser.id}.json`]);
   }
 }
