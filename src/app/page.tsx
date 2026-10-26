@@ -445,10 +445,10 @@ export default function LandingPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-3">
-                  2. See Your Fit Before You Apply
+                  2. See Your Fit &amp; Get Discovered
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Every job listing shows real pay bands (annual or hourly) and closes after 30 days so you never apply to dead roles. Check your instant 5-Point AI Fit score before submitting an anonymous application and earn verified profile distinctions.
+                  Every listing displays transparent pay bands (annual or hourly) upfront. Check your instant 5-Point AI Fit Radar™ score (40% minimum match threshold) before applying anonymously—or let verified employers pitch you directly in our passive talent pool.
                 </p>
               </div>
 
@@ -471,10 +471,10 @@ export default function LandingPage() {
                     </svg>
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 mb-3">
-                    3. Chat First, Share Your Resume Later
+                    3. 2-Stage Privacy Handshake
                   </h3>
                   <p className="text-slate-500 leading-relaxed">
-                    When an employer wants to connect, you’ll see their verified company name and can message them directly on the platform—while your email and full resume stay private until you decide you’re ready to release them.
+                    In Stage 1, you see the employer’s verified company name and chat directly on the platform while remaining anonymous. In Stage 2, you release your full resume and contact card with one click only when you are ready to move forward.
                   </p>
                 </div>
               </div>
@@ -537,10 +537,10 @@ export default function LandingPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-3">
-                  2. Quality Over Clutter
+                  2. 40% Fit Gate &amp; Protected Pitches
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Every applicant is pre-screened against your role’s core skills, experience, credentials, and language requirements before they can apply. You can also search our passive talent pool by industry, location, certifications, and language fluency.
+                  Our 5-Point AI Fit Radar™ enforces a 40% minimum match threshold so unqualified spam never reaches your inbox. When you pitch passive talent directly, 100% Accepted-Only Pitch Credit Protection ensures you only use a credit when a candidate accepts.
                 </p>
               </div>
 
@@ -658,88 +658,11 @@ export default function LandingPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-3">
-                  You Control Your Information
+                  US-Based Support &amp; Calibrated AI
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Instead of blasting your name, phone number, and resume across public job boards, you connect in two simple steps: chat privately first, then release your resume and contact card only when you’re comfortable.
+                  Special Sauce is 100% US-owned and operated with direct US human support specialists—zero offshore call centers or bot loops. Our 5-Point AI Fit Radar™ is benchmark-tested and calibrated daily to prevent model drift.
                 </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Operational Standards: US-Based Company, US Support & Daily AI Calibration */}
-          <div className="mt-16 pt-14 border-t border-slate-200">
-            <div className="text-center max-w-3xl mx-auto mb-10">
-              <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-50 border border-sky-300 text-[#0284C7] text-[11px] font-extrabold uppercase tracking-wider mb-3">
-                <span>🇺🇸</span> Operational Integrity &amp; Standards
-              </span>
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                Built, Supported, and Rigorously Tested in the United States
-              </h3>
-              <p className="text-sm sm:text-base text-slate-500 mt-2.5 leading-relaxed">
-                Your career and hiring pipeline deserve real accountability. We combine domestic operational standards with daily automated quality assurance so you always know who and what is behind the platform.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Pillar 1: US-Based Company & Sovereign Operations */}
-              <div className="p-6 rounded-2xl bg-slate-50 border-2 border-slate-300 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-4">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-[11px] font-extrabold text-slate-800">
-                      🇺🇸 US-OWNED &amp; OPERATED
-                    </span>
-                    <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> US Jurisdiction
-                    </span>
-                  </div>
-                  <h4 className="text-lg font-extrabold text-slate-900 mb-2">
-                    100% US-Based Company &amp; Data Governance
-                  </h4>
-                  <p className="text-sm text-slate-500 leading-relaxed">
-                    Special Sauce is proudly incorporated, engineered, and operated in the United States. Your identity verification handshakes, private messages, and vaulted resumes are governed strictly under US data privacy laws—never sold or routed through offshore data brokers.
-                  </p>
-                </div>
-              </div>
-
-              {/* Pillar 2: 100% US-Based Human Support */}
-              <div className="p-6 rounded-2xl bg-slate-50 border-2 border-slate-300 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-4">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-[11px] font-extrabold text-[#0077D4]">
-                      🎧 US SUPPORT DESK
-                    </span>
-                    <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Direct Specialists
-                    </span>
-                  </div>
-                  <h4 className="text-lg font-extrabold text-slate-900 mb-2">
-                    Real, US-Based Human Support Team
-                  </h4>
-                  <p className="text-sm text-slate-500 leading-relaxed">
-                    When you open a service request, need corporate domain assistance, or have a billing question, you never get trapped in offshore call centers or endless bot loops. Every ticket is reviewed and answered directly by our US-based support and operations specialists.
-                  </p>
-                </div>
-              </div>
-
-              {/* Pillar 3: Daily AI Tooling Calibration */}
-              <div className="p-6 rounded-2xl bg-slate-50 border-2 border-slate-300 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-4">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-[11px] font-extrabold text-[#EA580C]">
-                      🎯 DAILY AI AUDIT
-                    </span>
-                    <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Verified Daily
-                    </span>
-                  </div>
-                  <h4 className="text-lg font-extrabold text-slate-900 mb-2">
-                    AI Tooling Tested &amp; Calibrated Daily
-                  </h4>
-                  <p className="text-sm text-slate-500 leading-relaxed">
-                    We never rely on &ldquo;set-and-forget&rdquo; AI. Our 5-Point AI Fit Radar™ undergoes automated daily calibration and benchmark auditing to verify scoring precision, prevent model drift, and guarantee that our 40% minimum match threshold stays fair, transparent, and accurate.
-                  </p>
-                </div>
               </div>
             </div>
           </div>
