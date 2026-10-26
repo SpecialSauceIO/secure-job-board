@@ -1022,7 +1022,7 @@ export function CandidateJobFeed({
                       </div>
                       <div>
                         <h4 className="text-sm font-extrabold text-emerald-950">
-                          Protected Application Submitted (+150 XP! Ref:{' '}
+                          Protected Application Submitted (Ref:{' '}
                           {appliedRef})
                         </h4>
                         <p className="text-xs text-emerald-800 mt-0.5 leading-relaxed">
@@ -1073,7 +1073,7 @@ export function CandidateJobFeed({
                       : !matchData
                       ? `Step 1: Run a free AI Fit Analysis (${MIN_MATCH_THRESHOLD}%+ match required to apply).`
                       : score >= MIN_MATCH_THRESHOLD
-                      ? '✓ You meet the 40%+ AI Fit threshold! Submitting Rewards +150 Profile XP.'
+                      ? '✓ You meet the 40%+ AI Fit threshold! Ready to submit your protected application.'
                       : `Requires ${MIN_MATCH_THRESHOLD}%+ AI Match Score to apply (Current: ${score}%).`}
                   </p>
 

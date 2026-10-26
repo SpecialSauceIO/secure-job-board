@@ -696,7 +696,7 @@ export default function EmployerCandidateSearch({
               }
               className="rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2.5 text-xs font-extrabold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
             >
-              <option value="rank_high">Sort: Highest Rank &amp; XP</option>
+              <option value="rank_high">Sort: Verified Credentials</option>
               <option value="exp_high">Sort: Most Experienced</option>
               <option value="salary_low">Sort: Lowest Min Salary</option>
               <option value="salary_high">Sort: Highest Min Salary</option>

@@ -2060,7 +2060,7 @@ export async function applyBlind(formData: FormData) {
     referenceId: refId,
     heading: 'Your Protected Application Has Been Submitted!',
     bodyLines: [
-      `Your anonymous profile was submitted for "${roleTitle}" with a ${parsedMatchScore}% AI Match Score (+150 Profile XP).`,
+      `Your anonymous profile was submitted for "${roleTitle}" with a ${parsedMatchScore}% AI Match Score.`,
       `Connection Reference ID: ${refId}`,
       `Your identity and contact details remain hidden until the employer unlocks your application. Even after Stage 1 unlock, your PDF resume and raw email stay vaulted until you choose to share it.`,
     ],
@@ -2834,7 +2834,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
     referenceId,
     heading: 'Connected — Private Chat Active!',
     bodyLines: [
-      `You accepted the connection pitch from ${resolvedOrgName} for "${jobObj?.title || 'Open Role'}" (+150 Profile XP).`,
+      `You accepted the connection pitch from ${resolvedOrgName} for "${jobObj?.title || 'Open Role'}".`,
       `Connection Reference ID: ${referenceId}`,
       `🔒 Your raw email and PDF resume remain safely vaulted until you choose to click "Release Resume & Contact Vault" inside the message thread.`,
     ],
@@ -4744,7 +4744,7 @@ export async function sendConnectionRequest(
     bodyLines: [
       `A Domain-Verified Employer matched with your anonymous profile and spent a connection credit to pitch you their "${job.title}" role.`,
       `Transaction Reference ID: ${refId}`,
-      `Accepting opens a private chat thread (+150 Profile XP) while keeping your raw email and PDF resume vaulted until you choose to release them.`,
+      `Accepting opens a private chat thread while keeping your raw email and PDF resume vaulted until you choose to release them.`,
     ],
     ctaUrl: '/dashboard/requests',
     ctaLabel: 'Review Pitch in Inbox →',

@@ -230,7 +230,7 @@ export default function CandidateApplicationsPage() {
             No protected applications match your current filter
           </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Run a free 5-Point AI Fit check on open roles and submit a protected application (+150 Profile XP) whenever you score 40%+.
+            Run a free 5-Point AI Fit check on open roles and submit a protected application whenever you score 40%+.
           </p>
           <Link
             href="/dashboard/jobs"

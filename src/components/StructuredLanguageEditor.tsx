@@ -15,7 +15,7 @@ export function StructuredLanguageEditor({
   name = 'languages',
   initialLanguages,
   title = '🌐 Language Proficiency Matrix',
-  subtitle = 'Specify each language, whether your capability is Written, Verbal, or Both, and your proficiency level. Adding a 2nd language at Advanced or Fluent unlocks the Multilingual Specialist badge (+150 XP).',
+  subtitle = 'Specify each language, whether your capability is Written, Verbal, or Both, and your proficiency level. Adding a 2nd language at Advanced or Fluent unlocks the Multilingual Specialist distinction.',
   onChange,
 }: {
   name?: string
