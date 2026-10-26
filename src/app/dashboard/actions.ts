@@ -1154,15 +1154,38 @@ function tryExtractReadablePdfText(base64Data: string): string {
     const rawLat1 = buf.toString("latin1")
     const chunks: string[] = []
 
-    const collectTextLiterals = (src: string) => {
-      const matches = src.match(/\(([^()\\]{2,200})\)/g) || []
+    const NOISE_PATTERNS = /sRGB|IEC61966|Hewlett-Packard|Quartz PDFContext|Adobe|Identity-H|FlateDecode|Filter|FontDescriptor|BaseFont|MediaBox|Resources|CreationDate|ModDate|Producer|Creator/i
+
+    const collectFromDecompressedStream = (src: string) => {
+      // 1. Reconstruct TJ arrays e.g. [(S)-12(enior) -5 (Training)] -> "Senior Training"
+      const tjArrayMatches = src.match(/\[([^\[\]]{2,2000})\]\s*TJ/g) || []
+      for (const arr of tjArrayMatches) {
+        const parts = arr.match(/\(([^()\\]|\\.)*\)/g) || []
+        if (parts.length > 0) {
+          const line = parts
+            .map((p) => p.slice(1, -1).replace(/\\([nrt()])/g, "$1"))
+            .join("")
+            .replace(/[^\x20-\x7E]/g, " ")
+            .trim()
+          if (line.length >= 2 && !NOISE_PATTERNS.test(line)) {
+            chunks.push(line)
+          }
+        }
+      }
+
+      // 2. Collect standard (text) Tj literals inside decompressed streams
+      const matches = src.match(/\(([^()\\]{2,300})\)/g) || []
       for (const m of matches) {
-        const inner = m.slice(1, -1).replace(/\\[nrt]/g, " ").replace(/[^\x20-\x7E]/g, " ").trim()
-        if (inner.length >= 2 && /[a-zA-Z]{2,}/.test(inner)) chunks.push(inner)
+        const inner = m
+          .slice(1, -1)
+          .replace(/\\[nrt]/g, " ")
+          .replace(/[^\x20-\x7E]/g, " ")
+          .trim()
+        if (inner.length >= 2 && /[a-zA-Z]{2,}/.test(inner) && !NOISE_PATTERNS.test(inner)) {
+          chunks.push(inner)
+        }
       }
     }
-
-    collectTextLiterals(rawLat1)
 
     let pos = 0
     while ((pos = rawLat1.indexOf("stream", pos)) !== -1) {
@@ -1171,18 +1194,54 @@ function tryExtractReadablePdfText(base64Data: string): string {
       let startByte = pos + 6
       if (rawLat1[startByte] === "\r" && rawLat1[startByte + 1] === "\n") startByte += 2
       else if (rawLat1[startByte] === "\n" || rawLat1[startByte] === "\r") startByte += 1
-      const streamSlice = buf.subarray(startByte, endPos)
+
+      let endByte = endPos
+      while (endByte > startByte && (rawLat1[endByte - 1] === "\n" || rawLat1[endByte - 1] === "\r" || rawLat1[endByte - 1] === " ")) {
+        endByte--
+      }
+
+      const streamSlice = buf.subarray(startByte, endByte)
       try {
         const inflated = zlib.inflateSync(streamSlice).toString("latin1")
-        collectTextLiterals(inflated)
-      } catch {}
+        collectFromDecompressedStream(inflated)
+      } catch {
+        // Uncompressed stream fallback (e.g. clean ASCII PDF streams)
+        const rawStreamStr = streamSlice.toString("latin1")
+        if (rawStreamStr.includes("BT") && rawStreamStr.includes("ET")) {
+          collectFromDecompressedStream(rawStreamStr)
+        }
+      }
       pos = endPos + 9
     }
 
-    const combined = chunks.join(" ").replace(/\s+/g, " ").trim()
-    return combined.length >= 180 ? combined.slice(0, 18000) : ""
+    const combined = Array.from(new Set(chunks)).join(" ").replace(/\s+/g, " ").trim()
+    // Ensure extracted text actually contains real career/job content & timeline years before trusting text-only fast path
+    const hasTimelineYear = /\b(199\d|200\d|201\d|202\d)\b/.test(combined)
+    const hasCareerKeywords = /\b(experience|skills|work|education|project|lead|manager|engineer|architect|director|specialist|training|support|operations|certified|university|college)\b/i.test(combined)
+
+    if (combined.length >= 350 && (hasTimelineYear || hasCareerKeywords)) {
+      return combined.slice(0, 18000)
+    }
+    return ""
   } catch {
     return ""
+  }
+}
+
+function isExtractedResumeOrJobValid(rawJsonText: string): boolean {
+  try {
+    const clean = rawJsonText.replace(/```json/gi, "").replace(/```/g, "").trim()
+    const parsed = JSON.parse(clean)
+    // If it's a resume extraction payload, ensure it didn't hallucinate 0 years + empty skills
+    if ("experience_years" in parsed || "structured_skills" in parsed) {
+      const yrs = Number(parsed.experience_years) || 0
+      const skillsLen = Array.isArray(parsed.structured_skills) ? parsed.structured_skills.length : 0
+      if (yrs <= 0 && skillsLen === 0) return false
+      if (skillsLen === 0) return false
+    }
+    return true
+  } catch {
+    return false
   }
 }
 
@@ -1190,10 +1249,10 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
   const groqKey = cleanEnvKey(process.env.GROQ_API_KEY)
   const geminiKey = cleanEnvKey(process.env.GEMINI_API_KEY)
 
-  // Fast Path: If readable PDF text streams exist, run Tier 1 Groq openai/gpt-oss-120b -> Tier 2 qwen/qwen3.8-27b
+  // 1. Fast Path: Only if verified, high-signal readable text streams exist in the PDF
   const extractedText = tryExtractReadablePdfText(base64Data)
-  if (groqKey && extractedText.length >= 180) {
-    const groqModels = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b"]
+  if (groqKey && extractedText.length >= 350) {
+    const groqModels = ["openai/gpt-oss-120b", "openai/gpt-oss-20b"]
     for (const gModel of groqModels) {
       try {
         const groq = new Groq({ apiKey: groqKey })
@@ -1201,18 +1260,18 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
           groq.chat.completions.create({
             model: gModel,
             temperature: 0.1,
-            max_tokens: 900,
+            max_tokens: 1400,
             response_format: { type: "json_object" },
             messages: [
               { role: "system", content: "You are an expert technical recruiter and document parser. Output strictly valid JSON matching the requested schema." },
               { role: "user", content: prompt + "\n\n=== DOCUMENT TEXT ===\n" + extractedText }
             ]
           }),
-          6000,
+          7500,
           "Groq Document Extractor (" + gModel + ")"
         )
         const content = chat.choices[0]?.message?.content
-        if (content) {
+        if (content && isExtractedResumeOrJobValid(content)) {
           console.log("Document successfully extracted using Groq model: " + gModel)
           return content
         }
@@ -1222,7 +1281,7 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
     }
   }
 
-  // Multimodal Fallback: Deduplicated Gemini Flash cascade for native/scanned PDF binary
+  // 2. Native Multimodal PDF Engine: Reads Word/Google Docs/macOS CID-font PDFs and complex multi-column layouts directly
   if (geminiKey) {
     const ai = new GoogleGenAI({ apiKey: geminiKey })
     const modelsToTry = [
@@ -1247,18 +1306,17 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
             ],
             config: {
               responseMimeType: "application/json",
-              thinkingConfig: { thinkingBudget: 0 },
             },
           }),
-          6500,
+          14000,
           "PDF Extractor (" + model + ")"
         )
-        if (response.text) {
-          console.log("PDF successfully extracted using model: " + model)
+        if (response.text && isExtractedResumeOrJobValid(response.text)) {
+          console.log("PDF successfully extracted using native multimodal model: " + model)
           return response.text
         }
       } catch (error: any) {
-        console.warn("Model " + model + " rate-limited or timed out, falling back to next model...")
+        console.warn("Model " + model + " warning (" + (error?.message || error) + "), falling back to next model...")
         continue
       }
     }
