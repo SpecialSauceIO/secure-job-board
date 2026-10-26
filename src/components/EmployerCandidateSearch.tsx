@@ -1612,15 +1612,38 @@ export default function EmployerCandidateSearch({
                           {feedback.type === 'error' &&
                             selectedJobId &&
                             !isAnalyzingMatch && (
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  handleRoleSelect(selectedJobId, candidate.id)
-                                }
-                                className="px-3 py-1.5 bg-rose-700 text-white rounded-lg hover:bg-rose-800 transition-colors text-xs font-extrabold cursor-pointer shrink-0"
-                              >
-                                ↻ Try AI Match Again
-                              </button>
+                              feedback.text.includes('Company Profile') || feedback.text.includes('Federal EIN') ? (
+                                <Link
+                                  href="/dashboard/employer/organization"
+                                  className="px-3 py-1.5 bg-slate-900 text-white rounded-lg hover:bg-indigo-600 transition-colors text-xs font-extrabold shrink-0"
+                                >
+                                  Complete Company Profile →
+                                </Link>
+                              ) : feedback.text.includes('Billing') || feedback.text.includes('Credits') || feedback.text.includes('Starter') || feedback.text.includes('Trial') ? (
+                                <Link
+                                  href="/dashboard/employer/billing"
+                                  className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors text-xs font-extrabold shrink-0"
+                                >
+                                  Start $0 30-Day Trial →
+                                </Link>
+                              ) : feedback.text.includes('Verification Gate') || feedback.text.includes('Identity Verification') ? (
+                                <Link
+                                  href="/dashboard"
+                                  className="px-3 py-1.5 bg-slate-900 text-white rounded-lg hover:bg-indigo-600 transition-colors text-xs font-extrabold shrink-0"
+                                >
+                                  Verify Admin ID →
+                                </Link>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleRoleSelect(selectedJobId, candidate.id)
+                                  }
+                                  className="px-3 py-1.5 bg-rose-700 text-white rounded-lg hover:bg-rose-800 transition-colors text-xs font-extrabold cursor-pointer shrink-0"
+                                >
+                                  ↻ Try AI Match Again
+                                </button>
+                              )
                             )}
                         </div>
                       )}

@@ -978,8 +978,8 @@ export default async function DashboardPage({
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 text-amber-700 font-bold">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                Verification Required
+                <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                🛡️ Vault-Staged in Employer Search
               </span>
             )}
             <span>·</span>
@@ -1070,21 +1070,47 @@ export default async function DashboardPage({
         </div>
       )}
 
-      {!isVerified && (
-        <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/80 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
-          <div>
-            <h2 className="text-sm font-extrabold text-slate-900">
-              Step 1: Activate Your Plan & Verify Identity to Go Live in Employer Search
-            </h2>
-            <p className="mt-0.5 text-xs text-slate-600">
-              Every candidate on Special Sauce is Real-Person ID-Verified (included with Explorer $3/mo, Professional $9/mo, and Prestige $15/mo) to guarantee a 100% bot-free talent directory.
-            </p>
+      {!isVerified && (() => {
+        const metaItem = Array.isArray(profile?.structured_skills)
+          ? profile.structured_skills.find((s: any) => s && s._ss_meta)
+          : null
+        const activeCandTier = String(metaItem?.subscription_tier || "free").toLowerCase()
+        const hasActiveTrialOrPlan =
+          activeCandTier === "explorer" ||
+          activeCandTier === "professional" ||
+          activeCandTier === "prestige" ||
+          activeCandTier === "pro" ||
+          activeCandTier === "trial"
+
+        return (
+          <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/80 p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
+            <div>
+              <h2 className="text-sm font-extrabold text-slate-900">
+                {hasActiveTrialOrPlan
+                  ? "Step 2 of 2: Complete Your 1-Time Biometric ID Check to Unlock Applications & Pitches"
+                  : "🛡️ Your Skill Matrix Is Vault-Staged in Employer Search • Unlock Applications & Pitches"}
+              </h2>
+              <p className="mt-0.5 text-xs text-slate-600">
+                {hasActiveTrialOrPlan
+                  ? "Your 30-Day Free Trial is active! Complete your 1-time Stripe Photo ID check now to earn the Biometric ID Verified badge, rank #1 in Employer Search, and apply or accept pitches."
+                  : "Employers can already discover your anonymous skill matrix and run AI Fit checks. Start your $0.00 30-Day Free Trial (Explorer $3/mo, Professional $9/mo, or Prestige $15/mo after) to unlock 1-Time ID Verification, submit applications, and accept employer pitches."}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+              {hasActiveTrialOrPlan ? (
+                <VerifyButton />
+              ) : (
+                <Link
+                  href="/dashboard/billing"
+                  className="inline-flex items-center justify-center rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2.5 text-xs font-extrabold text-white shadow-sm transition-colors"
+                >
+                  Start 30-Day Free Trial ($0 Today) →
+                </Link>
+              )}
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-            <VerifyButton />
-          </div>
-        </div>
-      )}
+        )
+      })()}
 
       {/* 4 CANDIDATE WIDGETS (DEFAULT MINIMALIST WHITE B2B OR ACCESSIBILITY COLOR-CODED) */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">

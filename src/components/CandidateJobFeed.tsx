@@ -1099,24 +1099,31 @@ export function CandidateJobFeed({
                           ✓ Protected Application Sent
                         </span>
                       ) : (
-                        <button
-                          type="button"
-                          disabled={
-                            isApplying ||
-                            !isVerified ||
-                            score < MIN_MATCH_THRESHOLD
-                          }
-                          onClick={() => handleBlindApply(jobId)}
-                          className="w-full sm:w-auto text-center justify-center px-5 py-2.5 sm:py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-2xs disabled:opacity-40 cursor-pointer whitespace-nowrap"
-                        >
-                          {isApplying
-                            ? 'Submitting...'
-                            : !isVerified
-                            ? '🔒 Verify Identity to Apply'
-                            : score < MIN_MATCH_THRESHOLD
-                            ? `Locked (<${MIN_MATCH_THRESHOLD}% Match)`
-                            : 'Submit Protected Application →'}
-                        </button>
+                        !isVerified && score >= MIN_MATCH_THRESHOLD ? (
+                          <Link
+                            href="/dashboard/billing"
+                            className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 sm:py-2 rounded-xl bg-indigo-600 text-white text-xs font-extrabold hover:bg-indigo-500 transition-colors shadow-2xs whitespace-nowrap"
+                          >
+                            🔒 Unlock Apply ($0 Trial + ID Check) →
+                          </Link>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled={
+                              isApplying ||
+                              !isVerified ||
+                              score < MIN_MATCH_THRESHOLD
+                            }
+                            onClick={() => handleBlindApply(jobId)}
+                            className="w-full sm:w-auto text-center justify-center px-5 py-2.5 sm:py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-2xs disabled:opacity-40 cursor-pointer whitespace-nowrap"
+                          >
+                            {isApplying
+                              ? 'Submitting...'
+                              : score < MIN_MATCH_THRESHOLD
+                              ? `Locked (<${MIN_MATCH_THRESHOLD}% Match)`
+                              : 'Submit Protected Application →'}
+                          </button>
+                        )
                       ))}
                   </div>
                 </div>
