@@ -688,13 +688,13 @@ export default async function DashboardPage({
                   ) : (
                     <>
                       {acceptedPitchesCount > 0 && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[11px] font-bold shadow-xs">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[11px] font-bold border border-emerald-300 shadow-xs">
                           <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
                           {acceptedPitchesCount} Accepted
                         </span>
                       )}
                       {declinedPitchesCount > 0 && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-600 text-white text-[11px] font-bold shadow-xs">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-600 text-white text-[11px] font-bold border border-rose-300 shadow-xs">
                           <span className="h-1.5 w-1.5 rounded-full bg-amber-200 animate-pulse" />
                           {declinedPitchesCount} Declined
                         </span>
@@ -1250,13 +1250,13 @@ export default async function DashboardPage({
                 ) : (
                   <>
                     {unlockedOutboundAppsCount > 0 && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[11px] font-bold shadow-xs">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[11px] font-bold border border-emerald-300 shadow-xs">
                         <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
                         {unlockedOutboundAppsCount} Unlocked
                       </span>
                     )}
                     {archivedOutboundAppsCount > 0 && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-600 text-white text-[11px] font-bold shadow-xs">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-600 text-white text-[11px] font-bold border border-rose-300 shadow-xs">
                         <span className="h-1.5 w-1.5 rounded-full bg-amber-200 animate-pulse" />
                         {archivedOutboundAppsCount} Archived
                       </span>
