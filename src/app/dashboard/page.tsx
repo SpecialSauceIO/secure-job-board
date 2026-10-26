@@ -658,7 +658,7 @@ export default async function DashboardPage({
             }
             className={`group p-4 sm:p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
               a11yColorTiles
-                ? 'bg-amber-100/80 hover:bg-amber-200/65 border-slate-300 hover:border-slate-300 shadow-xs'
+                ? 'bg-amber-100/80 hover:bg-amber-200/65 border-amber-400 hover:border-amber-300 shadow-xs'
                 : 'bg-white hover:bg-slate-50/60 border-slate-300 hover:border-slate-400 shadow-xs'
             }`}
           >
@@ -1220,7 +1220,7 @@ export default async function DashboardPage({
           href="/dashboard/applications"
           className={`group p-4 sm:p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
             a11yColorTiles
-              ? 'bg-amber-100/80 hover:bg-amber-200/65 border-slate-300 hover:border-slate-300 shadow-xs'
+              ? 'bg-amber-100/80 hover:bg-amber-200/65 border-amber-400 hover:border-amber-300 shadow-xs'
               : 'bg-white hover:bg-slate-50/60 border-slate-300 hover:border-slate-400 shadow-xs'
           }`}
         >

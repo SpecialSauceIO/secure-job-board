@@ -428,7 +428,7 @@ export async function inspectStage1TextForContactLeakOrInjection(params: {
 
   if (!params.isStage2Unlocked) {
     const obfuscatedEmail =
-      /\b[A-Za-z0-9._%+-]+\s*([at]|\(at\)|@|\sat\s)\s*[A-Za-z0-9.-]+\s*([dot]|\(dot\)|\.|\sdot\s)\s*(com|io|net|org|co|us|me)\b/i.test(
+      /\b[A-Za-z0-9._%+-]+\s*(\[at\]|\(at\)|@|\s+at\s+)\s*[A-Za-z0-9.-]+\s*(\[dot\]|\(dot\)|\.|\s+dot\s+)\s*(com|io|net|org|co|us|me)\b/i.test(
         raw
       )
     const obfuscatedPhone =
