@@ -87,7 +87,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 2 (Slide #3): Unified Founding Member & Partner Launch Slide - LOGO BLUE */}
+          {/* SLIDE 2 (Slide #3): The Intro/Convo Privacy Handshake - LOGO BLUE */}
           <div
             className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
               currentSlide === 2
@@ -96,23 +96,22 @@ export default function LandingPage() {
             }`}
           >
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-50 border border-sky-300 text-[#0284C7] text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
-              <span className="text-[#0284C7]">★</span>
-              30-Day Free Trial ($0 Due Today) • Founding Memberships Open
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0284C7]"></span>
+              </span>
+              The Intro/Convo Privacy Handshake • Mutual Consent First
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-[3.35rem] font-extrabold text-slate-900 tracking-tight leading-[1.12] max-w-6xl mb-4">
-              <span className="sm:whitespace-nowrap">
-                Lock In Permanent{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0077D4] to-[#1DA1F2]">
-                  Founder Status.
-                </span>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
+              Start With{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0077D4] to-[#1DA1F2]">
+                An Introduction.
               </span>
               <br />
-              <span className="sm:whitespace-nowrap">
-                Human-to-Human. Protected Invitation Credits.
-              </span>
+              Share Your Resume When Ready.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Every Candidate and Employer plan starts with a <strong className="text-slate-700">30-Day Free Trial ($0 due today)</strong>. Candidates earn a permanent <strong className="text-slate-700">★ Founding Member badge</strong>, and Employers lock in <strong className="text-slate-700">12-Month Founding Partner Rates</strong>.
+              Connect in an encrypted Introduction thread before exposing your full identity. Candidates see the verified company name while showing only their First Name and Last Initial—releasing their full resume and contact vault into The Conversation only when mutual interest is confirmed.
             </p>
           </div>
 
@@ -172,7 +171,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 5 (Slide #6): Candidates - LOGO ORANGE */}
+          {/* SLIDE 5 (Slide #6): $0 Upfront Staging + 30-Day Free Trial - LOGO ORANGE */}
           <div
             className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
               currentSlide === 5
@@ -185,18 +184,18 @@ export default function LandingPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#EA580C]"></span>
               </span>
-              For Job Seekers &amp; Passive Professionals
+              $0 Upfront Profile &amp; Role Staging • 30-Day Free Trial
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
-              Your Career.{' '}
+              Test Your{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#EA580C] to-[#F97316]">
-                Your Privacy.
+                True Market Fit.
               </span>
               <br />
-              You hold the keys.
+              30-Day Free Trial. $0 Due Today.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Explore your true market value without risking your current role. Set your minimum compensation, work model, and search availability upfront—and receive direct Professional Invitations from verified employers before you ever reveal your identity or resume.
+              Stage your anonymous profile or open roles and run unlimited 5-Point AI Fit Radar checks at $0 upfront. When you find a match worth pursuing, start your 30-Day Free Trial ($0 due today) to unlock verified applications and refund-protected Professional Invitations.
             </p>
           </div>
         </div>
