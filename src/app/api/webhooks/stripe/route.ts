@@ -181,7 +181,7 @@ export async function POST(req: Request) {
   // 1B. RECURRING MONTHLY RENEWAL (invoice.payment_succeeded)
   //     - Replenishes Employer monthly Pitch Credits (10 / 35 / 120) while
   //       preserving unused [TOPUP:X] rollover credits.
-  //     - Resets Candidate Professional ($9/mo) monthly 15-application counter.
+  //     - Resets Professional ($9/mo) monthly 15-application counter.
   // ============================================================================
   if (event.type === 'invoice.payment_succeeded') {
     const invoice = event.data.object as Stripe.Invoice

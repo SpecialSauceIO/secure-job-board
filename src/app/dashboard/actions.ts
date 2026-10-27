@@ -657,22 +657,22 @@ export async function activateSandboxCandidateTier(
     await sendPlatformNotification({
       to: user.email,
       subject: isPrestige
-        ? 'Candidate Prestige Plan ($15/mo) Activated'
+        ? 'Prestige Plan ($15/mo) Activated'
         : isExplorer
-        ? 'Candidate Explorer Plan ($3/mo) Activated'
-        : 'Candidate Professional Plan ($9/mo) Activated',
+        ? 'Explorer Plan ($3/mo) Activated'
+        : 'Professional Plan ($9/mo) Activated',
       referenceId: refId,
       heading: isPrestige
-        ? 'Welcome to Candidate Prestige ($15/mo)'
+        ? 'Welcome to Prestige ($15/mo)'
         : isExplorer
-        ? 'Welcome to Candidate Explorer ($3/mo)'
-        : 'Welcome to Candidate Professional ($9/mo)',
+        ? 'Welcome to Explorer ($3/mo)'
+        : 'Welcome to Professional ($9/mo)',
       bodyLines: [
         isPrestige
-          ? 'Your Candidate Prestige plan is active with Real-Person ID Verification access, Unlimited Outbound Protected Applications, Top-Priority Employer Search placement, and Founding Member status.'
+          ? 'Your Prestige plan is active with Real-Person ID Verification access, Unlimited Outbound Protected Applications, Top-Priority Employer Search placement, and Founding Member status.'
           : isExplorer
-          ? 'Your Candidate Explorer plan ($3/mo) is active with Real-Person ID Verification access, live placement in Employer Talent Search once verified, and unlimited inbound Professional Invitation unlocks.'
-          : 'Your Candidate Professional plan is active with Real-Person ID Verification access, 15 Outbound Protected Applications per month, and Founding Member status.',
+          ? 'Your Explorer plan ($3/mo) is active with Real-Person ID Verification access, live placement in Employer Talent Search once verified, and unlimited inbound Professional Invitation unlocks.'
+          : 'Your Professional plan is active with Real-Person ID Verification access, 15 Outbound Protected Applications per month, and Founding Member status.',
         `Subscription Reference ID: ${refId}`,
       ],
       ctaUrl: '/dashboard',
@@ -1910,8 +1910,8 @@ export async function applyBlind(formData: FormData) {
     const isExplorer = candidateTier.tier === 'explorer' || candidateTier.tier === 'free'
     return {
       error: isExplorer
-        ? '30-Day Free Trial Required ($0 Due Today): Start your 30-Day Free Trial of Candidate Professional ($0 today, then $9/mo for 15 monthly applications) or Prestige ($0 today, then $15/mo for unlimited applications) on your Membership & Billing page to submit outbound protected applications.'
-        : `Monthly Application Quota Reached (${CANDIDATE_TRIAL_MAX_APPS}/${CANDIDATE_TRIAL_MAX_APPS} Used): Upgrade to Candidate Prestige ($15/mo) on your Membership & Billing page to unlock Unlimited Outbound Protected Applications.`,
+        ? '30-Day Free Trial Required ($0 Due Today): Start your 30-Day Free Trial of Professional ($0 today, then $9/mo for 15 monthly applications) or Prestige ($0 today, then $15/mo for unlimited applications) on your Membership & Billing page to submit outbound protected applications.'
+        : `Monthly Application Quota Reached (${CANDIDATE_TRIAL_MAX_APPS}/${CANDIDATE_TRIAL_MAX_APPS} Used): Upgrade to Prestige ($15/mo) on your Membership & Billing page to unlock Unlimited Outbound Protected Applications.`,
     }
   }
 

@@ -16,7 +16,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
 > = {
   explorer: {
     id: 'explorer',
-    name: 'Special Sauce - Candidate Explorer Plan ($3/mo)',
+    name: 'Special Sauce - Explorer Plan ($3/mo)',
     priceCents: 300,
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER',
     defaultPriceId: 'price_1UU2OnR0rSVwN0zEdfBhqFRZ',
@@ -25,7 +25,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
   },
   candidate_explorer: {
     id: 'explorer',
-    name: 'Special Sauce - Candidate Explorer Plan ($3/mo)',
+    name: 'Special Sauce - Explorer Plan ($3/mo)',
     priceCents: 300,
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER',
     defaultPriceId: 'price_1UU2OnR0rSVwN0zEdfBhqFRZ',
@@ -34,7 +34,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
   },
   professional: {
     id: 'professional',
-    name: 'Special Sauce - Candidate Professional Plan ($9/mo)',
+    name: 'Special Sauce - Professional Plan ($9/mo)',
     priceCents: 900,
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zEQeqE0pvy',
@@ -43,7 +43,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
   },
   candidate_pro: {
     id: 'professional',
-    name: 'Special Sauce - Candidate Professional Plan ($9/mo)',
+    name: 'Special Sauce - Professional Plan ($9/mo)',
     priceCents: 900,
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zEQeqE0pvy',
@@ -52,7 +52,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
   },
   prestige: {
     id: 'prestige',
-    name: 'Special Sauce - Candidate Prestige Plan ($15/mo)',
+    name: 'Special Sauce - Prestige Plan ($15/mo)',
     priceCents: 1500,
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zETADS2cmp',
@@ -61,7 +61,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
   },
   candidate_prestige: {
     id: 'prestige',
-    name: 'Special Sauce - Candidate Prestige Plan ($15/mo)',
+    name: 'Special Sauce - Prestige Plan ($15/mo)',
     priceCents: 1500,
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zETADS2cmp',

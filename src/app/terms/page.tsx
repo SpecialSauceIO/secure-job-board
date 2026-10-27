@@ -119,7 +119,7 @@ export default function TermsOfServicePage() {
             <p className="text-slate-700 leading-relaxed mt-3">
               We reserve the right, at our sole discretion and without prior notice, to throttle, suspend, or permanently terminate any account that exhibits behavior consistent with resume harvesting, phishing, prompt injection, or Acceptable Use violations.{' '}
               <strong>
-                In the event of account termination due to a violation of these Terms, you forfeit any right to a refund for active subscriptions, unused Invitation Credits, Rollover Top-Up Packs, or Candidate Professional/Prestige memberships.
+                In the event of account termination due to a violation of these Terms, you forfeit any right to a refund for active subscriptions, unused Invitation Credits, Rollover Top-Up Packs, or Professional/Prestige memberships.
               </strong>
             </p>
           </section>

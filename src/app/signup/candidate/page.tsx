@@ -45,9 +45,9 @@ export default function CandidateSignupPage({
             </h2>
             <p className="mt-1.5 text-sm text-slate-500 font-medium">
               {selectedPlan === 'prestige'
-                ? 'Create your free account to stage your profile and start your 30-Day Free Trial of Candidate Prestige ($0 today • $15/mo after).'
+                ? 'Create your free account to stage your profile and start your 30-Day Free Trial of Prestige ($0 today • $15/mo after).'
                 : selectedPlan === 'professional'
-                  ? 'Create your free account to stage your profile and start your 30-Day Free Trial of Candidate Professional ($0 today • $9/mo after).'
+                  ? 'Create your free account to stage your profile and start your 30-Day Free Trial of Professional ($0 today • $9/mo after).'
                   : 'Create your free account to stage your anonymous skill matrix and start your 30-Day Free Trial of Explorer ($0 today • $3/mo after).'}
             </p>
           </div>

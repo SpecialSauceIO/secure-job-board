@@ -37,7 +37,7 @@ export const SECURITY_ARCHITECTURE_DATA = {
     {
       title: 'Credit Cards, ACH & Banking Details (PCI-DSS Level 1)',
       detail:
-        'All Employer subscription payments ($149 / $499 / $1,250 Founding Partner Rates locked for 12 months; $299 / $799 / $1,999 Retail), Rollover Invitation Credit Top-Up Packs ($150 / $350 / $900), and Candidate Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo) transactions are processed on Stripe-hosted Checkout pages. Raw card numbers, CVV codes, and banking details never touch Special Sauce servers.',
+        'All Employer subscription payments ($149 / $499 / $1,250 Founding Partner Rates locked for 12 months; $299 / $799 / $1,999 Retail), Rollover Invitation Credit Top-Up Packs ($150 / $350 / $900), and Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo) transactions are processed on Stripe-hosted Checkout pages. Raw card numbers, CVV codes, and banking details never touch Special Sauce servers.',
     },
   ],
   platformStoredItems: [
@@ -71,7 +71,7 @@ Special Sauce does NOT store government ID images, verification selfies, credit 
 
 2. WHAT IS STORED EXCLUSIVELY INSIDE STRIPE (PCI-DSS LEVEL 1 & SOC 2):
 - Biometric Identity Verification (Stripe Identity): Government IDs and live selfie checks for both Candidates and Employer Account Admins are captured and encrypted (AES-256) directly inside Stripe's isolated vault. Special Sauce only stores a boolean "Identity Verified" status token.
-- Subscription & Billing Data (Stripe Checkout): All payment methods for Employer Tiers ($149/$499/$1,250 Founding Partner Rates locked for 12 months; $299/$799/$1,999 Retail), Rollover Top-Up Packs ($150 / $350 / $900), and Candidate Explorer ($3/mo), Professional ($9/mo) & Prestige ($15/mo) plans are tokenized and vaulted by Stripe.
+- Subscription & Billing Data (Stripe Checkout): All payment methods for Employer Tiers ($149/$499/$1,250 Founding Partner Rates locked for 12 months; $299/$799/$1,999 Retail), Rollover Top-Up Packs ($150 / $350 / $900), and Explorer ($3/mo), Professional ($9/mo) & Prestige ($15/mo) plans are tokenized and vaulted by Stripe.
 
 3. 3-PILLAR EMPLOYER ANTI-HARVESTING GATE:
 - Pillar 1 (Domain & 90-Day RDAP Age Check): Work-email or DNS TXT verification paired with live DNS MX validation and an automated IANA/RDAP lookup blocking burner domains (<90 days old).
