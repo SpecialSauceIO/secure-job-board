@@ -207,7 +207,7 @@ async function sendThreadEmailNotification({
   const resendKey = cleanEnvKey(process.env.RESEND_API_KEY)
 
   const isFakeTestAddress =
-    rawRecipient.endsWith('@test.com') || rawRecipient.endsWith('@example.com')
+    rawRecipient.endsWith('@test.com') || rawRecipient.endsWith('@example.com') || rawRecipient.endsWith('.demo@specialsauce.io') || rawRecipient.endsWith('@specialsauce.test')
   const primaryRecipient =
     !rawRecipient || (isFakeTestAddress && fallbackInbox)
       ? fallbackInbox || rawRecipient

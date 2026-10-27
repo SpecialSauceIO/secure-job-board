@@ -242,7 +242,7 @@ export async function requestBrandedPasswordReset(
   const refId = 'SS-REC' + Date.now().toString().slice(-5)
 
   const isFakeTestAddress =
-    email.endsWith("@test.com") || email.endsWith("@example.com") || email.endsWith(".demo@specialsauce.io")
+    email.endsWith("@test.com") || email.endsWith("@example.com") || email.endsWith(".demo@specialsauce.io") || email.endsWith("@specialsauce.test")
   const primaryRecipient =
     isFakeTestAddress && fallbackInbox ? fallbackInbox : email
 
