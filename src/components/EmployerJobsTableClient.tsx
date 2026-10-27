@@ -232,9 +232,9 @@ export default function EmployerJobsTableClient({
 
         {/* Bottom Row: Industry + Work Type + Sort By Dropdown */}
         <div className="pt-3 border-t border-slate-300 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-          <div className="md:col-span-4 flex items-center gap-2">
-            <label
-              htmlFor="manage-jobs-industry"
+          <div className="md:col-span-3 flex items-center gap-2">
+              <label
+                htmlFor="manage-jobs-industry"
               className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
             >
               Industry:
@@ -276,9 +276,9 @@ export default function EmployerJobsTableClient({
             </select>
           </div>
 
-          <div className="md:col-span-3 flex items-center gap-2">
-            <label
-              htmlFor="manage-jobs-sort"
+          <div className="md:col-span-5 flex items-center gap-2">
+              <label
+                htmlFor="manage-jobs-sort"
               className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
             >
               Sort:
@@ -304,7 +304,7 @@ export default function EmployerJobsTableClient({
             </select>
           </div>
 
-          <div className="md:col-span-2 text-right">
+          <div className="md:col-span-1 text-right whitespace-nowrap">
             <span className="text-xs font-bold text-slate-500">
               Showing{' '}
               <strong className="text-slate-900">

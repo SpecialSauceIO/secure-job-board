@@ -268,7 +268,7 @@ export default async function JobManagementPage() {
   }
 
   const activeJobsCount = enrichedRows.filter((j) => j.is_active).length
-  const slotsFull = activeJobsCount >= tierInfo.maxActiveJobs
+  const slotsFull = tierInfo.maxActiveJobs > 0 && activeJobsCount >= tierInfo.maxActiveJobs
 
   return (
     <div className="py-2">
