@@ -37,14 +37,14 @@ export const SECURITY_ARCHITECTURE_DATA = {
     {
       title: 'Credit Cards, ACH & Banking Details (PCI-DSS Level 1)',
       detail:
-        'All Employer subscription payments ($149 / $499 / $1,250 Founding Partner Rates locked for 12 months; $299 / $799 / $1,999 Retail), Rollover Pitch Credit Top-Up Packs ($150 / $350 / $900), and Candidate Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo) transactions are processed on Stripe-hosted Checkout pages. Raw card numbers, CVV codes, and banking details never touch Special Sauce servers.',
+        'All Employer subscription payments ($149 / $499 / $1,250 Founding Partner Rates locked for 12 months; $299 / $799 / $1,999 Retail), Rollover Invitation Credit Top-Up Packs ($150 / $350 / $900), and Candidate Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo) transactions are processed on Stripe-hosted Checkout pages. Raw card numbers, CVV codes, and banking details never touch Special Sauce servers.',
     },
   ],
   platformStoredItems: [
     {
       title: '2-Stage Candidate Identity & Resume Vault (Anti-Harvesting)',
       detail:
-        'Stage 1 (Initial Unlock / Pitch Acceptance) opens an encrypted in-platform message thread and reveals only the candidate’s First Name + Last Initial alongside the employer’s verified company identity. Stage 2 requires the candidate’s explicit 1-click consent ("Release Resume & Contact Vault") before their full name, direct email, and 1-hour signed PDF resume URL are revealed.',
+        'Stage 1 (Initial Unlock / Invitation Acceptance) opens an encrypted in-platform message thread and reveals only the candidate’s First Name + Last Initial alongside the employer’s verified company identity. Stage 2 requires the candidate’s explicit 1-click consent ("Release Resume & Contact Vault") before their full name, direct email, and 1-hour signed PDF resume URL are revealed.',
     },
     {
       title: '3-Pillar Employer Anti-Harvesting Trust Gate',
@@ -79,7 +79,7 @@ Special Sauce does NOT store government ID images, verification selfies, credit 
 - Pillar 3 (Admin Biometric ID): 1-time Stripe Identity photo ID & live selfie verification for the Employer Account Admin.
 
 4. 2-STAGE ANTI-HARVESTING IDENTITY VAULT & IN-PLATFORM MESSAGING:
-- Stage 1 (Encrypted Thread Unlock): When an employer unlocks an inbound application or a candidate accepts an outbound pitch, an encrypted in-platform chat thread opens (Ref: SS-XXXXXXXX). The employer's verified company name/domain and the candidate's First Name + Last Initial are revealed, while the candidate's raw email and PDF resume remain strictly vaulted.
+- Stage 1 (Encrypted Thread Unlock): When an employer unlocks an inbound application or a candidate accepts a Professional Invitation, an encrypted in-platform chat thread opens (Ref: SS-XXXXXXXX). The employer's verified company name/domain and the candidate's First Name + Last Initial are revealed, while the candidate's raw email and PDF resume remain strictly vaulted.
 - Stage 2 (Candidate-Controlled Vault Release): Only after the employer engages in the thread and the candidate clicks "Release Resume & Contact Vault" are the candidate's Full Name, direct email, and 1-hour signed PDF resume URL unlocked.
 - Anti-Scraping & Phishing Guardrails: Employers cannot hold more than 5 unlocked threads without sending an introductory message. All job postings automatically expire after 30 days unless manually renewed, and in-platform messages are scanned in real time to block SSN/banking requests and off-platform phishing links.
 ====================================================================`,
@@ -113,9 +113,9 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
       },
       {
         step: 'Step 4',
-        title: 'Stage 1 Unlock & 100% Accepted-Only Pitch Credit Protection',
+        title: 'Stage 1 Unlock & 100% Accepted-Only Invitation Credit Protection',
         description:
-          'Unlocking inbound applicants (40%+ AI Fit) is 100% free (0 credits). Pitching passive candidates uses 1 Pitch Credit backed by our 100% Accepted-Only Guarantee—declined pitches are automatically refunded. Stage 1 opens a live encrypted chat thread and reveals the candidate’s First Name + Last Initial.',
+          'Unlocking inbound applicants (40%+ AI Fit) is 100% free (0 credits). Sending a Professional Invitation to passive candidates uses 1 Invitation Credit backed by our 100% Accepted-Only Guarantee—declined pitches are automatically refunded. Stage 1 opens a live encrypted chat thread and reveals the candidate’s First Name + Last Initial.',
       },
       {
         step: 'Step 5',
@@ -135,13 +135,13 @@ Special Sauce is a 100% ID-verified, double-blind recruitment marketplace protec
 - Step 1 — Organization Setup & 12-Month Rate Lock: Activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo) to lock in Founding Partner Rates for a full 12 months.
 - Step 2 — 3-Pillar Anti-Harvesting Trust Gate: Complete corporate domain verification (including automated 90-day RDAP domain age verification), IRS 9-digit Federal EIN attestation, and a 1-time 60-second Stripe Identity check for the Account Admin.
 - Step 3 — Publishing Protected Roles (30-Day Auto-Expiry): Every role displays transparent pay ($/yr or $/hr), US State & Metro location, and employment type while keeping our company name protected until Stage 1 match. Roles auto-expire after 30 days to guarantee freshness.
-- Step 4 — Stage 1 Unlock & Accepted-Only Pitch Credit Protection: Inbound applications (40%+ AI Fit) are 100% FREE to unlock (0 credits); outbound pitches to passive talent use 1 Pitch Credit and are 100% auto-refunded if declined. Stage 1 opens live encrypted chat (Ref: SS-XXXXXXXX) and reveals the candidate's First Name + Last Initial.
+- Step 4 — Stage 1 Unlock & Accepted-Only Invitation Credit Protection: Inbound applications (40%+ AI Fit) are 100% FREE to unlock (0 credits); Professional Invitationes to passive talent use 1 Invitation Credit and are 100% auto-refunded if declined. Stage 1 opens live encrypted chat (Ref: SS-XXXXXXXX) and reveals the candidate's First Name + Last Initial.
 - Step 5 — Stage 2 Unlock (Full Resume & Email Release): Once we chat with the candidate, they click "Release Resume & Contact Vault" to unlock their Full Name, direct email, and 1-hour signed PDF resume link.
 
 3. EMPLOYER PLANS (12-MONTH FOUNDING PARTNER RATE LOCK) & TOP-UPS:
-- Starter ($149/mo Founding · $299/mo Retail starting Mo 13): Up to 5 Active Roles | 10 Pitch Credits/mo | 2 Team/Recruiter Seats
-- Growth ($499/mo Founding · $799/mo Retail starting Mo 13): Up to 15 Active Roles | 35 Pitch Credits/mo | Up to 5 Team/Recruiter Seats
-- Enterprise ($1,250/mo Founding · $1,999/mo Retail starting Mo 13): Unlimited Active Roles | 120 Pitch Credits/mo | Unlimited Seats + Workday/Greenhouse HR Software Sync
+- Starter ($149/mo Founding · $299/mo Retail starting Mo 13): Up to 5 Active Roles | 10 Invitation Credits/mo | 2 Team/Recruiter Seats
+- Growth ($499/mo Founding · $799/mo Retail starting Mo 13): Up to 15 Active Roles | 35 Invitation Credits/mo | Up to 5 Team/Recruiter Seats
+- Enterprise ($1,250/mo Founding · $1,999/mo Retail starting Mo 13): Unlimited Active Roles | 120 Invitation Credits/mo | Unlimited Seats + Workday/Greenhouse HR Software Sync
 - Non-Expiring Rollover Top-Up Packs (Bucket 2): Boost (+10 Credits for $150), Surge (+25 Credits for $350), Scale (+75 Credits for $900)
 ====================================================================`,
   },
@@ -172,15 +172,15 @@ Special Sauce is a 100% ID-verified, double-blind recruitment marketplace protec
       },
       {
         step: 'Step 4',
-        title: 'Check 5-Point AI Fit & Field Direct Employer Pitches',
+        title: 'Check 5-Point AI Fit & Field Professional Invitations',
         description:
-          'Browse active roles (all verified fresh within 30 days with upfront pay bands), check your instant 5-Point AI Fit score (40%+ minimum to apply), and receive direct pitches from verified hiring managers who pass your Dealbreaker Firewall.',
+          'Browse active roles (all verified fresh within 30 days with upfront pay bands), check your instant 5-Point AI Fit score (40%+ minimum to apply), and receive direct Professional Invitations from verified hiring managers who pass your Dealbreaker Firewall.',
       },
       {
         step: 'Step 5',
         title: '2-Stage Handshake: Chat Safely First, Release Resume Later',
         description:
-          'When you accept an employer pitch or an employer unlocks your application, Stage 1 opens an encrypted chat revealing their verified company name while showing only your First Name + Last Initial. Click "Release Resume & Contact Vault" (Stage 2) only when you are ready!',
+          'When you accept a Professional Invitation or an employer unlocks your application, Stage 1 opens an encrypted chat revealing their verified company name while showing only your First Name + Last Initial. Click "Release Resume & Contact Vault" (Stage 2) only when you are ready!',
       },
     ],
     copyPasteText: `====================================================================
@@ -189,7 +189,7 @@ SPECIAL SAUCE — CANDIDATE HOW-IT-WORKS & 2-STAGE VAULT REFERENCE GUIDE
 
 1. ZERO RESUME HARVESTING (2-STAGE IDENTITY VAULT):
 - While browsing, employers only see "Anonymous Candidate #ID" with your extracted skills, experience level, US Metro location, and third-person bio.
-- Stage 1 (Encrypted Thread): When an employer unlocks your application or you accept an employer pitch, an encrypted in-platform chat opens. You see the employer's verified company name and domain, and they see only your First Name + Last Initial. Your raw email and PDF resume stay LOCKED in the vault.
+- Stage 1 (Encrypted Thread): When an employer unlocks your application or you accept a Professional Invitation, an encrypted in-platform chat opens. You see the employer's verified company name and domain, and they see only your First Name + Last Initial. Your raw email and PDF resume stay LOCKED in the vault.
 - Stage 2 (You Control the Vault Key): After chatting with the employer in the thread to confirm genuine interview interest, click "Release Resume & Contact Vault" in 1 click to share your Full Name, direct email, and 1-hour signed PDF resume link.
 
 2. 100% VERIFIED EMPLOYERS & YOUR DEALBREAKER FIREWALL:
@@ -198,9 +198,9 @@ SPECIAL SAUCE — CANDIDATE HOW-IT-WORKS & 2-STAGE VAULT REFERENCE GUIDE
 - All job listings automatically close after 30 days unless manually renewed by the employer—eliminating stale "ghost jobs."
 
 3. CANDIDATE MEMBERSHIP TIERS ($3 / $9 / $15):
-- Explorer ($3/mo): Includes 1-time Stripe Real-Person ID Verification, live anonymous profile in Employer Search, unlimited Inbound Employer Pitch unlocks, and unlimited 5-Point AI Fit Radar checks.
-- Professional ($9/mo): Includes 1-time Stripe Real-Person ID Verification, unlimited Inbound Employer Pitch unlocks, 15 Outbound Protected Applications/month (40%+ AI Fit), and Permanent Founding Member status.
-- Prestige ($15/mo): Includes 1-time Stripe Real-Person ID Verification, Unlimited Outbound Protected Applications (40%+ AI Fit), unlimited pitch unlocks, and Top-Priority Spotlight placement in Employer Talent Search.
+- Explorer ($3/mo): Includes 1-time Stripe Real-Person ID Verification, live anonymous profile in Employer Search, unlimited Inbound Professional Invitation unlocks, and unlimited 5-Point AI Fit Radar checks.
+- Professional ($9/mo): Includes 1-time Stripe Real-Person ID Verification, unlimited Inbound Professional Invitation unlocks, 15 Outbound Protected Applications/month (40%+ AI Fit), and Permanent Founding Member status.
+- Prestige ($15/mo): Includes 1-time Stripe Real-Person ID Verification, Unlimited Outbound Protected Applications (40%+ AI Fit), unlimited invitation unlocks, and Top-Priority Spotlight placement in Employer Talent Search.
 ====================================================================`,
   },
 }
@@ -241,9 +241,9 @@ export const SUPPORT_FAQS: FAQ[] = [
     target: 'candidate',
     category: 'Verification & 2-Stage Vault Privacy',
     question:
-      'How do I know if an employer has pitched me or messaged me in an encrypted thread?',
+      'How do I know if an employer has sent me a Professional Invitation or messaged me in an encrypted thread?',
     answer:
-      'Whenever a verified employer pitches you or sends a Stage 1 chat message, three things happen automatically: 1) We send an instant email alert to your inbox with a direct link to the thread, 2) Your Candidate Dashboard displays a pulsing "New Msg" badge on your Applications or Employer Pitches card in real time, and 3) If you have the dashboard open in your browser, a gentle audio chime plays automatically (which you can mute anytime).',
+      'Whenever a verified employer sends you a Professional Invitation or sends a Stage 1 chat message, three things happen automatically: 1) We send an instant email alert to your inbox with a direct link to the thread, 2) Your Candidate Dashboard displays a pulsing "New Msg" badge on your Applications or Employer Pitches card in real time, and 3) If you have the dashboard open in your browser, a gentle audio chime plays automatically (which you can mute anytime).',
   },
   {
     id: 'c4',
@@ -270,7 +270,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How do my Hard Dealbreaker Firewall (W-2 vs. 1099, Remote/Hybrid, and Minimum Pay) rules work?',
     answer:
-      'On your Match Preferences page, you set your Minimum Annual Salary, preferred Work Models (Remote, Hybrid, On-site), target US State & Metro area, and accepted Employment Types (Full-Time W-2, Contract 1099/Corp-to-Corp, Contract-to-Hire, or Part-Time). Our Hard Dealbreaker Firewall automatically blocks employers from pitching you if their role violates your minimum pay band (hourly roles are annualized at 2,080 hrs/yr), work model, or employment type preferences.',
+      'On your Match Preferences page, you set your Minimum Annual Salary, preferred Work Models (Remote, Hybrid, On-site), target US State & Metro area, and accepted Employment Types (Full-Time W-2, Contract 1099/Corp-to-Corp, Contract-to-Hire, or Part-Time). Our Hard Dealbreaker Firewall automatically blocks employers from sending Professional Invitations you if their role violates your minimum pay band (hourly roles are annualized at 2,080 hrs/yr), work model, or employment type preferences.',
   },
   {
     id: 'c7',
@@ -301,7 +301,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'Why does the Employer Account Admin complete a 1-time Stripe Identity check and IRS EIN attestation?',
     answer:
-      'Senior passive candidates refuse to upload resumes to traditional job boards because anonymous third-party harvesters set up $10 burner domains to scrape contact data. Requiring every Employer Account Admin to complete a 1-time Stripe Identity biometric check alongside IRS Federal EIN attestation proves that a real, accountable hiring leader stands behind the organization—which is why candidates trust Special Sauce enough to make their skills discoverable and accept your outbound pitches.',
+      'Senior passive candidates refuse to upload resumes to traditional job boards because anonymous third-party harvesters set up $10 burner domains to scrape contact data. Requiring every Employer Account Admin to complete a 1-time Stripe Identity biometric check alongside IRS Federal EIN attestation proves that a real, accountable hiring leader stands behind the organization—which is why candidates trust Special Sauce enough to make their skills discoverable and accept your Professional Invitationes.',
   },
   {
     id: 'e2',
@@ -310,7 +310,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How does the 2-Stage Unlock & 5-Unmessaged-Unlock cap work for Employers?',
     answer:
-      'When you unlock an inbound applicant (100% free / 0 credits) or a passive candidate accepts your outbound pitch (1 Pitch Credit), Stage 1 opens an encrypted in-platform message thread and reveals the candidate’s First Name + Last Initial alongside your verified company identity. Send a quick message in the thread to discuss the role—once the candidate clicks "Release Resume & Contact Vault" (Stage 2), their Full Name, direct email, phone, and 1-hour cryptographically signed PDF resume unlock immediately. To prevent bulk scraping, an organization can hold at most 5 unlocked Stage 1 threads awaiting an initial introductory message at a time.',
+      'When you unlock an inbound applicant (100% free / 0 credits) or a passive candidate accepts your Professional Invitation (1 Invitation Credit), Stage 1 opens an encrypted in-platform message thread and reveals the candidate’s First Name + Last Initial alongside your verified company identity. Send a quick message in the thread to discuss the role—once the candidate clicks "Release Resume & Contact Vault" (Stage 2), their Full Name, direct email, phone, and 1-hour cryptographically signed PDF resume unlock immediately. To prevent bulk scraping, an organization can hold at most 5 unlocked Stage 1 threads awaiting an initial introductory message at a time.',
   },
   {
     id: 'e3',
@@ -324,20 +324,20 @@ export const SUPPORT_FAQS: FAQ[] = [
   {
     id: 'e4',
     target: 'employer',
-    category: 'Billing, 12-Month Rate Lock & Pitch Credits',
+    category: 'Billing, 12-Month Rate Lock & Invitation Credits',
     question:
       'How do the 12-Month Founding Partner Rate Lock, Two-Bucket Rollover Credits, and 100% Accepted-Only Protection work?',
     answer:
-      'Employers who enroll during our launch window lock in Founding Partner Rates for their first 12 full months before standard retail pricing applies in Month 13: Starter ($149/mo Founding · $299/mo Retail: up to 5 Active Roles, 10 Monthly Pitch Credits, 2 Seats), Growth ($499/mo Founding · $799/mo Retail: up to 15 Active Roles, 35 Monthly Pitch Credits, up to 5 Seats), and Enterprise ($1,250/mo Founding · $1,999/mo Retail: Unlimited Active Roles, 120 Monthly Pitch Credits, Unlimited Seats + Workday/Greenhouse HR Software Sync). Your Monthly Plan Credits (Bucket 1) are always spent first; if you need extra outbound reach, you can add non-expiring Rollover Top-Up Packs (Bucket 2: Boost +10 Credits for $150, Surge +25 Credits for $350, or Scale +75 Credits for $900). Every outbound pitch is backed by our 100% Accepted-Only Guarantee—if a candidate declines your pitch, the credit is automatically refunded to the exact bucket it came from.',
+      'Employers who enroll during our launch window lock in Founding Partner Rates for their first 12 full months before standard retail pricing applies in Month 13: Starter ($149/mo Founding · $299/mo Retail: up to 5 Active Roles, 10 Monthly Invitation Credits, 2 Seats), Growth ($499/mo Founding · $799/mo Retail: up to 15 Active Roles, 35 Monthly Invitation Credits, up to 5 Seats), and Enterprise ($1,250/mo Founding · $1,999/mo Retail: Unlimited Active Roles, 120 Monthly Invitation Credits, Unlimited Seats + Workday/Greenhouse HR Software Sync). Your Monthly Plan Credits (Bucket 1) are always spent first; if you need extra outbound reach, you can add non-expiring Rollover Top-Up Packs (Bucket 2: Boost +10 Credits for $150, Surge +25 Credits for $350, or Scale +75 Credits for $900). Every Professional Invitation is backed by our 100% Accepted-Only Guarantee—if a candidate declines your pitch, the credit is automatically refunded to the exact bucket it came from.',
   },
   {
     id: 'e5',
     target: 'employer',
-    category: 'Billing, 12-Month Rate Lock & Pitch Credits',
+    category: 'Billing, 12-Month Rate Lock & Invitation Credits',
     question:
-      'Does unlocking an Inbound Protected Application cost a Pitch Credit?',
+      'Does unlocking an Inbound Protected Application cost a Invitation Credit?',
     answer:
-      'No! Reviewing, unlocking Stage 1 chat threads, messaging, and shortlisting candidates who proactively submit an inbound protected application (40%+ AI Fit) to your roles is 100% FREE (0 credits) on all active Employer plans. Pitch Credits are only used (1 credit per pitch) when you proactively send an outbound pitch to a passive candidate from the Candidate Search pool.',
+      'No! Reviewing, unlocking Stage 1 chat threads, messaging, and shortlisting candidates who proactively submit an inbound protected application (40%+ AI Fit) to your roles is 100% FREE (0 credits) on all active Employer plans. Invitation Credits are only used (1 credit per pitch) when you proactively send an Professional Invitation to a passive candidate from the Candidate Search pool.',
   },
   {
     id: 'e6',
@@ -353,8 +353,8 @@ export const SUPPORT_FAQS: FAQ[] = [
     target: 'employer',
     category: 'Team Seats, BPO Partners & ATS Sync',
     question:
-      'How do we know when a candidate accepts our pitch, replies, or releases their Resume Vault?',
+      'How do we know when a candidate accepts our Professional Invitation, replies, or releases their Resume Vault?',
     answer:
-      'Whenever a candidate accepts an outbound pitch, replies in a Stage 1 thread, or triggers Stage 2 Vault Release, your team receives an instant email notification with the SS-XXXXXXXX Reference ID, a pulsing "New Msg" badge appears on your Employer Dashboard in real time, and an audio chime plays if your browser tab is open.',
+      'Whenever a candidate accepts a Professional Invitation, replies in a Stage 1 thread, or triggers Stage 2 Vault Release, your team receives an instant email notification with the SS-XXXXXXXX Reference ID, a pulsing "New Msg" badge appears on your Employer Dashboard in real time, and an audio chime plays if your browser tab is open.',
   },
 ]

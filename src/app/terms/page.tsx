@@ -52,7 +52,7 @@ export default function TermsOfServicePage() {
             </p>
             <ul className="list-disc pl-5 mt-3 space-y-2 text-slate-600">
               <li>
-                <strong className="text-slate-800">Candidates:</strong> May upload a resume, build an anonymous skill matrix (Vault-Staged in Employer Talent Search), and run 5-Point AI Fit Radar™ checks at $0 upfront. Before accepting inbound employer pitches or submitting outbound protected applications, candidates must activate a Candidate membership plan (Explorer $3/mo, Professional $9/mo, or Prestige $15/mo — each starting with a 30-Day Free Trial at $0 due today) and complete 1-time biometric and government ID verification via Stripe Identity. Creating duplicate accounts or submitting falsified credentials is grounds for immediate termination.
+                <strong className="text-slate-800">Candidates:</strong> May upload a resume, build an anonymous skill matrix (Vault-Staged in Employer Talent Search), and run 5-Point AI Fit Radar™ checks at $0 upfront. Before accepting inbound Professional Invitations or submitting outbound protected applications, candidates must activate a Candidate membership plan (Explorer $3/mo, Professional $9/mo, or Prestige $15/mo — each starting with a 30-Day Free Trial at $0 due today) and complete 1-time biometric and government ID verification via Stripe Identity. Creating duplicate accounts or submitting falsified credentials is grounds for immediate termination.
               </li>
               <li>
                 <strong className="text-slate-800">Employers &amp; Delegated Partners:</strong> Must verify a dedicated corporate domain (via matching corporate email or DNS TXT record) before posting active roles or searching the passive talent pool. W-2 Consultancies and authorized BPO delivery partners are supported; however, unauthorized third-party contingency headhunters may not post duplicate or unverified client listings.
@@ -69,7 +69,7 @@ export default function TermsOfServicePage() {
             </p>
             <ul className="list-disc pl-5 mt-3 space-y-2 text-slate-700">
               <li>
-                <strong>2-Stage Identity Vault:</strong> Unlocking an inbound application (free for subscribed Employers) or accepting an outbound pitch (1 Connection Credit) initiates <strong>Stage 1</strong>—opening an encrypted in-platform chat thread (<code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-300">SS-XXXXXXXX</code>) and revealing the Candidate’s First Name + Last Initial alongside the Employer’s verified company identity. The Candidate’s Full Name, direct email, and signed PDF resume remain vaulted until the Candidate voluntarily clicks <strong>&ldquo;Release Resume &amp; Contact Vault&rdquo; (Stage 2)</strong>.
+                <strong>2-Stage Identity Vault:</strong> Unlocking an inbound application (free for subscribed Employers) or accepting a Professional Invitation (1 Connection Credit) initiates <strong>Stage 1</strong>—opening an encrypted in-platform chat thread (<code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-300">SS-XXXXXXXX</code>) and revealing the Candidate’s First Name + Last Initial alongside the Employer’s verified company identity. The Candidate’s Full Name, direct email, and signed PDF resume remain vaulted until the Candidate voluntarily clicks <strong>&ldquo;Release Resume &amp; Contact Vault&rdquo; (Stage 2)</strong>.
               </li>
               <li>
                 <strong>5-Unmessaged-Unlock Anti-Harvesting Ceiling:</strong> An Employer organization may hold a maximum of <strong>five (5)</strong> Stage 1 unlocked candidate threads awaiting an initial introductory message from the Employer. If an Employer reaches 5 unmessaged unlocked threads, additional profile unlocks are automatically paused until the Employer messages or archives their existing open threads.
@@ -78,7 +78,7 @@ export default function TermsOfServicePage() {
                 <strong>30-Day Automatic Role Expiration:</strong> Every active job listing automatically expires <strong>thirty (30) days</strong> after creation unless manually renewed by the Employer for a fresh 30-day cycle. Roles may only remain active while a genuine hiring need exists.
               </li>
               <li>
-                <strong>40%+ AI Fit &amp; Dealbreaker Firewall:</strong> Outbound Candidate protected applications and outbound Employer pitches are governed by our <strong>5-Point AI Fit Radar</strong> (40%+ AI Fit threshold for outbound protected applications). Employers are automatically blocked from pitching Candidates whose minimum annual salary expectation, preferred work model, or accepted employment types (W-2, 1099/Corp-to-Corp, Contract-to-Hire, Part-Time) conflict with the role.
+                <strong>40%+ AI Fit &amp; Dealbreaker Firewall:</strong> Outbound Candidate protected applications and outbound Professional Invitations are governed by our <strong>5-Point AI Fit Radar</strong> (40%+ AI Fit threshold for outbound protected applications). Employers are automatically blocked from sending Professional Invitations Candidates whose minimum annual salary expectation, preferred work model, or accepted employment types (W-2, 1099/Corp-to-Corp, Contract-to-Hire, Part-Time) conflict with the role.
               </li>
             </ul>
           </section>
@@ -119,14 +119,14 @@ export default function TermsOfServicePage() {
             <p className="text-slate-700 leading-relaxed mt-3">
               We reserve the right, at our sole discretion and without prior notice, to throttle, suspend, or permanently terminate any account that exhibits behavior consistent with resume harvesting, phishing, prompt injection, or Acceptable Use violations.{' '}
               <strong>
-                In the event of account termination due to a violation of these Terms, you forfeit any right to a refund for active subscriptions, unused Pitch Credits, Rollover Top-Up Packs, or Candidate Professional/Prestige memberships.
+                In the event of account termination due to a violation of these Terms, you forfeit any right to a refund for active subscriptions, unused Invitation Credits, Rollover Top-Up Packs, or Candidate Professional/Prestige memberships.
               </strong>
             </p>
           </section>
 
           <section>
               <h2 className="text-xl">
-                7. Subscriptions, Pitch Credits, Team Seats &amp; Billing
+                7. Subscriptions, Invitation Credits, Team Seats &amp; Billing
               </h2>
               <div className="text-slate-600 leading-relaxed mt-2 space-y-3">
                 <p>
@@ -134,16 +134,16 @@ export default function TermsOfServicePage() {
                 </p>
                 <ul className="list-disc pl-5 space-y-1.5">
                   <li>
-                    <strong className="text-slate-800">Candidate Plans (30-Day Free Trial • $0 Due Today):</strong> Every Candidate plan starts with a 30-Day Free Trial ($0 due today; cancel anytime before Day 30). Tiers include Explorer ($3/mo after trial — includes 1-time Stripe Real-Person ID Verification, Verified Candidate Shield in Employer Search, unlimited 5-Point AI Fit Radar checks, and unlimited inbound employer pitch unlocks), Professional ($9/mo after trial — adds 15 outbound protected applications per monthly cycle at 40%+ AI Fit and permanent Founding Member status), and Prestige ($15/mo after trial — adds unlimited outbound protected applications at 40%+ AI Fit and Top-Priority Spotlight placement in Employer Talent Search; subscribers may switch or downgrade anytime).
+                    <strong className="text-slate-800">Candidate Plans (30-Day Free Trial • $0 Due Today):</strong> Every Candidate plan starts with a 30-Day Free Trial ($0 due today; cancel anytime before Day 30). Tiers include Explorer ($3/mo after trial — includes 1-time Stripe Real-Person ID Verification, Verified Candidate Shield in Employer Search, unlimited 5-Point AI Fit Radar checks, and unlimited inbound Professional Invitation unlocks), Professional ($9/mo after trial — adds 15 outbound protected applications per monthly cycle at 40%+ AI Fit and permanent Founding Member status), and Prestige ($15/mo after trial — adds unlimited outbound protected applications at 40%+ AI Fit and Top-Priority Spotlight placement in Employer Talent Search; subscribers may switch or downgrade anytime).
                   </li>
                   <li>
-                    <strong className="text-slate-800">Employer Subscription Plans (30-Day Free Trial + 12-Month Founding Partner Rate Lock):</strong> Employers may stage roles, search the anonymous talent pool, and run 5-Point AI Fit checks at $0 upfront. Publishing live roles or pitching candidates starts with a 30-Day Free Trial ($0 due today) on Starter ($149/mo Founding Rate locked for 12 months after trial, $299/mo Retail thereafter — up to 5 simultaneous active roles, 10 monthly Pitch Credits, 2 Team/Recruiter seats), Growth ($499/mo Founding Rate locked for 12 months after trial, $799/mo Retail thereafter — up to 15 simultaneous active roles, 35 monthly Pitch Credits, up to 5 Team/Recruiter seats), or Enterprise ($1,250/mo Founding Rate locked for 12 months after trial, $1,999/mo Retail thereafter — unlimited simultaneous active roles, 120 monthly Pitch Credits, unlimited Team &amp; Recruiter seats, plus Workday &amp; Greenhouse ATS/Webhook Hub).
+                    <strong className="text-slate-800">Employer Subscription Plans (30-Day Free Trial + 12-Month Founding Partner Rate Lock):</strong> Employers may stage roles, search the anonymous talent pool, and run 5-Point AI Fit checks at $0 upfront. Publishing live roles or sending Professional Invitations candidates starts with a 30-Day Free Trial ($0 due today) on Starter ($149/mo Founding Rate locked for 12 months after trial, $299/mo Retail thereafter — up to 5 simultaneous active roles, 10 monthly Invitation Credits, 2 Team/Recruiter seats), Growth ($499/mo Founding Rate locked for 12 months after trial, $799/mo Retail thereafter — up to 15 simultaneous active roles, 35 monthly Invitation Credits, up to 5 Team/Recruiter seats), or Enterprise ($1,250/mo Founding Rate locked for 12 months after trial, $1,999/mo Retail thereafter — unlimited simultaneous active roles, 120 monthly Invitation Credits, unlimited Team &amp; Recruiter seats, plus Workday &amp; Greenhouse ATS/Webhook Hub).
                   </li>
                   <li>
-                    <strong className="text-slate-800">Two-Bucket Rollover Pitch Credit Top-Up Packs:</strong> Active Starter, Growth, and Enterprise subscribers may purchase non-expiring Rollover Pitch Credit Top-Up Packs: Boost Pack (+10 Credits for $150), Surge Pack (+25 Credits for $350), or Scale Pack (+75 Credits for $900). Monthly plan credits (Bucket 1) are always depleted first, and Rollover Top-Up credits (Bucket 2) never expire as long as the base subscription remains active.
+                    <strong className="text-slate-800">Two-Bucket Rollover Invitation Credit Top-Up Packs:</strong> Active Starter, Growth, and Enterprise subscribers may purchase non-expiring Rollover Invitation Credit Top-Up Packs: Boost Pack (+10 Credits for $150), Surge Pack (+25 Credits for $350), or Scale Pack (+75 Credits for $900). Monthly plan credits (Bucket 1) are always depleted first, and Rollover Top-Up credits (Bucket 2) never expire as long as the base subscription remains active.
                   </li>
                   <li>
-                    <strong className="text-slate-800">100% Accepted-Only Pitch Credit Protection &amp; Finalized Decisions:</strong> Inbound Candidate applications are 100% free (0 credits) for subscribed Employers to review and unlock in Stage 1. Outbound Employer pitches deduct one (1) Pitch Credit per pitch; if a Candidate declines an outbound pitch, the credit is automatically refunded to the exact bucket it was drawn from. All subscription payments and top-up packs are non-refundable except as required by applicable law.
+                    <strong className="text-slate-800">100% Accepted-Only Invitation Credit Protection &amp; Finalized Decisions:</strong> Inbound Candidate applications are 100% free (0 credits) for subscribed Employers to review and unlock in Stage 1. Outbound Employer pitches deduct one (1) Invitation Credit per pitch; if a Candidate declines an Professional Invitation, the credit is automatically refunded to the exact bucket it was drawn from. All subscription payments and top-up packs are non-refundable except as required by applicable law.
                   </li>
                 </ul>
               </div>

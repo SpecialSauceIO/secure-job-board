@@ -537,7 +537,7 @@ export default function SupportCenterClient({
                       >
                         <option value="General Support">General Support &amp; Questions</option>
                         <option value="2-Stage Vault & Encrypted Messaging">2-Stage Identity Vault &amp; Messaging</option>
-                        <option value="Billing, Plans & Pitch Credits">Billing, Plans &amp; Pitch Credits</option>
+                        <option value="Billing, Plans & Pitch Credits">Billing, Plans &amp; Invitation Credits</option>
                         <option value="Account & Domain Verification">Stripe ID / Corporate Domain Verification</option>
                         <option value="Enterprise ATS & Webhook Integration">HR Software Sync Hub</option>
                         <option value="Technical Issue / Bug Report">Technical Issue / Bug Report</option>

@@ -21,7 +21,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER',
     defaultPriceId: 'price_1UU2OnR0rSVwN0zEdfBhqFRZ',
     description:
-      'ID-Verified Passive & Inbound Tier: Includes 1-time Real-Person ID Verification, live placement in Employer Talent Search, and unlimited inbound employer pitch unlocks.',
+      'ID-Verified Passive & Inbound Tier: Includes 1-time Real-Person ID Verification, live placement in Employer Talent Search, and unlimited inbound Professional Invitation unlocks.',
   },
   candidate_explorer: {
     id: 'explorer',
@@ -30,7 +30,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER',
     defaultPriceId: 'price_1UU2OnR0rSVwN0zEdfBhqFRZ',
     description:
-      'ID-Verified Passive & Inbound Tier: Includes 1-time Real-Person ID Verification, live placement in Employer Talent Search, and unlimited inbound employer pitch unlocks.',
+      'ID-Verified Passive & Inbound Tier: Includes 1-time Real-Person ID Verification, live placement in Employer Talent Search, and unlimited inbound Professional Invitation unlocks.',
   },
   professional: {
     id: 'professional',
@@ -39,7 +39,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zEQeqE0pvy',
     description:
-      'ID-Verified Active Tier: Unlock and accept unlimited inbound employer pitches, plus 15 outbound protected applications/month (40%+ AI Fit).',
+      'ID-Verified Active Tier: Unlock and accept unlimited inbound Professional Invitations, plus 15 outbound protected applications/month (40%+ AI Fit).',
   },
   candidate_pro: {
     id: 'professional',
@@ -48,7 +48,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zEQeqE0pvy',
     description:
-      'ID-Verified Active Tier: Unlock and accept unlimited inbound employer pitches, plus 15 outbound protected applications/month (40%+ AI Fit).',
+      'ID-Verified Active Tier: Unlock and accept unlimited inbound Professional Invitations, plus 15 outbound protected applications/month (40%+ AI Fit).',
   },
   prestige: {
     id: 'prestige',
@@ -89,7 +89,7 @@ export const EMPLOYER_SAAS_TIERS: Record<
 > = {
   starter: {
     id: 'starter',
-    name: 'Starter Plan ($149/mo Founding Partner Rate — $299/mo Retail — 5 Active Roles & 10 Pitch Credits)',
+    name: 'Starter Plan ($149/mo Founding Partner Rate — $299/mo Retail — 5 Active Roles & 10 Invitation Credits)',
     priceCents: 14900,
     retailPriceCents: 29900,
     foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_STARTER_FOUNDING',
@@ -99,11 +99,11 @@ export const EMPLOYER_SAAS_TIERS: Record<
     maxActiveJobs: 5,
     monthlyCredits: 10,
     maxSeats: 2,
-    description: "Locked at $149/mo for your first 12 months, then $299/mo standard retail starting Month 13 (cancel anytime). Up to 5 active roles, 10 monthly Pitch Credits, 2 seats.",
+    description: "Locked at $149/mo for your first 12 months, then $299/mo standard retail starting Month 13 (cancel anytime). Up to 5 active roles, 10 monthly Invitation Credits, 2 seats.",
   },
   growth: {
     id: 'growth',
-    name: 'Growth Plan ($499/mo Founding Partner Rate — $799/mo Retail — 15 Active Roles & 35 Pitch Credits)',
+    name: 'Growth Plan ($499/mo Founding Partner Rate — $799/mo Retail — 15 Active Roles & 35 Invitation Credits)',
     priceCents: 49900,
     retailPriceCents: 79900,
     foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_GROWTH_FOUNDING',
@@ -113,7 +113,7 @@ export const EMPLOYER_SAAS_TIERS: Record<
     maxActiveJobs: 15,
     monthlyCredits: 35,
     maxSeats: 5,
-    description: "Locked at $499/mo for your first 12 months, then $799/mo standard retail starting Month 13 (cancel anytime). Up to 15 active roles, 35 monthly Pitch Credits, 5 seats.",
+    description: "Locked at $499/mo for your first 12 months, then $799/mo standard retail starting Month 13 (cancel anytime). Up to 15 active roles, 35 monthly Invitation Credits, 5 seats.",
   },
   enterprise: {
     id: 'enterprise',
@@ -127,7 +127,7 @@ export const EMPLOYER_SAAS_TIERS: Record<
     maxActiveJobs: 999,
     monthlyCredits: 120,
     maxSeats: 999,
-    description: "Locked at $1,250/mo for your first 12 months, then $1,999/mo standard retail starting Month 13 (cancel anytime). Unlimited active roles, 120 monthly Pitch Credits, unlimited seats & ATS Sync.",
+    description: "Locked at $1,250/mo for your first 12 months, then $1,999/mo standard retail starting Month 13 (cancel anytime). Unlimited active roles, 120 monthly Invitation Credits, unlimited seats & ATS Sync.",
   },
 }
 
@@ -145,63 +145,63 @@ export const EMPLOYER_TOPUP_PACKS: Record<
 > = {
   boost: {
     id: 'boost',
-    name: 'Boost Pitch Credit Top-Up (+10 Rollover Credits)',
+    name: 'Boost Invitation Credit Top-Up (+10 Rollover Credits)',
     credits: 10,
     priceCents: 15000,
     envVar: 'STRIPE_PRICE_TOPUP_BOOST',
     defaultPriceId: 'price_1UTpx0R0rSVwN0zEKbw5XRnc',
     description:
-      '+10 non-expiring Rollover Pitch Credits ($15.00/pitch) protected by our 100% Accepted-Only Credit Guarantee.',
+      '+10 non-expiring Rollover Invitation Credits ($15.00/invitation) protected by our 100% Accepted-Only Credit Guarantee.',
   },
   topup_boost: {
     id: 'boost',
-    name: 'Boost Pitch Credit Top-Up (+10 Rollover Credits)',
+    name: 'Boost Invitation Credit Top-Up (+10 Rollover Credits)',
     credits: 10,
     priceCents: 15000,
     envVar: 'STRIPE_PRICE_TOPUP_BOOST',
     defaultPriceId: 'price_1UTpx0R0rSVwN0zEKbw5XRnc',
     description:
-      '+10 non-expiring Rollover Pitch Credits ($15.00/pitch) protected by our 100% Accepted-Only Credit Guarantee.',
+      '+10 non-expiring Rollover Invitation Credits ($15.00/invitation) protected by our 100% Accepted-Only Credit Guarantee.',
   },
   surge: {
     id: 'surge',
-    name: 'Surge Pitch Credit Top-Up (+25 Rollover Credits)',
+    name: 'Surge Invitation Credit Top-Up (+25 Rollover Credits)',
     credits: 25,
     priceCents: 32500,
     envVar: 'STRIPE_PRICE_TOPUP_SURGE',
     defaultPriceId: 'price_1UTpx1R0rSVwN0zEHHg42r6s',
     description:
-      '+25 non-expiring Rollover Pitch Credits ($13.00/pitch - Save 13%) protected by our 100% Accepted-Only Credit Guarantee.',
+      '+25 non-expiring Rollover Invitation Credits ($13.00/invitation - Save 13%) protected by our 100% Accepted-Only Credit Guarantee.',
   },
   topup_surge: {
     id: 'surge',
-    name: 'Surge Pitch Credit Top-Up (+25 Rollover Credits)',
+    name: 'Surge Invitation Credit Top-Up (+25 Rollover Credits)',
     credits: 25,
     priceCents: 32500,
     envVar: 'STRIPE_PRICE_TOPUP_SURGE',
     defaultPriceId: 'price_1UTpx1R0rSVwN0zEHHg42r6s',
     description:
-      '+25 non-expiring Rollover Pitch Credits ($13.00/pitch - Save 13%) protected by our 100% Accepted-Only Credit Guarantee.',
+      '+25 non-expiring Rollover Invitation Credits ($13.00/invitation - Save 13%) protected by our 100% Accepted-Only Credit Guarantee.',
   },
   scale: {
     id: 'scale',
-    name: 'Scale Pitch Credit Top-Up (+75 Rollover Credits)',
+    name: 'Scale Invitation Credit Top-Up (+75 Rollover Credits)',
     credits: 75,
     priceCents: 82500,
     envVar: 'STRIPE_PRICE_TOPUP_SCALE',
     defaultPriceId: 'price_1UTpx1R0rSVwN0zEMGzzbsQV',
     description:
-      '+75 non-expiring Rollover Pitch Credits ($11.00/pitch - Save 27%) protected by our 100% Accepted-Only Credit Guarantee.',
+      '+75 non-expiring Rollover Invitation Credits ($11.00/invitation - Save 27%) protected by our 100% Accepted-Only Credit Guarantee.',
   },
   topup_scale: {
     id: 'scale',
-    name: 'Scale Pitch Credit Top-Up (+75 Rollover Credits)',
+    name: 'Scale Invitation Credit Top-Up (+75 Rollover Credits)',
     credits: 75,
     priceCents: 82500,
     envVar: 'STRIPE_PRICE_TOPUP_SCALE',
     defaultPriceId: 'price_1UTpx1R0rSVwN0zEMGzzbsQV',
     description:
-      '+75 non-expiring Rollover Pitch Credits ($11.00/pitch - Save 27%) protected by our 100% Accepted-Only Credit Guarantee.',
+      '+75 non-expiring Rollover Invitation Credits ($11.00/invitation - Save 27%) protected by our 100% Accepted-Only Credit Guarantee.',
   },
 }
 

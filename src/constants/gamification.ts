@@ -312,12 +312,12 @@ export function calculateCandidateGamification(
       title: '24-Hour Responder',
       shortLabel: '24h Responder',
       description:
-        'Consistently replies to employer connection pitches and active chat messages within 24 hours.',
+        'Consistently replies to employer Professional Invitations and active chat messages within 24 hours.',
       icon: '✓',
       unlocked: isResponsiveCandidate,
       progressText: isResponsiveCandidate
         ? 'Active'
-        : `Reply to 3 employer pitches or chats within 24h (${fastRepliesCount}/3 completed)`,
+        : `Reply to 3 employer invitations or chats within 24h (${fastRepliesCount}/3 completed)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {
@@ -325,7 +325,7 @@ export function calculateCandidateGamification(
       title: 'High-Precision Applicant',
       shortLabel: 'High-Fit Applicant',
       description:
-        'Applies selectively to strong-fit roles, maintaining a 75%+ 5-Point AI Fit score across 3+ applications or pitches.',
+        'Applies selectively to strong-fit roles, maintaining a 75%+ 5-Point AI Fit score across 3+ applications or invitations.',
       icon: '✓',
       unlocked: isHighPrecision,
       progressText: isHighPrecision
@@ -352,12 +352,12 @@ export function calculateCandidateGamification(
       title: 'In-Demand Talent',
       shortLabel: 'In-Demand',
       description:
-        'Repeatedly pitched or unlocked for private interviews by verified hiring teams searching the talent pool.',
+        'Repeatedly invited or unlocked for private interviews by verified hiring teams searching the talent pool.',
       icon: '✓',
       unlocked: isInDemand,
       progressText: isInDemand
         ? 'Active'
-        : `Receive 5 employer pitches or interview unlocks (${inboundDemandCount}/5 earned)`,
+        : `Receive 5 Professional Invitations or interview unlocks (${inboundDemandCount}/5 earned)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {
@@ -587,12 +587,12 @@ export function calculateEmployerGamification(
       title: 'Active Hiring Pipeline',
       shortLabel: 'Active Hiring',
       description:
-        'Actively recruiting on Special Sauce with 2+ live protected job roles or 5+ direct outbound candidate pitches sent.',
+        'Actively recruiting on Special Sauce with 2+ live protected job roles or 5+ direct outbound Professional Invitations sent.',
       icon: '✓',
       unlocked: isActiveTalentScout,
       progressText: isActiveTalentScout
         ? 'Active'
-        : `Maintain 2 active roles (${Math.min(activeJobs.length, 2)}/2) OR send 5 outbound pitches (${Math.min(totalOutreachCount, 5)}/5)`,
+        : `Maintain 2 active roles (${Math.min(activeJobs.length, 2)}/2) OR send 5 Professional Invitations (${Math.min(totalOutreachCount, 5)}/5)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {

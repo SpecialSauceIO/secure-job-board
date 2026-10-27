@@ -42,14 +42,14 @@ const CANDIDATE_WORKFLOW_STEPS: WorkflowStep[] = [
     unlockBadge: 'Unlocks: ✓ Anonymized Candidate #ID & Dealbreaker Firewall',
   },
   {
-    step: 'Step 4 • Search & Inbound Pitches',
+    step: 'Step 4 • Search & Professional Invitations',
     title: '4. Check 5-Point AI Fit & Field Offers',
     bullets: [
       'See upfront salary bands and your instant 5-Point AI Fit score (40%+ minimum).',
       'Every job post expires after 30 days—zero 6-month-old ghost jobs.',
-      'Apply anonymously in 1 click or sit back and receive direct employer pitches.',
+      'Apply anonymously in 1 click or sit back and receive direct Professional Invitations.',
     ],
-    unlockBadge: 'Unlocks: Live Job Search, AI Fit Radar & Pitch Inbox',
+    unlockBadge: 'Unlocks: Live Job Search, AI Fit Radar & Invitation Inbox',
   },
   {
     step: 'Step 5 • 2-Stage Handshake',
@@ -96,13 +96,13 @@ const EMPLOYER_WORKFLOW_STEPS: WorkflowStep[] = [
   },
   {
     step: 'Step 4 • Roles & Talent Search',
-    title: '4. Publish Blind Roles & Pitch Verified Pros',
+    title: '4. Publish Blind Roles & Invite Verified Pros',
     bullets: [
       'Post protected roles showing salary bands and industry while hiding company name.',
       'Unlocking inbound 40%+ AI-fit applicants is 100% free (0 credits).',
-      'Outbound talent pitches are 100% refunded if a candidate declines.',
+      'Outbound Professional Invitations are 100% refunded if a candidate declines.',
     ],
-    unlockBadge: 'Unlocks: Role Publishing & Refund-Protected Pitching',
+    unlockBadge: 'Unlocks: Role Publishing & Refund-Protected Invitations',
   },
   {
     step: 'Step 5 • Handshake & ATS Sync',
@@ -212,7 +212,7 @@ export default function PlatformWorkflowsView({
               >
                 {isCandidate
                   ? 'Stripe Biometric ID • Stage 2 Resume Vault • 5-Point AI Fit'
-                  : '3-Pillar Anti-Harvesting Gate • Protected Pitch Credits'}
+                  : '3-Pillar Anti-Harvesting Gate • Protected Invitation Credits'}
               </span>
               <h2 className="text-xl sm:text-2xl font-extrabold text-white mt-0.5">
                 {isCandidate

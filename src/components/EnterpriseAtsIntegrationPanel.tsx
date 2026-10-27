@@ -154,7 +154,7 @@ export default function EnterpriseAtsIntegrationPanel() {
               <strong className="text-white">Greenhouse HR Software</strong>, real-time{' '}
               <strong className="text-white">HMAC-SHA256 Signed Webhooks</strong> for{' '}
               <strong className="text-white">Workday Integration Studio</strong>, and 1-click{' '}
-              <strong className="text-emerald-300">Bulk CSV Candidate Exports</strong>, plus 50 active roles, 100 monthly pitch credits, and 10 team/recruiter seats.
+              <strong className="text-emerald-300">Bulk CSV Candidate Exports</strong>, plus 50 active roles, 100 monthly invitation credits, and 10 team/recruiter seats.
             </p>
           </div>
 

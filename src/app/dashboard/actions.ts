@@ -671,7 +671,7 @@ export async function activateSandboxCandidateTier(
         isPrestige
           ? 'Your Candidate Prestige plan is active with Real-Person ID Verification access, Unlimited Outbound Protected Applications, Top-Priority Employer Search placement, and Founding Member status.'
           : isExplorer
-          ? 'Your Candidate Explorer plan ($3/mo) is active with Real-Person ID Verification access, live placement in Employer Talent Search once verified, and unlimited inbound employer pitch unlocks.'
+          ? 'Your Candidate Explorer plan ($3/mo) is active with Real-Person ID Verification access, live placement in Employer Talent Search once verified, and unlimited inbound Professional Invitation unlocks.'
           : 'Your Candidate Professional plan is active with Real-Person ID Verification access, 15 Outbound Protected Applications per month, and Founding Member status.',
         `Subscription Reference ID: ${refId}`,
       ],
@@ -691,11 +691,11 @@ export async function activateSandboxCandidateTier(
     tierInfo,
     message:
       normalizedMode === 'prestige'
-        ? '✓ Activated Prestige Plan ($15/mo)! Unlimited outbound applications and pitch unlocks active.'
+        ? '✓ Activated Prestige Plan ($15/mo)! Unlimited outbound applications and invitation unlocks active.'
         : normalizedMode === 'professional'
-        ? '✓ Activated Professional Plan ($9/mo)! 15 monthly outbound applications and pitch unlocks active.'
+        ? '✓ Activated Professional Plan ($9/mo)! 15 monthly outbound applications and invitation unlocks active.'
         : normalizedMode === 'explorer'
-        ? '✓ Activated Explorer Plan ($3/mo)! Real-Person ID Verification and unlimited inbound employer pitch unlocks are active. Upgrade to Professional ($9/mo) or Prestige ($15/mo) anytime to submit outbound applications.'
+        ? '✓ Activated Explorer Plan ($3/mo)! Real-Person ID Verification and unlimited inbound Professional Invitation unlocks are active. Upgrade to Professional ($9/mo) or Prestige ($15/mo) anytime to submit outbound applications.'
         : '✓ Reset candidate plan to Unsubscribed Vault.',
   }
 }
@@ -1939,7 +1939,7 @@ export async function applyBlind(formData: FormData) {
       actorRole: 'candidate',
       text: employerPitch,
       platformArea: '2-Stage Resume & Contact Vault',
-      contextLabel: 'Candidate Protected Application Pitch',
+      contextLabel: 'Candidate Protected Application',
       isStage2Unlocked: false,
     })
     if (pitchScan.blocked) {
@@ -2022,7 +2022,7 @@ export async function applyBlind(formData: FormData) {
       }
     }
     return {
-      error: `Already Applied / Connected: You already have an active application or pitch for this role (Ref: ${existingRef}).`,
+      error: `Already Applied / Connected: You already have an active application or invitation for this role (Ref: ${existingRef}).`,
     }
   } else {
     const { data: insertedApp, error: insertError } = await supabase
@@ -2730,19 +2730,19 @@ export async function respondToConnectionRequest(applicationId: string, decision
     if (employerRecipient) {
       await sendPlatformNotification({
         to: employerRecipient,
-        subject: `Pitch Declined + 1 Credit Refunded: ${declineRoleTitle} (${referenceId})`,
+        subject: `Invitation Declined + 1 Credit Refunded: ${declineRoleTitle} (${referenceId})`,
         referenceId,
-        heading: 'Outbound Pitch Declined — +1 Pitch Credit Refunded',
+        heading: 'Professional Invitation Declined — +1 Invitation Credit Refunded',
         bodyLines: [
-          `Anonymous Candidate #${String(user.id).slice(0, 6)} respectfully declined your connection pitch for "${declineRoleTitle}".`,
+          `Anonymous Candidate #${String(user.id).slice(0, 6)} respectfully declined your Professional Invitation for "${declineRoleTitle}".`,
           `Candidate Feedback Reason: "${chosenDeclineReason}"`,
           refundedCreditNow
-            ? `✓ Accepted-Only Pitch Credit Protection: +1 Pitch Credit has been automatically refunded to your organization (${bucketToRestore === "rollover" ? "Rollover Top-Up Bucket" : "Monthly Plan Bucket"}). Current Balance: ${updatedEmployerCredits} Credits.`
+            ? `✓ Accepted-Only Invitation Credit Protection: +1 Invitation Credit has been automatically refunded to your organization (${bucketToRestore === "rollover" ? "Rollover Top-Up Bucket" : "Monthly Plan Bucket"}). Current Balance: ${updatedEmployerCredits} Credits.`
             : `Connection Reference ID: ${referenceId}`,
           'Because the candidate declined before opening a private chat, their identity remains vaulted.',
         ],
         ctaUrl: '/dashboard/employer/pitches',
-        ctaLabel: 'View Outbound Pitches & Credit Balance →',
+        ctaLabel: 'View Sent Invitations & Credit Balance →',
       })
     }
 
@@ -2771,7 +2771,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
   if (!isCandidateVerified) {
     return {
       error:
-        'Verification Required: You must complete your 1-time Stripe Real-Person ID Verification on your Dashboard before accepting employer pitches.',
+        'Verification Required: You must complete your 1-time Stripe Real-Person ID Verification on your Dashboard before accepting Professional Invitations.',
     }
   }
 
@@ -2854,13 +2854,13 @@ export async function respondToConnectionRequest(applicationId: string, decision
 
   await sendPlatformNotification({
     to: employerEmail,
-    subject: `${maskedCandidateName} Accepted Your Pitch for ${jobObj?.title || 'Open Role'}!`,
+    subject: `${maskedCandidateName} Accepted Your Professional Invitation for ${jobObj?.title || 'Open Role'}!`,
     referenceId,
-    heading: 'Pitch Accepted — Private Chat Open!',
+    heading: 'Invitation Accepted — Private Chat Open!',
     bodyLines: [
       `${maskedCandidateName} accepted your connection request for "${jobObj?.title || 'Open Role'}".`,
       `Connection Reference ID: ${referenceId}`,
-      `Open your Sent Pitches tracker to message ${maskedCandidateName} in your encrypted thread. Once you introduce your team, the candidate can release their Stage 2 Resume & Contact Vault.`,
+      `Open your Sent Invitations tracker to message ${maskedCandidateName} in your encrypted thread. Once you introduce your team, the candidate can release their Stage 2 Resume & Contact Vault.`,
     ],
     ctaUrl: '/dashboard/employer/pitches',
     ctaLabel: 'Open Encrypted Thread →',
@@ -2872,7 +2872,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
     referenceId,
     heading: 'Connected — Private Chat Active!',
     bodyLines: [
-      `You accepted the connection pitch from ${resolvedOrgName} for "${jobObj?.title || 'Open Role'}".`,
+      `You accepted the Professional Invitation from ${resolvedOrgName} for "${jobObj?.title || 'Open Role'}".`,
       `Connection Reference ID: ${referenceId}`,
       `🔒 Your raw email and PDF resume remain safely vaulted until you choose to click "Release Resume & Contact Vault" inside the message thread.`,
     ],
@@ -4126,7 +4126,7 @@ export async function createStructuredJob(formData: FormData) {
   if (!isEmployerAdminIdVerified) {
     return {
       error:
-        'Verification Gate (3/3): Employer Admin Real-Person ID Verification (Stripe Identity) is required on your Company Profile page before publishing roles or pitching candidates.',
+        'Verification Gate (3/3): Employer Admin Real-Person ID Verification (Stripe Identity) is required on your Company Profile page before publishing roles or sending Professional Invitations candidates.',
     }
   }
 
@@ -4472,7 +4472,7 @@ export async function sendConnectionRequest(
   if (!pitchEntityTrust.hasValidEntityMeta) {
     return {
       error:
-        'Verification Gate (2/3): Please save your company Federal EIN and State of Incorporation on your Company Profile page before pitching candidates.',
+        'Verification Gate (2/3): Please save your company Federal EIN and State of Incorporation on your Company Profile page before sending an invitation candidates.',
     }
   }
 
@@ -4523,7 +4523,7 @@ export async function sendConnectionRequest(
   if (tierInfo.tier === 'free' || credits < 1) {
     return {
       error:
-        'Subscription / Pitch Credits Required: Subscribe to Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) on your Billing page to unlock outbound candidate pitches.',
+        'Subscription / Invitation Credits Required: Subscribe to Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) on your Billing page to unlock outbound candidate pitches.',
     }
   }
 
@@ -4542,7 +4542,7 @@ export async function sendConnectionRequest(
   if (job.is_expired || !rawJob.is_active) {
     return {
       error:
-        'Pitch Blocked: This role has reached its 30-day expiration limit. Please renew the role on your Manage Jobs page before pitching candidates.',
+        'Invitation Blocked: This role has reached its 30-day expiration limit. Please renew the role on your Manage Jobs page before sending an invitation candidates.',
     }
   }
 
@@ -4563,7 +4563,7 @@ export async function sendConnectionRequest(
   if (candidate.is_discoverable === false) {
     return {
       error:
-        'Pitch Blocked: This candidate is currently hidden from Employer Search.',
+        'Invitation Blocked: This candidate is currently hidden from Employer Search.',
     }
   }
 
@@ -4711,11 +4711,11 @@ export async function sendConnectionRequest(
     const existingRef = formatReferenceId(existingPitch.id)
     if (existingPitch.status === 'rejected') {
       return {
-        error: `Pitch Locked: This candidate has already declined a pitch or been archived for this specific role (Ref: ${existingRef}). Duplicate pitches for the same role are blocked.`,
+        error: `Invitation Locked: This candidate has already declined a pitch or been archived for this specific role (Ref: ${existingRef}). Duplicate pitches for the same role are blocked.`,
       }
     }
     return {
-      error: `Already Pitched / Applied: An active pitch or application (Ref: ${existingRef}) already exists with this candidate for this role. No credit was deducted.`,
+      error: `Already Invited / Applied: An active pitch or application (Ref: ${existingRef}) already exists with this candidate for this role. No credit was deducted.`,
     }
   } else {
     const { data: insertedPitch, error: insertError } = await supabase
@@ -4792,7 +4792,7 @@ export async function sendConnectionRequest(
     referenceId: refId,
     heading: `New Employer Connection Pitch (${matchScore}% AI Match)`,
     bodyLines: [
-      `A Domain-Verified Employer matched with your anonymous profile and spent a connection credit to pitch you their "${job.title}" role.`,
+      `A Domain-Verified Employer matched with your anonymous profile and spent a connection credit to send you a Professional Invitation their "${job.title}" role.`,
       `Transaction Reference ID: ${refId}`,
       `Accepting opens a private chat thread while keeping your raw email and PDF resume vaulted until you choose to release them.`,
     ],
@@ -6190,7 +6190,7 @@ export async function activateSandboxEmployerTier(
       heading: `${chosen.label} Activated!`,
       bodyLines: [
         `Your organization (${orgObj?.name || 'Verified Employer'}) is now subscribed to ${chosen.label}.`,
-        `Monthly Plan Bucket reset to ${chosen.credits} Pitch Credits (used first) + ${preservedRollover} Non-Expiring Rollover Credits preserved.`,
+        `Monthly Plan Bucket reset to ${chosen.credits} Invitation Credits (used first) + ${preservedRollover} Non-Expiring Rollover Credits preserved.`,
       ],
       ctaUrl: '/dashboard/employer/billing',
       ctaLabel: 'View Two-Bucket Credit Ledger →',
@@ -6213,8 +6213,8 @@ export async function activateSandboxEmployerTier(
     rolloverCredits: preservedRollover,
     message:
       targetTier === 'free'
-        ? 'Organization reset to No Active Plan (Unsubscribed — 0 Active Role Slots, 0 Pitch Credits, 1 Seat).'
-        : `✓ Activated ${chosen.label}! Monthly Plan Allowance set to ${chosen.credits} Pitch Credits${preservedRollover > 0 ? ` + ${preservedRollover} Rollover Top-Up Credits preserved (${newCredits} total)` : ''}.`,
+        ? 'Organization reset to No Active Plan (Unsubscribed — 0 Active Role Slots, 0 Invitation Credits, 1 Seat).'
+        : `✓ Activated ${chosen.label}! Monthly Plan Allowance set to ${chosen.credits} Invitation Credits${preservedRollover > 0 ? ` + ${preservedRollover} Rollover Top-Up Credits preserved (${newCredits} total)` : ''}.`,
   }
 }
 
@@ -6264,7 +6264,7 @@ export async function purchaseEmployerCreditTopUp(
         success: true,
         packId,
         totalCredits: orgObj.connection_credits || 0,
-        message: '✓ Stripe Payment Confirmed: Your Rollover Pitch Credits are active in your balance.',
+        message: '✓ Stripe Payment Confirmed: Your Rollover Invitation Credits are active in your balance.',
       }
     }
   }
@@ -6273,7 +6273,7 @@ export async function purchaseEmployerCreditTopUp(
   if (tierInfo.tier === 'free') {
     return {
       error:
-        'Active Subscription Required: Top-Up Pitch Credit packs are exclusively available to organizations on an active Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) plan.',
+        'Active Subscription Required: Top-Up Invitation Credit packs are exclusively available to organizations on an active Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) plan.',
     }
   }
 
@@ -6331,13 +6331,13 @@ export async function purchaseEmployerCreditTopUp(
   const topupRef = `SS-TOP${Date.now().toString().slice(-5)}`
   await sendPlatformNotification({
     to: user.email,
-    subject: `Top-Up Added: +${pack.credits} Non-Expiring Pitch Credits (${pack.name} — $${pack.price})`,
+    subject: `Top-Up Added: +${pack.credits} Non-Expiring Invitation Credits (${pack.name} — $${pack.price})`,
     referenceId: topupRef,
-    heading: `+${pack.credits} Rollover Pitch Credits Added!`,
+    heading: `+${pack.credits} Rollover Invitation Credits Added!`,
     bodyLines: [
-      `Your organization purchased the ${pack.name} (+${pack.credits} Pitch Credits for $${pack.price}).`,
+      `Your organization purchased the ${pack.name} (+${pack.credits} Invitation Credits for $${pack.price}).`,
       `Two-Bucket Protection: Your Monthly Plan Credits (${currentPlanCredits}) are always used first. Your Rollover Top-Up Credits (${newRollover}) never expire as long as your base subscription remains active.`,
-      `New Total Balance: ${newTotal} Pitch Credits.`,
+      `New Total Balance: ${newTotal} Invitation Credits.`,
     ],
     ctaUrl: '/dashboard/employer/search',
     ctaLabel: 'Search & Pitch Verified Talent →',
@@ -6356,7 +6356,7 @@ export async function purchaseEmployerCreditTopUp(
     planCredits: currentPlanCredits,
     rolloverCredits: newRollover,
     totalCredits: newTotal,
-    message: `✓ Added +${pack.credits} Non-Expiring Rollover Pitch Credits (${pack.name} · $${pack.price})! Balance: ${currentPlanCredits} Monthly Plan + ${newRollover} Rollover = ${newTotal} Total Credits.`,
+    message: `✓ Added +${pack.credits} Non-Expiring Rollover Invitation Credits (${pack.name} · $${pack.price})! Balance: ${currentPlanCredits} Monthly Plan + ${newRollover} Rollover = ${newTotal} Total Credits.`,
   }
 }
 

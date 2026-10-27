@@ -379,7 +379,7 @@ export async function GET(req: NextRequest) {
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${candidateAppsTotal.length}</td>
               </tr>
               <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding: 9px 14px; font-weight: 700;">Employer Outbound Pitches Sent</td>
+                <td style="padding: 9px 14px; font-weight: 700;">Employer Professional Invitations Sent</td>
                 <td style="padding: 9px 14px; text-align: right; color: #34d399; font-weight: 800;">+${employerPitches24h.length}</td>
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${employerPitchesTotal.length}</td>
               </tr>

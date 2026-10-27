@@ -1,9 +1,9 @@
 export const CANDIDATE_AVAILABILITY_STATUSES = [
   'Immediate (< 1 Week)',
   'Standard (2 Weeks Notice)',
-  'Open to high-fit pitches (2-4 Weeks Notice)',
+  'Open to Professional Invitations (2-4 Weeks Notice)',
   'Executive Transition (30+ Days Notice)',
-  'Paused (Not Accepting Pitches Right Now)',
+  'Paused (Not Accepting Invitations Right Now)',
 ] as const
 
 export type CandidateAvailabilityStatus =
@@ -26,7 +26,7 @@ export function normalizeCandidateAvailability(raw?: string | null): string {
     lower.includes('not looking') ||
     lower.includes('off market')
   ) {
-    return 'Paused (Not Accepting Pitches Right Now)'
+    return 'Paused (Not Accepting Invitations Right Now)'
   }
   if (
     lower.includes('immediate') ||
@@ -48,7 +48,7 @@ export function normalizeCandidateAvailability(raw?: string | null): string {
     lower.includes('2–4 weeks') ||
     lower.includes('2-4 weeks')
   ) {
-    return 'Open to high-fit pitches (2-4 Weeks Notice)'
+    return 'Open to Professional Invitations (2-4 Weeks Notice)'
   }
   if (
     lower.includes('more than 1 month') ||

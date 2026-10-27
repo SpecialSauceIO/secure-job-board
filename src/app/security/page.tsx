@@ -55,7 +55,7 @@ const SECURITY_PILLARS = [
       'Our matching engine scores candidates and roles across five pillars: Core Competencies, Skill Tenure, Logistics & Pay, Industry & Creds, and Execution & Comm.',
     bullets: [
       'Practical Experience Parity: Roles accepting hands-on experience in lieu of a degree weight real-world tenure equally alongside language proficiency.',
-      'Hard Dealbreaker Firewall: Automatically blocks pitches that violate your minimum pay band, work model, or employment type.',
+      'Hard Dealbreaker Firewall: Automatically blocks invitations that violate your minimum pay band, work model, or employment type.',
     ],
   },
 ]
@@ -157,7 +157,7 @@ export default function SecurityTrustPage() {
           <div className="bg-slate-900 p-6 sm:p-8 rounded-2xl border border-slate-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-lg">
             <div className="space-y-1.5">
               <h3 className="text-xl sm:text-2xl font-extrabold text-white">
-                Ready to Join the 100% ID-Verified Marketplace?
+                Ready to Join the 100% Human-to-Human Marketplace?
               </h3>
               <p className="text-base text-slate-100">
                 Build your profile or stage roles for free, then start a 30-Day Free Trial ($0 due today) on any Candidate or Employer Founding Partner plan.

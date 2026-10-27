@@ -115,7 +115,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-5 mt-4 space-y-2 text-slate-600">
               <li>
-                <strong className="text-slate-800">With Verified Employers (Staged Consent):</strong> Stage 1 thread access occurs only when you submit a protected application to an Employer’s role or accept their outbound pitch; Stage 2 disclosure (Full Name, direct email, and signed PDF resume link) occurs strictly when you click &ldquo;Release Resume &amp; Contact Vault.&rdquo;
+                <strong className="text-slate-800">With Verified Employers (Staged Consent):</strong> Stage 1 thread access occurs only when you submit a protected application to an Employer’s role or accept their Professional Invitation; Stage 2 disclosure (Full Name, direct email, and signed PDF resume link) occurs strictly when you click &ldquo;Release Resume &amp; Contact Vault.&rdquo;
               </li>
               <li>
                 <strong className="text-slate-800">With Infrastructure &amp; Security Providers:</strong> Trusted enterprise infrastructure providers who power our global edge cloud hosting, encrypted Row-Level Security (RLS) databases and isolated private storage buckets, payment and biometric identity vaulting (Stripe), transactional email delivery, and multi-tier AI matching inference.

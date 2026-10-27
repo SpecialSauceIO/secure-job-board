@@ -138,7 +138,7 @@ export default function EmployerBillingPage() {
       purchaseEmployerCreditTopUp(packParam, sessionIdParam).then((res) => {
         setFeedback({
           type: 'success',
-          text: res?.message || 'Stripe Payment Confirmed: Added non-expiring Rollover Pitch Credits to your organization.',
+          text: res?.message || 'Stripe Payment Confirmed: Added non-expiring Rollover Invitation Credits to your organization.',
         })
         loadBillingState()
       })
@@ -151,8 +151,8 @@ export default function EmployerBillingPage() {
     } else if (selectParam && ['starter', 'growth', 'enterprise'].includes(selectParam)) {
       window.history.replaceState({}, '', '/dashboard/employer/billing')
       const planNames: Record<string, string> = {
-        starter: 'Starter ($149/mo Founding Rate — 5 Active Roles & 10 Pitch Credits)',
-        growth: 'Growth ($499/mo Founding Rate — 15 Active Roles & 35 Pitch Credits)',
+        starter: 'Starter ($149/mo Founding Rate — 5 Active Roles & 10 Invitation Credits)',
+        growth: 'Growth ($499/mo Founding Rate — 15 Active Roles & 35 Invitation Credits)',
         enterprise: 'Enterprise ($1,250/mo Founding Rate — Unlimited Roles, 120 Credits & HR Software Sync)',
       }
       setFeedback({
@@ -232,7 +232,7 @@ export default function EmployerBillingPage() {
         type: 'success',
         text:
           res?.message ||
-          '✓ Added non-expiring Rollover Pitch Credits to your organization!',
+          '✓ Added non-expiring Rollover Invitation Credits to your organization!',
       })
       await loadBillingState()
       router.refresh()
@@ -282,7 +282,7 @@ export default function EmployerBillingPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Employer Billing, Role Slots &amp; Pitch Credits
+            Employer Billing, Role Slots &amp; Invitation Credits
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Reviewing and unlocking candidates who apply to your protected job listings is 100% free (0 credits) on every active plan.
@@ -340,7 +340,7 @@ export default function EmployerBillingPage() {
               </h2>
 
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Your monthly plan allowance (<strong className="text-white">Bucket 1</strong>) is always spent first when pitching candidates. Purchased Top-Up Credits (<strong className="text-amber-300">Bucket 2</strong>) roll over indefinitely while your base subscription remains active.
+                Your monthly plan allowance (<strong className="text-white">Bucket 1</strong>) is always spent first when inviting candidates. Purchased Top-Up Credits (<strong className="text-amber-300">Bucket 2</strong>) roll over indefinitely while your base subscription remains active.
               </p>
             </div>
 
@@ -402,7 +402,7 @@ export default function EmployerBillingPage() {
                 </strong>
                 ,{' '}
                 <strong className="text-amber-300">
-                  10 Outbound Pitch Credits
+                  10 Outbound Invitation Credits
                 </strong>
                 ,{' '}
                 <strong className="text-amber-300">
@@ -495,10 +495,10 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Up to 5 Simultaneous Active Protected Roles</strong>
               </li>
               <li>
-                ✓ <strong>10 Monthly Plan Pitch Credits / month</strong>
+                ✓ <strong>10 Monthly Plan Invitation Credits / month</strong>
               </li>
               <li className="text-emerald-700 font-bold">
-                🛡️ <strong>100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches are auto-refunded)
+                🛡️ <strong>100% Accepted-Only Invitation Credit Protection</strong> (Declined invitations are auto-refunded)
               </li>
               <li>
                 ✓ <strong>2 Team or Recruiter Seats</strong>
@@ -569,10 +569,10 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Up to 15 Simultaneous Active Protected Roles</strong>
               </li>
               <li>
-                ✓ <strong>35 Monthly Plan Pitch Credits / month</strong>
+                ✓ <strong>35 Monthly Plan Invitation Credits / month</strong>
               </li>
               <li className="text-emerald-300 font-bold">
-                🛡️ <strong>100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches are auto-refunded)
+                🛡️ <strong>100% Accepted-Only Invitation Credit Protection</strong> (Declined invitations are auto-refunded)
               </li>
               <li>
                 ✓ <strong>Up to 5 Team &amp; External Recruiter Seats</strong>
@@ -645,10 +645,10 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Unlimited Simultaneous Active Protected Roles</strong>
               </li>
               <li>
-                ✓ <strong>120 Monthly Plan Pitch Credits / month</strong>
+                ✓ <strong>120 Monthly Plan Invitation Credits / month</strong>
               </li>
               <li className="text-emerald-700 font-bold">
-                🛡️ <strong>100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches are auto-refunded)
+                🛡️ <strong>100% Accepted-Only Invitation Credit Protection</strong> (Declined invitations are auto-refunded)
               </li>
               <li>
                 ✓ <strong>Unlimited Team &amp; External Recruiter Seats</strong>
@@ -690,10 +690,10 @@ export default function EmployerBillingPage() {
               <span>⚡ Bucket 2: Non-Expiring Rollover Top-Up Packs</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              On-Demand Pitch Credit Top-Ups
+              On-Demand Invitation Credit Top-Ups
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Top-Up Credits are added to your <strong className="text-slate-900">Rollover Top-Up Bucket</strong>. Your monthly plan allowance (<strong className="text-slate-900">{planCredits} Plan Credits remaining</strong>) is always spent first, and Rollover Top-Up Credits (<strong className="text-amber-700">{rolloverCredits} Rollover Credits banked</strong>) never expire as long as your base subscription remains active. Protected by our 100% Accepted-Only Guarantee—if a candidate declines an outbound pitch, your credit is automatically refunded to the exact bucket it came from.
+              Top-Up Credits are added to your <strong className="text-slate-900">Rollover Top-Up Bucket</strong>. Your monthly plan allowance (<strong className="text-slate-900">{planCredits} Plan Credits remaining</strong>) is always spent first, and Rollover Top-Up Credits (<strong className="text-amber-700">{rolloverCredits} Rollover Credits banked</strong>) never expire as long as your base subscription remains active. Protected by our 100% Accepted-Only Guarantee—if a candidate declines an Professional Invitation, your credit is automatically refunded to the exact bucket it came from.
             </p>
           </div>
 
@@ -712,7 +712,7 @@ export default function EmployerBillingPage() {
         {activeTier === 'free' && (
           <div className="p-4 rounded-xl bg-amber-50 border border-amber-300 text-amber-950 text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <span>
-              🔒 <strong>Active Base Plan Required:</strong> Activate Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) above before purchasing standalone Rollover Pitch Credit Top-Up Packs.
+              🔒 <strong>Active Base Plan Required:</strong> Activate Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) above before purchasing standalone Rollover Invitation Credit Top-Up Packs.
             </span>
           </div>
         )}
@@ -736,7 +736,7 @@ export default function EmployerBillingPage() {
                 <span className="text-2xl font-black text-slate-900">$150</span>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Quick top-up when you need a few extra outbound pitches to round out an interview slate this month.
+                Quick top-up when you need a few extra Professional Invitationes to round out an interview slate this month.
               </p>
             </div>
 

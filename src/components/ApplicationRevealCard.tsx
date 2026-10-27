@@ -71,7 +71,7 @@ function normalizeCandidateAvailability(raw?: any): string {
   if (!val) return '2 Weeks Notice (Standard)'
   const lower = val.toLowerCase()
   if (lower.includes('pause') || lower.includes('not accepting')) {
-    return 'Paused (Not Accepting Pitches)'
+    return 'Paused (Not Accepting Invitations)'
   }
   if (lower.includes('immediate') || lower.includes('actively')) {
     return 'Actively Looking (Immediate)'

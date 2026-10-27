@@ -85,7 +85,7 @@ export default function EmployerSentPitchesPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Sent Connection Pitches
+            Sent Professional Invitations
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Track outbound role pitches sent to passive candidates, message accepted matches in private chat, and access unlocked resumes and contact info.
@@ -96,7 +96,7 @@ export default function EmployerSentPitchesPage() {
           href="/dashboard/employer/search"
           className="shrink-0 inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm"
         >
-          + Search &amp; Pitch Talent →
+          + Search &amp; Invite Talent →
         </Link>
       </header>
 
@@ -106,7 +106,7 @@ export default function EmployerSentPitchesPage() {
           {/* Status Filter Pills */}
           <div className="flex flex-wrap items-center gap-1.5">
             {[
-              { id: 'all', label: 'All Sent Pitches' },
+              { id: 'all', label: 'All Sent Invitations' },
               { id: 'accepted', label: '🔓 Accepted / Thread Open' },
               { id: 'pending', label: '⏳ Pending Candidate Reply' },
               { id: 'declined', label: 'Declined' },
@@ -193,7 +193,7 @@ export default function EmployerSentPitchesPage() {
             No outbound pitches match your current filter
           </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Browse the anonymous passive talent directory to run 5-Point AI Fit checks and send direct role pitches.
+            Browse the anonymous passive talent directory to run 5-Point AI Fit checks and send direct Professional Invitations.
           </p>
           <Link
             href="/dashboard/employer/search"
@@ -291,7 +291,7 @@ export default function EmployerSentPitchesPage() {
                   <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-300 text-xs font-semibold text-slate-500">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-slate-900 font-extrabold">
-                        Pitched Role: {job.title || 'Open Role'}
+                        Invited Role: {job.title || 'Open Role'}
                       </span>
                       <span>•</span>
                       <span className="font-mono text-slate-600">
@@ -312,7 +312,7 @@ export default function EmployerSentPitchesPage() {
 
                       {isAccepted && !vaultReleased && (
                         <span className="text-emerald-700 font-extrabold">
-                          ✓ Pitch Accepted • Private Chat Open
+                          ✓ Invitation Accepted • Private Chat Open
                         </span>
                       )}
 
@@ -442,7 +442,7 @@ export default function EmployerSentPitchesPage() {
                         </span>
                         <span className="font-bold">
                           {pitch.match_data?.candidate_decline_reason ||
-                            'Candidate passed on this role pitch'}
+                            'Candidate passed on this Professional Invitation'}
                         </span>
                       </div>
                     </div>
@@ -576,7 +576,7 @@ export default function EmployerSentPitchesPage() {
                 <strong className="text-slate-900 font-extrabold">
                   {totalSentPitches}
                 </strong>{' '}
-                {totalSentPitches === 1 ? 'pitch' : 'pitches'}
+                {totalSentPitches === 1 ? 'invitation' : 'invitations'}
               </span>
               <span className="hidden sm:inline text-slate-300">|</span>
               <label className="inline-flex items-center gap-2 font-bold text-slate-700">

@@ -171,11 +171,11 @@ export default function WorkflowsPage() {
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span>When an employer pitches you or you find a role to apply to, start a <strong>30-Day Free Trial ($0 due today)</strong>.</span>
+                        <span>When an employer sends you a Professional Invitation or you find a role to apply to, start a <strong>30-Day Free Trial ($0 due today)</strong>.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span>Choose <strong>Explorer ($3/mo after trial)</strong> for inbound pitches, <strong>Professional ($9/mo)</strong> for 15 applications/mo, or <strong>Prestige ($15/mo)</strong> for unlimited applications.</span>
+                        <span>Choose <strong>Explorer ($3/mo after trial)</strong> for inbound Professional Invitations, <strong>Professional ($9/mo)</strong> for 15 applications/mo, or <strong>Prestige ($15/mo)</strong> for unlimited applications.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
@@ -184,7 +184,7 @@ export default function WorkflowsPage() {
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ $0 30-Day Trial, Pitch Unlocks &amp; Outbound Applications
+                    Unlocks: ✓ $0 30-Day Trial, Invitation Unlocks &amp; Outbound Applications
                   </div>
                 </div>
 
@@ -229,7 +229,7 @@ export default function WorkflowsPage() {
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span><strong>Stage 1 (First-Name Encrypted Chat):</strong> Accepting an employer pitch or getting your application unlocked reveals the verified company name and opens encrypted chat showing only your <strong>First Name + Last Initial</strong>.</span>
+                        <span><strong>Stage 1 (First-Name Encrypted Chat):</strong> Accepting a Professional Invitation or getting your application unlocked reveals the verified company name and opens encrypted chat showing only your <strong>First Name + Last Initial</strong>.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
@@ -255,7 +255,7 @@ export default function WorkflowsPage() {
                   </div>
                   <div>
                     <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400">
-                      Free Talent Discovery • 30-Day Free Trial ($0 Today) • Accepted-Only Pitch Guarantee
+                      Free Talent Discovery • 30-Day Free Trial ($0 Today) • Accepted-Only Invitation Guarantee
                     </span>
                     <h2 className="text-xl sm:text-2xl font-black text-white">
                       Employer Workflow: Free Staging to Verified Hiring
@@ -362,10 +362,10 @@ export default function WorkflowsPage() {
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
                   <div className="space-y-4">
                     <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-emerald-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 4 • Protected Roles &amp; Pitches
+                      Step 4 • Protected Roles &amp; Invitations
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
-                      4. Publish Protected Roles &amp; Pitch Talent
+                      4. Publish Protected Roles &amp; Invite Talent
                     </h3>
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
@@ -378,12 +378,12 @@ export default function WorkflowsPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Every outbound pitch is backed by our <strong>Accepted-Only Guarantee</strong>—declined pitches are auto-refunded.</span>
+                        <span>Every Professional Invitation is backed by our <strong>Accepted-Only Guarantee</strong>—declined invitations are auto-refunded.</span>
                       </li>
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Live Role Publishing &amp; Refund-Protected Outbound Pitching
+                    Unlocks: ✓ Live Role Publishing &amp; Refund-Protected Professional Invitations
                   </div>
                 </div>
 
@@ -399,7 +399,7 @@ export default function WorkflowsPage() {
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Message accepted outbound pitches or unlocked inbound applicants directly in <strong>Stage 1 Encrypted Chat</strong>.</span>
+                        <span>Message accepted Professional Invitations or unlocked inbound applicants directly in <strong>Stage 1 Encrypted Chat</strong>.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>

@@ -88,7 +88,7 @@ export default function DashboardNav({
     { href: '/dashboard', label: 'Overview', exact: true },
     { href: '/dashboard/jobs', label: 'Find Roles' },
     { href: '/dashboard/applications', label: 'Outbound Applications' },
-    { href: '/dashboard/requests', label: 'Inbound Pitches' },
+    { href: '/dashboard/requests', label: 'Professional Invitations' },
     { href: '/dashboard/profile', label: 'My Profile' },
     { href: '/dashboard/preferences', label: 'Match Preferences' },
     { href: '/dashboard/support', label: 'Support' },
@@ -99,7 +99,7 @@ export default function DashboardNav({
     { href: '/dashboard/employer/search', label: 'Search Talent' },
     { href: '/dashboard/employer/jobs', label: 'Manage Roles' },
     { href: '/dashboard/employer/applications', label: 'Inbound Applications' },
-    { href: '/dashboard/employer/pitches', label: 'Outbound Pitches' },
+    { href: '/dashboard/employer/pitches', label: 'Sent Invitations' },
     { href: '/dashboard/employer/organization', label: 'Manage Company' },
     { href: '/dashboard/support', label: 'Support' },
   ]
@@ -214,7 +214,7 @@ export default function DashboardNav({
                     >
                       <span>
                         {role === 'employer'
-                          ? 'Billing, Plan & Pitch Credits'
+                          ? 'Billing, Plan & Invitation Credits'
                           : 'Membership & Plan Settings'}
                       </span>
                       <span className="text-indigo-600 font-extrabold">→</span>
@@ -423,7 +423,7 @@ export default function DashboardNav({
                 >
                   <span>
                     {role === 'employer'
-                      ? 'Billing, Plan & Pitch Credits'
+                      ? 'Billing, Plan & Invitation Credits'
                       : 'Membership & Plan Settings'}
                   </span>
                   <span>→</span>

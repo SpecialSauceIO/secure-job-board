@@ -97,7 +97,7 @@ export default function EmployerTeamSeatsPanel({
           </div>
           <p className="text-sm text-slate-500 mt-1">
             Invite internal hiring managers or authorized external recruiters to collaborate inside{' '}
-            <strong>{orgName || 'your organization'}</strong> and share your verified domain, active roles, and pitch credit pool.
+            <strong>{orgName || 'your organization'}</strong> and share your verified domain, active roles, and invitation credit pool.
           </p>
         </div>
 

@@ -135,7 +135,7 @@ export default function CandidateBillingPage() {
             ? 'Welcome to Special Sauce: Start your 30-Day Free Trial of Prestige ($0 due today, $15/mo after) below to unlock 1-Time Biometric ID Verification, unlimited protected applications, and top-priority search placement.'
             : selectParam === 'professional'
             ? 'Welcome to Special Sauce: Start your 30-Day Free Trial of Professional ($0 due today, $9/mo after) below to unlock 1-Time Biometric ID Verification and 15 monthly protected applications.'
-            : 'Welcome to Special Sauce: Start your 30-Day Free Trial of Explorer ($0 due today, $3/mo after) below to unlock 1-Time Biometric ID Verification and unlimited inbound employer pitch acceptances.',
+            : 'Welcome to Special Sauce: Start your 30-Day Free Trial of Explorer ($0 due today, $3/mo after) below to unlock 1-Time Biometric ID Verification and unlimited inbound Professional Invitation acceptances.',
       })
     }
   }, [loadCandidateBillingState])
@@ -231,10 +231,10 @@ export default function CandidateBillingPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Candidate Membership &amp; 100% ID-Verified Access
+            Candidate Membership &amp; Human-to-Human Access
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Every active connection on Special Sauce requires real-person biometric ID verification to guarantee zero bots and zero spam. Choose Explorer ($3/mo) for passive inbound pitches, or Professional ($9/mo) &amp; Prestige ($15/mo) to proactively apply to roles.
+            Every active connection on Special Sauce requires real-person biometric ID verification to guarantee zero bots and zero spam. Choose Explorer ($3/mo) for passive inbound Professional Invitations, or Professional ($9/mo) &amp; Prestige ($15/mo) to proactively apply to roles.
           </p>
         </div>
 
@@ -272,7 +272,7 @@ export default function CandidateBillingPage() {
               🛡️ Step 2 of 2 Unlocked • Complete 1-Time Biometric ID Check
             </div>
             <h2 className="text-base sm:text-lg font-black text-slate-900">
-              Complete Your 1-Time Photo ID Check to Unlock Applications & Employer Pitches
+              Complete Your 1-Time Photo ID Check to Unlock Applications & Professional Invitations
             </h2>
             <p className="text-xs sm:text-sm text-slate-700 max-w-2xl leading-relaxed">
               Your <strong>{tierInfo?.label}</strong> 30-Day Free Trial is active! Your anonymous skill matrix is currently <strong>Vault-Staged</strong> in Employer Search—complete your 1-time Stripe Identity check now to earn the <strong>✓ Biometric ID Verified</strong> badge, rank at the top of employer searches, and submit applications or accept pitches.
@@ -327,7 +327,7 @@ export default function CandidateBillingPage() {
               Every plan includes 1-time{" "}
               <strong className="text-amber-300">Stripe Real-Person ID Verification</strong>{" "}
               so employers know 100% of our directory is real human talent. Choose{" "}
-              <strong className="text-emerald-300">Explorer ($3/mo)</strong> to be discovered and accept unlimited inbound employer pitches, or upgrade to{" "}
+              <strong className="text-emerald-300">Explorer ($3/mo)</strong> to be discovered and accept unlimited inbound Professional Invitations, or upgrade to{" "}
               <strong className="text-white">Professional ($9/mo)</strong> or{" "}
               <strong className="text-white">Prestige ($15/mo)</strong> to proactively submit outbound protected applications.
             </p>
@@ -361,7 +361,7 @@ export default function CandidateBillingPage() {
                 )}
                 {normalizedTier === 'explorer' && (
                   <p className="text-xs text-emerald-300 font-bold">
-                    ✓ Explorer ($3/mo) Active • Unlimited Inbound Employer Pitches
+                    ✓ Explorer ($3/mo) Active • Unlimited Professional Invitations
                   </p>
                 )}
                 {normalizedTier === 'free' && (
@@ -415,7 +415,7 @@ export default function CandidateBillingPage() {
                   ✓ <strong>Live Anonymous Profile</strong> in Employer Talent Search
                 </li>
                 <li>
-                  ✓ <strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong> (Private Chat)
+                  ✓ <strong>Unlock &amp; Accept Unlimited Professional Invitations</strong> (Private Chat)
                 </li>
                 <li>✓ Browse protected role feed &amp; run 5-Point AI Fit Radar checks</li>
                 <li className="text-slate-400">
@@ -467,7 +467,7 @@ export default function CandidateBillingPage() {
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                  For targeted job seekers ready to proactively apply to up to 15 roles per month in addition to receiving inbound pitches.
+                  For targeted job seekers ready to proactively apply to up to 15 roles per month in addition to receiving inbound Professional Invitations.
                 </p>
               </div>
 
@@ -479,7 +479,7 @@ export default function CandidateBillingPage() {
                   ✓ <strong>15 Outbound Protected Applications / month</strong> (40%+ AI Fit)
                 </li>
                 <li>
-                  ✓ <strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong>
+                  ✓ <strong>Unlock &amp; Accept Unlimited Professional Invitations</strong>
                 </li>
                 <li className="text-amber-800 font-bold">
                   ✓ <strong>Verified Behavioral &amp; Responsiveness Signals</strong>
@@ -532,7 +532,7 @@ export default function CandidateBillingPage() {
                   </span>
                 </div>
                 <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                  Unlimited outbound protected applications, unlimited pitch unlocks, and top-priority placement in Employer Talent Search.
+                  Unlimited outbound protected applications, unlimited invitation unlocks, and top-priority placement in Employer Talent Search.
                 </p>
               </div>
 
@@ -544,7 +544,7 @@ export default function CandidateBillingPage() {
                   ✓ <strong>Unlimited Outbound Protected Applications</strong> (40%+ AI Fit)
                 </li>
                 <li>
-                  ✓ <strong>Unlock &amp; Accept Unlimited Inbound Employer Pitches</strong>
+                  ✓ <strong>Unlock &amp; Accept Unlimited Professional Invitations</strong>
                 </li>
                 <li className="text-amber-300 font-bold">
                   ★ <strong>Top-Priority Placement in Employer Search</strong>

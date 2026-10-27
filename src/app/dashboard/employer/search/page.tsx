@@ -65,7 +65,7 @@ export default async function EmployerSearchPage() {
             Passive Candidate Search
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Browse vaulted anonymous profiles, run 5-Point AI Fit checks, and pitch your active roles directly to top talent.
+            Browse vaulted anonymous profiles, run 5-Point AI Fit checks, and send Professional Invitations for your active roles directly to top talent.
           </p>
         </div>
 
@@ -75,7 +75,7 @@ export default async function EmployerSearchPage() {
               href="/dashboard/employer/pitches"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-900 text-xs font-extrabold transition-colors shadow-2xs border-slate-300"
             >
-              <span>Sent Pitches</span>
+              <span>Sent Invitations</span>
               <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 text-[11px] font-black">
                 {sentPitchesCount}
               </span>

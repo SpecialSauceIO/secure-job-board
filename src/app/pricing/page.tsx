@@ -5,7 +5,7 @@ import { PublicFooter } from "@/components/PublicFooter"
 export const metadata = {
   title: "Pricing, Plans & Founding Partner Rates | specialsauce.io",
   description:
-    "Start with a 30-Day Free Trial ($0 Due Today) on any 100% ID-Verified Special Sauce Candidate plan ($3, $9, or $15/mo after) or Employer Founding Partner plan ($149, $499, or $1,250/mo after).",
+    "Start with a 30-Day Free Trial ($0 Due Today) on any Special Sauce Human-to-Human Candidate plan ($3, $9, or $15/mo after) or Employer Founding Partner plan ($149, $499, or $1,250/mo after).",
 }
 
 export default function PricingMatrixPage() {
@@ -17,13 +17,13 @@ export default function PricingMatrixPage() {
         {/* Hero Header */}
         <section className="py-10 sm:py-14 md:py-20 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wide">
-            <span>★ 30-Day Free Trial ($0 Due Today) • 100% ID-Verified Talent Pool &amp; Founding Partner Rates</span>
+            <span>★ 30-Day Free Trial ($0 Due Today) • 100% Human-to-Human Hiring &amp; Founding Partner Rates</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight">
             Transparent Plans • 30-Day Free Trial ($0 Today)
           </h1>
           <p className="text-base sm:text-lg text-slate-200 max-w-2xl mx-auto leading-relaxed">
-            Explore the marketplace and run <strong className="text-white">5-Point AI Fit Radar™ checks for free</strong>. Every plan includes a <strong className="text-emerald-300">30-Day Free Trial ($0 due today)</strong>—cancel anytime before Day 30.
+            Connect directly with ID-verified professionals and domain-verified employers—with <strong className="text-white">zero bots, zero ghost jobs, and free 5-Point AI Fit Radar™ checks</strong>. Every plan includes a <strong className="text-emerald-300">30-Day Free Trial ($0 due today)</strong>—cancel anytime before Day 30.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-3 text-left">
             <div className="p-4 rounded-xl bg-slate-900/90 border border-indigo-500/40">
@@ -32,7 +32,7 @@ export default function PricingMatrixPage() {
             </div>
             <div className="p-4 rounded-xl bg-slate-900/90 border border-emerald-500/40">
               <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-300 mb-1">For Employers ($149 / $499 / $1,250 mo)</div>
-              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">Lock in <strong className="text-amber-300">12-Month Founding Partner Rates</strong> (up to 50% off retail) &amp; <strong className="text-white">100% Accepted-Only Pitch Protection</strong>.</p>
+              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">Lock in <strong className="text-amber-300">12-Month Founding Partner Rates</strong> (up to 50% off retail) &amp; <strong className="text-white">100% Accepted-Only Invitation Protection</strong>.</p>
             </div>
           </div>
 
@@ -59,10 +59,10 @@ export default function PricingMatrixPage() {
 
               <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
                 <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
-                  Daily-Calibrated AI
+                  Human-to-Human Hiring
                 </span>
                 <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-                  Tested Daily for Accuracy
+                  Zero Automated Rejections
                 </span>
               </div>
 
@@ -88,14 +88,14 @@ export default function PricingMatrixPage() {
             <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border border-slate-700 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider">
-                  <span>🛡️ 100% ID-Verified Marketplace • Zero Bots, Scams, or Ghost Jobs</span>
+                  <span>🛡️ 100% Human-to-Human Marketplace • Zero Bots, Scams, or Ghost Jobs</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
                   Start With a 30-Day Free Trial ($0 Due Today) on Any Candidate Plan
                 </h2>
                 <ul className="space-y-1.5 pt-1 text-sm sm:text-base text-slate-200">
                   <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-white">Free Profile Seeding:</strong> Build your anonymous skill matrix and run 5-Point AI Fit checks at $0 upfront.</span></li>
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-emerald-300">Explorer ($3/mo after trial):</strong> Unlock 1-time Stripe ID Verification &amp; accept unlimited inbound employer pitches.</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-emerald-300">Explorer ($3/mo after trial):</strong> Unlock 1-time Stripe ID Verification &amp; accept unlimited inbound Professional Invitations.</span></li>
                   <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-amber-300">Professional ($9/mo) &amp; Prestige ($15/mo):</strong> Proactively submit protected applications + earn Founding Member status.</span></li>
                 </ul>
               </div>
@@ -133,7 +133,7 @@ export default function PricingMatrixPage() {
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    Let verified employers come to you with unlimited inbound pitch unlocks.
+                    Let verified employers come to you with unlimited inbound Professional Invitations.
                   </p>
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
@@ -146,7 +146,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlock &amp; Accept Unlimited Inbound Pitches</strong> (Private Chat)</span>
+                      <span><strong className="text-white">Unlock &amp; Accept Unlimited Professional Invitations</strong> (Private Chat)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -188,7 +188,7 @@ export default function PricingMatrixPage() {
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    Accept unlimited inbound pitches and apply directly to up to 15 roles per month.
+                    Accept unlimited Professional Invitations and apply directly to up to 15 roles per month.
                   </p>
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
@@ -197,7 +197,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlock &amp; Accept Unlimited Inbound Pitches</strong> (Private Chat)</span>
+                      <span><strong className="text-white">Unlock &amp; Accept Unlimited Professional Invitations</strong> (Private Chat)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -260,7 +260,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlock &amp; Accept Unlimited Inbound Pitches</strong></span>
+                      <span><strong className="text-white">Unlock &amp; Accept Unlimited Professional Invitations</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5 text-amber-300 font-bold">
                       <span className="shrink-0">★</span>
@@ -302,7 +302,7 @@ export default function PricingMatrixPage() {
                 <ul className="space-y-1.5 pt-1 text-sm sm:text-base text-slate-200">
                   <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-amber-300">12-Month Rate Lock:</strong> Lock in $149 / $499 / $1,250 per month for your first 12 months (standard retail applies Month 13).</span></li>
                   <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-white">Free Inbound Applicants:</strong> Reviewing and unlocking candidates who apply to your roles is 100% free (0 credits).</span></li>
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-emerald-300">Accepted-Only Pitch Guarantee:</strong> You only spend a credit when a candidate accepts—declined pitches are auto-refunded.</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-emerald-300">Accepted-Only Invitation Guarantee:</strong> You only spend a credit when a professional accepts—declined invitations are auto-refunded.</span></li>
                 </ul>
               </div>
               <div className="shrink-0">
@@ -353,11 +353,11 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">10 Outbound Talent Pitch Credits / month</strong></span>
+                      <span><strong className="text-white">10 Outbound Professional Invitation Credits / month</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches are auto-refunded)</span>
+                      <span><strong className="text-white">100% Accepted-Only Invitation Credit Protection</strong> (Declined invitations are auto-refunded)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -417,11 +417,11 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">35 Outbound Talent Pitch Credits / month</strong></span>
+                      <span><strong className="text-white">35 Outbound Professional Invitation Credits / month</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches are auto-refunded)</span>
+                      <span><strong className="text-white">100% Accepted-Only Invitation Credit Protection</strong> (Declined invitations are auto-refunded)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -481,11 +481,11 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">120 Outbound Talent Pitch Credits / month</strong></span>
+                      <span><strong className="text-white">120 Outbound Professional Invitation Credits / month</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches are auto-refunded)</span>
+                      <span><strong className="text-white">100% Accepted-Only Invitation Credit Protection</strong> (Declined invitations are auto-refunded)</span>
                     </li>
                     <li className="flex items-start gap-2.5 text-indigo-300 font-bold">
                       <span className="shrink-0">⚡</span>
@@ -523,7 +523,7 @@ export default function PricingMatrixPage() {
                     Need Extra Outbound Reach During a Hiring Surge?
                   </h3>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    Active <strong className="text-white">Starter, Growth, and Enterprise</strong> subscribers can add on-demand Pitch Credit packs anytime. We use a <strong className="text-amber-300">Monthly-First Depletion Rule</strong>: your monthly plan allowance is always spent first, and purchased Top-Up Credits <strong className="text-emerald-300">roll over month-to-month and never expire</strong> while your subscription is active.
+                    Active <strong className="text-white">Starter, Growth, and Enterprise</strong> subscribers can add on-demand Professional Invitation Credit packs anytime. We use a <strong className="text-amber-300">Monthly-First Depletion Rule</strong>: your monthly plan allowance is always spent first, and purchased Top-Up Credits <strong className="text-emerald-300">roll over month-to-month and never expire</strong> while your subscription is active.
                   </p>
                 </div>
                 <div className="shrink-0 flex flex-col gap-2 text-xs sm:text-sm font-extrabold text-slate-100 bg-slate-950 px-5 py-4 rounded-xl border border-slate-700">
@@ -534,7 +534,7 @@ export default function PricingMatrixPage() {
                     ✓ Bucket 2: Top-Up Credits (100% Rollover)
                   </span>
                   <span className="flex items-center gap-2 text-sky-300">
-                    🛡️ Declined Pitches Are Auto-Refunded (+1 Credit)
+                    🛡️ Declined Invitations Are Auto-Refunded (+1 Credit)
                   </span>
                 </div>
               </div>
@@ -548,17 +548,17 @@ export default function PricingMatrixPage() {
                         ⚡ Boost Pack
                       </span>
                       <span className="px-3 py-1 rounded-full bg-slate-800 text-slate-100 text-xs font-extrabold border border-slate-600">
-                        $15.00 / pitch
+                        $15.00 / invitation
                       </span>
                     </div>
                     <div className="flex items-baseline justify-between pt-1">
                       <h4 className="text-xl sm:text-2xl font-black text-white">
-                        +10 Pitch Credits
+                        +10 Invitation Credits
                       </h4>
                       <span className="text-3xl font-black text-white">$150</span>
                     </div>
                     <p className="text-base text-slate-100 leading-relaxed">
-                      Ideal when your team is 2–3 outbound pitches away from rounding out a final interview slate this month.
+                      Ideal when your team is 2–3 outbound Professional Invitations away from rounding out a final interview slate this month.
                     </p>
                   </div>
                   <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-300">
@@ -575,12 +575,12 @@ export default function PricingMatrixPage() {
                         🚀 Surge Pack • Most Popular
                       </span>
                       <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-200 text-xs font-extrabold border border-indigo-400/40">
-                        $14.00 / pitch
+                        $14.00 / invitation
                       </span>
                     </div>
                     <div className="flex items-baseline justify-between pt-1">
                       <h4 className="text-xl sm:text-2xl font-black text-white">
-                        +25 Pitch Credits
+                        +25 Invitation Credits
                       </h4>
                       <span className="text-3xl font-black text-white">$350</span>
                     </div>
@@ -602,12 +602,12 @@ export default function PricingMatrixPage() {
                         🏢 Scale Pack • Best Value
                       </span>
                       <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 text-xs font-extrabold border border-emerald-400/40">
-                        $12.00 / pitch
+                        $12.00 / invitation
                       </span>
                     </div>
                     <div className="flex items-baseline justify-between pt-1">
                       <h4 className="text-xl sm:text-2xl font-black text-white">
-                        +75 Pitch Credits
+                        +75 Invitation Credits
                       </h4>
                       <span className="text-3xl font-black text-white">$900</span>
                     </div>
@@ -617,7 +617,7 @@ export default function PricingMatrixPage() {
                   </div>
                   <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-300">
                     <span>✓ Non-expiring rollover</span>
-                    <span>Best Value Per Pitch</span>
+                    <span>Best Value Per Invitation</span>
                   </div>
                 </div>
               </div>

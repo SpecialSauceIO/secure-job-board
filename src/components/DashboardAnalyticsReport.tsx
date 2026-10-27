@@ -149,7 +149,7 @@ export default function DashboardAnalyticsReport({
             </div>
             <div className="bg-white p-3.5 rounded-xl border border-slate-300">
               <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                {mode === 'employer' ? 'Outbound Pitches' : 'Pitches Received'}
+                {mode === 'employer' ? 'Sent Invitations' : 'Invitations Received'}
               </span>
               <span className="text-xl font-black text-indigo-700 mt-0.5 block">
                 {stats.pitches}
@@ -209,7 +209,7 @@ export default function DashboardAnalyticsReport({
                     ? 'All Channels'
                     : tab === 'inbound'
                     ? 'Inbound Applications'
-                    : 'Outbound Pitches'}
+                    : 'Sent Invitations'}
                 </button>
               ))}
             </div>

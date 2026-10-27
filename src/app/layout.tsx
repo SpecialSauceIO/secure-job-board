@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     default: "Special Sauce | Welcome to your future",
   },
   description:
-    "The identity-protected, ID-verified hiring platform that strips away bias and connects verified employers and professionals based purely on skills and experience.",
+    "The 100% human-to-human, identity-protected hiring marketplace that connects ID-verified professionals and verified employers based purely on skills and experience.",
   applicationName: "Special Sauce",
   alternates: {
     canonical: "/",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Special Sauce | Welcome to your future",
     description:
-      "Identity-protected, Stripe ID-verified hiring. Match on structured skills first—unlock identity only by mutual consent.",
+      "100% Human-to-Human, identity-protected hiring. Connect directly with verified professionals and employers—zero bots or black holes.",
   },
 };
 

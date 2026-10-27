@@ -248,7 +248,7 @@ export default function EmployerOrganizationForm({
           >
             {completedPillarsCount === 3
               ? '✓ Full Vault Access Unlocked'
-              : '🔒 Action Required to Unlock Pitching'}
+              : '🔒 Action Required to Unlock Invitations'}
           </div>
         </div>
 
@@ -330,7 +330,7 @@ export default function EmployerOrganizationForm({
             </div>
             <p className="text-xs text-slate-600 mt-1">
               {pillar3Done
-                ? 'Your personal identity is cryptographically verified. Candidates see the "🛡️ ID-Verified Hiring Manager" trust signal on your pitches.'
+                ? 'Your personal identity is cryptographically verified. Candidates see the "🛡️ ID-Verified Hiring Manager" trust signal on your invitations.'
                 : 'Just like candidates, Employer Admins complete a 60-second Stripe Identity check so candidates know a real, accountable hiring leader is behind every role.'}
             </p>
           </div>

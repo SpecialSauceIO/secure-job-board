@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 
 export const runtime = 'nodejs'
-export const alt = 'Special Sauce | Identity-Protected, ID-Verified Hiring Platform'
+export const alt = 'Special Sauce | 100% Human-to-Human, Identity-Protected Hiring Marketplace'
 export const size = {
   width: 1200,
   height: 630,

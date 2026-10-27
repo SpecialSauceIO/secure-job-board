@@ -943,7 +943,7 @@ export default function EmployerCandidateSearch({
 
           <div className="flex items-center gap-3">
             <span>
-              <strong className="text-slate-900">{liveCredits}</strong> Pitch{' '}
+              <strong className="text-slate-900">{liveCredits}</strong> Invitation{' '}
               {liveCredits === 1 ? 'Credit' : 'Credits'} Available
             </span>
             <Link
@@ -994,7 +994,7 @@ export default function EmployerCandidateSearch({
             </h3>
             <p className="text-slate-500 text-sm mb-4">
               {onlyShortlisted
-                ? 'Click "Shortlist" on any anonymous candidate card to assemble a comparison pool before pitching.'
+                ? 'Click "Shortlist" on any anonymous candidate card to assemble a comparison pool before sending an invitation.'
                 : 'Try resetting your active filters to broaden your search.'}
             </p>
             <button
@@ -1328,7 +1328,7 @@ export default function EmployerCandidateSearch({
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl border-2 border-slate-300 border-slate-300">
                         <div className="flex-1">
                           <label className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">
-                            Select Active Role to Evaluate &amp; Pitch
+                            Select Active Role to Evaluate &amp; Invite
                           </label>
                           <select
                             value={selectedJobId}
@@ -1344,7 +1344,7 @@ export default function EmployerCandidateSearch({
                               const lockTag = conn
                                 ? conn.status === 'rejected' || conn.status === 'declined'
                                   ? ` — 🔒 Locked / Archived (Ref: ${conn.reference_id})`
-                                  : ` — ✓ Already Pitched / Applied (Ref: ${conn.reference_id})`
+                                  : ` — ✓ Already Invited / Applied (Ref: ${conn.reference_id})`
                                 : ''
                               return (
                                 <option key={job.id} value={job.id}>
@@ -1558,8 +1558,8 @@ export default function EmployerCandidateSearch({
                             {isRoleAlreadyLocked && activeRoleConn ? (
                               <div className="text-amber-800 bg-amber-50 border border-amber-300 px-3 py-2 rounded-lg font-bold">
                                 🔒 {activeRoleConn.status === 'rejected' || activeRoleConn.status === 'declined'
-                                  ? `Pitch Locked: Candidate already declined or was archived for this role (Ref: ${activeRoleConn.reference_id}).`
-                                  : `Already Pitched / Applied: An active connection (Ref: ${activeRoleConn.reference_id}) already exists for this role.`}
+                                  ? `Invitation Locked: Candidate already declined or was archived for this role (Ref: ${activeRoleConn.reference_id}).`
+                                  : `Already Invited / Applied: An active connection (Ref: ${activeRoleConn.reference_id}) already exists for this role.`}
                               </div>
                             ) : (
                               !hasDealbreaker &&
@@ -1591,10 +1591,10 @@ export default function EmployerCandidateSearch({
                               }`}
                             >
                               {isRoleAlreadyLocked
-                                ? '🔒 Already Pitched / Locked'
+                                ? '🔒 Already Invited / Locked'
                                 : isSending
-                                ? 'Sending Pitch...'
-                                : 'Send Role Pitch (1 Credit) →'}
+                                ? 'Sending Invitation...'
+                                : 'Send Professional Invitation (1 Credit) →'}
                             </button>
                           </div>
                         </div>
@@ -1700,8 +1700,8 @@ export default function EmployerCandidateSearch({
                         <div className="flex items-center justify-between gap-4">
                           <span className="text-xs text-slate-500 font-medium">
                             {savedScore !== null
-                              ? 'Saved 5-Point AI Fit evaluation ready. Click to view full radar graph or send role pitch.'
-                              : 'Run an instant 5-Point AI Fit check against any of your active roles before pitching.'}
+                              ? 'Saved 5-Point AI Fit evaluation ready. Click to view full radar graph or send a Professional Invitation.'
+                              : 'Run an instant 5-Point AI Fit check against any of your active roles before sending an invitation.'}
                           </span>
                           <button
                             type="button"
@@ -1726,12 +1726,12 @@ export default function EmployerCandidateSearch({
                             }`}
                           >
                             {allActiveRolesLocked
-                              ? '🔒 Already Pitched / Locked'
+                              ? '🔒 Already Invited / Locked'
                               : collapsedRoleConn
                               ? `🔒 Role Locked (${collapsedRoleConn.reference_id}) • View / Switch Role →`
                               : savedScore !== null
-                              ? 'View 5-Point Radar & Pitch →'
-                              : 'Evaluate Fit & Pitch Role →'}
+                              ? 'View 5-Point Radar & Invite →'
+                              : 'Evaluate Fit & Send Invitation →'}
                           </button>
                         </div>
                       </div>

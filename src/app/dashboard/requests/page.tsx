@@ -211,8 +211,8 @@ export default function CandidateRequestsInboxPage() {
         type: 'success',
         text:
           decision === 'accepted'
-            ? `Pitch Accepted (Ref: ${res.referenceId})! Your private chat thread is now open below.`
-            : `Pitch declined (Ref: ${res.referenceId}).`,
+            ? `Invitation Accepted (Ref: ${res.referenceId})! Your private chat thread is now open below.`
+            : `Invitation declined (Ref: ${res.referenceId}).`,
       },
     }))
 
@@ -271,7 +271,7 @@ export default function CandidateRequestsInboxPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Employer Connection Pitches
+            Inbound Professional Invitations
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Domain-verified employers spent a credit to pitch you these roles. Accepting opens a private chat thread.
@@ -290,7 +290,7 @@ export default function CandidateRequestsInboxPage() {
       <div className="bg-white p-4 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-wrap items-center justify-between gap-3 border-slate-300">
         <div className="flex flex-wrap items-center gap-1.5">
           {[
-            { id: 'all', label: `All Pitches (${requests.length})` },
+            { id: 'all', label: `All Invitations (${requests.length})` },
             { id: 'pending', label: '⚡ Pending Your Reply' },
             { id: 'accepted', label: '🔓 Accepted & Connected' },
             { id: 'declined', label: 'Declined' },
@@ -311,7 +311,7 @@ export default function CandidateRequestsInboxPage() {
         </div>
 
         <span className="text-xs font-bold text-emerald-700">
-          🛡️ Unlimited inbound pitch unlocks included on all ID-Verified plans ($3 / $9 / $15)
+          🛡️ Unlimited inbound invitation unlocks included on all ID-Verified plans ($3 / $9 / $15)
         </span>
       </div>
 
@@ -320,7 +320,7 @@ export default function CandidateRequestsInboxPage() {
         <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs border-slate-300">
           <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-3" />
           <p className="text-sm font-bold text-slate-500">
-            Loading your employer pitch inbox...
+            Loading your employer invitation inbox...
           </p>
         </div>
       ) : filteredRequests.length === 0 ? (
@@ -385,7 +385,7 @@ export default function CandidateRequestsInboxPage() {
               ? req.unlocked_employer_name ||
                 job.organizations?.name ||
                 'Verified Employer'
-              : `Protected Employer Pitch • ${industryLabel}`
+              : `Protected Professional Invitation • ${industryLabel}`
 
             return (
               <div
@@ -701,7 +701,7 @@ export default function CandidateRequestsInboxPage() {
                             onClick={() => setDecliningId(req.id)}
                             className="px-3.5 py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer"
                           >
-                            Decline Pitch
+                            Decline Invitation
                           </button>
                           <button
                             type="button"
@@ -732,7 +732,7 @@ export default function CandidateRequestsInboxPage() {
                 <strong className="text-slate-900 font-extrabold">
                   {totalFilteredRequests}
                 </strong>{' '}
-                {totalFilteredRequests === 1 ? 'pitch' : 'pitches'}
+                {totalFilteredRequests === 1 ? 'invitation' : 'invitations'}
               </span>
               <span className="hidden sm:inline text-slate-300">|</span>
               <label className="inline-flex items-center gap-2 font-bold text-slate-700">

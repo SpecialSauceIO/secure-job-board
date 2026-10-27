@@ -453,7 +453,7 @@ export default async function DashboardPage({
                   <span>{rolesBadgeText} Roles</span>
                   <span>·</span>
                   <span>
-                    {connectionCredits} Pitch{' '}
+                    {connectionCredits} Invitation{' '}
                     {connectionCredits === 1 ? 'Credit' : 'Credits'}
                   </span>
                 </span>
@@ -649,7 +649,7 @@ export default async function DashboardPage({
             </p>
           </Link>
 
-          {/* Card 3: Outbound Pitches */}
+          {/* Card 3: Sent Invitations */}
           <Link
             href={
               hasOrg
@@ -713,7 +713,7 @@ export default async function DashboardPage({
                 </div>
               </div>
               <h3 className="text-lg font-bold text-slate-900">
-                Outbound Pitches
+                Sent Invitations
               </h3>
               <p
                 className={`text-xs mt-1 ${
@@ -726,7 +726,7 @@ export default async function DashboardPage({
                     } waiting`
                   : acceptedPitchesCount > 0 || declinedPitchesCount > 0
                   ? `${acceptedPitchesCount} accepted · ${declinedPitchesCount} declined (view feedback)`
-                  : 'Candidates you pitched from Talent Search'}
+                  : 'Professionals you invited from Talent Search'}
               </p>
             </div>
             <p
@@ -1087,8 +1087,8 @@ export default async function DashboardPage({
             <div>
               <h2 className="text-sm font-extrabold text-slate-900">
                 {hasActiveTrialOrPlan
-                  ? "Step 2 of 2: Complete Your 1-Time Biometric ID Check to Unlock Applications & Pitches"
-                  : "🛡️ Your Skill Matrix Is Vault-Staged in Employer Search • Unlock Applications & Pitches"}
+                  ? "Step 2 of 2: Complete Your 1-Time Biometric ID Check to Unlock Applications & Invitations"
+                  : "🛡️ Your Skill Matrix Is Vault-Staged in Employer Search • Unlock Applications & Invitations"}
               </h2>
               <p className="mt-0.5 text-xs text-slate-600">
                 {hasActiveTrialOrPlan
@@ -1162,7 +1162,7 @@ export default async function DashboardPage({
           </p>
         </Link>
 
-        {/* Card 2: Inbound Pitches */}
+        {/* Card 2: Professional Invitations */}
         <Link
           href="/dashboard/requests"
           className={`group p-4 sm:p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
@@ -1197,7 +1197,7 @@ export default async function DashboardPage({
                   ) : pendingRequestsCount > 0 ? (
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-blue-600 text-white text-[11px] font-bold shadow-xs">
                       <span className="h-1.5 w-1.5 rounded-full bg-amber-300 animate-pulse" />
-                      {pendingRequestsCount} {pendingRequestsCount === 1 ? "New Pitch" : "New Pitches"}
+                      {pendingRequestsCount} {pendingRequestsCount === 1 ? "New Invitation" : "New Invitations"}
                     </span>
                   ) : null}
                 <span
@@ -1216,7 +1216,7 @@ export default async function DashboardPage({
                 a11yColorTiles ? 'text-blue-950' : 'text-slate-900'
               }`}
             >
-              Inbound Pitches
+              Professional Invitations
             </h3>
             <p
               className={`text-xs mt-1 ${
@@ -1224,10 +1224,10 @@ export default async function DashboardPage({
               }`}
             >
               {unreadPitchMsgsCount > 0
-                ? 'An employer sent you a message in your pitch inbox'
+                ? 'An employer sent you a message in your invitations inbox'
                 : pendingRequestsCount > 0
-                ? `${pendingRequestsCount} pending pitch — included with your verified plan`
-                : 'Direct role pitches from verified employers'}
+                ? `${pendingRequestsCount} pending invitation — included with your verified plan`
+                : 'Direct Professional Invitations from verified employers'}
             </p>
           </div>
           <p

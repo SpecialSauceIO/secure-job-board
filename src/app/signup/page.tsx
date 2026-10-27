@@ -68,7 +68,7 @@ export default async function SignupSelectionPage({
                   </svg>
                 </div>
                 <span className="px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-extrabold uppercase tracking-wider">
-                  30-Day Free Trial ($0 Today) • ID-Verified
+                  30-Day Free Trial ($0 Today) • 100% Human-to-Human
                 </span>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">
@@ -103,7 +103,7 @@ export default async function SignupSelectionPage({
                 I&apos;m an Employer
               </h3>
               <p className="text-slate-500 leading-relaxed text-sm">
-                Lock in Founding Partner rates for 12 months with 100% Accepted-Only Pitch Credit Protection. Corporate work email required.
+                Lock in Founding Partner rates for 12 months with 100% Accepted-Only Invitation Credit Protection. Corporate work email required.
               </p>
               <div className="mt-5 sm:mt-6 flex items-center text-emerald-600 font-bold text-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-hover:translate-x-1 transition-all">
                 Continue as Employer

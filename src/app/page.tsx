@@ -44,7 +44,7 @@ export default function LandingPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0284C7]"></span>
               </span>
-              Welcome to your future
+              Strictly Human-to-Human Hiring • Zero Automated Black Holes
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Changing the{' '}
@@ -55,7 +55,7 @@ export default function LandingPage() {
               For good.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Whether you work in Healthcare, Hospitality, Finance, Skilled Trades, Government, or Tech—we replace black-hole job boards with upfront pay transparency, biometric ID verification, and complete identity protection until you choose to connect.
+              Traditional job boards bury 8 out of 10 résumés in automated filters and spam. Whether you work in Healthcare, Hospitality, Finance, Skilled Trades, Government, or Tech—Special Sauce restores real human-to-human hiring with upfront pay transparency, complete identity protection, and verified human connections.
             </p>
           </div>
 
@@ -72,7 +72,7 @@ export default function LandingPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#EA580C]"></span>
               </span>
-              100% Identity-Verified • Human-to-Human Hiring
+              ID-Verified Professionals • ID- & Domain-Verified Employers
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               No More Bots.{' '}
@@ -83,7 +83,7 @@ export default function LandingPage() {
               No More Scams.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Traditional job boards are flooded with AI application bots, fake phishing listings, and cold recruiter spam. Every candidate and employer on Special Sauce is verified through Stripe Identity and corporate domain checks—so real professionals connect only with real hiring teams.
+              Traditional job boards are flooded with AI application bots, fake phishing listings, and 'spray-and-pray' spam. On Special Sauce, every active candidate and employer completes Stripe Identity and corporate domain verification before any application or invitation connects—so real professionals deal strictly with real hiring teams.
             </p>
           </div>
 
@@ -108,7 +108,7 @@ export default function LandingPage() {
               </span>
               <br />
               <span className="sm:whitespace-nowrap">
-                100% ID-Verified. Protected Pitch Credits.
+                Human-to-Human. Protected Invitation Credits.
               </span>
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
@@ -168,7 +168,7 @@ export default function LandingPage() {
               Skip the resume pile.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Stop sifting through hundreds of unqualified applications. Candidates pre-qualify against your role using our 5-Point AI Fit Radar across Core Competencies, Skill Tenure, Logistics &amp; Pay, Credentials, and Communication—so only high-fit, verified talent reaches your desk.
+              Stop wasting hours sifting through bots and unqualified 'Easy Apply' spam. Every applicant on Special Sauce is an ID-verified human who has already cleared a 40%+ baseline match across your required skills, dealbreakers, and pay band—so your team can skip the resume pile and interview viable professionals.
             </p>
           </div>
 
@@ -196,7 +196,7 @@ export default function LandingPage() {
               You hold the keys.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Explore your true market value without risking your current role. Set your minimum compensation, work model, and search availability upfront—and let verified employers pitch you directly before you ever reveal your identity or resume.
+              Explore your true market value without risking your current role. Set your minimum compensation, work model, and search availability upfront—and receive direct Professional Invitations from verified employers before you ever reveal your identity or resume.
             </p>
           </div>
         </div>
@@ -448,7 +448,7 @@ export default function LandingPage() {
                   2. See Your Fit &amp; Get Discovered
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Browse transparent pay bands and run instant 5-Point AI Fit Radar™ checks for free. When you are ready to submit a protected application or accept an employer pitch, start your $0 30-Day Free Trial (including 1-time Stripe ID verification).
+                  Browse transparent pay bands and preview how your skills align using our 5-Point AI Fit Radar™ for free. When you are ready to submit a protected application or accept a Professional Invitation from an employer, start your $0 30-Day Free Trial (including 1-time Stripe ID verification).
                 </p>
               </div>
 
@@ -516,7 +516,7 @@ export default function LandingPage() {
                   1. Post Roles in Seconds
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Upload any job description to structure your role, search our anonymous talent pool, and run 5-Point AI Fit Radar™ checks for $0 upfront. Your company name stays private until you connect with a candidate.
+                  Upload any job description to structure your role, search our anonymous talent directory, and preview candidate alignment with 5-Point AI Fit Radar™ checks for $0 upfront. Your company name stays private until you send a Professional Invitation or unlock an applicant.
                 </p>
               </div>
 
@@ -538,10 +538,10 @@ export default function LandingPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-3">
-                  2. 40% Fit Gate &amp; Protected Pitches
+                  2. 40% Anti-Spam Baseline &amp; Protected Invitations
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Start your $0 30-Day Founding Partner Trial when you are ready to publish live roles or pitch candidates. Our 40% AI Fit threshold blocks spam, and 100% Accepted-Only Pitch Credit Protection ensures you only use a credit when a candidate accepts.
+                  Start your $0 30-Day Founding Partner Trial when you are ready to publish live roles or send Professional Invitations. Our 40% baseline match blocks unqualified spam, and 100% Accepted-Only Invitation Credit Protection ensures you only use a credit when a professional accepts.
                 </p>
               </div>
 
