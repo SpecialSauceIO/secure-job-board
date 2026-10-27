@@ -246,17 +246,14 @@ export function CandidateJobFeed({
             serverMatches[jId] = v
           }
         }
-        if (Object.keys(serverMatches).length === 0) {
-          // Server cache was wiped/reset -> clear stale browser localStorage!
-          try {
-            localStorage.removeItem('ss_cand_match_results_v1')
-          } catch {}
-          setMatchResults({})
-        } else {
-          setMatchResults(serverMatches)
-          try {
-            localStorage.setItem('ss_cand_match_results_v1', JSON.stringify(serverMatches))
-          } catch {}
+        if (Object.keys(serverMatches).length > 0) {
+          setMatchResults((prev) => {
+            const merged = { ...serverMatches, ...prev }
+            try {
+              localStorage.setItem('ss_cand_match_results_v1', JSON.stringify(merged))
+            } catch {}
+            return merged
+          })
         }
       })
       .catch(() => {})

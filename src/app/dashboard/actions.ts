@@ -2905,14 +2905,7 @@ async function readUserMatchCache(userId: string): Promise<Record<string, any>> 
   const adminDb = getAdminSupabaseClient()
   if (!adminDb || !userId) return {}
   try {
-    const fileName = `${userId}.json`
-    const { data: list } = await adminDb.storage
-      .from('resumes')
-      .list(MATCH_CACHE_PREFIX, { search: fileName, limit: 5 })
-    const exists = (list || []).some((f) => f.name === fileName)
-    if (!exists) return {}
-
-    const path = `${MATCH_CACHE_PREFIX}/${fileName}`
+    const path = `${MATCH_CACHE_PREFIX}/${userId}.json`
     const { data, error } = await adminDb.storage.from('resumes').download(path)
     if (!error && data) {
       const parsed = JSON.parse(await data.text())
@@ -3014,7 +3007,7 @@ export async function analyzeJobFit(jobId: string, forceRefresh: boolean = false
   )
 
   if (res?.data) {
-    writeUserMatchCacheEntry(user.id, cacheKey, res.data).catch(() => {})
+    await writeUserMatchCacheEntry(user.id, cacheKey, res.data)
     recordHandshakeTelemetry({
       handshakeId: 'ai_fit_radar_engine',
       label: '5-Point AI Fit Radar & Dealbreakers',
@@ -3098,7 +3091,7 @@ export async function analyzeCandidateFit(
   )
 
   if (res?.data) {
-    writeUserMatchCacheEntry(user.id, cacheKey, res.data).catch(() => {})
+    await writeUserMatchCacheEntry(user.id, cacheKey, res.data)
   }
   return res
 }
