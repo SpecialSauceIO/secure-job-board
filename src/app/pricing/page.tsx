@@ -5,7 +5,7 @@ import { PublicFooter } from "@/components/PublicFooter"
 export const metadata = {
   title: "Pricing, Plans & Founding Partner Rates | specialsauce.io",
   description:
-    "Start with a 30-Day Free Trial ($0.00 Due Today) on any 100% ID-Verified Special Sauce Candidate plan ($3, $9, or $15/mo after) or Employer Founding Partner plan ($149, $499, or $1,250/mo after).",
+    "Start with a 30-Day Free Trial ($0 Due Today) on any 100% ID-Verified Special Sauce Candidate plan ($3, $9, or $15/mo after) or Employer Founding Partner plan ($149, $499, or $1,250/mo after).",
 }
 
 export default function PricingMatrixPage() {
@@ -23,7 +23,7 @@ export default function PricingMatrixPage() {
             Transparent Plans • 30-Day Free Trial ($0 Today)
           </h1>
           <p className="text-base sm:text-lg text-slate-200 max-w-2xl mx-auto leading-relaxed">
-            Explore the marketplace and run <strong className="text-white">5-Point AI Fit Radar™ checks for free</strong>. Every plan includes a <strong className="text-emerald-300">30-Day Free Trial ($0.00 due today)</strong>—cancel anytime before Day 30.
+            Explore the marketplace and run <strong className="text-white">5-Point AI Fit Radar™ checks for free</strong>. Every plan includes a <strong className="text-emerald-300">30-Day Free Trial ($0 due today)</strong>—cancel anytime before Day 30.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-3 text-left">
             <div className="p-4 rounded-xl bg-slate-900/90 border border-indigo-500/40">
@@ -91,7 +91,7 @@ export default function PricingMatrixPage() {
                   <span>🛡️ 100% ID-Verified Marketplace • Zero Bots, Scams, or Ghost Jobs</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  Start With a 30-Day Free Trial ($0.00 Due Today) on Any Candidate Plan
+                  Start With a 30-Day Free Trial ($0 Due Today) on Any Candidate Plan
                 </h2>
                 <ul className="space-y-1.5 pt-1 text-sm sm:text-base text-slate-200">
                   <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-white">Free Profile Seeding:</strong> Build your anonymous skill matrix and run 5-Point AI Fit checks at $0 upfront.</span></li>
@@ -297,7 +297,7 @@ export default function PricingMatrixPage() {
                   <span>★ 12-Month Employer Founding Partner Rate Lock (First 100 Verified Organizations)</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  30-Day Free Trial ($0.00 Today) + Up to 50% Off Retail for Your First 12 Months
+                  30-Day Free Trial ($0 Today) + Up to 50% Off Retail for Your First 12 Months
                 </h2>
                 <ul className="space-y-1.5 pt-1 text-sm sm:text-base text-slate-200">
                   <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-amber-300">12-Month Rate Lock:</strong> Lock in $149 / $499 / $1,250 per month for your first 12 months (standard retail applies Month 13).</span></li>

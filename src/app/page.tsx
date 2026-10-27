@@ -112,7 +112,7 @@ export default function LandingPage() {
               </span>
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Every Candidate and Employer plan starts with a <strong className="text-slate-700">30-Day Free Trial ($0.00 due today)</strong>. Candidates earn a permanent <strong className="text-slate-700">★ Founding Member badge</strong>, and Employers lock in <strong className="text-slate-700">12-Month Founding Partner Rates</strong>.
+              Every Candidate and Employer plan starts with a <strong className="text-slate-700">30-Day Free Trial ($0 due today)</strong>. Candidates earn a permanent <strong className="text-slate-700">★ Founding Member badge</strong>, and Employers lock in <strong className="text-slate-700">12-Month Founding Partner Rates</strong>.
             </p>
           </div>
 
@@ -448,7 +448,7 @@ export default function LandingPage() {
                   2. See Your Fit &amp; Get Discovered
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Browse transparent pay bands and run instant 5-Point AI Fit Radar™ checks for free. When you are ready to submit a protected application or accept an employer pitch, start your $0.00 30-Day Free Trial (including 1-time Stripe ID verification).
+                  Browse transparent pay bands and run instant 5-Point AI Fit Radar™ checks for free. When you are ready to submit a protected application or accept an employer pitch, start your $0 30-Day Free Trial (including 1-time Stripe ID verification).
                 </p>
               </div>
 
@@ -541,7 +541,7 @@ export default function LandingPage() {
                   2. 40% Fit Gate &amp; Protected Pitches
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Start your $0.00 30-Day Founding Partner Trial when you are ready to publish live roles or pitch candidates. Our 40% AI Fit threshold blocks spam, and 100% Accepted-Only Pitch Credit Protection ensures you only use a credit when a candidate accepts.
+                  Start your $0 30-Day Founding Partner Trial when you are ready to publish live roles or pitch candidates. Our 40% AI Fit threshold blocks spam, and 100% Accepted-Only Pitch Credit Protection ensures you only use a credit when a candidate accepts.
                 </p>
               </div>
 
@@ -612,7 +612,7 @@ export default function LandingPage() {
                 Verified People &amp; Real Companies
               </h3>
               <p className="text-slate-500 leading-relaxed">
-                Candidates and employers can build profiles and run AI Fit checks for free, then complete 1-time Stripe Identity verification with a $0.00 30-Day Free Trial before applying, pitching, or posting live jobs—eliminating bots, fake profiles, and scam listings.
+                Candidates and employers can build profiles and run AI Fit checks for free, then complete 1-time Stripe Identity verification with a $0 30-Day Free Trial before applying, pitching, or posting live jobs—eliminating bots, fake profiles, and scam listings.
               </p>
             </div>
 

@@ -132,10 +132,10 @@ export default function CandidateBillingPage() {
         type: 'success',
         text:
           selectParam === 'prestige'
-            ? 'Welcome to Special Sauce: Start your 30-Day Free Trial of Prestige ($0.00 due today, $15/mo after) below to unlock 1-Time Biometric ID Verification, unlimited protected applications, and top-priority search placement.'
+            ? 'Welcome to Special Sauce: Start your 30-Day Free Trial of Prestige ($0 due today, $15/mo after) below to unlock 1-Time Biometric ID Verification, unlimited protected applications, and top-priority search placement.'
             : selectParam === 'professional'
-            ? 'Welcome to Special Sauce: Start your 30-Day Free Trial of Professional ($0.00 due today, $9/mo after) below to unlock 1-Time Biometric ID Verification and 15 monthly protected applications.'
-            : 'Welcome to Special Sauce: Start your 30-Day Free Trial of Explorer ($0.00 due today, $3/mo after) below to unlock 1-Time Biometric ID Verification and unlimited inbound employer pitch acceptances.',
+            ? 'Welcome to Special Sauce: Start your 30-Day Free Trial of Professional ($0 due today, $9/mo after) below to unlock 1-Time Biometric ID Verification and 15 monthly protected applications.'
+            : 'Welcome to Special Sauce: Start your 30-Day Free Trial of Explorer ($0 due today, $3/mo after) below to unlock 1-Time Biometric ID Verification and unlimited inbound employer pitch acceptances.',
       })
     }
   }, [loadCandidateBillingState])

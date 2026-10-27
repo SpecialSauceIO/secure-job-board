@@ -243,7 +243,7 @@ export async function checkAndRecordStripeIdentityCircuitBreaker(params: {
     return {
       allowed: false,
       reason:
-        "1-Time Stripe Identity Verification unlocks automatically as soon as you start your $0.00 30-Day Free Trial (Explorer, Professional, or Prestige) with a valid card on file on your Billing page.",
+        "1-Time Stripe Identity Verification unlocks automatically as soon as you start your $0 30-Day Free Trial (Explorer, Professional, or Prestige) with a valid card on file on your Billing page.",
     }
   }
 

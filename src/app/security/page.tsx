@@ -160,7 +160,7 @@ export default function SecurityTrustPage() {
                 Ready to Join the 100% ID-Verified Marketplace?
               </h3>
               <p className="text-base text-slate-100">
-                Build your profile or stage roles for free, then start a 30-Day Free Trial ($0.00 due today) on any Candidate or Employer Founding Partner plan.
+                Build your profile or stage roles for free, then start a 30-Day Free Trial ($0 due today) on any Candidate or Employer Founding Partner plan.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3 shrink-0">

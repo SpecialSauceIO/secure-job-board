@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 for (const line of fs.readFileSync(".env.local", "utf8").split(/\r?\n/)) {
   const m = line.match(/^([^#=]+)=(.*)$/);
   if (m && !process.env[m[1].trim()]) {
-    process.env[m[1].trim()] = m[2].trim().replace(/^['"]|['"]$/g, "");
+    process.env[m[1].trim()] = m[2].trim().replace(/^[\x27"]|[\x27"]$/g, "");
   }
 }
 
@@ -42,6 +42,7 @@ const emptyWithPrestigeMeta = [
   },
 ];
 
+// 1. Reset Candidate (Alex Mercer)
 await supabase
   .from("profiles")
   .update({
@@ -57,42 +58,35 @@ await supabase
   })
   .eq("id", alexUser.id);
 
-// 1. Delete all applications for Alex
+// 2. Delete all applications & pitches for Alex and Apex Cloud Systems jobs
 await supabase.from("applications").delete().eq("candidate_id", alexUser.id);
 
-// 2. Wipe Alex's server-side AI Match Cache in Supabase Storage ('resumes' bucket)
-const { data: buckets } = await supabase.storage.listBuckets();
-for (const b of buckets || []) {
-  for (const prefix of ["_isolated_match_cache_v3", "match-cache-v4", "match-cache-v3"]) {
-    await supabase.storage.from(b.name).remove([`${prefix}/${alexUser.id}.json`]);
+const { data: orgRow } = await supabase
+  .from("organizations")
+  .select("id")
+  .ilike("name", "%Apex Cloud Systems%")
+  .maybeSingle();
+
+if (orgRow?.id) {
+  const { data: orgJobs } = await supabase
+    .from("jobs")
+    .select("id")
+    .eq("organization_id", orgRow.id);
+  const jobIds = (orgJobs || []).map((j) => j.id);
+  if (jobIds.length > 0) {
+    await supabase.from("applications").delete().in("job_id", jobIds);
   }
 }
 
-// 3. Ensure Principal DevSecOps & Platform Engineer also has structured_requirements so it never shows "General role competencies"
-const { data: devSecJob } = await supabase
-  .from("jobs")
-  .select("id, structured_requirements")
-  .ilike("title", "%Principal DevSecOps%")
-  .maybeSingle();
-
-if (devSecJob) {
-  const existingMeta = Array.isArray(devSecJob.structured_requirements)
-    ? devSecJob.structured_requirements.filter((r) => r && r._ss_job_meta === true)
-    : [];
-  await supabase
-    .from("jobs")
-    .update({
-      structured_requirements: [
-        ...existingMeta,
-        { skill: "Kubernetes", level: "Expert", years: 6 },
-        { skill: "AWS", level: "Expert", years: 6 },
-        { skill: "Terraform", level: "Advanced", years: 5 },
-        { skill: "Docker", level: "Advanced", years: 5 },
-        { skill: "CI/CD", level: "Advanced", years: 5 },
-      ],
-    })
-    .eq("id", devSecJob.id);
+// 3. Wipe ALL server-side AI Match Cache files (Candidate & Employer) in Supabase Storage
+const prefixes = ["_isolated_match_cache_v3", "_ss_match_cache_v4", "match-cache-v4", "match-cache-v3", "match-cache-v2", "match-cache"];
+for (const prefix of prefixes) {
+  const { data: files } = await supabase.storage.from("resumes").list(prefix, { limit: 200 });
+  if (files && files.length > 0) {
+    const paths = files.map((f) => `${prefix}/${f.name}`);
+    await supabase.storage.from("resumes").remove(paths);
+  }
 }
 
-console.log("✓ Alex Mercer reset (Name: Alex Mercer, Step 1 at top, ★ Prestige active, Applications & AI Match History wiped)!");
+console.log("Reset complete: Alex Mercer & Apex Cloud Systems pipelines and AI match caches wiped.");
 process.exit(0);
