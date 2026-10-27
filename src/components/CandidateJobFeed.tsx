@@ -1058,7 +1058,7 @@ export function CandidateJobFeed({
                           href="/dashboard/billing"
                           className="px-3.5 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors text-center"
                         >
-                          Upgrade to Pro ($9/mo) →
+                          Start $0 30-Day Trial →
                         </Link>
                       )}
                     </div>
