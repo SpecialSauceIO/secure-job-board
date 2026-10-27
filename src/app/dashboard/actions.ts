@@ -1910,7 +1910,7 @@ export async function applyBlind(formData: FormData) {
     const isExplorer = candidateTier.tier === 'explorer' || candidateTier.tier === 'free'
     return {
       error: isExplorer
-        ? 'Active Membership Required: Upgrade to Candidate Professional ($9/mo for 15 monthly protected applications) or Prestige ($15/mo for unlimited protected applications) on your Membership & Billing page to submit outbound protected applications.'
+        ? '30-Day Free Trial Required ($0.00 Due Today): Start your 30-Day Free Trial of Candidate Professional ($0.00 today, then $9/mo for 15 monthly applications) or Prestige ($0.00 today, then $15/mo for unlimited applications) on your Membership & Billing page to submit outbound protected applications.'
         : `Monthly Application Quota Reached (${CANDIDATE_TRIAL_MAX_APPS}/${CANDIDATE_TRIAL_MAX_APPS} Used): Upgrade to Candidate Prestige ($15/mo) on your Membership & Billing page to unlock Unlimited Outbound Protected Applications.`,
     }
   }
