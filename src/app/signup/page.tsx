@@ -68,14 +68,14 @@ export default async function SignupSelectionPage({
                   </svg>
                 </div>
                 <span className="px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-extrabold uppercase tracking-wider">
-                  30-Day Free Trial ($0 Today) • 100% Human-to-Human
+                  30-Day Free Trial • 100% Human-to-Human
                 </span>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">
                 I&apos;m a Candidate
               </h3>
               <p className="text-slate-500 leading-relaxed text-sm">
-                Build your anonymous skill matrix and run 5-Point AI Fit checks for free. Start a 30-Day Free Trial ($0 today) on Explorer ($3/mo after), Professional ($9/mo after), or Prestige ($15/mo after) when ready to connect.
+                Build your anonymous skill matrix and run 5-Point AI Fit checks for free. Start a 30-Day Free Trial on Explorer ($3/mo after), Professional ($9/mo after), or Prestige ($15/mo after) when ready to connect.
               </p>
               <div className="mt-5 sm:mt-6 flex items-center text-indigo-600 font-bold text-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-hover:translate-x-1 transition-all">
                 Create Verified Candidate Vault

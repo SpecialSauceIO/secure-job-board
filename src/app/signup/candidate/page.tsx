@@ -45,10 +45,10 @@ export default function CandidateSignupPage({
             </h2>
             <p className="mt-1.5 text-sm text-slate-500 font-medium">
               {selectedPlan === 'prestige'
-                ? 'Create your free account to stage your profile and start your 30-Day Free Trial of Prestige ($0 today • $15/mo after).'
+                ? 'Create your free account to stage your profile and start your 30-Day Free Trial of Prestige ($15/mo after).'
                 : selectedPlan === 'professional'
-                  ? 'Create your free account to stage your profile and start your 30-Day Free Trial of Professional ($0 today • $9/mo after).'
-                  : 'Create your free account to stage your anonymous skill matrix and start your 30-Day Free Trial of Explorer ($0 today • $3/mo after).'}
+                  ? 'Create your free account to stage your profile and start your 30-Day Free Trial of Professional ($9/mo after).'
+                  : 'Create your free account to stage your anonymous skill matrix and start your 30-Day Free Trial of Explorer ($3/mo after).'}
             </p>
           </div>
 
@@ -169,10 +169,10 @@ export default function CandidateSignupPage({
                 className="w-full flex justify-center items-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 transition-all cursor-pointer"
               >
                 {selectedPlan === 'prestige'
-                  ? 'Start 30-Day Free Trial ($0 Today • $15/mo After) →'
+                  ? 'Start 30-Day Free Trial ($15/mo After) →'
                   : selectedPlan === 'professional'
-                    ? 'Start 30-Day Free Trial ($0 Today • $9/mo After) →'
-                    : 'Create Free Vault & Start $0 30-Day Trial →'}
+                    ? 'Start 30-Day Free Trial ($9/mo After) →'
+                    : 'Create Free Vault & Start 30-Day Free Trial →'}
               </button>
             </div>
 

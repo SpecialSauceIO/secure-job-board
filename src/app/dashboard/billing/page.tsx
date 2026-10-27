@@ -136,10 +136,10 @@ export default function CandidateBillingPage() {
         type: 'success',
         text:
           selectParam === 'prestige'
-            ? 'Welcome to Special Sauce: Start your 30-Day Free Trial of Prestige ($0 due today, $15/mo after) below to unlock 1-Time Biometric ID Verification, unlimited protected applications, and top-priority search placement.'
+            ? 'Welcome to Special Sauce: Start your 30-Day Free Trial of Prestige ($15/mo after) below to unlock 1-Time Biometric ID Verification, unlimited protected applications, and top-priority search placement.'
             : selectParam === 'professional'
-            ? 'Welcome to Special Sauce: Start your 30-Day Free Trial of Professional ($0 due today, $9/mo after) below to unlock 1-Time Biometric ID Verification and 15 monthly protected applications.'
-            : 'Welcome to Special Sauce: Start your 30-Day Free Trial of Explorer ($0 due today, $3/mo after) below to unlock 1-Time Biometric ID Verification and unlimited inbound Professional Invitation acceptances.',
+            ? 'Welcome to Special Sauce: Start your 30-Day Free Trial of Professional ($9/mo after) below to unlock 1-Time Biometric ID Verification and 15 monthly protected applications.'
+            : 'Welcome to Special Sauce: Start your 30-Day Free Trial of Explorer ($3/mo after) below to unlock 1-Time Biometric ID Verification and unlimited inbound Professional Invitation acceptances.',
       })
     }
   }, [loadCandidateBillingState])
@@ -440,7 +440,7 @@ export default function CandidateBillingPage() {
               >
                 {normalizedTier === 'explorer'
                   ? '✓ Explorer Plan Active ($3/mo)'
-                  : 'Start 30-Day Free Trial ($0 Today • $3/mo After) →'}
+                  : 'Start 30-Day Free Trial ($3/mo After) →'}
               </button>
             </div>
           </div>
@@ -507,7 +507,7 @@ export default function CandidateBillingPage() {
               >
                 {normalizedTier === 'professional'
                   ? `✓ Professional Plan Active (${tierInfo?.freeAppsRemaining ?? 15}/15 Apps Left)`
-                  : 'Start 30-Day Free Trial ($0 Today • $9/mo After) →'}
+                  : 'Start 30-Day Free Trial ($9/mo After) →'}
               </button>
             </div>
           </div>
@@ -572,7 +572,7 @@ export default function CandidateBillingPage() {
               >
                 {normalizedTier === 'prestige'
                   ? '✓ Prestige Plan Active (Unlimited Apps)'
-                  : 'Start 30-Day Free Trial ($0 Today • $15/mo After) →'}
+                  : 'Start 30-Day Free Trial ($15/mo After) →'}
               </button>
             </div>
           </div>

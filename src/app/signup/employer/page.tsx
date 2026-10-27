@@ -222,12 +222,12 @@ export default function EmployerSignupPage({
                 }`}
               >
                 {selectedPlan === 'enterprise'
-                  ? 'Start 30-Day Free Trial ($0 Today • $1,250/mo After) →'
+                  ? 'Start 30-Day Free Trial ($1,250/mo After) →'
                   : selectedPlan === 'growth'
-                    ? 'Start 30-Day Free Trial ($0 Today • $499/mo After) →'
+                    ? 'Start 30-Day Free Trial ($499/mo After) →'
                     : selectedPlan === 'starter'
-                      ? 'Start 30-Day Free Trial ($0 Today • $149/mo After) →'
-                      : 'Create Free Employer Account ($0 Today) →'}
+                      ? 'Start 30-Day Free Trial ($149/mo After) →'
+                      : 'Create Free Employer Account →'}
               </button>
             </div>
 

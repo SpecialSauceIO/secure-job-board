@@ -171,7 +171,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* SLIDE 5 (Slide #6): $0 Upfront Staging + 30-Day Free Trial - LOGO ORANGE */}
+          {/* SLIDE 5 (Slide #6): Free Profile Staging + 30-Day Free Trial - LOGO ORANGE */}
           <div
             className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
               currentSlide === 5
@@ -184,7 +184,7 @@ export default function LandingPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#EA580C]"></span>
               </span>
-              $0 Upfront Profile &amp; Role Staging • 30-Day Free Trial
+              Free Profile &amp; Role Staging • 30-Day Free Trial
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mb-4">
               Test Your{' '}
@@ -192,10 +192,10 @@ export default function LandingPage() {
                 True Market Fit.
               </span>
               <br />
-              30-Day Free Trial. $0 Due Today.
+              30-Day Free Trial. Cancel Anytime.
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Stage your anonymous profile or open roles and run unlimited 5-Point AI Fit Radar checks at $0 upfront. When you find a match worth pursuing, start your 30-Day Free Trial ($0 due today) to unlock verified applications and refund-protected Professional Invitations.
+              Stage your anonymous profile or open roles and run unlimited 5-Point AI Fit Radar checks for free. When you find a match worth pursuing, start your 30-Day Free Trial to unlock verified applications and refund-protected Professional Invitations.
             </p>
           </div>
         </div>
@@ -422,7 +422,7 @@ export default function LandingPage() {
                   1. Build Your Private Profile
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Upload your resume for free to automatically extract your skill matrix, experience, education, and language proficiencies—while keeping your name and contact details hidden. Your anonymous profile is immediately Vault-Staged in Employer Search at $0 upfront.
+                  Upload your resume for free to automatically extract your skill matrix, experience, education, and language proficiencies—while keeping your name and contact details hidden. Your anonymous profile is immediately Vault-Staged in Employer Search for free.
                 </p>
               </div>
 
@@ -447,7 +447,7 @@ export default function LandingPage() {
                   2. See Your Fit &amp; Get Discovered
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Browse transparent pay bands and preview how your skills align using our 5-Point AI Fit Radar™ for free. When you are ready to submit a protected application or accept a Professional Invitation from an employer, start your $0 30-Day Free Trial (including 1-time Stripe ID verification).
+                  Browse transparent pay bands and preview how your skills align using our 5-Point AI Fit Radar™ for free. When you are ready to submit a protected application or accept a Professional Invitation from an employer, start your 30-Day Free Trial (including 1-time Stripe ID verification).
                 </p>
               </div>
 
@@ -515,7 +515,7 @@ export default function LandingPage() {
                   1. Post Roles in Seconds
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Upload any job description to structure your role, search our anonymous talent directory, and preview candidate alignment with 5-Point AI Fit Radar™ checks for $0 upfront. Your company name stays private until you send a Professional Invitation or unlock an applicant.
+                  Upload any job description to structure your role, search our anonymous talent directory, and preview candidate alignment with 5-Point AI Fit Radar™ checks for free. Your company name stays private until you send a Professional Invitation or unlock an applicant.
                 </p>
               </div>
 
@@ -540,7 +540,7 @@ export default function LandingPage() {
                   2. 40% Anti-Spam Baseline &amp; Protected Invitations
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Start your $0 30-Day Founding Partner Trial when you are ready to publish live roles or send Professional Invitations. Our 40% baseline match blocks unqualified spam, and 100% Accepted-Only Invitation Credit Protection ensures you only use a credit when a professional accepts.
+                  Start your 30-Day Founding Partner Trial when you are ready to publish live roles or send Professional Invitations. Our 40% baseline match blocks unqualified spam, and 100% Accepted-Only Invitation Credit Protection ensures you only use a credit when a professional accepts.
                 </p>
               </div>
 
@@ -611,7 +611,7 @@ export default function LandingPage() {
                 Verified People &amp; Real Companies
               </h3>
               <p className="text-slate-500 leading-relaxed">
-                Candidates and employers can build profiles and run AI Fit checks for free, then complete 1-time Stripe Identity verification with a $0 30-Day Free Trial before applying, pitching, or posting live jobs—eliminating bots, fake profiles, and scam listings.
+                Candidates and employers can build profiles and run AI Fit checks for free, then complete 1-time Stripe Identity verification with a 30-Day Free Trial before applying, pitching, or posting live jobs—eliminating bots, fake profiles, and scam listings.
               </p>
             </div>
 

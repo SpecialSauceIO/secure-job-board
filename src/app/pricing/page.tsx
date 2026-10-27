@@ -5,7 +5,7 @@ import { PublicFooter } from "@/components/PublicFooter"
 export const metadata = {
   title: "Pricing, Plans & Founding Partner Rates | specialsauce.io",
   description:
-    "Start with a 30-Day Free Trial ($0 Due Today) on any Special Sauce Human-to-Human Candidate plan ($3, $9, or $15/mo after) or Employer Founding Partner plan ($149, $499, or $1,250/mo after).",
+    "Start with a 30-Day Free Trial on any Special Sauce Human-to-Human Candidate plan ($3, $9, or $15/mo after) or Employer Founding Partner plan ($149, $499, or $1,250/mo after).",
 }
 
 export default function PricingMatrixPage() {
@@ -17,13 +17,13 @@ export default function PricingMatrixPage() {
         {/* Hero Header */}
         <section className="py-10 sm:py-14 md:py-20 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-300 text-amber-800 text-xs sm:text-sm font-extrabold uppercase tracking-wide">
-            <span>★ 30-Day Free Trial ($0 Due Today) • 100% Human-to-Human Hiring &amp; Founding Partner Rates</span>
+            <span>★ 30-Day Free Trial • 100% Human-to-Human Hiring &amp; Founding Partner Rates</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
-            Transparent Plans • 30-Day Free Trial ($0 Today)
+            Transparent Plans • 30-Day Free Trial
           </h1>
           <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Connect directly with ID-verified professionals and domain-verified employers—with <strong className="text-slate-900">zero bots, zero ghost jobs, and free 5-Point AI Fit Radar™ checks</strong>. Every plan includes a <strong className="text-emerald-700 dark:text-emerald-400">30-Day Free Trial ($0 due today)</strong>—cancel anytime before Day 30.
+            Connect directly with ID-verified professionals and domain-verified employers—with <strong className="text-slate-900">zero bots, zero ghost jobs, and free 5-Point AI Fit Radar™ checks</strong>. Every plan includes a <strong className="text-emerald-700 dark:text-emerald-400">30-Day Free Trial</strong>—cancel anytime before Day 30.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-3 text-left">
             <div className="p-4 rounded-xl bg-slate-900 border border-indigo-500/40 shadow-sm">
@@ -91,10 +91,10 @@ export default function PricingMatrixPage() {
                   <span>🛡️ 100% Human-to-Human Marketplace • Zero Bots, Scams, or Ghost Jobs</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  Start With a 30-Day Free Trial ($0 Due Today) on Any Candidate Plan
+                  Start With a 30-Day Free Trial on Any Candidate Plan
                 </h2>
                 <ul className="space-y-1.5 pt-1 text-sm sm:text-base text-slate-200">
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-white">Free Profile Seeding:</strong> Build your anonymous skill matrix and run 5-Point AI Fit checks at $0 upfront.</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-white">Free Profile Seeding:</strong> Build your anonymous skill matrix and run 5-Point AI Fit checks for free.</span></li>
                   <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-emerald-300">Explorer ($3/mo after trial):</strong> Unlock 1-time Stripe ID Verification &amp; accept unlimited inbound Professional Invitations.</span></li>
                   <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-amber-300">Professional ($9/mo) &amp; Prestige ($15/mo):</strong> Proactively submit protected applications + earn Founding Member status.</span></li>
                 </ul>
@@ -104,7 +104,7 @@ export default function PricingMatrixPage() {
                   href="/signup/candidate"
                   className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm sm:text-base font-extrabold transition-colors shadow-md"
                 >
-                  Start 30-Day Free Trial ($0 Today) →
+                  Start 30-Day Free Trial →
                 </Link>
               </div>
             </div>
@@ -129,7 +129,7 @@ export default function PricingMatrixPage() {
                       <span className="text-sm font-bold text-slate-300">/ month</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ 30-Day Free Trial ($0 Today)
+                      ✓ 30-Day Free Trial
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -162,7 +162,7 @@ export default function PricingMatrixPage() {
                   href="/signup/candidate?plan=explorer"
                   className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
                 >
-                  Start 30-Day Free Trial ($0 Today • $3/mo After) →
+                  Start 30-Day Free Trial ($3/mo After) →
                 </Link>
               </div>
 
@@ -184,7 +184,7 @@ export default function PricingMatrixPage() {
                       <span className="text-sm font-bold text-slate-300">/ month</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ 30-Day Free Trial ($0 Today)
+                      ✓ 30-Day Free Trial
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -221,7 +221,7 @@ export default function PricingMatrixPage() {
                   href="/signup/candidate?plan=professional"
                   className="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
                 >
-                  Start 30-Day Free Trial ($0 Today • $9/mo After) →
+                  Start 30-Day Free Trial ($9/mo After) →
                 </Link>
               </div>
 
@@ -243,7 +243,7 @@ export default function PricingMatrixPage() {
                       <span className="text-sm font-bold text-slate-300">/ month</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ 30-Day Free Trial ($0 Today)
+                      ✓ 30-Day Free Trial
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -280,7 +280,7 @@ export default function PricingMatrixPage() {
                   href="/signup/candidate?plan=prestige"
                   className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
                 >
-                  Start 30-Day Free Trial ($0 Today • $15/mo After) →
+                  Start 30-Day Free Trial ($15/mo After) →
                 </Link>
               </div>
             </div>
@@ -297,7 +297,7 @@ export default function PricingMatrixPage() {
                   <span>★ 12-Month Employer Founding Partner Rate Lock (First 100 Verified Organizations)</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  30-Day Free Trial ($0 Today) + Up to 50% Off Retail for Your First 12 Months
+                  30-Day Free Trial + Up to 50% Off Retail for Your First 12 Months
                 </h2>
                 <ul className="space-y-1.5 pt-1 text-sm sm:text-base text-slate-200">
                   <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-amber-300">12-Month Rate Lock:</strong> Lock in $149 / $499 / $1,250 per month for your first 12 months (standard retail applies Month 13).</span></li>
@@ -310,7 +310,7 @@ export default function PricingMatrixPage() {
                   href="/signup/employer"
                   className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm sm:text-base font-extrabold transition-colors shadow-md"
                 >
-                  Start 30-Day Free Trial ($0 Today) →
+                  Start 30-Day Free Trial →
                 </Link>
               </div>
             </div>
@@ -336,7 +336,7 @@ export default function PricingMatrixPage() {
                       <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ 30-Day Free Trial ($0 Today)
+                      ✓ 30-Day Free Trial
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -377,7 +377,7 @@ export default function PricingMatrixPage() {
                   href="/signup/employer?plan=starter"
                   className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
                 >
-                  Start 30-Day Free Trial ($0 Today • $149/mo After) →
+                  Start 30-Day Free Trial ($149/mo After) →
                 </Link>
               </div>
 
@@ -400,7 +400,7 @@ export default function PricingMatrixPage() {
                       <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ 30-Day Free Trial ($0 Today)
+                      ✓ 30-Day Free Trial
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -441,7 +441,7 @@ export default function PricingMatrixPage() {
                   href="/signup/employer?plan=growth"
                   className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
                 >
-                  Start 30-Day Free Trial ($0 Today • $499/mo After) →
+                  Start 30-Day Free Trial ($499/mo After) →
                 </Link>
               </div>
 
@@ -464,7 +464,7 @@ export default function PricingMatrixPage() {
                       <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ 30-Day Free Trial ($0 Today)
+                      ✓ 30-Day Free Trial
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -505,7 +505,7 @@ export default function PricingMatrixPage() {
                   href="/signup/employer?plan=enterprise"
                   className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
                 >
-                  Start 30-Day Free Trial ($0 Today • $1,250/mo After) →
+                  Start 30-Day Free Trial ($1,250/mo After) →
                 </Link>
               </div>
             </div>

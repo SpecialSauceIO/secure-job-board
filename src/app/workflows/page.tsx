@@ -18,7 +18,7 @@ export default function WorkflowsPage() {
           <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2.5 max-w-2xl">
               <span className="inline-block px-3 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-extrabold uppercase tracking-wider">
-                Free Upfront Seeding • 30-Day Free Trial ($0 Today) • Intro/Convo Privacy Vault
+                Free Upfront Seeding • 30-Day Free Trial • Intro/Convo Privacy Vault
               </span>
               <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
                 How Special Sauce Works{' '}
@@ -27,7 +27,7 @@ export default function WorkflowsPage() {
                 </span>
               </h1>
               <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                Build your profile or stage open roles and run <strong>5-Point AI Fit Radar™</strong> checks for <strong>$0 upfront</strong>. When you are ready to connect, start a <strong>30-Day Free Trial ($0 due today)</strong> backed by 1-time real-person ID verification and our Intro/Convo Privacy Handshake.
+                Build your profile or stage open roles and run <strong>5-Point AI Fit Radar™</strong> checks for <strong>free</strong>. When you are ready to connect, start a <strong>30-Day Free Trial</strong> backed by 1-time real-person ID verification and our Intro/Convo Privacy Handshake.
               </p>
             </div>
             <div className="shrink-0">
@@ -85,7 +85,7 @@ export default function WorkflowsPage() {
                   </div>
                   <div>
                     <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-400">
-                      Free Profile Seeding • 30-Day Free Trial ($0 Today) • Intro/Convo Privacy Vault
+                      Free Profile Seeding • 30-Day Free Trial • Intro/Convo Privacy Vault
                     </span>
                     <h2 className="text-xl sm:text-2xl font-black text-white">
                       Candidate Workflow: Free Seeding to Protected Offers
@@ -105,7 +105,7 @@ export default function WorkflowsPage() {
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
                   <div className="space-y-4">
                     <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-indigo-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 1 • Free Profile Seeding ($0)
+                      Step 1 • Free Profile Seeding
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
                       1. Create Free Account &amp; Upload Resume
@@ -113,7 +113,7 @@ export default function WorkflowsPage() {
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span>Sign up for free ($0 upfront, no credit card required to stage your vault).</span>
+                        <span>Sign up for free (no credit card required to stage your vault).</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
@@ -163,7 +163,7 @@ export default function WorkflowsPage() {
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
                   <div className="space-y-4">
                     <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-indigo-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 3 • 30-Day Free Trial ($0 Today)
+                      Step 3 • 30-Day Free Trial
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
                       3. Start Your 30-Day Free Trial When Ready
@@ -171,7 +171,7 @@ export default function WorkflowsPage() {
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span>When an employer sends you a Professional Invitation or you find a role to apply to, start a <strong>30-Day Free Trial ($0 due today)</strong>.</span>
+                        <span>When an employer sends you a Professional Invitation or you find a role to apply to, start a <strong>30-Day Free Trial</strong>.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
@@ -184,7 +184,7 @@ export default function WorkflowsPage() {
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ $0 30-Day Trial, Invitation Unlocks &amp; Outbound Applications
+                    Unlocks: ✓ 30-Day Free Trial, Invitation Unlocks &amp; Outbound Applications
                   </div>
                 </div>
 
@@ -255,7 +255,7 @@ export default function WorkflowsPage() {
                   </div>
                   <div>
                     <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400">
-                      Free Talent Discovery • 30-Day Free Trial ($0 Today) • Accepted-Only Invitation Guarantee
+                      Free Talent Discovery • 30-Day Free Trial • Accepted-Only Invitation Guarantee
                     </span>
                     <h2 className="text-xl sm:text-2xl font-black text-white">
                       Employer Workflow: Free Staging to Verified Hiring
@@ -275,7 +275,7 @@ export default function WorkflowsPage() {
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
                   <div className="space-y-4">
                     <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-emerald-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 1 • Free Workspace &amp; Search ($0)
+                      Step 1 • Free Workspace &amp; Search
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
                       1. Stage Roles &amp; Search Anonymous Talent Free
@@ -283,7 +283,7 @@ export default function WorkflowsPage() {
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Create your employer workspace for free ($0 upfront) and select your Industry Vertical and company size.</span>
+                        <span>Create your employer workspace for free and select your Industry Vertical and company size.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
@@ -291,7 +291,7 @@ export default function WorkflowsPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Search the anonymous talent pool and run <strong>5-Point AI Fit Radar™</strong> checks on candidates for $0.</span>
+                        <span>Search the anonymous talent pool and run <strong>5-Point AI Fit Radar™</strong> checks on candidates for free.</span>
                       </li>
                     </ul>
                   </div>
@@ -336,12 +336,12 @@ export default function WorkflowsPage() {
                       Step 3 • 30-Day Trial &amp; Pillars 2–3
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
-                      3. Start $0 30-Day Trial, EIN &amp; Admin ID Check
+                      3. Start 30-Day Free Trial, EIN &amp; Admin ID Check
                     </h3>
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Start your <strong>30-Day Free Trial ($0 due today)</strong> and lock in 12-Month Founding Partner Rates: <strong>Starter ($149/mo)</strong>, <strong>Growth ($499/mo)</strong>, or <strong>Enterprise ($1,250/mo)</strong>.</span>
+                        <span>Start your <strong>30-Day Free Trial</strong> and lock in 12-Month Founding Partner Rates: <strong>Starter ($149/mo)</strong>, <strong>Growth ($499/mo)</strong>, or <strong>Enterprise ($1,250/mo)</strong>.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
@@ -354,7 +354,7 @@ export default function WorkflowsPage() {
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ $0 30-Day Trial, 12-Mo Rate Lock &amp; 3-Pillar Verified Shield
+                    Unlocks: ✓ 30-Day Free Trial, 12-Mo Rate Lock &amp; 3-Pillar Verified Shield
                   </div>
                 </div>
 

@@ -1918,7 +1918,7 @@ export async function applyBlind(formData: FormData) {
     const isExplorer = candidateTier.tier === 'explorer' || candidateTier.tier === 'free'
     return {
       error: isExplorer
-        ? '30-Day Free Trial Required ($0 Due Today): Start your 30-Day Free Trial of Professional ($0 today, then $9/mo for 15 monthly applications) or Prestige ($0 today, then $15/mo for unlimited applications) on your Membership & Billing page to submit outbound protected applications.'
+        ? '30-Day Free Trial Required: Start your 30-Day Free Trial of Professional ($9/mo after trial for 15 monthly applications) or Prestige ($15/mo after trial for unlimited applications) on your Membership & Billing page to submit outbound protected applications.'
         : `Monthly Application Quota Reached (${CANDIDATE_TRIAL_MAX_APPS}/${CANDIDATE_TRIAL_MAX_APPS} Used): Upgrade to Prestige ($15/mo) on your Membership & Billing page to unlock Unlimited Outbound Protected Applications.`,
     }
   }
@@ -2804,7 +2804,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
   if (!hasActiveCandidatePlan) {
     return {
       error:
-        'Subscription Required: Please activate Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo) with a 30-Day Free Trial ($0 due today) on Plans & Billing before accepting Professional Invitations.',
+        'Subscription Required: Please activate Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo) with a 30-Day Free Trial on Plans & Billing before accepting Professional Invitations.',
     }
   }
 

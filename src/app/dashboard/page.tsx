@@ -1093,7 +1093,7 @@ export default async function DashboardPage({
               <p className="mt-0.5 text-xs text-slate-600">
                 {hasActiveTrialOrPlan
                   ? "Your 30-Day Free Trial is active! Complete your 1-time Stripe Photo ID check now to earn the Biometric ID Verified badge, rank #1 in Employer Search, and apply or accept pitches."
-                  : "Employers can already discover your anonymous skill matrix and run AI Fit checks. Start your $0 30-Day Free Trial (Explorer $3/mo, Professional $9/mo, or Prestige $15/mo after) to unlock 1-Time ID Verification, submit applications, and accept employer pitches."}
+                  : "Employers can already discover your anonymous skill matrix and run AI Fit checks. Start your 30-Day Free Trial (Explorer $3/mo, Professional $9/mo, or Prestige $15/mo after) to unlock 1-Time ID Verification, submit applications, and accept employer pitches."}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2.5 shrink-0">
@@ -1104,7 +1104,7 @@ export default async function DashboardPage({
                   href="/dashboard/billing"
                   className="inline-flex items-center justify-center rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2.5 text-xs font-extrabold text-white shadow-sm transition-colors"
                 >
-                  Start 30-Day Free Trial ($0 Today) →
+                  Start 30-Day Free Trial →
                 </Link>
               )}
             </div>

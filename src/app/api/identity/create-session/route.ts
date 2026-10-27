@@ -62,7 +62,7 @@ export async function POST(req: Request) {
         return NextResponse.json(
           {
             error:
-              '1-Time Admin Stripe Identity Verification unlocks automatically as soon as you activate your $0 30-Day Founding Partner Free Trial (with a corporate card on file) on Billing & Plans.',
+              '1-Time Admin Stripe Identity Verification unlocks automatically as soon as you activate your 30-Day Founding Partner Free Trial (with a corporate card on file) on Billing & Plans.',
           },
           { status: 403 }
         )

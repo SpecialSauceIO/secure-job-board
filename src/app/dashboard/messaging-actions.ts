@@ -82,7 +82,7 @@ function checkCandidateActivePlanAndVerification(profileObj: any): {
     return {
       allowed: false,
       error:
-        'Subscription Required: Please activate Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo) with a 30-Day Free Trial ($0 due today) on Plans & Billing to message employers or unlock invitations.',
+        'Subscription Required: Please activate Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo) with a 30-Day Free Trial on Plans & Billing to message employers or unlock invitations.',
     }
   }
 
