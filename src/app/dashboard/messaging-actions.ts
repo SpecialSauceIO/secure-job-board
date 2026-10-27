@@ -366,12 +366,17 @@ export async function checkEmployerSilentUnlockQuota(organizationId: string): Pr
 
   const silentUnlocks = (unlockedApps || []).filter((app: any) => {
     if (app.status === 'rejected' || app.status === 'declined') return false
-    const messages = Array.isArray(app.match_data?.messages)
-      ? app.match_data.messages
-      : []
+    const md = app.match_data || {}
+    const messages = Array.isArray(md.messages) ? md.messages : []
     const hasEmployerMessage = messages.some(
       (m: any) => m.sender_role === 'employer'
     )
+    const hasCandidateReply = messages.some(
+      (m: any) => m.sender_role === 'candidate'
+    )
+    if (md.employer_boilerplate_blast === true && !hasCandidateReply && !md.candidate_vault_released) {
+      return true
+    }
     return !hasEmployerMessage
   })
 
@@ -528,6 +533,73 @@ export async function sendApplicationMessage(
   }
 
   const updatedMessages = [...existingMessages, newMsg]
+  const hadPriorEmployerMsg = existingMessages.some(
+    (m: any) => m.sender_role === 'employer'
+  )
+
+  // Silent Behavioral Check: Detect verbatim copy-pasted employer intro blasts across 4+ candidate threads
+  let isBoilerplateBlast = Boolean(existingMatchData.employer_boilerplate_blast)
+  if (senderRole === 'employer' && !hadPriorEmployerMsg && jobObj?.organization_id) {
+    const normalizeText = (s: string) =>
+      String(s || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim()
+    const normalizedCurrent = normalizeText(trimmed)
+
+    if (normalizedCurrent.length >= 12) {
+      const { data: orgJobs } = await supabase
+        .from('jobs')
+        .select('id')
+        .eq('organization_id', jobObj.organization_id)
+      const orgJobIds = (orgJobs || []).map((j: any) => j.id)
+
+      if (orgJobIds.length > 0) {
+        const { data: recentOrgApps } = await supabase
+          .from('applications')
+          .select('id, match_data')
+          .in('job_id', orgJobIds)
+          .neq('id', applicationId)
+          .limit(40)
+
+        let identicalIntroCount = 0
+        for (const otherApp of recentOrgApps || []) {
+          const otherMsgs = Array.isArray(otherApp?.match_data?.messages)
+            ? otherApp.match_data.messages
+            : []
+          const firstEmpMsg = otherMsgs.find(
+            (m: any) => m && m.sender_role === 'employer'
+          )
+          if (
+            firstEmpMsg &&
+            normalizeText(firstEmpMsg.text) === normalizedCurrent
+          ) {
+            identicalIntroCount++
+          }
+        }
+
+        if (identicalIntroCount >= 3) {
+          isBoilerplateBlast = true
+          await raiseSecurityAlertAndFlag({
+            flagType: 'Manual_Trust_Audit',
+            severity: 'medium',
+            actorEmail: user.email || 'employer-user',
+            actorRole: 'employer',
+            userId: user.id,
+            organizationId: jobObj.organization_id,
+            platformArea: 'Anti-Harvesting Behavioral Telemetry',
+            summary: `Employer sent identical verbatim intro message across ${identicalIntroCount + 1} candidate threads`,
+            evidenceSnippet: `Org ${orgObj?.name || jobObj.organization_id} pasted identical intro in thread ${applicationId.slice(0, 8)}: "${trimmed.slice(0, 180)}"`,
+            createSecTicket: true,
+          })
+        }
+      }
+    }
+  } else if (senderRole === 'candidate') {
+    // Once a candidate replies back, it is a genuine 2-way conversation
+    isBoilerplateBlast = false
+  }
+
   const employerMessagedAt =
     senderRole === 'employer'
       ? existingMatchData.employer_messaged_at || nowIso
@@ -551,6 +623,7 @@ export async function sendApplicationMessage(
     ...existingMatchData,
     messages: updatedMessages,
     employer_messaged_at: employerMessagedAt,
+    employer_boilerplate_blast: isBoilerplateBlast,
     last_message_at: nowIso,
     last_message_sender: senderRole,
     ...(resolvedCandidateEmail

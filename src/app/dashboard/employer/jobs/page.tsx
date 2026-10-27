@@ -88,6 +88,12 @@ function enrichJobForManagementTable(job: any): EnrichedEmployerJobRow {
     const hasEmployerMsg =
       Boolean(md.employer_messaged_at) ||
       msgs.some((m: any) => m && m.sender_role === 'employer')
+    const hasCandidateReply =
+      Boolean(md.candidate_vault_released) ||
+      msgs.some((m: any) => m && m.sender_role === 'candidate')
+    if (md.employer_boilerplate_blast === true && !hasCandidateReply) {
+      return true
+    }
     return !hasEmployerMsg
   }).length
 
@@ -309,8 +315,10 @@ export default async function JobManagementPage() {
       .select('id, initiated_by, status, match_data')
       .eq('job_id', jobId)
 
-    const unactionedApps = (jobApps || []).filter((a: any) => {
-      if (a.initiated_by === 'employer') return false
+    const inboundJobApps = (jobApps || []).filter(
+      (a: any) => a.initiated_by !== 'employer'
+    )
+    const unactionedApps = inboundJobApps.filter((a: any) => {
       const st = String(a?.status || 'pending').toLowerCase()
       if (st === 'rejected' || st === 'declined') return false
       const md = a?.match_data || {}
@@ -318,12 +326,37 @@ export default async function JobManagementPage() {
       const hasEmployerMsg =
         Boolean(md.employer_messaged_at) ||
         msgs.some((m: any) => m && m.sender_role === 'employer')
+      const hasCandidateReply =
+        Boolean(md.candidate_vault_released) ||
+        msgs.some((m: any) => m && m.sender_role === 'candidate')
+      if (md.employer_boilerplate_blast === true && !hasCandidateReply) {
+        return true
+      }
       return !hasEmployerMsg
     })
 
     if (unactionedApps.length > 0) {
       revalidatePath('/dashboard/employer/jobs')
       return
+    }
+
+    // Gate 3c: If a role has 5+ inbound applicants, require real pipeline decisions
+    // (at least 1 two-way thread/Stage 2 vault unlock OR formal declines on non-fits)
+    if (inboundJobApps.length >= 5) {
+      const hasRealProgressionOrDecision = inboundJobApps.some((a: any) => {
+        const st = String(a?.status || 'pending').toLowerCase()
+        if (st === 'rejected' || st === 'declined') return true
+        const md = a?.match_data || {}
+        const msgs = Array.isArray(md.messages) ? md.messages : []
+        return (
+          Boolean(md.candidate_vault_released) ||
+          msgs.some((m: any) => m && m.sender_role === 'candidate')
+        )
+      })
+      if (!hasRealProgressionOrDecision) {
+        revalidatePath('/dashboard/employer/jobs')
+        return
+      }
     }
 
     const nowIso = new Date().toISOString()

@@ -4206,12 +4206,127 @@ export async function createStructuredJob(formData: FormData) {
     ? Math.round(parseFloat(salary_max_raw.toString()))
     : null
 
-  const structured_requirements = buildJobRequirementsWithMeta(formData)
+  let structured_requirements = buildJobRequirementsWithMeta(formData)
   const visibleSkillReqs = filterVisibleJobRequirements(structured_requirements)
   if (visibleSkillReqs.length < 3) {
     return {
       error: `Minimum 3 Core Skills Required: Please enter at least 3 core skills in Section 4 (currently ${visibleSkillReqs.length} added) so the 5-Point AI Fit engine can accurately score candidates.`,
     }
+  }
+
+  // 90-Day Recycled Role Fingerprint Check (Prevents closing & re-uploading the same PDF to bypass the 2-renewal cap)
+  const normTitle = String(title || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+  const newSkillSet = new Set(
+    visibleSkillReqs
+      .map((r: any) =>
+        String(r.skill || r.name || '')
+          .toLowerCase()
+          .trim()
+      )
+      .filter(Boolean)
+  )
+
+  const ninetyDaysAgoIso = new Date(
+    Date.now() - 90 * 24 * 60 * 60 * 1000
+  ).toISOString()
+  const { data: recentOrgJobs } = await supabase
+    .from('jobs')
+    .select('id, title, is_active, created_at, structured_requirements')
+    .eq('organization_id', currentMember.organization_id)
+    .gte('created_at', ninetyDaysAgoIso)
+
+  let inheritedRenewalCount = 0
+  let matchedPriorJobId: string | null = null
+
+  for (const oldJob of recentOrgJobs || []) {
+    const oldNormTitle = String(oldJob.title || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+    const oldVisibleSkills = filterVisibleJobRequirements(
+      oldJob.structured_requirements
+    )
+      .map((r: any) =>
+        String(r.skill || r.name || '')
+          .toLowerCase()
+          .trim()
+      )
+      .filter(Boolean)
+
+    const overlapCount = oldVisibleSkills.filter((s: string) =>
+      newSkillSet.has(s)
+    ).length
+    const skillOverlapRatio =
+      Math.max(newSkillSet.size, 1) > 0
+        ? overlapCount / Math.min(Math.max(newSkillSet.size, 1), Math.max(oldVisibleSkills.length, 1))
+        : 0
+
+    const isSameRoleFingerprint =
+      (oldNormTitle === normTitle && skillOverlapRatio >= 0.5) ||
+      skillOverlapRatio >= 0.8
+
+    if (isSameRoleFingerprint) {
+      const oldMeta = Array.isArray(oldJob.structured_requirements)
+        ? oldJob.structured_requirements.find(
+            (r: any) => r && typeof r === 'object' && r._ss_job_meta === true
+          )
+        : null
+      const priorRenewals = Math.max(0, Number(oldMeta?.renewal_count) || 0)
+      const effectiveCarryover = oldJob.is_active
+        ? priorRenewals
+        : Math.max(1, priorRenewals + 1)
+
+      if (effectiveCarryover > inheritedRenewalCount) {
+        inheritedRenewalCount = effectiveCarryover
+        matchedPriorJobId = oldJob.id
+      }
+    }
+  }
+
+  if (inheritedRenewalCount > 2) {
+    await raiseSecurityAlertAndFlag({
+      flagType: 'Manual_Trust_Audit',
+      severity: 'high',
+      actorEmail: user.email || 'employer-user',
+      actorRole: 'employer',
+      userId: user.id,
+      organizationId: currentMember.organization_id,
+      platformArea: '90-Day Role Fingerprint Guardrail',
+      summary: `Blocked recycled job re-upload after exhausting 90-day / 2-renewal limit: "${title}"`,
+      evidenceSnippet: `Employer attempted to re-upload "${title}" matching prior job ${matchedPriorJobId} within 90-day cooldown window.`,
+      createSecTicket: true,
+    })
+    return {
+      error:
+        '90-Day Role Cooldown Active: This role matches a listing from your organization that has already completed its maximum 90-day (2-renewal) cycle. To prevent evergreen resume harvesting, identical roles cannot be re-uploaded during the cooldown window.',
+    }
+  }
+
+  if (inheritedRenewalCount > 0) {
+    structured_requirements = structured_requirements.map((item: any) =>
+      item && typeof item === 'object' && item._ss_job_meta === true
+        ? {
+            ...item,
+            renewal_count: inheritedRenewalCount,
+            recycled_from_job_id: matchedPriorJobId,
+          }
+        : item
+    )
+    await raiseSecurityAlertAndFlag({
+      flagType: 'Manual_Trust_Audit',
+      severity: 'low',
+      actorEmail: user.email || 'employer-user',
+      actorRole: 'employer',
+      userId: user.id,
+      organizationId: currentMember.organization_id,
+      platformArea: '90-Day Role Fingerprint Guardrail',
+      summary: `Recycled role detected ("${title}") — carried over renewal count (${inheritedRenewalCount}/2)`,
+      evidenceSnippet: `New listing matched recent org job ${matchedPriorJobId}. Renewal counter preserved at ${inheritedRenewalCount}/2 so closing & re-uploading does not reset the 90-day clock.`,
+      createSecTicket: false,
+    })
   }
 
   const { error } = await supabase.from('jobs').insert({
