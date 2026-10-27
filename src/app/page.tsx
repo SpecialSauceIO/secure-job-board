@@ -293,41 +293,41 @@ export default function LandingPage() {
           />
         </div>
 
-        {/* High-Visibility Operational Trust Strip — Frameless with Thin Vertical Dividers */}
+        {/* High-Visibility Operational Trust Strip — Frameless with Crisp Vertical Dividers */}
         <div className="mt-12 w-full max-w-5xl z-20 relative">
-          <div className="grid grid-cols-2 lg:grid-cols-4 lg:divide-x divide-slate-400 dark:divide-white/70 py-2">
-            <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
-              <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
+          <div className="grid grid-cols-2 lg:grid-cols-4 py-2">
+            <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center border-r border-slate-300">
+              <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-[0.14em]">
                 100% US-Based Company
               </span>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+              <span className="text-[11px] text-slate-600 font-semibold mt-0.5">
                 US-Owned &amp; Operated
               </span>
             </div>
 
-            <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
-              <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
+            <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center lg:border-r border-slate-300">
+              <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-[0.14em]">
                 100% US Human Support
               </span>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+              <span className="text-[11px] text-slate-600 font-semibold mt-0.5">
                 Zero Offshore Call Centers
               </span>
             </div>
 
-            <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
-              <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
+            <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center border-r border-slate-300">
+              <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-[0.14em]">
                 Daily-Calibrated AI
               </span>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+              <span className="text-[11px] text-slate-600 font-semibold mt-0.5">
                 Tested Daily for Accuracy
               </span>
             </div>
 
             <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
-              <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
+              <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-[0.14em]">
                 Intro/Convo Privacy Vault
               </span>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+              <span className="text-[11px] text-slate-600 font-semibold mt-0.5">
                 Stripe ID &amp; DNS Verified
               </span>
             </div>
