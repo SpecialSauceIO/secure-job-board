@@ -97,7 +97,7 @@ export default function LandingPage() {
           >
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-50 border border-sky-300 text-[#0284C7] text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs">
               <span className="text-[#0284C7]">★</span>
-              Early-Access Launch • Founding Memberships Open
+              30-Day Free Trial ($0 Due Today) • Founding Memberships Open
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-[3.35rem] font-extrabold text-slate-900 tracking-tight leading-[1.12] max-w-6xl mb-4">
               <span className="sm:whitespace-nowrap">
@@ -112,7 +112,7 @@ export default function LandingPage() {
               </span>
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Join during our launch window to claim a <strong className="text-slate-700">permanent ★ Founding Member Charter distinction</strong> on your candidate profile, <strong className="text-slate-700">12-Month Founding Partner Rate Locks</strong> for employers, and <strong className="text-slate-700">100% Accepted-Only Pitch Credit Protection</strong>.
+              Start with a <strong className="text-slate-700">$0.00 30-Day Free Trial</strong> during our launch window to claim a <strong className="text-slate-700">permanent ★ Founding Member Charter distinction</strong> on your candidate profile, <strong className="text-slate-700">12-Month Founding Partner Rate Locks</strong> for employers, and <strong className="text-slate-700">100% Accepted-Only Pitch Credit Protection</strong>.
             </p>
           </div>
 
@@ -232,9 +232,13 @@ export default function LandingPage() {
             href="/pricing"
             className="px-6 py-3.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-sm sm:text-base font-extrabold rounded-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-1.5"
           >
-            ★ Compare Plans &amp; Perks
+            ★ 30-Day Free Trial • Plans &amp; Perks
           </Link>
         </div>
+
+        <p className="mt-3.5 text-xs sm:text-sm font-bold text-slate-600 z-20 relative">
+          <span className="text-emerald-600 font-extrabold">✓ $0.00 Due Today:</span> Build your anonymous profile, stage roles, and run 5-Point AI Fit Radar™ checks for free—then start a 30-Day Free Trial when ready to connect.
+        </p>
 
         {/* 6 Slide Indicators - Alternating Logo Blue & Logo Orange */}
         <div className="flex gap-2 mt-5 z-20 relative">
@@ -423,7 +427,7 @@ export default function LandingPage() {
                   1. Build Your Private Profile
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Upload your resume to automatically extract your skills, experience, education, licenses, and written/verbal language proficiencies—while keeping your name and contact details hidden. Set your minimum pay and dealbreakers upfront.
+                  Upload your resume for free to automatically extract your skill matrix, experience, education, and language proficiencies—while keeping your name and contact details hidden. Your anonymous profile is immediately Vault-Staged in Employer Search at $0 upfront.
                 </p>
               </div>
 
@@ -448,7 +452,7 @@ export default function LandingPage() {
                   2. See Your Fit &amp; Get Discovered
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Every listing displays transparent pay bands (annual or hourly) upfront. Check your instant 5-Point AI Fit Radar™ score (40% minimum match threshold) before applying anonymously—or let verified employers pitch you directly in our passive talent pool.
+                  Browse transparent pay bands and run instant 5-Point AI Fit Radar™ checks for free. When you are ready to submit a protected application or accept an employer pitch, start your $0.00 30-Day Free Trial (including 1-time Stripe ID verification).
                 </p>
               </div>
 
@@ -516,7 +520,7 @@ export default function LandingPage() {
                   1. Post Roles in Seconds
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Upload any existing job description and let our assistant organize the required skills, experience, certifications, languages, and US metro location for you. Your company name stays private until you connect with a candidate.
+                  Upload any job description to structure your role, search our anonymous talent pool, and run 5-Point AI Fit Radar™ checks for $0 upfront. Your company name stays private until you connect with a candidate.
                 </p>
               </div>
 
@@ -541,7 +545,7 @@ export default function LandingPage() {
                   2. 40% Fit Gate &amp; Protected Pitches
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Our 5-Point AI Fit Radar™ enforces a 40% minimum match threshold so unqualified spam never reaches your inbox. When you pitch passive talent directly, 100% Accepted-Only Pitch Credit Protection ensures you only use a credit when a candidate accepts.
+                  Start your $0.00 30-Day Founding Partner Trial when you are ready to publish live roles or pitch candidates. Our 40% AI Fit threshold blocks spam, and 100% Accepted-Only Pitch Credit Protection ensures you only use a credit when a candidate accepts.
                 </p>
               </div>
 
@@ -612,7 +616,7 @@ export default function LandingPage() {
                 Verified People &amp; Real Companies
               </h3>
               <p className="text-slate-500 leading-relaxed">
-                Every candidate and employer is verified before they can apply or post jobs—eliminating bots, fake profiles, and scam job listings while keeping sensitive personal data off our servers.
+                Candidates and employers can build profiles and run AI Fit checks for free, then complete 1-time Stripe Identity verification with a $0.00 30-Day Free Trial before applying, pitching, or posting live jobs—eliminating bots, fake profiles, and scam listings.
               </p>
             </div>
 
