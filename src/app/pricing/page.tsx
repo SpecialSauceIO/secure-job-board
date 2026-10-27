@@ -16,21 +16,21 @@ export default function PricingMatrixPage() {
 
         {/* Hero Header */}
         <section className="py-10 sm:py-14 md:py-20 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wide">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-300 text-amber-800 text-xs sm:text-sm font-extrabold uppercase tracking-wide">
             <span>★ 30-Day Free Trial ($0 Due Today) • 100% Human-to-Human Hiring &amp; Founding Partner Rates</span>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight">
+          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
             Transparent Plans • 30-Day Free Trial ($0 Today)
           </h1>
-          <p className="text-base sm:text-lg text-slate-200 max-w-2xl mx-auto leading-relaxed">
-            Connect directly with ID-verified professionals and domain-verified employers—with <strong className="text-white">zero bots, zero ghost jobs, and free 5-Point AI Fit Radar™ checks</strong>. Every plan includes a <strong className="text-emerald-300">30-Day Free Trial ($0 due today)</strong>—cancel anytime before Day 30.
+          <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Connect directly with ID-verified professionals and domain-verified employers—with <strong className="text-slate-900">zero bots, zero ghost jobs, and free 5-Point AI Fit Radar™ checks</strong>. Every plan includes a <strong className="text-emerald-700 dark:text-emerald-400">30-Day Free Trial ($0 due today)</strong>—cancel anytime before Day 30.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-3 text-left">
-            <div className="p-4 rounded-xl bg-slate-900/90 border border-indigo-500/40">
+            <div className="p-4 rounded-xl bg-slate-900 border border-indigo-500/40 shadow-sm">
               <div className="text-xs font-extrabold uppercase tracking-wider text-indigo-300 mb-1">For Candidates ($3 / $9 / $15 mo)</div>
               <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">Build your anonymous skill matrix free. Includes 1-time <strong className="text-white">Stripe Real-Person ID Verification</strong> &amp; permanent <strong className="text-amber-300">★ Founding Member</strong> badge.</p>
             </div>
-            <div className="p-4 rounded-xl bg-slate-900/90 border border-emerald-500/40">
+            <div className="p-4 rounded-xl bg-slate-900 border border-emerald-500/40 shadow-sm">
               <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-300 mb-1">For Employers ($149 / $499 / $1,250 mo)</div>
               <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">Lock in <strong className="text-amber-300">12-Month Founding Partner Rates</strong> (up to 50% off retail) &amp; <strong className="text-white">100% Accepted-Only Invitation Protection</strong>.</p>
             </div>
@@ -38,39 +38,39 @@ export default function PricingMatrixPage() {
 
           {/* Frameless Operational Trust Strip — Matching Landing Page Vertical Hairlines */}
           <div className="pt-6 w-full max-w-5xl mx-auto">
-            <div className="grid grid-cols-2 lg:grid-cols-4 lg:divide-x divide-slate-400 dark:divide-white/70 py-2">
-              <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
-                <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
+            <div className="grid grid-cols-2 lg:grid-cols-4 py-2">
+              <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center border-r border-slate-300">
+                <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-[0.14em]">
                   100% US-Based Company
                 </span>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                <span className="text-[11px] text-slate-600 font-semibold mt-0.5">
                   US-Owned &amp; Operated
                 </span>
               </div>
 
-              <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
-                <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
+              <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center lg:border-r border-slate-300">
+                <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-[0.14em]">
                   100% US Human Support
                 </span>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                <span className="text-[11px] text-slate-600 font-semibold mt-0.5">
                   Zero Offshore Call Centers
                 </span>
               </div>
 
-              <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
-                <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
+              <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center border-r border-slate-300">
+                <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-[0.14em]">
                   Human-to-Human Hiring
                 </span>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                <span className="text-[11px] text-slate-600 font-semibold mt-0.5">
                   Zero Automated Rejections
                 </span>
               </div>
 
               <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
-                <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
+                <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-[0.14em]">
                   Intro/Convo Privacy Vault
                 </span>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                <span className="text-[11px] text-slate-600 font-semibold mt-0.5">
                   Stripe ID &amp; DNS Verified
                 </span>
               </div>
