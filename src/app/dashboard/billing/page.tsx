@@ -64,12 +64,16 @@ export default function CandidateBillingPage() {
       resolveCandidateTierInfo(user.id),
     ])
 
-    const verified = Boolean(
-      profile?.identity_verified === true ||
-        String(profile?.identity_verified) === 'true' ||
-        profile?.is_verified === true ||
-        String(profile?.is_verified) === 'true'
-    )
+    const hasActivePaidOrTrialTier =
+      Boolean(info?.tier) && info.tier !== 'free'
+    const verified =
+      hasActivePaidOrTrialTier &&
+      Boolean(
+        profile?.identity_verified === true ||
+          String(profile?.identity_verified) === 'true' ||
+          profile?.is_verified === true ||
+          String(profile?.is_verified) === 'true'
+      )
 
     setIsVerified(verified)
     setTierInfo(info)
@@ -208,6 +212,9 @@ export default function CandidateBillingPage() {
       setFeedback({ type: 'error', text: res.error })
     } else if (res?.tierInfo) {
       setTierInfo(res.tierInfo)
+      if (res.tierInfo.tier === 'free') {
+        setIsVerified(false)
+      }
       setFeedback({
         type: 'success',
         text: res.message || 'Membership plan updated.',

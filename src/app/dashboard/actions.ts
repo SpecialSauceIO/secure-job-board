@@ -639,9 +639,17 @@ export async function activateSandboxCandidateTier(
     ...(existingPrefMeta ? [existingPrefMeta] : []),
   ]
 
+  const updatePayload: Record<string, any> = {
+    structured_skills: updatedSkillsArray,
+  }
+  if (normalizedMode === 'free') {
+    updatePayload.is_verified = false
+    updatePayload.identity_verified = false
+  }
+
   const { error } = await supabase
     .from('profiles')
-    .update({ structured_skills: updatedSkillsArray })
+    .update(updatePayload)
     .eq('id', user.id)
 
   if (error) return { error: error.message }
@@ -2415,8 +2423,29 @@ export async function getCandidateConnectionRequests() {
     return { data: [], error: error?.message || null }
   }
 
+  const [{ data: candProfile }, tierInfo] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('identity_verified, is_verified')
+      .eq('id', user.id)
+      .maybeSingle(),
+    resolveCandidateTierInfo(user.id),
+  ])
+
+  const hasActiveCandidatePlan = ['explorer', 'professional', 'prestige', 'trial', 'pro'].includes(
+    String(tierInfo?.tier || 'free')
+  )
+  const isCandIdVerified = Boolean(
+    candProfile?.identity_verified === true ||
+      String(candProfile?.identity_verified) === 'true' ||
+      candProfile?.is_verified === true ||
+      String(candProfile?.is_verified) === 'true'
+  )
+  const canEngageInvitations = hasActiveCandidatePlan && isCandIdVerified
+
   const enriched = requests.map((req: any) => {
-    const isAccepted = req.status === 'accepted' || req.is_revealed === true
+    const rawIsAccepted = req.status === 'accepted' || req.is_revealed === true
+    const isAccepted = canEngageInvitations && rawIsAccepted
     const enrichedJob = req.jobs ? enrichJobRecord(req.jobs) : null
 
     if (enrichedJob) {
@@ -2470,10 +2499,19 @@ export async function getCandidateConnectionRequests() {
       unlocked_candidate_email: isAccepted
         ? req.match_data?.candidate_contact_email || user.email || null
         : null,
+      can_engage_invitations: canEngageInvitations,
+      has_active_plan: hasActiveCandidatePlan,
+      is_candidate_verified: isCandIdVerified,
     }
   })
 
-  return { data: enriched, error: null }
+  return {
+    data: enriched,
+    canEngageInvitations,
+    hasActivePlan: hasActiveCandidatePlan,
+    isCandidateVerified: isCandIdVerified,
+    error: null,
+  }
 }
 
 export async function recalculatePitchMatch(applicationId: string) {
@@ -2756,6 +2794,17 @@ export async function respondToConnectionRequest(applicationId: string, decision
       storedStatus: 'rejected',
       referenceId,
       creditRefunded: refundedCreditNow,
+    }
+  }
+
+  const tierInfo = await resolveCandidateTierInfo(user.id)
+  const hasActiveCandidatePlan = ['explorer', 'professional', 'prestige', 'trial', 'pro'].includes(
+    String(tierInfo?.tier || 'free')
+  )
+  if (!hasActiveCandidatePlan) {
+    return {
+      error:
+        'Subscription Required: Please activate Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo) with a 30-Day Free Trial ($0 due today) on Plans & Billing before accepting Professional Invitations.',
     }
   }
 

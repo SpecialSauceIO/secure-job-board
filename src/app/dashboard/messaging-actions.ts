@@ -67,6 +67,43 @@ function formatReferenceId(applicationId: string): string {
   return `SS-${clean || '00000000'}`
 }
 
+function checkCandidateActivePlanAndVerification(profileObj: any): {
+  allowed: boolean
+  error?: string
+} {
+  const skillsArr = Array.isArray(profileObj?.structured_skills)
+    ? profileObj.structured_skills
+    : []
+  const metaItem = skillsArr.find((item: any) => item && item._ss_meta === true)
+  const rawPlan = String(metaItem?.plan || 'free').toLowerCase()
+  const hasActivePlan = ['explorer', 'professional', 'prestige', 'trial', 'pro'].includes(rawPlan)
+
+  if (!hasActivePlan) {
+    return {
+      allowed: false,
+      error:
+        'Subscription Required: Please activate Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo) with a 30-Day Free Trial ($0 due today) on Plans & Billing to message employers or unlock invitations.',
+    }
+  }
+
+  const isVerified = Boolean(
+    profileObj?.identity_verified === true ||
+      String(profileObj?.identity_verified) === 'true' ||
+      profileObj?.is_verified === true ||
+      String(profileObj?.is_verified) === 'true'
+  )
+
+  if (!isVerified) {
+    return {
+      allowed: false,
+      error:
+        'Verification Required: Please complete your 1-time Stripe Real-Person ID Verification on your Dashboard before messaging employers or releasing your vault.',
+    }
+  }
+
+  return { allowed: true }
+}
+
 function maskCandidateNameForStage1(fullName?: string | null): string {
   if (!fullName || !fullName.trim()) return 'Verified Candidate'
   const parts = fullName.trim().split(/\s+/)
@@ -441,6 +478,13 @@ export async function sendApplicationMessage(
     ? appRow.profiles[0]
     : appRow.profiles
 
+  if (isCandidate) {
+    const gate = checkCandidateActivePlanAndVerification(profileObj)
+    if (!gate.allowed) {
+      return { error: gate.error }
+    }
+  }
+
   const existingMatchData = appRow.match_data || {}
   const isVaultReleased = Boolean(existingMatchData.candidate_vault_released === true)
 
@@ -643,6 +687,10 @@ export async function releaseCandidateVaultToEmployer(
   const profileObj: any = Array.isArray(appRow.profiles)
     ? appRow.profiles[0]
     : appRow.profiles
+  const vaultGate = checkCandidateActivePlanAndVerification(profileObj)
+  if (!vaultGate.allowed) {
+    return { error: vaultGate.error }
+  }
   const jobObj: any = Array.isArray(appRow.jobs) ? appRow.jobs[0] : appRow.jobs
   const orgObj: any = Array.isArray(jobObj?.organizations)
     ? jobObj?.organizations[0]

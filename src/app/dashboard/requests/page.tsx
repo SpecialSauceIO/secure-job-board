@@ -62,6 +62,8 @@ export default function CandidateRequestsInboxPage() {
   const [itemsPerPage, setItemsPerPage] = useState<number>(5)
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [hasActivePlan, setHasActivePlan] = useState<boolean>(true)
+  const [isCandidateVerified, setIsCandidateVerified] = useState<boolean>(true)
   const [processingId, setProcessingId] = useState<string | null>(null)
   const [recalculatingId, setRecalculatingId] = useState<string | null>(null)
   const [decliningId, setDecliningId] = useState<string | null>(null)
@@ -84,9 +86,15 @@ export default function CandidateRequestsInboxPage() {
 
   const fetchRequests = async () => {
     setIsLoading(true)
-    const res = await getCandidateConnectionRequests()
+    const res: any = await getCandidateConnectionRequests()
     if (res?.data) {
       setRequests(res.data)
+    }
+    if (typeof res?.hasActivePlan === 'boolean') {
+      setHasActivePlan(res.hasActivePlan)
+    }
+    if (typeof res?.isCandidateVerified === 'boolean') {
+      setIsCandidateVerified(res.isCandidateVerified)
     }
     setIsLoading(false)
   }
@@ -285,6 +293,30 @@ export default function CandidateRequestsInboxPage() {
           Browse All Open Roles →
         </Link>
       </header>
+
+      {/* Subscription & Verification Gate Banner for Unsubscribed / Unverified Candidates */}
+      {!isLoading && (!hasActivePlan || !isCandidateVerified) && (
+        <div className="p-5 rounded-2xl bg-amber-50 border-2 border-amber-300 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-amber-900">
+              <span>🔒 Action Required to Unlock Employer Invitations &amp; Private Chat</span>
+            </div>
+            <p className="text-xs sm:text-sm text-amber-950 font-medium leading-relaxed">
+              {!hasActivePlan
+                ? 'Your account is currently in the Unsubscribed Vault. Activate Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo) — starting with a 30-Day Free Trial ($0 due today) — and complete 1-time Stripe ID Verification to accept invitations and message employers.'
+                : 'Your membership plan is active, but you must complete your 1-time Stripe Real-Person ID Verification on your Overview Dashboard before accepting invitations or opening private chat threads.'}
+            </p>
+          </div>
+          <Link
+            href={!hasActivePlan ? '/dashboard/billing' : '/dashboard'}
+            className="shrink-0 inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors shadow-xs"
+          >
+            {!hasActivePlan
+              ? 'Activate 30-Day Free Trial ($0 Today) →'
+              : 'Complete 1-Time ID Verification →'}
+          </Link>
+        </div>
+      )}
 
       {/* Filter Tabs */}
       <div className="bg-white p-4 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-wrap items-center justify-between gap-3 border-slate-300">
