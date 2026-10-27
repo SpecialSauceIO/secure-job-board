@@ -38,7 +38,7 @@ export default function CandidateSignupPage({
         <div className="w-full max-w-md rounded-2xl bg-white p-5 sm:p-10 shadow-sm border border-slate-300 border-t-4 border-t-indigo-600">
           <div className="text-center mb-6">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-300 text-indigo-700 text-[11px] font-extrabold uppercase tracking-wider mb-3">
-              🛡️ 2-Stage Identity Vault Protected
+              🛡️ Intro/Convo Identity Vault Protected
             </span>
             <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
               Candidate Sign Up
@@ -57,7 +57,7 @@ export default function CandidateSignupPage({
             <div className="flex items-start gap-2">
               <span className="text-emerald-600 font-black mt-0.5">✓</span>
               <span>
-                <strong className="text-slate-900">2-Stage Vault Control:</strong>{' '}
+                <strong className="text-slate-900">Intro/Convo Vault Control:</strong>{' '}
                 Chat in an encrypted thread first. Your raw email &amp; PDF resume stay locked until you click release.
               </span>
             </div>

@@ -379,7 +379,7 @@ export async function sendApplicationMessage(
       actorEmail: user.email || "authenticated-user",
       actorRole: "unknown",
       userId: user.id,
-      platformArea: "Encrypted Stage 1/2 Messaging",
+      platformArea: "Encrypted Intro/Convo Messaging",
       summary: safetyScan.reason || "Blocked phishing/off-platform lure in thread",
       evidenceSnippet: `Thread ${applicationId}: "${trimmed.slice(0, 180)}"`,
       createSecTicket: true,
@@ -449,8 +449,8 @@ export async function sendApplicationMessage(
     userEmail: user.email || '',
     actorRole: senderRole,
     text: trimmed,
-    platformArea: 'Encrypted Stage 1/2 Messaging',
-    contextLabel: `Stage 1 Encrypted Thread (${applicationId.slice(0, 8)})`,
+    platformArea: 'Encrypted Intro/Convo Messaging',
+    contextLabel: `The Introduction Encrypted Thread (${applicationId.slice(0, 8)})`,
     isStage2Unlocked: isVaultReleased,
   })
   if (stage1LeakScan.blocked) {
@@ -531,8 +531,8 @@ export async function sendApplicationMessage(
   if (updateErr) {
     await recordHandshakeTelemetry({
       handshakeId: 'marketplace_pitch_application_engine',
-      label: 'Stage 1/2 Encrypted Messaging Handshake',
-      platformArea: 'Encrypted Stage 1/2 Messaging',
+      label: 'Intro/Convo Encrypted Messaging Handshake',
+      platformArea: 'Encrypted Intro/Convo Messaging',
       ok: false,
       errorDetail: updateErr.message,
     })
@@ -540,8 +540,8 @@ export async function sendApplicationMessage(
   }
   await recordHandshakeTelemetry({
     handshakeId: 'marketplace_pitch_application_engine',
-    label: 'Stage 1/2 Encrypted Messaging Handshake',
-    platformArea: 'Encrypted Stage 1/2 Messaging',
+    label: 'Intro/Convo Encrypted Messaging Handshake',
+    platformArea: 'Encrypted Intro/Convo Messaging',
     ok: true,
   })
 

@@ -574,12 +574,12 @@ export function calculateEmployerGamification(
       title: 'Zero-Ghosting Feedback Leader',
       shortLabel: 'Zero-Ghosting',
       description:
-        'Eliminates candidate ghosting by recording clear Stage 1 decisions (shortlist, unlock, or structured pass) across 3+ applications.',
+        'Eliminates candidate ghosting by recording clear Introduction decisions (shortlist, unlock, or structured pass) across 3+ applications.',
       icon: '✓',
       unlocked: hasConstructiveFeedback,
       progressText: hasConstructiveFeedback
         ? 'Active'
-        : `Record Stage 1 decisions on 3 candidate applications (${Math.min(feedbackOrDecisionCount, 3)}/3 completed)`,
+        : `Record Introduction decisions on 3 candidate applications (${Math.min(feedbackOrDecisionCount, 3)}/3 completed)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {
@@ -597,15 +597,15 @@ export function calculateEmployerGamification(
     },
     {
       id: 'trusted_hiring_team',
-      title: 'Trusted Stage 2 Vault Partner',
+      title: 'Trusted Conversation Vault Partner',
       shortLabel: 'Vault Partner',
       description:
-        'Earned candidate trust in live Stage 1 chat, resulting in 3+ candidates voluntarily releasing their Stage 2 Resume & Contact Vault.',
+        'Earned candidate trust during The Introduction chat, resulting in 3+ candidates voluntarily releasing their Conversation Resume & Contact Vault.',
       icon: '✓',
       unlocked: isTrustedHiringTeam,
       progressText: isTrustedHiringTeam
         ? 'Active'
-        : `Earn 3 voluntary Stage 2 candidate resume vault releases (${Math.min(mutualVaultReleases.length, 3)}/3 completed)`,
+        : `Earn 3 voluntary Conversation candidate resume vault releases (${Math.min(mutualVaultReleases.length, 3)}/3 completed)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
   ]
@@ -614,7 +614,7 @@ export function calculateEmployerGamification(
   const rankData = resolveTierFromXp(unlockedCount, badges.length)
 
   const primaryBehavioralSignal = isTrustedHiringTeam
-    ? 'Trusted Stage 2 Vault Partner'
+    ? 'Trusted Conversation Vault Partner'
     : isResponsiveEmployer
     ? '48-Hour Rapid Responder'
     : isAdminIdVerified

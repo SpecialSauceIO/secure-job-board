@@ -326,7 +326,7 @@ export default function LandingPage() {
 
             <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
               <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
-                2-Stage Privacy Vault
+                Intro/Convo Privacy Vault
               </span>
               <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
                 Stripe ID &amp; DNS Verified
@@ -471,10 +471,10 @@ export default function LandingPage() {
                     </svg>
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 mb-3">
-                    3. 2-Stage Privacy Handshake
+                    3. The Intro/Convo Privacy Handshake
                   </h3>
                   <p className="text-slate-500 leading-relaxed">
-                    In Stage 1, you see the employer’s verified company name and chat directly on the platform while remaining anonymous. In Stage 2, you release your full resume and contact card with one click only when you are ready to move forward.
+                    In The Introduction, you see the employer’s verified company name and chat directly on the platform while remaining anonymous. In The Conversation, you release your full resume and contact card with one click only when you are ready to move forward.
                   </p>
                 </div>
               </div>

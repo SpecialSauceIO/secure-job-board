@@ -113,7 +113,7 @@ export default async function Image() {
                 maxWidth: '920px',
               }}
             >
-              Stage 1 Anonymous AI Fit Radar • Stage 2 Candidate-Controlled Vault Release
+              The Introduction (Anonymous Chat) • The Conversation (Candidate-Controlled Vault Release)
             </div>
           </div>
         </div>

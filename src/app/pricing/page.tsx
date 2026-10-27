@@ -68,7 +68,7 @@ export default function PricingMatrixPage() {
 
               <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
                 <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
-                  2-Stage Privacy Vault
+                  Intro/Convo Privacy Vault
                 </span>
                 <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
                   Stripe ID &amp; DNS Verified

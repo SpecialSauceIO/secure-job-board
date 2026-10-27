@@ -6,7 +6,7 @@ import { LEGAL_CONFIG } from '@/constants/legal'
 export const metadata = {
   title: 'Privacy Policy | specialsauce.io',
   description:
-    'How Special Sauce collects, uses, and protects your data through our 2-Stage Identity Vault and Stripe Stripe ID protection.',
+    'How Special Sauce collects, uses, and protects your data through our Intro/Convo Identity Vault and Stripe Stripe ID protection.',
 }
 
 export default function PrivacyPolicyPage() {
@@ -63,20 +63,20 @@ export default function PrivacyPolicyPage() {
 
           <section className="bg-emerald-50/60 p-6 rounded-2xl border border-emerald-300">
             <h2 className="text-xl text-slate-900 mb-3">
-              3. How Our 2-Stage Identity Vault Works (Anti-Harvesting Architecture)
+              3. How Our Intro/Convo Identity Vault Works (Anti-Harvesting Architecture)
             </h2>
             <p className="text-slate-700 leading-relaxed">
-              Unlike traditional job boards where uploading a resume exposes your contact details to mass scraping, Special Sauce enforces a strict <strong>2-Stage Identity Vault</strong>:
+              Unlike traditional job boards where uploading a resume exposes your contact details to mass scraping, Special Sauce enforces a strict <strong>Intro/Convo Identity Vault</strong>:
             </p>
             <ul className="list-disc pl-5 mt-3 space-y-2 text-slate-700">
               <li>
                 <strong>Default Protected Discovery:</strong> While browsing or evaluating AI Match Radar scores, Employers only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">Anonymous Candidate #ID</code>, extracted skills, experience years, target US Metro location, and a third-person bio. Candidates only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">Protected Role • Verified Employer</code> alongside transparent pay bands, employment type, and core skill requirements.
               </li>
               <li>
-                <strong>Stage 1 (Encrypted Thread Unlock):</strong> When an Employer unlocks an inbound protected application—or when a Candidate accepts an outbound Employer Pitch—an encrypted in-platform message thread opens under a shared Reference ID (<code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">SS-XXXXXXXX</code>). At Stage 1, the Employer’s verified company name and domain are revealed to the Candidate, and only the Candidate’s <strong>First Name and Last Initial</strong> (e.g., <em>Alex M.</em>) are revealed to the Employer. <strong>The Candidate’s raw email address and original PDF resume remain locked inside the Special Sauce Vault.</strong>
+                <strong>The Introduction (Encrypted Thread Unlock):</strong> When an Employer unlocks an inbound protected application—or when a Candidate accepts an outbound Employer Pitch—an encrypted in-platform message thread opens under a shared Reference ID (<code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">SS-XXXXXXXX</code>). During The Introduction, the Employer’s verified company name and domain are revealed to the Candidate, and only the Candidate’s <strong>First Name and Last Initial</strong> (e.g., <em>Alex M.</em>) are revealed to the Employer. <strong>The Candidate’s raw email address and original PDF resume remain locked inside the Special Sauce Vault.</strong>
               </li>
               <li>
-                <strong>Stage 2 (Candidate-Controlled Full Vault Release):</strong> The Candidate retains 100% control over when to click the <strong>&ldquo;Release Resume &amp; Contact Vault&rdquo;</strong> button inside the message thread. Only after the Candidate explicitly approves Stage 2 release does the platform reveal their Full Name, direct email address, and a time-limited (1-hour expiring) signed URL to view their original PDF resume.
+                <strong>The Conversation (Candidate-Controlled Full Vault Release):</strong> The Candidate retains 100% control over when to click the <strong>&ldquo;Release Resume &amp; Contact Vault&rdquo;</strong> button inside the message thread. Only after the Candidate explicitly approves The Conversation release does the platform reveal their Full Name, direct email address, and a time-limited (1-hour expiring) signed URL to view their original PDF resume.
               </li>
             </ul>
           </section>
@@ -90,10 +90,10 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-5 mt-3 space-y-2 text-slate-700">
               <li>
-                <strong>Automated Safety &amp; Anti-Phishing Firewall:</strong> Messages sent within in-platform threads are scanned automatically by heuristic and AI safety rules to block requests for Social Security Numbers (SSNs), banking/routing details, advance fees, off-platform encrypted chat lures (e.g., WhatsApp/Telegram), or external survey forms prior to Stage 2 release.
+                <strong>Automated Safety &amp; Anti-Phishing Firewall:</strong> Messages sent within in-platform threads are scanned automatically by heuristic and AI safety rules to block requests for Social Security Numbers (SSNs), banking/routing details, advance fees, off-platform encrypted chat lures (e.g., WhatsApp/Telegram), or external survey forms prior to The Conversation vault release.
               </li>
               <li>
-                <strong>Transactional Email Relay:</strong> When a new message or connection event occurs, we dispatch transactional email alerts (via Resend) containing your <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-300">SS-XXXXXXXX</code> Reference ID without exposing the Candidate’s raw email address to the Employer until Stage 2 Vault Release is approved.
+                <strong>Transactional Email Relay:</strong> When a new message or connection event occurs, we dispatch transactional email alerts (via Resend) containing your <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-300">SS-XXXXXXXX</code> Reference ID without exposing the Candidate’s raw email address to the Employer until The Conversation Vault Release is approved.
               </li>
               <li>
                 <strong>Zero Public AI Model Training:</strong> Uploaded resumes and job descriptions are transmitted via secure APIs to our LLM providers strictly for structured skill extraction and 5-Point AI Match Radar scoring. Your private documents are <span className="font-bold underline">never</span> used to train public foundation models.
@@ -115,7 +115,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-5 mt-4 space-y-2 text-slate-600">
               <li>
-                <strong className="text-slate-800">With Verified Employers (Staged Consent):</strong> Stage 1 thread access occurs only when you submit a protected application to an Employer’s role or accept their Professional Invitation; Stage 2 disclosure (Full Name, direct email, and signed PDF resume link) occurs strictly when you click &ldquo;Release Resume &amp; Contact Vault.&rdquo;
+                <strong className="text-slate-800">With Verified Employers (Staged Consent):</strong> Introduction thread access occurs only when you submit a protected application to an Employer’s role or accept their Professional Invitation; The Conversation disclosure (Full Name, direct email, and signed PDF resume link) occurs strictly when you click &ldquo;Release Resume &amp; Contact Vault.&rdquo;
               </li>
               <li>
                 <strong className="text-slate-800">With Infrastructure &amp; Security Providers:</strong> Trusted enterprise infrastructure providers who power our global edge cloud hosting, encrypted Row-Level Security (RLS) databases and isolated private storage buckets, payment and biometric identity vaulting (Stripe), transactional email delivery, and multi-tier AI matching inference.
@@ -136,7 +136,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-xl">8. Contact Us</h2>
             <p className="text-slate-600 leading-relaxed mt-2">
-              If you have any questions, concerns, or requests regarding this Privacy Policy, our 2-Stage Identity Vault, or how we handle your data, please contact our privacy team at{' '}
+              If you have any questions, concerns, or requests regarding this Privacy Policy, our Intro/Convo Identity Vault, or how we handle your data, please contact our privacy team at{' '}
               <a
                 href="mailto:privacy@specialsauce.io"
                 className="text-indigo-600 font-bold hover:underline"

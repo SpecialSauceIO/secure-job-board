@@ -6,20 +6,20 @@ import { LEGAL_CONFIG } from '@/constants/legal'
 export const metadata = {
   title: 'Security & Trust Architecture | specialsauce.io',
   description:
-    'How Special Sauce works under the hood: 2-Stage Identity & Resume Vault, Stripe Identity Biometric Protection, Anti-Harvesting Guardrails, and 5-Point AI Fit Radar.',
+    'How Special Sauce works under the hood: Intro/Convo Identity & Resume Vault, Stripe Identity Biometric Protection, Anti-Harvesting Guardrails, and 5-Point AI Fit Radar.',
 }
 
 const SECURITY_PILLARS = [
   {
-    badge: '1. 2-Stage Identity & Resume Vault',
+    badge: '1. Intro/Convo Identity & Resume Vault',
     badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-400/40',
     dotColor: 'bg-indigo-400',
     title: 'Staged Disclosure & Signed Resume URLs',
     summary:
       'Your uploaded PDF resume stays locked inside a private, non-public vault. During discovery, employers only see your anonymized skill, tenure, certification, and language matrix.',
     bullets: [
-      'Stage 1 (Safe Thread): Reveals the verified company name and opens encrypted chat while showing only your First Name + Last Initial.',
-      'Stage 2 (Candidate-Controlled Release): Generates a 1-hour cryptographically signed PDF resume link only when you click Release Resume & Contact Vault.',
+      'The Introduction (Safe Thread): Reveals the verified company name and opens encrypted chat while showing only your First Name + Last Initial.',
+      'The Conversation (Candidate-Controlled Release): Generates a 1-hour cryptographically signed PDF resume link only when you click Release Resume & Contact Vault.',
     ],
   },
   {
@@ -77,7 +77,7 @@ export default function SecurityTrustPage() {
               <span className="text-emerald-400">Under the Hood</span>
             </h1>
             <p className="text-slate-100 text-base sm:text-xl leading-relaxed max-w-3xl">
-              Built so candidates and hiring managers across all 28 industry verticals get a simple, high-signal experience—backed by Stripe biometric isolation, Stage 2 vault encryption, and anti-harvesting guardrails.
+              Built so candidates and hiring managers across all 28 industry verticals get a simple, high-signal experience—backed by Stripe biometric isolation, Conversation vault encryption, and anti-harvesting guardrails.
             </p>
           </div>
         </section>

@@ -288,7 +288,7 @@ export default async function ProfilePage() {
         </p>
       </div>
 
-      {/* Private Identity Box (Vaulted behind 2-Stage Unlock) */}
+      {/* Private Identity Box (Vaulted behind Intro/Convo Unlock) */}
       <div className="p-5 rounded-xl bg-indigo-50/60 border border-indigo-300 space-y-4">
         <div className="flex items-start gap-3">
           <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 mt-0.5">
@@ -310,11 +310,11 @@ export default async function ProfilePage() {
             <label className="block text-sm font-bold text-indigo-950">
               Full Name{' '}
               <span className="text-xs font-extrabold text-indigo-600 uppercase tracking-wider ml-1">
-                (Protected by 2-Stage Identity Vault)
+                (Protected by Intro/Convo Identity Vault)
               </span>
             </label>
             <p className="text-xs text-indigo-800/80 mt-0.5 mb-3">
-              Employers cannot see your name while browsing the talent pool or reviewing protected applications. In Stage 1 (initial thread unlock), only your First Name + Last Initial is shown; your full name and PDF resume are only revealed when you approve Stage 2 Vault Release.
+              Employers cannot see your name while browsing the talent pool or reviewing protected applications. In The Introduction (initial thread unlock), only your First Name + Last Initial is shown; your full name and PDF resume are only revealed when you approve The Conversation Vault Release.
             </p>
             <input
               type="text"

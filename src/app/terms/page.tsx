@@ -6,7 +6,7 @@ import { LEGAL_CONFIG } from '@/constants/legal'
 export const metadata = {
   title: 'Terms of Service | specialsauce.io',
   description:
-    'Special Sauce Terms of Service, 2-Stage Identity Vault Rules, 30-Day Job Expiration Policy, and Anti-Harvesting Acceptable Use Policy.',
+    'Special Sauce Terms of Service, Intro/Convo Identity Vault Rules, 30-Day Job Expiration Policy, and Anti-Harvesting Acceptable Use Policy.',
 }
 
 export default function TermsOfServicePage() {
@@ -39,7 +39,7 @@ export default function TermsOfServicePage() {
           <section>
             <h2 className="text-xl">2. Description of Service</h2>
             <p className="text-slate-600 leading-relaxed mt-2">
-              Special Sauce provides a verified, identity-protected hiring marketplace protected by a 2-Stage Identity Vault and a 5-Point AI Match Radar. We connect identity-verified professionals (&ldquo;Candidates&rdquo;) with domain-verified hiring organizations (&ldquo;Employers&rdquo;) based on objective skill alignment, transparent compensation, and mutual intent. We do not guarantee employment, interview outcomes, or the on-the-job performance of any user.
+              Special Sauce provides a verified, identity-protected hiring marketplace protected by a Intro/Convo Identity Vault and a 5-Point AI Match Radar. We connect identity-verified professionals (&ldquo;Candidates&rdquo;) with domain-verified hiring organizations (&ldquo;Employers&rdquo;) based on objective skill alignment, transparent compensation, and mutual intent. We do not guarantee employment, interview outcomes, or the on-the-job performance of any user.
             </p>
           </section>
 
@@ -62,17 +62,17 @@ export default function TermsOfServicePage() {
 
           <section className="bg-indigo-50/60 p-6 rounded-2xl border border-indigo-300">
             <h2 className="text-xl text-slate-900 mb-3">
-              4. Marketplace Rules: 2-Stage Vault, 5-Unlock Cap &amp; 30-Day Job Expiration
+              4. Marketplace Rules: Intro/Convo Vault, 5-Unlock Cap &amp; 30-Day Job Expiration
             </h2>
             <p className="text-slate-700 leading-relaxed">
               To eliminate resume harvesting, &ldquo;ghost jobs,&rdquo; and unsolicited spam, all Users agree to the following platform guardrails:
             </p>
             <ul className="list-disc pl-5 mt-3 space-y-2 text-slate-700">
               <li>
-                <strong>2-Stage Identity Vault:</strong> Unlocking an inbound application (free for subscribed Employers) or accepting a Professional Invitation (1 Connection Credit) initiates <strong>Stage 1</strong>—opening an encrypted in-platform chat thread (<code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-300">SS-XXXXXXXX</code>) and revealing the Candidate’s First Name + Last Initial alongside the Employer’s verified company identity. The Candidate’s Full Name, direct email, and signed PDF resume remain vaulted until the Candidate voluntarily clicks <strong>&ldquo;Release Resume &amp; Contact Vault&rdquo; (Stage 2)</strong>.
+                <strong>Intro/Convo Identity Vault:</strong> Unlocking an inbound application (free for subscribed Employers) or accepting a Professional Invitation (1 Connection Credit) initiates <strong>The Introduction</strong>—opening an encrypted in-platform chat thread (<code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-300">SS-XXXXXXXX</code>) and revealing the Candidate’s First Name + Last Initial alongside the Employer’s verified company identity. The Candidate’s Full Name, direct email, and signed PDF resume remain vaulted until the Candidate voluntarily clicks <strong>&ldquo;Release Resume &amp; Contact Vault&rdquo; (The Conversation)</strong>.
               </li>
               <li>
-                <strong>5-Unmessaged-Unlock Anti-Harvesting Ceiling:</strong> An Employer organization may hold a maximum of <strong>five (5)</strong> Stage 1 unlocked candidate threads awaiting an initial introductory message from the Employer. If an Employer reaches 5 unmessaged unlocked threads, additional profile unlocks are automatically paused until the Employer messages or archives their existing open threads.
+                <strong>5-Unmessaged-Unlock Anti-Harvesting Ceiling:</strong> An Employer organization may hold a maximum of <strong>five (5)</strong> Introduction unlocked candidate threads awaiting an initial introductory message from the Employer. If an Employer reaches 5 unmessaged unlocked threads, additional profile unlocks are automatically paused until the Employer messages or archives their existing open threads.
               </li>
               <li>
                 <strong>30-Day Automatic Role Expiration:</strong> Every active job listing automatically expires <strong>thirty (30) days</strong> after creation unless manually renewed by the Employer for a fresh 30-day cycle. Roles may only remain active while a genuine hiring need exists.
@@ -143,7 +143,7 @@ export default function TermsOfServicePage() {
                     <strong className="text-slate-800">Two-Bucket Rollover Invitation Credit Top-Up Packs:</strong> Active Starter, Growth, and Enterprise subscribers may purchase non-expiring Rollover Invitation Credit Top-Up Packs: Boost Pack (+10 Credits for $150), Surge Pack (+25 Credits for $350), or Scale Pack (+75 Credits for $900). Monthly plan credits (Bucket 1) are always depleted first, and Rollover Top-Up credits (Bucket 2) never expire as long as the base subscription remains active.
                   </li>
                   <li>
-                    <strong className="text-slate-800">100% Accepted-Only Invitation Credit Protection &amp; Finalized Decisions:</strong> Inbound Candidate applications are 100% free (0 credits) for subscribed Employers to review and unlock in Stage 1. Outbound Employer pitches deduct one (1) Invitation Credit per pitch; if a Candidate declines an Professional Invitation, the credit is automatically refunded to the exact bucket it was drawn from. All subscription payments and top-up packs are non-refundable except as required by applicable law.
+                    <strong className="text-slate-800">100% Accepted-Only Invitation Credit Protection &amp; Finalized Decisions:</strong> Inbound Candidate applications are 100% free (0 credits) for subscribed Employers to review and unlock in The Introduction. Outbound Employer pitches deduct one (1) Invitation Credit per pitch; if a Candidate declines a Professional Invitation, the credit is automatically refunded to the exact bucket it was drawn from. All subscription payments and top-up packs are non-refundable except as required by applicable law.
                   </li>
                 </ul>
               </div>
@@ -152,7 +152,7 @@ export default function TermsOfServicePage() {
           <section>
             <h2 className="text-xl">8. Artificial Intelligence Disclaimer</h2>
             <p className="text-slate-600 leading-relaxed mt-2">
-              The Platform utilizes a 3-tier Large Language Model (LLM) cascade to extract structured skills and calculate 5-Point AI Match Radar scores. AI evaluations are decision-support tools and may occasionally contain inaccuracies or omissions. Employers remain solely responsible for conducting independent interviews, reference checks, and background verifications after Stage 2 Vault Release.
+              The Platform utilizes a 3-tier Large Language Model (LLM) cascade to extract structured skills and calculate 5-Point AI Match Radar scores. AI evaluations are decision-support tools and may occasionally contain inaccuracies or omissions. Employers remain solely responsible for conducting independent interviews, reference checks, and background verifications after The Conversation Vault Release.
             </p>
           </section>
 

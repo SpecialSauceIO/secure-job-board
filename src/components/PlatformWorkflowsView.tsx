@@ -32,11 +32,11 @@ const CANDIDATE_WORKFLOW_STEPS: WorkflowStep[] = [
     unlockBadge: 'Unlocks: ✓ Identity Verified Badge & Search Visibility',
   },
   {
-    step: 'Step 3 • Stage 2 Resume Vault',
+    step: 'Step 3 • Conversation Resume Vault',
     title: '3. Upload Resume & Set Dealbreakers',
     bullets: [
       'Upload your PDF resume once to auto-extract skills, tenure, and certifications.',
-      'Your name, email, phone, and raw PDF stay locked inside your Stage 2 Vault.',
+      'Your name, email, phone, and raw PDF stay locked inside your Conversation Vault.',
       'Set minimum pay bands and hard dealbreakers upfront.',
     ],
     unlockBadge: 'Unlocks: ✓ Anonymized Candidate #ID & Dealbreaker Firewall',
@@ -52,12 +52,12 @@ const CANDIDATE_WORKFLOW_STEPS: WorkflowStep[] = [
     unlockBadge: 'Unlocks: Live Job Search, AI Fit Radar & Invitation Inbox',
   },
   {
-    step: 'Step 5 • 2-Stage Handshake',
+    step: 'Step 5 • Intro/Convo Handshake',
     title: '5. Chat First, Release Your Resume Later',
     bullets: [
-      'Stage 1 reveals the verified company name and opens encrypted live chat.',
-      'Employers only see your First Name + Last Initial during Stage 1 chat.',
-      'Click "Release Resume & Contact Vault" (Stage 2) only when you are ready.',
+      'The Introduction reveals the verified company name and opens encrypted live chat.',
+      'Employers only see your First Name + Last Initial during The Introduction chat.',
+      'Click "Release Resume & Contact Vault" (The Conversation) only when you are ready.',
     ],
     unlockBadge: 'Unlocks: Full Mutual Intro & 1-Hour Signed Resume Link',
   },
@@ -106,13 +106,13 @@ const EMPLOYER_WORKFLOW_STEPS: WorkflowStep[] = [
   },
   {
     step: 'Step 5 • Handshake & ATS Sync',
-    title: '5. Stage 1 Chat, Stage 2 Vault & HR Sync',
+    title: '5. The Introduction Chat, The Conversation Vault & HR Sync',
     bullets: [
-      'Message accepted or unlocked candidates directly in Stage 1 encrypted chat.',
-      'Receive 1-hour cryptographically signed PDF resumes upon Stage 2 release.',
+      'Message accepted or unlocked candidates directly in The Introduction encrypted chat.',
+      'Receive 1-hour cryptographically signed PDF resumes upon The Conversation release.',
       'Export unlocked candidates via CSV (all plans) or sync directly to Workday & Greenhouse (Enterprise plan only).',
     ],
-    unlockBadge: 'Unlocks: ✓ Stage 2 Resume Access & Enterprise ATS Sync',
+    unlockBadge: 'Unlocks: ✓ Conversation Resume Access & Enterprise ATS Sync',
   },
 ]
 
@@ -149,7 +149,7 @@ export default function PlatformWorkflowsView({
             href={isDashboard ? '/dashboard/security' : '/security'}
             className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white text-sm font-bold transition-colors"
           >
-            🛡️ View 2-Stage Vault &amp; Security →
+            🛡️ View Intro/Convo Vault &amp; Security →
           </Link>
         </div>
       </div>
@@ -211,7 +211,7 @@ export default function PlatformWorkflowsView({
                 }`}
               >
                 {isCandidate
-                  ? 'Stripe Biometric ID • Stage 2 Resume Vault • 5-Point AI Fit'
+                  ? 'Stripe Biometric ID • Conversation Resume Vault • 5-Point AI Fit'
                   : '3-Pillar Anti-Harvesting Gate • Protected Invitation Credits'}
               </span>
               <h2 className="text-xl sm:text-2xl font-extrabold text-white mt-0.5">
@@ -324,7 +324,7 @@ export default function PlatformWorkflowsView({
           </div>
           <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
             <div className="text-lg font-extrabold text-white">
-              2. Stage 1 Unlock (Encrypted Chat)
+              2. The Introduction (Encrypted Chat)
             </div>
             <p className="text-base text-slate-100 leading-relaxed">
               When a candidate accepts a pitch or an employer unlocks an inbound application, the company identity is revealed and live chat opens using <code className="text-emerald-300 font-bold">First Name + Last Initial</code>.
@@ -332,7 +332,7 @@ export default function PlatformWorkflowsView({
           </div>
           <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
             <div className="text-lg font-extrabold text-white">
-              3. Stage 2 Release (Full Resume &amp; ATS)
+              3. The Conversation (Full Resume &amp; ATS)
             </div>
             <p className="text-base text-slate-100 leading-relaxed">
               Only when the candidate clicks <strong className="text-white">Release Resume &amp; Contact Vault</strong> does the employer receive the 1-hour signed PDF resume link and direct contact credentials.

@@ -1533,7 +1533,7 @@ export async function updateProfile(formData: FormData) {
       userEmail: user.email || '',
       actorRole: 'candidate',
       text: bio,
-      platformArea: '2-Stage Resume & Contact Vault',
+      platformArea: 'Intro/Convo Resume & Contact Vault',
       contextLabel: 'Candidate Public Protected Bio',
       isStage2Unlocked: false,
     })
@@ -1703,7 +1703,7 @@ export async function parseResumeAutoFill(formData: FormData) {
     actionType: 'resume_parse',
     maxAllowedInWindow: 4,
     windowMinutes: 60,
-    platformArea: '2-Stage Resume & Contact Vault',
+    platformArea: 'Intro/Convo Resume & Contact Vault',
   })
   if (!parseVelocity.allowed) {
     console.warn('[SECURITY] Blocked rapid resume parse:', parseVelocity.reason)
@@ -1749,7 +1749,7 @@ export async function parseResumeAutoFill(formData: FormData) {
       userEmail: user.email || "",
       actorRole: "candidate",
       pdfBuffer: pdfBuf,
-      contextLabel: "Stage 1 Resume Upload (" + file.name + ")",
+      contextLabel: "Introduction Resume Upload (" + file.name + ")",
     })
     const base64Data = pdfBuf.toString('base64')
 
@@ -1784,8 +1784,8 @@ export async function parseResumeAutoFill(formData: FormData) {
     })
     await recordHandshakeTelemetry({
       handshakeId: "resume_vault_ai_parser",
-      label: "Stage 1 Resume Vault & AI Parser",
-      platformArea: "2-Stage Resume & Contact Vault",
+      label: "Intro/Convo Resume Vault & AI Parser",
+      platformArea: "Intro/Convo Resume & Contact Vault",
       ok: true,
     })
 
@@ -1926,7 +1926,7 @@ export async function applyBlind(formData: FormData) {
     actionType: 'blind_apply',
     maxAllowedInWindow: 8,
     windowMinutes: 3,
-    platformArea: '2-Stage Resume & Contact Vault',
+    platformArea: 'Intro/Convo Resume & Contact Vault',
   })
   if (!applyVelocity.allowed) {
     return { error: applyVelocity.reason || 'Rate limit exceeded. Please wait before applying again.' }
@@ -1938,7 +1938,7 @@ export async function applyBlind(formData: FormData) {
       userEmail: user.email || '',
       actorRole: 'candidate',
       text: employerPitch,
-      platformArea: '2-Stage Resume & Contact Vault',
+      platformArea: 'Intro/Convo Resume & Contact Vault',
       contextLabel: 'Candidate Protected Application',
       isStage2Unlocked: false,
     })
@@ -2045,7 +2045,7 @@ export async function applyBlind(formData: FormData) {
       await recordHandshakeTelemetry({
         handshakeId: 'marketplace_pitch_application_engine',
         label: 'Protected Application Execution',
-        platformArea: '2-Stage Resume & Contact Vault',
+        platformArea: 'Intro/Convo Resume & Contact Vault',
         ok: false,
         errorDetail: insertError.message,
       })
@@ -2055,7 +2055,7 @@ export async function applyBlind(formData: FormData) {
     await recordHandshakeTelemetry({
       handshakeId: 'marketplace_pitch_application_engine',
       label: 'Protected Application Execution',
-      platformArea: '2-Stage Resume & Contact Vault',
+      platformArea: 'Intro/Convo Resume & Contact Vault',
       ok: true,
     })
 
@@ -2076,7 +2076,7 @@ export async function applyBlind(formData: FormData) {
     bodyLines: [
       `Your anonymous profile was submitted for "${roleTitle}" with a ${parsedMatchScore}% AI Match Score.`,
       `Connection Reference ID: ${refId}`,
-      `Your identity and contact details remain hidden until the employer unlocks your application. Even after Stage 1 unlock, your PDF resume and raw email stay vaulted until you choose to share it.`,
+      `Your identity and contact details remain hidden until the employer unlocks your application. Even after The Introduction unlock, your PDF resume and raw email stay vaulted until you choose to share it.`,
     ],
     ctaUrl: '/dashboard/applications',
     ctaLabel: 'Track Application Status →',
@@ -2860,7 +2860,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
     bodyLines: [
       `${maskedCandidateName} accepted your connection request for "${jobObj?.title || 'Open Role'}".`,
       `Connection Reference ID: ${referenceId}`,
-      `Open your Sent Invitations tracker to message ${maskedCandidateName} in your encrypted thread. Once you introduce your team, the candidate can release their Stage 2 Resume & Contact Vault.`,
+      `Open your Sent Invitations tracker to message ${maskedCandidateName} in your encrypted thread. Once you introduce your team, the candidate can release their Conversation Resume & Contact Vault.`,
     ],
     ctaUrl: '/dashboard/employer/pitches',
     ctaLabel: 'Open Encrypted Thread →',
@@ -4505,7 +4505,7 @@ export async function sendConnectionRequest(
     actionType: "employer_pitch",
     maxAllowedInWindow: 8,
     windowMinutes: 3,
-    platformArea: "2-Stage Resume & Contact Vault",
+    platformArea: "Intro/Convo Resume & Contact Vault",
   })
   if (!pitchVelocity.allowed) {
     return {
@@ -6632,7 +6632,7 @@ export async function submitQuickFeedback(formData: FormData) {
     owned_by: "Unassigned",
     subject: `[${feedbackType}] ${notes.slice(0, 72)}`,
     category: "Technical Issue / Bug Report",
-    platform_area: pageUrl.includes("employer") ? "Corporate Domain / DNS Verification (Employer)" : pageUrl.includes("support") ? "Other / General Platform" : "2-Stage Resume & Contact Vault",
+    platform_area: pageUrl.includes("employer") ? "Corporate Domain / DNS Verification (Employer)" : pageUrl.includes("support") ? "Other / General Platform" : "Intro/Convo Resume & Contact Vault",
     root_cause: "Unclassified",
     description: notes,
     reporter_user_id: user?.id || "anonymous",
@@ -6763,9 +6763,9 @@ export async function releaseCandidateVaultAndSyncAts(applicationId: string) {
     to: employerEmail,
     subject: `Resume & Contact Info Shared: ${fullName} shared their Resume & Contact Info for ${jobObj?.title || 'Open Role'}`,
     referenceId,
-    heading: `Stage 2 Resume & Contact Vault Unlocked!`,
+    heading: `Conversation Resume & Contact Vault Unlocked!`,
     bodyLines: [
-      `${fullName} (${candidateEmail}) just released their full Stage 2 Resume & Contact Vault for "${jobObj?.title || 'Open Role'}".`,
+      `${fullName} (${candidateEmail}) just released their full Conversation Resume & Contact Vault for "${jobObj?.title || 'Open Role'}".`,
       `Transaction Reference ID: ${referenceId}`,
       atsSyncResult?.success
         ? `✓ Enterprise HR Software Auto-Sync: Candidate vault and 5-Point AI Match Radar were automatically pushed to your connected HR software (${atsSyncResult.syncStatus}).`

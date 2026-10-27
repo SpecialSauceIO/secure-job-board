@@ -452,7 +452,7 @@ export default function SupportCenterClient({
               : 'border-transparent text-slate-300 hover:text-white hover:bg-slate-800/60'
           }`}
         >
-          2. 2-Stage Vault &amp; Stripe Security
+          2. Intro/Convo Vault &amp; Stripe Security
         </button>
 
         <button
@@ -536,7 +536,7 @@ export default function SupportCenterClient({
                         className="w-full rounded-xl border border-slate-300 bg-white text-slate-900 py-2.5 px-3.5 text-sm font-medium"
                       >
                         <option value="General Support">General Support &amp; Questions</option>
-                        <option value="2-Stage Vault & Encrypted Messaging">2-Stage Identity Vault &amp; Messaging</option>
+                        <option value="Intro/Convo Vault & Encrypted Messaging">Intro/Convo Identity Vault &amp; Messaging</option>
                         <option value="Billing, Plans & Pitch Credits">Billing, Plans &amp; Invitation Credits</option>
                         <option value="Account & Domain Verification">Stripe ID / Corporate Domain Verification</option>
                         <option value="Enterprise ATS & Webhook Integration">HR Software Sync Hub</option>
@@ -557,11 +557,11 @@ export default function SupportCenterClient({
                         <option value="Onboarding & Authentication">Onboarding &amp; Authentication</option>
                         <option value="Stripe Identity Verification (Candidate)">Stripe Identity Verification (Candidate)</option>
                         <option value="Corporate Domain / DNS Verification (Employer)">Corporate Domain / DNS Verification (Employer)</option>
-                        <option value="2-Stage Resume & Contact Vault">2-Stage Resume &amp; Contact Vault</option>
+                        <option value="2-Stage Resume & Contact Vault">Intro/Convo Resume &amp; Contact Vault</option>
                         <option value="5-Point AI Fit Radar & Dealbreakers">5-Point AI Fit Radar &amp; Dealbreakers</option>
                         <option value="Billing, Subscriptions & Credits">Billing, Subscriptions &amp; Credits</option>
                         <option value="HR Software Sync Hub">HR Software Sync Hub</option>
-                        <option value="Encrypted Stage 1/2 Messaging">Encrypted Stage 1/2 Messaging</option>
+                        <option value="Encrypted Stage 1/2 Messaging">Encrypted Intro/Convo Messaging</option>
                         <option value="Other / General Platform">Other / General Platform</option>
                       </select>
                     </div>
@@ -637,7 +637,7 @@ export default function SupportCenterClient({
                   <div className="pt-2">
                     <SubmitButton
                       pendingText="Submitting Ticket..."
-                      className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-500 px-8 py-3.5 text-sm font-extrabold text-white shadow-sm transition-colors cursor-pointer"
+                      className="w-full rounded-xl bg-slate-800/90 hover:bg-slate-700/90 px-8 py-3.5 text-sm font-extrabold text-white shadow-sm transition-colors cursor-pointer"
                     >
                       Submit Support Ticket →
                     </SubmitButton>
@@ -683,7 +683,7 @@ export default function SupportCenterClient({
                     <button
                       type="button"
                       onClick={() => setIsComposingNewTicket(true)}
-                      className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold cursor-pointer shadow-2xs"
+                      className="px-3.5 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 text-white text-xs font-extrabold cursor-pointer shadow-2xs"
                     >
                       + New Ticket
                     </button>
@@ -1072,7 +1072,7 @@ export default function SupportCenterClient({
                           !(replyTextMap[activeTicket.id] || '').trim()
                         }
                         onClick={() => handleSendInAppReply(activeTicket.id)}
-                        className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
+                        className="px-4 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 text-white text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
                       >
                         {isSendingReply ? 'Sending...' : 'Send Reply →'}
                       </button>
@@ -1406,7 +1406,7 @@ export default function SupportCenterClient({
               </button>
               <Link
                 href="/workflows"
-                className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-extrabold transition-colors"
+                className="px-5 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 text-white text-xs sm:text-sm font-extrabold transition-colors"
               >
                 View Platform Workflows →
               </Link>
@@ -1418,7 +1418,7 @@ export default function SupportCenterClient({
             <div className="relative flex-1">
               <input
                 type="text"
-                placeholder="Search FAQs (e.g. 2-Stage Vault, 30-day expiry, shortlist, W-2 vs 1099, Stripe)..."
+                placeholder="Search FAQs (e.g. Intro/Convo Vault, 30-day expiry, shortlist, W-2 vs 1099, Stripe)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-600 bg-slate-900 focus:border-indigo-400 text-base font-medium text-white placeholder:text-slate-400 transition-all"
@@ -1497,12 +1497,12 @@ export default function SupportCenterClient({
                             onClick={() =>
                               setExpandedFaqId(isExpanded ? null : faq.id)
                             }
-                            className="w-full px-6 py-4 text-left flex items-center justify-between bg-slate-900 hover:bg-slate-800/80 focus:outline-none cursor-pointer"
+                            className="w-full px-6 py-4 text-left flex items-center justify-between bg-slate-800/75 hover:bg-slate-700/80 focus:outline-none cursor-pointer transition-colors"
                           >
                             <span className="font-extrabold text-white text-base sm:text-lg pr-4">
                               {faq.question}
                             </span>
-                            <span className="text-indigo-400 font-extrabold text-xs sm:text-sm shrink-0">
+                            <span className="text-slate-300 font-extrabold text-xs sm:text-sm shrink-0">
                               {isExpanded ? 'Hide ▲' : 'View ▼'}
                             </span>
                           </button>
@@ -1528,7 +1528,7 @@ export default function SupportCenterClient({
           <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-4 border border-slate-700">
             <div className="space-y-1.5">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-extrabold uppercase tracking-wider">
-                PCI-DSS Level 1 • Stripe ID Protection • 2-Stage Anti-Harvesting Vault
+                PCI-DSS Level 1 • Stripe ID Protection • Intro/Convo Anti-Harvesting Vault
               </div>
               <h2 className="text-lg sm:text-xl font-extrabold tracking-tight text-white">
                 {SECURITY_ARCHITECTURE_DATA.title}
@@ -1617,7 +1617,7 @@ export default function SupportCenterClient({
                 </div>
                 <div>
                   <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400 block">
-                    Row-Level Security (RLS) &amp; 2-Stage Identity Vault
+                    Row-Level Security (RLS) &amp; Intro/Convo Identity Vault
                   </span>
                   <h3 className="text-base sm:text-lg font-extrabold text-white mt-0.5">
                     Protected by Special Sauce
@@ -1652,7 +1652,7 @@ export default function SupportCenterClient({
                   IT &amp; Procurement Security Summary
                 </span>
                 <h3 className="text-lg sm:text-xl font-extrabold text-white mt-0.5">
-                  Copy-Paste Data Custody, 2-Stage Vault &amp; Stripe Brief
+                  Copy-Paste Data Custody, Intro/Convo Vault &amp; Stripe Brief
                 </h3>
               </div>
 

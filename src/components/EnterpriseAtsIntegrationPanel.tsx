@@ -226,7 +226,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                 1. Workday &amp; Enterprise Outbound Webhook (HMAC-SHA256)
               </h4>
               <p className="text-xs text-slate-500 mt-0.5">
-                Fires a signed <code className="font-mono text-slate-700">candidate.vault_released</code> JSON payload whenever a candidate unlocks their Stage 2 Resume Vault. Compatible with Workday Integration Studio, MuleSoft, Zapier, and Ashby.
+                Fires a signed <code className="font-mono text-slate-700">candidate.vault_released</code> JSON payload whenever a candidate unlocks their Conversation Resume Vault. Compatible with Workday Integration Studio, MuleSoft, Zapier, and Ashby.
               </p>
             </div>
 
@@ -370,7 +370,7 @@ export default function EnterpriseAtsIntegrationPanel() {
 
         <div className="pt-3 border-t border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <span className="text-xs text-slate-500">
-            🛡️ <strong>Identity-Protected Privacy Guarantee:</strong> Candidate personal contact info never touches your external HR software until the candidate explicitly clicks &ldquo;Release Resume &amp; Contact Vault&rdquo; in Stage 2.
+            🛡️ <strong>Identity-Protected Privacy Guarantee:</strong> Candidate personal contact info never touches your external HR software until the candidate explicitly clicks &ldquo;Release Resume &amp; Contact Vault&rdquo; to start The Conversation.
           </span>
 
           <button

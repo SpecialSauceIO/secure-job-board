@@ -106,7 +106,7 @@ export default async function SupportPage({
             Help Center &amp; Support Desk
           </h1>
           <p className="text-sm sm:text-base text-slate-200 mt-1">
-            Search the Knowledge Base, review our 2-Stage Vault &amp; Stripe security architecture, or manage your live support tickets.
+            Search the Knowledge Base, review our Intro/Convo Vault &amp; Stripe security architecture, or manage your live support tickets.
           </p>
         </div>
       </header>

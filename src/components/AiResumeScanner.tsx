@@ -6,8 +6,8 @@ import { parseResumeAutoFill } from '@/app/dashboard/actions';
 
 const EXTRACTION_STEPS = [
   {
-    title: 'Securing PDF in Stage 2 Privacy Vault',
-    detail: 'Isolating raw document and redacting personal contact info from Stage 1 public index',
+    title: 'Securing PDF in Conversation Privacy Vault',
+    detail: 'Isolating raw document and redacting personal contact info from Introduction public index',
   },
   {
     title: 'Extracting Core Skill Matrix & Role Tenure',
@@ -19,7 +19,7 @@ const EXTRACTION_STEPS = [
   },
   {
     title: 'Calibrating 5-Point AI Fit Radar™ Profile',
-    detail: 'Finalizing anonymous Stage 1 candidate profile for instant >=40% role matching',
+    detail: 'Finalizing anonymous Introduction candidate profile for instant >=40% role matching',
   },
 ];
 
@@ -77,21 +77,21 @@ function ScannerForm({ profile }: { profile: any }) {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border-2 border-slate-300 overflow-hidden grid grid-cols-1 lg:grid-cols-12">
-      {/* Left Column: Document Dropzone & Stage 2 Vault Guarantee */}
+      {/* Left Column: Document Dropzone & Conversation Vault Guarantee */}
       <div className="p-6 sm:p-8 lg:col-span-5 bg-slate-50 border-b lg:border-b-0 lg:border-r border-slate-300 flex flex-col justify-between">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-extrabold uppercase tracking-wider mb-4">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
-            Stage 2 Privacy Vault Protected
+            Conversation Privacy Vault Protected
           </div>
 
           <h3 className="text-base font-extrabold text-slate-900">
             Upload Resume PDF for Structured AI Parsing
           </h3>
           <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-            Your raw PDF resume and personal contact details are locked inside your Stage 2 Privacy Vault and never exposed on public feeds.
+            Your raw PDF resume and personal contact details are locked inside your Conversation Privacy Vault and never exposed on public feeds.
           </p>
 
           <label
@@ -179,13 +179,13 @@ function ScannerForm({ profile }: { profile: any }) {
                 {pending
                   ? '5-Point AI Fit Radar™ Calibration in Progress'
                   : hasExistingData
-                  ? 'Anonymous Stage 1 Profile Calibrated'
+                  ? 'Anonymous Introduction Profile Calibrated'
                   : 'Awaiting Resume Upload'}
               </span>
             </div>
 
             <span className="text-[11px] font-bold px-2.5 py-1 rounded-md bg-slate-900 border border-slate-700 text-slate-300">
-              {pending ? `${progress}% Processed` : hasExistingData ? '✓ Ready for Matching' : 'Stage 1 Redaction Active'}
+              {pending ? `${progress}% Processed` : hasExistingData ? '✓ Ready for Matching' : 'Introduction Redaction Active'}
             </span>
           </div>
 
@@ -256,7 +256,7 @@ function ScannerForm({ profile }: { profile: any }) {
                     Identity Vault Status
                   </div>
                   <div className="text-xs font-extrabold text-emerald-400 mt-1.5 flex items-center gap-1.5">
-                    <span>🔒</span> Name, Email &amp; PDF Locked in Stage 2
+                    <span>🔒</span> Name, Email &amp; PDF Locked Until The Conversation
                   </div>
                 </div>
               </div>
@@ -285,7 +285,7 @@ function ScannerForm({ profile }: { profile: any }) {
 
               <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                  Anonymized Executive Summary (Stage 1 Preview)
+                  Anonymized Executive Summary (Introduction Preview)
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
                   {profile?.bio ||

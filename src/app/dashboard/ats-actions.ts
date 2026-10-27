@@ -244,7 +244,7 @@ export async function fireTestAtsWebhook() {
  * LIVE STAGE 2 VAULT TRIGGER:
  * Automatically dispatches the unlocked Candidate Vault & 5-Point AI Match Radar
  * to the employer's Workday/Enterprise Webhook and/or Greenhouse HR Software
- * when a candidate releases their Stage 2 Vault.
+ * when a candidate releases their Conversation Vault.
  */
 export async function autoSyncStage2VaultToEnterpriseAts(
   applicationId: string,
@@ -317,7 +317,7 @@ export async function autoSyncStage2VaultToEnterpriseAts(
       return { skipped: true, reason: 'Unauthorized caller for ATS sync' }
     }
     if (!app.match_data?.candidate_vault_released && !releasedVaultOverride) {
-      return { skipped: true, reason: 'Candidate Stage 2 vault has not been released yet' }
+      return { skipped: true, reason: 'Candidate Conversation vault has not been released yet' }
     }
     const candObj: any = Array.isArray(app.profiles) ? app.profiles[0] : app.profiles
     const orgId = jobObj?.organization_id
@@ -338,7 +338,7 @@ export async function autoSyncStage2VaultToEnterpriseAts(
 
     const atsConfig = parseAtsConfigFromDescription(org.description)
     if (!atsConfig.autoPushStage2) {
-      return { skipped: true, reason: 'Auto-push on Stage 2 is disabled by org' }
+      return { skipped: true, reason: 'Auto-push on Conversation Vault release is disabled by org' }
     }
 
     const hasWebhook = Boolean(
@@ -497,7 +497,7 @@ export async function autoSyncStage2VaultToEnterpriseAts(
             ? [{ value: resumePdfUrl, type: 'other' }]
             : [],
           notes:
-            'Imported via Special Sauce Stage 2 Vault Release (Ref: ' +
+            'Imported via Special Sauce The Conversation Vault Release (Ref: ' +
             refId +
             ' | Role: ' +
             (jobObj?.title || 'Open Role') +
@@ -637,9 +637,9 @@ export async function exportEnterpriseCandidatesCsv() {
       'SS-' + String(app.id).replace(/-/g, '').substring(0, 8).toUpperCase()
 
     const stageLabel = vaultReleased
-      ? 'Stage 2 Vault Released'
+      ? 'The Conversation Vault Released'
       : app.is_revealed || app.status === 'accepted'
-      ? 'Stage 1 Thread Active'
+      ? 'Introduction Thread Active'
       : 'Stage 0 Protected'
 
     const candidateName = vaultReleased
@@ -648,7 +648,7 @@ export async function exportEnterpriseCandidatesCsv() {
 
     const candidateEmail = vaultReleased
       ? matchData.candidate_email || 'Released in Thread'
-      : 'Locked (Stage 2 Vault)'
+      : 'Locked (Conversation Vault)'
 
     const atsSyncCol = matchData.ats_synced_at
       ? 'Synced (' + (matchData.ats_sync_status || 'OK') + ')'

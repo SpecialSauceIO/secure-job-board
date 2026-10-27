@@ -381,7 +381,7 @@ export async function inspectResumeAndTextForBadActorPayloads(params: {
       actorEmail: params.userEmail,
       actorRole: params.actorRole,
       userId: params.userId,
-      platformArea: "2-Stage Resume & Contact Vault",
+      platformArea: "Intro/Convo Resume & Contact Vault",
       summary: `${findings[0]} (${params.contextLabel})`,
       evidenceSnippet: `Findings: ${findings.join(" | ")} • Sample: ${text.slice(0, 220)}`,
       createSecTicket: true,
@@ -446,14 +446,14 @@ export async function inspectStage1TextForContactLeakOrInjection(params: {
         actorRole: params.actorRole,
         userId: params.userId,
         platformArea: params.platformArea,
-        summary: `Stage 1 Protected Vault Circumvention Attempt in ${params.contextLabel}`,
+        summary: `Intro/Convo Protected Vault Circumvention Attempt in ${params.contextLabel}`,
         evidenceSnippet: raw.slice(0, 240),
         createSecTicket: true,
       })
       return {
         blocked: true,
         reason:
-          "2-Stage Vault Guardrail: Direct email addresses, phone numbers, and off-platform contact links cannot be embedded inside Stage 1 protected pitches or messages prior to Stage 2 Vault Release.",
+          "Intro/Convo Vault Guardrail: Direct email addresses, phone numbers, and off-platform contact links cannot be embedded inside Introduction messages prior to The Conversation Vault Release.",
       }
     }
   }

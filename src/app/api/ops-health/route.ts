@@ -47,8 +47,8 @@ export async function GET(req: NextRequest) {
   const vaultLatency = Date.now() - vaultStart
   checks.push({
     id: 'stage1_2_vault_storage',
-    name: '2-Stage Resume & Ops Storage Vault',
-    platform_area: '2-Stage Resume & Contact Vault',
+    name: 'Intro/Convo Resume & Ops Storage Vault',
+    platform_area: 'Intro/Convo Resume & Contact Vault',
     category: 'Marketplace_Core',
     status: 'healthy',
     latency_ms: vaultLatency,
@@ -102,8 +102,8 @@ export async function GET(req: NextRequest) {
 
   checks.push({
     id: 'marketplace_pitch_application_engine',
-    name: 'Protected Application, Invitation & Stage 1/2 Messaging Ledger',
-    platform_area: 'Encrypted Stage 1/2 Messaging',
+    name: 'Protected Application, Invitation & Intro/Convo Messaging Ledger',
+    platform_area: 'Encrypted Intro/Convo Messaging',
     category: 'Marketplace_Core',
     status: dbHealthy ? 'healthy' : 'critical',
     latency_ms: dbLatency,

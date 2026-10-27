@@ -47,8 +47,8 @@ export default function DashboardAnalyticsReport({
       scored.length > 0
         ? Math.round(scored.reduce((acc, r) => acc + (r.matchScore || 0), 0) / scored.length)
         : 0
-    const stage1 = filteredRecords.filter((r) => r.vaultStage.includes('Stage 1') || r.vaultStage.includes('Stage 2')).length
-    const stage2 = filteredRecords.filter((r) => r.vaultStage.includes('Stage 2')).length
+    const stage1 = filteredRecords.filter((r) => r.vaultStage.includes('Introduction') || r.vaultStage.includes('Conversation')).length
+    const stage2 = filteredRecords.filter((r) => r.vaultStage.includes('Conversation')).length
     const archived = filteredRecords.filter((r) => r.status === 'rejected' || r.status === 'declined').length
 
     return { total, inbound, pitches, avgScore, stage1, stage2, archived }

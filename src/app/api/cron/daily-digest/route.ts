@@ -384,7 +384,7 @@ export async function GET(req: NextRequest) {
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${employerPitchesTotal.length}</td>
               </tr>
               <tr style="border-bottom: 1px solid #1e293b; background: #020617;">
-                <td style="padding: 9px 14px; font-weight: 800; color: #38bdf8;">🔒 Reached Level 1 (Encrypted Stage 1 Handshake)</td>
+                <td style="padding: 9px 14px; font-weight: 800; color: #38bdf8;">🔒 Reached Level 1 (The Introduction Handshake)</td>
                 <td style="padding: 9px 14px; text-align: right; color: #38bdf8; font-weight: 900;">+${level1_24h.length}</td>
                 <td style="padding: 9px 14px; text-align: right; color: #38bdf8; font-weight: 900;">${level1Total.length}</td>
               </tr>

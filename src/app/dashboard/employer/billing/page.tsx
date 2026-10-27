@@ -657,7 +657,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Workday &amp; Greenhouse HR Software Sync</strong>
               </li>
               <li>
-                ✓ <strong>Automated Stage 2 Vault Export to ATS</strong>
+                ✓ <strong>Automated Conversation Vault Export to ATS</strong>
               </li>
               <li>✓ Eligible for Non-Expiring Rollover Top-Up Packs</li>
             </ul>
@@ -693,7 +693,7 @@ export default function EmployerBillingPage() {
               On-Demand Invitation Credit Top-Ups
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Top-Up Credits are added to your <strong className="text-slate-900">Rollover Top-Up Bucket</strong>. Your monthly plan allowance (<strong className="text-slate-900">{planCredits} Plan Credits remaining</strong>) is always spent first, and Rollover Top-Up Credits (<strong className="text-amber-700">{rolloverCredits} Rollover Credits banked</strong>) never expire as long as your base subscription remains active. Protected by our 100% Accepted-Only Guarantee—if a candidate declines an Professional Invitation, your credit is automatically refunded to the exact bucket it came from.
+              Top-Up Credits are added to your <strong className="text-slate-900">Rollover Top-Up Bucket</strong>. Your monthly plan allowance (<strong className="text-slate-900">{planCredits} Plan Credits remaining</strong>) is always spent first, and Rollover Top-Up Credits (<strong className="text-amber-700">{rolloverCredits} Rollover Credits banked</strong>) never expire as long as your base subscription remains active. Protected by our 100% Accepted-Only Guarantee—if a candidate declines a Professional Invitation, your credit is automatically refunded to the exact bucket it came from.
             </p>
           </div>
 
@@ -736,7 +736,7 @@ export default function EmployerBillingPage() {
                 <span className="text-2xl font-black text-slate-900">$150</span>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Quick top-up when you need a few extra Professional Invitationes to round out an interview slate this month.
+                Quick top-up when you need a few extra Professional Invitations to round out an interview slate this month.
               </p>
             </div>
 

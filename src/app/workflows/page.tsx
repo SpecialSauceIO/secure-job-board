@@ -18,7 +18,7 @@ export default function WorkflowsPage() {
           <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2.5 max-w-2xl">
               <span className="inline-block px-3 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-extrabold uppercase tracking-wider">
-                Free Upfront Seeding • 30-Day Free Trial ($0 Today) • 2-Stage Privacy Vault
+                Free Upfront Seeding • 30-Day Free Trial ($0 Today) • Intro/Convo Privacy Vault
               </span>
               <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
                 How Special Sauce Works{' '}
@@ -27,7 +27,7 @@ export default function WorkflowsPage() {
                 </span>
               </h1>
               <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                Build your profile or stage open roles and run <strong>5-Point AI Fit Radar™</strong> checks for <strong>$0 upfront</strong>. When you are ready to connect, start a <strong>30-Day Free Trial ($0 due today)</strong> backed by 1-time real-person ID verification and our 2-Stage Privacy Handshake.
+                Build your profile or stage open roles and run <strong>5-Point AI Fit Radar™</strong> checks for <strong>$0 upfront</strong>. When you are ready to connect, start a <strong>30-Day Free Trial ($0 due today)</strong> backed by 1-time real-person ID verification and our Intro/Convo Privacy Handshake.
               </p>
             </div>
             <div className="shrink-0">
@@ -35,7 +35,7 @@ export default function WorkflowsPage() {
                 href="/security"
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-extrabold hover:bg-slate-800 transition-colors"
               >
-                🛡️ View 2-Stage Vault &amp; Security →
+                🛡️ View Intro/Convo Vault &amp; Security →
               </Link>
             </div>
           </div>
@@ -85,7 +85,7 @@ export default function WorkflowsPage() {
                   </div>
                   <div>
                     <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-400">
-                      Free Profile Seeding • 30-Day Free Trial ($0 Today) • 2-Stage Privacy Vault
+                      Free Profile Seeding • 30-Day Free Trial ($0 Today) • Intro/Convo Privacy Vault
                     </span>
                     <h2 className="text-xl sm:text-2xl font-black text-white">
                       Candidate Workflow: Free Seeding to Protected Offers
@@ -121,7 +121,7 @@ export default function WorkflowsPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span>Your anonymous profile is immediately <strong>Vault-Staged</strong> in Employer Talent Search while your name, email, phone, and PDF stay locked in your Stage 2 Vault.</span>
+                        <span>Your anonymous profile is immediately <strong>Vault-Staged</strong> in Employer Talent Search while your name, email, phone, and PDF stay locked in your Conversation Vault.</span>
                       </li>
                     </ul>
                   </div>
@@ -221,19 +221,19 @@ export default function WorkflowsPage() {
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5 md:col-span-2">
                   <div className="space-y-4">
                     <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-indigo-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 5 • 2-Stage Privacy Handshake
+                      Step 5 • Intro/Convo Privacy Handshake
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
-                      5. Chat First (Stage 1), Release Your Resume Only When Ready (Stage 2)
+                      5. The Introduction (Chat First), The Conversation (Release Resume When Ready)
                     </h3>
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span><strong>Stage 1 (First-Name Encrypted Chat):</strong> Accepting a Professional Invitation or getting your application unlocked reveals the verified company name and opens encrypted chat showing only your <strong>First Name + Last Initial</strong>.</span>
+                        <span><strong>The Introduction (First-Name Encrypted Chat):</strong> Accepting a Professional Invitation or getting your application unlocked reveals the verified company name and opens encrypted chat showing only your <strong>First Name + Last Initial</strong>.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span><strong>Stage 2 (Candidate-Controlled Vault Release):</strong> Your contact info and raw PDF resume remain hidden until you explicitly click <strong>&ldquo;Release Resume &amp; Contact Vault&rdquo;</strong> inside the chat thread.</span>
+                        <span><strong>The Conversation (Candidate-Controlled Vault Release):</strong> Your contact info and raw PDF resume remain hidden until you explicitly click <strong>&ldquo;Release Resume &amp; Contact Vault&rdquo;</strong> inside the chat thread.</span>
                       </li>
                     </ul>
                   </div>
@@ -370,7 +370,7 @@ export default function WorkflowsPage() {
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Publish company-shielded roles showing salary bands and industry while keeping your company name private until Stage 1 chat.</span>
+                        <span>Publish company-shielded roles showing salary bands and industry while keeping your company name private until The Introduction chat.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
@@ -391,19 +391,19 @@ export default function WorkflowsPage() {
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5 md:col-span-2">
                   <div className="space-y-4">
                     <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-emerald-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 5 • 2-Stage Handshake &amp; ATS Sync
+                      Step 5 • Intro/Convo Handshake &amp; ATS Sync
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
-                      5. Stage 1 Chat, Stage 2 Vault &amp; Enterprise HR Sync
+                      5. The Introduction Chat, The Conversation Vault &amp; Enterprise HR Sync
                     </h3>
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Message accepted Professional Invitations or unlocked inbound applicants directly in <strong>Stage 1 Encrypted Chat</strong>.</span>
+                        <span>Message accepted Professional Invitations or unlocked inbound applicants directly in <strong>The Introduction Encrypted Chat</strong>.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Receive 1-hour cryptographically signed PDF resumes and direct contact details upon <strong>Stage 2 Candidate Vault Release</strong>.</span>
+                        <span>Receive 1-hour cryptographically signed PDF resumes and direct contact details upon <strong>The Conversation Vault Release</strong>.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
@@ -412,7 +412,7 @@ export default function WorkflowsPage() {
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Stage 2 Resume Access, Team Seats &amp; Enterprise ATS Sync
+                    Unlocks: ✓ Conversation Resume Access, Team Seats &amp; Enterprise ATS Sync
                   </div>
                 </div>
               </div>
@@ -426,7 +426,7 @@ export default function WorkflowsPage() {
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-800">
               <div className="space-y-2 max-w-2xl">
                 <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400">
-                  Where Both Workflows Meet • The 2-Stage Privacy Handshake
+                  Where Both Workflows Meet • The Intro/Convo Privacy Handshake
                 </span>
                 <h2 className="text-xl sm:text-3xl font-black text-white">
                   Zero Unsolicited Spam, Zero Burner-Domain Harvesting &amp; 100% Candidate-Controlled Disclosure
@@ -460,7 +460,7 @@ export default function WorkflowsPage() {
 
               <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 space-y-3">
                 <h3 className="text-base sm:text-lg font-black text-white">
-                  2. Stage 1 Unlock (Encrypted Chat)
+                  2. The Introduction (Encrypted Chat)
                 </h3>
                 <p className="text-sm text-slate-200 leading-relaxed">
                   When a candidate accepts an outbound pitch or an employer unlocks an inbound application, the verified company identity is revealed and encrypted live chat opens using <strong className="text-amber-300">First Name + Last Initial</strong>.
@@ -469,7 +469,7 @@ export default function WorkflowsPage() {
 
               <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 space-y-3">
                 <h3 className="text-base sm:text-lg font-black text-white">
-                  3. Stage 2 Release (Full Resume &amp; ATS)
+                  3. The Conversation (Full Resume &amp; ATS)
                 </h3>
                 <p className="text-sm text-slate-200 leading-relaxed">
                   Only when the candidate clicks <strong className="text-white">Release Resume &amp; Contact Vault</strong> does the employer receive the 1-hour cryptographically signed PDF resume link and direct contact credentials.

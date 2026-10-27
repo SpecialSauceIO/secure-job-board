@@ -392,7 +392,7 @@ export default async function DashboardPage({
         counterpartyId: `#${String(app.candidate_id || app.id).replace(/-/g, '').slice(0, 6).toUpperCase()}`,
         matchScore: typeof app.match_score === 'number' ? app.match_score : null,
         status: String(app.status || 'pending'),
-        vaultStage: stage2Released ? 'Stage 2 Full Release' : stage1Unlocked ? 'Stage 1 Chat Unlocked' : 'Identity Protected',
+        vaultStage: stage2Released ? 'The Conversation (Vault Released)' : stage1Unlocked ? 'The Introduction (Chat Active)' : 'Identity Protected',
       }
     })
 
@@ -898,7 +898,7 @@ export default async function DashboardPage({
       counterpartyId: app.match_data?.employer_org_domain || `#${String(app.job_id || app.id).replace(/-/g, '').slice(0, 6).toUpperCase()}`,
       matchScore: typeof app.match_score === 'number' ? app.match_score : null,
       status: String(app.status || 'pending'),
-      vaultStage: stage2Released ? 'Stage 2 Full Release' : stage1Unlocked ? 'Stage 1 Chat Unlocked' : 'Identity Protected',
+      vaultStage: stage2Released ? 'The Conversation (Vault Released)' : stage1Unlocked ? 'The Introduction (Chat Active)' : 'Identity Protected',
     }
   })
 
@@ -983,7 +983,7 @@ export default async function DashboardPage({
               </span>
             )}
             <span>·</span>
-            <span>2-Stage Identity &amp; Resume Vault Active</span>
+            <span>Intro/Convo Identity &amp; Resume Vault Active</span>
             <span>·</span>
             <span
               title="Your Anonymous Marketplace Identifier shown on Protected Applications & Talent Search"
