@@ -1074,7 +1074,7 @@ export default async function DashboardPage({
         const metaItem = Array.isArray(profile?.structured_skills)
           ? profile.structured_skills.find((s: any) => s && s._ss_meta)
           : null
-        const activeCandTier = String(metaItem?.subscription_tier || "free").toLowerCase()
+        const activeCandTier = String(metaItem?.plan || metaItem?.subscription_tier || "free").toLowerCase()
         const hasActiveTrialOrPlan =
           activeCandTier === "explorer" ||
           activeCandTier === "professional" ||
