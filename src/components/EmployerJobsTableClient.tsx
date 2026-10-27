@@ -40,6 +40,10 @@ export interface EnrichedEmployerJobRow {
   employmentType: string
   industry: string
   applicantCount: number
+  unactionedApplicantCount: number
+  renewalCount: number
+  maxRenewals: number
+  inRenewalWindow: boolean
   daysRemaining: number
   isExpired: boolean
   expiresAtIso: string
@@ -409,17 +413,41 @@ export default function EmployerJobsTableClient({
                     </Link>
 
                     {job.is_active && (
-                      <form action={toggleOrRenewJobStatus} className="w-full">
-                        <input type="hidden" name="job_id" value={job.id} />
-                        <input type="hidden" name="action_type" value="renew" />
-                        <input type="hidden" name="current_status" value="true" />
-                        <SubmitButton
-                          pendingText="Renewing..."
-                          className="w-full px-3 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 cursor-pointer"
+                      job.renewalCount >= job.maxRenewals ? (
+                        <span
+                          title="Maximum of 2 consecutive renewals (90 days total) reached for this listing."
+                          className="w-full px-3 py-2 text-xs font-bold text-slate-400 bg-slate-100 border border-slate-300 rounded-xl text-center select-none cursor-not-allowed"
                         >
-                          ↻ Renew +30d
-                        </SubmitButton>
-                      </form>
+                          🔒 Max 2 Renewals Used
+                        </span>
+                      ) : job.unactionedApplicantCount > 0 ? (
+                        <Link
+                          href="/dashboard/employer/applications"
+                          title="You must message or decline all pending applicants on this role before renewing."
+                          className="w-full px-3 py-2 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-300 rounded-xl text-center"
+                        >
+                          ⚡ Reply to {job.unactionedApplicantCount} Applicant{job.unactionedApplicantCount === 1 ? '' : 's'} to Renew
+                        </Link>
+                      ) : !job.inRenewalWindow ? (
+                        <span
+                          title={`Renewals unlock during the final 5 days of a listing (Days 25–30). ${job.daysRemaining - 5}d until renewal window opens.`}
+                          className="w-full px-3 py-2 text-xs font-bold text-slate-400 bg-slate-100 border border-slate-300 rounded-xl text-center select-none cursor-not-allowed"
+                        >
+                          🔒 Renews at ≤5d ({job.renewalCount}/{job.maxRenewals})
+                        </span>
+                      ) : (
+                        <form action={toggleOrRenewJobStatus} className="w-full">
+                          <input type="hidden" name="job_id" value={job.id} />
+                          <input type="hidden" name="action_type" value="renew" />
+                          <input type="hidden" name="current_status" value="true" />
+                          <SubmitButton
+                            pendingText="Renewing..."
+                            className="w-full px-3 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 cursor-pointer"
+                          >
+                            ↻ Renew +30d ({job.renewalCount}/{job.maxRenewals})
+                          </SubmitButton>
+                        </form>
+                      )
                     )}
 
                     <form
@@ -616,29 +644,53 @@ export default function EmployerJobsTableClient({
                           </Link>
 
                           {job.is_active && (
-                            <form action={toggleOrRenewJobStatus}>
-                              <input
-                                type="hidden"
-                                name="job_id"
-                                value={job.id}
-                              />
-                              <input
-                                type="hidden"
-                                name="action_type"
-                                value="renew"
-                              />
-                              <input
-                                type="hidden"
-                                name="current_status"
-                                value="true"
-                              />
-                              <SubmitButton
-                                pendingText="Renewing..."
-                                className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+                            job.renewalCount >= job.maxRenewals ? (
+                              <span
+                                title="Maximum of 2 consecutive renewals (90 days total) reached for this listing."
+                                className="px-3 py-1.5 text-xs font-bold text-slate-400 bg-slate-100 border border-slate-300 rounded-lg select-none cursor-not-allowed"
                               >
-                                ↻ Renew +30d
-                              </SubmitButton>
-                            </form>
+                                🔒 Max 2 Renewals Used
+                              </span>
+                            ) : job.unactionedApplicantCount > 0 ? (
+                              <Link
+                                href="/dashboard/employer/applications"
+                                title="Anti-Harvesting Gate: Please message or decline waiting applicants on this role before renewing."
+                                className="px-3 py-1.5 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-300 rounded-lg hover:bg-amber-100 transition-colors"
+                              >
+                                ⚡ Action {job.unactionedApplicantCount} Applicant{job.unactionedApplicantCount === 1 ? '' : 's'} to Renew
+                              </Link>
+                            ) : !job.inRenewalWindow ? (
+                              <span
+                                title={`Anti-Spam Renewal Gate: Active listings can only be renewed during their final 5 days (Days 25–30). Opens in ${job.daysRemaining - 5} day(s).`}
+                                className="px-3 py-1.5 text-xs font-bold text-slate-400 bg-slate-100 border border-slate-300 rounded-lg select-none cursor-not-allowed"
+                              >
+                                🔒 Renews at ≤5d
+                              </span>
+                            ) : (
+                              <form action={toggleOrRenewJobStatus}>
+                                <input
+                                  type="hidden"
+                                  name="job_id"
+                                  value={job.id}
+                                />
+                                <input
+                                  type="hidden"
+                                  name="action_type"
+                                  value="renew"
+                                />
+                                <input
+                                  type="hidden"
+                                  name="current_status"
+                                  value="true"
+                                />
+                                <SubmitButton
+                                  pendingText="Renewing..."
+                                  className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+                                >
+                                  ↻ Renew +30d ({job.renewalCount}/{job.maxRenewals})
+                                </SubmitButton>
+                              </form>
+                            )
                           )}
 
                           <form action={toggleOrRenewJobStatus}>
@@ -671,6 +723,21 @@ export default function EmployerJobsTableClient({
                                 Slots Full ({activeJobsCount}/{maxActiveJobs}) ·
                                 Upgrade
                               </Link>
+                            ) : job.renewalCount >= job.maxRenewals ? (
+                              <span
+                                title="This role has already used its maximum 2 renewals (90 days total)."
+                                className="px-3 py-1.5 text-xs font-bold text-slate-400 bg-slate-100 border border-slate-300 rounded-lg select-none cursor-not-allowed"
+                              >
+                                🔒 Max 2 Renewals Reached
+                              </span>
+                            ) : job.unactionedApplicantCount > 0 ? (
+                              <Link
+                                href="/dashboard/employer/applications"
+                                title="Please message or decline waiting applicants on this role before reopening."
+                                className="px-3 py-1.5 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-300 rounded-lg hover:bg-amber-100 transition-colors"
+                              >
+                                ⚡ Action {job.unactionedApplicantCount} Applicant{job.unactionedApplicantCount === 1 ? '' : 's'} to Reopen
+                              </Link>
                             ) : (
                               <>
                                 <input
@@ -682,7 +749,7 @@ export default function EmployerJobsTableClient({
                                   pendingText="Renewing..."
                                   className="px-3 py-1.5 text-xs font-extrabold text-white bg-slate-900 rounded-lg hover:bg-indigo-600 transition-colors cursor-pointer"
                                 >
-                                  ↻ Reopen (+30d)
+                                  ↻ Reopen (+30d • {job.renewalCount}/{job.maxRenewals})
                                 </SubmitButton>
                               </>
                             )}

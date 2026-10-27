@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import { resolveEmployerTierInfo } from '@/app/dashboard/actions'
+import { checkEmployerSilentUnlockQuota } from '@/app/dashboard/messaging-actions'
 import { normalizeIndustryVertical } from '@/constants/industries'
 import EmployerJobsTableClient, {
   EnrichedEmployerJobRow,
@@ -11,6 +12,8 @@ import EmployerJobsTableClient, {
 export const dynamic = 'force-dynamic'
 
 const JOB_EXPIRATION_DAYS = 30
+const RENEWAL_WINDOW_DAYS = 5
+const MAX_JOB_RENEWALS = 2
 
 function enrichJobForManagementTable(job: any): EnrichedEmployerJobRow {
   const rawReqs = Array.isArray(job?.structured_requirements)
@@ -72,9 +75,23 @@ function enrichJobForManagementTable(job: any): EnrichedEmployerJobRow {
   const annualizedMaxPay = payType === 'hourly' ? rawMax * 2080 : rawMax
   const annualizedMinPay = payType === 'hourly' ? rawMin * 2080 : rawMin
 
-  const applicantCount = Array.isArray(job?.applications)
-    ? job.applications.filter((a: any) => a.initiated_by !== 'employer').length
-    : 0
+  const inboundApps = Array.isArray(job?.applications)
+    ? job.applications.filter((a: any) => a.initiated_by !== 'employer')
+    : []
+  const applicantCount = inboundApps.length
+
+  const unactionedApplicantCount = inboundApps.filter((a: any) => {
+    const st = String(a?.status || 'pending').toLowerCase()
+    if (st === 'rejected' || st === 'declined') return false
+    const md = a?.match_data || {}
+    const msgs = Array.isArray(md.messages) ? md.messages : []
+    const hasEmployerMsg =
+      Boolean(md.employer_messaged_at) ||
+      msgs.some((m: any) => m && m.sender_role === 'employer')
+    return !hasEmployerMsg
+  }).length
+
+  const renewalCount = Math.max(0, Number(metaItem.renewal_count) || 0)
 
   const rawIndustry = metaItem.industry || job?.industry || ''
   const normalizedIndustry = rawIndustry
@@ -97,6 +114,10 @@ function enrichJobForManagementTable(job: any): EnrichedEmployerJobRow {
     employmentType: metaItem.employment_type || 'Full-Time (W-2)',
     industry: normalizedIndustry,
     applicantCount,
+    unactionedApplicantCount,
+    renewalCount,
+    maxRenewals: MAX_JOB_RENEWALS,
+    inRenewalWindow: Boolean(isExpired || !job.is_active || daysRemaining <= RENEWAL_WINDOW_DAYS),
     daysRemaining,
     isExpired,
     expiresAtIso: new Date(expiresMs).toISOString(),
@@ -146,7 +167,7 @@ export default async function JobManagementPage() {
     .select(
       `
       *,
-      applications (id, initiated_by)
+      applications (id, initiated_by, status, is_revealed, created_at, match_data)
     `
     )
     .eq('organization_id', member.organization_id)
@@ -233,7 +254,7 @@ export default async function JobManagementPage() {
       }
     }
 
-    // Stamp fresh renewed_at (+30 days) inside _ss_job_meta
+    // Check Renewal Guardrails: (1) Days 25-30 Window, (2) Max 2 Renewals, (3) Active Candidate Engagement
     const rawReqs = Array.isArray(targetJob.structured_requirements)
       ? targetJob.structured_requirements
       : []
@@ -245,12 +266,72 @@ export default async function JobManagementPage() {
       (r: any) => !(r && typeof r === 'object' && r._ss_job_meta === true)
     )
 
+    const baseTimestamp =
+      existingMeta.renewed_at || targetJob.created_at || new Date().toISOString()
+    const startMs = new Date(baseTimestamp).getTime()
+    const expiresMs = startMs + JOB_EXPIRATION_DAYS * 24 * 60 * 60 * 1000
+    const diffMs = expiresMs - Date.now()
+    const currentDaysRemaining = Math.max(
+      0,
+      Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+    )
+    const isCurrentlyExpired = diffMs <= 0
+
+    // Gate 1: Must be within final 5 days (Days 25-30) or already closed/expired
+    if (
+      targetJob.is_active &&
+      !isCurrentlyExpired &&
+      currentDaysRemaining > RENEWAL_WINDOW_DAYS
+    ) {
+      revalidatePath('/dashboard/employer/jobs')
+      return
+    }
+
+    // Gate 2: Max consecutive renewals cap (2 renewals = 90 days max per listing)
+    const currentRenewalCount = Math.max(0, Number(existingMeta.renewal_count) || 0)
+    if (currentRenewalCount >= MAX_JOB_RENEWALS) {
+      revalidatePath('/dashboard/employer/jobs')
+      return
+    }
+
+    // Gate 3a: Organization-wide Silent Unlock Quota check
+    const silentQuota = await checkEmployerSilentUnlockQuota(
+      memberRow.organization_id
+    )
+    if (!silentQuota.allowed) {
+      revalidatePath('/dashboard/employer/jobs')
+      return
+    }
+
+    // Gate 3b: Job-specific Unactioned Inbound Applicants check
+    const { data: jobApps } = await supabaseAction
+      .from('applications')
+      .select('id, initiated_by, status, match_data')
+      .eq('job_id', jobId)
+
+    const unactionedApps = (jobApps || []).filter((a: any) => {
+      if (a.initiated_by === 'employer') return false
+      const st = String(a?.status || 'pending').toLowerCase()
+      if (st === 'rejected' || st === 'declined') return false
+      const md = a?.match_data || {}
+      const msgs = Array.isArray(md.messages) ? md.messages : []
+      const hasEmployerMsg =
+        Boolean(md.employer_messaged_at) ||
+        msgs.some((m: any) => m && m.sender_role === 'employer')
+      return !hasEmployerMsg
+    })
+
+    if (unactionedApps.length > 0) {
+      revalidatePath('/dashboard/employer/jobs')
+      return
+    }
+
     const nowIso = new Date().toISOString()
     const updatedMeta = {
       ...existingMeta,
       _ss_job_meta: true,
       renewed_at: nowIso,
-      renewal_count: (Number(existingMeta.renewal_count) || 0) + 1,
+      renewal_count: currentRenewalCount + 1,
     }
 
     await supabaseAction
@@ -345,7 +426,7 @@ export default async function JobManagementPage() {
               <span className="font-extrabold text-slate-900 block">
                 Anti-Harvesting Freshness Policy (30-Day Auto-Expiry)
               </span>
-              Every open role is active for 30 days. When a listing reaches 0 days remaining, it automatically closes so candidates never apply to ghost roles. You can manually renew any active or expired role for a fresh 30-day cycle at any time.
+              Every open role is active for 30 days and automatically closes at Day 30 so candidates never apply to ghost roles. To prevent perpetual listing resets and passive resume harvesting, renewals unlock only during the final 5 days of a cycle (Days 25–30), require zero unanswered applicants in your inbox, and are capped at 2 renewals (90 days max per role).
             </div>
           </div>
         </div>
