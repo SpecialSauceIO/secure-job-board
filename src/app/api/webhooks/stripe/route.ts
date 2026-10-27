@@ -358,12 +358,18 @@ export async function POST(req: Request) {
       session.client_reference_id
 
     if (userId) {
+      const { data: existingProfile } = await supabaseAdmin
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .maybeSingle()
+      const isEmployerRole = existingProfile?.role === 'employer'
       const { error } = await supabaseAdmin
         .from('profiles')
         .update({
           identity_verified: true,
           is_verified: true,
-          is_discoverable: true,
+          ...(isEmployerRole ? {} : { is_discoverable: true }),
         })
         .eq('id', userId)
 
