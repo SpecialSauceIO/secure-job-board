@@ -22,9 +22,19 @@ export default function PricingMatrixPage() {
           <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight">
             Transparent Plans • 30-Day Free Trial ($0 Today)
           </h1>
-          <p className="text-base sm:text-xl text-slate-100 max-w-3xl mx-auto leading-relaxed">
-            Build your anonymous skill matrix or stage roles and run <strong className="text-white">5-Point AI Fit Radar™ checks for free</strong>. When you are ready to connect, every Candidate and Employer plan starts with a <strong className="text-emerald-300">30-Day Free Trial ($0.00 due today)</strong>—including 1-time <strong className="text-white">Stripe Real-Person ID Verification</strong>, <strong className="text-amber-300">12-Month Founding Partner Rate Locks</strong>, and 100% Accepted-Only Pitch Credit Protection.
+          <p className="text-base sm:text-lg text-slate-200 max-w-2xl mx-auto leading-relaxed">
+            Explore the marketplace and run <strong className="text-white">5-Point AI Fit Radar™ checks for free</strong>. Every plan includes a <strong className="text-emerald-300">30-Day Free Trial ($0.00 due today)</strong>—cancel anytime before Day 30.
           </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-3 text-left">
+            <div className="p-4 rounded-xl bg-slate-900/90 border border-indigo-500/40">
+              <div className="text-xs font-extrabold uppercase tracking-wider text-indigo-300 mb-1">For Candidates ($3 / $9 / $15 mo)</div>
+              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">Build your anonymous skill matrix free. Includes 1-time <strong className="text-white">Stripe Real-Person ID Verification</strong> &amp; permanent <strong className="text-amber-300">★ Founding Member</strong> badge.</p>
+            </div>
+            <div className="p-4 rounded-xl bg-slate-900/90 border border-emerald-500/40">
+              <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-300 mb-1">For Employers ($149 / $499 / $1,250 mo)</div>
+              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">Lock in <strong className="text-amber-300">12-Month Founding Partner Rates</strong> (up to 50% off retail) &amp; <strong className="text-white">100% Accepted-Only Pitch Protection</strong>.</p>
+            </div>
+          </div>
 
           {/* Frameless Operational Trust Strip — Matching Landing Page Vertical Hairlines */}
           <div className="pt-6 w-full max-w-5xl mx-auto">
@@ -83,9 +93,11 @@ export default function PricingMatrixPage() {
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
                   Start With a 30-Day Free Trial ($0.00 Due Today) on Any Candidate Plan
                 </h2>
-                <p className="text-base text-slate-100 leading-relaxed max-w-3xl">
-                  Get discovered by verified employers and unlock unlimited inbound pitches on <strong className="text-emerald-300">Explorer for $3/mo</strong> (includes 1-time <strong className="text-amber-300">Stripe Real-Person ID Verification</strong>). Ready to proactively apply to roles? Choose <strong className="text-white">Professional ($9/mo for 15 monthly protected applications)</strong> or <strong className="text-white">Prestige ($15/mo for unlimited protected applications &amp; Top-Priority Spotlight)</strong>.
-                </p>
+                <ul className="space-y-1.5 pt-1 text-sm sm:text-base text-slate-200">
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-white">Free Profile Seeding:</strong> Build your anonymous skill matrix and run 5-Point AI Fit checks at $0 upfront.</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-emerald-300">Explorer ($3/mo after trial):</strong> Unlock 1-time Stripe ID Verification &amp; accept unlimited inbound employer pitches.</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-amber-300">Professional ($9/mo) &amp; Prestige ($15/mo):</strong> Proactively submit protected applications + earn Founding Member status.</span></li>
+                </ul>
               </div>
               <div className="shrink-0">
                 <Link
@@ -114,11 +126,14 @@ export default function PricingMatrixPage() {
                     </h3>
                     <div className="mt-3 flex items-baseline gap-2">
                       <span className="text-4xl font-black text-white">$3</span>
-                      <span className="text-sm font-bold text-slate-200">/ mo after 30-day free trial ($0 today)</span>
+                      <span className="text-sm font-bold text-slate-300">/ month</span>
+                    </div>
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
+                      ✓ 30-Day Free Trial ($0 Today)
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    Ideal when you want verified employers to come to you. Includes 1-time Real-Person ID Verification, live placement in Employer Search, and unlimited inbound pitch unlocks.
+                    Let verified employers come to you with unlimited inbound pitch unlocks.
                   </p>
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
@@ -166,11 +181,14 @@ export default function PricingMatrixPage() {
                     </h3>
                     <div className="mt-3 flex items-baseline gap-2">
                       <span className="text-4xl font-black text-white">$9</span>
-                      <span className="text-sm font-bold text-slate-200">/ mo after 30-day free trial ($0 today)</span>
+                      <span className="text-sm font-bold text-slate-300">/ month</span>
+                    </div>
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
+                      ✓ 30-Day Free Trial ($0 Today)
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    Built for selective professionals ready to unlock inbound employer pitches, complete real-person ID verification, and submit targeted protected applications.
+                    Accept unlimited inbound pitches and apply directly to up to 15 roles per month.
                   </p>
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
@@ -222,11 +240,14 @@ export default function PricingMatrixPage() {
                     </h3>
                     <div className="mt-3 flex items-baseline gap-2">
                       <span className="text-4xl font-black text-white">$15</span>
-                      <span className="text-sm font-bold text-slate-200">/ mo after 30-day free trial ($0 today)</span>
+                      <span className="text-sm font-bold text-slate-300">/ month</span>
+                    </div>
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
+                      ✓ 30-Day Free Trial ($0 Today)
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    Maximum visibility and zero application caps for active, ID-verified professionals ready to transition fast.
+                    Unlimited protected applications and Top-Priority Spotlight in Employer Search.
                   </p>
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
@@ -278,9 +299,11 @@ export default function PricingMatrixPage() {
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
                   30-Day Free Trial ($0.00 Today) + Up to 50% Off Retail for Your First 12 Months
                 </h2>
-                <p className="text-base text-slate-100 leading-relaxed max-w-3xl">
-                  Verify your corporate domain during our launch window to lock in <strong className="text-amber-300">Founding Partner Rates ($149 / $499 / $1,250 per month) for your first 12 full months</strong> before standard retail pricing ($299 / $799 / $1,999) applies in Month 13. Reviewing and unlocking inbound candidate applications is <strong className="text-white">100% free (0 credits)</strong>, and every outbound pitch is backed by our <strong className="text-emerald-300">Accepted-Only Guarantee (declined pitches auto-refunded)</strong>.
-                </p>
+                <ul className="space-y-1.5 pt-1 text-sm sm:text-base text-slate-200">
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-amber-300">12-Month Rate Lock:</strong> Lock in $149 / $499 / $1,250 per month for your first 12 months (standard retail applies Month 13).</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-white">Free Inbound Applicants:</strong> Reviewing and unlocking candidates who apply to your roles is 100% free (0 credits).</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-emerald-300">Accepted-Only Pitch Guarantee:</strong> You only spend a credit when a candidate accepts—declined pitches are auto-refunded.</span></li>
+                </ul>
               </div>
               <div className="shrink-0">
                 <Link
@@ -310,11 +333,14 @@ export default function PricingMatrixPage() {
                     <div className="mt-3 flex flex-wrap items-baseline gap-2">
                       <span className="text-lg font-bold text-slate-400 line-through">$299</span>
                       <span className="text-4xl font-black text-white">$149</span>
-                      <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo after 30-day free trial ($0 today • Locked 12 Mos)</span>
+                      <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
+                    </div>
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
+                      ✓ 30-Day Free Trial ($0 Today)
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    Built for small businesses and hiring managers filling 1 to 5 active roles at a time—for less than the cost of a single promoted job slot.
+                    For small teams filling 1 to 5 active roles at a time.
                   </p>
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5">
@@ -331,7 +357,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches auto-refunded)</span>
+                      <span><strong className="text-white">100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches are auto-refunded)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -371,11 +397,14 @@ export default function PricingMatrixPage() {
                     <div className="mt-3 flex flex-wrap items-baseline gap-2">
                       <span className="text-lg font-bold text-slate-400 line-through">$799</span>
                       <span className="text-4xl font-black text-white">$499</span>
-                      <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo after 30-day free trial ($0 today • Locked 12 Mos)</span>
+                      <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
+                    </div>
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
+                      ✓ 30-Day Free Trial ($0 Today)
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    Designed for scaling companies actively sourcing real-person ID-verified talent across multiple departments.
+                    For scaling teams sourcing verified talent across multiple departments.
                   </p>
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5">
@@ -392,7 +421,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches auto-refunded)</span>
+                      <span><strong className="text-white">100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches are auto-refunded)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -432,11 +461,14 @@ export default function PricingMatrixPage() {
                     <div className="mt-3 flex flex-wrap items-baseline gap-2">
                       <span className="text-lg font-bold text-slate-400 line-through">$1,999</span>
                       <span className="text-4xl font-black text-white">$1,250</span>
-                      <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo after 30-day free trial ($0 today • Locked 12 Mos)</span>
+                      <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
+                    </div>
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
+                      ✓ 30-Day Free Trial ($0 Today)
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    Built for high-velocity talent acquisition teams, multi-location enterprises, and recruiting agencies requiring automated HR software sync.
+                    For high-volume hiring teams and agencies with automated HR/ATS sync.
                   </p>
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5">
@@ -453,7 +485,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches auto-refunded)</span>
+                      <span><strong className="text-white">100% Accepted-Only Pitch Credit Protection</strong> (Declined pitches are auto-refunded)</span>
                     </li>
                     <li className="flex items-start gap-2.5 text-indigo-300 font-bold">
                       <span className="shrink-0">⚡</span>
@@ -502,7 +534,7 @@ export default function PricingMatrixPage() {
                     ✓ Bucket 2: Top-Up Credits (100% Rollover)
                   </span>
                   <span className="flex items-center gap-2 text-sky-300">
-                    🛡️ Declined Pitches Auto-Refunded (+1 Credit)
+                    🛡️ Declined Pitches Are Auto-Refunded (+1 Credit)
                   </span>
                 </div>
               </div>

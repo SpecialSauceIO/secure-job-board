@@ -28,9 +28,9 @@ export default function LandingPage() {
       <PublicHeader fixed />
 
       {/* Hero Section */}
-      <section className="relative pt-36 sm:pt-44 pb-16 sm:pb-20 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center text-center">
+      <section className="relative pt-40 sm:pt-48 pb-20 sm:pb-28 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center text-center">
         {/* Cross-fading text container */}
-        <div className="grid [grid-template-areas:'stack'] mb-6 w-full place-items-center">
+        <div className="grid [grid-template-areas:'stack'] mb-10 w-full place-items-center">
           {/* SLIDE 0 (Slide #1): Universal Opening Slide - LOGO BLUE */}
           <div
             className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
@@ -112,7 +112,7 @@ export default function LandingPage() {
               </span>
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl leading-relaxed">
-              Start with a <strong className="text-slate-700">$0.00 30-Day Free Trial</strong> during our launch window to claim a <strong className="text-slate-700">permanent ★ Founding Member Charter distinction</strong> on your candidate profile, <strong className="text-slate-700">12-Month Founding Partner Rate Locks</strong> for employers, and <strong className="text-slate-700">100% Accepted-Only Pitch Credit Protection</strong>.
+              Every Candidate and Employer plan starts with a <strong className="text-slate-700">30-Day Free Trial ($0.00 due today)</strong>. Candidates earn a permanent <strong className="text-slate-700">★ Founding Member badge</strong>, and Employers lock in <strong className="text-slate-700">12-Month Founding Partner Rates</strong>.
             </p>
           </div>
 
@@ -236,12 +236,8 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        <p className="mt-3.5 text-xs sm:text-sm font-bold text-slate-600 z-20 relative">
-          <span className="text-emerald-600 font-extrabold">✓ $0.00 Due Today:</span> Build your anonymous profile, stage roles, and run 5-Point AI Fit Radar™ checks for free—then start a 30-Day Free Trial when ready to connect.
-        </p>
-
         {/* 6 Slide Indicators - Alternating Logo Blue & Logo Orange */}
-        <div className="flex gap-2 mt-5 z-20 relative">
+        <div className="flex gap-2.5 mt-8 z-20 relative">
           <button
             onClick={() => setCurrentSlide(0)}
             className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
@@ -299,7 +295,7 @@ export default function LandingPage() {
         </div>
 
         {/* High-Visibility Operational Trust Strip — Frameless with Thin Vertical Dividers */}
-        <div className="mt-9 w-full max-w-5xl z-20 relative">
+        <div className="mt-12 w-full max-w-5xl z-20 relative">
           <div className="grid grid-cols-2 lg:grid-cols-4 lg:divide-x divide-slate-400 dark:divide-white/70 py-2">
             <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
               <span className="text-[11px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-[0.14em]">
@@ -343,7 +339,7 @@ export default function LandingPage() {
         <button
           type="button"
           onClick={scrollToHowItWorks}
-          className="mt-6 inline-flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors group cursor-pointer z-20"
+          className="mt-10 inline-flex flex-col items-center gap-1.5 text-slate-400 hover:text-indigo-600 transition-colors group cursor-pointer z-20"
         >
           <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
             Explore How It Works
