@@ -252,7 +252,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How does Special Sauce eliminate stale "ghost jobs" and low-fit resume black holes?',
     answer:
-      'First, every job listing on Special Sauce is governed by a strict 30-Day Auto-Expiration policy—each card displays a live "Closes in Xd" countdown and automatically closes after 30 days unless manually renewed by the hiring team. Second, every listing shows transparent Annual (/yr) or Hourly (/hr) pay bands upfront and calculates your instant 5-Point AI Fit Radar score before you apply. A minimum 40%+ AI Fit score is required to submit a protected application, ensuring hiring managers review high-signal matches instead of drowning in spam.',
+      'First, every job listing on Special Sauce is governed by a strict 30-Day Auto-Expiration policy—each card displays a live "Closes in Xd" countdown and automatically closes after 30 days unless manually renewed by the hiring team. Second, every listing shows transparent Annual (/yr) or Hourly (/hr) pay bands upfront and calculates your instant 5-Point AI Fit Radar score before you apply. A minimum 40%+ AI Fit score is required to submit a protected application, ensuring hiring managers review pre-aligned candidates who meet their core role requirements.',
   },
   {
     id: 'c5',

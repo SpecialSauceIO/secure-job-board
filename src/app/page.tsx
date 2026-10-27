@@ -537,10 +537,10 @@ export default function LandingPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-3">
-                  2. 40% Anti-Spam Baseline &amp; Protected Invitations
+                  2. 40% Skill-Fit Threshold &amp; Protected Invitations
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Start your 30-Day Founding Partner Trial when you are ready to publish live roles or send Professional Invitations. Our 40% baseline match blocks unqualified spam, and 100% Accepted-Only Invitation Credit Protection ensures you only use a credit when a professional accepts.
+                  Start your 30-Day Founding Partner Trial when you are ready to publish live roles or send Professional Invitations. Our 40% minimum AI Fit threshold ensures every applicant meets your core role requirements, and 100% Accepted-Only Invitation Credit Protection ensures you only use a credit when a professional accepts.
                 </p>
               </div>
 
