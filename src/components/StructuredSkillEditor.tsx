@@ -35,7 +35,7 @@ export function StructuredSkillEditor({ initialSkills = [] }: { initialSkills?: 
 
   return (
     <div className="bg-white p-4 rounded-xl border-2 border-slate-300 shadow-sm border-slate-300">
-      <label className="block text-sm font-bold text-slate-700 mb-2">Verified Skills & Experience</label>
+      <label className="block text-sm font-bold text-slate-700 mb-2">Structured Skills & Experience</label>
       <p className="text-xs text-slate-500 mb-4">List your core technical or professional skills and the years of experience you have with each. This structured data ensures perfect alignment with employer requirements.</p>
       
       <div className="space-y-3 mb-4">

@@ -295,7 +295,7 @@ export function calculateCandidateGamification(
     },
     {
       id: 'certified_specialist',
-      title: 'Verified Credentials',
+      title: 'Certified & Credentialed',
       shortLabel: 'Certified',
       description:
         'Holds active industry certifications, professional licenses, or Advanced/Fluent multilingual proficiency on profile.',

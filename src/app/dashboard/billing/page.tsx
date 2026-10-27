@@ -234,7 +234,7 @@ export default function CandidateBillingPage() {
             Candidate Membership &amp; 100% ID-Verified Access
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Every candidate in the Special Sauce talent pool is real-person ID-verified to guarantee zero bots and zero spam. Choose Explorer ($3/mo) for passive inbound pitches, or Professional ($9/mo) &amp; Prestige ($15/mo) to proactively apply to roles.
+            Every active connection on Special Sauce requires real-person biometric ID verification to guarantee zero bots and zero spam. Choose Explorer ($3/mo) for passive inbound pitches, or Professional ($9/mo) &amp; Prestige ($15/mo) to proactively apply to roles.
           </p>
         </div>
 

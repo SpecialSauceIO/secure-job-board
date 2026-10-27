@@ -319,7 +319,7 @@ export default function PlatformWorkflowsView({
               1. Pre-Match (100% Double-Blind)
             </div>
             <p className="text-base text-slate-100 leading-relaxed">
-              Candidates appear as <code className="text-emerald-300 font-bold">Candidate #ID</code> with verified skills and AI Fit scores. Employers appear by Industry Vertical, Company Stage, and upfront salary bands.
+              Candidates appear as <code className="text-emerald-300 font-bold">Candidate #ID</code> with structured skills and AI Fit scores. Employers appear by Industry Vertical, Company Stage, and upfront salary bands.
             </p>
           </div>
           <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">

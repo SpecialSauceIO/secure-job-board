@@ -454,7 +454,7 @@ export default function WorkflowsPage() {
                   1. Pre-Match (Mutual Identity Protection)
                 </h3>
                 <p className="text-sm text-slate-200 leading-relaxed">
-                  Candidates appear as <strong className="text-emerald-400">Candidate #ID</strong> with verified skills, dealbreakers, and 5-Point AI Fit scores. Employers appear by Industry Vertical, Company Stage, and upfront salary bands—preventing resume harvesting and poaching risk.
+                  Candidates appear as <strong className="text-emerald-400">Candidate #ID</strong> with structured skills, dealbreakers, and 5-Point AI Fit scores. Employers appear by Industry Vertical, Company Stage, and upfront salary bands—preventing resume harvesting and poaching risk.
                 </p>
               </div>
 

@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Special Sauce | Welcome to your future",
     description:
-      "Identity-protected, Stripe ID-verified hiring. Match on verified skills first—unlock identity only by mutual consent.",
+      "Identity-protected, Stripe ID-verified hiring. Match on structured skills first—unlock identity only by mutual consent.",
   },
 };
 

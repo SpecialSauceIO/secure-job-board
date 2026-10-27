@@ -352,9 +352,15 @@ export default function EmployerSentPitchesPage() {
                           size="xs"
                         />
 
-                        <span className="text-emerald-700 text-xs font-bold">
-                          ✓ Verified
-                        </span>
+                        {(Boolean(candidate?.identity_verified === true || String(candidate?.identity_verified) === "true" || candidate?.is_verified === true || String(candidate?.is_verified) === "true" || isAccepted)) ? (
+                            <span className="text-emerald-700 text-xs font-bold">
+                              ✓ Biometric ID Verified
+                            </span>
+                          ) : (
+                            <span className="text-indigo-700 text-xs font-bold">
+                              🛡️ Vault-Staged (ID Gate on Connect)
+                            </span>
+                          )}
                       </div>
 
                       {/* Clean Inline Metadata Row */}

@@ -242,7 +242,7 @@ function ScannerForm({ profile }: { profile: any }) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800">
                   <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Verified Role Tenure
+                    Calculated Role Tenure
                   </div>
                   <div className="text-base font-extrabold text-white mt-1">
                     {profile?.experience_years

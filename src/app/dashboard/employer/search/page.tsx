@@ -65,7 +65,7 @@ export default async function EmployerSearchPage() {
             Passive Candidate Search
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Browse verified anonymous profiles, run 5-Point AI Fit checks, and pitch your active roles directly to top talent.
+            Browse vaulted anonymous profiles, run 5-Point AI Fit checks, and pitch your active roles directly to top talent.
           </p>
         </div>
 

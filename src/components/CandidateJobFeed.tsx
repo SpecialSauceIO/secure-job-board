@@ -788,7 +788,7 @@ export function CandidateJobFeed({
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs">
                       <span className="text-emerald-700 font-bold">
-                        {orgVerified ? '✓ Verified Domain' : '✓ Verified Employer'}
+                        {orgVerified ? '✓ Verified Domain' : '🛡️ Protected Listing'}
                       </span>
                       <span className="text-slate-300">•</span>
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold text-[11px] border border-indigo-300">

@@ -701,7 +701,7 @@ export default function EmployerCandidateSearch({
               }
               className="rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2.5 text-xs font-extrabold text-slate-700 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
             >
-              <option value="rank_high">Sort: Verified Credentials</option>
+              <option value="rank_high">Sort: ID Verified First</option>
               <option value="exp_high">Sort: Most Experienced</option>
               <option value="salary_low">Sort: Lowest Min Salary</option>
               <option value="salary_high">Sort: Highest Min Salary</option>
@@ -879,7 +879,7 @@ export default function EmployerCandidateSearch({
               <strong className="text-slate-900">
                 {filteredAndSortedCandidates.length}
               </strong>{' '}
-              verified{' '}
+              vaulted{' '}
               {filteredAndSortedCandidates.length === 1
                 ? 'candidate'
                 : 'candidates'}
@@ -1251,7 +1251,7 @@ export default function EmployerCandidateSearch({
                         Experience &amp; Model
                       </span>
                       <span className="font-bold text-slate-900 leading-snug block mt-0.5 capitalize">
-                        {candidate.experience_years ? `${candidate.experience_years} Yrs Exp` : 'Exp Verified in Vault'} • {candidate.preferred_work_model || 'Flexible'} Model
+                        {candidate.experience_years ? `${candidate.experience_years} Yrs Exp` : 'Exp Staged in Vault'} • {candidate.preferred_work_model || 'Flexible'} Model
                       </span>
                     </div>
 
@@ -1284,7 +1284,7 @@ export default function EmployerCandidateSearch({
 
                     <div className="min-w-0">
                       <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                        Verified Languages
+                        Languages & Fluency
                       </span>
                       <span className="font-bold text-slate-900 leading-snug block mt-0.5">
                         {candidateLanguages.length > 0
@@ -1756,7 +1756,7 @@ export default function EmployerCandidateSearch({
               <strong className="text-slate-900 font-extrabold">
                 {totalFilteredCandidates}
               </strong>{' '}
-              verified {totalFilteredCandidates === 1 ? 'candidate' : 'candidates'}
+              vaulted {totalFilteredCandidates === 1 ? 'candidate' : 'candidates'}
             </span>
             <span className="hidden sm:inline text-slate-300">|</span>
             <label className="inline-flex items-center gap-2 font-bold text-slate-700">
