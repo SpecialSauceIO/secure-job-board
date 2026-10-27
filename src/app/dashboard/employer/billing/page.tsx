@@ -282,7 +282,7 @@ export default function EmployerBillingPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Employer Billing, Role Slots &amp; Invitation Credits
+            Billing, Role Slots &amp; Invitation Credits
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Reviewing and unlocking candidates who apply to your protected job listings is 100% free (0 credits) on every active plan.
@@ -831,7 +831,7 @@ export default function EmployerBillingPage() {
               🧪 QA Stress-Testing Controls (Remove Before Public Launch)
             </span>
             <p className="text-xs text-slate-600 mt-0.5">
-              Instant 1-click plan switching across all 4 Employer Tiers to test role-slot limits, seat caps, Two-Bucket rollover credits, and the HR Software Sync Hub.
+              Instant 1-click plan switching across all 4 Tiers to test role-slot limits, seat caps, Two-Bucket rollover credits, and the HR Software Sync Hub.
             </p>
           </div>
         </div>
