@@ -160,7 +160,7 @@ export default function SecurityTrustPage() {
                 Ready to Join the 100% ID-Verified Marketplace?
               </h3>
               <p className="text-base text-slate-100">
-                Activate your Candidate Vault starting at $3/mo or lock in 12-Month Employer Founding Partner Rates.
+                Build your profile or stage roles for free, then start a 30-Day Free Trial ($0.00 due today) on any Candidate or Employer Founding Partner plan.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3 shrink-0">
@@ -174,13 +174,13 @@ export default function SecurityTrustPage() {
                 href="/signup/candidate"
                 className="px-5 py-3 rounded-xl bg-indigo-600 text-white text-sm font-extrabold hover:bg-indigo-500 transition-colors"
               >
-                Join as Candidate ($3/mo) →
+                Join as Candidate ($0 30-Day Trial) →
               </Link>
               <Link
                 href="/signup/employer"
                 className="px-5 py-3 rounded-xl bg-emerald-600 text-white text-sm font-extrabold hover:bg-emerald-500 transition-colors"
               >
-                Join as Employer ($149/mo) →
+                Join as Employer ($0 30-Day Trial) →
               </Link>
             </div>
           </div>

@@ -45,10 +45,10 @@ export default function CandidateSignupPage({
             </h2>
             <p className="mt-1.5 text-sm text-slate-500 font-medium">
               {selectedPlan === 'prestige'
-                ? 'Create your account to activate Candidate Prestige ($15/mo).'
+                ? 'Create your free account to stage your profile and start your 30-Day Free Trial of Candidate Prestige ($0 today • $15/mo after).'
                 : selectedPlan === 'professional'
-                  ? 'Create your account to activate Candidate Professional ($9/mo).'
-                  : 'Create your account to activate Candidate Explorer ($3/mo · Includes Real-Person ID Verification).'}
+                  ? 'Create your free account to stage your profile and start your 30-Day Free Trial of Candidate Professional ($0 today • $9/mo after).'
+                  : 'Create your free account to stage your anonymous skill matrix and start your 30-Day Free Trial of Explorer ($0 today • $3/mo after).'}
             </p>
           </div>
 
@@ -169,10 +169,10 @@ export default function CandidateSignupPage({
                 className="w-full flex justify-center items-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 transition-all cursor-pointer"
               >
                 {selectedPlan === 'prestige'
-                  ? 'Continue to Prestige ($15/mo) →'
+                  ? 'Start 30-Day Free Trial ($0 Today • $15/mo After) →'
                   : selectedPlan === 'professional'
-                    ? 'Continue to Professional ($9/mo) →'
-                    : 'Continue to Explorer ($3/mo) →'}
+                    ? 'Start 30-Day Free Trial ($0 Today • $9/mo After) →'
+                    : 'Create Free Vault & Start $0 30-Day Trial →'}
               </button>
             </div>
 
