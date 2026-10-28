@@ -54,7 +54,7 @@ export default function DashboardNav({
 
   const isFounderAdmin =
     Boolean(userEmail) &&
-    ((['sbradley79.ph@gmail.com', 'sbriley79.ph@gmail.com'].includes(userEmail.toLowerCase().trim())) ||
+    (userEmail.toLowerCase().trim() === 'sbriley79.ph@gmail.com' ||
       (userEmail.toLowerCase().trim().endsWith('@specialsauce.io') &&
         !userEmail.toLowerCase().includes('.demo@')))
 
