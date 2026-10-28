@@ -13,32 +13,93 @@ export default function WorkflowsPage() {
       <div>
         <PublicHeader />
 
-        <main className="max-w-6xl mx-auto px-4 sm:px-6 md:px-12 py-10 sm:py-16 space-y-10 sm:space-y-12">
-          {/* Header Card */}
-          <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="space-y-2.5 max-w-2xl">
-              <span className="inline-block px-3 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-extrabold uppercase tracking-wider">
-                Free Upfront Seeding • 30-Day Free Trial • Intro/Convo Privacy Vault
-              </span>
-              <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                How Special Sauce Works{' '}
-                <span className={activeTab === 'candidate' ? 'text-indigo-600' : 'text-emerald-600'}>
-                  {activeTab === 'candidate' ? 'for Candidates' : 'for Employers'}
-                </span>
-              </h1>
-              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                Build your profile or stage open roles and run <strong>5-Point AI Fit Radar™</strong> checks for <strong>free</strong>. When you are ready to connect, start a <strong>30-Day Free Trial</strong> backed by 1-time real-person ID verification and our Intro/Convo Privacy Handshake.
-              </p>
+        {/* Full-Bleed Dark Slate Hero with Static Right-Side 3D Angled Interface */}
+        <section className="relative overflow-hidden bg-[#0f172a] border-b border-slate-800 py-14 sm:py-18 md:py-24">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-24 -left-24 w-[36rem] h-[36rem] rounded-full bg-emerald-500/10 blur-3xl z-0"
+          />
+
+          <div
+            aria-hidden="true"
+            className="pointer-events-none select-none absolute inset-0 overflow-hidden z-0"
+          >
+            <div className="absolute top-1/2 right-[-6%] -translate-y-1/2 w-[42rem] h-[42rem] rounded-full bg-gradient-to-tr from-emerald-500/20 via-sky-500/15 to-indigo-500/20 blur-3xl" />
+
+            <div
+              className="absolute inset-0"
+              style={{
+                WebkitMaskImage:
+                  'linear-gradient(to right, transparent 0%, transparent 46%, rgba(0,0,0,0.22) 60%, rgba(0,0,0,0.78) 76%, rgba(0,0,0,0.96) 92%)',
+                maskImage:
+                  'linear-gradient(to right, transparent 0%, transparent 46%, rgba(0,0,0,0.22) 60%, rgba(0,0,0,0.78) 76%, rgba(0,0,0,0.96) 92%)',
+              }}
+            >
+              <div
+                className="absolute -top-[2%] sm:-top-[5%] lg:-top-[8%] right-[-18%] sm:right-[-8%] lg:right-[-1%] w-[920px] sm:w-[1120px] lg:w-[1260px] opacity-85"
+                style={{
+                  transform:
+                    'perspective(1350px) rotateY(-34deg) rotateX(12deg) rotateZ(-4deg) scale(1.06)',
+                  transformOrigin: 'center right',
+                }}
+              >
+                <div className="rounded-2xl border border-emerald-400/25 bg-[#0a0f1c] p-2 shadow-[0_35px_90px_rgba(0,0,0,0.9)]">
+                  <div className="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-white/10 rounded-t-xl">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-slate-700" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-slate-700" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-slate-700" />
+                    </div>
+                    <span className="text-[11px] font-mono text-emerald-400 tracking-wider">
+                      specialsauce.io • 2-Stage Intro/Convo Privacy Handshake
+                    </span>
+                  </div>
+                  <div className="relative aspect-[16/9] w-full overflow-hidden rounded-b-xl bg-[#0a0f1c]">
+                    <img
+                      src="/media/ui-card-mutual-unlock.webp"
+                      alt=""
+                      className="w-full h-full object-cover object-left-top"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="shrink-0">
+
+            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#0f172a] to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/90 to-transparent" />
+          </div>
+
+          <div className="relative z-10 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto text-center space-y-5">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/35 text-emerald-300 text-xs sm:text-sm font-extrabold uppercase tracking-wide backdrop-blur-xs">
+              <span>Free Upfront Seeding • 30-Day Free Trial • Intro/Convo Privacy Vault</span>
+            </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight drop-shadow-xs">
+              How Special Sauce Works{' '}
+              <span className={activeTab === 'candidate' ? 'text-sky-400' : 'text-emerald-400'}>
+                {activeTab === 'candidate' ? 'for Candidates' : 'for Employers'}
+              </span>
+            </h1>
+            <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
+              Build your profile or stage open roles and run <strong className="text-white">5-Point AI Fit Radar™</strong> checks for <strong className="text-emerald-400">free</strong>. When you are ready to connect, start a <strong className="text-white">30-Day Free Trial</strong> backed by 1-time real-person ID verification and our Intro/Convo Privacy Handshake.
+            </p>
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/security"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-extrabold hover:bg-slate-800 transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-white border border-slate-700 hover:border-sky-400 text-xs sm:text-sm font-extrabold transition-all shadow-md backdrop-blur-md"
               >
                 🛡️ View Intro/Convo Vault &amp; Security →
               </Link>
+              <Link
+                href="/pricing"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-400/40 text-xs sm:text-sm font-extrabold transition-all backdrop-blur-md"
+              >
+                ★ 30-Day Free Trial • Plans &amp; Perks
+              </Link>
             </div>
           </div>
+        </section>
+
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 md:px-12 py-10 sm:py-14 space-y-10 sm:space-y-12">
 
           {/* Interactive Workflow Switcher */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -14,65 +14,127 @@ export default function PricingMatrixPage() {
       <div>
         <PublicHeader />
 
-        {/* Hero Header */}
-        <section className="py-10 sm:py-14 md:py-20 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-300 text-amber-800 text-xs sm:text-sm font-extrabold uppercase tracking-wide">
-            <span>★ 30-Day Free Trial • 100% Human-to-Human Hiring &amp; Founding Partner Rates</span>
-          </div>
-          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
-            Transparent Plans • 30-Day Free Trial
-          </h1>
-          <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Connect directly with ID-verified professionals and domain-verified employers—with <strong className="text-slate-900">zero bots, zero ghost jobs, and free 5-Point AI Fit Radar™ checks</strong>. Every plan includes a <strong className="text-emerald-700 dark:text-emerald-400">30-Day Free Trial</strong>—cancel anytime before Day 30.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-3 text-left">
-            <div className="p-4 rounded-xl bg-slate-900 border border-indigo-500/40 shadow-sm">
-              <div className="text-xs font-extrabold uppercase tracking-wider text-indigo-300 mb-1">For Candidates ($3 / $9 / $15 mo)</div>
-              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">Build your anonymous skill matrix free. Includes 1-time <strong className="text-white">Stripe Real-Person ID Verification</strong> &amp; permanent <strong className="text-amber-300">★ Founding Member</strong> badge.</p>
+        {/* Hero Header — Full-Bleed Dark Slate with Static Right-Side 3D Angled Interface */}
+        <section className="relative overflow-hidden bg-[#0f172a] border-b border-slate-800 py-14 sm:py-18 md:py-24 mb-12 sm:mb-16">
+          {/* Ambient Left-Side Deep Slate Glow */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-24 -left-24 w-[36rem] h-[36rem] rounded-full bg-sky-500/10 blur-3xl z-0"
+          />
+
+          {/* Full-Width Seamless Right-Side Static 3D Isometric Interface Accent */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none select-none absolute inset-0 overflow-hidden z-0"
+          >
+            <div className="absolute top-1/2 right-[-6%] -translate-y-1/2 w-[42rem] h-[42rem] rounded-full bg-gradient-to-tr from-[#0077D4]/25 via-sky-500/15 to-[#EA580C]/15 blur-3xl" />
+
+            <div
+              className="absolute inset-0"
+              style={{
+                WebkitMaskImage:
+                  'linear-gradient(to right, transparent 0%, transparent 46%, rgba(0,0,0,0.22) 60%, rgba(0,0,0,0.78) 76%, rgba(0,0,0,0.96) 92%)',
+                maskImage:
+                  'linear-gradient(to right, transparent 0%, transparent 46%, rgba(0,0,0,0.22) 60%, rgba(0,0,0,0.78) 76%, rgba(0,0,0,0.96) 92%)',
+              }}
+            >
+              <div
+                className="absolute -top-[2%] sm:-top-[5%] lg:-top-[8%] right-[-18%] sm:right-[-8%] lg:right-[-1%] w-[920px] sm:w-[1120px] lg:w-[1260px] opacity-85"
+                style={{
+                  transform:
+                    'perspective(1350px) rotateY(-34deg) rotateX(12deg) rotateZ(-4deg) scale(1.06)',
+                  transformOrigin: 'center right',
+                }}
+              >
+                <div className="rounded-2xl border border-amber-400/25 bg-[#0a0f1c] p-2 shadow-[0_35px_90px_rgba(0,0,0,0.9)]">
+                  <div className="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-white/10 rounded-t-xl">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-slate-700" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-slate-700" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-slate-700" />
+                    </div>
+                    <span className="text-[11px] font-mono text-amber-400 tracking-wider">
+                      specialsauce.io • Verified Pay Bands &amp; Founding Partner Roles
+                    </span>
+                  </div>
+                  <div className="relative aspect-[16/9] w-full overflow-hidden rounded-b-xl bg-[#0a0f1c]">
+                    <img
+                      src="/media/ui-card-employer-roles.webp"
+                      alt=""
+                      className="w-full h-full object-cover object-left-top"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="p-4 rounded-xl bg-slate-900 border border-emerald-500/40 shadow-sm">
-              <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-300 mb-1">For Employers ($149 / $499 / $1,250 mo)</div>
-              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">Lock in <strong className="text-amber-300">12-Month Founding Partner Rates</strong> (up to 50% off retail) &amp; <strong className="text-white">100% Accepted-Only Invitation Protection</strong>.</p>
-            </div>
+
+            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#0f172a] to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/90 to-transparent" />
           </div>
 
-          {/* Frameless Operational Trust Strip — Matching Landing Page Vertical Hairlines */}
-          <div className="pt-6 w-full max-w-5xl mx-auto">
-            <div className="grid grid-cols-2 lg:grid-cols-4 py-2">
-              <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center border-r border-slate-300">
-                <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-[0.14em]">
-                  100% US-Based Company
-                </span>
-                <span className="text-[11px] text-slate-600 font-semibold mt-0.5">
-                  US-Owned &amp; Operated
-                </span>
+          {/* Foreground Content */}
+          <div className="relative z-10 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto text-center space-y-5">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-400/35 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wide backdrop-blur-xs">
+              <span>★ 30-Day Free Trial • 100% Human-to-Human Hiring &amp; Founding Partner Rates</span>
+            </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight drop-shadow-xs">
+              Transparent Plans •{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#38BDF8] to-[#0077D4]">
+                30-Day Free Trial
+              </span>
+            </h1>
+            <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
+              Connect directly with ID-verified professionals and domain-verified employers—with <strong className="text-white">zero bots, zero ghost jobs, and free 5-Point AI Fit Radar™ checks</strong>. Every plan includes a <strong className="text-emerald-400">30-Day Free Trial</strong>—cancel anytime before Day 30.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-3 text-left">
+              <div className="p-4 rounded-xl bg-slate-900/90 backdrop-blur-md border border-indigo-500/40 shadow-lg">
+                <div className="text-xs font-extrabold uppercase tracking-wider text-indigo-300 mb-1">For Candidates ($3 / $9 / $15 mo)</div>
+                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">Build your anonymous skill matrix free. Includes 1-time <strong className="text-white">Stripe Real-Person ID Verification</strong> &amp; permanent <strong className="text-amber-300">★ Founding Member</strong> badge.</p>
               </div>
-
-              <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center lg:border-r border-slate-300">
-                <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-[0.14em]">
-                  100% US Human Support
-                </span>
-                <span className="text-[11px] text-slate-600 font-semibold mt-0.5">
-                  Zero Offshore Call Centers
-                </span>
+              <div className="p-4 rounded-xl bg-slate-900/90 backdrop-blur-md border border-emerald-500/40 shadow-lg">
+                <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-300 mb-1">For Employers ($149 / $499 / $1,250 mo)</div>
+                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">Lock in <strong className="text-amber-300">12-Month Founding Partner Rates</strong> (up to 50% off retail) &amp; <strong className="text-white">100% Accepted-Only Invitation Protection</strong>.</p>
               </div>
+            </div>
 
-              <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center border-r border-slate-300">
-                <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-[0.14em]">
-                  Human-to-Human Hiring
-                </span>
-                <span className="text-[11px] text-slate-600 font-semibold mt-0.5">
-                  Zero Automated Rejections
-                </span>
-              </div>
+            {/* Frameless Operational Trust Strip — Dark Slate Edition */}
+            <div className="pt-6 w-full max-w-5xl mx-auto">
+              <div className="grid grid-cols-2 lg:grid-cols-4 py-3 px-2 rounded-2xl bg-[#0f172a]/85 backdrop-blur-md border border-slate-800/90 shadow-lg">
+                <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center border-r border-slate-800">
+                  <span className="text-[11px] font-extrabold text-white uppercase tracking-[0.14em]">
+                    100% US-Based Company
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-semibold mt-0.5">
+                    US-Owned &amp; Operated
+                  </span>
+                </div>
 
-              <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
-                <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-[0.14em]">
-                  Intro/Convo Privacy Vault
-                </span>
-                <span className="text-[11px] text-slate-600 font-semibold mt-0.5">
-                  Stripe ID &amp; DNS Verified
-                </span>
+                <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center lg:border-r border-slate-800">
+                  <span className="text-[11px] font-extrabold text-white uppercase tracking-[0.14em]">
+                    100% US Human Support
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-semibold mt-0.5">
+                    Zero Offshore Call Centers
+                  </span>
+                </div>
+
+                <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center border-r border-slate-800">
+                  <span className="text-[11px] font-extrabold text-white uppercase tracking-[0.14em]">
+                    Human-to-Human Hiring
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-semibold mt-0.5">
+                    Zero Automated Rejections
+                  </span>
+                </div>
+
+                <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
+                  <span className="text-[11px] font-extrabold text-white uppercase tracking-[0.14em]">
+                    Intro/Convo Privacy Vault
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-semibold mt-0.5">
+                    Stripe ID &amp; DNS Verified
+                  </span>
+                </div>
               </div>
             </div>
           </div>
