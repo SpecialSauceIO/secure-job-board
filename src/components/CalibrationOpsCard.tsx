@@ -1,6 +1,9 @@
 "use client"
 
 import React, { useEffect, useState, useCallback } from "react"
+import { useRouter } from "next/navigation"
+import { updateSystemStatusBannerAction } from "@/app/dashboard/status-banner-actions"
+import type { SystemStatusBanner } from "@/lib/ops-bridge"
 
 interface TierResult {
   overall: number
@@ -29,6 +32,7 @@ const TIER_LABELS: Record<string, { label: string; subtitle: string }> = {
 }
 
 export default function CalibrationOpsCard() {
+  const router = useRouter()
   const [calib, setCalib] = useState<CalibrationRunRecord | null>(null)
   const [history, setHistory] = useState<CalibrationRunRecord[]>([])
   const [showHistory, setShowHistory] = useState<boolean>(false)
@@ -37,6 +41,16 @@ export default function CalibrationOpsCard() {
   const [runningQwen, setRunningQwen] = useState<boolean>(false)
   const [alertSending, setAlertSending] = useState<boolean>(false)
   const [bannerMsg, setBannerMsg] = useState<string | null>(null)
+
+  // Global Incident & Outage Banner State inside Ops Dashboard
+  const [liveStatusBanner, setLiveStatusBanner] = useState<SystemStatusBanner | null>(null)
+  const [showBannerControls, setShowBannerControls] = useState<boolean>(true)
+  const [severity, setSeverity] = useState<"info" | "degraded" | "outage">("degraded")
+  const [targetRole, setTargetRole] = useState<"all" | "candidate" | "employer">("all")
+  const [platformArea, setPlatformArea] = useState<string>("5-Point AI Fit Radar & Dealbreakers")
+  const [bannerTitle, setBannerTitle] = useState<string>("")
+  const [bannerBody, setBannerBody] = useState<string>("")
+  const [savingBanner, setSavingBanner] = useState<boolean>(false)
 
   const fetchLatestHealth = useCallback(async () => {
     try {
@@ -49,6 +63,17 @@ export default function CalibrationOpsCard() {
       if (Array.isArray(data?.calibration_history)) {
         setHistory(data.calibration_history)
       }
+      if (data?.active_status_banner) {
+        const b: SystemStatusBanner = data.active_status_banner
+        setLiveStatusBanner(b)
+        setSeverity(b.severity || "degraded")
+        setTargetRole(b.target_role || "all")
+        setPlatformArea(b.platform_area || "General Platform")
+        setBannerTitle(b.title || "")
+        setBannerBody(b.message || "")
+      } else {
+        setLiveStatusBanner(null)
+      }
     } catch (err) {
       console.error("Failed to load calibration health:", err)
     } finally {
@@ -59,6 +84,37 @@ export default function CalibrationOpsCard() {
   useEffect(() => {
     fetchLatestHealth()
   }, [fetchLatestHealth])
+
+  const handlePublishOrClearBanner = async (active: boolean) => {
+    setSavingBanner(true)
+    setBannerMsg(null)
+    try {
+      const res = await updateSystemStatusBannerAction({
+        active,
+        severity,
+        title: bannerTitle,
+        message: bannerBody,
+        platform_area: platformArea,
+        target_role: targetRole,
+        suppress_watchdog: !active,
+      })
+      if (!res.ok) {
+        setBannerMsg("Error: " + (res.error || "Could not update status banner"))
+      } else {
+        setLiveStatusBanner(res.banner)
+        setBannerMsg(
+          active
+            ? "📣 Published Global Incident Banner to Top Navbar & Quick Feedback Widget!"
+            : "✓ Global Incident Banner cleared across all user dashboards."
+        )
+        router.refresh()
+      }
+    } catch (err: any) {
+      setBannerMsg("Error updating banner: " + (err?.message || "Unknown error"))
+    } finally {
+      setSavingBanner(false)
+    }
+  }
 
   const runCalibrationNow = async (opts: { provider?: "groq120b" | "qwen"; withTestAlert?: boolean }) => {
     const isQwen = opts.provider === "qwen"
@@ -118,7 +174,7 @@ export default function CalibrationOpsCard() {
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2.5">
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-              Founder Ops QA Watchdog
+              Founder Ops Control Plane &amp; QA Watchdog
             </span>
             {calib && (
               <span
@@ -132,12 +188,21 @@ export default function CalibrationOpsCard() {
                 {isPassed ? "PASSED • ALL 5 TIERS IN BAND" : "DRIFT DETECTED"}
               </span>
             )}
-            <span className="px-2 py-0.5 rounded text-[11px] font-mono text-slate-400 bg-slate-900 border border-slate-800">
-              Retention: Last 50 Runs
+            <span
+              className={
+                "px-2.5 py-0.5 rounded-full text-xs font-extrabold uppercase tracking-wider " +
+                (liveStatusBanner?.active
+                  ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                  : "bg-slate-900 text-slate-400 border border-slate-800")
+              }
+            >
+              {liveStatusBanner?.active
+                ? `📣 OUTAGE BANNER LIVE (${liveStatusBanner.severity.toUpperCase()})`
+                : "📣 STATUS BANNER: OFF"}
             </span>
           </div>
           <h2 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
-            5-Point AI Fit Radar Calibration &amp; Guardrail Monitor
+            Ops Incident Banner &amp; 5-Point AI Fit Calibration Monitor
           </h2>
           <p className="text-xs sm:text-sm text-slate-400">
             Active Provider: <code className="text-indigo-300 font-mono">{calib?.provider_used || "openai/gpt-oss-120b"}</code>
@@ -147,6 +212,13 @@ export default function CalibrationOpsCard() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowBannerControls((prev) => !prev)}
+            className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition cursor-pointer"
+          >
+            {showBannerControls ? "▾ Hide Banner Control" : "📣 Manage Outage Banner"}
+          </button>
           <button
             type="button"
             onClick={() => runCalibrationNow({ provider: "groq120b" })}
@@ -180,15 +252,187 @@ export default function CalibrationOpsCard() {
           <button
             type="button"
             onClick={() => setBannerMsg(null)}
-            className="text-slate-400 hover:text-white ml-4 font-bold"
+            className="text-slate-400 hover:text-white ml-4 font-bold cursor-pointer"
           >
             ✕
           </button>
         </div>
       )}
 
+      {/* EMBEDDED OPS DASHBOARD CUSTOMER INCIDENT & OUTAGE BANNER CONTROL */}
+      {showBannerControls && (
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4 sm:p-5 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+            <div>
+              <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
+                <span>📣 Proactive Customer Incident &amp; Outage Banner Control</span>
+                {liveStatusBanner?.active && (
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black uppercase">
+                    Currently Broadcasting ({liveStatusBanner.incident_ref || "LIVE"})
+                  </span>
+                )}
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Publishes flush at the base of the top navigation bar across all user dashboards and injects a duplicate-ticket deflector into the Quick Feedback widget.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mr-1">
+                Presets:
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setSeverity("degraded")
+                  setTargetRole("all")
+                  setPlatformArea("5-Point AI Fit Radar & Dealbreakers")
+                  setBannerTitle("Elevated AI Match & Resume Parsing Latency")
+                  setBannerBody(
+                    "We are experiencing higher-than-normal latency from our upstream AI providers. Fit checks may take up to 25 seconds. Your retries and credits are 100% preserved."
+                  )
+                }}
+                className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 text-xs font-bold cursor-pointer"
+              >
+                ⚡ AI Fit / PDF Latency
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSeverity("degraded")
+                  setTargetRole("all")
+                  setPlatformArea("Stripe Identity Verification")
+                  setBannerTitle("Stripe Identity Verification Sync Delay")
+                  setBannerBody(
+                    "Stripe Identity verification callbacks are taking 1–2 minutes longer than usual. Click Refresh Status on your Dashboard after completing your photo ID check."
+                  )
+                }}
+                className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 text-xs font-bold cursor-pointer"
+              >
+                🪪 Stripe ID Delay
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSeverity("info")
+                  setTargetRole("all")
+                  setPlatformArea("General Platform")
+                  setBannerTitle("Scheduled Platform Maintenance Window")
+                  setBannerBody(
+                    "We are performing a brief zero-downtime upgrade. All active vaults, applications, and message threads remain safe."
+                  )
+                }}
+                className="px-2.5 py-1 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/40 text-indigo-300 text-xs font-bold cursor-pointer"
+              >
+                🛠️ Maintenance Notice
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">
+                Severity Level
+              </label>
+              <select
+                value={severity}
+                onChange={(e) => setSeverity(e.target.value as any)}
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-bold text-white"
+              >
+                <option value="info">🔵 Info / Scheduled Maintenance</option>
+                <option value="degraded">🟠 Degraded Performance</option>
+                <option value="outage">🔴 Major Service Outage</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">
+                Target Audience
+              </label>
+              <select
+                value={targetRole}
+                onChange={(e) => setTargetRole(e.target.value as any)}
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-bold text-white"
+              >
+                <option value="all">All Users (Candidates + Employers)</option>
+                <option value="candidate">Candidates Only</option>
+                <option value="employer">Employers Only</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">
+                Platform Area
+              </label>
+              <input
+                type="text"
+                value={platformArea}
+                onChange={(e) => setPlatformArea(e.target.value)}
+                placeholder="e.g. 5-Point AI Fit Radar"
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-bold text-white"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">
+                Headline Title
+              </label>
+              <input
+                type="text"
+                value={bannerTitle}
+                onChange={(e) => setBannerTitle(e.target.value)}
+                placeholder="e.g. Elevated AI Match & Resume Parsing Latency"
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-bold text-white"
+              />
+            </div>
+
+            <div className="lg:col-span-2">
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">
+                Proactive Customer Advisory Message
+              </label>
+              <input
+                type="text"
+                value={bannerBody}
+                onChange={(e) => setBannerBody(e.target.value)}
+                placeholder="Explain what is happening so users know they don't need to submit a ticket..."
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-medium text-white"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-800">
+            <span className="text-[11px] text-slate-400">
+              {liveStatusBanner?.active
+                ? `Active Banner: "${liveStatusBanner.title}" (Updated ${new Date(liveStatusBanner.updated_at).toLocaleTimeString()})`
+                : "No manual or watchdog outage banner is currently active."}
+            </span>
+
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                disabled={savingBanner}
+                onClick={() => handlePublishOrClearBanner(false)}
+                className="px-4 py-2 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-extrabold cursor-pointer disabled:opacity-50"
+              >
+                Clear / Turn Off Banner
+              </button>
+              <button
+                type="button"
+                disabled={savingBanner || !bannerTitle.trim()}
+                onClick={() => handlePublishOrClearBanner(true)}
+                className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black cursor-pointer disabled:opacity-50 shadow-sm"
+              >
+                {savingBanner ? "Publishing..." : "📣 Publish Live Banner →"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {loading && !calib ? (
-        <div className="text-xs text-slate-400 py-4">Loading latest latest AI scoring accuracy check...</div>
+        <div className="text-xs text-slate-400 py-4">Loading latest AI scoring accuracy check...</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {tierKeys.map((tKey) => {

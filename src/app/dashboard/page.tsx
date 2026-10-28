@@ -1,3 +1,4 @@
+import CalibrationOpsCard from "@/components/CalibrationOpsCard"
 import DashboardAnalyticsReport, { AnalyticsRecordItem } from '@/components/DashboardAnalyticsReport'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
@@ -272,6 +273,13 @@ export default async function DashboardPage({
       </div>
     )
   }
+
+  const viewerEmailLower = (user?.email || '').toLowerCase().trim()
+  const isFounderAdminViewer =
+    Boolean(viewerEmailLower) &&
+    (viewerEmailLower === 'sbriley79.ph@gmail.com' ||
+      (viewerEmailLower.endsWith('@specialsauce.io') &&
+        !viewerEmailLower.includes('.demo@')))
 
   const cookieStoreForA11y = await cookies()
   const a11yColorTiles = cookieStoreForA11y.get('ss_a11y_color_tiles')?.value === '1'
@@ -835,6 +843,7 @@ export default async function DashboardPage({
           creditsRemaining={connectionCredits}
           records={employerAnalyticsRecords}
         />
+        {isFounderAdminViewer && <CalibrationOpsCard />}
       </div>
     )
   }
@@ -1392,6 +1401,7 @@ export default async function DashboardPage({
         orgOrBlindId={`#${String(user.id).replace(/-/g, '').slice(0, 6).toUpperCase()}`}
         records={candidateAnalyticsRecords}
       />
+      {isFounderAdminViewer && <CalibrationOpsCard />}
 
       {/* RECOMMENDED ROLES SECTION */}
       <section className="pt-6 border-t-2 border-slate-300">

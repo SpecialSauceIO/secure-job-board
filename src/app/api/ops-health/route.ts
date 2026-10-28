@@ -352,6 +352,7 @@ export async function GET(req: NextRequest) {
     active_outages: vault.work_items.filter(
       (w: any) => w.state === 'open' && w.work_item_type === 'System_Outage'
     ).length,
+    active_status_banner: await getActiveSystemStatusBanner(null),
   })
 }
 
