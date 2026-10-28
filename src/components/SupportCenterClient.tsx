@@ -13,7 +13,7 @@ import {
   replyToSupportTicketAction,
   submitTicketCsatAction,
 } from '@/app/dashboard/support/actions'
-import type { UserVisibleTicket } from '@/lib/ops-bridge'
+import type { UserVisibleTicket, SystemStatusBanner } from '@/lib/ops-bridge'
 import { SubmitButton } from '@/components/SubmitButton'
 
 function getCustomerStatusMeta(ticket: UserVisibleTicket) {
@@ -103,6 +103,7 @@ export default function SupportCenterClient({
   initialSelectedTicketId,
   canUploadAttachments = false,
   initialCsatRating,
+  activeStatusBanner = null,
 }: {
   faqs: FAQ[]
   userRole: 'candidate' | 'employer' | null
@@ -113,6 +114,7 @@ export default function SupportCenterClient({
   initialSelectedTicketId?: string
   canUploadAttachments?: boolean
   initialCsatRating?: number
+  activeStatusBanner?: SystemStatusBanner | null
 }) {
   const [activeTab, setActiveTab] = useState<
     'guides' | 'kb' | 'security' | 'ticket'
@@ -330,6 +332,12 @@ export default function SupportCenterClient({
 
   const handleTicketSubmit = async (formData: FormData) => {
     setTicketStatus(null)
+    if (activeStatusBanner?.active && activeStatusBanner.incident_ref) {
+      const existingRef = String(formData.get('related_ref_id') || '').trim()
+      if (!existingRef) {
+        formData.set('related_ref_id', activeStatusBanner.incident_ref)
+      }
+    }
     const result = await submitSupportTicket(formData)
 
     if (result.error) {
@@ -517,6 +525,55 @@ export default function SupportCenterClient({
                     }`}
                   >
                     {ticketStatus.message}
+                  </div>
+                )}
+
+                {activeStatusBanner?.active && (
+                  <div
+                    role="status"
+                    className={`p-4 sm:p-5 rounded-2xl border-2 space-y-2 ${
+                      activeStatusBanner.severity === 'outage'
+                        ? 'bg-rose-50 border-rose-300 text-rose-950'
+                        : activeStatusBanner.severity === 'degraded'
+                        ? 'bg-amber-50 border-amber-300 text-amber-950'
+                        : 'bg-indigo-50 border-indigo-300 text-indigo-950'
+                    }`}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider">
+                        <span
+                          className={`w-2 h-2 rounded-full animate-pulse ${
+                            activeStatusBanner.severity === 'outage'
+                              ? 'bg-rose-600'
+                              : activeStatusBanner.severity === 'degraded'
+                              ? 'bg-amber-600'
+                              : 'bg-indigo-600'
+                          }`}
+                        />
+                        {activeStatusBanner.severity === 'outage'
+                          ? '🚨 Active Service Disruption'
+                          : activeStatusBanner.severity === 'degraded'
+                          ? '⚠️ Known Service Advisory In Progress'
+                          : 'ℹ️ Scheduled Maintenance Advisory'}
+                        {activeStatusBanner.platform_area
+                          ? ` • ${activeStatusBanner.platform_area}`
+                          : ''}
+                      </span>
+                      {activeStatusBanner.incident_ref && (
+                        <span className="px-2 py-0.5 rounded-md bg-white/90 border border-slate-300 font-mono text-[11px] font-bold text-slate-800">
+                          Ref: {activeStatusBanner.incident_ref}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="text-sm sm:text-base font-extrabold">
+                      {activeStatusBanner.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm leading-relaxed opacity-90">
+                      {activeStatusBanner.message}
+                    </p>
+                    <p className="text-xs font-extrabold pt-1 border-t border-current/15">
+                      ✓ Our engineering team is actively working on this—there is no need to open a duplicate support ticket unless you are experiencing a separate issue.
+                    </p>
                   </div>
                 )}
 

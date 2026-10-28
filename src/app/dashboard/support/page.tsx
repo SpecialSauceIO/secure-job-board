@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import SupportCenterClient from '@/components/SupportCenterClient'
 import { SUPPORT_FAQS } from '@/constants/faqs'
-import { getUserOpsTickets } from '@/lib/ops-bridge'
+import { getUserOpsTickets, getActiveSystemStatusBanner } from '@/lib/ops-bridge'
 import { resolveCandidateTierInfo, resolveEmployerTierInfo } from '@/app/dashboard/actions'
 
 export const dynamic = 'force-dynamic'
@@ -37,6 +37,7 @@ export default async function SupportPage({
   ])
 
   const userRole = profile?.role as 'candidate' | 'employer' | null
+  const activeStatusBanner = await getActiveSystemStatusBanner(userRole)
   const userName = profile?.full_name || user.email?.split('@')[0] || 'You'
 
   const isProfileVerified =
@@ -114,6 +115,7 @@ export default async function SupportPage({
       <SupportCenterClient
         faqs={SUPPORT_FAQS}
         userRole={userRole}
+        activeStatusBanner={activeStatusBanner}
         userName={userName}
         userEmail={user.email || ''}
         initialTab={initialTab}
