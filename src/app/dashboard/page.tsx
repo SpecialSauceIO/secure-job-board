@@ -913,13 +913,14 @@ export default async function DashboardPage({
       .eq('is_active', true).not('title', 'ilike', '[CALIBRATION]%')
       .order('created_at', { ascending: false })
 
-    const unappliedJobs = (allActiveJobs || [])
-      .filter((job) => !appliedJobIds.has(job.uuid || job.id))
-      .sort((a: any, b: any) => {
-        const aBench = Array.isArray(a.structured_requirements) && a.structured_requirements.some((r: any) => r?.is_sandbox_benchmark) ? 1 : 0
-        const bBench = Array.isArray(b.structured_requirements) && b.structured_requirements.some((r: any) => r?.is_sandbox_benchmark) ? 1 : 0
-        return aBench - bBench
-      })
+    const unappliedJobs = (allActiveJobs || []).filter((job: any) => {
+      if (appliedJobIds.has(job.uuid || job.id)) return false
+      const isBench =
+        String(job.title || '').includes('(Demo)') ||
+        (Array.isArray(job.structured_requirements) &&
+          job.structured_requirements.some((r: any) => r?.is_sandbox_benchmark))
+      return !isBench
+    })
 
     let topSkill = ''
     if (Array.isArray(profile.skills) && profile.skills.length > 0) {
@@ -1394,21 +1395,29 @@ export default async function DashboardPage({
 
       {/* RECOMMENDED ROLES SECTION */}
       <section className="pt-6 border-t-2 border-slate-300">
-        <div className="flex items-center justify-between gap-4 mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
           <div>
             <h2 className="text-lg font-extrabold text-slate-900">
-              Recommended Roles
+              Recommended Roles (Live Marketplace)
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Top active roles aligned with your skill matrix.
+              Top active roles aligned with your skill matrix—or test-drive your resume in the AI Fit Benchmark Sandbox.
             </p>
           </div>
-          <Link
-            href="/dashboard/jobs"
-            className="text-xs font-extrabold text-indigo-600 hover:text-indigo-800 transition-colors"
-          >
-            Search &amp; filter all roles →
-          </Link>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <Link
+              href="/dashboard/jobs?mode=sandbox"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 hover:bg-amber-100 text-xs font-extrabold transition-colors"
+            >
+              ⚡ Test-Drive in AI Fit Sandbox →
+            </Link>
+            <Link
+              href="/dashboard/jobs"
+              className="text-xs font-extrabold text-indigo-600 hover:text-indigo-800 transition-colors"
+            >
+              Search &amp; filter all roles →
+            </Link>
+          </div>
         </div>
 
         <CandidateJobFeed

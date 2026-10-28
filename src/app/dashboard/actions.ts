@@ -2215,34 +2215,24 @@ export async function searchJobs(
       .map((app) => app.job_id)
   )
 
-  // 1-for-1 Per-Vertical Auto-Sunset: Count real live roles per vertical and sunset benchmark roles as real roles arrive
-  const realRolesPerVertical: Record<string, number> = {}
-  for (const j of filteredJobs) {
-    if (!j.is_sandbox_benchmark) {
-      const vKey = (j.industry || 'Other / Multi-Industry').toLowerCase()
-      realRolesPerVertical[vKey] = (realRolesPerVertical[vKey] || 0) + 1
-    }
-  }
-  const benchmarkShownPerVertical: Record<string, number> = {}
-  const autoSunsetJobs = filteredJobs.filter((j: any) => {
-    if (!j.is_sandbox_benchmark) return true
-    const vKey = (j.industry || 'Other / Multi-Industry').toLowerCase()
-    const realCount = realRolesPerVertical[vKey] || 0
-    const maxBenchmarksForVertical = Math.max(0, 1 - realCount)
-    const alreadyShown = benchmarkShownPerVertical[vKey] || 0
-    if (alreadyShown >= maxBenchmarksForVertical) return false
-    benchmarkShownPerVertical[vKey] = alreadyShown + 1
-    return true
-  })
+  // Tag any (Demo) role as sandbox benchmark and sort real roles first
+  const taggedJobs = filteredJobs.map((j: any) => ({
+    ...j,
+    is_sandbox_benchmark: Boolean(
+      j.is_sandbox_benchmark ||
+      j.job_meta?.is_sandbox_benchmark ||
+      String(j.title || '').includes('(Demo)')
+    ),
+  }))
 
-  autoSunsetJobs.sort((a: any, b: any) => {
+  taggedJobs.sort((a: any, b: any) => {
     const benchA = a.is_sandbox_benchmark ? 1 : 0
     const benchB = b.is_sandbox_benchmark ? 1 : 0
     if (benchA !== benchB) return benchA - benchB
     return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
   })
 
-  return autoSunsetJobs
+  return taggedJobs
     .filter((job: any) => !appliedJobIds.has(job.id))
     .map((job: any) => ({
       ...job,
@@ -4618,27 +4608,7 @@ export async function searchCandidates(
       }
     })
 
-  // 1-for-1 Per-Vertical Auto-Sunset for Sample Candidates (each real candidate in a vertical replaces 1 of the 2 benchmark profiles)
-  const realCandsPerVertical: Record<string, number> = {}
-  for (const c of allMappedCandidates) {
-    if (!c.is_sandbox_benchmark) {
-      const vKey = (c.industry_vertical || 'Other / Multi-Industry').toLowerCase()
-      realCandsPerVertical[vKey] = (realCandsPerVertical[vKey] || 0) + 1
-    }
-  }
-  const benchmarkCandsShown: Record<string, number> = {}
-  let mappedCandidates = allMappedCandidates.filter((c) => {
-    if (!c.is_sandbox_benchmark) return true
-    const vKey = (c.industry_vertical || 'Other / Multi-Industry').toLowerCase()
-    const realCount = realCandsPerVertical[vKey] || 0
-    const maxSampleForVertical = Math.max(0, 2 - realCount)
-    const shown = benchmarkCandsShown[vKey] || 0
-    if (shown >= maxSampleForVertical) return false
-    benchmarkCandsShown[vKey] = shown + 1
-    return true
-  })
-
-  mappedCandidates.sort((a, b) => {
+  let mappedCandidates = [...allMappedCandidates].sort((a, b) => {
     const benchA = a.is_sandbox_benchmark ? 1 : 0
     const benchB = b.is_sandbox_benchmark ? 1 : 0
     return benchA - benchB
@@ -4658,7 +4628,7 @@ export async function searchCandidates(
     })
   }
 
-  return { data: mappedCandidates.slice(0, 100) }
+  return { data: mappedCandidates.slice(0, 200) }
 }
 
 export async function sendConnectionRequest(

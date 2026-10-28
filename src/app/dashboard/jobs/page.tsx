@@ -68,6 +68,12 @@ function extractJobFilterMeta(job: any) {
   const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
   const isExpired = diffMs <= 0
 
+  const isSandboxBenchmark = Boolean(
+    job?.is_sandbox_benchmark ||
+    metaItem?.is_sandbox_benchmark ||
+    String(job?.title || '').includes('(Demo)')
+  )
+
   return {
     employmentType,
     industry,
@@ -76,7 +82,8 @@ function extractJobFilterMeta(job: any) {
     annualizedMinPay,
     startMs,
     daysRemaining,
-    isExpired,
+    isExpired: isSandboxBenchmark ? false : isExpired,
+    isSandboxBenchmark,
   }
 }
 
@@ -97,16 +104,29 @@ export default function CandidateJobsPage() {
   const [rawJobs, setRawJobs] = useState<any[]>([])
   const [savedEmpTypes, setSavedEmpTypes] = useState<string[]>([])
   const [savedJobIds, setSavedJobIds] = useState<string[]>([])
+  const [viewMode, setViewMode] = useState<'live' | 'sandbox'>('live')
   const [onlyMyDealbreakers, setOnlyMyDealbreakers] = useState(false)
   const [onlySavedJobs, setOnlySavedJobs] = useState(false)
   const [isVerified, setIsVerified] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+
+  const switchViewMode = (target: 'live' | 'sandbox') => {
+    setViewMode(target)
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href)
+      url.searchParams.set('mode', target)
+      window.history.replaceState({}, '', url.toString())
+    }
+  }
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       if (params.get('saved') === 'true') {
         setOnlySavedJobs(true)
+      }
+      if (params.get('mode') === 'sandbox') {
+        setViewMode('sandbox')
       }
     }
 
@@ -231,6 +251,18 @@ export default function CandidateJobsPage() {
     setIsLoading(false)
   }
 
+  const { liveRolesCount, sandboxRolesCount } = useMemo(() => {
+    let live = 0
+    let sandbox = 0
+    for (const j of rawJobs) {
+      const m = extractJobFilterMeta(j)
+      if (m.isExpired) continue
+      if (m.isSandboxBenchmark) sandbox++
+      else live++
+    }
+    return { liveRolesCount: live, sandboxRolesCount: sandbox }
+  }, [rawJobs])
+
   // Unified client-side filter + sort
   const filteredAndSortedJobs = useMemo(() => {
     const withMeta = rawJobs
@@ -242,6 +274,13 @@ export default function CandidateJobsPage() {
 
     const filtered = withMeta.filter(({ job, meta }) => {
       const jobId = String(job.uuid || job.id)
+
+      if (viewMode === 'sandbox' && !meta.isSandboxBenchmark) {
+        return false
+      }
+      if (viewMode === 'live' && meta.isSandboxBenchmark) {
+        return false
+      }
 
       if (onlySavedJobs && !savedJobIds.includes(jobId)) {
         return false
@@ -322,6 +361,7 @@ export default function CandidateJobsPage() {
     onlyMyDealbreakers,
     savedEmpTypes,
     sortBy,
+    viewMode,
   ])
 
   return (
@@ -382,6 +422,87 @@ export default function CandidateJobsPage() {
           )}
         </div>
       </header>
+
+      {/* SEGMENTED LIVE MARKETPLACE VS. AI FIT BENCHMARK SANDBOX SWITCHER */}
+      <div className="rounded-2xl border-2 border-slate-800 bg-slate-900 p-4 sm:p-5 text-white shadow-sm space-y-3.5">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="inline-flex flex-wrap items-center gap-1.5 rounded-xl bg-slate-950 p-1.5 border border-slate-800">
+            <button
+              type="button"
+              onClick={() => switchViewMode('live')}
+              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-extrabold transition-all cursor-pointer flex items-center gap-2 ${
+                viewMode === 'live'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-xs'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <span>🟢 Live Marketplace (Founding Cohort)</span>
+              <span className="px-2 py-0.5 rounded-md bg-slate-900 text-[11px] font-black text-emerald-300 border border-slate-700">
+                {liveRolesCount}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => switchViewMode('sandbox')}
+              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-extrabold transition-all cursor-pointer flex items-center gap-2 ${
+                viewMode === 'sandbox'
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-xs'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <span>⚡ AI Fit Benchmark Sandbox (Practice Mode)</span>
+              <span className="px-2 py-0.5 rounded-md bg-slate-900 text-[11px] font-black text-amber-300 border border-slate-700">
+                {sandboxRolesCount}
+              </span>
+            </button>
+          </div>
+
+          <p className="text-xs text-slate-300 font-medium">
+            {viewMode === 'live'
+              ? 'Showing 100% verified, active roles from Founding Partner employers.'
+              : 'Practice Mode: Run live 5-Point AI Fit Radar™ benchmarks across all 28 industries without using applications.'}
+          </p>
+        </div>
+
+        {viewMode === 'live' ? (
+          <div className="rounded-xl bg-emerald-950/60 border border-emerald-500/30 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <div className="text-xs font-extrabold text-emerald-300 flex items-center gap-1.5">
+                <span>🟢 Founding Cohort Onboarding Active</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Verified employers are currently completing corporate domain verification and staging roles across all 28 verticals. Want to test-drive your 5-Point AI Fit Radar™ right now?
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => switchViewMode('sandbox')}
+              className="shrink-0 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-colors cursor-pointer whitespace-nowrap shadow-xs"
+            >
+              ⚡ Launch Interactive Benchmark Sandbox →
+            </button>
+          </div>
+        ) : (
+          <div className="rounded-xl bg-amber-950/50 border border-amber-500/40 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <div className="text-xs font-extrabold text-amber-300 flex items-center gap-1.5">
+                <span>⚡ Interactive Benchmark Sandbox — Zero Applications Used</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Run live 5-Point AI Fit Radar™ checks against our {sandboxRolesCount} (Demo) benchmark roles across all 28 industries to see how your resume and skill matrix score across all 5 dimensions.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => switchViewMode('live')}
+              className="shrink-0 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 text-xs font-extrabold transition-colors cursor-pointer whitespace-nowrap"
+            >
+              ← Return to 🟢 Live Marketplace
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* SINGLE UNIFIED COMMAND BAR (REPLACES THE 2 STACKED FILTER BOXES) */}
       <form
@@ -642,6 +763,40 @@ export default function CandidateJobsPage() {
           <p className="text-slate-500 font-medium text-sm">
             Loading protected roles...
           </p>
+        </div>
+      ) : viewMode === 'live' && filteredAndSortedJobs.length === 0 ? (
+        <div className="bg-white p-8 sm:p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs space-y-4">
+          <div className="w-14 h-14 bg-emerald-50 border border-emerald-300 text-emerald-700 rounded-2xl flex items-center justify-center mx-auto font-black text-xl">
+            🟢
+          </div>
+          <div className="max-w-lg mx-auto space-y-1.5">
+            <h3 className="text-lg sm:text-xl font-black text-slate-900">
+              {industryFilter !== 'all'
+                ? `Founding Employers Are Onboarding in ${industryFilter}`
+                : 'Founding Cohort Roles Rolling Out Daily'}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Verified employers are currently completing domain &amp; Stripe Identity checks. While live roles populate in this vertical, test-drive your resume against our 28 industry benchmark roles in the Practice Sandbox!
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => switchViewMode('sandbox')}
+              className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-colors cursor-pointer shadow-xs"
+            >
+              ⚡ Test-Drive 5-Point AI Fit in Practice Sandbox ({sandboxRolesCount} Demo Roles) →
+            </button>
+            {(activeAdvancedCount > 0 || workModel !== 'all' || query.trim() !== '' || onlySavedJobs) && (
+              <button
+                type="button"
+                onClick={resetAllFilters}
+                className="px-4 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-xs font-extrabold transition-colors cursor-pointer"
+              >
+                Reset Active Filters
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         /* Pass showSortControls={false} so CandidateJobFeed doesn't render a second filter box! */

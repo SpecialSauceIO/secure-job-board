@@ -217,8 +217,19 @@ export default function EmployerCandidateSearch({
   const [selectedState, setSelectedState] = useState('')
   const [selectedMetro, setSelectedMetro] = useState('')
 
+  const [viewMode, setViewMode] = useState<'live' | 'sandbox'>('live')
   const [candidates, setCandidates] = useState<any[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
+
+  const switchViewMode = (target: 'live' | 'sandbox') => {
+    setViewMode(target)
+    setCurrentPage(1)
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href)
+      url.searchParams.set('mode', target)
+      window.history.replaceState({}, '', url.toString())
+    }
+  }
   const [itemsPerPage, setItemsPerPage] = useState<number>(5)
   const [savedCandidateIds, setSavedCandidateIds] = useState<string[]>([])
   const [onlyShortlisted, setOnlyShortlisted] = useState(false)
@@ -250,6 +261,9 @@ export default function EmployerCandidateSearch({
       const params = new URLSearchParams(window.location.search)
       if (params.get('saved') === 'true') {
         setOnlyShortlisted(true)
+      }
+      if (params.get('mode') === 'sandbox') {
+        setViewMode('sandbox')
       }
     }
 
@@ -513,9 +527,29 @@ export default function EmployerCandidateSearch({
     setIsSending(false)
   }
 
+  const { liveCandidatesCount, sandboxCandidatesCount } = useMemo(() => {
+    let live = 0
+    let sandbox = 0
+    for (const c of candidates) {
+      const isDemo = Boolean(c.is_sandbox_benchmark || String(c.bio || '').includes('(Demo)'))
+      if (isDemo) sandbox++
+      else live++
+    }
+    return { liveCandidatesCount: live, sandboxCandidatesCount: sandbox }
+  }, [candidates])
+
   const filteredAndSortedCandidates = useMemo(() => {
     const filtered = candidates.filter((candidate) => {
       const cid = String(candidate.id)
+      const isDemo = Boolean(
+        candidate.is_sandbox_benchmark || String(candidate.bio || '').includes('(Demo)')
+      )
+      if (viewMode === 'sandbox' && !isDemo) {
+        return false
+      }
+      if (viewMode === 'live' && isDemo) {
+        return false
+      }
       if (onlyShortlisted && !savedCandidateIds.includes(cid)) {
         return false
       }
@@ -637,6 +671,7 @@ export default function EmployerCandidateSearch({
     educationFilter,
     languageFilter,
     sortBy,
+    viewMode,
   ])
 
   useEffect(() => {
@@ -654,6 +689,87 @@ export default function EmployerCandidateSearch({
 
   return (
     <div className="space-y-6">
+      {/* SEGMENTED LIVE MARKETPLACE VS. AI FIT BENCHMARK SANDBOX SWITCHER */}
+      <div className="rounded-2xl border-2 border-slate-800 bg-slate-900 p-4 sm:p-5 text-white shadow-sm space-y-3.5">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="inline-flex flex-wrap items-center gap-1.5 rounded-xl bg-slate-950 p-1.5 border border-slate-800">
+            <button
+              type="button"
+              onClick={() => switchViewMode('live')}
+              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-extrabold transition-all cursor-pointer flex items-center gap-2 ${
+                viewMode === 'live'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-xs'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <span>🟢 Live Marketplace (Founding Cohort)</span>
+              <span className="px-2 py-0.5 rounded-md bg-slate-900 text-[11px] font-black text-emerald-300 border border-slate-700">
+                {liveCandidatesCount}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => switchViewMode('sandbox')}
+              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-extrabold transition-all cursor-pointer flex items-center gap-2 ${
+                viewMode === 'sandbox'
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-xs'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <span>⚡ AI Fit Benchmark Sandbox (Practice Mode)</span>
+              <span className="px-2 py-0.5 rounded-md bg-slate-900 text-[11px] font-black text-amber-300 border border-slate-700">
+                {sandboxCandidatesCount}
+              </span>
+            </button>
+          </div>
+
+          <p className="text-xs text-slate-300 font-medium">
+            {viewMode === 'live'
+              ? 'Showing 100% real, vaulted candidate profiles in our Founding Cohort.'
+              : 'Practice Mode: Run live 5-Point AI Fit Radar™ checks on sample profiles without spending Invitation Credits.'}
+          </p>
+        </div>
+
+        {viewMode === 'live' ? (
+          <div className="rounded-xl bg-emerald-950/60 border border-emerald-500/30 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <div className="text-xs font-extrabold text-emerald-300 flex items-center gap-1.5">
+                <span>🟢 Founding Cohort Onboarding Active</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Verified candidates are currently uploading resumes, locking in dealbreakers, and completing Stripe Identity checks across all 28 verticals. Want to test-drive 5-Point AI Fit scoring right now?
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => switchViewMode('sandbox')}
+              className="shrink-0 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-colors cursor-pointer whitespace-nowrap shadow-xs"
+            >
+              ⚡ Launch Interactive Benchmark Sandbox →
+            </button>
+          </div>
+        ) : (
+          <div className="rounded-xl bg-amber-950/50 border border-amber-500/40 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <div className="text-xs font-extrabold text-amber-300 flex items-center gap-1.5">
+                <span>⚡ Interactive Benchmark Sandbox — Zero Invitation Credits Used</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Select any of your active roles on the {sandboxCandidatesCount} (Demo) sample candidate vaults below to test-drive 5-Point AI Fit Radar™ scoring and dealbreaker firewalls across all 28 industries.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => switchViewMode('live')}
+              className="shrink-0 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 text-xs font-extrabold transition-colors cursor-pointer whitespace-nowrap"
+            >
+              ← Return to 🟢 Live Marketplace
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* SINGLE UNIFIED COMMAND BAR WITH COLLAPSIBLE ADVANCED FILTERS */}
       <form
         onSubmit={handleSearchSubmit}
@@ -988,24 +1104,39 @@ export default function EmployerCandidateSearch({
             </p>
           </div>
         ) : filteredAndSortedCandidates.length === 0 ? (
-          <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-sm border-slate-300">
-            <h3 className="text-xl font-bold text-slate-900 mb-2">
+          <div className="bg-white p-10 sm:p-12 rounded-2xl border-2 border-slate-300 text-center shadow-sm space-y-4">
+            <h3 className="text-xl font-black text-slate-900">
               {onlyShortlisted
                 ? 'No candidates in your Shortlist yet'
+                : viewMode === 'live'
+                ? 'Founding Cohort Candidates Onboarding in This Filter'
                 : 'No candidates match your current filters'}
             </h3>
-            <p className="text-slate-500 text-sm mb-4">
+            <p className="text-slate-600 text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
               {onlyShortlisted
                 ? 'Click "Shortlist" on any anonymous candidate card to assemble a comparison pool before sending an invitation.'
+                : viewMode === 'live'
+                ? 'Real candidates are currently completing resume parsing and Stripe Identity verification in this vertical. Switch to the Practice Sandbox to test-drive 5-Point AI Fit checks against our 56 (Demo) profiles!'
                 : 'Try resetting your active filters to broaden your search.'}
             </p>
-            <button
-              type="button"
-              onClick={resetAllFilters}
-              className="px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer"
-            >
-              Reset Active Filters →
-            </button>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+              {viewMode === 'live' && !onlyShortlisted && (
+                <button
+                  type="button"
+                  onClick={() => switchViewMode('sandbox')}
+                  className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-colors cursor-pointer shadow-xs"
+                >
+                  ⚡ Test-Drive 5-Point AI Fit in Practice Sandbox ({sandboxCandidatesCount} Demo Profiles) →
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={resetAllFilters}
+                className="px-4 py-2.5 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer"
+              >
+                Reset Active Filters →
+              </button>
+            </div>
           </div>
         ) : (
           paginatedCandidates.map((candidate) => {
