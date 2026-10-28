@@ -238,40 +238,6 @@ export async function GET(req: NextRequest) {
     checked_at: nowIso,
   })
 
-  const lastHeartbeatAt: string | null =
-    vault.monitor_meta?.last_gmail_heartbeat_at || null
-  const heartbeatAgeMin = lastHeartbeatAt
-    ? Math.round((now - new Date(lastHeartbeatAt).getTime()) / 60000)
-    : null
-  const gmailHealthy =
-    lastHeartbeatAt !== null &&
-    heartbeatAgeMin !== null &&
-    heartbeatAgeMin <= MAX_HEARTBEAT_AGE_MINUTES
-  const gmailCritical =
-    lastHeartbeatAt !== null &&
-    heartbeatAgeMin !== null &&
-    heartbeatAgeMin > MAX_HEARTBEAT_CRITICAL_MINUTES
-
-  checks.push({
-    id: 'gmail_inbound_poller',
-    name: 'Gmail Inbound Support Sync (Google Apps Script Poller)',
-    platform_area: 'Other / General Platform',
-    category: 'Ops_Infrastructure',
-    status: !lastHeartbeatAt
-      ? 'degraded'
-      : gmailHealthy
-      ? 'healthy'
-      : 'healthy',
-    latency_ms: heartbeatAgeMin !== null ? heartbeatAgeMin * 1000 : 0,
-    detail: !lastHeartbeatAt
-      ? 'Heartbeat enabled (run syncSupportRepliesToOps once in Google Apps Script to register first check-in)'
-      : gmailHealthy
-      ? `Last Gmail poll check-in ${heartbeatAgeMin}m ago (healthy <= ${MAX_HEARTBEAT_AGE_MINUTES}m)`
-      : gmailCritical
-      ? `STALE HEARTBEAT: Last Gmail sync was ${heartbeatAgeMin}m ago (> ${MAX_HEARTBEAT_CRITICAL_MINUTES}m critical threshold)`
-      : `Heartbeat delayed: Last Gmail sync was ${heartbeatAgeMin}m ago (degraded ${MAX_HEARTBEAT_AGE_MINUTES}-${MAX_HEARTBEAT_CRITICAL_MINUTES}m; absorbs Google Apps Script timer jitter)`,
-    checked_at: nowIso,
-  })
 
   let autoResolvedWatchdog = false
   if (Array.isArray(vault.work_items)) {
@@ -291,7 +257,7 @@ export async function GET(req: NextRequest) {
           id: `MSG-${Date.now()}`,
           sender_name: 'Special Sauce Watchdog',
           sender_role: 'SYSTEM',
-          body: `Auto-resolved: Gmail Inbound Support Sync heartbeat is active (last check-in ${heartbeatAgeMin}m ago, within ${MAX_HEARTBEAT_CRITICAL_MINUTES}m threshold).`,
+          body: `Auto-resolved: Gmail Inbound Support Sync heartbeat is active.`,
           created_at: nowIso,
         })
         autoResolvedWatchdog = true

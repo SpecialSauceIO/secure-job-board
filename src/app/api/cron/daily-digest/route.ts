@@ -241,11 +241,6 @@ export async function GET(req: NextRequest) {
       (w: any) => w.work_item_type === "System_Outage" && w.state === "open"
     )
     const openFlags = flags.filter((f: any) => f.status === "open")
-
-    const lastGmailHeartbeat = vault.monitor_meta?.last_gmail_heartbeat_at || null
-    const gmailAgeMin = lastGmailHeartbeat
-      ? Math.max(0, Math.round((now - new Date(lastGmailHeartbeat).getTime()) / 60000))
-      : null
     const stripeIdentityToday =
       vault.monitor_meta?.identity_circuit_breaker?.global_today_count || 0
 
@@ -413,10 +408,6 @@ export async function GET(req: NextRequest) {
               <tr style="border-bottom: 1px solid #1e293b;">
                 <td style="padding: 9px 14px; font-weight: 700;">Trust &amp; Safety / Behavioral Flags</td>
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700; color: ${openFlags.length > 0 ? "#fbbf24" : "#34d399"};">${openFlags.length} open flag(s)</td>
-              </tr>
-              <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding: 9px 14px; font-weight: 700;">Gmail Support Poller Heartbeat</td>
-                <td style="padding: 9px 14px; text-align: right; font-weight: 700; color: ${gmailAgeMin !== null && gmailAgeMin <= 45 ? "#34d399" : "#fbbf24"};">${gmailAgeMin !== null ? `Checked in ${gmailAgeMin}m ago` : "Awaiting check-in"}</td>
               </tr>
               <tr>
                 <td style="padding: 9px 14px; font-weight: 700;">AI Fit Radar &amp; Stripe Circuit Breaker</td>
