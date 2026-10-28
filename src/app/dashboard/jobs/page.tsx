@@ -436,7 +436,7 @@ export default function CandidateJobsPage() {
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <span>🟢 Live Marketplace (Founding Cohort)</span>
+              <span>🟢 Live Marketplace</span>
               <span className="px-2 py-0.5 rounded-md bg-slate-900 text-[11px] font-black text-emerald-300 border border-slate-700">
                 {liveRolesCount}
               </span>
@@ -469,7 +469,7 @@ export default function CandidateJobsPage() {
           <div className="rounded-xl bg-emerald-950/60 border border-emerald-500/30 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-0.5">
               <div className="text-xs font-extrabold text-emerald-300 flex items-center gap-1.5">
-                <span>🟢 Founding Cohort Onboarding Active</span>
+                <span>🟢 Founding Member Onboarding Active</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
                 Verified employers are currently completing corporate domain verification and staging roles across all 28 verticals. Want to test-drive your 5-Point AI Fit Radar™ right now?
@@ -773,7 +773,7 @@ export default function CandidateJobsPage() {
             <h3 className="text-lg sm:text-xl font-black text-slate-900">
               {industryFilter !== 'all'
                 ? `Founding Employers Are Onboarding in ${industryFilter}`
-                : 'Founding Cohort Roles Rolling Out Daily'}
+                : 'Live Roles Rolling Out Daily'}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
               Verified employers are currently completing domain &amp; Stripe Identity checks. While live roles populate in this vertical, test-drive your resume against our 28 industry benchmark roles in the Practice Sandbox!

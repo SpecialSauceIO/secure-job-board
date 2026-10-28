@@ -702,7 +702,7 @@ export default function EmployerCandidateSearch({
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <span>🟢 Live Marketplace (Founding Cohort)</span>
+              <span>🟢 Live Marketplace</span>
               <span className="px-2 py-0.5 rounded-md bg-slate-900 text-[11px] font-black text-emerald-300 border border-slate-700">
                 {liveCandidatesCount}
               </span>
@@ -726,7 +726,7 @@ export default function EmployerCandidateSearch({
 
           <p className="text-xs text-slate-300 font-medium">
             {viewMode === 'live'
-              ? 'Showing 100% real, vaulted candidate profiles in our Founding Cohort.'
+              ? 'Showing 100% real, vaulted candidate profiles from our Founding Members.'
               : 'Practice Mode: Run live 5-Point AI Fit Radar™ checks on sample profiles without spending Invitation Credits.'}
           </p>
         </div>
@@ -735,7 +735,7 @@ export default function EmployerCandidateSearch({
           <div className="rounded-xl bg-emerald-950/60 border border-emerald-500/30 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-0.5">
               <div className="text-xs font-extrabold text-emerald-300 flex items-center gap-1.5">
-                <span>🟢 Founding Cohort Onboarding Active</span>
+                <span>🟢 Founding Member Onboarding Active</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
                 Verified candidates are currently uploading resumes, locking in dealbreakers, and completing Stripe Identity checks across all 28 verticals. Want to test-drive 5-Point AI Fit scoring right now?
@@ -1109,7 +1109,7 @@ export default function EmployerCandidateSearch({
               {onlyShortlisted
                 ? 'No candidates in your Shortlist yet'
                 : viewMode === 'live'
-                ? 'Founding Cohort Candidates Onboarding in This Filter'
+                ? 'Founding Members Onboarding in This Filter'
                 : 'No candidates match your current filters'}
             </h3>
             <p className="text-slate-600 text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
