@@ -913,9 +913,13 @@ export default async function DashboardPage({
       .eq('is_active', true).not('title', 'ilike', '[CALIBRATION]%')
       .order('created_at', { ascending: false })
 
-    const unappliedJobs = (allActiveJobs || []).filter(
-      (job) => !appliedJobIds.has(job.uuid || job.id)
-    )
+    const unappliedJobs = (allActiveJobs || [])
+      .filter((job) => !appliedJobIds.has(job.uuid || job.id))
+      .sort((a: any, b: any) => {
+        const aBench = Array.isArray(a.structured_requirements) && a.structured_requirements.some((r: any) => r?.is_sandbox_benchmark) ? 1 : 0
+        const bBench = Array.isArray(b.structured_requirements) && b.structured_requirements.some((r: any) => r?.is_sandbox_benchmark) ? 1 : 0
+        return aBench - bBench
+      })
 
     let topSkill = ''
     if (Array.isArray(profile.skills) && profile.skills.length > 0) {

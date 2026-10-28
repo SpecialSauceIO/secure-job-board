@@ -373,6 +373,7 @@ export interface JobExtendedMeta {
   renewed_at?: string | null
   days_remaining?: number
   is_expired?: boolean
+  is_sandbox_benchmark?: boolean
 }
 
 function filterVisibleJobRequirements(rawReqs: any): any[] {
@@ -439,7 +440,8 @@ function extractJobMeta(rawReqs: any, jobRow?: any): JobExtendedMeta {
     hiring_timeline: metaItem?.hiring_timeline || jobRow?.hiring_timeline || 'Active Hiring (2–4 Weeks)',
     renewed_at: metaItem?.renewed_at || null,
     days_remaining: daysRemaining,
-    is_expired: String(jobRow?.title || "").startsWith("[CALIBRATION]") ? false : diffMs <= 0,
+    is_expired: Boolean(metaItem?.is_sandbox_benchmark) || String(jobRow?.title || "").startsWith("[CALIBRATION]") ? false : diffMs <= 0,
+    is_sandbox_benchmark: Boolean(metaItem?.is_sandbox_benchmark),
   }
 }
 
@@ -1991,6 +1993,12 @@ export async function applyBlind(formData: FormData) {
   }
 
   const jobMeta = extractJobMeta(jobInfo.structured_requirements, jobInfo)
+  if (jobMeta.is_sandbox_benchmark) {
+    return {
+      error:
+        '⚡ Sandbox Benchmark Role (0 Applications Used): This is a practice role for testing your 5-Point AI Fit Radar™ score. Your anonymous profile is live in Employer Search and you will be notified as verified employers post live roles in your vertical!',
+    }
+  }
   if (jobMeta.is_expired) {
     await supabase.from('jobs').update({ is_active: false }).eq('id', jobId)
     return {
@@ -2207,7 +2215,34 @@ export async function searchJobs(
       .map((app) => app.job_id)
   )
 
-  return filteredJobs
+  // 1-for-1 Per-Vertical Auto-Sunset: Count real live roles per vertical and sunset benchmark roles as real roles arrive
+  const realRolesPerVertical: Record<string, number> = {}
+  for (const j of filteredJobs) {
+    if (!j.is_sandbox_benchmark) {
+      const vKey = (j.industry || 'Other / Multi-Industry').toLowerCase()
+      realRolesPerVertical[vKey] = (realRolesPerVertical[vKey] || 0) + 1
+    }
+  }
+  const benchmarkShownPerVertical: Record<string, number> = {}
+  const autoSunsetJobs = filteredJobs.filter((j: any) => {
+    if (!j.is_sandbox_benchmark) return true
+    const vKey = (j.industry || 'Other / Multi-Industry').toLowerCase()
+    const realCount = realRolesPerVertical[vKey] || 0
+    const maxBenchmarksForVertical = Math.max(0, 1 - realCount)
+    const alreadyShown = benchmarkShownPerVertical[vKey] || 0
+    if (alreadyShown >= maxBenchmarksForVertical) return false
+    benchmarkShownPerVertical[vKey] = alreadyShown + 1
+    return true
+  })
+
+  autoSunsetJobs.sort((a: any, b: any) => {
+    const benchA = a.is_sandbox_benchmark ? 1 : 0
+    const benchB = b.is_sandbox_benchmark ? 1 : 0
+    if (benchA !== benchB) return benchA - benchB
+    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+  })
+
+  return autoSunsetJobs
     .filter((job: any) => !appliedJobIds.has(job.id))
     .map((job: any) => ({
       ...job,
@@ -4544,16 +4579,17 @@ export async function searchCandidates(
     dbQuery = dbQuery.ilike('location', `%${location.trim()}%`)
   }
 
-  const { data, error } = await dbQuery.limit(50)
+  const { data, error } = await dbQuery.limit(200)
 
   if (error) {
     console.error('Supabase Search Error:', error.message)
     return { error: error.message }
   }
 
-  let mappedCandidates = (data || [])
+  const allMappedCandidates = (data || [])
     .map((candidate) => {
-      const prefMeta = extractCandidatePrefMeta(candidate.structured_skills)
+      const prefMeta: any = extractCandidatePrefMeta(candidate.structured_skills)
+      const isSandboxBenchmark = Boolean(prefMeta?.is_sandbox_benchmark)
       const normalizedIndustry = prefMeta?.industry_vertical
         ? normalizeIndustryVertical(prefMeta.industry_vertical)
         : ''
@@ -4563,6 +4599,7 @@ export async function searchCandidates(
       const normalizedLangs = normalizeLanguageList(prefMeta?.languages, true)
       return {
         ...candidate,
+        is_sandbox_benchmark: isSandboxBenchmark,
         existing_role_connections: roleConnectionsByCandidate[String(candidate.id)] || {},
         industry_vertical: normalizedIndustry,
         education_level: normalizedEdu,
@@ -4574,6 +4611,32 @@ export async function searchCandidates(
         structured_skills: filterVisibleSkills(candidate.structured_skills),
       }
     })
+
+  // 1-for-1 Per-Vertical Auto-Sunset for Sample Candidates (each real candidate in a vertical replaces 1 of the 2 benchmark profiles)
+  const realCandsPerVertical: Record<string, number> = {}
+  for (const c of allMappedCandidates) {
+    if (!c.is_sandbox_benchmark) {
+      const vKey = (c.industry_vertical || 'Other / Multi-Industry').toLowerCase()
+      realCandsPerVertical[vKey] = (realCandsPerVertical[vKey] || 0) + 1
+    }
+  }
+  const benchmarkCandsShown: Record<string, number> = {}
+  let mappedCandidates = allMappedCandidates.filter((c) => {
+    if (!c.is_sandbox_benchmark) return true
+    const vKey = (c.industry_vertical || 'Other / Multi-Industry').toLowerCase()
+    const realCount = realCandsPerVertical[vKey] || 0
+    const maxSampleForVertical = Math.max(0, 2 - realCount)
+    const shown = benchmarkCandsShown[vKey] || 0
+    if (shown >= maxSampleForVertical) return false
+    benchmarkCandsShown[vKey] = shown + 1
+    return true
+  })
+
+  mappedCandidates.sort((a, b) => {
+    const benchA = a.is_sandbox_benchmark ? 1 : 0
+    const benchB = b.is_sandbox_benchmark ? 1 : 0
+    return benchA - benchB
+  })
 
   if (query && query.trim() !== '') {
     const q = query.toLowerCase().trim()
@@ -4589,7 +4652,7 @@ export async function searchCandidates(
     })
   }
 
-  return { data: mappedCandidates.slice(0, 20) }
+  return { data: mappedCandidates.slice(0, 100) }
 }
 
 export async function sendConnectionRequest(
@@ -4710,6 +4773,13 @@ export async function sendConnectionRequest(
     .single()
 
   if (!candidate) return { error: 'Candidate profile not found.' }
+  const targetPrefMeta: any = extractCandidatePrefMeta(candidate.structured_skills)
+  if (targetPrefMeta?.is_sandbox_benchmark) {
+    return {
+      error:
+        '⚡ Sandbox Benchmark Profile (0 Credits Used): This is a sample candidate profile for testing 5-Point AI Fit Radar™ scoring. No invitation credit was deducted!',
+    }
+  }
 
   const isTargetCandidateVerified = Boolean(
     candidate.identity_verified === true ||

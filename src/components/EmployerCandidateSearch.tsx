@@ -587,6 +587,8 @@ export default function EmployerCandidateSearch({
     }
 
     return [...filtered].sort((a, b) => {
+      const benchDiff = (a.is_sandbox_benchmark ? 1 : 0) - (b.is_sandbox_benchmark ? 1 : 0)
+      if (benchDiff !== 0) return benchDiff
       switch (sortBy) {
         case 'rank_high': {
           const verA = Boolean(a.identity_verified === true || String(a.identity_verified) === 'true' || a.is_verified === true) ? 1 : 0
@@ -1162,17 +1164,25 @@ export default function EmployerCandidateSearch({
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5 min-w-0">
                       <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight truncate">
-                        Anonymous Candidate #{displayId}
+                        {candidate.is_sandbox_benchmark
+                          ? `Sample Vault #${displayId}`
+                          : `Anonymous Candidate #${displayId}`}
                       </h3>
 
                       <div className="shrink-0">
-                        <RankAndFounderPill
-                          level={rankInfo.level}
-                          tier={rankInfo.tier}
-                          isFounder={rankInfo.isFounder}
-                          founderText="Founding Member"
-                          size="xs"
-                        />
+                        {candidate.is_sandbox_benchmark ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-300 text-amber-900 text-[11px] font-extrabold uppercase tracking-wider">
+                            ⚡ AI Fit Benchmark • Practice Profile
+                          </span>
+                        ) : (
+                          <RankAndFounderPill
+                            level={rankInfo.level}
+                            tier={rankInfo.tier}
+                            isFounder={rankInfo.isFounder}
+                            founderText="Founding Member"
+                            size="xs"
+                          />
+                        )}
                       </div>
                     </div>
 
@@ -1572,6 +1582,14 @@ export default function EmployerCandidateSearch({
                           </div>
 
                           <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
+                            {candidate.is_sandbox_benchmark ? (
+                              <span
+                                title="Sample Vault Profile — Test your 5-Point AI Fit Radar for free without spending any Invitation Credits"
+                                className="px-4 py-2.5 text-xs font-extrabold rounded-xl bg-amber-50 text-amber-900 border border-amber-300"
+                              >
+                                ⚡ Benchmark Preview (0 Credits Used)
+                              </span>
+                            ) : (
                             <button
                               type="button"
                               onClick={handlePitch}
@@ -1596,6 +1614,7 @@ export default function EmployerCandidateSearch({
                                 ? 'Sending Invitation...'
                                 : 'Send Professional Invitation (1 Credit) →'}
                             </button>
+                            )}
                           </div>
                         </div>
                       )}

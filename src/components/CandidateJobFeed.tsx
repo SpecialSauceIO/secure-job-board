@@ -141,7 +141,8 @@ function extractJobCardMeta(job: any) {
     workAuth: job.work_auth || metaItem.work_auth || '',
     hiringTimeline: job.hiring_timeline || metaItem.hiring_timeline || 'Active Hiring (2–4 Weeks)',
     daysRemaining,
-    isExpired,
+    isExpired: Boolean(metaItem.is_sandbox_benchmark || job.is_sandbox_benchmark) ? false : isExpired,
+    isSandboxBenchmark: Boolean(metaItem.is_sandbox_benchmark || job.is_sandbox_benchmark),
     visibleReqs,
     rankInfo,
   }
@@ -455,6 +456,8 @@ export function CandidateJobFeed({
     }
 
     const sorted = [...filteredByLanguage].sort((a, b) => {
+      const benchDiff = (a.meta.isSandboxBenchmark ? 1 : 0) - (b.meta.isSandboxBenchmark ? 1 : 0)
+      if (benchDiff !== 0) return benchDiff
       switch (sortBy) {
         case 'newest':
           return b.meta.startMs - a.meta.startMs
@@ -726,13 +729,19 @@ export function CandidateJobFeed({
                     </span>
 
                     <div className="shrink-0">
-                      <RankAndFounderPill
-                        level={meta.rankInfo.level}
-                        tier={meta.rankInfo.tier}
-                        isFounder={meta.rankInfo.isFounder}
-                        founderText="Founding Partner"
-                        size="xs"
-                      />
+                      {meta.isSandboxBenchmark ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-300 text-amber-900 text-[11px] font-extrabold uppercase tracking-wider">
+                          ⚡ AI Fit Benchmark • Practice Role
+                        </span>
+                      ) : (
+                        <RankAndFounderPill
+                          level={meta.rankInfo.level}
+                          tier={meta.rankInfo.tier}
+                          isFounder={meta.rankInfo.isFounder}
+                          founderText="Founding Partner"
+                          size="xs"
+                        />
+                      )}
                     </div>
                   </div>
 
@@ -1094,6 +1103,13 @@ export function CandidateJobFeed({
                       (isApplied ? (
                         <span className="w-full sm:w-auto text-center justify-center px-4 py-2 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-extrabold">
                           ✓ Protected Application Sent
+                        </span>
+                      ) : meta.isSandboxBenchmark ? (
+                        <span
+                          title="Practice Benchmark Role — Test your 5-Point AI Fit Radar for free without using any monthly applications"
+                          className="w-full sm:w-auto text-center justify-center px-4 py-2 rounded-xl bg-amber-50 text-amber-900 border border-amber-300 text-xs font-extrabold"
+                        >
+                          ⚡ Benchmark Preview (0 Apps Used)
                         </span>
                       ) : (
                         !isVerified && score >= MIN_MATCH_THRESHOLD ? (
