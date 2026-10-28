@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import DashboardNav from '@/components/DashboardNav'
+import { getActiveSystemStatusBanner } from '@/lib/ops-bridge'
 import {
   resolveCandidateTierInfo,
   resolveEmployerTierInfo,
@@ -72,11 +73,12 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Persistent Top Navigation Bar with Logo, Tagline, Security & Role Links */}
+      {/* Persistent Top Navigation Bar with Logo, Tagline, Security, Role Links & Proactive Incident Banner */}
       <DashboardNav
         role={role}
         userEmail={user.email || ''}
         tierLabel={tierLabel}
+        initialStatusBanner={await getActiveSystemStatusBanner(role)}
         signOutAction={signOut}
       />
 

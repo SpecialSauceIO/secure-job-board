@@ -4,6 +4,8 @@ import {
   getOpsServiceClient,
   loadMergedOpsVault,
   saveMergedOpsVault,
+  getActiveSystemStatusBanner,
+  setManualSystemStatusBanner,
 } from '@/lib/ops-bridge'
 
 export const dynamic = 'force-dynamic'
@@ -352,3 +354,34 @@ export async function GET(req: NextRequest) {
     ).length,
   })
 }
+
+export async function POST(req: NextRequest) {
+  try {
+    const authHeader = req.headers.get('authorization') || ''
+    const cronSecret = (process.env.CRON_SECRET || '').trim()
+    const serviceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim()
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim()
+
+    if (!token || (token !== cronSecret && token !== serviceKey)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await req.json()
+    const res = await setManualSystemStatusBanner({
+      active: Boolean(body.active),
+      severity: body.severity || 'degraded',
+      title: body.title,
+      message: body.message,
+      platform_area: body.platform_area,
+      target_role: body.target_role || 'all',
+      suppress_watchdog: Boolean(body.suppress_watchdog),
+    })
+    return NextResponse.json(res)
+  } catch (err: any) {
+    return NextResponse.json(
+      { ok: false, error: err?.message || 'Invalid request' },
+      { status: 400 }
+    )
+  }
+}
+

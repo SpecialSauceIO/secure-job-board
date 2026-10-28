@@ -651,3 +651,140 @@ export async function pushToOpsControlPlane(payload: Record<string, any>): Promi
     }
   }
 }
+
+export interface SystemStatusBanner {
+  active: boolean
+  severity: "info" | "degraded" | "outage"
+  title: string
+  message: string
+  platform_area?: string
+  target_role?: "all" | "candidate" | "employer"
+  incident_ref?: string
+  updated_at: string
+  source?: "manual" | "watchdog"
+}
+
+export async function getActiveSystemStatusBanner(
+  viewerRole?: "candidate" | "employer" | null
+): Promise<SystemStatusBanner | null> {
+  const client = getOpsServiceClient()
+  if (!client) return null
+
+  try {
+    const vault = await loadMergedOpsVault(client)
+    const manualBanner = vault.monitor_meta?.system_status_banner as
+      | SystemStatusBanner
+      | undefined
+
+    if (manualBanner && manualBanner.active && manualBanner.title) {
+      const target = manualBanner.target_role || "all"
+      if (
+        target === "all" ||
+        !viewerRole ||
+        target === viewerRole
+      ) {
+        return {
+          ...manualBanner,
+          source: "manual",
+        }
+      }
+      return null
+    }
+
+    // If manual override is explicitly set to inactive with suppress_watchdog, respect it
+    if (vault.monitor_meta?.suppress_watchdog_banner === true) {
+      return null
+    }
+
+    // Fallback: Check if there is an open System_Outage work item in the Ops Vault
+    const openOutage = (vault.work_items || []).find(
+      (w: any) => w.state === "open" && w.work_item_type === "System_Outage"
+    )
+    if (openOutage) {
+      const cleanSubject = String(openOutage.subject || "Service Disruption")
+        .replace(/^🚨\s*\[SYSTEM OUTAGE\]\s*/i, "")
+        .trim()
+      const area = String(openOutage.platform_area || "General Platform")
+      return {
+        active: true,
+        severity: "degraded",
+        title: `Service Advisory (${area})`,
+        message: `Our engineering team is actively resolving an issue affecting ${area} (${cleanSubject}). Your data is safe—no need to submit a support ticket unless you are experiencing an unrelated issue.`,
+        platform_area: area,
+        target_role: "all",
+        incident_ref: String(openOutage.id || "INC-ACTIVE"),
+        updated_at: String(openOutage.updated_at || openOutage.created_at || new Date().toISOString()),
+        source: "watchdog",
+      }
+    }
+  } catch {}
+
+  return null
+}
+
+export async function setManualSystemStatusBanner(params: {
+  active: boolean
+  severity?: "info" | "degraded" | "outage"
+  title?: string
+  message?: string
+  platform_area?: string
+  target_role?: "all" | "candidate" | "employer"
+  suppress_watchdog?: boolean
+}): Promise<{ ok: boolean; banner: SystemStatusBanner | null; error?: string }> {
+  const client = getOpsServiceClient()
+  if (!client) {
+    return { ok: false, banner: null, error: "Ops storage client unavailable." }
+  }
+
+  try {
+    const vault = await loadMergedOpsVault(client)
+    const nowIso = new Date().toISOString()
+
+    if (!params.active) {
+      vault.monitor_meta = {
+        ...(vault.monitor_meta || {}),
+        system_status_banner: {
+          active: false,
+          severity: "info",
+          title: "",
+          message: "",
+          updated_at: nowIso,
+        },
+        suppress_watchdog_banner: Boolean(params.suppress_watchdog),
+      }
+      await saveMergedOpsVault(client, vault)
+      return { ok: true, banner: null }
+    }
+
+    const bannerObj: SystemStatusBanner = {
+      active: true,
+      severity: params.severity || "degraded",
+      title: String(params.title || "Platform Service Advisory").trim(),
+      message: String(
+        params.message ||
+          "We are currently investigating degraded performance in this area and working to restore normal operation."
+      ).trim(),
+      platform_area: String(params.platform_area || "General Platform").trim(),
+      target_role: params.target_role || "all",
+      incident_ref: `ADV-${Date.now().toString().slice(-5)}`,
+      updated_at: nowIso,
+      source: "manual",
+    }
+
+    vault.monitor_meta = {
+      ...(vault.monitor_meta || {}),
+      system_status_banner: bannerObj,
+      suppress_watchdog_banner: false,
+    }
+
+    await saveMergedOpsVault(client, vault)
+    return { ok: true, banner: bannerObj }
+  } catch (err: any) {
+    return {
+      ok: false,
+      banner: null,
+      error: err?.message || "Failed to save system status banner.",
+    }
+  }
+}
+

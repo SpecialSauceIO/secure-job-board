@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import QuickFeedbackWidget from '@/components/QuickFeedbackWidget'
+import type { SystemStatusBanner } from '@/lib/ops-bridge'
+import { updateSystemStatusBannerAction } from '@/app/dashboard/status-banner-actions'
 import {
   resolvePreferredThemeIsDark,
   applyPreferredTheme,
@@ -13,11 +15,13 @@ export default function DashboardNav({
   role,
   userEmail,
   tierLabel,
+  initialStatusBanner,
   signOutAction,
 }: {
   role: 'candidate' | 'employer' | null
   userEmail: string
   tierLabel?: string
+  initialStatusBanner?: SystemStatusBanner | null
   signOutAction: () => Promise<void>
 }) {
   const pathname = usePathname()
@@ -26,6 +30,56 @@ export default function DashboardNav({
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [colorTilesEnabled, setColorTilesEnabled] = useState(false)
   const [darkModeEnabled, setDarkModeEnabled] = useState(false)
+  const [liveBanner, setLiveBanner] = useState<SystemStatusBanner | null>(
+    initialStatusBanner || null
+  )
+  const [dismissedBannerRef, setDismissedBannerRef] = useState<string | null>(null)
+  const [adminDrawerOpen, setAdminDrawerOpen] = useState(false)
+  const [adminSeverity, setAdminSeverity] = useState<'info' | 'degraded' | 'outage'>(
+    initialStatusBanner?.severity || 'degraded'
+  )
+  const [adminTargetRole, setAdminTargetRole] = useState<'all' | 'candidate' | 'employer'>(
+    initialStatusBanner?.target_role || 'all'
+  )
+  const [adminArea, setAdminArea] = useState<string>(
+    initialStatusBanner?.platform_area || '5-Point AI Fit Radar & Dealbreakers'
+  )
+  const [adminTitle, setAdminTitle] = useState<string>(
+    initialStatusBanner?.title || ''
+  )
+  const [adminMessage, setAdminMessage] = useState<string>(
+    initialStatusBanner?.message || ''
+  )
+  const [adminSaving, setAdminSaving] = useState(false)
+
+  const isFounderAdmin =
+    Boolean(userEmail) &&
+    userEmail.toLowerCase().trim().endsWith('@specialsauce.io') &&
+    !userEmail.toLowerCase().includes('.demo@')
+
+  useEffect(() => {
+    setLiveBanner(initialStatusBanner || null)
+  }, [initialStatusBanner])
+
+  const handleSaveAdminBanner = async (active: boolean) => {
+    setAdminSaving(true)
+    const res = await updateSystemStatusBannerAction({
+      active,
+      severity: adminSeverity,
+      title: adminTitle,
+      message: adminMessage,
+      platform_area: adminArea,
+      target_role: adminTargetRole,
+      suppress_watchdog: !active,
+    })
+    if (res.ok) {
+      setLiveBanner(res.banner)
+      setDismissedBannerRef(null)
+      setAdminDrawerOpen(false)
+      router.refresh()
+    }
+    setAdminSaving(false)
+  }
 
   useEffect(() => {
     const syncDark = () => {
@@ -153,9 +207,181 @@ export default function DashboardNav({
             <span className="h-5 w-px bg-slate-400"></span>
           </div>
 
-          {/* RIGHT (Desktop lg+): Quick Feedback + Unified Account Dropdown */}
-          <div className="hidden lg:flex items-center gap-3 shrink-0">
-            <QuickFeedbackWidget />
+          {/* RIGHT (Desktop lg+): Founder Status Toggle + Quick Feedback + Unified Account Dropdown */}
+          <div className="hidden lg:flex items-center gap-2.5 shrink-0">
+            {isFounderAdmin && (
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setAdminDrawerOpen((prev) => !prev)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 text-xs font-extrabold transition-colors cursor-pointer ${
+                    liveBanner?.active
+                      ? 'bg-rose-950 text-rose-200 border-rose-500/60'
+                      : 'bg-slate-900 text-slate-200 border-slate-700 hover:bg-slate-800'
+                  }`}
+                  title="Founder Admin: Publish or clear a global customer outage/status banner"
+                >
+                  <span>📣</span>
+                  <span className="hidden xl:inline">
+                    {liveBanner?.active ? 'Banner ON' : 'Status Banner'}
+                  </span>
+                </button>
+
+                {adminDrawerOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setAdminDrawerOpen(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-96 sm:w-[430px] bg-white rounded-2xl border-2 border-slate-300 shadow-2xl p-4 z-50 space-y-3 text-left">
+                      <div className="flex items-center justify-between pb-2.5 border-b border-slate-300">
+                        <div>
+                          <h4 className="text-xs font-black uppercase tracking-wider text-slate-900">
+                            📣 Global Incident &amp; Outage Banner Control
+                          </h4>
+                          <p className="text-[11px] text-slate-500">
+                            Displays at the base of the top navbar &amp; inside Quick Feedback
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setAdminDrawerOpen(false)}
+                          className="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold cursor-pointer"
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      {/* 1-Click Quick Templates */}
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">
+                          1-Click Incident Templates:
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAdminSeverity('degraded')
+                              setAdminTargetRole('all')
+                              setAdminArea('5-Point AI Fit Radar & Dealbreakers')
+                              setAdminTitle('Elevated AI Match & Resume Parsing Latency')
+                              setAdminMessage('We are experiencing higher-than-normal latency from our upstream AI providers. Fit checks may take up to 25 seconds. Your retries and credits are 100% preserved.')
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-bold cursor-pointer"
+                          >
+                            ⚡ AI Fit / PDF Latency
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAdminSeverity('degraded')
+                              setAdminTargetRole('all')
+                              setAdminArea('Stripe Identity Verification')
+                              setAdminTitle('Stripe Identity Verification Sync Delay')
+                              setAdminMessage('Stripe Identity verification callbacks are taking 1–2 minutes longer than usual. Click Refresh Status on your Dashboard after completing your photo ID check.')
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-bold cursor-pointer"
+                          >
+                            🪪 Stripe ID Delay
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAdminSeverity('info')
+                              setAdminTargetRole('all')
+                              setAdminArea('General Platform')
+                              setAdminTitle('Scheduled Platform Maintenance Window')
+                              setAdminMessage('We are performing a brief zero-downtime upgrade. All active vaults, applications, and message threads remain safe.')
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 text-indigo-900 text-[11px] font-bold cursor-pointer"
+                          >
+                            🛠️ Maintenance Notice
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">
+                            Severity Level
+                          </label>
+                          <select
+                            value={adminSeverity}
+                            onChange={(e) => setAdminSeverity(e.target.value as any)}
+                            className="w-full rounded-xl border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs font-bold text-slate-900"
+                          >
+                            <option value="info">🔵 Info / Maintenance</option>
+                            <option value="degraded">🟠 Degraded Performance</option>
+                            <option value="outage">🔴 Major Outage</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">
+                            Target Audience
+                          </label>
+                          <select
+                            value={adminTargetRole}
+                            onChange={(e) => setAdminTargetRole(e.target.value as any)}
+                            className="w-full rounded-xl border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs font-bold text-slate-900"
+                          >
+                            <option value="all">All Users (Cand + Emp)</option>
+                            <option value="candidate">Candidates Only</option>
+                            <option value="employer">Employers Only</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">
+                          Headline Title
+                        </label>
+                        <input
+                          type="text"
+                          value={adminTitle}
+                          onChange={(e) => setAdminTitle(e.target.value)}
+                          placeholder="e.g. Elevated AI Match & Resume Parsing Latency"
+                          className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-900"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">
+                          Proactive Customer Message
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={adminMessage}
+                          onChange={(e) => setAdminMessage(e.target.value)}
+                          placeholder="Explain what is happening and reassure users they don't need to open a ticket..."
+                          className="w-full rounded-xl border border-slate-300 bg-slate-50 p-2.5 text-xs font-medium text-slate-900"
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-200">
+                        <button
+                          type="button"
+                          disabled={adminSaving}
+                          onClick={() => handleSaveAdminBanner(false)}
+                          className="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-extrabold cursor-pointer"
+                        >
+                          Clear / Turn Off Banner
+                        </button>
+                        <button
+                          type="button"
+                          disabled={adminSaving || !adminTitle.trim()}
+                          onClick={() => handleSaveAdminBanner(true)}
+                          className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold cursor-pointer disabled:opacity-50"
+                        >
+                          {adminSaving ? 'Publishing...' : 'Publish Live Banner →'}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            <QuickFeedbackWidget activeBanner={liveBanner} />
 
             <div className="relative" ref={dropdownRef}>
               <button
@@ -482,7 +708,7 @@ export default function DashboardNav({
 
             {/* Section 4: Feedback & Sign Out */}
             <div className="pt-2 border-t border-slate-200 flex items-center justify-between gap-3">
-              <QuickFeedbackWidget />
+              <QuickFeedbackWidget activeBanner={liveBanner} />
               <form action={signOutAction}>
                 <button
                   type="submit"
@@ -495,6 +721,78 @@ export default function DashboardNav({
           </div>
         )}
       </div>
+      {/* FLUSH BASE-OF-NAVBAR PROACTIVE INCIDENT & OUTAGE BANNER */}
+      {liveBanner?.active &&
+        dismissedBannerRef !== (liveBanner.incident_ref || liveBanner.title) && (
+          <div
+            role="status"
+            aria-live="polite"
+            className={`border-t px-4 sm:px-6 md:px-12 py-2.5 transition-all ${
+              liveBanner.severity === 'outage'
+                ? 'bg-rose-950 text-rose-100 border-rose-700'
+                : liveBanner.severity === 'degraded'
+                ? 'bg-amber-950 text-amber-100 border-amber-700'
+                : 'bg-indigo-950 text-indigo-100 border-indigo-700'
+            }`}
+          >
+            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+              <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+                <span
+                  className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md font-black uppercase tracking-wider text-[10px] border ${
+                    liveBanner.severity === 'outage'
+                      ? 'bg-rose-500/20 text-rose-200 border-rose-400/40'
+                      : liveBanner.severity === 'degraded'
+                      ? 'bg-amber-400/20 text-amber-200 border-amber-400/40'
+                      : 'bg-indigo-400/20 text-indigo-200 border-indigo-400/40'
+                  }`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full animate-pulse ${
+                      liveBanner.severity === 'outage'
+                        ? 'bg-rose-400'
+                        : liveBanner.severity === 'degraded'
+                        ? 'bg-amber-300'
+                        : 'bg-indigo-300'
+                    }`}
+                  />
+                  {liveBanner.severity === 'outage'
+                    ? 'Service Disruption'
+                    : liveBanner.severity === 'degraded'
+                    ? 'Service Advisory'
+                    : 'Maintenance Notice'}
+                </span>
+
+                <div className="leading-snug">
+                  <strong className="font-extrabold text-white mr-1.5">
+                    {liveBanner.title}:
+                  </strong>
+                  <span className="opacity-95">{liveBanner.message}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                <Link
+                  href="/dashboard/support"
+                  className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-[11px] transition-colors whitespace-nowrap"
+                >
+                  Status &amp; Updates →
+                </Link>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDismissedBannerRef(
+                      liveBanner.incident_ref || liveBanner.title
+                    )
+                  }
+                  title="Dismiss notice for this session"
+                  className="w-6 h-6 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 hover:text-white flex items-center justify-center text-xs font-bold cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
     </header>
   )
 }

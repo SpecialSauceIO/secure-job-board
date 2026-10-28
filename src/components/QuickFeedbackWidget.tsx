@@ -3,8 +3,13 @@
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { submitQuickFeedbackReliable } from '@/app/dashboard/feedback-actions'
+import type { SystemStatusBanner } from '@/lib/ops-bridge'
 
-export default function QuickFeedbackWidget() {
+export default function QuickFeedbackWidget({
+  activeBanner,
+}: {
+  activeBanner?: SystemStatusBanner | null
+}) {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [feedbackType, setFeedbackType] = useState<'Bug' | 'UX Idea' | 'Praise'>(
@@ -70,6 +75,17 @@ export default function QuickFeedbackWidget() {
       >
         <span>🐞</span>
         <span className="hidden sm:inline">Feedback</span>
+        {activeBanner?.active && (
+          <span
+            className={`w-2 h-2 rounded-full animate-pulse ${
+              activeBanner.severity === 'outage'
+                ? 'bg-rose-600'
+                : activeBanner.severity === 'degraded'
+                ? 'bg-amber-600'
+                : 'bg-indigo-600'
+            }`}
+          />
+        )}
       </button>
 
       {/* Popover Telemetry Feedback Form */}
@@ -100,6 +116,43 @@ export default function QuickFeedbackWidget() {
                 ✕
               </button>
             </div>
+
+            {/* PROACTIVE TICKET DEFLECTOR WHEN AN INCIDENT BANNER IS ACTIVE */}
+            {activeBanner?.active && (
+              <div
+                className={`mb-3 p-3 rounded-xl border text-left space-y-1 ${
+                  activeBanner.severity === 'outage'
+                    ? 'bg-rose-50 border-rose-300 text-rose-950'
+                    : activeBanner.severity === 'degraded'
+                    ? 'bg-amber-50 border-amber-300 text-amber-950'
+                    : 'bg-indigo-50 border-indigo-300 text-indigo-950'
+                }`}
+              >
+                <div className="text-[11px] font-black uppercase tracking-wider flex items-center justify-between gap-2">
+                  <span>
+                    {activeBanner.severity === 'outage'
+                      ? '🚨 Active Service Outage'
+                      : activeBanner.severity === 'degraded'
+                      ? '⚠️ Known Issue In Progress'
+                      : 'ℹ️ Scheduled Maintenance Notice'}
+                  </span>
+                  {activeBanner.incident_ref && (
+                    <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-white/80 border border-current/20">
+                      {activeBanner.incident_ref}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs font-extrabold leading-snug">
+                  {activeBanner.title}
+                </p>
+                <p className="text-[11px] leading-relaxed opacity-90">
+                  {activeBanner.message}
+                </p>
+                <p className="text-[10px] font-bold pt-1 opacity-80">
+                  ✓ Our team is already resolving this—no need to submit a duplicate ticket unless reporting a separate issue.
+                </p>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-3">
               <div className="grid grid-cols-3 gap-1.5">
