@@ -1164,8 +1164,8 @@ export default function EmployerCandidateSearch({
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5 min-w-0">
                       <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight truncate">
-                        {candidate.is_sandbox_benchmark
-                          ? `Anonymous Candidate #${displayId} (Demo)`
+                        {(candidate.is_sandbox_benchmark || String(candidate.bio || '').includes('(Demo)'))
+                          ? `(Demo) Anonymous Candidate #${displayId} (Demo)`
                           : `Anonymous Candidate #${displayId}`}
                       </h3>
 

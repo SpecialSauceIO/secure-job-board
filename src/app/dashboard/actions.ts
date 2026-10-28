@@ -4589,7 +4589,13 @@ export async function searchCandidates(
   const allMappedCandidates = (data || [])
     .map((candidate) => {
       const prefMeta: any = extractCandidatePrefMeta(candidate.structured_skills)
-      const isSandboxBenchmark = Boolean(prefMeta?.is_sandbox_benchmark)
+      const rawMeta: any = extractCandidateMeta(candidate.structured_skills)
+      const isSandboxBenchmark = Boolean(
+        prefMeta?.is_sandbox_benchmark ||
+        rawMeta?.is_sandbox_benchmark ||
+        String(candidate.bio || '').includes('[DEMO') ||
+        String(candidate.bio || '').includes('(Demo)')
+      )
       const normalizedIndustry = prefMeta?.industry_vertical
         ? normalizeIndustryVertical(prefMeta.industry_vertical)
         : ''
