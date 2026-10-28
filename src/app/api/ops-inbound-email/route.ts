@@ -68,17 +68,7 @@ export async function POST(req: NextRequest) {
     ) {
       const vault = await loadMergedOpsVault(client)
       const latestChecks = Array.isArray(vault.monitor_meta?.latest_checks)
-        ? vault.monitor_meta.latest_checks.map((chk: any) =>
-            chk.id === "gmail_inbound_poller"
-              ? {
-                  ...chk,
-                  status: "healthy",
-                  latency_ms: 0,
-                  detail: "Last Gmail poll check-in 0m ago (healthy <= 25m)",
-                  checked_at: nowIso,
-                }
-              : chk
-          )
+        ? vault.monitor_meta.latest_checks.filter((chk: any) => chk.id !== "gmail_inbound_poller")
         : undefined
 
       if (Array.isArray(vault.work_items)) {
@@ -108,7 +98,6 @@ export async function POST(req: NextRequest) {
 
       vault.monitor_meta = {
         ...(vault.monitor_meta || {}),
-        last_gmail_heartbeat_at: nowIso,
         last_gmail_threads_scanned: Number(emailData?.threads_scanned ?? 0),
         last_gmail_replies_synced: Number(emailData?.replies_synced ?? 0),
         ...(latestChecks ? { latest_checks: latestChecks } : {}),
@@ -247,7 +236,6 @@ export async function POST(req: NextRequest) {
       vault.work_items[targetIdx] = item
       vault.monitor_meta = {
         ...(vault.monitor_meta || {}),
-        last_gmail_heartbeat_at: nowIso,
       }
       await saveMergedOpsVault(client, vault)
     }
