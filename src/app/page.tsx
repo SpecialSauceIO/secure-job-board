@@ -143,7 +143,7 @@ export default function LandingPage() {
                 For good.
               </h1>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Traditional job boards bury 8 out of 10 résumés in automated filters and spam. Whether you work in Healthcare, Hospitality, Finance, Skilled Trades, Government, or Tech—Special Sauce restores real human-to-human hiring with upfront pay transparency, complete identity protection, and verified human connections.
+                Traditional job boards bury 8 out of 10 résumés in automated filters. Special Sauce restores human-to-human hiring with upfront pay and complete identity protection.
               </p>
             </div>
 
@@ -171,7 +171,7 @@ export default function LandingPage() {
                 No More Scams.
               </h1>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Traditional job boards are flooded with AI application bots, fake phishing listings, and &apos;spray-and-pray&apos; spam. On Special Sauce, every active candidate and employer completes Stripe Identity and corporate domain verification before any application or invitation connects—so real professionals deal strictly with real hiring teams.
+                Every active candidate and employer completes Stripe Identity verification before connecting—eliminating AI bots, fake listings, and spam so real professionals deal strictly with real hiring teams.
               </p>
             </div>
 
@@ -199,7 +199,7 @@ export default function LandingPage() {
                 Share Your Resume When Ready.
               </h1>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Connect in an encrypted Introduction thread before exposing your full identity. Candidates see the verified company name while showing only their First Name and Last Initial—releasing their full resume and contact vault into The Conversation only when mutual interest is confirmed.
+                Chat in an encrypted Introduction thread showing only your First Name and Last Initial. Release your full resume and contact information only after mutual interest is confirmed.
               </p>
             </div>
 
@@ -255,7 +255,7 @@ export default function LandingPage() {
                 Skip the resume pile.
               </h1>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Stop wasting hours sifting through bots and unqualified &apos;Easy Apply&apos; spam. Every applicant on Special Sauce is an ID-verified human who has already cleared a 40%+ baseline match across your required skills, dealbreakers, and pay band—so your team can skip the resume pile and interview viable professionals.
+                Stop sifting through &apos;Easy Apply&apos; spam. Every applicant is an ID-verified human who has already cleared a 40%+ match across your required skills, dealbreakers, and pay bands.
               </p>
             </div>
 
