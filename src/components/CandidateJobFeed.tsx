@@ -818,7 +818,9 @@ export function CandidateJobFeed({
                     </div>
 
                     <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">
-                      {job.title}
+                      {meta.isSandboxBenchmark && !String(job.title || '').endsWith('(Demo)')
+                        ? `${job.title} (Demo)`
+                        : job.title}
                     </h3>
                   </div>
 

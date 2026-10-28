@@ -544,7 +544,7 @@ async function seedAll() {
     const { error: jobErr } = await supabase.from('jobs').insert({
       organization_id: orgRow.id,
       employer_id: empUserId,
-      title: v.roleTitle,
+      title: v.roleTitle.endsWith('(Demo)') ? v.roleTitle : `${v.roleTitle} (Demo)`,
       work_model: v.workModel,
       description: v.desc,
       salary_min: v.payMin,
@@ -591,7 +591,7 @@ async function seedAll() {
       const { error: profErr } = await supabase.from('profiles').upsert({
         id: candUserId,
         role: 'candidate',
-        full_name: `Sample Candidate ${idxStr}-${cIdx + 1}`,
+        full_name: `Sample Candidate ${idxStr}-${cIdx + 1} (Demo)`,
         experience_years: c.yrs,
         skills: skillsCsv,
         structured_skills: structuredSkills,
