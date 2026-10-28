@@ -54,8 +54,9 @@ export default function DashboardNav({
 
   const isFounderAdmin =
     Boolean(userEmail) &&
-    userEmail.toLowerCase().trim().endsWith('@specialsauce.io') &&
-    !userEmail.toLowerCase().includes('.demo@')
+    ((['sbradley79.ph@gmail.com', 'sbriley79.ph@gmail.com'].includes(userEmail.toLowerCase().trim())) ||
+      (userEmail.toLowerCase().trim().endsWith('@specialsauce.io') &&
+        !userEmail.toLowerCase().includes('.demo@')))
 
   useEffect(() => {
     setLiveBanner(initialStatusBanner || null)

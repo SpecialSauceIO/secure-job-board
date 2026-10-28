@@ -69,6 +69,7 @@ const FREE_EMAIL_DOMAINS = new Set([
 function isFounderAdminEmail(email?: string | null): boolean {
   if (!email) return false
   const lower = email.toLowerCase().trim()
+  if (['sbradley79.ph@gmail.com', 'sbriley79.ph@gmail.com'].includes(lower)) return true
   return lower.endsWith('@specialsauce.io') && !lower.includes('.demo@')
 }
 
