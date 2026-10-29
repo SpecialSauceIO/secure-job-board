@@ -851,7 +851,7 @@ export async function releaseCandidateVaultToEmployer(
       `Candidate Full Name: ${fullName}`,
       `Direct Email: ${candidateEmail || 'Available in dashboard'}`,
       atsSyncResult?.success
-        ? `✓ Enterprise HR Software Auto-Sync: Candidate vault & 5-Point AI Match Radar were automatically pushed to your connected HR software (${atsSyncResult.syncStatus}).`
+        ? `✓ Enterprise HR Software Auto-Sync: Candidate vault & TrueFit Score™ were automatically pushed to your connected HR software (${atsSyncResult.syncStatus}).`
         : `You can now download their original PDF resume and contact them directly.`,
     ],
     ctaUrl:

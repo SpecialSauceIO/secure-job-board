@@ -70,7 +70,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-5 mt-3 space-y-2 text-slate-700">
               <li>
-                <strong>Default Protected Discovery:</strong> While browsing or evaluating AI Match Radar scores, Employers only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">Anonymous Candidate #ID</code>, extracted skills, experience years, target US Metro location, and a third-person bio. Candidates only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">Protected Role • Verified Employer</code> alongside transparent pay bands, employment type, and core skill requirements.
+                <strong>Default Protected Discovery:</strong> While browsing or evaluating TrueFit Score™ scores, Employers only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">Anonymous Candidate #ID</code>, extracted skills, experience years, target US Metro location, and a third-person bio. Candidates only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">Protected Role • Verified Employer</code> alongside transparent pay bands, employment type, and core skill requirements.
               </li>
               <li>
                 <strong>The Introduction (Encrypted Thread Unlock):</strong> When an Employer unlocks an inbound protected application—or when a Candidate accepts an outbound Employer Pitch—an encrypted in-platform message thread opens under a shared Reference ID (<code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">SS-XXXXXXXX</code>). During The Introduction, the Employer’s verified company name and domain are revealed to the Candidate, and only the Candidate’s <strong>First Name and Last Initial</strong> (e.g., <em>Alex M.</em>) are revealed to the Employer. <strong>The Candidate’s raw email address and original PDF resume remain locked inside the Special Sauce Vault.</strong>
@@ -83,7 +83,7 @@ export default function PrivacyPolicyPage() {
 
           <section className="bg-indigo-50/50 p-6 rounded-2xl border border-indigo-300">
             <h2 className="text-xl text-slate-900 mb-3">
-              4. In-Platform Messaging, Email Relay &amp; AI Safety Scanning
+              4. In-Platform Messaging, Email Relay &amp; Automated Safety Scanning
             </h2>
             <p className="text-slate-700 leading-relaxed">
               To protect Users from phishing, off-platform data harvesting, and algorithmic manipulation:
@@ -96,7 +96,7 @@ export default function PrivacyPolicyPage() {
                 <strong>Transactional Email Relay:</strong> When a new message or connection event occurs, we dispatch transactional email alerts (via Resend) containing your <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-300">SS-XXXXXXXX</code> Reference ID without exposing the Candidate’s raw email address to the Employer until The Conversation Vault Release is approved.
               </li>
               <li>
-                <strong>Zero Public AI Model Training:</strong> Uploaded resumes and job descriptions are transmitted via secure APIs to our LLM providers strictly for structured skill extraction and 5-Point AI Match Radar scoring. Your private documents are <span className="font-bold underline">never</span> used to train public foundation models.
+                <strong>Strict Data Isolation &amp; Zero External Model Training:</strong> Uploaded resumes and job descriptions are processed strictly inside isolated enterprise pipelines strictly for structured skill extraction and TrueFit Score™ scoring. Your private documents are <span className="font-bold underline">never</span> used to train public foundation models.
               </li>
             </ul>
           </section>

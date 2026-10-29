@@ -233,7 +233,7 @@ export default async function DashboardPage({
                   I&apos;m a Candidate
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed">
-                  Create an anonymous skill profile, run AI match checks, and
+                  Create an anonymous skill profile, run TrueFit Score™ checks, and
                   submit protected applications to verified roles.
                 </p>
               </button>
@@ -1107,7 +1107,7 @@ export default async function DashboardPage({
               <p className="mt-0.5 text-xs text-slate-600">
                 {hasActiveTrialOrPlan
                   ? "Your 30-Day Free Trial is active! Complete your 1-time Stripe Photo ID check now to earn the Biometric ID Verified badge, rank #1 in Employer Search, and apply or accept pitches."
-                  : "Employers can already discover your anonymous skill matrix and run AI Fit checks. Start your 30-Day Free Trial (Explorer $3/mo, Professional $9/mo, or Prestige $15/mo after) to unlock 1-Time ID Verification, submit applications, and accept employer pitches."}
+                  : "Employers can already discover your anonymous skill matrix and run TrueFit Score™ checks. Start your 30-Day Free Trial (Explorer $3/mo, Professional $9/mo, or Prestige $15/mo after) to unlock 1-Time ID Verification, submit applications, and accept employer pitches."}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2.5 shrink-0">
@@ -1167,7 +1167,7 @@ export default async function DashboardPage({
             </h3>
             <p className="text-xs text-slate-500 mt-1">
               {hasProfileData
-                ? 'Resume parsed & ready for AI matching'
+                ? 'Profile built & ready for TrueFit™ matching'
                 : 'Upload your PDF resume to auto-fill skills'}
             </p>
           </div>
@@ -1411,7 +1411,7 @@ export default async function DashboardPage({
               Recommended Roles (Live Marketplace)
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Top active roles aligned with your skill matrix—or test-drive your resume in the AI Fit Benchmark Sandbox.
+              Top active roles aligned with your skill matrix—or test-drive your resume in the TrueFit™ Benchmark Sandbox.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
@@ -1419,7 +1419,7 @@ export default async function DashboardPage({
               href="/dashboard/jobs?mode=sandbox"
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 hover:bg-amber-100 text-xs font-extrabold transition-colors"
             >
-              ⚡ Test-Drive in AI Fit Sandbox →
+              ⚡ Test-Drive in TrueFit™ Sandbox →
             </Link>
             <Link
               href="/dashboard/jobs"

@@ -242,7 +242,7 @@ export async function fireTestAtsWebhook() {
 
 /**
  * LIVE STAGE 2 VAULT TRIGGER:
- * Automatically dispatches the unlocked Candidate Vault & 5-Point AI Match Radar
+ * Automatically dispatches the unlocked Candidate Vault & TrueFit Score™
  * to the employer's Workday/Enterprise Webhook and/or Greenhouse HR Software
  * when a candidate releases their Conversation Vault.
  */
@@ -410,7 +410,7 @@ export async function autoSyncStage2VaultToEnterpriseAts(
           brief_analysis:
             matchData.brief_analysis ||
             matchData.employer_pitch ||
-            'Verified 5-Point AI Match on Special Sauce.',
+            'Verified TrueFit Score™ on Special Sauce.',
           radar_breakdown: Array.isArray(matchData.radar_data)
             ? matchData.radar_data
             : [],
@@ -501,7 +501,7 @@ export async function autoSyncStage2VaultToEnterpriseAts(
             refId +
             ' | Role: ' +
             (jobObj?.title || 'Open Role') +
-            ' | 5-Point AI Match Score: ' +
+            ' | TrueFit Score™: ' +
             overallScore +
             '%).',
         }

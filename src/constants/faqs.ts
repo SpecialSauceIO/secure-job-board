@@ -52,7 +52,7 @@ export const SECURITY_ARCHITECTURE_DATA = {
         'Every employer organization must pass three mandatory trust checks before publishing roles or searching talent: Pillar 1 (Corporate Domain DNS MX/TXT validation + automated 90-Day RDAP registry age check blocking burner domains), Pillar 2 (9-digit IRS Federal EIN & State of Incorporation officer attestation), and Pillar 3 (1-time Stripe Identity biometric check for the Account Admin).',
     },
     {
-      title: 'In-Platform Encrypted Messaging & AI Phishing Firewall',
+      title: 'In-Platform Encrypted Messaging & Automated Phishing Firewall',
       detail:
         'All initial candidate-employer conversations occur inside real-time threads tied to a shared Reference ID (SS-XXXXXXXX). Every message passes through an automated AI/heuristic safety scanner that blocks requests for SSNs, banking details, off-platform chat lures (WhatsApp/Telegram), or external harvesting forms.',
     },
@@ -109,13 +109,13 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
         step: 'Step 3',
         title: 'Publish Protected Roles (30-Day Freshness Window)',
         description:
-          'Upload a job description PDF for AI auto-extraction or select your US State & Metro area, Work Model, Employment Type (W-2, 1099/C2C, Contract-to-Hire, Part-Time), and Annual (/yr) or Hourly (/hr) pay band. Roles automatically expire after 30 days and can be renewed in 1 click.',
+          'Upload a job description PDF with our One-Click Role Generator™ or select your US State & Metro area, Work Model, Employment Type (W-2, 1099/C2C, Contract-to-Hire, Part-Time), and Annual (/yr) or Hourly (/hr) pay band. Roles automatically expire after 30 days and can be renewed in 1 click.',
       },
       {
         step: 'Step 4',
         title: 'The Introduction Unlock & 100% Accepted-Only Invitation Credit Protection',
         description:
-          'Unlocking inbound applicants (40%+ AI Fit) is 100% free (0 credits). Sending a Professional Invitation to passive candidates uses 1 Invitation Credit backed by our 100% Accepted-Only Guarantee—declined invitations are automatically refunded. The Introduction opens a live encrypted chat thread and reveals the candidate’s First Name + Last Initial.',
+          'Unlocking inbound applicants (40%+ TrueFit™) is 100% free (0 credits). Sending a Professional Invitation to passive candidates uses 1 Invitation Credit backed by our 100% Accepted-Only Guarantee—declined invitations are automatically refunded. The Introduction opens a live encrypted chat thread and reveals the candidate’s First Name + Last Initial.',
       },
       {
         step: 'Step 5',
@@ -129,13 +129,13 @@ SPECIAL SAUCE — HIRING TEAM QUICK-START GUIDE
 ====================================================================
 
 1. WHAT IS SPECIAL SAUCE?
-Special Sauce is a 100% ID-verified, double-blind recruitment marketplace protected by a Intro/Convo Identity Vault. Every candidate is Stripe Biometric Identity-Verified and evaluated by a 5-Point AI Fit Radar before any contact information is exchanged.
+Special Sauce is a 100% ID-verified, double-blind recruitment marketplace protected by a Intro/Convo Identity Vault. Every candidate is Stripe Biometric Identity-Verified and evaluated by a TrueFit Score™ before any contact information is exchanged.
 
 2. HOW OUR TEAM USES THE PLATFORM (5 STEPS):
 - Step 1 — Organization Setup & 12-Month Rate Lock: Activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo) to lock in Founding Partner Rates for a full 12 months.
 - Step 2 — 3-Pillar Anti-Harvesting Trust Gate: Complete corporate domain verification (including automated 90-day RDAP domain age verification), IRS 9-digit Federal EIN attestation, and a 1-time 60-second Stripe Identity check for the Account Admin.
 - Step 3 — Publishing Protected Roles (30-Day Auto-Expiry): Every role displays transparent pay ($/yr or $/hr), US State & Metro location, and employment type while keeping our company name protected until The Introduction. Roles auto-expire after 30 days to guarantee freshness.
-- Step 4 — The Introduction Unlock & Accepted-Only Invitation Credit Protection: Inbound applications (40%+ AI Fit) are 100% FREE to unlock (0 credits); Professional Invitations to passive talent use 1 Invitation Credit and are 100% auto-refunded if declined. The Introduction opens live encrypted chat (Ref: SS-XXXXXXXX) and reveals the candidate's First Name + Last Initial.
+- Step 4 — The Introduction Unlock & Accepted-Only Invitation Credit Protection: Inbound applications (40%+ TrueFit™) are 100% FREE to unlock (0 credits); Professional Invitations to passive talent use 1 Invitation Credit and are 100% auto-refunded if declined. The Introduction opens live encrypted chat (Ref: SS-XXXXXXXX) and reveals the candidate's First Name + Last Initial.
 - Step 5 — The Conversation Unlock (Full Resume & Email Release): Once we chat with the candidate, they click "Release Resume & Contact Vault" to unlock their Full Name, direct email, and 1-hour signed PDF resume link.
 
 3. EMPLOYER PLANS (12-MONTH FOUNDING PARTNER RATE LOCK) & TOP-UPS:
@@ -168,13 +168,13 @@ Special Sauce is a 100% ID-verified, double-blind recruitment marketplace protec
         step: 'Step 3',
         title: 'Upload PDF Resume to Your Conversation Vault & Set Dealbreakers',
         description:
-          'Upload your PDF resume once. Our AI parser extracts your skills, tenure, certifications, and languages into an anonymized profile (Candidate #ID) while locking your name, email, phone, and raw PDF inside your Conversation Vault. Set your minimum pay and dealbreakers upfront.',
+          'Upload your PDF resume once. Our One-Click Profile Builder™ extracts your skills, tenure, certifications, and languages into an anonymized profile (Candidate #ID) while locking your name, email, phone, and raw PDF inside your Conversation Vault. Set your minimum pay and dealbreakers upfront.',
       },
       {
         step: 'Step 4',
-        title: 'Check 5-Point AI Fit & Field Professional Invitations',
+        title: 'Check TrueFit Score™ & Field Professional Invitations',
         description:
-          'Browse active roles (all verified fresh within 30 days with upfront pay bands), check your instant 5-Point AI Fit score (40%+ minimum to apply), and receive direct Professional Invitations from verified hiring managers who pass your Dealbreaker Firewall.',
+          'Browse active roles (all verified fresh within 30 days with upfront pay bands), check your instant TrueFit Score™ (40%+ minimum to apply), and receive direct Professional Invitations from verified hiring managers who pass your Dealbreaker Firewall.',
       },
       {
         step: 'Step 5',
@@ -198,9 +198,9 @@ SPECIAL SAUCE — CANDIDATE HOW-IT-WORKS & 2-STAGE VAULT REFERENCE GUIDE
 - All job listings automatically close after 30 days unless manually renewed by the employer—eliminating stale "ghost jobs."
 
 3. CANDIDATE MEMBERSHIP TIERS ($3 / $9 / $15):
-- Explorer ($3/mo): Includes 1-time Stripe Real-Person ID Verification, live anonymous profile in Employer Search, unlimited Inbound Professional Invitation unlocks, and unlimited 5-Point AI Fit Radar checks.
-- Professional ($9/mo): Includes 1-time Stripe Real-Person ID Verification, unlimited Inbound Professional Invitation unlocks, 15 Outbound Protected Applications/month (40%+ AI Fit), and Permanent Founding Member status.
-- Prestige ($15/mo): Includes 1-time Stripe Real-Person ID Verification, Unlimited Outbound Protected Applications (40%+ AI Fit), unlimited invitation unlocks, and Top-Priority Spotlight placement in Employer Talent Search.
+- Explorer ($3/mo): Includes 1-time Stripe Real-Person ID Verification, live anonymous profile in Employer Search, unlimited Inbound Professional Invitation unlocks, and unlimited TrueFit Score™ checks.
+- Professional ($9/mo): Includes 1-time Stripe Real-Person ID Verification, unlimited Inbound Professional Invitation unlocks, 15 Outbound Protected Applications/month (40%+ TrueFit™), and Permanent Founding Member status.
+- Prestige ($15/mo): Includes 1-time Stripe Real-Person ID Verification, Unlimited Outbound Protected Applications (40%+ TrueFit™), unlimited invitation unlocks, and Top-Priority Spotlight placement in Employer Talent Search.
 ====================================================================`,
   },
 }
@@ -216,7 +216,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'Why do I need to verify my identity, and is my government ID stored by Special Sauce?',
     answer:
-      'Identity verification protects the integrity of the Special Sauce marketplace, eliminating AI spam bots and fake profiles. Every candidate plan—Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo)—includes 1-time Stripe Real-Person ID Verification (a 60-second photo ID and live selfie check) so 100% of candidates in Employer Search are real professionals. Your government ID and biometric selfie are NEVER stored on Special Sauce servers—they are vaulted exclusively by Stripe Identity using AES-256 encryption.',
+      'Identity verification protects the integrity of the Special Sauce marketplace, eliminating automated spam bots and fake profiles. Every candidate plan—Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo)—includes 1-time Stripe Real-Person ID Verification (a 60-second photo ID and live selfie check) so 100% of candidates in Employer Search are real professionals. Your government ID and biometric selfie are NEVER stored on Special Sauce servers—they are vaulted exclusively by Stripe Identity using AES-256 encryption.',
   },
   {
     id: 'c2',
@@ -252,7 +252,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How does Special Sauce eliminate stale "ghost jobs" and low-fit resume black holes?',
     answer:
-      'First, every job listing on Special Sauce is governed by a strict 30-Day Auto-Expiration policy—each card displays a live "Closes in Xd" countdown and automatically closes after 30 days unless manually renewed by the hiring team. Second, every listing shows transparent Annual (/yr) or Hourly (/hr) pay bands upfront and calculates your instant 5-Point AI Fit Radar score before you apply. A minimum 40%+ AI Fit score is required to submit a protected application, ensuring hiring managers review pre-aligned candidates who meet their core role requirements.',
+      'First, every job listing on Special Sauce is governed by a strict 30-Day Auto-Expiration policy—each card displays a live "Closes in Xd" countdown and automatically closes after 30 days unless manually renewed by the hiring team. Second, every listing shows transparent Annual (/yr) or Hourly (/hr) pay bands upfront and calculates your instant TrueFit Score™ score before you apply. A minimum 40%+ TrueFit™ score is required to submit a protected application, ensuring hiring managers review pre-aligned candidates who meet their core role requirements.',
   },
   {
     id: 'c5',
@@ -279,7 +279,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'What is the difference between Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo)?',
     answer:
-      'All three candidate tiers include 1-time Stripe Real-Person ID Verification, your private Conversation Resume Vault, and the permanent ★ Founding Member Charter badge during our launch window. Explorer ($3/mo) is built for passive discovery: your verified anonymous profile is live in Employer Search, you can run unlimited 5-Point AI Fit checks, and you can unlock and accept unlimited Inbound Professional Invitations. Professional ($9/mo) adds 15 proactive Outbound Protected Applications/month (for roles where you score 40%+ AI Fit) plus Verified Profile Distinctions. Prestige ($15/mo) unlocks Unlimited Outbound Protected Applications (40%+ AI Fit) and Top-Priority Spotlight placement at the top of Employer Talent Search. You can upgrade, switch, or downgrade plans anytime.',
+      'All three candidate tiers include 1-time Stripe Real-Person ID Verification, your private Conversation Resume Vault, and the permanent ★ Founding Member Charter badge during our launch window. Explorer ($3/mo) is built for passive discovery: your verified anonymous profile is live in Employer Search, you can run unlimited TrueFit Score™ checks, and you can unlock and accept unlimited Inbound Professional Invitations. Professional ($9/mo) adds 15 proactive Outbound Protected Applications/month (for roles where you score 40%+ TrueFit™) plus Verified Profile Distinctions. Prestige ($15/mo) unlocks Unlimited Outbound Protected Applications (40%+ TrueFit™) and Top-Priority Spotlight placement at the top of Employer Talent Search. You can upgrade, switch, or downgrade plans anytime.',
   },
 
   // ------------------------------------------------------------------
@@ -337,7 +337,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'Does unlocking an Inbound Protected Application cost a Invitation Credit?',
     answer:
-      'No! Reviewing, unlocking Introduction chat threads, messaging, and shortlisting candidates who proactively submit an inbound protected application (40%+ AI Fit) to your roles is 100% FREE (0 credits) on all active Employer plans. Invitation Credits are only used (1 credit per invitation) when you proactively send a Professional Invitation to a passive candidate from the Candidate Search pool.',
+      'No! Reviewing, unlocking Introduction chat threads, messaging, and shortlisting candidates who proactively submit an inbound protected application (40%+ TrueFit™) to your roles is 100% FREE (0 credits) on all active Employer plans. Invitation Credits are only used (1 credit per invitation) when you proactively send a Professional Invitation to a passive candidate from the Candidate Search pool.',
   },
   {
     id: 'e6',
@@ -346,7 +346,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How do we invite Hiring Managers or W-2 BPO / RPO Partners, and how does Workday / Greenhouse sync work?',
     answer:
-      'Every Employer plan includes collaborator seats: Starter ($149/mo) includes 2 seats, Growth ($499/mo) includes up to 5 seats, and Enterprise ($1,250/mo) includes Unlimited Team & External Recruiter seats. Open your Organization page (/dashboard/employer/organization) to assign seats. On Enterprise, whenever a candidate clicks "Release Resume & Contact Vault" (The Conversation), Special Sauce can automatically push a cryptographically signed HMAC-SHA256 webhook payload (candidate.vault_released) to Workday/MuleSoft or sync the candidate’s PDF resume and 5-Point AI Fit scorecard directly into Greenhouse.',
+      'Every Employer plan includes collaborator seats: Starter ($149/mo) includes 2 seats, Growth ($499/mo) includes up to 5 seats, and Enterprise ($1,250/mo) includes Unlimited Team & External Recruiter seats. Open your Organization page (/dashboard/employer/organization) to assign seats. On Enterprise, whenever a candidate clicks "Release Resume & Contact Vault" (The Conversation), Special Sauce can automatically push a cryptographically signed HMAC-SHA256 webhook payload (candidate.vault_released) to Workday/MuleSoft or sync the candidate’s PDF resume and TrueFit Score™card directly into Greenhouse.',
   },
   {
     id: 'e7',

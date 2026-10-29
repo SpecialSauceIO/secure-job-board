@@ -424,7 +424,7 @@ export default function CandidateBillingPage() {
                 <li>
                   ✓ <strong>Unlock &amp; Accept Unlimited Professional Invitations</strong> (Private Chat)
                 </li>
-                <li>✓ Browse protected role feed &amp; run 5-Point AI Fit Radar checks</li>
+                <li>✓ Browse protected role feed &amp; run TrueFit Score™ checks</li>
                 <li className="text-slate-400">
                   ✕ Outbound Protected Applications (Upgrade to Professional $9/mo or Prestige $15/mo to apply)
                 </li>
@@ -483,7 +483,7 @@ export default function CandidateBillingPage() {
                   🛡️ <strong>Includes Real-Person ID Verification</strong> &amp; Verified Shield
                 </li>
                 <li>
-                  ✓ <strong>15 Outbound Protected Applications / month</strong> (40%+ AI Fit)
+                  ✓ <strong>15 Outbound Protected Applications / month</strong> (40%+ TrueFit™)
                 </li>
                 <li>
                   ✓ <strong>Unlock &amp; Accept Unlimited Professional Invitations</strong>
@@ -548,7 +548,7 @@ export default function CandidateBillingPage() {
                   🛡️ <strong>Includes Real-Person ID Verification</strong> &amp; Verified Shield
                 </li>
                 <li>
-                  ✓ <strong>Unlimited Outbound Protected Applications</strong> (40%+ AI Fit)
+                  ✓ <strong>Unlimited Outbound Protected Applications</strong> (40%+ TrueFit™)
                 </li>
                 <li>
                   ✓ <strong>Unlock &amp; Accept Unlimited Professional Invitations</strong>

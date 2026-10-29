@@ -471,7 +471,7 @@ export default function CandidateRequestsInboxPage() {
                       </div>
                       {matchScore !== null && (
                         <span className="text-xs font-bold text-indigo-700">
-                          {matchScore}% AI Match
+                          {matchScore}% TrueFit
                         </span>
                       )}
                     </div>
@@ -530,7 +530,7 @@ export default function CandidateRequestsInboxPage() {
                   {/* AI Pitch Summary */}
                   <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-slate-300/80 text-xs text-slate-700 space-y-1 border-slate-300">
                     <div className="flex items-center justify-between font-bold text-indigo-700">
-                      <span>Why You Matched (5-Point AI Radar)</span>
+                      <span>Why You Matched (5-Point TrueFit Score™)</span>
                       {radarData && (
                         <button
                           type="button"
@@ -542,7 +542,7 @@ export default function CandidateRequestsInboxPage() {
                           }
                           className="underline cursor-pointer"
                         >
-                          {showRadar ? 'Hide Radar' : 'View Radar'}
+                          {showRadar ? 'Hide TrueFit™ Breakdown' : 'View TrueFit™ Breakdown'}
                         </button>
                       )}
                     </div>

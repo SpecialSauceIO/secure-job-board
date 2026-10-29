@@ -325,12 +325,12 @@ export function calculateCandidateGamification(
       title: 'High-Precision Applicant',
       shortLabel: 'High-Fit Applicant',
       description:
-        'Applies selectively to strong-fit roles, maintaining a 75%+ 5-Point AI Fit score across 3+ applications or invitations.',
+        'Applies selectively to strong-fit roles, maintaining a 75%+ TrueFit Score™ across 3+ applications or invitations.',
       icon: '✓',
       unlocked: isHighPrecision,
       progressText: isHighPrecision
         ? `Active (${highMatchApps75.length} roles at 75%+ Fit)`
-        : `Submit 3 applications at 75%+ AI Fit (${highMatchApps75.length}/3 completed)`,
+        : `Submit 3 applications at 75%+ TrueFit™ (${highMatchApps75.length}/3 completed)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {
@@ -365,12 +365,12 @@ export function calculateCandidateGamification(
       title: 'Top-Tier Match (85%+)',
       shortLabel: '85%+ Top Match',
       description:
-        'Elite role targeting—matched and applied or connected across 5+ roles at an 85%+ 5-Point AI Fit score.',
+        'Elite role targeting—matched and applied or connected across 5+ roles at an 85%+ TrueFit Score™.',
       icon: '✓',
       unlocked: isEliteMatch,
       progressText: isEliteMatch
         ? 'Active'
-        : `Apply or connect on 5 roles at 85%+ AI Fit (${eliteMatchApps85.length}/5 completed)`,
+        : `Apply or connect on 5 roles at 85%+ TrueFit™ (${eliteMatchApps85.length}/5 completed)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {

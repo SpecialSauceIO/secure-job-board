@@ -373,7 +373,7 @@ export default function CandidateJobsPage() {
             Discover Protected Roles
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Upfront pay transparency (/yr or /hr) and instant 5-Point AI Fit checks—while company identities stay protected until mutual unlock.
+            Upfront pay transparency (/yr or /hr) and instant TrueFit Score™ checks—while company identities stay protected until mutual unlock.
           </p>
         </div>
 
@@ -451,7 +451,7 @@ export default function CandidateJobsPage() {
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <span>⚡ AI Fit Benchmark Sandbox (Practice Mode)</span>
+              <span>⚡ TrueFit™ Benchmark Sandbox (Practice Mode)</span>
               <span className="px-2 py-0.5 rounded-md bg-slate-900 text-[11px] font-black text-amber-300 border border-slate-700">
                 {sandboxRolesCount}
               </span>
@@ -461,7 +461,7 @@ export default function CandidateJobsPage() {
           <p className="text-xs text-slate-300 font-medium">
             {viewMode === 'live'
               ? 'Showing 100% verified, active roles from Founding Partner employers.'
-              : 'Practice Mode: Run live 5-Point AI Fit Radar™ benchmarks across all 28 industries without using applications.'}
+              : 'Practice Mode: Run live TrueFit Score™ benchmarks across all 28 industries without using applications.'}
           </p>
         </div>
 
@@ -472,7 +472,7 @@ export default function CandidateJobsPage() {
                 <span>🟢 Founding Member Onboarding Active</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Verified employers are currently completing corporate domain verification and staging roles across all 28 verticals. Want to test-drive your 5-Point AI Fit Radar™ right now?
+                Verified employers are currently completing corporate domain verification and staging roles across all 28 verticals. Want to test-drive your TrueFit Score™ right now?
               </p>
             </div>
             <button
@@ -490,7 +490,7 @@ export default function CandidateJobsPage() {
                 <span>⚡ Interactive Benchmark Sandbox — Zero Applications Used</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Run live 5-Point AI Fit Radar™ checks against our {sandboxRolesCount} (Demo) benchmark roles across all 28 industries to see how your resume and skill matrix score across all 5 dimensions.
+                Run live TrueFit Score™ checks against our {sandboxRolesCount} (Demo) benchmark roles across all 28 industries to see how your resume and skill matrix score across all 5 dimensions.
               </p>
             </div>
             <button
@@ -785,7 +785,7 @@ export default function CandidateJobsPage() {
               onClick={() => switchViewMode('sandbox')}
               className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-colors cursor-pointer shadow-xs"
             >
-              ⚡ Test-Drive 5-Point AI Fit in Practice Sandbox ({sandboxRolesCount} Demo Roles) →
+              ⚡ Test-Drive TrueFit Score™ in Practice Sandbox ({sandboxRolesCount} Demo Roles) →
             </button>
             {(activeAdvancedCount > 0 || workModel !== 'all' || query.trim() !== '' || onlySavedJobs) && (
               <button

@@ -80,7 +80,7 @@ export default function WorkflowsPage() {
               </span>
             </h1>
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Build your profile or stage open roles and run <strong className="text-white">5-Point AI Fit Radar™</strong> checks for <strong className="text-emerald-400">free</strong>. When you are ready to connect, start a <strong className="text-white">30-Day Free Trial</strong> backed by 1-time real-person ID verification and our Intro/Convo Privacy Handshake.
+              Build your profile or stage open roles and run <strong className="text-white">TrueFit Score™</strong> checks for <strong className="text-emerald-400">free</strong>. When you are ready to connect, start a <strong className="text-white">30-Day Free Trial</strong> backed by 1-time real-person ID verification and our Intro/Convo Privacy Handshake.
             </p>
             <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
               <Link
@@ -195,10 +195,10 @@ export default function WorkflowsPage() {
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
                   <div className="space-y-4">
                     <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-indigo-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 2 • Dealbreakers &amp; Free AI Fit
+                      Step 2 • Dealbreakers &amp; Free TrueFit Score™
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
-                      2. Set Dealbreakers &amp; Check 5-Point AI Fit Free
+                      2. Set Dealbreakers &amp; Check TrueFit Score™ Free
                     </h3>
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
@@ -211,12 +211,12 @@ export default function WorkflowsPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span>Run unlimited <strong>5-Point AI Fit Radar™</strong> checks on live roles for free before starting a trial.</span>
+                        <span>Run unlimited <strong>TrueFit Score™</strong> checks on live roles for free before starting a trial.</span>
                       </li>
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Dealbreaker Firewall &amp; Free 5-Point AI Fit Radar™
+                    Unlocks: ✓ Dealbreaker Firewall &amp; Free TrueFit Score™
                   </div>
                 </div>
 
@@ -352,12 +352,12 @@ export default function WorkflowsPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Search the anonymous talent pool and run <strong>5-Point AI Fit Radar™</strong> checks on candidates for free.</span>
+                        <span>Search the anonymous talent pool and run <strong>TrueFit Score™</strong> checks on candidates for free.</span>
                       </li>
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Free Role Staging, Talent Directory Search &amp; AI Fit Checks
+                    Unlocks: ✓ Free Role Staging, Talent Directory Search &amp; TrueFit Score™ Checks
                   </div>
                 </div>
 
@@ -435,7 +435,7 @@ export default function WorkflowsPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Reviewing and unlocking inbound 40%+ AI-fit applicants is <strong>100% free (0 credits)</strong>.</span>
+                        <span>Reviewing and unlocking inbound 40%+ TrueFit™ applicants is <strong>100% free (0 credits)</strong>.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
@@ -515,7 +515,7 @@ export default function WorkflowsPage() {
                   1. Pre-Match (Mutual Identity Protection)
                 </h3>
                 <p className="text-sm text-slate-200 leading-relaxed">
-                  Candidates appear as <strong className="text-emerald-400">Candidate #ID</strong> with structured skills, dealbreakers, and 5-Point AI Fit scores. Employers appear by Industry Vertical, Company Stage, and upfront salary bands—preventing resume harvesting and poaching risk.
+                  Candidates appear as <strong className="text-emerald-400">Candidate #ID</strong> with structured skills, dealbreakers, and TrueFit Score™s. Employers appear by Industry Vertical, Company Stage, and upfront salary bands—preventing resume harvesting and poaching risk.
                 </p>
               </div>
 

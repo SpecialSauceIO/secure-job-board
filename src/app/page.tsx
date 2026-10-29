@@ -171,7 +171,7 @@ export default function LandingPage() {
                 No More Scams.
               </h1>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Every active candidate and employer completes Stripe Identity verification before connecting—eliminating AI bots, fake listings, and spam so real professionals deal strictly with real hiring teams.
+                Every active candidate and employer completes Stripe Identity verification before connecting—eliminating automated bots, fake listings, and spam so real professionals deal strictly with real hiring teams.
               </p>
             </div>
 
@@ -283,7 +283,7 @@ export default function LandingPage() {
                 30-Day Free Trial. Cancel Anytime.
               </h1>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Stage your anonymous profile or open roles and run unlimited 5-Point AI Fit Radar checks for free. When you find a match worth pursuing, start your 30-Day Free Trial to unlock verified applications and refund-protected Professional Invitations.
+                Stage your anonymous profile or open roles and run unlimited TrueFit Score™ checks for free. When you find a match worth pursuing, start your 30-Day Free Trial to unlock verified applications and refund-protected Professional Invitations.
               </p>
             </div>
           </div>
@@ -425,7 +425,7 @@ export default function LandingPage() {
 
               <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center border-r border-slate-800">
                 <span className="text-[11px] font-extrabold text-white uppercase tracking-[0.14em]">
-                  Daily-Calibrated AI
+                  Daily-Calibrated TrueFit™
                 </span>
                 <span className="text-[11px] text-slate-400 font-semibold mt-0.5">
                   Tested Daily for Accuracy
@@ -582,7 +582,7 @@ export default function LandingPage() {
                   onClick={() =>
                     setActivePreview({
                       title: '2. See Your Fit & Get Discovered',
-                      badge: 'Instant 5-Point AI Fit Radar™',
+                      badge: 'Instant 5-Point TrueFit Score™',
                       mp4: '/media/loop-ai-fit-reveal.mp4',
                       webm: '/media/loop-ai-fit-reveal.webm',
                       poster: '/media/ui-card-ai-fit-radar.webp',
@@ -598,7 +598,7 @@ export default function LandingPage() {
                       <span className="w-2 h-2 rounded-full bg-slate-700" />
                     </div>
                     <span className="text-[10px] font-mono font-bold text-sky-400 tracking-wide">
-                      5-POINT AI FIT RADAR™
+                      5-POINT TRUEFIT SCORE™
                     </span>
                   </div>
                   <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#0a0f1c]">
@@ -637,7 +637,7 @@ export default function LandingPage() {
                   2. See Your Fit &amp; Get Discovered
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Browse transparent pay bands and preview how your skills align using our 5-Point AI Fit Radar™ for free. When you are ready to submit a protected application or accept a Professional Invitation from an employer, start your 30-Day Free Trial (including 1-time Stripe ID verification).
+                  Browse transparent pay bands and preview how your skills align using our TrueFit Score™ for free. When you are ready to submit a protected application or accept a Professional Invitation from an employer, start your 30-Day Free Trial (including 1-time Stripe ID verification).
                 </p>
               </div>
 
@@ -785,7 +785,7 @@ export default function LandingPage() {
                   1. Post Roles in Seconds
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Upload any job description to structure your role, search our anonymous talent directory, and preview candidate alignment with 5-Point AI Fit Radar™ checks for free. Your company name stays private until you send a Professional Invitation or unlock an applicant.
+                  Upload any job description to structure your role, search our anonymous talent directory, and preview candidate alignment with TrueFit Score™ checks for free. Your company name stays private until you send a Professional Invitation or unlock an applicant.
                 </p>
               </div>
 
@@ -850,7 +850,7 @@ export default function LandingPage() {
                   2. 40% Skill-Fit Threshold &amp; Protected Invitations
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Start your 30-Day Founding Partner Trial when you are ready to publish live roles or send Professional Invitations. Our 40% minimum AI Fit threshold ensures every applicant meets your core role requirements, and 100% Accepted-Only Invitation Credit Protection ensures you only use a credit when a professional accepts.
+                  Start your 30-Day Founding Partner Trial when you are ready to publish live roles or send Professional Invitations. Our 40% minimum TrueFit Score™ threshold ensures every applicant meets your core role requirements, and 100% Accepted-Only Invitation Credit Protection ensures you only use a credit when a professional accepts.
                 </p>
               </div>
 
@@ -961,7 +961,7 @@ export default function LandingPage() {
                 Verified People &amp; Real Companies
               </h3>
               <p className="text-slate-500 leading-relaxed">
-                Candidates and employers can build profiles and run AI Fit checks for free, then complete 1-time Stripe Identity verification with a 30-Day Free Trial before applying, pitching, or posting live jobs—eliminating bots, fake profiles, and scam listings.
+                Candidates and employers can build profiles and run TrueFit Score™ checks for free, then complete 1-time Stripe Identity verification with a 30-Day Free Trial before applying, pitching, or posting live jobs—eliminating bots, fake profiles, and scam listings.
               </p>
             </div>
 
@@ -1009,10 +1009,10 @@ export default function LandingPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-3">
-                  US-Based Support &amp; Calibrated AI
+                  US-Based Support &amp; Calibrated TrueFit™
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Special Sauce is 100% US-owned and operated with direct US human support specialists—zero offshore call centers or bot loops. Our 5-Point AI Fit Radar™ is benchmark-tested and calibrated daily to prevent model drift.
+                  Special Sauce is 100% US-owned and operated with direct US human support specialists—zero offshore call centers or bot loops. Our TrueFit Score™ is benchmark-tested and calibrated daily to prevent model drift.
                 </p>
               </div>
             </div>

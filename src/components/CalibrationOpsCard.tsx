@@ -47,7 +47,7 @@ export default function CalibrationOpsCard() {
   const [showBannerControls, setShowBannerControls] = useState<boolean>(true)
   const [severity, setSeverity] = useState<"info" | "degraded" | "outage">("degraded")
   const [targetRole, setTargetRole] = useState<"all" | "candidate" | "employer">("all")
-  const [platformArea, setPlatformArea] = useState<string>("5-Point AI Fit Radar & Dealbreakers")
+  const [platformArea, setPlatformArea] = useState<string>("TrueFit Score™ & Dealbreakers")
   const [bannerTitle, setBannerTitle] = useState<string>("")
   const [bannerBody, setBannerBody] = useState<string>("")
   const [savingBanner, setSavingBanner] = useState<boolean>(false)
@@ -202,7 +202,7 @@ export default function CalibrationOpsCard() {
             </span>
           </div>
           <h2 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
-            Ops Incident Banner &amp; 5-Point AI Fit Calibration Monitor
+            Ops Incident Banner &amp; TrueFit Score™ Calibration Monitor
           </h2>
           <p className="text-xs sm:text-sm text-slate-400">
             Active Provider: <code className="text-indigo-300 font-mono">{calib?.provider_used || "openai/gpt-oss-120b"}</code>
@@ -286,15 +286,15 @@ export default function CalibrationOpsCard() {
                 onClick={() => {
                   setSeverity("degraded")
                   setTargetRole("all")
-                  setPlatformArea("5-Point AI Fit Radar & Dealbreakers")
-                  setBannerTitle("Elevated AI Match & Resume Parsing Latency")
+                  setPlatformArea("TrueFit Score™ & Dealbreakers")
+                  setBannerTitle("Elevated TrueFit Scoring & PDF Builder Latency")
                   setBannerBody(
-                    "We are experiencing higher-than-normal latency from our upstream AI providers. Fit checks may take up to 25 seconds. Your retries and credits are 100% preserved."
+                    "We are experiencing higher-than-normal latency in our scoring pipeline. TrueFit Score™ checks may take up to 25 seconds. Your retries and credits are 100% preserved."
                   )
                 }}
                 className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 text-xs font-bold cursor-pointer"
               >
-                ⚡ AI Fit / PDF Latency
+                ⚡ TrueFit / PDF Latency
               </button>
               <button
                 type="button"
@@ -368,7 +368,7 @@ export default function CalibrationOpsCard() {
                 type="text"
                 value={platformArea}
                 onChange={(e) => setPlatformArea(e.target.value)}
-                placeholder="e.g. 5-Point AI Fit Radar"
+                placeholder="e.g. TrueFit Score™"
                 className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-bold text-white"
               />
             </div>
@@ -383,7 +383,7 @@ export default function CalibrationOpsCard() {
                 type="text"
                 value={bannerTitle}
                 onChange={(e) => setBannerTitle(e.target.value)}
-                placeholder="e.g. Elevated AI Match & Resume Parsing Latency"
+                placeholder="e.g. Elevated TrueFit Scoring & PDF Builder Latency"
                 className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-bold text-white"
               />
             </div>
@@ -432,7 +432,7 @@ export default function CalibrationOpsCard() {
       )}
 
       {loading && !calib ? (
-        <div className="text-xs text-slate-400 py-4">Loading latest AI scoring accuracy check...</div>
+        <div className="text-xs text-slate-400 py-4">Loading latest TrueFit™ scoring accuracy check...</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {tierKeys.map((tKey) => {

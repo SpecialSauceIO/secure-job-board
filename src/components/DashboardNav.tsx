@@ -42,7 +42,7 @@ export default function DashboardNav({
     initialStatusBanner?.target_role || 'all'
   )
   const [adminArea, setAdminArea] = useState<string>(
-    initialStatusBanner?.platform_area || '5-Point AI Fit Radar & Dealbreakers'
+    initialStatusBanner?.platform_area || 'TrueFit Score™ & Dealbreakers'
   )
   const [adminTitle, setAdminTitle] = useState<string>(
     initialStatusBanner?.title || ''
@@ -264,13 +264,13 @@ export default function DashboardNav({
                             onClick={() => {
                               setAdminSeverity('degraded')
                               setAdminTargetRole('all')
-                              setAdminArea('5-Point AI Fit Radar & Dealbreakers')
-                              setAdminTitle('Elevated AI Match & Resume Parsing Latency')
-                              setAdminMessage('We are experiencing higher-than-normal latency from our upstream AI providers. Fit checks may take up to 25 seconds. Your retries and credits are 100% preserved.')
+                              setAdminArea('TrueFit Score™ & Dealbreakers')
+                              setAdminTitle('Elevated TrueFit Scoring & PDF Builder Latency')
+                              setAdminMessage('We are experiencing higher-than-normal latency in our scoring pipeline. TrueFit Score™ checks may take up to 25 seconds. Your retries and credits are 100% preserved.')
                             }}
                             className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-bold cursor-pointer"
                           >
-                            ⚡ AI Fit / PDF Latency
+                            ⚡ TrueFit / PDF Latency
                           </button>
                           <button
                             type="button"
@@ -340,7 +340,7 @@ export default function DashboardNav({
                           type="text"
                           value={adminTitle}
                           onChange={(e) => setAdminTitle(e.target.value)}
-                          placeholder="e.g. Elevated AI Match & Resume Parsing Latency"
+                          placeholder="e.g. Elevated TrueFit Scoring & PDF Builder Latency"
                           className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-900"
                         />
                       </div>

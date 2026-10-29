@@ -39,7 +39,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zEQeqE0pvy',
     description:
-      'ID-Verified Active Tier: Unlock and accept unlimited inbound Professional Invitations, plus 15 outbound protected applications/month (40%+ AI Fit).',
+      'ID-Verified Active Tier: Unlock and accept unlimited inbound Professional Invitations, plus 15 outbound protected applications/month (40%+ TrueFit™).',
   },
   candidate_pro: {
     id: 'professional',
@@ -48,7 +48,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zEQeqE0pvy',
     description:
-      'ID-Verified Active Tier: Unlock and accept unlimited inbound Professional Invitations, plus 15 outbound protected applications/month (40%+ AI Fit).',
+      'ID-Verified Active Tier: Unlock and accept unlimited inbound Professional Invitations, plus 15 outbound protected applications/month (40%+ TrueFit™).',
   },
   prestige: {
     id: 'prestige',
@@ -57,7 +57,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zETADS2cmp',
     description:
-      'Priority Spotlight & Unlimited: Unlimited outbound protected applications (40%+ AI Fit), top-priority placement in Employer Talent Search, and priority shortlist placement.',
+      'Priority Spotlight & Unlimited: Unlimited outbound protected applications (40%+ TrueFit™), top-priority placement in Employer Talent Search, and priority shortlist placement.',
   },
   candidate_prestige: {
     id: 'prestige',
@@ -66,7 +66,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE',
     defaultPriceId: 'price_1UTpwyR0rSVwN0zETADS2cmp',
     description:
-      'Priority Spotlight & Unlimited: Unlimited outbound protected applications (40%+ AI Fit), top-priority placement in Employer Talent Search, and priority shortlist placement.',
+      'Priority Spotlight & Unlimited: Unlimited outbound protected applications (40%+ TrueFit™), top-priority placement in Employer Talent Search, and priority shortlist placement.',
   },
 }
 

@@ -60,7 +60,7 @@ export default function DashboardAnalyticsReport({
       'Channel',
       'Role Title',
       mode === 'employer' ? 'Candidate Protected ID' : 'Organization / Role Ref',
-      '5-Point AI Match %',
+      'TrueFit Score™ %',
       'Vault Stage',
       'Decision Status',
       'Account Ref',
@@ -109,7 +109,7 @@ export default function DashboardAnalyticsReport({
             {stats.total} Total Records
           </span>
           <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-extrabold">
-            Avg AI Fit: {stats.avgScore > 0 ? `${stats.avgScore}%` : '—'}
+            Avg TrueFit: {stats.avgScore > 0 ? `${stats.avgScore}%` : '—'}
           </span>
           <span className="px-2.5 py-0.5 rounded-md bg-sky-50 border border-sky-200 text-sky-900 text-xs font-extrabold">
             {stats.stage1} Unlocked • {stats.stage2} Vault Released
@@ -233,7 +233,7 @@ export default function DashboardAnalyticsReport({
                     <th className="py-2.5 px-3.5">
                       {mode === 'employer' ? 'Candidate Protected ID' : 'Role / Org Ref'}
                     </th>
-                    <th className="py-2.5 px-3.5">AI Fit</th>
+                    <th className="py-2.5 px-3.5">TrueFit</th>
                     <th className="py-2.5 px-3.5">Vault Stage</th>
                     <th className="py-2.5 px-3.5">Status</th>
                   </tr>

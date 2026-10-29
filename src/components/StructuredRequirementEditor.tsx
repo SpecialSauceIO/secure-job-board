@@ -88,7 +88,7 @@ export function StructuredRequirementEditor({
             Core Role Competencies &amp; Skill Tenure Matrix <span className="text-rose-500">*</span>
           </label>
           <p className="text-xs text-slate-500 mt-0.5">
-            Enter at least <strong>{MIN_REQUIRED_SKILLS} core skills</strong> (technical, operational, or domain competencies) to power the 5-Point AI Fit Radar.
+            Enter at least <strong>{MIN_REQUIRED_SKILLS} core skills</strong> (technical, operational, or domain competencies) to power the TrueFit Score™.
           </p>
         </div>
 

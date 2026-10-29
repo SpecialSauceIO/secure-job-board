@@ -73,7 +73,7 @@ export function CoreRequirementsBuilder({ initialData }: { initialData: any }) {
     <div className="rounded-xl bg-white p-6 border-2 border-slate-300 shadow-sm border-slate-300">
       <h3 className="text-sm font-bold text-slate-800">Core Requirements</h3>
       <p className="text-xs text-slate-500 mt-1 mb-4">
-        List the critical technical skills needed for this role. This powers the instant AI matching algorithm.
+        List the critical technical skills needed for this role. This powers the instant TrueFit Score™ matching engine.
       </p>
 
       <input type="hidden" name="structured_requirements" value={serializedRequirements} />

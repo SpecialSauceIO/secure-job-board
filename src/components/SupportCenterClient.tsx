@@ -615,7 +615,7 @@ export default function SupportCenterClient({
                         <option value="Stripe Identity Verification (Candidate)">Stripe Identity Verification (Candidate)</option>
                         <option value="Corporate Domain / DNS Verification (Employer)">Corporate Domain / DNS Verification (Employer)</option>
                         <option value="2-Stage Resume & Contact Vault">Intro/Convo Resume &amp; Contact Vault</option>
-                        <option value="5-Point AI Fit Radar & Dealbreakers">5-Point AI Fit Radar &amp; Dealbreakers</option>
+                        <option value="TrueFit Score™ & Dealbreakers">TrueFit Score™ &amp; Dealbreakers</option>
                         <option value="Billing, Subscriptions & Credits">Billing, Subscriptions &amp; Credits</option>
                         <option value="HR Software Sync Hub">HR Software Sync Hub</option>
                         <option value="Encrypted Stage 1/2 Messaging">Encrypted Intro/Convo Messaging</option>

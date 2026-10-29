@@ -312,7 +312,7 @@ export function CandidateJobFeed({
         setTimeout(() => {
           resolve({
             error:
-              'AI Match analysis took longer than 30 seconds across our 3-tier matching cascade. Please click "Try AI Match Again" to retry.',
+              'TrueFit Score™ analysis took longer than 30 seconds across our 3-tier matching cascade. Please click "Recalculate TrueFit Score™" to retry.',
           })
         }, 30000)
       })
@@ -327,7 +327,7 @@ export function CandidateJobFeed({
           ...prev,
           [jobId]: {
             type: 'error',
-            text: `${result.error} Please click "Try AI Match Again" to retry.`,
+            text: `${result.error} Please click "Recalculate TrueFit Score™" to retry.`,
           },
         }))
       } else if (result?.data) {
@@ -346,7 +346,7 @@ export function CandidateJobFeed({
           ...prev,
           [jobId]: {
             type: 'error',
-            text: 'Unable to generate AI Match score at this moment. Please try again.',
+            text: 'Unable to generate TrueFit Score™ at this moment. Please try again.',
           },
         }))
       }
@@ -355,7 +355,7 @@ export function CandidateJobFeed({
         ...prev,
         [jobId]: {
           type: 'error',
-          text: 'Network or server timeout while calculating AI Match. Please click "Try AI Match Again" to retry.',
+          text: 'Network or server timeout while calculating TrueFit Score™. Please click "Recalculate TrueFit Score™" to retry.',
         },
       }))
     } finally {
@@ -731,7 +731,7 @@ export function CandidateJobFeed({
                     <div className="shrink-0">
                       {meta.isSandboxBenchmark ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-300 text-amber-900 text-[11px] font-extrabold uppercase tracking-wider">
-                          ⚡ AI Fit Benchmark • Practice Role
+                          ⚡ TrueFit™ Benchmark • Practice Role
                         </span>
                       ) : (
                         <RankAndFounderPill
@@ -905,7 +905,7 @@ export function CandidateJobFeed({
                     <div className="w-5 h-5 border-3 border-indigo-300 border-t-indigo-600 rounded-full animate-spin shrink-0" />
                     <div className="text-xs text-indigo-950">
                       <span className="font-extrabold block">
-                        Analyzing 5-Point AI Fit (This may take up to 30 seconds)...
+                        Analyzing TrueFit Score™ (This may take up to 30 seconds)...
                       </span>
                       <span className="text-indigo-700 font-medium">
                         Evaluating your anonymous skill matrix, education, certifications, and language proficiencies.
@@ -914,13 +914,13 @@ export function CandidateJobFeed({
                   </div>
                 )}
 
-                {/* AI Match Radar & Fit Analysis Results Box */}
+                {/* TrueFit Score™ & Fit Analysis Results Box */}
                 {matchData && !isAnalyzing && (
                   <div className="p-5 rounded-2xl bg-slate-50 border-2 border-slate-300 space-y-5 animate-in fade-in duration-300 border-slate-300">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-300 pb-4">
                       <div>
                         <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-600 block">
-                          5-Point AI Fit Prediction
+                          5-Point TrueFit Score™ Breakdown
                         </span>
                         <p className="text-sm font-semibold text-slate-800 mt-1">
                           {matchData.brief_analysis || matchData.summary || (score >= 40 ? `Verified alignment (${score}% overall fit) across Core Competencies, Skill Tenure, Logistics & Pay, and Industry Credentials.` : `Low role alignment (${score}% overall fit): Core competency and skill tenure requirements do not meet the 40% threshold for this role.`)}
@@ -1034,7 +1034,7 @@ export function CandidateJobFeed({
                           {appliedRef})
                         </h4>
                         <p className="text-xs text-emerald-800 mt-0.5 leading-relaxed">
-                          Your anonymous skill matrix and {score}% AI Match Radar are now in the employer&apos;s pipeline.
+                          Your anonymous skill matrix and {score}% TrueFit Score™ are now in the employer&apos;s pipeline.
                         </p>
                       </div>
                     </div>
@@ -1058,7 +1058,7 @@ export function CandidateJobFeed({
                           onClick={() => handleAnalyzeFit(jobId)}
                           className="px-3.5 py-1.5 rounded-lg bg-rose-700 text-white text-xs font-extrabold hover:bg-rose-800 transition-colors cursor-pointer"
                         >
-                          ↻ Try AI Match Again
+                          ↻ Recalculate TrueFit Score™
                         </button>
                       )}
                       {cardFeedback.text.includes('Membership & Billing') && (
@@ -1079,10 +1079,10 @@ export function CandidateJobFeed({
                     {isApplied
                       ? `✓ Application logged under Reference ID ${appliedRef}.`
                       : !matchData
-                      ? `Step 1: Run a free AI Fit Analysis (${MIN_MATCH_THRESHOLD}%+ match required to apply).`
+                      ? `Step 1: Run a free TrueFit Score™ Analysis (${MIN_MATCH_THRESHOLD}%+ match required to apply).`
                       : score >= MIN_MATCH_THRESHOLD
-                      ? '✓ You meet the 40%+ AI Fit threshold! Ready to submit your protected application.'
-                      : `Requires ${MIN_MATCH_THRESHOLD}%+ AI Match Score to apply (Current: ${score}%).`}
+                      ? '✓ You meet the 40%+ TrueFit Score™ threshold! Ready to submit your protected application.'
+                      : `Requires ${MIN_MATCH_THRESHOLD}%+ TrueFit Score™ to apply (Current: ${score}%).`}
                   </p>
 
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto shrink-0">
@@ -1097,7 +1097,7 @@ export function CandidateJobFeed({
                           ? 'Analyzing Fit...'
                           : matchData
                           ? '↻ Re-Run Fit'
-                          : '⚡ Check AI Fit Score'}
+                          : '⚡ Check TrueFit Score™'}
                       </button>
                     )}
 
@@ -1108,7 +1108,7 @@ export function CandidateJobFeed({
                         </span>
                       ) : meta.isSandboxBenchmark ? (
                         <span
-                          title="Practice Benchmark Role — Test your 5-Point AI Fit Radar for free without using any monthly applications"
+                          title="Practice Benchmark Role — Test your TrueFit Score™ for free without using any monthly applications"
                           className="w-full sm:w-auto text-center justify-center px-4 py-2 rounded-xl bg-amber-50 text-amber-900 border border-amber-300 text-xs font-extrabold"
                         >
                           ⚡ Benchmark Preview (0 Apps Used)

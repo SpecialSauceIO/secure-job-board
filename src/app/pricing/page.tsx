@@ -84,7 +84,7 @@ export default function PricingMatrixPage() {
               </span>
             </h1>
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Connect directly with ID-verified professionals and domain-verified employers—with <strong className="text-white">zero bots, zero ghost jobs, and free 5-Point AI Fit Radar™ checks</strong>. Every plan includes a <strong className="text-emerald-400">30-Day Free Trial</strong>—cancel anytime before Day 30.
+              Connect directly with ID-verified professionals and domain-verified employers—with <strong className="text-white">zero bots, zero ghost jobs, and free TrueFit Score™ checks</strong>. Every plan includes a <strong className="text-emerald-400">30-Day Free Trial</strong>—cancel anytime before Day 30.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-3 text-left">
               <div className="p-4 rounded-xl bg-slate-900/90 backdrop-blur-md border border-indigo-500/40 shadow-lg">
@@ -156,7 +156,7 @@ export default function PricingMatrixPage() {
                   Start With a 30-Day Free Trial on Any Candidate Plan
                 </h2>
                 <ul className="space-y-1.5 pt-1 text-sm sm:text-base text-slate-200">
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-white">Free Profile Seeding:</strong> Build your anonymous skill matrix and run 5-Point AI Fit checks for free.</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-white">Free Profile Seeding:</strong> Build your anonymous skill matrix and run TrueFit Score™ checks for free.</span></li>
                   <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-emerald-300">Explorer ($3/mo after trial):</strong> Unlock 1-time Stripe ID Verification &amp; accept unlimited inbound Professional Invitations.</span></li>
                   <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-amber-300">Professional ($9/mo) &amp; Prestige ($15/mo):</strong> Proactively submit protected applications + earn Founding Member status.</span></li>
                 </ul>
@@ -212,7 +212,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span>Browse protected role feed &amp; run 5-Point AI Fit Radar checks</span>
+                      <span>Browse protected role feed &amp; run TrueFit Score™ checks</span>
                     </li>
                     <li className="flex items-start gap-2.5 text-slate-300">
                       <span className="text-slate-400 font-bold shrink-0">✕</span>
@@ -263,7 +263,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">15 Outbound Protected Applications / mo</strong> (40%+ AI Fit)</span>
+                      <span><strong className="text-white">15 Outbound Protected Applications / mo</strong> (40%+ TrueFit™)</span>
                     </li>
                     <li className="flex items-start gap-2.5 text-amber-300 font-bold">
                       <span className="shrink-0">★</span>
@@ -318,7 +318,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlimited Outbound Protected Applications</strong> (40%+ AI Fit)</span>
+                      <span><strong className="text-white">Unlimited Outbound Protected Applications</strong> (40%+ TrueFit™)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -555,7 +555,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5 text-indigo-300 font-bold">
                       <span className="shrink-0">⚡</span>
-                      <span><strong className="text-white">Native Greenhouse HR Software Connector</strong> — auto-syncs unlocked PDF resumes &amp; AI Fit scorecards</span>
+                      <span><strong className="text-white">Native Greenhouse HR Software Connector</strong> — auto-syncs unlocked PDF resumes &amp; TrueFit Score™ cards</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>

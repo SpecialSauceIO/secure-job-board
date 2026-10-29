@@ -168,7 +168,7 @@ export function CandidateApplications() {
       setFeedback({
         id: applicationId,
         type: 'success',
-        text: `AI Match recalculated (${updatedData.match_score}%) using your latest profile skills!`,
+        text: `TrueFit Score™ recalculated (${updatedData.match_score}%) using your latest profile skills!`,
       })
     }
 
@@ -426,8 +426,8 @@ export function CandidateApplications() {
               <option value="recent_activity">
                 Recent Thread Activity / Unread First
               </option>
-              <option value="match_high">AI Match Score (Highest First)</option>
-              <option value="match_low">AI Match Score (Lowest First)</option>
+              <option value="match_high">TrueFit Score™ (Highest First)</option>
+              <option value="match_low">TrueFit Score™ (Lowest First)</option>
               <option value="pay_high">
                 Highest Compensation (Annualized)
               </option>
@@ -477,7 +477,7 @@ export function CandidateApplications() {
           </h3>
           <p className="text-slate-500 max-w-md mx-auto text-sm mb-6">
             {statusFilter === 'all' && industryFilter === 'all'
-              ? "You haven't submitted any protected applications yet. Browse open roles to run AI fit predictions and apply."
+              ? "You haven't submitted any protected applications yet. Browse open roles to run TrueFit Score™ predictions and apply."
               : 'No applications match your current status or Industry Vertical filter.'}
           </p>
           {statusFilter !== 'all' || industryFilter !== 'all' ? (
@@ -644,7 +644,7 @@ export function CandidateApplications() {
                               : 'bg-indigo-50 text-indigo-700 border-indigo-300'
                           }`}
                         >
-                          {matchScore}% AI Match
+                          {matchScore}% TrueFit
                         </span>
                       )}
 
@@ -811,7 +811,7 @@ export function CandidateApplications() {
                     </div>
                   )}
 
-                  {/* AI Fit Analysis & Radar Toggle */}
+                  {/* TrueFit Score™ Analysis & Radar Toggle */}
                   <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-300 border-slate-300">
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
                       <span className="text-xs font-bold text-indigo-600 flex items-center gap-1.5">
@@ -828,7 +828,7 @@ export function CandidateApplications() {
                             d="M13 10V3L4 14h7v7l9-11h-7z"
                           />
                         </svg>
-                        AI Match Analysis
+                        TrueFit Score™ Analysis
                       </span>
 
                       <div className="flex items-center gap-3">
@@ -869,8 +869,8 @@ export function CandidateApplications() {
                             className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
                           >
                             {isExpanded
-                              ? 'Hide 5-Point Radar'
-                              : 'View 5-Point Radar Breakdown'}
+                              ? 'Hide TrueFit™ Breakdown'
+                              : 'View TrueFit™ Breakdown'}
                           </button>
                         )}
                       </div>

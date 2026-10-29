@@ -43,8 +43,8 @@ async function sendCalibrationAlertEmail(payload: {
 
   const failList = payload.failures.map((f) => "<li>" + f + "</li>").join("")
   const html = "<div style=\"font-family:sans-serif;background:#0f172a;color:#f8fafc;padding:24px;border-radius:12px;\">" +
-    "<h2 style=\"color:#ef4444;margin-top:0;\">AI Fit Calibration Drift Alert</h2>" +
-    "<p>The daily 5-tier AI Fit calibration check detected score drift outside allowed guardrails.</p>" +
+    "<h2 style=\"color:#ef4444;margin-top:0;\">TrueFit™ Calibration Drift Alert</h2>" +
+    "<p>The daily 5-tier TrueFit™ calibration check detected score drift outside allowed guardrails.</p>" +
     "<p><strong>Status:</strong> " + payload.status.toUpperCase() + " | <strong>Avg Latency:</strong> " + payload.avgLatency + "ms</p>" +
     "<div style=\"background:#1e293b;padding:12px;border-left:4px solid #ef4444;margin-bottom:16px;\">" +
       "<strong>Failures Detected:</strong><ul>" + failList + "</ul>" +
@@ -70,7 +70,7 @@ async function sendCalibrationAlertEmail(payload: {
       body: JSON.stringify({
         from: fromEmail,
         to: recipients,
-        subject: "[Special Sauce QA] AI Fit Calibration Alert (" + payload.failures.length + " issue)",
+        subject: "[Special Sauce QA] TrueFit™ Calibration Alert (" + payload.failures.length + " issue)",
         html
       })
     })

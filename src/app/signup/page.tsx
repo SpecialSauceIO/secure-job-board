@@ -75,7 +75,7 @@ export default async function SignupSelectionPage({
                 I&apos;m a Candidate
               </h3>
               <p className="text-slate-500 leading-relaxed text-sm">
-                Build your anonymous skill matrix and run 5-Point AI Fit checks for free. Start a 30-Day Free Trial on Explorer ($3/mo after), Professional ($9/mo after), or Prestige ($15/mo after) when ready to connect.
+                Build your anonymous skill matrix and run TrueFit Score™ checks for free. Start a 30-Day Free Trial on Explorer ($3/mo after), Professional ($9/mo after), or Prestige ($15/mo after) when ready to connect.
               </p>
               <div className="mt-5 sm:mt-6 flex items-center text-indigo-600 font-bold text-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-hover:translate-x-1 transition-all">
                 Create Verified Candidate Vault

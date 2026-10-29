@@ -150,10 +150,10 @@ export default async function PostJobPage() {
           </div>
           <div>
             <label htmlFor="aiReview" className="font-medium text-indigo-900">
-              Enable AI Application Screening
+              Enable Automated TrueFit Score™ Screening
             </label>
             <p className="text-sm text-indigo-700 mt-1">
-              Our AI will automatically score incoming protected resumes against your job description to highlight the best matches.
+              Our TrueFit Score™ engine automatically evaluates incoming protected profiles against your role requirements to highlight top matches.
             </p>
           </div>
         </div>

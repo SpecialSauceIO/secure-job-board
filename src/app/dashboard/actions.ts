@@ -1317,7 +1317,7 @@ async function extractPdfWithRetry(prompt: string, base64Data: string) {
   }
 
   throw new Error(
-    "Our AI document extraction engines timed out or are currently at capacity. Please wait a moment and try again."
+    "Our document extraction engines timed out or are currently at capacity. Please wait a moment and try again."
   )
 }
 
@@ -1795,7 +1795,7 @@ export async function parseResumeAutoFill(formData: FormData) {
     })
     await recordHandshakeTelemetry({
       handshakeId: "resume_vault_ai_parser",
-      label: "Intro/Convo Resume Vault & AI Parser",
+      label: "Intro/Convo Resume Vault & One-Click Profile Builder™",
       platformArea: "Intro/Convo Resume & Contact Vault",
       ok: true,
     })
@@ -1968,7 +1968,7 @@ export async function applyBlind(formData: FormData) {
     parsedMatchScore < MIN_MATCH_THRESHOLD
   ) {
     return {
-      error: `Application Blocked: A minimum ${MIN_MATCH_THRESHOLD}% AI Match Score is required to apply.`,
+      error: `Application Blocked: A minimum ${MIN_MATCH_THRESHOLD}% TrueFit Score™ is required to apply.`,
     }
   }
 
@@ -1997,7 +1997,7 @@ export async function applyBlind(formData: FormData) {
   if (jobMeta.is_sandbox_benchmark) {
     return {
       error:
-        '⚡ Sandbox Benchmark Role (0 Applications Used): This is a practice role for testing your 5-Point AI Fit Radar™ score. Your anonymous profile is live in Employer Search and you will be notified as verified employers post live roles in your vertical!',
+        '⚡ Sandbox Benchmark Role (0 Applications Used): This is a practice role for testing your TrueFit Score™ score. Your anonymous profile is live in Employer Search and you will be notified as verified employers post live roles in your vertical!',
     }
   }
   if (jobMeta.is_expired) {
@@ -2091,7 +2091,7 @@ export async function applyBlind(formData: FormData) {
     referenceId: refId,
     heading: 'Your Protected Application Has Been Submitted!',
     bodyLines: [
-      `Your anonymous profile was submitted for "${roleTitle}" with a ${parsedMatchScore}% AI Match Score.`,
+      `Your anonymous profile was submitted for "${roleTitle}" with a ${parsedMatchScore}% TrueFit Score™.`,
       `Connection Reference ID: ${refId}`,
       `Your identity and contact details remain hidden until the employer unlocks your application. Even after The Introduction unlock, your PDF resume and raw email stay vaulted until you choose to share it.`,
     ],
@@ -2103,10 +2103,10 @@ export async function applyBlind(formData: FormData) {
     to: employerTargetEmail,
     subject: `New ${parsedMatchScore}% Match Protected Application for ${roleTitle}`,
     referenceId: refId,
-    heading: `New Verified Candidate Application (${parsedMatchScore}% AI Match)`,
+    heading: `New Verified Candidate Application (${parsedMatchScore}% TrueFit)`,
     bodyLines: [
       `An Identity-Verified candidate just submitted a protected application for "${roleTitle}".`,
-      `AI Match Score: ${parsedMatchScore}%`,
+      `TrueFit Score™: ${parsedMatchScore}%`,
       `Transaction Reference ID: ${refId}`,
       `Open your Inbound Applications pipeline to review their anonymous skill matrix and open a private chat thread.`,
     ],
@@ -2559,7 +2559,7 @@ export async function recalculatePitchMatch(applicationId: string) {
   const hasSeededSkills = rawSkillsArr.length > 0 || Boolean(profile?.skills && String(profile.skills).trim().length > 2)
   if (!hasSeededSkills) {
     return {
-      error: 'Please upload your resume or add your core skills on My Profile before running 5-Point AI Fit checks.',
+      error: 'Please upload your resume or add your core skills on My Profile before running TrueFit Score™ checks.',
     }
   }
 
@@ -2571,10 +2571,10 @@ export async function recalculatePitchMatch(applicationId: string) {
     actionType: 'ai_fit_check',
     maxAllowedInWindow: isCandVerified ? 25 : 8,
     windowMinutes: 15,
-    platformArea: '5-Point AI Fit Radar & Dealbreakers',
+    platformArea: 'TrueFit Score™ & Dealbreakers',
   })
   if (!fitVelocity.allowed) {
-    return { error: fitVelocity.reason || 'Rate limit exceeded for AI Fit checks. Please wait a few minutes.' }
+    return { error: fitVelocity.reason || 'Rate limit exceeded for TrueFit Score™ checks. Please wait a few minutes.' }
   }
 
   const visibleSkills = filterVisibleSkills(profile?.structured_skills)
@@ -2629,7 +2629,7 @@ export async function recalculatePitchMatch(applicationId: string) {
   if (matchResult.error || !matchResult.data) {
     return {
       error:
-        matchResult.error || 'Failed to recalculate AI match. Please try again.',
+        matchResult.error || 'Failed to recalculate TrueFit Score™. Please try again.',
     }
   }
 
@@ -3055,7 +3055,7 @@ export async function analyzeJobFit(jobId: string, forceRefresh: boolean = false
   if (!profile || (!profile.skills && visibleSkills.length === 0)) {
     return {
       error:
-        'Profile incomplete: Please add skills to your profile before running AI Match.',
+        'Profile incomplete: Please add skills to your profile before calculating TrueFit Score™.',
     }
   }
 
@@ -3085,15 +3085,15 @@ export async function analyzeJobFit(jobId: string, forceRefresh: boolean = false
     await writeUserMatchCacheEntry(user.id, cacheKey, res.data)
     recordHandshakeTelemetry({
       handshakeId: 'ai_fit_radar_engine',
-      label: '5-Point AI Fit Radar & Dealbreakers',
-      platformArea: '5-Point AI Fit Radar & Dealbreakers',
+      label: 'TrueFit Score™ & Dealbreakers',
+      platformArea: 'TrueFit Score™ & Dealbreakers',
       ok: true,
     }).catch(() => {})
   } else if (res?.error) {
     recordHandshakeTelemetry({
       handshakeId: 'ai_fit_radar_engine',
-      label: '5-Point AI Fit Radar & Dealbreakers',
-      platformArea: '5-Point AI Fit Radar & Dealbreakers',
+      label: 'TrueFit Score™ & Dealbreakers',
+      platformArea: 'TrueFit Score™ & Dealbreakers',
       ok: false,
       errorDetail: String(res.error),
     }).catch(() => {})
@@ -3127,10 +3127,10 @@ export async function analyzeCandidateFit(
     actionType: 'ai_fit_check',
     maxAllowedInWindow: 25,
     windowMinutes: 15,
-    platformArea: '5-Point AI Fit Radar & Dealbreakers',
+    platformArea: 'TrueFit Score™ & Dealbreakers',
   })
   if (!empFitVelocity.allowed) {
-    return { error: empFitVelocity.reason || 'Rate limit exceeded for AI Fit checks. Please wait a few minutes.' }
+    return { error: empFitVelocity.reason || 'Rate limit exceeded for TrueFit Score™ checks. Please wait a few minutes.' }
   }
 
   const { data: profile } = await supabase
@@ -4236,7 +4236,7 @@ export async function createStructuredJob(formData: FormData) {
   const visibleSkillReqs = filterVisibleJobRequirements(structured_requirements)
   if (visibleSkillReqs.length < 3) {
     return {
-      error: `Minimum 3 Core Skills Required: Please enter at least 3 core skills in Section 4 (currently ${visibleSkillReqs.length} added) so the 5-Point AI Fit engine can accurately score candidates.`,
+      error: `Minimum 3 Core Skills Required: Please enter at least 3 core skills in Section 4 (currently ${visibleSkillReqs.length} added) so the TrueFit Score™ engine can accurately score candidates.`,
     }
   }
 
@@ -4426,7 +4426,7 @@ export async function updateStructuredJob(formData: FormData) {
   const visibleSkillReqs = filterVisibleJobRequirements(structured_requirements)
   if (visibleSkillReqs.length < 3) {
     return {
-      error: `Minimum 3 Core Skills Required: Please keep at least 3 core skills in Section 4 (currently ${visibleSkillReqs.length} added) so the 5-Point AI Fit engine can accurately score candidates.`,
+      error: `Minimum 3 Core Skills Required: Please keep at least 3 core skills in Section 4 (currently ${visibleSkillReqs.length} added) so the TrueFit Score™ engine can accurately score candidates.`,
     }
   }
 
@@ -4754,7 +4754,7 @@ export async function sendConnectionRequest(
   if (targetPrefMeta?.is_sandbox_benchmark) {
     return {
       error:
-        '⚡ Sandbox Benchmark Profile (0 Credits Used): This is a sample candidate profile for testing 5-Point AI Fit Radar™ scoring. No invitation credit was deducted!',
+        '⚡ Sandbox Benchmark Profile (0 Credits Used): This is a sample candidate profile for testing TrueFit Score™ scoring. No invitation credit was deducted!',
     }
   }
 
@@ -4859,7 +4859,7 @@ export async function sendConnectionRequest(
 
   if (matchScore === null || matchScore < MIN_MATCH_THRESHOLD) {
     return {
-      error: `Request Blocked: AI Match Score (${
+      error: `Request Blocked: TrueFit Score™ (${
         matchScore ?? 0
       }%) is below the ${MIN_MATCH_THRESHOLD}% minimum relevance threshold.`,
     }
@@ -4994,7 +4994,7 @@ export async function sendConnectionRequest(
     to: enrichedMatchData.candidate_contact_email,
     subject: `A Domain-Verified Employer pitched you a role: ${job.title} (${matchScore}% Match)`,
     referenceId: refId,
-    heading: `New Employer Connection Pitch (${matchScore}% AI Match)`,
+    heading: `New Employer Connection Pitch (${matchScore}% TrueFit)`,
     bodyLines: [
       `A Domain-Verified Employer matched with your anonymous profile and spent a connection credit to send you a Professional Invitation their "${job.title}" role.`,
       `Transaction Reference ID: ${refId}`,
@@ -5979,7 +5979,7 @@ export async function inviteOrganizationSeat(formData: FormData) {
       `${user.email} assigned you a ${roleLabel} seat inside "${org?.name || 'their organization'}" on Special Sauce.`,
       `Seat Role: ${roleLabel}`,
       `Invite Reference ID: ${inviteRef}`,
-      `Log in to access the shared candidate pipeline, 5-Point AI Match Radar, and connection credits.`,
+      `Log in to access the shared candidate pipeline, TrueFit Score™, and connection credits.`,
     ],
     ctaUrl: '/dashboard',
     ctaLabel: 'Accept Seat & Open Dashboard →',
@@ -6972,7 +6972,7 @@ export async function releaseCandidateVaultAndSyncAts(applicationId: string) {
       `${fullName} (${candidateEmail}) just released their full Conversation Resume & Contact Vault for "${jobObj?.title || 'Open Role'}".`,
       `Transaction Reference ID: ${referenceId}`,
       atsSyncResult?.success
-        ? `✓ Enterprise HR Software Auto-Sync: Candidate vault and 5-Point AI Match Radar were automatically pushed to your connected HR software (${atsSyncResult.syncStatus}).`
+        ? `✓ Enterprise HR Software Auto-Sync: Candidate vault and TrueFit Score™ were automatically pushed to your connected HR software (${atsSyncResult.syncStatus}).`
         : `Log in to your Employer Pipeline to view ${fullName}'s full contact details and download their verified PDF resume.`,
     ],
     ctaUrl: '/dashboard/employer/applications',

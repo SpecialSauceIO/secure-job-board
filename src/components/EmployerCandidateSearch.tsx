@@ -442,7 +442,7 @@ export default function EmployerCandidateSearch({
         setTimeout(() => {
           resolve({
             error:
-              'AI Match analysis took longer than 30 seconds across our 3-tier matching cascade. Please click "Try AI Match Again" to retry.',
+              'TrueFit Score™ analysis took longer than 30 seconds across our 3-tier matching cascade. Please click "Recalculate TrueFit Score™" to retry.',
           })
         }, 30000)
       })
@@ -464,18 +464,18 @@ export default function EmployerCandidateSearch({
       } else if (result?.error) {
         setFeedback({
           type: 'error',
-          text: `${result.error} Please click "Try AI Match Again" to retry.`,
+          text: `${result.error} Please click "Recalculate TrueFit Score™" to retry.`,
         })
       } else {
         setFeedback({
           type: 'error',
-          text: 'Unable to generate AI Match score at this moment. Please try again.',
+          text: 'Unable to generate TrueFit Score™ at this moment. Please try again.',
         })
       }
     } catch {
       setFeedback({
         type: 'error',
-        text: 'Network or server timeout while calculating AI Match. Please click "Try AI Match Again" to retry.',
+        text: 'Network or server timeout while calculating TrueFit Score™. Please click "Recalculate TrueFit Score™" to retry.',
       })
     } finally {
       setIsAnalyzingMatch(false)
@@ -717,7 +717,7 @@ export default function EmployerCandidateSearch({
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <span>⚡ AI Fit Benchmark Sandbox (Practice Mode)</span>
+              <span>⚡ TrueFit™ Benchmark Sandbox (Practice Mode)</span>
               <span className="px-2 py-0.5 rounded-md bg-slate-900 text-[11px] font-black text-amber-300 border border-slate-700">
                 {sandboxCandidatesCount}
               </span>
@@ -727,7 +727,7 @@ export default function EmployerCandidateSearch({
           <p className="text-xs text-slate-300 font-medium">
             {viewMode === 'live'
               ? 'Showing 100% real, vaulted candidate profiles from our Founding Members.'
-              : 'Practice Mode: Run live 5-Point AI Fit Radar™ checks on sample profiles without spending Invitation Credits.'}
+              : 'Practice Mode: Run live TrueFit Score™ checks on sample profiles without spending Invitation Credits.'}
           </p>
         </div>
 
@@ -738,7 +738,7 @@ export default function EmployerCandidateSearch({
                 <span>🟢 Founding Member Onboarding Active</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Verified candidates are currently uploading resumes, locking in dealbreakers, and completing Stripe Identity checks across all 28 verticals. Want to test-drive 5-Point AI Fit scoring right now?
+                Verified candidates are currently uploading resumes, locking in dealbreakers, and completing Stripe Identity checks across all 28 verticals. Want to test-drive TrueFit Score™ scoring right now?
               </p>
             </div>
             <button
@@ -756,7 +756,7 @@ export default function EmployerCandidateSearch({
                 <span>⚡ Interactive Benchmark Sandbox — Zero Invitation Credits Used</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Select any of your active roles on the {sandboxCandidatesCount} (Demo) sample candidate vaults below to test-drive 5-Point AI Fit Radar™ scoring and dealbreaker firewalls across all 28 industries.
+                Select any of your active roles on the {sandboxCandidatesCount} (Demo) sample candidate vaults below to test-drive TrueFit Score™ scoring and dealbreaker firewalls across all 28 industries.
               </p>
             </div>
             <button
@@ -1082,7 +1082,7 @@ export default function EmployerCandidateSearch({
               You have 0 Connection Credits remaining
             </h3>
             <p className="text-xs text-rose-700 mt-0.5">
-              You can still browse the anonymous talent pool, save candidates to your Shortlist, and run AI Match predictions, but you need at least 1 Connection Credit to send an outbound pitch.
+              You can still browse the anonymous talent pool, save candidates to your Shortlist, and run TrueFit Score™ predictions, but you need at least 1 Connection Credit to send an outbound pitch.
             </p>
           </div>
           <Link
@@ -1116,7 +1116,7 @@ export default function EmployerCandidateSearch({
               {onlyShortlisted
                 ? 'Click "Shortlist" on any anonymous candidate card to assemble a comparison pool before sending an invitation.'
                 : viewMode === 'live'
-                ? 'Real candidates are currently completing resume parsing and Stripe Identity verification in this vertical. Switch to the Practice Sandbox to test-drive 5-Point AI Fit checks against our 56 (Demo) profiles!'
+                ? 'Real candidates are currently completing resume parsing and Stripe Identity verification in this vertical. Switch to the Practice Sandbox to test-drive TrueFit Score™ checks against our 56 (Demo) profiles!'
                 : 'Try resetting your active filters to broaden your search.'}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
@@ -1126,7 +1126,7 @@ export default function EmployerCandidateSearch({
                   onClick={() => switchViewMode('sandbox')}
                   className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-colors cursor-pointer shadow-xs"
                 >
-                  ⚡ Test-Drive 5-Point AI Fit in Practice Sandbox ({sandboxCandidatesCount} Demo Profiles) →
+                  ⚡ Test-Drive TrueFit Score™ in Practice Sandbox ({sandboxCandidatesCount} Demo Profiles) →
                 </button>
               )}
               <button
@@ -1303,7 +1303,7 @@ export default function EmployerCandidateSearch({
                       <div className="shrink-0">
                         {candidate.is_sandbox_benchmark ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-300 text-amber-900 text-[11px] font-extrabold uppercase tracking-wider">
-                            ⚡ AI Fit Benchmark • Practice Profile
+                            ⚡ TrueFit™ Benchmark • Practice Profile
                           </span>
                         ) : (
                           <RankAndFounderPill
@@ -1461,7 +1461,7 @@ export default function EmployerCandidateSearch({
                   </div>
                 </div>
 
-                {/* Full-Width Pitch Role Selector & 5-Point AI Fit Radar Panel */}
+                {/* Full-Width Pitch Role Selector & TrueFit Score™ Panel */}
                 <div className="pt-4 border-t border-slate-300">
                   {pitchCandidateId === candidate.id ? (
                     <div className="space-y-5 animate-in fade-in duration-200">
@@ -1528,18 +1528,18 @@ export default function EmployerCandidateSearch({
                         <div className="p-5 rounded-2xl bg-indigo-50/70 border border-indigo-300 flex items-center gap-3 animate-pulse">
                           <div className="w-5 h-5 border-2 border-indigo-300 border-t-indigo-600 rounded-full animate-spin shrink-0" />
                           <div className="text-xs sm:text-sm text-indigo-950 font-extrabold">
-                            Analyzing 5-Point AI Fit across Core Competencies, Skill Tenure, Logistics &amp; Pay, Industry &amp; Creds, and Execution &amp; Comm. (Up to 30s)...
+                            Analyzing TrueFit Score™ across Core Competencies, Skill Tenure, Logistics &amp; Pay, Industry &amp; Creds, and Execution &amp; Comm. (Up to 30s)...
                           </div>
                         </div>
                       )}
 
-                      {/* Full-Width 5-Point AI Fit Prediction Box (Matches Candidate View) */}
+                      {/* Full-Width 5-Point TrueFit Score™ Breakdown Box (Matches Candidate View) */}
                       {selectedJob && !isAnalyzingMatch && matchScore !== null && (
                         <div className="p-5 sm:p-6 rounded-2xl bg-slate-50 border-2 border-slate-300 space-y-5 border-slate-300">
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-300 pb-4">
                             <div>
                               <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-600 block">
-                                5-Point AI Fit Prediction • {selectedJob.title}
+                                5-Point TrueFit Score™ Breakdown • {selectedJob.title}
                               </span>
                               {aiMatchData?.brief_analysis && (
                                 <p className="text-sm font-semibold text-slate-800 mt-1">
@@ -1692,7 +1692,7 @@ export default function EmployerCandidateSearch({
                             )}
                             {scoreFails && (
                               <div className="text-rose-600 font-bold">
-                                • Dealbreaker: AI Match ({matchScore}%) is below{' '}
+                                • Dealbreaker: TrueFit Score™ ({matchScore}%) is below{' '}
                                 {MIN_MATCH_THRESHOLD}% relevance firewall.
                               </div>
                             )}
@@ -1715,7 +1715,7 @@ export default function EmployerCandidateSearch({
                           <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
                             {candidate.is_sandbox_benchmark ? (
                               <span
-                                title="Sample Vault Profile — Test your 5-Point AI Fit Radar for free without spending any Invitation Credits"
+                                title="Sample Vault Profile — Test your TrueFit Score™ for free without spending any Invitation Credits"
                                 className="px-4 py-2.5 text-xs font-extrabold rounded-xl bg-amber-50 text-amber-900 border border-amber-300"
                               >
                                 ⚡ Benchmark Preview (0 Credits Used)
@@ -1791,7 +1791,7 @@ export default function EmployerCandidateSearch({
                                   }
                                   className="px-3 py-1.5 bg-rose-700 text-white rounded-lg hover:bg-rose-800 transition-colors text-xs font-extrabold cursor-pointer shrink-0"
                                 >
-                                  ↻ Try AI Match Again
+                                  ↻ Recalculate TrueFit Score™
                                 </button>
                               )
                             )}
@@ -1831,7 +1831,7 @@ export default function EmployerCandidateSearch({
                                       : 'bg-rose-100 text-rose-800 border-rose-300'
                                   }`}
                                 >
-                                  {savedScore}% AI Match
+                                  {savedScore}% TrueFit
                                 </span>
                                 {savedJobObj && (
                                   <span className="text-xs font-extrabold text-slate-700 truncate">
@@ -1850,8 +1850,8 @@ export default function EmployerCandidateSearch({
                         <div className="flex items-center justify-between gap-4">
                           <span className="text-xs text-slate-500 font-medium">
                             {savedScore !== null
-                              ? 'Saved 5-Point AI Fit evaluation ready. Click to view full radar graph or send a Professional Invitation.'
-                              : 'Run an instant 5-Point AI Fit check against any of your active roles before sending an invitation.'}
+                              ? 'Saved TrueFit Score™ evaluation ready. Click to view full TrueFit™ breakdown or send a Professional Invitation.'
+                              : 'Run an instant TrueFit Score™ check against any of your active roles before sending an invitation.'}
                           </span>
                           <button
                             type="button"
@@ -1880,7 +1880,7 @@ export default function EmployerCandidateSearch({
                               : collapsedRoleConn
                               ? `🔒 Role Locked (${collapsedRoleConn.reference_id}) • View / Switch Role →`
                               : savedScore !== null
-                              ? 'View 5-Point Radar & Invite →'
+                              ? 'View TrueFit™ Breakdown & Invite →'
                               : 'Evaluate Fit & Send Invitation →'}
                           </button>
                         </div>

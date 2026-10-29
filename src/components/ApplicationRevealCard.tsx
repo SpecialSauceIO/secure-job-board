@@ -416,7 +416,7 @@ export function ApplicationRevealCard({
           <div className="flex items-center gap-2">
             {matchScore !== null && (
               <span className="px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold border border-indigo-300">
-                {matchScore}% AI Match
+                {matchScore}% TrueFit
               </span>
             )}
             {status === 'unrevealed' && (
@@ -556,17 +556,17 @@ export function ApplicationRevealCard({
           />
         )}
 
-        {/* AI Fit Summary */}
+        {/* TrueFit Score™ Summary */}
         <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-slate-300/80 text-xs text-slate-700 space-y-1 border-slate-300">
           <div className="flex items-center justify-between font-bold text-indigo-700">
-            <span>AI Fit Summary</span>
+            <span>TrueFit Score™ Summary</span>
             {radarData && (
               <button
                 type="button"
                 onClick={() => setShowRadar((prev) => !prev)}
                 className="underline cursor-pointer"
               >
-                {showRadar ? 'Hide Radar' : 'View 5-Point Radar'}
+                {showRadar ? 'Hide TrueFit™ Breakdown' : 'View TrueFit™ Breakdown'}
               </button>
             )}
           </div>

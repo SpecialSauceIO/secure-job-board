@@ -410,7 +410,7 @@ export async function GET(req: NextRequest) {
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700; color: ${openFlags.length > 0 ? "#fbbf24" : "#34d399"};">${openFlags.length} open flag(s)</td>
               </tr>
               <tr>
-                <td style="padding: 9px 14px; font-weight: 700;">AI Fit Radar &amp; Stripe Circuit Breaker</td>
+                <td style="padding: 9px 14px; font-weight: 700;">TrueFit Score™ &amp; Stripe Circuit Breaker</td>
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700; color: #cbd5e1;">Calib: ${latestCalib ? String(latestCalib.status).toUpperCase() : "ARMED"} • Stripe ID: ${stripeIdentityToday}/50 today</td>
               </tr>
             </tbody>

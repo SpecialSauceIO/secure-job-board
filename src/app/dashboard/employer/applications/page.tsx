@@ -215,7 +215,7 @@ export default function EmployerInboundApplicationsPage() {
               Inbound Candidate Applications
             </h1>
             <p className="text-slate-500 mt-1">
-              Sort applicants by 5-Point AI Match score, open private message threads for free, and manage shortlisted talent.
+              Sort applicants by TrueFit Score™, open private message threads for free, and manage shortlisted talent.
             </p>
           </div>
 
@@ -401,9 +401,9 @@ export default function EmployerInboundApplicationsPage() {
                 className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
               >
                 <option value="match_high">
-                  AI Match Score (Highest First)
+                  TrueFit Score™ (Highest First)
                 </option>
-                <option value="match_low">AI Match Score (Lowest First)</option>
+                <option value="match_low">TrueFit Score™ (Lowest First)</option>
                 <option value="recent_activity">
                   Recent Thread Activity / Unread First
                 </option>

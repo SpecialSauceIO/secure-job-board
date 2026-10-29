@@ -230,7 +230,7 @@ export default function CandidateApplicationsPage() {
             No protected applications match your current filter
           </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Run a free 5-Point AI Fit check on open roles and submit a protected application whenever you score 40%+.
+            Run a free TrueFit Score™ check on open roles and submit a protected application whenever you score 40%+.
           </p>
           <Link
             href="/dashboard/jobs"
@@ -351,7 +351,7 @@ export default function CandidateApplicationsPage() {
                       <div className="flex flex-wrap items-center gap-1.5">
                         {matchScore !== null && (
                           <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-300">
-                            {matchScore}% AI Match
+                            {matchScore}% TrueFit
                           </span>
                         )}
 
@@ -433,7 +433,7 @@ export default function CandidateApplicationsPage() {
                         </span>
                         <span className="font-bold">
                           {app.match_data?.employer_archive_reason ||
-                            'Archived after initial 5-Point AI Fit review'}
+                            'Archived after initial TrueFit Score™ review'}
                         </span>
                       </div>
                     </div>
@@ -462,11 +462,11 @@ export default function CandidateApplicationsPage() {
                     />
                   )}
 
-                  {/* AI Fit Summary & 5-Point Radar Toggle */}
+                  {/* TrueFit Score™ Summary & 5-Point Radar Toggle */}
                   <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-300 border-slate-300">
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
                       <span className="text-xs font-bold text-indigo-600">
-                        ⚡ Submitted 5-Point AI Fit Summary
+                        ⚡ Submitted 5-Point TrueFit Score™ Summary
                       </span>
                       {radarData && (
                         <button
@@ -475,15 +475,15 @@ export default function CandidateApplicationsPage() {
                           className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
                         >
                           {showRadar
-                            ? 'Hide 5-Point Radar'
-                            : 'View 5-Point Radar'}
+                            ? 'Hide TrueFit™ Breakdown'
+                            : 'View TrueFit™ Breakdown'}
                         </button>
                       )}
                     </div>
                     <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">
                       {app.match_data?.brief_analysis ||
                         app.employer_pitch ||
-                        'Submitted with verified 40%+ AI Fit match.'}
+                        'Submitted with verified 40%+ TrueFit Score™ match.'}
                     </p>
                   </div>
 

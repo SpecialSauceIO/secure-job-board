@@ -43,13 +43,13 @@ const CANDIDATE_WORKFLOW_STEPS: WorkflowStep[] = [
   },
   {
     step: 'Step 4 • Search & Professional Invitations',
-    title: '4. Check 5-Point AI Fit & Field Offers',
+    title: '4. Check TrueFit Score™ & Field Offers',
     bullets: [
-      'See upfront salary bands and your instant 5-Point AI Fit score (40%+ minimum).',
+      'See upfront salary bands and your instant TrueFit Score™ (40%+ minimum).',
       'Every job post expires after 30 days—zero 6-month-old ghost jobs.',
       'Apply anonymously in 1 click or sit back and receive direct Professional Invitations.',
     ],
-    unlockBadge: 'Unlocks: Live Job Search, AI Fit Radar & Invitation Inbox',
+    unlockBadge: 'Unlocks: Live Job Search, TrueFit Score™ & Invitation Inbox',
   },
   {
     step: 'Step 5 • Intro/Convo Handshake',
@@ -99,7 +99,7 @@ const EMPLOYER_WORKFLOW_STEPS: WorkflowStep[] = [
     title: '4. Publish Blind Roles & Invite Verified Pros',
     bullets: [
       'Post protected roles showing salary bands and industry while hiding company name.',
-      'Unlocking inbound 40%+ AI-fit applicants is 100% free (0 credits).',
+      'Unlocking inbound 40%+ TrueFit™ applicants is 100% free (0 credits).',
       'Outbound Professional Invitations are 100% refunded if a candidate declines.',
     ],
     unlockBadge: 'Unlocks: Role Publishing & Refund-Protected Invitations',
@@ -211,7 +211,7 @@ export default function PlatformWorkflowsView({
                 }`}
               >
                 {isCandidate
-                  ? 'Stripe Biometric ID • Conversation Resume Vault • 5-Point AI Fit'
+                  ? 'Stripe Biometric ID • Conversation Resume Vault • TrueFit Score™'
                   : '3-Pillar Anti-Harvesting Gate • Protected Invitation Credits'}
               </span>
               <h2 className="text-xl sm:text-2xl font-extrabold text-white mt-0.5">
@@ -319,7 +319,7 @@ export default function PlatformWorkflowsView({
               1. Pre-Match (100% Double-Blind)
             </div>
             <p className="text-base text-slate-100 leading-relaxed">
-              Candidates appear as <code className="text-emerald-300 font-bold">Candidate #ID</code> with structured skills and AI Fit scores. Employers appear by Industry Vertical, Company Stage, and upfront salary bands.
+              Candidates appear as <code className="text-emerald-300 font-bold">Candidate #ID</code> with structured skills and TrueFit Scores™. Employers appear by Industry Vertical, Company Stage, and upfront salary bands.
             </p>
           </div>
           <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">

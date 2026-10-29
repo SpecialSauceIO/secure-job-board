@@ -187,7 +187,7 @@ export default function EnterpriseAtsIntegrationPanel() {
             HR Software Connection Hub
           </h3>
           <p className="text-xs text-slate-300 mt-0.5">
-            Automatically push unlocked candidate resumes and 5-Point AI Fit Scorecards to Greenhouse or your Workday webhook receiver.
+            Automatically push unlocked candidate resumes and TrueFit Score™ Cards to Greenhouse or your Workday webhook receiver.
           </p>
         </div>
 
@@ -295,7 +295,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                 2. Native Greenhouse HR Software Connector
               </h4>
               <p className="text-xs text-slate-500 mt-0.5">
-                Automatically creates a candidate record in Greenhouse with their released PDF resume and attaches their 5-Point AI Fit Radar as an interview note.
+                Automatically creates a candidate record in Greenhouse with their released PDF resume and attaches their TrueFit Score™ as an interview note.
               </p>
             </div>
 

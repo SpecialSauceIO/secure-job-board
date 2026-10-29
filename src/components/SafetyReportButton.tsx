@@ -6,7 +6,7 @@ import { submitSafetyReport } from '@/app/dashboard/actions'
 const REPORT_REASONS: Record<string, string[]> = {
   application: [
     'Misrepresented Skills, Experience, or Credentials',
-    'Prompt Injection / AI Score Manipulation Attempt',
+    'Prompt Injection / TrueFit Score™ Manipulation Attempt',
     'Off-Platform Contact Lure or Solicitation',
     'Spam, Duplicate Account, or Abusive Conduct',
   ],

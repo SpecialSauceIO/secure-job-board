@@ -193,7 +193,7 @@ export default function EmployerSentPitchesPage() {
             No outbound pitches match your current filter
           </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Browse the anonymous passive talent directory to run 5-Point AI Fit checks and send direct Professional Invitations.
+            Browse the anonymous passive talent directory to run TrueFit Score™ checks and send direct Professional Invitations.
           </p>
           <Link
             href="/dashboard/employer/search"
@@ -306,7 +306,7 @@ export default function EmployerSentPitchesPage() {
                     <div className="flex flex-wrap items-center gap-2.5">
                       {matchScore !== null && (
                         <span className="px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold border border-indigo-300">
-                          {matchScore}% AI Match
+                          {matchScore}% TrueFit
                         </span>
                       )}
 
@@ -470,17 +470,17 @@ export default function EmployerSentPitchesPage() {
                     />
                   )}
 
-                  {/* AI Fit Summary & 5-Point Radar Toggle */}
+                  {/* TrueFit Score™ Summary & 5-Point Radar Toggle */}
                   <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-slate-300/80 text-xs text-slate-700 space-y-1 border-slate-300">
                     <div className="flex flex-wrap items-center justify-between gap-2 font-bold text-indigo-700">
-                      <span>5-Point AI Fit Assessment</span>
+                      <span>5-Point TrueFit Score™ Assessment</span>
                       {radarData && (
                         <button
                           type="button"
                           onClick={() => toggleRadar(pitch.id)}
                           className="underline cursor-pointer"
                         >
-                          {showRadar ? 'Hide Radar' : 'View 5-Point Radar'}
+                          {showRadar ? 'Hide TrueFit™ Breakdown' : 'View TrueFit™ Breakdown'}
                         </button>
                       )}
                     </div>

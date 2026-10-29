@@ -261,12 +261,12 @@ export default async function ProfilePage() {
         <h2 className="text-xl font-bold text-slate-800">
           {hasProfileData
             ? 'Update via Resume (Optional)'
-            : 'Step 1: AI Extraction'}
+            : 'Step 1: One-Click Profile Builder™'}
         </h2>
         <p className="text-sm text-slate-500 mt-1">
           {hasProfileData
             ? 'Upload a new resume to overwrite your current profile with fresh extracted skills, education, certifications, and languages.'
-            : 'Upload your resume to instantly generate an anonymous profile using AI.'}
+            : 'Upload your PDF resume to instantly build your anonymous skill matrix with our One-Click Profile Builder™.'}
         </p>
       </div>
       <AiResumeScanner profile={profile} />
@@ -412,7 +412,7 @@ export default async function ProfilePage() {
               🏅 Active Certifications &amp; Licenses (Optional)
             </label>
             <p className="text-xs text-slate-500 mb-2">
-              Select standardized credentials by industry vertical or search by keyword for exact 5-Point AI Fit Radar matching.
+              Select standardized credentials by industry vertical or search by keyword for exact TrueFit Score™ matching.
             </p>
             <StructuredCertificationSelector
               name="certifications"

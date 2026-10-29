@@ -6,7 +6,7 @@ import { LEGAL_CONFIG } from '@/constants/legal'
 export const metadata = {
   title: 'Security & Trust Architecture | specialsauce.io',
   description:
-    'How Special Sauce works under the hood: Intro/Convo Identity & Resume Vault, Stripe Identity Biometric Protection, Anti-Harvesting Guardrails, and 5-Point AI Fit Radar.',
+    'How Special Sauce works under the hood: Intro/Convo Identity & Resume Vault, Stripe Identity Biometric Protection, Anti-Harvesting Guardrails, and TrueFit Score™.',
 }
 
 const SECURITY_PILLARS = [
@@ -47,10 +47,10 @@ const SECURITY_PILLARS = [
     ],
   },
   {
-    badge: '4. Multi-Industry AI Matching & Dealbreakers',
+    badge: '4. Multi-Industry TrueFit™ Matching & Dealbreakers',
     badgeColor: 'bg-sky-500/20 text-sky-300 border-sky-400/40',
     dotColor: 'bg-sky-400',
-    title: '5-Point Radar, Language Matrix & Dealbreaker Firewall',
+    title: '5-Point TrueFit Score™, Language Matrix & Dealbreaker Firewall',
     summary:
       'Our matching engine scores candidates and roles across five pillars: Core Competencies, Skill Tenure, Logistics & Pay, Industry & Creds, and Execution & Comm.',
     bullets: [

@@ -52,13 +52,13 @@ export default function AiJobScanner({ onDataExtracted }: { onDataExtracted: (da
       <div className="relative z-10 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
         <div className="flex-1">
           <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-400/30 text-indigo-300 text-[11px] font-extrabold uppercase tracking-wider mb-2">
-            5-Point AI Fit Radar™ Role Calibrator
+            One-Click Role Generator™ • Integrated Employer Tools
           </div>
           <h3 className="text-base font-extrabold text-white">
             Have an Existing PDF Job Description?
           </h3>
           <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-            Upload your PDF job description to automatically populate required skills, role tenure, certifications, language fluency, US metro location, and upfront compensation bands below.
+            Upload your PDF job description and let our One-Click Role Generator™ automatically populate required skills, role tenure, certifications, language fluency, US metro location, and upfront compensation bands below.
           </p>
           {error && (
             <p className="text-xs text-rose-400 font-bold mt-2 bg-rose-950/50 border border-rose-800 px-3 py-1.5 rounded-lg inline-block">
@@ -112,7 +112,7 @@ export default function AiJobScanner({ onDataExtracted }: { onDataExtracted: (da
           </div>
           <div className="mt-2 flex items-center justify-between text-[11px] text-slate-400 font-medium">
             <span>Parsing core skills, experience tenure, credentials, and pay band from {lastFileName}...</span>
-            <span className="text-sky-400 font-bold">≥40% Fit Gate Active</span>
+            <span className="text-sky-400 font-bold">≥40% TrueFit Score™ Gate Active</span>
           </div>
         </div>
       )}

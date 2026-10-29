@@ -394,7 +394,7 @@ export default function EditJobPage() {
                 Required / Preferred Certifications (Optional)
               </label>
               <p className="text-xs text-slate-500 mt-0.5 mb-2">
-                Select standardized industry credentials or licenses evaluated directly by the 5-Point AI Fit Radar.
+                Select standardized industry credentials or licenses evaluated directly by the TrueFit Score™.
               </p>
               <StructuredCertificationSelector
                 name="required_certifications"
@@ -415,7 +415,7 @@ export default function EditJobPage() {
             name="required_languages"
             initialLanguages={jobData.required_languages}
             title="🌐 Required / Preferred Languages"
-            subtitle="Specify required languages, modality (Written, Verbal, or Both), and minimum proficiency level. Evaluated automatically by the 5-Point AI Match Radar and Outbound Pitch Firewall."
+            subtitle="Specify required languages, modality (Written, Verbal, or Both), and minimum proficiency level. Evaluated automatically by the TrueFit Score™ and Outbound Pitch Firewall."
             onChange={(updatedLangs) =>
               setJobData((prev) => ({
                 ...prev,

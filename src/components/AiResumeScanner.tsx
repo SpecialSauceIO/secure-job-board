@@ -18,7 +18,7 @@ const EXTRACTION_STEPS = [
     detail: 'Standardizing active certifications, academic background, and written/verbal fluency',
   },
   {
-    title: 'Calibrating 5-Point AI Fit Radar™ Profile',
+    title: 'Calibrating 5-Point TrueFit Score™ Profile',
     detail: 'Finalizing anonymous Introduction candidate profile for instant >=40% role matching',
   },
 ];
@@ -88,7 +88,7 @@ function ScannerForm({ profile }: { profile: any }) {
           </div>
 
           <h3 className="text-base font-extrabold text-slate-900">
-            Upload Resume PDF for Structured AI Parsing
+            Upload Resume PDF to One-Click Profile Builder™
           </h3>
           <p className="text-xs text-slate-500 mt-1 leading-relaxed">
             Your raw PDF resume and personal contact details are locked inside your Conversation Privacy Vault and never exposed on public feeds.
@@ -152,10 +152,10 @@ function ScannerForm({ profile }: { profile: any }) {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Calibrating Anonymous Profile...
+                Building Anonymous Profile...
               </>
             ) : (
-              'Extract & Populate Profile'
+              'Build & Populate Profile'
             )}
           </button>
         </div>
@@ -177,7 +177,7 @@ function ScannerForm({ profile }: { profile: any }) {
               />
               <span className="text-xs font-extrabold uppercase tracking-wider text-slate-200">
                 {pending
-                  ? '5-Point AI Fit Radar™ Calibration in Progress'
+                  ? 'One-Click Profile Builder™ Calibration in Progress'
                   : hasExistingData
                   ? 'Anonymous Introduction Profile Calibrated'
                   : 'Awaiting Resume Upload'}
@@ -298,7 +298,7 @@ function ScannerForm({ profile }: { profile: any }) {
 
         <div className="mt-5 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
           <span>✓ Zero Public Resume Harvesting</span>
-          <span>5-Point AI Fit Radar™ Ready</span>
+          <span>TrueFit Score™ Ready</span>
         </div>
       </div>
     </div>

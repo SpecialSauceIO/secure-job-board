@@ -180,12 +180,12 @@ export async function GET(req: NextRequest) {
     ? "CALIBRATION DRIFT: " + ((latestCalib.failures || []).join("; ") || "Out of band")
     : latestCalib
     ? "QA Calibration PASSED (" + (tierSummary || "5/5 tiers") + ") • " + latestCalib.avg_latency_ms + "ms avg on " + latestCalib.provider_used
-    : "Multi-model AI Fit Radar armed (awaiting first calibration_runs log)"
+    : "Multi-model TrueFit Score™ armed (awaiting first calibration_runs log)"
 
   checks.push({
     id: "ai_fit_radar_engine",
-    name: "5-Point AI Fit Radar & Weekly Calibration Guard",
-    platform_area: "5-Point AI Fit Radar & Dealbreakers",
+    name: "TrueFit Score™ & Weekly Calibration Guard",
+    platform_area: "TrueFit Score™ & Dealbreakers",
     category: "Marketplace_Core",
     status: aiStatus,
     latency_ms: latestCalib?.avg_latency_ms || 5,
@@ -194,14 +194,14 @@ export async function GET(req: NextRequest) {
   })
   if (!hasAiKey) {
     criticalIssues.push({
-      area: "5-Point AI Fit Radar & Dealbreakers",
-      summary: "AI Fit Radar Provider Keys Missing",
+      area: "TrueFit Score™ & Dealbreakers",
+      summary: "TrueFit Score™ Provider Keys Missing",
       detail: "Neither Gemini, Groq, nor OpenAI API keys were found in environment.",
     })
   } else if (calibFailed) {
     criticalIssues.push({
-      area: "5-Point AI Fit Radar & Dealbreakers",
-      summary: "Weekly 5-Tier AI Fit Calibration Drift Detected",
+      area: "TrueFit Score™ & Dealbreakers",
+      summary: "Weekly 5-Tier TrueFit™ Calibration Drift Detected",
       detail: "Calibration run " + latestCalib.id + " failed: " + (latestCalib.failures || []).join(" | "),
     })
   }
