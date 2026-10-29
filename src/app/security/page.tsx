@@ -128,7 +128,7 @@ export default function SecurityTrustPage() {
                   Zero Raw Biometrics, PCI-DSS Level 1 Billing &amp; Row-Level Security
                 </h2>
                 <p className="text-base text-slate-100 leading-relaxed max-w-3xl">
-                  All platform traffic is encrypted in transit via TLS 1.3 and at rest via AES-256. Payment credentials and government ID biometrics are isolated inside Stripe&apos;s PCI-DSS Level 1 and SOC 2 Type II certified vault, and private resume files are protected by strict Supabase Row-Level Security (RLS) policies with zero public AI model training.
+                  All platform traffic is encrypted in transit via TLS 1.3 and at rest via AES-256. Payment credentials and government ID biometrics are isolated inside Stripe&apos;s PCI-DSS Level 1 and SOC 2 Type II certified vault, and private resume files are protected by strict Supabase Row-Level Security (RLS) policies with strict data isolation and zero external model training.
                 </p>
               </div>
               <div className="shrink-0 text-sm text-slate-100 space-y-1.5 md:text-right bg-slate-950 p-4 rounded-xl border border-slate-800">

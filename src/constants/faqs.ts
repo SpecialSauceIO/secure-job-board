@@ -54,7 +54,7 @@ export const SECURITY_ARCHITECTURE_DATA = {
     {
       title: 'In-Platform Encrypted Messaging & Automated Phishing Firewall',
       detail:
-        'All initial candidate-employer conversations occur inside real-time threads tied to a shared Reference ID (SS-XXXXXXXX). Every message passes through an automated AI/heuristic safety scanner that blocks requests for SSNs, banking details, off-platform chat lures (WhatsApp/Telegram), or external harvesting forms.',
+        'All initial candidate-employer conversations occur inside real-time threads tied to a shared Reference ID (SS-XXXXXXXX). Every message passes through an automated heuristic safety scanner that blocks requests for SSNs, banking details, off-platform chat lures (WhatsApp/Telegram), or external harvesting forms.',
     },
     {
       title: '30-Day Job Auto-Expiration & 5-Unlock Anti-Scraping Ceiling',

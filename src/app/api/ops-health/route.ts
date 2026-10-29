@@ -175,7 +175,7 @@ export async function GET(req: NextRequest) {
     : null
 
   const aiDetail = !hasAiKey
-    ? "No AI provider API keys configured"
+    ? "No TrueFit scoring provider API keys configured"
     : calibFailed
     ? "CALIBRATION DRIFT: " + ((latestCalib.failures || []).join("; ") || "Out of band")
     : latestCalib
