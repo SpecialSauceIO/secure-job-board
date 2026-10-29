@@ -87,21 +87,21 @@ export default function LandingPage() {
                   <img
                     src="/media/ui-card-ai-fit-radar.webp"
                     alt=""
-                    className={`absolute inset-0 w-full h-full object-cover object-left-top transition-opacity duration-1000 ${
+                    className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 ${
                       currentSlide % 3 === 0 ? 'opacity-100' : 'opacity-0'
                     }`}
                   />
                   <img
                     src="/media/ui-card-privacy-vault.webp"
                     alt=""
-                    className={`absolute inset-0 w-full h-full object-cover object-left-top transition-opacity duration-1000 ${
+                    className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 ${
                       currentSlide % 3 === 1 ? 'opacity-100' : 'opacity-0'
                     }`}
                   />
                   <img
                     src="/media/ui-card-mutual-unlock.webp"
                     alt=""
-                    className={`absolute inset-0 w-full h-full object-cover object-left-top transition-opacity duration-1000 ${
+                    className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 ${
                       currentSlide % 3 === 2 ? 'opacity-100' : 'opacity-0'
                     }`}
                   />
