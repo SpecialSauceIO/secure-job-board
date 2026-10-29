@@ -413,13 +413,13 @@ async function seedAll() {
     language_score: 100,
     compensation_location_score: 88,
     summary:
-      'Exceptional 91% 5-Point AI Fit Radar match: Candidate holds active AWS Solutions Architect Pro & CKA credentials, 9 years of AWS/Kubernetes/Terraform leadership, C2 English fluency, and $145k target aligns cleanly with the $145k-$165k band.',
+      'Exceptional 91% 5-Point TrueFit Score™ match: Candidate holds active AWS Solutions Architect Pro & CKA credentials, 9 years of AWS/Kubernetes/Terraform leadership, C2 English fluency, and $145k target aligns cleanly with the $145k-$165k band.',
     messages: [
       {
         id: 'msg-demo-1',
         sender_role: 'employer',
         sender_name: 'Jordan Vance (Apex Cloud Systems)',
-        text: 'Hi #SS-8492 — your 91% 5-Point AI Fit score, AWS Solutions Architect Pro certification, and 9 years of Kubernetes/Terraform architecture experience stood out immediately. Our verified base band is $145,000–$165,000/yr (100% Remote). Would you be open to a quick chat this week?',
+        text: 'Hi #SS-8492 — your 91% TrueFit Score™, AWS Solutions Architect Pro certification, and 9 years of Kubernetes/Terraform architecture experience stood out immediately. Our verified base band is $145,000–$165,000/yr (100% Remote). Would you be open to a quick chat this week?',
         created_at: fiveMinsAgo,
       },
       {
@@ -442,7 +442,7 @@ async function seedAll() {
     is_revealed: false,
     match_score: 91,
     employer_pitch:
-      'Your 91% Fit Radar score and AWS Solutions Architect Pro + CKA credentials are an exact match for our Senior Cloud Infrastructure Architect role ($145k-$165k/yr Remote).',
+      'Your 91% TrueFit Score™ and AWS Solutions Architect Pro + CKA credentials are an exact match for our Senior Cloud Infrastructure Architect role ($145k-$165k/yr Remote).',
     candidate_contact: 'Alex Mercer | alex.mercer.demo@specialsauce.io | (214) 555-0194',
     match_data: radarMatchData,
   })
@@ -457,7 +457,7 @@ async function seedAll() {
     is_revealed: false,
     match_score: 89,
     employer_pitch:
-      'We saw your verified profile in the Passive Talent Directory (89% Fit Radar match). Would love to connect regarding our Principal DevSecOps & Platform Engineer role ($150k-$175k/yr Remote).',
+      'We saw your verified profile in the Passive Talent Directory (89% TrueFit Score™ match). Would love to connect regarding our Principal DevSecOps & Platform Engineer role ($150k-$175k/yr Remote).',
     candidate_contact: 'Alex Mercer | alex.mercer.demo@specialsauce.io | (214) 555-0194',
     match_data: {
       ...radarMatchData,

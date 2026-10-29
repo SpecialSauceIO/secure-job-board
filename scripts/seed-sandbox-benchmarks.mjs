@@ -486,12 +486,12 @@ async function seedAll() {
   const { data: orgRow, error: orgErr } = await supabase
     .from('organizations')
     .insert({
-      name: 'AI Fit Benchmark Lab (Practice Role)',
+      name: 'TrueFit™ Benchmark Lab (Practice Role)',
       domain: BENCHMARK_ORG_DOMAIN,
       verification_status: 'verified',
       connection_credits: 999,
       subscription_tier: 'enterprise',
-      description: 'Official Special Sauce 5-Point AI Fit Radar™ Calibration & Practice Benchmark Organization. [IND:Technology, Software & SaaS] [SIZE:Growth (50–250 Employees)] [EIN:75-2849102] [INC_STATE:TX] [RDAP:VERIFIED_2021] [TIER:enterprise] [SANDBOX_BENCHMARK:true]',
+      description: 'Official Special Sauce 5-Point TrueFit Score™ Calibration & Practice Benchmark Organization. [IND:Technology, Software & SaaS] [SIZE:Growth (50–250 Employees)] [EIN:75-2849102] [INC_STATE:TX] [RDAP:VERIFIED_2021] [TIER:enterprise] [SANDBOX_BENCHMARK:true]',
     })
     .select()
     .single()
@@ -536,7 +536,7 @@ async function seedAll() {
         ],
         company_size: 'Growth (50–250 Employees)',
         work_auth: 'US Authorized Only',
-        hiring_timeline: 'AI Fit Benchmark • Practice Match',
+        hiring_timeline: 'TrueFit™ Benchmark • Practice Match',
         renewed_at: new Date().toISOString(),
       },
     ]
