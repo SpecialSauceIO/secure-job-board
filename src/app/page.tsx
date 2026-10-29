@@ -36,7 +36,7 @@ export default function LandingPage() {
       <PublicHeader fixed />
 
       {/* Hero Section — Full-Bleed Dark Slate with Right-Side 3D Isometric UI Accent */}
-      <section className="relative overflow-hidden bg-[#0f172a] border-b border-slate-800 pt-40 sm:pt-48 pb-20 sm:pb-28">
+      <section className="relative overflow-hidden bg-[#0f172a] border-b border-slate-800/80 pt-36 sm:pt-44 pb-12 sm:pb-16">
         {/* Ambient Left-Side Deep Slate Glow */}
         <div
           aria-hidden="true"
@@ -381,8 +381,14 @@ export default function LandingPage() {
             />
           </div>
 
+        </div>
+      </section>
+
+      {/* Relocated Tour Pill & Operational Trust Strip — Positioned Below Hero */}
+      <section className="relative z-20 bg-[#0b1120] border-b border-slate-800 py-8 px-4 sm:px-6 md:px-12">
+        <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
           {/* Subtle Enterprise Video Tour Trigger */}
-          <div className="mt-7 z-20 relative flex flex-col items-center">
+          <div className="z-20 relative flex flex-col items-center">
             <button
               type="button"
               onClick={() => setIsTourOpen(true)}
@@ -403,7 +409,7 @@ export default function LandingPage() {
           </div>
 
           {/* High-Visibility Operational Trust Strip — Dark Slate Edition */}
-          <div className="mt-12 w-full max-w-5xl z-20 relative">
+          <div className="mt-6 w-full max-w-5xl z-20 relative">
             <div className="grid grid-cols-2 lg:grid-cols-4 py-3 px-2 rounded-2xl bg-[#0f172a]/85 backdrop-blur-md border border-slate-800/90 shadow-lg">
               <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center border-r border-slate-800">
                 <span className="text-[11px] font-extrabold text-white uppercase tracking-[0.14em]">
