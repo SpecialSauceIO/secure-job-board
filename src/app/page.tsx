@@ -62,28 +62,23 @@ export default function LandingPage() {
             }}
           >
             <div
-              className="absolute -top-[2%] sm:-top-[5%] lg:-top-[8%] right-[-18%] sm:right-[-8%] lg:right-[-1%] w-[920px] sm:w-[1120px] lg:w-[1260px] opacity-85 transition-all duration-1000"
+              className="absolute top-1/2 -translate-y-1/2 right-[-18%] sm:right-[-8%] lg:right-[-1%] w-[920px] sm:w-[1120px] lg:w-[1260px] opacity-85 transition-all duration-1000"
               style={{
                 transform:
                   'perspective(1350px) rotateY(-34deg) rotateX(12deg) rotateZ(-4deg) scale(1.06)',
                 transformOrigin: 'center right',
               }}
             >
-              <div className="rounded-2xl border border-sky-400/25 bg-[#0a0f1c] p-2 shadow-[0_35px_90px_rgba(0,0,0,0.9)]">
-                {/* Subtle Window Chrome */}
-                <div className="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-white/10 rounded-t-xl">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-slate-700" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-slate-700" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-slate-700" />
-                  </div>
-                  <span className="text-[11px] font-mono text-sky-400 tracking-wider">
-                    specialsauce.io • Live Platform Interface
-                  </span>
-                </div>
-
-                {/* Cross-Fading High-Res Interface Captures synced to hero slides */}
-                <div className="relative aspect-[16/9] w-full overflow-hidden rounded-b-xl bg-[#0a0f1c]">
+              <div
+                    className="overflow-hidden rounded-2xl"
+                    style={{
+                      WebkitMaskImage:
+                        'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.85) 14%, black 26%, black 74%, rgba(0,0,0,0.85) 86%, transparent 100%)',
+                      maskImage:
+                        'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.85) 14%, black 26%, black 74%, rgba(0,0,0,0.85) 86%, transparent 100%)',
+                    }}
+                  >
+                    <div className="relative aspect-[16/10] w-full overflow-hidden bg-transparent">
                   <img
                     src="/media/ui-card-ai-fit-radar.webp"
                     alt=""
