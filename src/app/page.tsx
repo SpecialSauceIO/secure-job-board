@@ -62,10 +62,10 @@ export default function LandingPage() {
             }}
           >
             <div
-              className="absolute top-1/2 -translate-y-1/2 right-[-15%] sm:right-[-6%] lg:right-[0%] w-[1080px] sm:w-[1280px] lg:w-[1440px] opacity-90 transition-all duration-1000"
+              className="absolute -top-[2%] sm:-top-[5%] lg:-top-[8%] right-[-18%] sm:right-[-8%] lg:right-[-1%] w-[920px] sm:w-[1120px] lg:w-[1260px] opacity-85 transition-all duration-1000"
               style={{
                 transform:
-                  'perspective(1350px) rotateY(-30deg) rotateX(8deg) rotateZ(-3deg) scale(1.32)',
+                  'perspective(1350px) rotateY(-34deg) rotateX(12deg) rotateZ(-4deg) scale(1.06)',
                 transformOrigin: 'center right',
               }}
             >
@@ -83,7 +83,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Cross-Fading High-Res Interface Captures synced to hero slides */}
-                <div className="relative aspect-[16/10] w-full overflow-hidden rounded-b-xl bg-[#0a0f1c]">
+                <div className="relative aspect-[16/9] w-full overflow-hidden rounded-b-xl bg-[#0a0f1c]">
                   <img
                     src="/media/ui-card-ai-fit-radar.webp"
                     alt=""

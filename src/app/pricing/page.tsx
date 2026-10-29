@@ -42,7 +42,7 @@ export default function PricingMatrixPage() {
                 className="absolute -top-[2%] sm:-top-[5%] lg:-top-[8%] right-[-18%] sm:right-[-8%] lg:right-[-1%] w-[920px] sm:w-[1120px] lg:w-[1260px] opacity-85"
                 style={{
                   transform:
-                    'perspective(1350px) rotateY(-30deg) rotateX(8deg) rotateZ(-3deg) scale(1.32)',
+                    'perspective(1350px) rotateY(-34deg) rotateX(12deg) rotateZ(-4deg) scale(1.06)',
                   transformOrigin: 'center right',
                 }}
               >
@@ -57,7 +57,7 @@ export default function PricingMatrixPage() {
                       specialsauce.io • Verified Pay Bands &amp; Founding Partner Roles
                     </span>
                   </div>
-                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-b-xl bg-[#0a0f1c]">
+                  <div className="relative aspect-[16/9] w-full overflow-hidden rounded-b-xl bg-[#0a0f1c]">
                     <img
                       src="/media/ui-card-employer-roles.webp"
                       alt=""
