@@ -1088,7 +1088,7 @@ export default function LandingPage() {
               </button>
             </div>
             <video
-              src="/media/hero-tour-captioned.mp4"
+              src="/media/hero-tour-captioned.mp4?v=live20261029_clean"
               controls
               autoPlay
               playsInline
