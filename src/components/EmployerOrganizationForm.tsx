@@ -125,6 +125,9 @@ export default function EmployerOrganizationForm({
         type: 'error',
         text: 'Please check the Authorized Corporate Entity Attestation box before saving.',
       })
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
       return
     }
     setIsSaving(true)
@@ -151,6 +154,9 @@ export default function EmployerOrganizationForm({
 
     if (result?.error) {
       setFeedback({ type: 'error', text: result.error })
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
     } else if (result?.success) {
       setDomain(result.domain || '')
       setVerificationStatus(
@@ -161,6 +167,9 @@ export default function EmployerOrganizationForm({
         type: 'success',
         text: result.message || 'Company profile & EIN attestation saved!',
       })
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
     }
 
     setIsSaving(false)

@@ -59,6 +59,9 @@ export default function EmployerTeamSeatsPanel({
         type: 'success',
         text: result.message || 'Team / Recruiter seat invited and notified via email!',
       })
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
     }
 
     setIsSubmitting(false)

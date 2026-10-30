@@ -189,9 +189,15 @@ export default function EditJobPage() {
     const result = await updateStructuredJob(formData)
     if (result?.error) {
       setErrorMsg(result.error)
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
       return
     }
 
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
     router.push('/dashboard/employer/jobs')
     router.refresh()
   }

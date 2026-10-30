@@ -71,6 +71,9 @@ export default function EnterpriseAtsIntegrationPanel() {
         type: 'success',
         text: res.message || 'Enterprise ATS settings saved.',
       })
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
     }
     setIsSaving(false)
   }
