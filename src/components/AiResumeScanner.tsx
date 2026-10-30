@@ -1,7 +1,7 @@
 'use client';
 
 import { useFormStatus } from 'react-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { parseResumeAutoFill } from '@/app/dashboard/actions';
 
 const EXTRACTION_STEPS = [
@@ -22,6 +22,8 @@ const EXTRACTION_STEPS = [
     detail: 'Finalizing anonymous Introduction professional profile for instant >=40% role matching',
   },
 ];
+
+const RESUME_SCROLL_KEY = 'ss_scroll_top_after_resume';
 
 function formatSkillsList(skills: any, structuredSkills: any): string[] {
   if (Array.isArray(structuredSkills) && structuredSkills.length > 0) {
@@ -49,12 +51,43 @@ function ScannerForm({ profile }: { profile: any }) {
   const [fileName, setFileName] = useState('');
   const [activeStep, setActiveStep] = useState(0);
   const [progress, setProgress] = useState(0);
+  const wasPendingRef = useRef(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      if (sessionStorage.getItem(RESUME_SCROLL_KEY) === '1') {
+        sessionStorage.removeItem(RESUME_SCROLL_KEY);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   useEffect(() => {
     if (!pending) {
+      if (wasPendingRef.current) {
+        wasPendingRef.current = false;
+        try {
+          sessionStorage.removeItem(RESUME_SCROLL_KEY);
+        } catch {
+          // ignore
+        }
+        if (typeof window !== 'undefined') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
       setActiveStep(0);
       setProgress(0);
       return;
+    }
+
+    wasPendingRef.current = true;
+    try {
+      sessionStorage.setItem(RESUME_SCROLL_KEY, '1');
+    } catch {
+      // ignore
     }
 
     setProgress(12);
