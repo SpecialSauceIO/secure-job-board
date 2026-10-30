@@ -484,8 +484,8 @@ export default function WorkflowsPage() {
               BOTTOM UNIFIED SECTION: THE 2-STAGE PRIVACY HANDSHAKE
              ============================================================== */}
           <section className="rounded-3xl border border-slate-800 bg-slate-950 p-6 sm:p-10 shadow-xl space-y-8">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-800">
-              <div className="space-y-2 max-w-2xl">
+            <div className="flex flex-col gap-5 pb-6 border-b border-slate-800">
+              <div className="space-y-2 max-w-4xl">
                 <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400">
                   Where Both Workflows Meet • The Intro/Convo Privacy Handshake
                 </span>
@@ -493,7 +493,7 @@ export default function WorkflowsPage() {
                   Zero Unsolicited Spam, Zero Burner-Domain Harvesting &amp; 100% Professional-Controlled Disclosure
                 </h2>
               </div>
-              <div className="flex flex-wrap items-center gap-3 shrink-0">
+              <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
                 <Link
                   href="/signup/candidate"
                   className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-extrabold transition-colors"

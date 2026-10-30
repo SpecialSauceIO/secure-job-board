@@ -1437,19 +1437,19 @@ export default function SupportCenterClient({
       {activeTab === 'kb' && (
         <div className="p-6 md:p-8 space-y-8 animate-in fade-in duration-300">
           {/* Top Shortcut Banner to /workflows + 1-Click Copy Team Brief */}
-          <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 border border-slate-700 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div className="space-y-1">
+          <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 border border-slate-700 flex flex-col gap-5">
+            <div className="space-y-1 max-w-4xl">
               <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-400 block">
                 Looking for the Step-by-Step Visual Walkthrough?
               </span>
               <h3 className="text-lg sm:text-xl font-extrabold text-white">
                 Explore the Interactive 5-Step Professional &amp; Employer Workflows
               </h3>
-              <p className="text-sm sm:text-base text-slate-200">
+              <p className="text-sm sm:text-base text-slate-200 leading-relaxed">
                 Our full visual walkthrough is available anytime on the public Platform Workflows page—or copy a plain-text team briefing sheet below.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
               <button
                 type="button"
                 onClick={() => handleCopyGuide(userRole === 'employer' ? 'employer' : 'candidate')}

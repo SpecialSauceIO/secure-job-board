@@ -286,8 +286,8 @@ export default function PlatformWorkflowsView({
 
       {/* Bottom Handshake Convergence Banner */}
       <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border border-slate-700 space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
-          <div>
+        <div className="flex flex-col gap-5 border-b border-slate-800 pb-5">
+          <div className="max-w-4xl">
             <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400 block">
               Where Both Workflows Meet • The Intro/Convo Privacy Handshake
             </span>
@@ -296,7 +296,7 @@ export default function PlatformWorkflowsView({
             </h3>
           </div>
           {!isDashboard && (
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
               <Link
                 href="/signup/candidate"
                 className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-extrabold transition-colors"
