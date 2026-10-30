@@ -80,7 +80,7 @@ export default function WorkflowsPage() {
               </span>
             </h1>
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Complete your one-time verification (<strong className="text-white">$5 Professionals / $25 Employers</strong>) to unlock our <strong className="text-emerald-400">$0/mo Explorer Vault</strong>, run <strong className="text-white">TrueFit Score™</strong> checks, and connect via our Intro/Convo Privacy Handshake.
+              Complete your one-time verification (<strong className="text-white">$5 Professionals / $25 Employers</strong>) to unlock our <strong className="text-emerald-400">$0/mo Explorer Sandbox</strong>, run <strong className="text-white">TrueFit Score™</strong> checks, and connect via our Intro/Convo Privacy Handshake.
             </p>
             <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
               <Link
@@ -113,7 +113,7 @@ export default function WorkflowsPage() {
               }`}
             >
               <span className="w-7 h-7 rounded-lg bg-black/20 flex items-center justify-center text-xs font-black">
-                C
+                P
               </span>
               <span>Professional Workflow (5 Steps)</span>
             </button>
@@ -142,14 +142,14 @@ export default function WorkflowsPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
                 <div className="flex items-center gap-3.5">
                   <div className="w-11 h-11 rounded-2xl bg-indigo-600 text-white font-black text-lg flex items-center justify-center shrink-0">
-                    C
+                    P
                   </div>
                   <div>
                     <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-400">
-                      $5 One-Time Verification • $0/Mo Explorer Forever • Weekly 1-Yr Prestige Drawing
+                      $5 One-Time ID Verification • $0/Mo Explorer Forever • Weekly 1-Yr Prestige Drawing
                     </span>
                     <h2 className="text-xl sm:text-2xl font-black text-white">
-                      Professional Workflow: Free Seeding to Protected Offers
+                      Professional Workflow: Verified Onboarding to Protected Offers
                     </h2>
                   </div>
                 </div>
@@ -157,7 +157,7 @@ export default function WorkflowsPage() {
                   href="/signup/candidate"
                   className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-extrabold text-center transition-colors shrink-0"
                 >
-                  Start Free Professional Vault →
+                  Start Professional Verification ($5) →
                 </Link>
               </div>
 
@@ -166,28 +166,28 @@ export default function WorkflowsPage() {
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
                   <div className="space-y-4">
                     <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-indigo-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 1 • Free Profile Seeding
+                      Step 1 • Explorer Onboarding ($5 One-Time)
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
-                      1. Create Free Account &amp; Upload Resume
+                      1. Enroll in Explorer ($5 One-Time — $0/Mo Forever)
                     </h3>
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span>Sign up for free (no credit card required to stage your vault).</span>
+                        <span>Complete your one-time <strong>$5 ID Verification Pass</strong> to unlock the <strong>Explorer Plan at $0/mo forever</strong>—or activate Professional ($12/mo) or Prestige ($19/mo) immediately.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span>Upload your PDF resume once to auto-extract your anonymous skill matrix and tenure.</span>
+                        <span>Earn automatic entry into our <strong>Weekly Drawing</strong> for a free 1-year Prestige membership.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span>Your anonymous profile is immediately <strong>Vault-Staged</strong> in Employer Talent Search while your name, email, phone, and PDF stay locked in your Conversation Vault.</span>
+                        <span>Zero bots, fake profiles, or scrapers—every professional in the marketplace is a verified human.</span>
                       </li>
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Anonymous Professional #ID &amp; Vault-Staged Discovery
+                    Unlocks: ✓ $0/Mo Explorer Sandbox &amp; Weekly 1-Yr Prestige Drawing Entry
                   </div>
                 </div>
 
@@ -195,73 +195,15 @@ export default function WorkflowsPage() {
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
                   <div className="space-y-4">
                     <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-indigo-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 2 • Dealbreakers &amp; Free TrueFit Score™
+                      Step 2 • 1-Time Biometric Trust Gate
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
-                      2. Set Dealbreakers &amp; Check TrueFit Score™ Free
+                      2. Pass 1-Time Stripe Real-Person ID Check
                     </h3>
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span>Set your minimum salary expectations, work model (Remote/Hybrid/On-Site), and availability upfront.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-400 font-bold">•</span>
-                        <span>Browse verified roles with upfront salary bands (every post expires in 30 days—zero ghost jobs).</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-400 font-bold">•</span>
-                        <span>Run unlimited <strong>TrueFit Score™</strong> checks on live roles and accept inbound Employer Invitations at $0/mo in Explorer mode.</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Dealbreaker Firewall &amp; Free TrueFit Score™
-                  </div>
-                </div>
-
-                {/* Step 3 */}
-                <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
-                  <div className="space-y-4">
-                    <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-indigo-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 3 • Explorer ($0/Mo) or Outbound Pro/Prestige
-                    </span>
-                    <h3 className="text-lg sm:text-xl font-black text-white">
-                      3. Match Free in Explorer or Upgrade to Apply Outbound
-                    </h3>
-                    <ul className="space-y-2.5 text-sm text-slate-200">
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-400 font-bold">•</span>
-                        <span>Your <strong>$5 One-Time Explorer Pass</strong> unlocks unlimited inbound Employer Invitations at <strong>$0/mo forever</strong> plus automatic entry into our Weekly 1-Year Prestige Drawing.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-400 font-bold">•</span>
-                        <span>Stay on <strong>Explorer ($0/mo forever)</strong> for passive inbound invitations, or upgrade to <strong>Professional ($12/mo)</strong> for 15 outbound applications/mo or <strong>Prestige ($19/mo)</strong> for unlimited applications—and downgrade back to $0/mo Explorer anytime once hired!</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-400 font-bold">•</span>
-                        <span>Claim a permanent <strong>★ Founding Member</strong> distinction on your profile (cancel anytime before Day 30).</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ $0/Mo Inbound Invitations, Weekly Giveaway Entry &amp; Outbound Upgrades
-                  </div>
-                </div>
-
-                {/* Step 4 */}
-                <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
-                  <div className="space-y-4">
-                    <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-indigo-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 4 • 1-Time Biometric Trust Gate
-                    </span>
-                    <h3 className="text-lg sm:text-xl font-black text-white">
-                      4. Pass 1-Time Stripe Real-Person ID Check
-                    </h3>
-                    <ul className="space-y-2.5 text-sm text-slate-200">
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-400 font-bold">•</span>
-                        <span>Included with your $5 One-Time Explorer Pass—complete a 60-second government photo ID and live selfie check via Stripe Identity.</span>
+                        <span>Included with your $5 One-Time Verification Pass—complete a 60-second government photo ID and live selfie check via Stripe Identity.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
@@ -269,12 +211,70 @@ export default function WorkflowsPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span>Upgrades your profile from Vault-Staged to <strong>🛡️ Identity-Verified</strong> with priority placement in Employer Search.</span>
+                        <span>Activates your permanent <strong>🛡️ Verified Professional Shield</strong> in Employer Talent Search.</span>
                       </li>
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Verified Professional Shield &amp; Priority Search Ranking
+                    Unlocks: ✓ Verified Professional Shield &amp; Live Employer Search Placement
+                  </div>
+                </div>
+
+                {/* Step 3 */}
+                <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
+                  <div className="space-y-4">
+                    <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-indigo-300 text-[11px] font-extrabold uppercase tracking-wider">
+                      Step 3 • Conversation Resume Vault
+                    </span>
+                    <h3 className="text-lg sm:text-xl font-black text-white">
+                      3. Upload Resume &amp; Set Dealbreakers
+                    </h3>
+                    <ul className="space-y-2.5 text-sm text-slate-200">
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-400 font-bold">•</span>
+                        <span>Upload your PDF resume once to auto-extract your anonymous skill matrix, tenure, and certifications.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-400 font-bold">•</span>
+                        <span>Your name, email, phone, and raw PDF stay locked inside your <strong>Conversation Vault</strong> while employers see only your anonymized <strong>Professional #ID</strong>.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-400 font-bold">•</span>
+                        <span>Set your minimum salary expectations, work model (Remote/Hybrid/On-Site), and hard dealbreakers upfront.</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
+                    Unlocks: ✓ Anonymized Professional #ID &amp; Dealbreaker Firewall
+                  </div>
+                </div>
+
+                {/* Step 4 */}
+                <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
+                  <div className="space-y-4">
+                    <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-indigo-300 text-[11px] font-extrabold uppercase tracking-wider">
+                      Step 4 • Inbound Free or Outbound Upgrades
+                    </span>
+                    <h3 className="text-lg sm:text-xl font-black text-white">
+                      4. Check TrueFit Score™ &amp; Connect
+                    </h3>
+                    <ul className="space-y-2.5 text-sm text-slate-200">
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-400 font-bold">•</span>
+                        <span>Run unlimited <strong>TrueFit Score™</strong> checks on verified roles with upfront salary bands (every post expires in 30 days—zero ghost jobs).</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-400 font-bold">•</span>
+                        <span>Receive and accept <strong>Unlimited Inbound Employer Invitations</strong> at <strong>$0/mo forever</strong> in Explorer mode.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-400 font-bold">•</span>
+                        <span>Upgrade anytime to <strong>Professional ($12/mo)</strong> for 15 outbound applications/mo + permanent ★ Founding Member Badge, or <strong>Prestige ($19/mo)</strong> for unlimited outbound applications + Top-Priority Spotlight—and <strong>downgrade back to Explorer ($0/mo)</strong> anytime once hired.</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
+                    Unlocks: ✓ Free Inbound Invitations, 40%+ TrueFit™ Outbound Apps &amp; Founding Badge
                   </div>
                 </div>
 
@@ -290,7 +290,7 @@ export default function WorkflowsPage() {
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span><strong>The Introduction (First-Name Encrypted Chat):</strong> Accepting a Professional Invitation or getting your application unlocked reveals the verified company name and opens encrypted chat showing only your <strong>First Name + Last Initial</strong>.</span>
+                        <span><strong>The Introduction (First-Name Encrypted Chat):</strong> Accepting an Employer Invitation or getting your outbound application unlocked reveals the verified company name and opens encrypted chat showing only your <strong>First Name + Last Initial</strong>.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
@@ -316,10 +316,10 @@ export default function WorkflowsPage() {
                   </div>
                   <div>
                     <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400">
-                      $25 One-Time Org Verify • $0/Mo Talent Sandbox • Accepted-Only Invitation Guarantee
+                      $25 One-Time Org Verify • $0/Mo Explorer Sandbox • Accepted-Only Invitation Guarantee
                     </span>
                     <h2 className="text-xl sm:text-2xl font-black text-white">
-                      Employer Workflow: Free Staging to Verified Hiring
+                      Employer Workflow: Verified Sandbox to Protected Hiring
                     </h2>
                   </div>
                 </div>
@@ -327,7 +327,7 @@ export default function WorkflowsPage() {
                   href="/signup/employer"
                   className="px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-extrabold text-center transition-colors shrink-0"
                 >
-                  Start Free Employer Account →
+                  Start Employer Verification ($25) →
                 </Link>
               </div>
 
@@ -336,28 +336,28 @@ export default function WorkflowsPage() {
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
                   <div className="space-y-4">
                     <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-emerald-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 1 • Free Workspace &amp; Search
+                      Step 1 • $25 Verification Pass &amp; Sandbox
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
-                      1. Stage Roles &amp; Search Anonymous Talent Free
+                      1. Unlock $0/Mo Employer Explorer Sandbox ($25 One-Time)
                     </h3>
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Create your employer workspace for free and select your Industry Vertical and company size.</span>
+                        <span>Complete the <strong>$25 One-Time Employer Verification Pass</strong> to unlock the <strong>Employer Explorer Sandbox ($0/mo)</strong>.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Draft and stage open job descriptions before activating a plan.</span>
+                        <span>Configure your company profile, select your Industry Vertical, and draft role specifications.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Search the anonymous talent pool and run <strong>TrueFit Score™</strong> checks on candidates for free.</span>
+                        <span>Preview live verified professional match counts and run <strong>TrueFit Score™</strong> checks before activating a monthly plan.</span>
                       </li>
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Free Role Staging, Talent Directory Search &amp; TrueFit Score™ Checks
+                    Unlocks: ✓ $0/Mo Employer Explorer Sandbox &amp; Live Professional Match Previews
                   </div>
                 </div>
 
@@ -394,28 +394,28 @@ export default function WorkflowsPage() {
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
                   <div className="space-y-4">
                     <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-emerald-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 3 • $25 Org Verify &amp; Founding Partner Plans
+                      Step 3 • Trust Gate Pillars 2 &amp; 3
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
-                      3. Complete $25 Org Verification &amp; Lock In Founding Rate
+                      3. Attest IRS EIN &amp; Representative Stripe ID
                     </h3>
                     <ul className="space-y-2.5 text-sm text-slate-200">
-                      <li className="flex items-start gap-2">
-                        <span className="text-emerald-400 font-bold">•</span>
-                        <span>Complete your <strong>$25 One-Time Organization Verification</strong> to preview matches in the $0/mo Sandbox, then lock in 12-Month Founding Partner Rates when ready to hire: <strong>Starter ($149/mo)</strong>, <strong>Growth ($499/mo)</strong>, or <strong>Enterprise ($1,250/mo)</strong>.</span>
-                      </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
                         <span>Submit your 9-digit IRS Federal Tax ID (EIN) &amp; State of Incorporation (Pillar 2).</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Complete the 1-time 60-second Stripe Identity check for the Account Admin (Pillar 3).</span>
+                        <span>Complete the 1-time 60-second Stripe Identity biometric check for the Account Admin (Pillar 3).</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-emerald-400 font-bold">•</span>
+                        <span>Proves to professionals that every protected role belongs to a real, accountable organization.</span>
                       </li>
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ $0/Mo Verified Sandbox, 12-Mo Rate Lock &amp; 3-Pillar Verified Shield
+                    Unlocks: ✓ 3-Pillar Verified Organization Shield
                   </div>
                 </div>
 
@@ -423,28 +423,28 @@ export default function WorkflowsPage() {
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
                   <div className="space-y-4">
                     <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-emerald-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 4 • Protected Roles &amp; Invitations
+                      Step 4 • Founding Rate Plans &amp; Invitations
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
-                      4. Publish Protected Roles &amp; Invite Talent
+                      4. Activate Founding Plan, Publish Roles &amp; Invite Pros
                     </h3>
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Publish company-shielded roles showing salary bands and industry while keeping your company name private until The Introduction chat.</span>
+                        <span>Lock in 12-Month Founding Partner Rates when ready to engage: <strong>Starter ($149/mo)</strong>, <strong>Growth ($499/mo)</strong>, or <strong>Enterprise ($1,250/mo)</strong>.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Reviewing and unlocking inbound 40%+ TrueFit™ applicants is <strong>100% free (0 credits)</strong>.</span>
+                        <span>Publish company-shielded roles with upfront salary bands; reviewing and unlocking inbound 40%+ TrueFit™ applicants is <strong>100% free (0 credits)</strong>.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Every Professional Invitation is backed by our <strong>Accepted-Only Guarantee</strong>—declined invitations are auto-refunded.</span>
+                        <span>Every outbound Professional Invitation is backed by our <strong>Accepted-Only Guarantee</strong>—declined invitations are auto-refunded, and optional Rollover Credit Top-Up Packs never expire while active.</span>
                       </li>
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Live Role Publishing &amp; Refund-Protected Professional Invitations
+                    Unlocks: ✓ 12-Mo Rate Lock, Live Protected Roles &amp; Refund-Protected Invitations
                   </div>
                 </div>
 
@@ -468,7 +468,7 @@ export default function WorkflowsPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Invite team/recruiter seats, export unlocked candidates via CSV, or auto-sync directly to <strong>Workday &amp; Greenhouse</strong> (Enterprise plan).</span>
+                        <span>Collaborate with team/recruiter seats (2 on Starter, 5 on Growth, Unlimited on Enterprise) and export unlocked professionals via CSV or auto-sync directly to <strong>Workday &amp; Greenhouse</strong> (Enterprise).</span>
                       </li>
                     </ul>
                   </div>
@@ -498,13 +498,13 @@ export default function WorkflowsPage() {
                   href="/signup/candidate"
                   className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-extrabold transition-colors"
                 >
-                  Start Professional Workflow →
+                  Start Professional Workflow ($5) →
                 </Link>
                 <Link
                   href="/signup/employer"
                   className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs sm:text-sm font-extrabold transition-colors"
                 >
-                  Start Employer Workflow →
+                  Start Employer Workflow ($25) →
                 </Link>
               </div>
             </div>
@@ -524,7 +524,7 @@ export default function WorkflowsPage() {
                   2. The Introduction (Encrypted Chat)
                 </h3>
                 <p className="text-sm text-slate-200 leading-relaxed">
-                  When a candidate accepts an outbound pitch or an employer unlocks an inbound application, the verified company identity is revealed and encrypted live chat opens using <strong className="text-amber-300">First Name + Last Initial</strong>.
+                  When a professional accepts an outbound invitation or an employer unlocks an inbound application, the verified company identity is revealed and encrypted live chat opens using <strong className="text-amber-300">First Name + Last Initial</strong>.
                 </p>
               </div>
 
@@ -533,7 +533,7 @@ export default function WorkflowsPage() {
                   3. The Conversation (Full Resume &amp; ATS)
                 </h3>
                 <p className="text-sm text-slate-200 leading-relaxed">
-                  Only when the candidate clicks <strong className="text-white">Release Resume &amp; Contact Vault</strong> does the employer receive the 1-hour cryptographically signed PDF resume link and direct contact credentials.
+                  Only when the professional clicks <strong className="text-white">Release Resume &amp; Contact Vault</strong> does the employer receive the 1-hour cryptographically signed PDF resume link and direct contact credentials.
                 </p>
               </div>
             </div>

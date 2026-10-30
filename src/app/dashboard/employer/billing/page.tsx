@@ -340,7 +340,7 @@ export default function EmployerBillingPage() {
               </h2>
 
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Your monthly plan allowance (<strong className="text-white">Bucket 1</strong>) is always spent first when inviting candidates. Purchased Top-Up Credits (<strong className="text-amber-300">Bucket 2</strong>) roll over indefinitely while your base subscription remains active.
+                Your monthly plan allowance (<strong className="text-white">Bucket 1</strong>) is always spent first when inviting professionals. Purchased Top-Up Credits (<strong className="text-amber-300">Bucket 2</strong>) roll over indefinitely while your base subscription remains active.
               </p>
             </div>
 

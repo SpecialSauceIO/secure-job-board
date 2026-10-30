@@ -61,7 +61,7 @@ export async function SubscriptionManager() {
           <h3 className="text-lg font-bold text-gray-900">Employer Pro Plan</h3>
           <p className="text-sm text-gray-500 mt-1">
             {isSubscribed 
-              ? 'Your subscription is active. You have full access to post jobs and review candidates.' 
+              ? 'Your subscription is active. You have full access to post jobs and review professionals.' 
               : 'Upgrade to the Pro plan to unlock job posting and team management features.'}
           </p>
         </div>

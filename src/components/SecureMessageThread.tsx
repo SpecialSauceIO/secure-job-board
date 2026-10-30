@@ -353,7 +353,7 @@ export default function SecureMessageThread({
                   ? 'Professional has released their full name, direct email, and signed PDF resume.'
                   : `You have released your direct contact details and PDF resume to ${employerName}.`
                 : viewerRole === 'employer'
-                ? 'To prevent passive resume harvesting, raw email & PDF resume remain vaulted until you message the candidate and they choose to share it.'
+                ? 'To prevent passive resume harvesting, raw email & PDF resume remain vaulted until you message the professional and they choose to share it.'
                 : `Your raw email & PDF resume are still hidden from ${employerName}. Chat below first, then click "Release Resume & Contact Vault" whenever you feel comfortable.`}
             </p>
           </div>

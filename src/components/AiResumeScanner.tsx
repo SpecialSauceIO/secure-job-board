@@ -19,7 +19,7 @@ const EXTRACTION_STEPS = [
   },
   {
     title: 'Calibrating 5-Point TrueFit Score™ Profile',
-    detail: 'Finalizing anonymous Introduction candidate profile for instant >=40% role matching',
+    detail: 'Finalizing anonymous Introduction professional profile for instant >=40% role matching',
   },
 ];
 

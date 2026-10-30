@@ -96,14 +96,14 @@ export default async function SignupSelectionPage({
                   </svg>
                 </div>
                 <span className="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold uppercase tracking-wider">
-                  12-Mo Rate Lock
+                  $25 One-Time Verify • $0/Mo Sandbox • 12-Mo Rate Lock
                 </span>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">
                 I&apos;m an Employer
               </h3>
               <p className="text-slate-500 leading-relaxed text-sm">
-                Lock in Founding Partner rates for 12 months with 100% Accepted-Only Invitation Credit Protection. Corporate work email required.
+                Complete your $25 one-time Organization Verification to unlock the $0/mo Employer Explorer Sandbox, preview verified professional matches, and lock in Founding Partner rates for 12 months with 100% Accepted-Only Invitation Credit Protection.
               </p>
               <div className="mt-5 sm:mt-6 flex items-center text-emerald-600 font-bold text-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-hover:translate-x-1 transition-all">
                 Continue as Employer

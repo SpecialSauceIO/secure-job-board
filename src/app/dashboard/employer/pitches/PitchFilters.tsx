@@ -42,7 +42,7 @@ export default function PitchFilters({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search pipeline by role, candidate skills, or bio..."
+            placeholder="Search pipeline by role, professional skills, or bio..."
             className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-400"
           />
         </div>

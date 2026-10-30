@@ -44,7 +44,7 @@ export const SECURITY_ARCHITECTURE_DATA = {
     {
       title: 'Intro/Convo Professional Identity & Resume Vault (Anti-Harvesting)',
       detail:
-        'The Introduction (Initial Unlock / Invitation Acceptance) opens an encrypted in-platform message thread and reveals only the candidate’s First Name + Last Initial alongside the employer’s verified company identity. The Conversation requires the candidate’s explicit 1-click consent ("Release Resume & Contact Vault") before their full name, direct email, and 1-hour signed PDF resume URL are revealed.',
+        'The Introduction (Initial Unlock / Invitation Acceptance) opens an encrypted in-platform message thread and reveals only the professional’s First Name + Last Initial alongside the employer’s verified company identity. The Conversation requires the candidate’s explicit 1-click consent ("Release Resume & Contact Vault") before their full name, direct email, and 1-hour signed PDF resume URL are revealed.',
     },
     {
       title: '3-Pillar Employer Anti-Harvesting Trust Gate',
@@ -54,7 +54,7 @@ export const SECURITY_ARCHITECTURE_DATA = {
     {
       title: 'In-Platform Encrypted Messaging & Automated Phishing Firewall',
       detail:
-        'All initial candidate-employer conversations occur inside real-time threads tied to a shared Reference ID (SS-XXXXXXXX). Every message passes through an automated heuristic safety scanner that blocks requests for SSNs, banking details, off-platform chat lures (WhatsApp/Telegram), or external harvesting forms.',
+        'All initial professional-employer conversations occur inside real-time threads tied to a shared Reference ID (SS-XXXXXXXX). Every message passes through an automated heuristic safety scanner that blocks requests for SSNs, banking details, off-platform chat lures (WhatsApp/Telegram), or external harvesting forms.',
     },
     {
       title: '30-Day Job Auto-Expiration & 5-Unlock Anti-Scraping Ceiling',
@@ -79,8 +79,8 @@ Special Sauce does NOT store government ID images, verification selfies, credit 
 - Pillar 3 (Admin Biometric ID): 1-time Stripe Identity photo ID & live selfie verification for the Employer Account Admin.
 
 4. INTRO/CONVO ANTI-HARVESTING IDENTITY VAULT & IN-PLATFORM MESSAGING:
-- The Introduction (Encrypted Thread Unlock): When an employer unlocks an inbound application or a candidate accepts a Professional Invitation, an encrypted in-platform chat thread opens (Ref: SS-XXXXXXXX). The employer's verified company name/domain and the candidate's First Name + Last Initial are revealed, while the candidate's raw email and PDF resume remain strictly vaulted.
-- The Conversation (Professional-Controlled Vault Release): Only after the employer engages in the thread and the candidate clicks "Release Resume & Contact Vault" are the candidate's Full Name, direct email, and 1-hour signed PDF resume URL unlocked.
+- The Introduction (Encrypted Thread Unlock): When an employer unlocks an inbound application or a professional accepts a Professional Invitation, an encrypted in-platform chat thread opens (Ref: SS-XXXXXXXX). The employer's verified company name/domain and the candidate's First Name + Last Initial are revealed, while the candidate's raw email and PDF resume remain strictly vaulted.
+- The Conversation (Professional-Controlled Vault Release): Only after the employer engages in the thread and the professional clicks "Release Resume & Contact Vault" are the candidate's Full Name, direct email, and 1-hour signed PDF resume URL unlocked.
 - Anti-Scraping & Phishing Guardrails: Employers cannot hold more than 5 unlocked threads without sending an introductory message. All job postings automatically expire after 30 days unless manually renewed, and in-platform messages are scanned in real time to block SSN/banking requests and off-platform phishing links.
 ====================================================================`,
 }
@@ -121,7 +121,7 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
         step: 'Step 5',
         title: 'The Conversation Unlock: Professional Releases Full Resume & Contact Vault',
         description:
-          'Message the candidate in The Introduction chat to discuss the role. Once the candidate clicks "Release Resume & Contact Vault", their Full Name, direct email, and 1-hour cryptographically signed PDF resume unlock (and auto-sync to Workday or Greenhouse on Enterprise).',
+          'Message the professional in The Introduction chat to discuss the role. Once the professional clicks "Release Resume & Contact Vault", their Full Name, direct email, and 1-hour cryptographically signed PDF resume unlock (and auto-sync to Workday or Greenhouse on Enterprise).',
       },
     ],
     copyPasteText: `====================================================================
@@ -129,14 +129,14 @@ SPECIAL SAUCE — HIRING TEAM QUICK-START GUIDE
 ====================================================================
 
 1. WHAT IS SPECIAL SAUCE?
-Special Sauce is a 100% ID-verified, double-blind recruitment marketplace protected by a Intro/Convo Identity Vault. Every candidate is Stripe Biometric Identity-Verified and evaluated by a TrueFit Score™ before any contact information is exchanged.
+Special Sauce is a 100% ID-verified, double-blind recruitment marketplace protected by a Intro/Convo Identity Vault. Every professional is Stripe Biometric Identity-Verified and evaluated by a TrueFit Score™ before any contact information is exchanged.
 
 2. HOW OUR TEAM USES THE PLATFORM (5 STEPS):
 - Step 1 — Organization Setup & 12-Month Rate Lock: Activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo) to lock in Founding Partner Rates for a full 12 months.
 - Step 2 — 3-Pillar Anti-Harvesting Trust Gate: Complete corporate domain verification (including automated 90-day RDAP domain age verification), IRS 9-digit Federal EIN attestation, and a 1-time 60-second Stripe Identity check for the Account Admin.
 - Step 3 — Publishing Protected Roles (30-Day Auto-Expiry): Every role displays transparent pay ($/yr or $/hr), US State & Metro location, and employment type while keeping our company name protected until The Introduction. Roles auto-expire after 30 days to guarantee freshness.
 - Step 4 — The Introduction Unlock & Accepted-Only Invitation Credit Protection: Inbound applications (40%+ TrueFit™) are 100% FREE to unlock (0 credits); Professional Invitations to passive talent use 1 Invitation Credit and are 100% auto-refunded if declined. The Introduction opens live encrypted chat (Ref: SS-XXXXXXXX) and reveals the candidate's First Name + Last Initial.
-- Step 5 — The Conversation Unlock (Full Resume & Email Release): Once we chat with the candidate, they click "Release Resume & Contact Vault" to unlock their Full Name, direct email, and 1-hour signed PDF resume link.
+- Step 5 — The Conversation Unlock (Full Resume & Email Release): Once we chat with the professional, they click "Release Resume & Contact Vault" to unlock their Full Name, direct email, and 1-hour signed PDF resume link.
 
 3. EMPLOYER PLANS (12-MONTH FOUNDING PARTNER RATE LOCK) & TOP-UPS:
 - Starter ($149/mo Founding · $299/mo Retail starting Mo 13): Up to 5 Active Roles | 10 Invitation Credits/mo | 2 Team/Recruiter Seats
@@ -216,7 +216,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'Why do I need to verify my identity, and is my government ID stored by Special Sauce?',
     answer:
-      'Identity verification protects the integrity of the Special Sauce marketplace, eliminating automated spam bots and fake profiles. Every candidate plan—Explorer ($5 one-time · $0/mo forever), Professional ($12/mo), and Prestige ($19/mo)—includes 1-time Stripe Real-Person ID Verification (a 60-second photo ID and live selfie check) so 100% of candidates in Employer Search are real professionals. Your government ID and biometric selfie are NEVER stored on Special Sauce servers—they are vaulted exclusively by Stripe Identity using AES-256 encryption.',
+      'Identity verification protects the integrity of the Special Sauce marketplace, eliminating automated spam bots and fake profiles. Every professional plan—Explorer ($5 one-time · $0/mo forever), Professional ($12/mo), and Prestige ($19/mo)—includes 1-time Stripe Real-Person ID Verification (a 60-second photo ID and live selfie check) so 100% of candidates in Employer Search are real professionals. Your government ID and biometric selfie are NEVER stored on Special Sauce servers—they are vaulted exclusively by Stripe Identity using AES-256 encryption.',
   },
   {
     id: 'c2',
@@ -234,7 +234,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How do I know the Employers on Special Sauce are legitimate companies and not data harvesters?',
     answer:
-      'Every Employer organization must pass our 3-Pillar Anti-Harvesting Trust Gate before they can publish a role or search the candidate pool: 1) Corporate Domain & 90-Day RDAP Age Check (work-email or DNS TXT verification plus an automated registry check that blocks newly registered burner domains under 90 days old), 2) IRS Federal Tax ID (EIN) & State of Incorporation corporate officer attestation, and 3) A mandatory 1-time Stripe Identity biometric photo ID check for the Employer Account Admin.',
+      'Every Employer organization must pass our 3-Pillar Anti-Harvesting Trust Gate before they can publish a role or search the professional pool: 1) Corporate Domain & 90-Day RDAP Age Check (work-email or DNS TXT verification plus an automated registry check that blocks newly registered burner domains under 90 days old), 2) IRS Federal Tax ID (EIN) & State of Incorporation corporate officer attestation, and 3) A mandatory 1-time Stripe Identity biometric photo ID check for the Employer Account Admin.',
   },
   {
     id: 'c3',
@@ -279,7 +279,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'What is the difference between Explorer ($5 one-time · $0/mo forever), Professional ($12/mo), and Prestige ($19/mo)?',
     answer:
-      'All three candidate tiers include 1-time Stripe Real-Person ID Verification, your private Conversation Resume Vault, and the permanent ★ Founding Member Charter badge during our launch window. Explorer ($5 one-time verification · $0/mo forever) is built for passive discovery: your verified anonymous profile is live in Employer Search, you can run unlimited TrueFit Score™ checks, unlock and accept unlimited Inbound Professional Invitations, and enter our Weekly 1-Year Prestige Drawing. Professional ($12/mo) adds 15 proactive Outbound Protected Applications/month (for roles where you score 40%+ TrueFit™) plus Verified Profile Distinctions. Prestige ($19/mo) unlocks Unlimited Outbound Protected Applications (40%+ TrueFit™), Top-Priority Spotlight placement at the top of Employer Talent Search, and priority 1-on-1 support. You can upgrade anytime to apply outbound and downgrade back to $0/mo Explorer once hired.',
+      'All three professional tiers include 1-time Stripe Real-Person ID Verification, your private Conversation Resume Vault, and the permanent ★ Founding Member Charter badge during our launch window. Explorer ($5 one-time verification · $0/mo forever) is built for passive discovery: your verified anonymous profile is live in Employer Search, you can run unlimited TrueFit Score™ checks, unlock and accept unlimited Inbound Professional Invitations, and enter our Weekly 1-Year Prestige Drawing. Professional ($12/mo) adds 15 proactive Outbound Protected Applications/month (for roles where you score 40%+ TrueFit™) plus Verified Profile Distinctions. Prestige ($19/mo) unlocks Unlimited Outbound Protected Applications (40%+ TrueFit™), Top-Priority Spotlight placement at the top of Employer Talent Search, and priority 1-on-1 support. You can upgrade anytime to apply outbound and downgrade back to $0/mo Explorer once hired.',
   },
 
   // ------------------------------------------------------------------
@@ -292,7 +292,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How does the 3-Pillar Employer Anti-Harvesting Trust Gate work during onboarding?',
     answer:
-      'To protect candidates from burner-domain scrapers and fake job postings, every Employer organization completes three verification pillars on the Organization & Trust Gate page: 1) Corporate Domain & 90-Day RDAP Age Check (verify ownership via work-email match or DNS TXT token alongside live DNS MX validation and an automated IANA/RDAP registry lookup that blocks burner domains registered less than 90 days ago), 2) IRS Federal Tax ID (EIN) & State of Incorporation corporate officer attestation, and 3) Admin Stripe Identity Verification (a 1-time 60-second photo ID and live biometric selfie check for the Employer Account Admin). Completing verification during our launch window locks in your 12-Month Founding Partner Rate.',
+      'To protect professionals from burner-domain scrapers and fake job postings, every Employer organization completes three verification pillars on the Organization & Trust Gate page: 1) Corporate Domain & 90-Day RDAP Age Check (verify ownership via work-email match or DNS TXT token alongside live DNS MX validation and an automated IANA/RDAP registry lookup that blocks burner domains registered less than 90 days ago), 2) IRS Federal Tax ID (EIN) & State of Incorporation corporate officer attestation, and 3) Admin Stripe Identity Verification (a 1-time 60-second photo ID and live biometric selfie check for the Employer Account Admin). Completing verification during our launch window locks in your 12-Month Founding Partner Rate.',
   },
   {
     id: 'e1b',
@@ -319,7 +319,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'Why do job postings expire after 30 days, and how do we renew them?',
     answer:
-      'To guarantee candidates that every role on Special Sauce is actively hiring (zero 6-month-old ghost jobs), listings automatically expire 30 days after publication. You can see the exact days remaining on your Job Management page (/dashboard/employer/jobs) and click "Renew +30d" (or "Reopen & Renew (+30d)") in 1 click at any time to reset the 30-day clock.',
+      'To guarantee professionals that every role on Special Sauce is actively hiring (zero 6-month-old ghost jobs), listings automatically expire 30 days after publication. You can see the exact days remaining on your Job Management page (/dashboard/employer/jobs) and click "Renew +30d" (or "Reopen & Renew (+30d)") in 1 click at any time to reset the 30-day clock.',
   },
   {
     id: 'e4',
@@ -355,6 +355,6 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How do we know when a professional accepts our Professional Invitation, replies, or releases their Resume Vault?',
     answer:
-      'Whenever a candidate accepts a Professional Invitation, replies in an Introduction thread, or triggers The Conversation Vault Release, your team receives an instant email notification with the SS-XXXXXXXX Reference ID, a pulsing "New Msg" badge appears on your Employer Dashboard in real time, and an audio chime plays if your browser tab is open.',
+      'Whenever a professional accepts a Professional Invitation, replies in an Introduction thread, or triggers The Conversation Vault Release, your team receives an instant email notification with the SS-XXXXXXXX Reference ID, a pulsing "New Msg" badge appears on your Employer Dashboard in real time, and an audio chime plays if your browser tab is open.',
   },
 ]

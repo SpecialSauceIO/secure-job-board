@@ -171,7 +171,7 @@ export default function LandingPage() {
                 No More Scams.
               </h1>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Every active candidate and employer completes Stripe Identity verification before connecting—eliminating automated bots, fake listings, and spam so real professionals deal strictly with real hiring teams.
+                Every active professional and employer completes Stripe Identity verification before connecting—eliminating automated bots, fake listings, and spam so real professionals deal strictly with real hiring teams.
               </p>
             </div>
 
@@ -578,7 +578,7 @@ export default function LandingPage() {
                   1. Build Your Private Profile
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Upload your resume for free to automatically extract your skill matrix, experience, education, and language proficiencies—while keeping your name and contact details hidden. Your anonymous profile is immediately Vault-Staged in Employer Search for free.
+                  Complete your $5 one-time Real-Person ID Verification to unlock your $0/mo Explorer Vault and upload your resume once to auto-extract your skill matrix, experience, education, and languages—while keeping your name and contact details hidden behind your Verified Professional #ID.
                 </p>
               </div>
 
@@ -791,7 +791,7 @@ export default function LandingPage() {
                   1. Post Roles in Seconds
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Upload any job description to structure your role, search our anonymous talent directory, and preview candidate alignment with TrueFit Score™ checks for free. Your company name stays private until you send a Professional Invitation or unlock an applicant.
+                  Complete your $25 one-time Employer Verification Pass to unlock our $0/mo Explorer Sandbox, structure your roles, search our anonymous talent directory, and preview professional alignment with TrueFit Score™ checks. Your company name stays private until you send a Professional Invitation or unlock an applicant.
                 </p>
               </div>
 
@@ -922,7 +922,7 @@ export default function LandingPage() {
                     3. Direct Messaging &amp; Team Collaboration
                   </h3>
                   <p className="text-slate-500 leading-relaxed">
-                    Reviewing and messaging professionals who apply to your jobs is 100% free. Start a direct conversation to confirm mutual interest, invite team members or recruiting partners to collaborate, and download the candidate’s resume once released.
+                    Reviewing and messaging professionals who apply to your jobs is 100% free. Start a direct conversation to confirm mutual interest, invite team members or recruiting partners to collaborate, and download the professional’s resume once released.
                   </p>
                 </div>
               </div>
@@ -992,7 +992,7 @@ export default function LandingPage() {
                 30-Day Fresh Job Guarantee
               </h3>
               <p className="text-slate-500 leading-relaxed">
-                No forgotten job posts sitting around for months. Every listing automatically closes after 30 days unless renewed, and employers must actively respond to candidates in their inbox to keep unlocking new profiles.
+                No forgotten job posts sitting around for months. Every listing automatically closes after 30 days unless renewed, and employers must actively respond to professionals in their inbox to keep unlocking new profiles.
               </p>
             </div>
 

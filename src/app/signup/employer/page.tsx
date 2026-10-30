@@ -101,7 +101,7 @@ export default function EmployerSignupPage({
                 <strong className="text-slate-900">
                   Free Inbound Unlocks &amp; Live Chat:
                 </strong>{' '}
-                Inbound applicants are 100% free. Outbound pitch credits automatically refund if a candidate declines.
+                Inbound applicants are 100% free. Outbound invitation credits automatically refund if a professional declines.
               </span>
             </div>
             <div className="flex items-start gap-2">

@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Special Sauce | Welcome to your future",
     description:
-      "Bypass the resume black hole. Connect through identity-protected TrueFit Score™ skill matching and candidate-controlled identity vault release.",
+      "Bypass the resume black hole. Connect through identity-protected TrueFit Score™ skill matching and professional-controlled identity vault release.",
     url: "https://www.specialsauce.io",
     siteName: "Special Sauce",
     locale: "en_US",

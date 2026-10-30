@@ -264,7 +264,7 @@ export default async function DashboardPage({
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed">
                   Verify your corporate domain, post roles, and pitch anonymous
-                  candidates on merit.
+                  professionals on merit.
                 </p>
               </button>
             </form>
@@ -729,7 +729,7 @@ export default async function DashboardPage({
                 }`}
               >
                 {pitchesUnreadMsgsCount > 0
-                  ? `${pitchesUnreadMsgsCount} unread candidate ${
+                  ? `${pitchesUnreadMsgsCount} unread professional ${
                       pitchesUnreadMsgsCount === 1 ? 'reply' : 'replies'
                     } waiting`
                   : acceptedPitchesCount > 0 || declinedPitchesCount > 0

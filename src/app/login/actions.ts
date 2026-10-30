@@ -509,7 +509,7 @@ export async function lookupAccountEmailHint(
           ? 'No registered employer organization found matching "' +
             trimmed +
             '". Try your exact company domain (e.g., company.com).'
-          : 'No candidate vault found matching "' +
+          : 'No professional vault found matching "' +
             trimmed +
             '". Note: Only profiles where a full name was saved or extracted from a resume can be looked up by name.',
     }

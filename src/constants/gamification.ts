@@ -561,12 +561,12 @@ export function calculateEmployerGamification(
       title: '48-Hour Rapid Responder',
       shortLabel: '48h Responder',
       description:
-        'Reviews inbound applications (unlocking or declining) or replies to candidate chat messages within 48 hours.',
+        'Reviews inbound applications (unlocking or declining) or replies to professional chat messages within 48 hours.',
       icon: '✓',
       unlocked: isResponsiveEmployer,
       progressText: isResponsiveEmployer
         ? 'Active'
-        : `Action or message 3 candidates within 48 hours (${Math.min(employerActionCount, 3)}/3 completed)`,
+        : `Action or message 3 professionals within 48 hours (${Math.min(employerActionCount, 3)}/3 completed)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {
@@ -574,12 +574,12 @@ export function calculateEmployerGamification(
       title: 'Zero-Ghosting Feedback Leader',
       shortLabel: 'Zero-Ghosting',
       description:
-        'Eliminates candidate ghosting by recording clear Introduction decisions (shortlist, unlock, or structured pass) across 3+ applications.',
+        'Eliminates professional ghosting by recording clear Introduction decisions (shortlist, unlock, or structured pass) across 3+ applications.',
       icon: '✓',
       unlocked: hasConstructiveFeedback,
       progressText: hasConstructiveFeedback
         ? 'Active'
-        : `Record Introduction decisions on 3 candidate applications (${Math.min(feedbackOrDecisionCount, 3)}/3 completed)`,
+        : `Record Introduction decisions on 3 professional applications (${Math.min(feedbackOrDecisionCount, 3)}/3 completed)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
     {
@@ -600,12 +600,12 @@ export function calculateEmployerGamification(
       title: 'Trusted Conversation Vault Partner',
       shortLabel: 'Vault Partner',
       description:
-        'Earned candidate trust during The Introduction chat, resulting in 3+ candidates voluntarily releasing their Conversation Resume & Contact Vault.',
+        'Earned professional trust during The Introduction chat, resulting in 3+ professionals voluntarily releasing their Conversation Resume & Contact Vault.',
       icon: '✓',
       unlocked: isTrustedHiringTeam,
       progressText: isTrustedHiringTeam
         ? 'Active'
-        : `Earn 3 voluntary Conversation candidate resume vault releases (${Math.min(mutualVaultReleases.length, 3)}/3 completed)`,
+        : `Earn 3 voluntary Conversation professional resume vault releases (${Math.min(mutualVaultReleases.length, 3)}/3 completed)`,
       accentClass: 'bg-slate-100 text-slate-800 border-slate-200',
     },
   ]

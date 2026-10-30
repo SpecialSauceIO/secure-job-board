@@ -153,7 +153,7 @@ export default function EmployerSentPitchesPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Filter by role title, skill, certification, language, Reference ID (SS-...), or unlocked candidate name..."
+            placeholder="Filter by role title, skill, certification, language, Reference ID (SS-...), or unlocked professional name..."
             className="w-full min-w-0 sm:flex-1 rounded-xl border-2 border-slate-300 bg-slate-50 px-3.5 sm:px-4 py-2.5 sm:py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
           />
           <button
@@ -673,40 +673,40 @@ function toEmployerPerspective(text?: string | null): string {
   let s = String(text).trim();
   if (!s) return "";
   s = s
-    .replace(/\bYour anonymous profile and skill matrix\b/gi, "This candidate's anonymous profile and skill matrix")
-    .replace(/\bYour profile\b/g, "The candidate's profile")
-    .replace(/\byour profile\b/g, "the candidate's profile")
-    .replace(/\bYour background\b/g, "The candidate's background")
-    .replace(/\byour background\b/g, "the candidate's background")
-    .replace(/\bYour experience\b/g, "The candidate's experience")
-    .replace(/\byour experience\b/g, "the candidate's experience")
-    .replace(/\bYou are\b/g, "This candidate is")
-    .replace(/\byou are\b/g, "this candidate is")
-    .replace(/\bYou're\b/g, "This candidate is")
-    .replace(/\byou're\b/g, "this candidate is")
-    .replace(/\bYou have\b/g, "This candidate has")
-    .replace(/\byou have\b/g, "this candidate has")
-    .replace(/\bYou've\b/g, "This candidate has")
-    .replace(/\byou've\b/g, "this candidate has")
-    .replace(/\bYou bring\b/g, "This candidate brings")
-    .replace(/\byou bring\b/g, "this candidate brings")
-    .replace(/\bYou matched\b/g, "This candidate matched")
-    .replace(/\byou matched\b/g, "this candidate matched")
-    .replace(/\bYou demonstrate\b/g, "This candidate demonstrates")
-    .replace(/\byou demonstrate\b/g, "this candidate demonstrates")
-    .replace(/\bYou possess\b/g, "This candidate possesses")
-    .replace(/\byou possess\b/g, "this candidate possesses")
-    .replace(/\bYou meet\b/g, "This candidate meets")
-    .replace(/\byou meet\b/g, "this candidate meets")
-    .replace(/\bYou exceed\b/g, "This candidate exceeds")
-    .replace(/\byou exceed\b/g, "this candidate exceeds")
-    .replace(/\bYou lack\b/g, "This candidate lacks")
-    .replace(/\byou lack\b/g, "this candidate lacks")
-    .replace(/\bYou hold\b/g, "This candidate holds")
-    .replace(/\byou hold\b/g, "this candidate holds")
-    .replace(/\bYou\b/g, "This candidate")
-    .replace(/\byou\b/g, "the candidate")
-    .replace(/\bYour\b/g, "The candidate's")
+    .replace(/\bYour anonymous profile and skill matrix\b/gi, "This professional's anonymous profile and skill matrix")
+    .replace(/\bYour profile\b/g, "The professional's profile")
+    .replace(/\byour profile\b/g, "the professional's profile")
+    .replace(/\bYour background\b/g, "The professional's background")
+    .replace(/\byour background\b/g, "the professional's background")
+    .replace(/\bYour experience\b/g, "The professional's experience")
+    .replace(/\byour experience\b/g, "the professional's experience")
+    .replace(/\bYou are\b/g, "This professional is")
+    .replace(/\byou are\b/g, "this professional is")
+    .replace(/\bYou're\b/g, "This professional is")
+    .replace(/\byou're\b/g, "this professional is")
+    .replace(/\bYou have\b/g, "This professional has")
+    .replace(/\byou have\b/g, "this professional has")
+    .replace(/\bYou've\b/g, "This professional has")
+    .replace(/\byou've\b/g, "this professional has")
+    .replace(/\bYou bring\b/g, "This professional brings")
+    .replace(/\byou bring\b/g, "this professional brings")
+    .replace(/\bYou matched\b/g, "This professional matched")
+    .replace(/\byou matched\b/g, "this professional matched")
+    .replace(/\bYou demonstrate\b/g, "This professional demonstrates")
+    .replace(/\byou demonstrate\b/g, "this professional demonstrates")
+    .replace(/\bYou possess\b/g, "This professional possesses")
+    .replace(/\byou possess\b/g, "this professional possesses")
+    .replace(/\bYou meet\b/g, "This professional meets")
+    .replace(/\byou meet\b/g, "this professional meets")
+    .replace(/\bYou exceed\b/g, "This professional exceeds")
+    .replace(/\byou exceed\b/g, "this professional exceeds")
+    .replace(/\bYou lack\b/g, "This professional lacks")
+    .replace(/\byou lack\b/g, "this professional lacks")
+    .replace(/\bYou hold\b/g, "This professional holds")
+    .replace(/\byou hold\b/g, "this professional holds")
+    .replace(/\bYou\b/g, "This professional")
+    .replace(/\byou\b/g, "the professional")
+    .replace(/\bYour\b/g, "The professional's")
     .replace(/\byour\b/g, "their");
   return s;
 }

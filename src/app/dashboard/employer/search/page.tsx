@@ -105,7 +105,7 @@ export default async function EmployerSearchPage() {
             Corporate Domain Verification Required
           </h2>
           <p className="text-slate-600 text-sm leading-relaxed mb-6">
-            To protect candidate privacy and prevent unauthorized scraping, employers must verify their corporate domain before searching the passive talent pool or sending connection requests.
+            To protect professional privacy and prevent unauthorized scraping, employers must verify their corporate domain before searching the passive talent pool or sending connection requests.
           </p>
           <Link
             href="/dashboard/employer/organization"

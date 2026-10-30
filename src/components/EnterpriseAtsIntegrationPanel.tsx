@@ -187,7 +187,7 @@ export default function EnterpriseAtsIntegrationPanel() {
             HR Software Connection Hub
           </h3>
           <p className="text-xs text-slate-300 mt-0.5">
-            Automatically push unlocked candidate resumes and TrueFit Score™ Cards to Greenhouse or your Workday webhook receiver.
+            Automatically push unlocked professional resumes and TrueFit Score™ Cards to Greenhouse or your Workday webhook receiver.
           </p>
         </div>
 
@@ -226,7 +226,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                 1. Workday &amp; Enterprise Outbound Webhook (HMAC-SHA256)
               </h4>
               <p className="text-xs text-slate-500 mt-0.5">
-                Fires a signed <code className="font-mono text-slate-700">candidate.vault_released</code> JSON payload whenever a candidate unlocks their Conversation Resume Vault. Compatible with Workday Integration Studio, MuleSoft, Zapier, and Ashby.
+                Fires a signed <code className="font-mono text-slate-700">candidate.vault_released</code> JSON payload whenever a professional unlocks their Conversation Resume Vault. Compatible with Workday Integration Studio, MuleSoft, Zapier, and Ashby.
               </p>
             </div>
 
@@ -295,7 +295,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                 2. Native Greenhouse HR Software Connector
               </h4>
               <p className="text-xs text-slate-500 mt-0.5">
-                Automatically creates a candidate record in Greenhouse with their released PDF resume and attaches their TrueFit Score™ as an interview note.
+                Automatically creates a professional record in Greenhouse with their released PDF resume and attaches their TrueFit Score™ as an interview note.
               </p>
             </div>
 
@@ -342,7 +342,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                 className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
               />
               <span className="text-xs font-bold text-slate-700">
-                Auto-send unlocked candidates to HR software immediately when a professional unlocks their resume
+                Auto-send unlocked professionals to HR software immediately when a professional unlocks their resume
               </span>
             </label>
           </div>
@@ -370,7 +370,7 @@ export default function EnterpriseAtsIntegrationPanel() {
 
         <div className="pt-3 border-t border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <span className="text-xs text-slate-500">
-            🛡️ <strong>Identity-Protected Privacy Guarantee:</strong> Professional personal contact info never touches your external HR software until the candidate explicitly clicks &ldquo;Release Resume &amp; Contact Vault&rdquo; to start The Conversation.
+            🛡️ <strong>Identity-Protected Privacy Guarantee:</strong> Professional personal contact info never touches your external HR software until the professional explicitly clicks &ldquo;Release Resume &amp; Contact Vault&rdquo; to start The Conversation.
           </span>
 
           <button

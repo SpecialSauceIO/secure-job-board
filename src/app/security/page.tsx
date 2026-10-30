@@ -43,7 +43,7 @@ const SECURITY_PILLARS = [
       'Traditional job boards reward 6-month-old ghost jobs and bulk resume scraping. Special Sauce enforces two automatic platform guardrails:',
     bullets: [
       '30-Day Auto-Expiry: Every active job listing automatically closes after 30 days unless manually renewed by the hiring team.',
-      '5-Unlock Anti-Scraping Ceiling: Employers are paused if 5 unlocked candidates sit unmessaged, blocking bulk data harvesting.',
+      '5-Unlock Anti-Scraping Ceiling: Employers are paused if 5 unlocked professionals sit unmessaged, blocking bulk data harvesting.',
     ],
   },
   {
@@ -52,7 +52,7 @@ const SECURITY_PILLARS = [
     dotColor: 'bg-sky-400',
     title: '5-Point TrueFit Score™, Language Matrix & Dealbreaker Firewall',
     summary:
-      'Our matching engine scores candidates and roles across five pillars: Core Competencies, Skill Tenure, Logistics & Pay, Industry & Creds, and Execution & Comm.',
+      'Our matching engine scores professionals and roles across five pillars: Core Competencies, Skill Tenure, Logistics & Pay, Industry & Creds, and Execution & Comm.',
     bullets: [
       'Practical Experience Parity: Roles accepting hands-on experience in lieu of a degree weight real-world tenure equally alongside language proficiency.',
       'Hard Dealbreaker Firewall: Automatically blocks invitations that violate your minimum pay band, work model, or employment type.',
@@ -77,7 +77,7 @@ export default function SecurityTrustPage() {
               <span className="text-emerald-400">Under the Hood</span>
             </h1>
             <p className="text-slate-100 text-base sm:text-xl leading-relaxed max-w-3xl">
-              Built so candidates and hiring managers across all 28 industry verticals get a simple, high-signal experience—backed by Stripe biometric isolation, Conversation vault encryption, and anti-harvesting guardrails.
+              Built so professionals and hiring managers across all 28 industry verticals get a simple, high-signal experience—backed by Stripe biometric isolation, Conversation vault encryption, and anti-harvesting guardrails.
             </p>
           </div>
         </section>

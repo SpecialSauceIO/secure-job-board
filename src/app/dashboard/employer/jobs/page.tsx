@@ -459,7 +459,7 @@ export default async function JobManagementPage() {
               <span className="font-extrabold text-slate-900 block">
                 Anti-Harvesting Freshness Policy (30-Day Auto-Expiry)
               </span>
-              Every open role is active for 30 days and automatically closes at Day 30 so candidates never apply to ghost roles. To prevent perpetual listing resets and passive resume harvesting, renewals unlock only during the final 5 days of a cycle (Days 25–30), require zero unanswered applicants in your inbox, and are capped at 2 renewals (90 days max per role).
+              Every open role is active for 30 days and automatically closes at Day 30 so professionals never apply to ghost roles. To prevent perpetual listing resets and passive resume harvesting, renewals unlock only during the final 5 days of a cycle (Days 25–30), require zero unanswered applicants in your inbox, and are capped at 2 renewals (90 days max per role).
             </div>
           </div>
         </div>

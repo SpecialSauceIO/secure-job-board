@@ -236,7 +236,7 @@ export default function EmployerOrganizationForm({
               Employer Trust &amp; Professional Vault Protection
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              To protect candidate resumes from burner-domain harvesting, all 3 security pillars below are required before publishing roles or sending outbound pitches.
+              To protect professional resumes from burner-domain harvesting, all 3 security pillars below are required before publishing roles or sending outbound pitches.
             </p>
           </div>
           <div
@@ -331,7 +331,7 @@ export default function EmployerOrganizationForm({
             <p className="text-xs text-slate-600 mt-1">
               {pillar3Done
                 ? 'Your personal identity is cryptographically verified. Professionals see the "🛡️ ID-Verified Hiring Manager" trust signal on your invitations.'
-                : 'Just like candidates, Employer Admins complete a 60-second Stripe Identity check so candidates know a real, accountable hiring leader is behind every role.'}
+                : 'Just like professionals, Employer Admins complete a 60-second Stripe Identity check so professionals know a real, accountable hiring leader is behind every role.'}
             </p>
           </div>
 
@@ -686,7 +686,7 @@ export default function EmployerOrganizationForm({
                 ))}
               </select>
               <p className="text-[11px] text-slate-500 mt-1">
-                Helps candidates understand your organization scale before unlocking.
+                Helps professionals understand your organization scale before unlocking.
               </p>
             </div>
           </div>
@@ -697,7 +697,7 @@ export default function EmployerOrganizationForm({
               Company Description
             </label>
             <p className="text-xs text-slate-500 mb-2">
-              Kept anonymous until you unlock a candidate&apos;s application or a candidate accepts your pitch.
+              Kept anonymous until you unlock a professional&apos;s application or a professional accepts your invitation.
             </p>
             <textarea
               name="description"

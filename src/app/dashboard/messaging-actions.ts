@@ -384,7 +384,7 @@ export async function checkEmployerSilentUnlockQuota(organizationId: string): Pr
     return {
       allowed: false,
       silentCount: silentUnlocks.length,
-      error: `Anti-Harvesting Guardrail: You have ${silentUnlocks.length} unlocked candidates awaiting an initial message. Please send an introductory message in your active threads before unlocking additional profiles.`,
+      error: `Anti-Harvesting Guardrail: You have ${silentUnlocks.length} unlocked professionals awaiting an initial message. Please send an introductory message in your active threads before unlocking additional profiles.`,
     }
   }
 
@@ -588,7 +588,7 @@ export async function sendApplicationMessage(
             userId: user.id,
             organizationId: jobObj.organization_id,
             platformArea: 'Anti-Harvesting Behavioral Telemetry',
-            summary: `Employer sent identical verbatim intro message across ${identicalIntroCount + 1} candidate threads`,
+            summary: `Employer sent identical verbatim intro message across ${identicalIntroCount + 1} professional threads`,
             evidenceSnippet: `Org ${orgObj?.name || jobObj.organization_id} pasted identical intro in thread ${applicationId.slice(0, 8)}: "${trimmed.slice(0, 180)}"`,
             createSecTicket: true,
           })
@@ -921,7 +921,7 @@ export async function getVaultReleasedResumeUrl(
   if (appRow.match_data?.candidate_vault_released !== true) {
     return {
       error:
-        'Vault Locked: The candidate has not released their PDF resume yet. Send them a message in the thread to introduce your team and request vault release.',
+        'Vault Locked: The professional has not released their PDF resume yet. Send them a message in the thread to introduce your team and request vault release.',
     }
   }
 

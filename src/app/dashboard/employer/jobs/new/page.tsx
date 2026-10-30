@@ -198,7 +198,7 @@ export default function NewJobPage() {
               Corporate Domain Verification Required
             </h2>
             <p className="text-slate-600 text-sm leading-relaxed max-w-lg mx-auto mb-6">
-              To maintain platform trust, employers must verify their corporate domain before publishing protected job listings or searching the candidate pool.
+              To maintain platform trust, employers must verify their corporate domain before publishing protected job listings or searching the professional pool.
             </p>
             <Link
               href="/dashboard/employer/organization"

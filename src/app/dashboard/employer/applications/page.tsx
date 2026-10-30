@@ -350,7 +350,7 @@ export default function EmployerInboundApplicationsPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search applications by Reference ID (SS-...), role title, skill, bio, or unlocked candidate name..."
+              placeholder="Search applications by Reference ID (SS-...), role title, skill, bio, or unlocked professional name..."
               className="w-full min-w-0 sm:flex-1 rounded-xl border-2 border-slate-300 bg-slate-50 px-3.5 sm:px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
             />
             <button

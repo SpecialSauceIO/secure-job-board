@@ -570,7 +570,7 @@ export async function exportEnterpriseCandidatesCsv() {
   const tierInfo = await resolveEmployerTierInfo(org)
   if (tierInfo.tier !== 'enterprise') {
     return {
-      error: 'Enterprise Tier ($1,250/mo Founding ($1,999 Retail)) is required for bulk CSV candidate exports.',
+      error: 'Enterprise Tier ($1,250/mo Founding ($1,999 Retail)) is required for bulk CSV professional exports.',
     }
   }
 

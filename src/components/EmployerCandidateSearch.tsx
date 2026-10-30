@@ -726,7 +726,7 @@ export default function EmployerCandidateSearch({
 
           <p className="text-xs text-slate-300 font-medium">
             {viewMode === 'live'
-              ? 'Showing 100% real, vaulted candidate profiles from our Founding Members.'
+              ? 'Showing 100% real, vaulted professional profiles from our Founding Members.'
               : 'Practice Mode: Run live TrueFit Score™ checks on sample profiles without spending Invitation Credits.'}
           </p>
         </div>
@@ -738,7 +738,7 @@ export default function EmployerCandidateSearch({
                 <span>🟢 Founding Member Onboarding Active</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Verified candidates are currently uploading resumes, locking in dealbreakers, and completing Stripe Identity checks across all 28 verticals. Want to test-drive TrueFit Score™ scoring right now?
+                Verified professionals are currently uploading resumes, locking in dealbreakers, and completing Stripe Identity checks across all 28 verticals. Want to test-drive TrueFit Score™ scoring right now?
               </p>
             </div>
             <button
@@ -756,7 +756,7 @@ export default function EmployerCandidateSearch({
                 <span>⚡ Interactive Benchmark Sandbox — Zero Invitation Credits Used</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Select any of your active roles on the {sandboxCandidatesCount} (Demo) sample candidate vaults below to test-drive TrueFit Score™ scoring and dealbreaker firewalls across all 28 industries.
+                Select any of your active roles on the {sandboxCandidatesCount} (Demo) sample professional vaults below to test-drive TrueFit Score™ scoring and dealbreaker firewalls across all 28 industries.
               </p>
             </div>
             <button
@@ -999,8 +999,7 @@ export default function EmployerCandidateSearch({
               </strong>{' '}
               vaulted{' '}
               {filteredAndSortedCandidates.length === 1
-                ? 'candidate'
-                : 'candidates'}
+                ? 'professional' : 'professionals'}
             </span>
 
             <button
@@ -1082,7 +1081,7 @@ export default function EmployerCandidateSearch({
               You have 0 Connection Credits remaining
             </h3>
             <p className="text-xs text-rose-700 mt-0.5">
-              You can still browse the anonymous talent pool, save candidates to your Shortlist, and run TrueFit Score™ predictions, but you need at least 1 Connection Credit to send an outbound pitch.
+              You can still browse the anonymous talent pool, save professionals to your Shortlist, and run TrueFit Score™ predictions, but you need at least 1 Connection Credit to send an outbound pitch.
             </p>
           </div>
           <Link
@@ -1107,16 +1106,16 @@ export default function EmployerCandidateSearch({
           <div className="bg-white p-10 sm:p-12 rounded-2xl border-2 border-slate-300 text-center shadow-sm space-y-4">
             <h3 className="text-xl font-black text-slate-900">
               {onlyShortlisted
-                ? 'No candidates in your Shortlist yet'
+                ? 'No professionals in your Shortlist yet'
                 : viewMode === 'live'
                 ? 'Founding Members Onboarding in This Filter'
-                : 'No candidates match your current filters'}
+                : 'No professionals match your current filters'}
             </h3>
             <p className="text-slate-600 text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
               {onlyShortlisted
                 ? 'Click "Shortlist" on any anonymous professional card to assemble a comparison pool before sending an invitation.'
                 : viewMode === 'live'
-                ? 'Real candidates are currently completing resume parsing and Stripe Identity verification in this vertical. Switch to the Practice Sandbox to test-drive TrueFit Score™ checks against our 56 (Demo) profiles!'
+                ? 'Real professionals are currently completing resume parsing and Stripe Identity verification in this vertical. Switch to the Practice Sandbox to test-drive TrueFit Score™ checks against our 56 (Demo) profiles!'
                 : 'Try resetting your active filters to broaden your search.'}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
@@ -1680,7 +1679,7 @@ export default function EmployerCandidateSearch({
                             {empTypeFails && (
                               <div className="text-rose-600 font-bold">
                                 • Dealbreaker: Role is {selectedJobEmpType},
-                                candidate accepts{' '}
+                                professional accepts{' '}
                                 {acceptedEmploymentTypes.join(', ')}.
                               </div>
                             )}
@@ -1706,7 +1705,7 @@ export default function EmployerCandidateSearch({
                               !hasDealbreaker &&
                               matchScore !== null && (
                                 <div className="text-emerald-700 font-bold">
-                                  ✓ Meets {MIN_MATCH_THRESHOLD}%+ relevance firewall &amp; all candidate dealbreakers!
+                                  ✓ Meets {MIN_MATCH_THRESHOLD}%+ relevance firewall &amp; all professional dealbreakers!
                                 </div>
                               )
                             )}
@@ -1906,7 +1905,7 @@ export default function EmployerCandidateSearch({
               <strong className="text-slate-900 font-extrabold">
                 {totalFilteredCandidates}
               </strong>{' '}
-              vaulted {totalFilteredCandidates === 1 ? 'candidate' : 'candidates'}
+              vaulted {totalFilteredCandidates === 1 ? 'professional' : 'professionals'}
             </span>
             <span className="hidden sm:inline text-slate-300">|</span>
             <label className="inline-flex items-center gap-2 font-bold text-slate-700">
@@ -2002,40 +2001,40 @@ function toEmployerPerspective(text?: string | null): string {
   let s = String(text).trim();
   if (!s) return "";
   s = s
-    .replace(/\bYour anonymous profile and skill matrix\b/gi, "This candidate's anonymous profile and skill matrix")
-    .replace(/\bYour profile\b/g, "The candidate's profile")
-    .replace(/\byour profile\b/g, "the candidate's profile")
-    .replace(/\bYour background\b/g, "The candidate's background")
-    .replace(/\byour background\b/g, "the candidate's background")
-    .replace(/\bYour experience\b/g, "The candidate's experience")
-    .replace(/\byour experience\b/g, "the candidate's experience")
-    .replace(/\bYou are\b/g, "This candidate is")
-    .replace(/\byou are\b/g, "this candidate is")
-    .replace(/\bYou're\b/g, "This candidate is")
-    .replace(/\byou're\b/g, "this candidate is")
-    .replace(/\bYou have\b/g, "This candidate has")
-    .replace(/\byou have\b/g, "this candidate has")
-    .replace(/\bYou've\b/g, "This candidate has")
-    .replace(/\byou've\b/g, "this candidate has")
-    .replace(/\bYou bring\b/g, "This candidate brings")
-    .replace(/\byou bring\b/g, "this candidate brings")
-    .replace(/\bYou matched\b/g, "This candidate matched")
-    .replace(/\byou matched\b/g, "this candidate matched")
-    .replace(/\bYou demonstrate\b/g, "This candidate demonstrates")
-    .replace(/\byou demonstrate\b/g, "this candidate demonstrates")
-    .replace(/\bYou possess\b/g, "This candidate possesses")
-    .replace(/\byou possess\b/g, "this candidate possesses")
-    .replace(/\bYou meet\b/g, "This candidate meets")
-    .replace(/\byou meet\b/g, "this candidate meets")
-    .replace(/\bYou exceed\b/g, "This candidate exceeds")
-    .replace(/\byou exceed\b/g, "this candidate exceeds")
-    .replace(/\bYou lack\b/g, "This candidate lacks")
-    .replace(/\byou lack\b/g, "this candidate lacks")
-    .replace(/\bYou hold\b/g, "This candidate holds")
-    .replace(/\byou hold\b/g, "this candidate holds")
-    .replace(/\bYou\b/g, "This candidate")
-    .replace(/\byou\b/g, "the candidate")
-    .replace(/\bYour\b/g, "The candidate's")
+    .replace(/\bYour anonymous profile and skill matrix\b/gi, "This professional's anonymous profile and skill matrix")
+    .replace(/\bYour profile\b/g, "The professional's profile")
+    .replace(/\byour profile\b/g, "the professional's profile")
+    .replace(/\bYour background\b/g, "The professional's background")
+    .replace(/\byour background\b/g, "the professional's background")
+    .replace(/\bYour experience\b/g, "The professional's experience")
+    .replace(/\byour experience\b/g, "the professional's experience")
+    .replace(/\bYou are\b/g, "This professional is")
+    .replace(/\byou are\b/g, "this professional is")
+    .replace(/\bYou're\b/g, "This professional is")
+    .replace(/\byou're\b/g, "this professional is")
+    .replace(/\bYou have\b/g, "This professional has")
+    .replace(/\byou have\b/g, "this professional has")
+    .replace(/\bYou've\b/g, "This professional has")
+    .replace(/\byou've\b/g, "this professional has")
+    .replace(/\bYou bring\b/g, "This professional brings")
+    .replace(/\byou bring\b/g, "this professional brings")
+    .replace(/\bYou matched\b/g, "This professional matched")
+    .replace(/\byou matched\b/g, "this professional matched")
+    .replace(/\bYou demonstrate\b/g, "This professional demonstrates")
+    .replace(/\byou demonstrate\b/g, "this professional demonstrates")
+    .replace(/\bYou possess\b/g, "This professional possesses")
+    .replace(/\byou possess\b/g, "this professional possesses")
+    .replace(/\bYou meet\b/g, "This professional meets")
+    .replace(/\byou meet\b/g, "this professional meets")
+    .replace(/\bYou exceed\b/g, "This professional exceeds")
+    .replace(/\byou exceed\b/g, "this professional exceeds")
+    .replace(/\bYou lack\b/g, "This professional lacks")
+    .replace(/\byou lack\b/g, "this professional lacks")
+    .replace(/\bYou hold\b/g, "This professional holds")
+    .replace(/\byou hold\b/g, "this professional holds")
+    .replace(/\bYou\b/g, "This professional")
+    .replace(/\byou\b/g, "the professional")
+    .replace(/\bYour\b/g, "The professional's")
     .replace(/\byour\b/g, "their");
   return s;
 }
