@@ -480,7 +480,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
   if (!targetUserId) {
     return {
       tier: 'free',
-      label: 'Unsubscribed Vault (Activate Explorer $3/mo, Professional $9/mo, or Prestige $15/mo)',
+      label: 'Unverified Vault (Activate Explorer $5 One-Time, Professional $12/mo, or Prestige $19/mo)',
       canApply: false,
       appsUsed: 0,
       freeAppsRemaining: 0,
@@ -504,11 +504,11 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
   const meta = extractCandidateMeta(profile?.structured_skills)
   const rawPlan = String(meta.plan || '').toLowerCase()
 
-  // Prestige ($15/mo - Unlimited Outbound Applications)
+  // Prestige ($19/mo - Unlimited Outbound Applications)
   if (rawPlan === 'prestige' || rawPlan === 'pro') {
     return {
       tier: 'prestige',
-      label: '★ Prestige Plan ($15/mo · Unlimited Outbound Applications)',
+      label: '★ Prestige Plan ($19/mo · Unlimited Outbound Applications)',
       canApply: true,
       appsUsed: totalOutboundApps || 0,
       freeAppsRemaining: 999,
@@ -517,7 +517,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
     }
   }
 
-  // Professional ($9/mo - 15 Outbound Applications/mo)
+  // Professional ($12/mo - 15 Outbound Applications/mo)
   if (rawPlan === 'professional' || rawPlan === 'trial') {
     const baseline = meta.trialBaselineApps || 0
     const appsUsedInCycle = Math.max(0, (totalOutboundApps || 0) - baseline)
@@ -537,7 +537,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
     if (quotaExhausted) {
       return {
         tier: 'professional',
-        label: 'Professional Plan ($9/mo · 0/15 Monthly Applications Left — Upgrade to Prestige for Unlimited)',
+        label: 'Professional Plan ($12/mo · 0/15 Monthly Applications Left — Upgrade to Prestige for Unlimited)',
         canApply: false,
         appsUsed: appsUsedInCycle,
         freeAppsRemaining: 0,
@@ -548,7 +548,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
 
     return {
       tier: 'professional',
-      label: `★ Professional Plan ($9/mo · ${freeAppsRemaining}/${CANDIDATE_TRIAL_MAX_APPS} Monthly Apps Left)`,
+      label: `★ Professional Plan ($12/mo · ${freeAppsRemaining}/${CANDIDATE_TRIAL_MAX_APPS} Monthly Apps Left)`,
       canApply: true,
       appsUsed: appsUsedInCycle,
       freeAppsRemaining,
@@ -557,11 +557,11 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
     }
   }
 
-  // Explorer ($3/mo - ID-Verified Passive & Inbound Career Vault)
+  // Explorer ($5 One-Time · $0/mo Forever - ID-Verified Passive & Inbound Career Vault)
   if (rawPlan === 'explorer') {
     return {
       tier: 'explorer',
-      label: '★ Explorer Plan ($3/mo · ID-Verified Inbound & Passive Vault)',
+      label: '★ Explorer Plan ($0/mo Forever · $5 One-Time ID Verified Inbound Vault)',
       canApply: false,
       appsUsed: totalOutboundApps || 0,
       freeAppsRemaining: 0,
@@ -573,7 +573,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
   // Default for newly registered/un-subscribed candidates before selecting a paid plan
   return {
     tier: 'free',
-    label: 'Unsubscribed Vault (Activate Explorer $3/mo, Professional $9/mo, or Prestige $15/mo)',
+    label: 'Unverified Vault (Activate Explorer $5 One-Time, Professional $12/mo, or Prestige $19/mo)',
     canApply: false,
     appsUsed: totalOutboundApps || 0,
     freeAppsRemaining: 0,
@@ -668,21 +668,21 @@ export async function activateSandboxCandidateTier(
     await sendPlatformNotification({
       to: user.email,
       subject: isPrestige
-        ? 'Prestige Plan ($15/mo) Activated'
+        ? 'Prestige Plan ($19/mo) Activated'
         : isExplorer
-        ? 'Explorer Plan ($3/mo) Activated'
-        : 'Professional Plan ($9/mo) Activated',
+        ? 'Explorer Plan ($5 One-Time · $0/mo Forever) Activated'
+        : 'Professional Plan ($12/mo) Activated',
       referenceId: refId,
       heading: isPrestige
-        ? 'Welcome to Prestige ($15/mo)'
+        ? 'Welcome to Prestige ($19/mo)'
         : isExplorer
-        ? 'Welcome to Explorer ($3/mo)'
-        : 'Welcome to Professional ($9/mo)',
+        ? 'Welcome to Explorer ($0/mo Forever)'
+        : 'Welcome to Professional ($12/mo)',
       bodyLines: [
         isPrestige
           ? 'Your Prestige plan is active with Real-Person ID Verification access, Unlimited Outbound Protected Applications, Top-Priority Employer Search placement, and Founding Member status.'
           : isExplorer
-          ? 'Your Explorer plan ($3/mo) is active with Real-Person ID Verification access, live placement in Employer Talent Search once verified, and unlimited inbound Professional Invitation unlocks.'
+          ? 'Your Explorer plan ($0/mo forever after $5 1-time ID pass) is active with Real-Person ID Verification access, live placement in Employer Talent Search once verified, unlimited inbound Professional Invitation unlocks, and entry into our Weekly 1-Year Prestige Drawing.'
           : 'Your Professional plan is active with Real-Person ID Verification access, 15 Outbound Protected Applications per month, and Founding Member status.',
         `Subscription Reference ID: ${refId}`,
       ],
@@ -702,11 +702,11 @@ export async function activateSandboxCandidateTier(
     tierInfo,
     message:
       normalizedMode === 'prestige'
-        ? '✓ Activated Prestige Plan ($15/mo)! Unlimited outbound applications and invitation unlocks active.'
+        ? '✓ Activated Prestige Plan ($19/mo)! Unlimited outbound applications and invitation unlocks active.'
         : normalizedMode === 'professional'
-        ? '✓ Activated Professional Plan ($9/mo)! 15 monthly outbound applications and invitation unlocks active.'
+        ? '✓ Activated Professional Plan ($12/mo)! 15 monthly outbound applications and invitation unlocks active.'
         : normalizedMode === 'explorer'
-        ? '✓ Activated Explorer Plan ($3/mo)! Real-Person ID Verification and unlimited inbound Professional Invitation unlocks are active. Upgrade to Professional ($9/mo) or Prestige ($15/mo) anytime to submit outbound applications.'
+        ? '✓ Activated Explorer Plan ($5 One-Time · $0/mo Forever)! Real-Person ID Verification and unlimited inbound Professional Invitation unlocks are active. Upgrade to Professional ($12/mo) or Prestige ($19/mo) anytime to submit outbound applications.'
         : '✓ Reset candidate plan to Unsubscribed Vault.',
   }
 }
@@ -1921,8 +1921,8 @@ export async function applyBlind(formData: FormData) {
     const isExplorer = candidateTier.tier === 'explorer' || candidateTier.tier === 'free'
     return {
       error: isExplorer
-        ? '30-Day Free Trial Required: Start your 30-Day Free Trial of Professional ($9/mo after trial for 15 monthly applications) or Prestige ($15/mo after trial for unlimited applications) on your Membership & Billing page to submit outbound protected applications.'
-        : `Monthly Application Quota Reached (${CANDIDATE_TRIAL_MAX_APPS}/${CANDIDATE_TRIAL_MAX_APPS} Used): Upgrade to Prestige ($15/mo) on your Membership & Billing page to unlock Unlimited Outbound Protected Applications.`,
+        ? 'Active Outbound Plan Required: Upgrade to Professional ($12/mo for 15 monthly applications) or Prestige ($19/mo for unlimited applications) on your Membership & Billing page to submit outbound protected applications (and downgrade back to $0/mo Explorer anytime once hired).'
+        : `Monthly Application Quota Reached (${CANDIDATE_TRIAL_MAX_APPS}/${CANDIDATE_TRIAL_MAX_APPS} Used): Upgrade to Prestige ($19/mo) on your Membership & Billing page to unlock Unlimited Outbound Protected Applications.`,
     }
   }
 
@@ -2830,7 +2830,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
   if (!hasActiveCandidatePlan) {
     return {
       error:
-        'Subscription Required: Please activate Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo) with a 30-Day Free Trial on Plans & Billing before accepting Professional Invitations.',
+        'Verification Pass Required: Please activate Explorer ($5 One-Time · $0/mo Forever), Professional ($12/mo), or Prestige ($19/mo) on Plans & Billing before accepting Professional Invitations.',
     }
   }
 
@@ -6643,17 +6643,20 @@ export async function submitSupportTicket(formData: FormData) {
     profile?.is_verified === true ||
     String(profile?.is_verified) === 'true'
   const tierUpper = accountTierLabel.toUpperCase()
-  const isFreeTier = tierUpper.includes('FREE')
-  const isPaidSub = isFreeTier === false
+  const isExplorerOrFreeTier = tierUpper.includes('FREE') || tierUpper.includes('EXPLORER')
+  const isPaidSub = isExplorerOrFreeTier === false
   const canUploadServer = Boolean(isPaidSub && (isProfVer || orgContext.toLowerCase().includes('verified')))
+  const catLower = category.toLowerCase()
+  const isOneWayTelemetryCategory =
+    catLower.includes('bug') ||
+    catLower.includes('feature') ||
+    catLower.includes('safety') ||
+    catLower.includes('abuse')
 
-  if (canUploadServer === false) {
-    const existingUserTickets = await getUserOpsTickets(user.id, user.email)
-    const openSupportTicketsCount = (existingUserTickets || []).filter(
-      (t: any) => t.state === 'open' && t.status !== 'resolved'
-    ).length
-    if (openSupportTicketsCount >= 3) {
-      return { error: 'Free & unverified accounts are limited to 3 open support tickets at a time. Please reply to an existing open ticket or wait for resolution.' }
+  if (!isPaidSub && !isOneWayTelemetryCategory) {
+    return {
+      error:
+        '1-on-1 Live Support Tickets require an active monthly plan (Candidate Professional $12/mo or Prestige $19/mo, or Employer Starter/Growth/Enterprise). Explorer ($0/mo) members may use the Knowledge Base FAQs or submit a 1-Way Bug Report / Feature Request.',
     }
   }
 
@@ -6763,24 +6766,26 @@ export async function submitSupportTicket(formData: FormData) {
     ].filter(Boolean),
   })
 
-  await sendPlatformNotification({
-    to: userEmail,
-    replyTo: 'support@specialsauce.io',
-    subject: `Support Ticket Received: ${subject} [${ticketId}]`,
-    referenceId: ticketId,
-    heading: 'We received your support request',
-    bodyLines: [
-      `Hi ${userFullName},`,
-      `Thank you for contacting Special Sauce support. We have logged your request regarding "${category}" (${platformArea}).`,
-      `Your Ticket ID is ${ticketId}.`,
-      uploadedAttachments.length > 0
-        ? `Attached Files (${uploadedAttachments.length}): ${uploadedAttachments.map((a) => a.name).join(', ')}`
-        : '',
-      'We typically respond within 1 business day.',
-    ].filter(Boolean),
-    ctaUrl: '/dashboard/support',
-    ctaLabel: 'Return to Help Center →',
-  })
+  if (isPaidSub) {
+    await sendPlatformNotification({
+      to: userEmail,
+      replyTo: 'support@specialsauce.io',
+      subject: `Support Ticket Received: ${subject} [${ticketId}]`,
+      referenceId: ticketId,
+      heading: 'We received your support request',
+      bodyLines: [
+        `Hi ${userFullName},`,
+        `Thank you for contacting Special Sauce support. We have logged your request regarding "${category}" (${platformArea}).`,
+        `Your Ticket ID is ${ticketId}.`,
+        uploadedAttachments.length > 0
+          ? `Attached Files (${uploadedAttachments.length}): ${uploadedAttachments.map((a) => a.name).join(', ')}`
+          : '',
+        'We typically respond within 1 business day.',
+      ].filter(Boolean),
+      ctaUrl: '/dashboard/support',
+      ctaLabel: 'Return to Help Center →',
+    })
+  }
 
   return { success: true, ticketId }
 }

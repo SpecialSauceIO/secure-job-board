@@ -99,9 +99,9 @@ export default function CandidateBillingPage() {
       window.history.replaceState({}, '', '/dashboard/billing')
       activateSandboxCandidateTier(planParam, sessionIdParam).then((res: any) => {
         if (!res?.error) {
-          const priceMap = { explorer: 3, professional: 9, prestige: 15 }
+          const priceMap = { explorer: 5, professional: 12, prestige: 19 }
           trackAdConversion('Purchase', {
-            value: priceMap[planParam] || 3,
+            value: priceMap[planParam] || 5,
             currency: 'USD',
             plan: `candidate_${planParam}`,
             role: 'candidate',
@@ -110,10 +110,10 @@ export default function CandidateBillingPage() {
         if (res?.tierInfo) setTierInfo(res.tierInfo)
         const planTitle =
           planParam === 'prestige'
-            ? 'Prestige ($15/mo)'
+            ? 'Prestige ($19/mo)'
             : planParam === 'explorer'
-            ? 'Explorer ($3/mo)'
-            : 'Professional ($9/mo)'
+            ? 'Explorer ($5 One-Time · $0/mo Forever)'
+            : 'Professional ($12/mo)'
         setFeedback({
           type: 'success',
           text: `Stripe Subscription Confirmed: Your Candidate ${planTitle} plan is now active. Complete your 1-time Real-Person ID Verification on your Dashboard to go live in Employer Search.`,
@@ -136,10 +136,10 @@ export default function CandidateBillingPage() {
         type: 'success',
         text:
           selectParam === 'prestige'
-            ? 'Welcome to Special Sauce: Start your 30-Day Free Trial of Prestige ($15/mo after) below to unlock 1-Time Biometric ID Verification, unlimited protected applications, and top-priority search placement.'
+            ? 'Welcome to Special Sauce: Activate Prestige ($19/mo) below to unlock 1-Time Biometric ID Verification, unlimited protected applications, and top-priority search placement (downgrade back to $0/mo Explorer anytime once hired).'
             : selectParam === 'professional'
-            ? 'Welcome to Special Sauce: Start your 30-Day Free Trial of Professional ($9/mo after) below to unlock 1-Time Biometric ID Verification and 15 monthly protected applications.'
-            : 'Welcome to Special Sauce: Start your 30-Day Free Trial of Explorer ($3/mo after) below to unlock 1-Time Biometric ID Verification and unlimited inbound Professional Invitation acceptances.',
+            ? 'Welcome to Special Sauce: Activate Professional ($12/mo) below to unlock 1-Time Biometric ID Verification and 15 monthly protected applications (downgrade back to $0/mo Explorer anytime once hired).'
+            : 'Welcome to Special Sauce: Complete your $5 One-Time Explorer Verification Pass below to unlock Lifetime Biometric ID Verification, $0/mo passive discovery forever, unlimited inbound Professional Invitation acceptances, and entry into our Weekly 1-Year Prestige Drawing.',
       })
     }
   }, [loadCandidateBillingState])
@@ -241,7 +241,7 @@ export default function CandidateBillingPage() {
             Candidate Membership &amp; Human-to-Human Access
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Every active connection on Special Sauce requires real-person biometric ID verification to guarantee zero bots and zero spam. Choose Explorer ($3/mo) for passive inbound Professional Invitations, or Professional ($9/mo) &amp; Prestige ($15/mo) to proactively apply to roles.
+            Every active connection on Special Sauce requires real-person biometric ID verification to guarantee zero bots and zero spam. Start with Explorer ($5 One-Time Verification · $0/mo Forever) for passive inbound Professional Invitations, or upgrade to Professional ($12/mo) &amp; Prestige ($19/mo) when ready to proactively apply to roles.
           </p>
         </div>
 
@@ -282,7 +282,7 @@ export default function CandidateBillingPage() {
               Complete Your 1-Time Photo ID Check to Unlock Applications & Professional Invitations
             </h2>
             <p className="text-xs sm:text-sm text-slate-700 max-w-2xl leading-relaxed">
-              Your <strong>{tierInfo?.label}</strong> 30-Day Free Trial is active! Your anonymous skill matrix is currently <strong>Vault-Staged</strong> in Employer Search—complete your 1-time Stripe Identity check now to earn the <strong>✓ Biometric ID Verified</strong> badge, rank at the top of employer searches, and submit applications or accept pitches.
+              Your <strong>{tierInfo?.label}</strong> membership is active! Your anonymous skill matrix is currently <strong>Vault-Staged</strong> in Employer Search—complete your 1-time Stripe Identity check now to earn the <strong>✓ Biometric ID Verified</strong> badge, rank at the top of employer searches, and submit applications or accept pitches.
             </p>
           </div>
           <div className="shrink-0">
@@ -327,16 +327,16 @@ export default function CandidateBillingPage() {
             </div>
 
             <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-              Verified Passive Inbound ($3/mo) or Proactive Outbound ($9 &amp; $15/mo)
+              Verified Passive Inbound ($5 One-Time · $0/mo Forever) or Proactive Outbound ($12 &amp; $19/mo)
             </h2>
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
               Every plan includes 1-time{" "}
               <strong className="text-amber-300">Stripe Real-Person ID Verification</strong>{" "}
               so employers know 100% of our directory is real human talent. Choose{" "}
-              <strong className="text-emerald-300">Explorer ($3/mo)</strong> to be discovered and accept unlimited inbound Professional Invitations, or upgrade to{" "}
-              <strong className="text-white">Professional ($9/mo)</strong> or{" "}
-              <strong className="text-white">Prestige ($15/mo)</strong> to proactively submit outbound protected applications.
+              <strong className="text-emerald-300">Explorer ($5 One-Time Verification · $0/mo Forever)</strong> to be discovered, enter our Weekly 1-Year Prestige Drawing, and accept unlimited inbound Professional Invitations, or upgrade to{" "}
+              <strong className="text-white">Professional ($12/mo)</strong> or{" "}
+              <strong className="text-white">Prestige ($19/mo)</strong> to proactively submit outbound protected applications.
             </p>
           </div>
 
@@ -368,12 +368,12 @@ export default function CandidateBillingPage() {
                 )}
                 {normalizedTier === 'explorer' && (
                   <p className="text-xs text-emerald-300 font-bold">
-                    ✓ Explorer ($3/mo) Active • Unlimited Professional Invitations
+                    ✓ Explorer ($0/mo Forever) Active • Unlimited Inbound Professional Invitations
                   </p>
                 )}
                 {normalizedTier === 'free' && (
                   <p className="text-xs text-slate-300">
-                    Select Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo) below to unlock ID Verification
+                    Select Explorer ($5 One-Time · $0/mo Forever), Professional ($12/mo), or Prestige ($19/mo) below to unlock ID Verification
                   </p>
                 )}
               </>
@@ -383,7 +383,7 @@ export default function CandidateBillingPage() {
 
         {/* 3 Candidate Tier Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1: Explorer ($3/mo) */}
+          {/* Card 1: Explorer ($5 One-Time · $0/mo Forever) */}
           <div
             className={`bg-white rounded-2xl p-4 sm:p-6 flex flex-col justify-between transition-all ${
               normalizedTier === 'explorer'
@@ -426,7 +426,7 @@ export default function CandidateBillingPage() {
                 </li>
                 <li>✓ Browse protected role feed &amp; run TrueFit Score™ checks</li>
                 <li className="text-slate-400">
-                  ✕ Outbound Protected Applications (Upgrade to Professional $9/mo or Prestige $15/mo to apply)
+                  ✕ Outbound Protected Applications (Upgrade to Professional $12/mo or Prestige $19/mo anytime to apply)
                 </li>
               </ul>
             </div>
@@ -439,13 +439,13 @@ export default function CandidateBillingPage() {
                 className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold transition-colors disabled:opacity-60 cursor-pointer"
               >
                 {normalizedTier === 'explorer'
-                  ? '✓ Explorer Plan Active ($3/mo)'
-                  : 'Start 30-Day Free Trial ($3/mo After) →'}
+                  ? '✓ Explorer Plan Active ($0/mo Forever)'
+                  : 'Verify & Start Explorer ($5 One-Time) →'}
               </button>
             </div>
           </div>
 
-          {/* Card 2: Professional ($9/mo) */}
+          {/* Card 2: Professional ($12/mo) */}
           <div
             className={`bg-white rounded-2xl p-4 sm:p-6 flex flex-col justify-between transition-all ${
               normalizedTier === 'professional'
@@ -468,7 +468,7 @@ export default function CandidateBillingPage() {
                   Professional
                 </h3>
                 <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-3xl font-black text-slate-900">$9</span>
+                  <span className="text-3xl font-black text-slate-900">$12</span>
                   <span className="text-xs font-bold text-slate-500">
                     / month
                   </span>
@@ -507,12 +507,12 @@ export default function CandidateBillingPage() {
               >
                 {normalizedTier === 'professional'
                   ? `✓ Professional Plan Active (${tierInfo?.freeAppsRemaining ?? 15}/15 Apps Left)`
-                  : 'Start 30-Day Free Trial ($9/mo After) →'}
+                  : 'Activate Professional ($12/mo) →'}
               </button>
             </div>
           </div>
 
-          {/* Card 3: Prestige ($15/mo) */}
+          {/* Card 3: Prestige ($19/mo) */}
           <div
             className={`bg-slate-900 text-white rounded-2xl p-4 sm:p-6 flex flex-col justify-between transition-all ${
               normalizedTier === 'prestige'
@@ -533,7 +533,7 @@ export default function CandidateBillingPage() {
               <div>
                 <h3 className="text-xl font-black text-white">Prestige</h3>
                 <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-3xl font-black text-white">$15</span>
+                  <span className="text-3xl font-black text-white">$19</span>
                   <span className="text-xs font-bold text-slate-300">
                     / month
                   </span>
@@ -572,7 +572,7 @@ export default function CandidateBillingPage() {
               >
                 {normalizedTier === 'prestige'
                   ? '✓ Prestige Plan Active (Unlimited Apps)'
-                  : 'Start 30-Day Free Trial ($15/mo After) →'}
+                  : 'Activate Prestige ($19/mo) →'}
               </button>
             </div>
           </div>
@@ -587,7 +587,7 @@ export default function CandidateBillingPage() {
               🧪 QA Stress-Testing Controls (Remove Before Public Launch)
             </span>
             <p className="text-xs text-slate-600 mt-0.5">
-              Instant 1-click switching between Unsubscribed, Explorer ($3/mo · Inbound), Professional ($9/mo · 15 apps), and Prestige ($15/mo · Unlimited apps).
+              Instant 1-click switching between Unverified, Explorer ($5 One-Time · $0/mo Inbound), Professional ($12/mo · 15 apps), and Prestige ($19/mo · Unlimited apps).
             </p>
           </div>
 
@@ -606,7 +606,7 @@ export default function CandidateBillingPage() {
               onClick={() => handlePlanSwitch('explorer')}
               className="px-3 py-2 rounded-xl bg-white border-2 border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-emerald-50 transition-colors cursor-pointer"
             >
-              1. Explorer ($3/mo · Inbound Vault)
+              1. Explorer ($0/mo Forever · Inbound Vault)
             </button>
             <button
               type="button"
@@ -614,7 +614,7 @@ export default function CandidateBillingPage() {
               onClick={() => handlePlanSwitch('professional')}
               className="px-3 py-2 rounded-xl bg-white border-2 border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-amber-50 transition-colors cursor-pointer"
             >
-              2. Professional ($9/mo · 15 Monthly Protected Apps)
+              2. Professional ($12/mo · 15 Monthly Protected Apps)
             </button>
             <button
               type="button"
@@ -622,7 +622,7 @@ export default function CandidateBillingPage() {
               onClick={() => handlePlanSwitch('prestige')}
               className="px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors cursor-pointer"
             >
-              3. Prestige ($15/mo · Unlimited Protected Apps + Priority Placement)
+              3. Prestige ($19/mo · Unlimited Protected Apps + Priority Placement)
             </button>
           </div>
         </div>

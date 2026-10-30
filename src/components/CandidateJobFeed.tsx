@@ -1066,7 +1066,7 @@ export function CandidateJobFeed({
                           href="/dashboard/billing"
                           className="px-3.5 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors text-center"
                         >
-                          Start 30-Day Free Trial →
+                          Verify & Start for $5 →
                         </Link>
                       )}
                     </div>
@@ -1119,7 +1119,7 @@ export function CandidateJobFeed({
                             href="/dashboard/billing"
                             className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 sm:py-2 rounded-xl bg-indigo-600 text-white text-xs font-extrabold hover:bg-indigo-500 transition-colors shadow-2xs whitespace-nowrap"
                           >
-                            🔒 Unlock Apply (30-Day Trial + ID Check) →
+                            🔒 Unlock Outbound Apply ($12/mo Pro · $19/mo Prestige) →
                           </Link>
                         ) : (
                           <button

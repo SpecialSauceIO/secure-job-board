@@ -78,7 +78,7 @@ export default function VerifyButton() {
               href="/dashboard/billing"
               className="mt-1.5 inline-flex items-center font-extrabold text-rose-800 underline hover:text-rose-950"
             >
-              View Candidate Plans (Starts at $3/mo Explorer) →
+              View Candidate Plans ($5 One-Time Explorer · $12/mo Pro · $19/mo Prestige) →
             </Link>
           )}
         </div>

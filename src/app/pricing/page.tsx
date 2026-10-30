@@ -5,7 +5,7 @@ import { PublicFooter } from "@/components/PublicFooter"
 export const metadata = {
   title: "Pricing, Plans & Founding Partner Rates | specialsauce.io",
   description:
-    "Start with a 30-Day Free Trial on any Special Sauce Human-to-Human Candidate plan ($3, $9, or $15/mo after) or Employer Founding Partner plan ($149, $499, or $1,250/mo after).",
+    "Get verified once for life ($5 Candidates / $25 Employers). Browse and match free in Explorer mode, or unlock active Candidate plans ($12 or $19/mo) and Employer Founding Partner plans ($149, $499, or $1,250/mo).",
 }
 
 export default function PricingMatrixPage() {
@@ -75,25 +75,35 @@ export default function PricingMatrixPage() {
           {/* Foreground Content */}
           <div className="relative z-10 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto text-center space-y-5">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-400/35 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wide backdrop-blur-xs">
-              <span>★ 30-Day Free Trial • 100% Human-to-Human Hiring &amp; Founding Partner Rates</span>
+              <span>★ One-Time Lifetime Verification • 100% Human-to-Human Hiring &amp; Founding Partner Rates</span>
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight drop-shadow-xs">
-              Transparent Plans •{' '}
+              Verify Once •{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#38BDF8] to-[#0077D4]">
-                30-Day Free Trial
+                Match Forever Free
               </span>
             </h1>
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Connect directly with ID-verified professionals and domain-verified employers—with <strong className="text-white">zero bots, zero ghost jobs, and free TrueFit Score™ checks</strong>. Every plan includes a <strong className="text-emerald-400">30-Day Free Trial</strong>—cancel anytime before Day 30.
+              Connect directly with ID-verified professionals and domain-verified employers—with <strong className="text-white">zero bots, zero ghost jobs, and free TrueFit Score™ checks</strong>. Complete your one-time verification to enter the <strong className="text-emerald-400">$0/mo Explorer Vault</strong> and upgrade only when ready to actively connect.
             </p>
+
+            {/* Split-Screen Onboarding Callout: Left Candidates ($5) | Right Employers ($25) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-3 text-left">
               <div className="p-4 rounded-xl bg-slate-900/90 backdrop-blur-md border border-indigo-500/40 shadow-lg">
-                <div className="text-xs font-extrabold uppercase tracking-wider text-indigo-300 mb-1">For Candidates ($3 / $9 / $15 mo)</div>
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">Build your anonymous skill matrix free. Includes 1-time <strong className="text-white">Stripe Real-Person ID Verification</strong> &amp; permanent <strong className="text-amber-300">★ Founding Member</strong> badge.</p>
+                <div className="text-xs font-extrabold uppercase tracking-wider text-indigo-300 mb-1">
+                  For Candidates ($5 One-Time ID Verification)
+                </div>
+                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                  Pay <strong className="text-white">$5 once for life</strong> to complete Stripe Real-Person ID Verification. Enjoy <strong className="text-emerald-300">$0/mo Explorer access forever</strong> (unlimited inbound employer invites + Weekly 1-Year Prestige Drawing), or upgrade to <strong className="text-amber-300">$12 / $19 mo</strong> when applying outbound.
+                </p>
               </div>
               <div className="p-4 rounded-xl bg-slate-900/90 backdrop-blur-md border border-emerald-500/40 shadow-lg">
-                <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-300 mb-1">For Employers ($149 / $499 / $1,250 mo)</div>
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">Lock in <strong className="text-amber-300">12-Month Founding Partner Rates</strong> (up to 50% off retail) &amp; <strong className="text-white">100% Accepted-Only Invitation Protection</strong>.</p>
+                <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-300 mb-1">
+                  For Employers ($25 One-Time Org Verification)
+                </div>
+                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                  Pay <strong className="text-white">$25 once</strong> for Domain, EIN &amp; ID Verification to preview live verified candidate matches in the <strong className="text-emerald-300">$0/mo Sandbox</strong>. Activate <strong className="text-amber-300">Founding Partner Rates ($149 / $499 / $1,250 mo)</strong> when ready to hire.
+                </p>
               </div>
             </div>
 
@@ -143,22 +153,22 @@ export default function PricingMatrixPage() {
         {/* Main 3x3 Matrix Container */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 pb-20 sm:pb-24 space-y-14 sm:space-y-20">
           {/* ================================================================
-              SECTION 1: CANDIDATE PLANS (Explorer $3 / Professional $9 / Prestige $15)
+              SECTION 1: CANDIDATE PLANS (Explorer $5 Once / Professional $12 / Prestige $19)
              ================================================================ */}
           <div className="rounded-3xl border-2 border-indigo-500/50 bg-slate-950 p-5 sm:p-8 md:p-10 shadow-xl space-y-8 relative overflow-hidden">
             {/* Top Unified Candidate Banner */}
             <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border border-slate-700 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider">
-                  <span>🛡️ 100% Human-to-Human Marketplace • Zero Bots, Scams, or Ghost Jobs</span>
+                  <span>🛡️ 100% Human-to-Human Marketplace • Weekly 1-Year Prestige Membership Giveaway</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  Start With a 30-Day Free Trial on Any Candidate Plan
+                  Get Started Today for $5 • Browse &amp; Receive Invites Free Forever
                 </h2>
                 <ul className="space-y-1.5 pt-1 text-sm sm:text-base text-slate-200">
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-white">Free Profile Seeding:</strong> Build your anonymous skill matrix and run TrueFit Score™ checks for free.</span></li>
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-emerald-300">Explorer ($3/mo after trial):</strong> Unlock 1-time Stripe ID Verification &amp; accept unlimited inbound Professional Invitations.</span></li>
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-amber-300">Professional ($9/mo) &amp; Prestige ($15/mo):</strong> Proactively submit protected applications + earn Founding Member status.</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-emerald-300">Explorer ($5 One-Time ID Pass, then $0/mo):</strong> Lifetime Stripe ID Verification, live anonymous profile, TrueFit Score™ checks, &amp; unlimited inbound Employer Invitations.</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-amber-300">Professional ($12/mo) &amp; Prestige ($19/mo):</strong> Upgrade only when you want to proactively submit outbound applications—and downgrade back to $0/mo Explorer anytime once hired!</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-white">Weekly Friday Drawing:</strong> Every verified member is automatically entered into our weekly drawing for a free 1-Year Prestige Membership.</span></li>
                 </ul>
               </div>
               <div className="shrink-0">
@@ -166,17 +176,17 @@ export default function PricingMatrixPage() {
                   href="/signup/candidate"
                   className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm sm:text-base font-extrabold transition-colors shadow-md"
                 >
-                  Start 30-Day Free Trial →
+                  Verify &amp; Start for $5 →
                 </Link>
               </div>
             </div>
 
             {/* 3 Candidate Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Tier 1: Explorer ($3/mo) */}
+              {/* Tier 1: Explorer ($5 One-Time / $0 mo Forever) */}
               <div className="bg-slate-900 p-6 sm:p-8 rounded-2xl border-2 border-slate-700 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-emerald-600 text-white text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-bl-xl">
-                  🛡️ ID-Verified Inbound Vault
+                  🛡️ $0/Mo Forever After ID Check
                 </div>
                 <div className="space-y-5 pt-2">
                   <div>
@@ -187,20 +197,20 @@ export default function PricingMatrixPage() {
                       Explorer
                     </h3>
                     <div className="mt-3 flex items-baseline gap-2">
-                      <span className="text-4xl font-black text-white">$3</span>
-                      <span className="text-sm font-bold text-slate-300">/ month</span>
+                      <span className="text-4xl font-black text-white">$0</span>
+                      <span className="text-sm font-bold text-slate-300">/ month forever</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ 30-Day Free Trial
+                      ✓ $5 One-Time Lifetime ID Verification
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    Let verified employers come to you with unlimited inbound Professional Invitations.
+                    Verify your identity once for $5 and let verified employers come to you with unlimited inbound Professional Invitations at $0/mo.
                   </p>
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">Includes Real-Person ID Verification</strong> &amp; Verified Candidate Shield</span>
+                      <span><strong className="text-white">Includes Lifetime Real-Person ID Verification</strong> &amp; Verified Candidate Shield ($5 once)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -212,11 +222,11 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span>Browse protected role feed &amp; run TrueFit Score™ checks</span>
+                      <span>Browse protected role feed, run TrueFit Score™ checks &amp; enter Weekly 1-Yr Prestige Drawing</span>
                     </li>
                     <li className="flex items-start gap-2.5 text-slate-300">
                       <span className="text-slate-400 font-bold shrink-0">✕</span>
-                      <span>Proactive Outbound Applications (Upgrade to $9/mo or $15/mo anytime)</span>
+                      <span>Proactive Outbound Applications (Upgrade to $12/mo or $19/mo anytime)</span>
                     </li>
                   </ul>
                 </div>
@@ -224,11 +234,11 @@ export default function PricingMatrixPage() {
                   href="/signup/candidate?plan=explorer"
                   className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
                 >
-                  Start 30-Day Free Trial ($3/mo After) →
+                  Start Explorer ($5 One-Time ID Pass) →
                 </Link>
               </div>
 
-              {/* Tier 2: Professional ($9/mo) */}
+              {/* Tier 2: Professional ($12/mo) */}
               <div className="bg-slate-900 p-6 sm:p-8 rounded-2xl border-2 border-amber-500/80 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-bl-xl">
                   🛡️ ID-Verified Active Tier
@@ -242,11 +252,11 @@ export default function PricingMatrixPage() {
                       Professional
                     </h3>
                     <div className="mt-3 flex items-baseline gap-2">
-                      <span className="text-4xl font-black text-white">$9</span>
+                      <span className="text-4xl font-black text-white">$12</span>
                       <span className="text-sm font-bold text-slate-300">/ month</span>
                     </div>
-                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ 30-Day Free Trial
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-extrabold">
+                      ✓ Activate Only When Ready to Apply ($5 One-Time ID Check)
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -255,15 +265,15 @@ export default function PricingMatrixPage() {
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">Includes Real-Person ID Verification</strong> &amp; Verified Candidate Shield</span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlock &amp; Accept Unlimited Professional Invitations</strong> (Private Chat)</span>
+                      <span><strong className="text-white">Everything in Explorer</strong> + Verified Candidate Shield</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
                       <span><strong className="text-white">15 Outbound Protected Applications / mo</strong> (40%+ TrueFit™)</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Unlock &amp; Accept Unlimited Professional Invitations</strong> (Private Chat)</span>
                     </li>
                     <li className="flex items-start gap-2.5 text-amber-300 font-bold">
                       <span className="shrink-0">★</span>
@@ -275,7 +285,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span>Elevated placement in Employer Talent Search</span>
+                      <span>Elevated placement + downgrade to $0/mo Explorer anytime when hired</span>
                     </li>
                   </ul>
                 </div>
@@ -283,11 +293,11 @@ export default function PricingMatrixPage() {
                   href="/signup/candidate?plan=professional"
                   className="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
                 >
-                  Start 30-Day Free Trial ($9/mo After) →
+                  Select Professional ($12/mo) →
                 </Link>
               </div>
 
-              {/* Tier 3: Prestige ($15/mo) */}
+              {/* Tier 3: Prestige ($19/mo) */}
               <div className="bg-slate-900 text-white p-6 sm:p-8 rounded-2xl border-2 border-indigo-500 shadow-lg flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-indigo-500 text-white text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-bl-xl">
                   ★ Priority Spotlight &amp; Unlimited
@@ -301,11 +311,11 @@ export default function PricingMatrixPage() {
                       Prestige
                     </h3>
                     <div className="mt-3 flex items-baseline gap-2">
-                      <span className="text-4xl font-black text-white">$15</span>
+                      <span className="text-4xl font-black text-white">$19</span>
                       <span className="text-sm font-bold text-slate-300">/ month</span>
                     </div>
-                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ 30-Day Free Trial
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-extrabold">
+                      ✓ Unlimited Outbound Reach ($5 One-Time ID Check)
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -314,7 +324,7 @@ export default function PricingMatrixPage() {
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">Includes Real-Person ID Verification</strong> &amp; Verified Candidate Shield</span>
+                      <span><strong className="text-white">Everything in Professional</strong> + Priority 1-on-1 US Support</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -334,7 +344,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span>Switch or downgrade to Professional or Explorer anytime</span>
+                      <span>Downgrade back to $0/mo Explorer anytime once hired to stay open to headhunting</span>
                     </li>
                   </ul>
                 </div>
@@ -342,7 +352,7 @@ export default function PricingMatrixPage() {
                   href="/signup/candidate?plan=prestige"
                   className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
                 >
-                  Start 30-Day Free Trial ($15/mo After) →
+                  Select Prestige ($19/mo) →
                 </Link>
               </div>
             </div>
@@ -356,15 +366,15 @@ export default function PricingMatrixPage() {
             <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border border-slate-700 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider">
-                  <span>★ 12-Month Employer Founding Partner Rate Lock (First 100 Verified Organizations)</span>
+                  <span>★ $25 One-Time Org Verification • 12-Month Employer Founding Partner Rate Lock</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  30-Day Free Trial + Up to 50% Off Retail for Your First 12 Months
+                  Verify Your Organization for $25 • Preview Live Candidate Matches Free
                 </h2>
                 <ul className="space-y-1.5 pt-1 text-sm sm:text-base text-slate-200">
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-amber-300">12-Month Rate Lock:</strong> Lock in $149 / $499 / $1,250 per month for your first 12 months (standard retail applies Month 13).</span></li>
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-white">Free Inbound Applicants:</strong> Reviewing and unlocking candidates who apply to your roles is 100% free (0 credits).</span></li>
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-emerald-300">Accepted-Only Invitation Guarantee:</strong> You only spend a credit when a professional accepts—declined invitations are auto-refunded.</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-emerald-300">$25 One-Time Verification Sandbox:</strong> Complete Domain, EIN &amp; Stripe ID verification once to draft roles and preview verified candidate matches at $0/mo before activating a plan.</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-amber-300">12-Month Rate Lock:</strong> Lock in $149 / $499 / $1,250 per month for your first 12 months when ready to connect (standard retail applies Month 13).</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-white">Accepted-Only Invitation Guarantee:</strong> Inbound applicants are 100% free (0 credits), and declined outbound invitations are auto-refunded.</span></li>
                 </ul>
               </div>
               <div className="shrink-0">
@@ -372,7 +382,7 @@ export default function PricingMatrixPage() {
                   href="/signup/employer"
                   className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm sm:text-base font-extrabold transition-colors shadow-md"
                 >
-                  Start 30-Day Free Trial →
+                  Verify Organization ($25) →
                 </Link>
               </div>
             </div>
@@ -398,7 +408,7 @@ export default function PricingMatrixPage() {
                       <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ 30-Day Free Trial
+                      ✓ $25 One-Time Org Verification • Activate When Ready
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -439,7 +449,7 @@ export default function PricingMatrixPage() {
                   href="/signup/employer?plan=starter"
                   className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
                 >
-                  Start 30-Day Free Trial ($149/mo After) →
+                  Verify ($25) &amp; Select Starter ($149/mo) →
                 </Link>
               </div>
 
@@ -462,7 +472,7 @@ export default function PricingMatrixPage() {
                       <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ 30-Day Free Trial
+                      ✓ $25 One-Time Org Verification • Activate When Ready
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -503,7 +513,7 @@ export default function PricingMatrixPage() {
                   href="/signup/employer?plan=growth"
                   className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
                 >
-                  Start 30-Day Free Trial ($499/mo After) →
+                  Verify ($25) &amp; Select Growth ($499/mo) →
                 </Link>
               </div>
 
@@ -526,7 +536,7 @@ export default function PricingMatrixPage() {
                       <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ 30-Day Free Trial
+                      ✓ $25 One-Time Org Verification • Activate When Ready
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -567,7 +577,7 @@ export default function PricingMatrixPage() {
                   href="/signup/employer?plan=enterprise"
                   className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
                 >
-                  Start 30-Day Free Trial ($1,250/mo After) →
+                  Verify ($25) &amp; Select Enterprise ($1,250/mo) →
                 </Link>
               </div>
             </div>

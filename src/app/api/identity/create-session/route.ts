@@ -53,7 +53,9 @@ export async function POST(req: Request) {
       const subTier = String(orgObj?.subscription_tier || '').toLowerCase()
       const hasEmployerPlan =
         subStatus === 'active' ||
+        subStatus === 'verified_sandbox' ||
         subStatus === 'trialing' ||
+        subTier === 'explorer' ||
         subTier === 'starter' ||
         subTier === 'growth' ||
         subTier === 'enterprise' ||
@@ -62,7 +64,7 @@ export async function POST(req: Request) {
         return NextResponse.json(
           {
             error:
-              '1-Time Admin Stripe Identity Verification unlocks automatically as soon as you activate your 30-Day Founding Partner Free Trial (with a corporate card on file) on Billing & Plans.',
+              '1-Time Admin Stripe Identity Verification unlocks automatically as soon as you complete your $25 One-Time Organization Verification Pass (or activate a Founding Partner plan) on Billing & Plans.',
           },
           { status: 403 }
         )

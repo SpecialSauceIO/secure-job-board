@@ -15,8 +15,8 @@ const CANDIDATE_WORKFLOW_STEPS: WorkflowStep[] = [
     step: 'Step 1 • Account & Plan',
     title: '1. Create Account & Claim Founding Status',
     bullets: [
-      'Choose Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo).',
-      'Earn the permanent ★ Founding Member Charter distinction on your profile.',
+      'Start with Explorer ($5 One-Time Verification · $0/mo Forever), or upgrade to Professional ($12/mo) or Prestige ($19/mo) when applying outbound.',
+      'Earn the permanent ★ Founding Member Charter distinction on your profile and enter our Weekly 1-Year Prestige Drawing.',
       'Zero bots or fake accounts—every member is a verified professional.',
     ],
     unlockBadge: 'Unlocks: ★ Founding Member Badge & Vault Access',
@@ -47,7 +47,7 @@ const CANDIDATE_WORKFLOW_STEPS: WorkflowStep[] = [
     bullets: [
       'See upfront salary bands and your instant TrueFit Score™ (40%+ minimum).',
       'Every job post expires after 30 days—zero 6-month-old ghost jobs.',
-      'Apply anonymously in 1 click or sit back and receive direct Professional Invitations.',
+      'Accept inbound Professional Invitations free in Explorer ($0/mo), or upgrade to Professional ($12/mo) / Prestige ($19/mo) to apply outbound.',
     ],
     unlockBadge: 'Unlocks: Live Job Search, TrueFit Score™ & Invitation Inbox',
   },
@@ -57,7 +57,7 @@ const CANDIDATE_WORKFLOW_STEPS: WorkflowStep[] = [
     bullets: [
       'The Introduction reveals the verified company name and opens encrypted live chat.',
       'Employers only see your First Name + Last Initial during The Introduction chat.',
-      'Click "Release Resume & Contact Vault" (The Conversation) only when you are ready.',
+      'Click "Release Resume & Contact Vault" (The Conversation) only when you are ready, and downgrade back to $0/mo Explorer anytime once hired.',
     ],
     unlockBadge: 'Unlocks: Full Mutual Intro & 1-Hour Signed Resume Link',
   },
@@ -66,10 +66,10 @@ const CANDIDATE_WORKFLOW_STEPS: WorkflowStep[] = [
 const EMPLOYER_WORKFLOW_STEPS: WorkflowStep[] = [
   {
     step: 'Step 1 • Organization Setup',
-    title: '1. Register & Lock In 12-Month Founding Rate',
+    title: '1. Verify Organization ($25) & Lock In Founding Rate',
     bullets: [
-      'Select your Industry Vertical, Company Size, and team seat allocation.',
-      'Activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo).',
+      'Complete your $25 One-Time Organization Verification Pass to unlock the $0/mo Explorer Sandbox and preview verified candidate matches.',
+      'Activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo) when ready to publish live roles or invite candidates.',
       'Locks in your Founding Partner rate for a full 12 months.',
     ],
     unlockBadge: 'Unlocks: ★ Founding Partner Badge & Recruiter Seats',
@@ -231,7 +231,7 @@ export default function PlatformWorkflowsView({
                   : 'bg-emerald-600 hover:bg-emerald-500'
               }`}
             >
-              {isCandidate ? 'Start Candidate Signup →' : 'Start Employer Signup →'}
+              {isCandidate ? 'Start Candidate Signup ($5 ID Pass) →' : 'Start Employer Signup ($25 Org Verify) →'}
             </Link>
           )}
         </div>
@@ -301,13 +301,13 @@ export default function PlatformWorkflowsView({
                 href="/signup/candidate"
                 className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-extrabold transition-colors"
               >
-                Start Candidate Workflow →
+                Start Candidate Workflow ($5) →
               </Link>
               <Link
                 href="/signup/employer"
                 className="px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-extrabold transition-colors"
               >
-                Start Employer Workflow →
+                Start Employer Workflow ($25) →
               </Link>
             </div>
           )}

@@ -1774,7 +1774,7 @@ export default function EmployerCandidateSearch({
                                   href="/dashboard/employer/billing"
                                   className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors text-xs font-extrabold shrink-0"
                                 >
-                                  Start 30-Day Free Trial →
+                                  Verify Org ($25) or Activate Plan →
                                 </Link>
                               ) : feedback.text.includes('Verification Gate') || feedback.text.includes('Identity Verification') ? (
                                 <Link

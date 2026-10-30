@@ -45,10 +45,10 @@ export default function CandidateSignupPage({
             </h2>
             <p className="mt-1.5 text-sm text-slate-500 font-medium">
               {selectedPlan === 'prestige'
-                ? 'Create your free account to stage your profile and start your 30-Day Free Trial of Prestige ($15/mo after).'
+                ? 'Create your account to complete 1-time ID verification and activate Prestige ($19/mo for unlimited outbound applications — downgrade to $0/mo Explorer anytime).'
                 : selectedPlan === 'professional'
-                  ? 'Create your free account to stage your profile and start your 30-Day Free Trial of Professional ($9/mo after).'
-                  : 'Create your free account to stage your anonymous skill matrix and start your 30-Day Free Trial of Explorer ($3/mo after).'}
+                  ? 'Create your account to complete 1-time ID verification and activate Professional ($12/mo for 15 monthly outbound applications — downgrade to $0/mo Explorer anytime).'
+                  : 'Create your account to complete your $5 One-Time ID Verification Pass and unlock Explorer ($0/mo forever for passive matching, inbound Employer Invitations, & our Weekly 1-Year Prestige Drawing).'}
             </p>
           </div>
 
@@ -169,10 +169,10 @@ export default function CandidateSignupPage({
                 className="w-full flex justify-center items-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 transition-all cursor-pointer"
               >
                 {selectedPlan === 'prestige'
-                  ? 'Start 30-Day Free Trial ($15/mo After) →'
+                  ? 'Create Account & Select Prestige ($19/mo) →'
                   : selectedPlan === 'professional'
-                    ? 'Start 30-Day Free Trial ($9/mo After) →'
-                    : 'Create Free Vault & Start 30-Day Free Trial →'}
+                    ? 'Create Account & Select Professional ($12/mo) →'
+                    : 'Create Account & Verify for $5 ($0/mo Explorer) →'}
               </button>
             </div>
 

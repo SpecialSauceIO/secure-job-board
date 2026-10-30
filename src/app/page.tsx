@@ -259,7 +259,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* SLIDE 5 (Slide #6): Free Profile Staging + 30-Day Free Trial - LOGO ORANGE */}
+            {/* SLIDE 5 (Slide #6): One-Time Lifetime Verification + $0/mo Explorer Vault - LOGO ORANGE */}
             <div
               className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
                 currentSlide === 5
@@ -272,7 +272,7 @@ export default function LandingPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F97316]"></span>
                 </span>
-                Free Profile &amp; Role Staging • 30-Day Free Trial
+                $5 Candidate &amp; $25 Employer One-Time Verification • Weekly 1-Yr Prestige Giveaway
               </div>
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
                 Test Your{' '}
@@ -280,10 +280,10 @@ export default function LandingPage() {
                   True Market Fit.
                 </span>
                 <br />
-                30-Day Free Trial. Cancel Anytime.
+                Verify Once. Match Forever at $0/mo.
               </h1>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Stage your anonymous profile or open roles and run unlimited TrueFit Score™ checks for free. When you find a match worth pursuing, start your 30-Day Free Trial to unlock verified applications and refund-protected Professional Invitations.
+                Complete your one-time verification ($5 Candidates / $25 Employers) to unlock our $0/mo Explorer Vault, unlimited inbound Employer Invitations, and automatic entry into our Weekly 1-Year Prestige Drawing. Upgrade only when ready to actively connect.
               </p>
             </div>
           </div>
@@ -319,7 +319,7 @@ export default function LandingPage() {
               href="/pricing"
               className="px-6 py-3.5 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-400/40 text-sm sm:text-base font-extrabold rounded-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-1.5 backdrop-blur-xs"
             >
-              ★ 30-Day Free Trial • Plans &amp; Perks
+              ★ Start for $5 • Plans &amp; Weekly Giveaway
             </Link>
           </div>
 
@@ -643,7 +643,7 @@ export default function LandingPage() {
                   2. See Your Fit &amp; Get Discovered
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Browse transparent pay bands and preview how your skills align using our TrueFit Score™ for free. When you are ready to submit a protected application or accept a Professional Invitation from an employer, start your 30-Day Free Trial (including 1-time Stripe ID verification).
+                  Complete your $5 one-time Stripe ID verification to browse transparent pay bands, run TrueFit Score™ checks, and accept unlimited inbound Professional Invitations at $0/mo forever in Explorer mode—or upgrade to Professional ($12/mo) or Prestige ($19/mo) when applying outbound.
                 </p>
               </div>
 
@@ -856,7 +856,7 @@ export default function LandingPage() {
                   2. 40% Skill-Fit Threshold &amp; Protected Invitations
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Start your 30-Day Founding Partner Trial when you are ready to publish live roles or send Professional Invitations. Our 40% minimum TrueFit Score™ threshold ensures every applicant meets your core role requirements, and 100% Accepted-Only Invitation Credit Protection ensures you only use a credit when a professional accepts.
+                  Complete your $25 one-time Organization Verification to preview live verified candidate matches in our $0/mo Sandbox, then activate your Founding Partner plan ($149 / $499 / $1,250/mo) when ready to publish live roles or send Professional Invitations. Declined invitations are 100% auto-refunded.
                 </p>
               </div>
 
@@ -967,7 +967,7 @@ export default function LandingPage() {
                 Verified People &amp; Real Companies
               </h3>
               <p className="text-slate-500 leading-relaxed">
-                Candidates and employers can build profiles and run TrueFit Score™ checks for free, then complete 1-time Stripe Identity verification with a 30-Day Free Trial before applying, pitching, or posting live jobs—eliminating bots, fake profiles, and scam listings.
+                Candidates ($5 one-time) and employers ($25 one-time) complete real-person Stripe Identity and domain verification upfront to enter the $0/mo Explorer Vault before applying, pitching, or posting live jobs—eliminating bots, fake profiles, and scam listings.
               </p>
             </div>
 

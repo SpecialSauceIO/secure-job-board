@@ -9,6 +9,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     id: 'explorer' | 'professional' | 'prestige'
     name: string
     priceCents: number
+    billingMode: 'payment' | 'subscription'
     envVar: string
     defaultPriceId: string
     description: string
@@ -16,58 +17,74 @@ export const CANDIDATE_SAAS_TIERS: Record<
 > = {
   explorer: {
     id: 'explorer',
-    name: 'Special Sauce - Explorer Plan ($3/mo)',
-    priceCents: 300,
-    envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER',
-    defaultPriceId: 'price_1UU2OnR0rSVwN0zEdfBhqFRZ',
+    name: 'Special Sauce - Explorer Plan ($5 One-Time Verification · $0/mo Forever)',
+    priceCents: 500,
+    billingMode: 'payment',
+    envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER_5_ONETIME',
+    defaultPriceId: '',
     description:
-      'ID-Verified Passive & Inbound Tier: Includes 1-time Real-Person ID Verification, live placement in Employer Talent Search, and unlimited inbound Professional Invitation unlocks.',
+      'One-Time Lifetime Real-Person ID Verification ($0/mo forever after): Includes Verified Candidate Shield, live placement in Employer Talent Search, unlimited inbound Professional Invitation unlocks, and entry into our Weekly 1-Year Prestige Drawing.',
   },
   candidate_explorer: {
     id: 'explorer',
-    name: 'Special Sauce - Explorer Plan ($3/mo)',
-    priceCents: 300,
-    envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER',
-    defaultPriceId: 'price_1UU2OnR0rSVwN0zEdfBhqFRZ',
+    name: 'Special Sauce - Explorer Plan ($5 One-Time Verification · $0/mo Forever)',
+    priceCents: 500,
+    billingMode: 'payment',
+    envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER_5_ONETIME',
+    defaultPriceId: '',
     description:
-      'ID-Verified Passive & Inbound Tier: Includes 1-time Real-Person ID Verification, live placement in Employer Talent Search, and unlimited inbound Professional Invitation unlocks.',
+      'One-Time Lifetime Real-Person ID Verification ($0/mo forever after): Includes Verified Candidate Shield, live placement in Employer Talent Search, unlimited inbound Professional Invitation unlocks, and entry into our Weekly 1-Year Prestige Drawing.',
   },
   professional: {
     id: 'professional',
-    name: 'Special Sauce - Professional Plan ($9/mo)',
-    priceCents: 900,
-    envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL',
-    defaultPriceId: 'price_1UTpwyR0rSVwN0zEQeqE0pvy',
+    name: 'Special Sauce - Professional Plan ($12/mo)',
+    priceCents: 1200,
+    billingMode: 'subscription',
+    envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL_12',
+    defaultPriceId: '',
     description:
-      'ID-Verified Active Tier: Unlock and accept unlimited inbound Professional Invitations, plus 15 outbound protected applications/month (40%+ TrueFit™).',
+      'ID-Verified Active Tier: Unlock and accept unlimited inbound Professional Invitations, plus 15 outbound protected applications/month (40%+ TrueFit™). Downgrade back to $0/mo Explorer anytime.',
   },
   candidate_pro: {
     id: 'professional',
-    name: 'Special Sauce - Professional Plan ($9/mo)',
-    priceCents: 900,
-    envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL',
-    defaultPriceId: 'price_1UTpwyR0rSVwN0zEQeqE0pvy',
+    name: 'Special Sauce - Professional Plan ($12/mo)',
+    priceCents: 1200,
+    billingMode: 'subscription',
+    envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL_12',
+    defaultPriceId: '',
     description:
-      'ID-Verified Active Tier: Unlock and accept unlimited inbound Professional Invitations, plus 15 outbound protected applications/month (40%+ TrueFit™).',
+      'ID-Verified Active Tier: Unlock and accept unlimited inbound Professional Invitations, plus 15 outbound protected applications/month (40%+ TrueFit™). Downgrade back to $0/mo Explorer anytime.',
   },
   prestige: {
     id: 'prestige',
-    name: 'Special Sauce - Prestige Plan ($15/mo)',
-    priceCents: 1500,
-    envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE',
-    defaultPriceId: 'price_1UTpwyR0rSVwN0zETADS2cmp',
+    name: 'Special Sauce - Prestige Plan ($19/mo)',
+    priceCents: 1900,
+    billingMode: 'subscription',
+    envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE_19',
+    defaultPriceId: '',
     description:
-      'Priority Spotlight & Unlimited: Unlimited outbound protected applications (40%+ TrueFit™), top-priority placement in Employer Talent Search, and priority shortlist placement.',
+      'Priority Spotlight & Unlimited: Unlimited outbound protected applications (40%+ TrueFit™), top-priority placement in Employer Talent Search, and priority shortlist placement. Downgrade back to $0/mo Explorer anytime.',
   },
   candidate_prestige: {
     id: 'prestige',
-    name: 'Special Sauce - Prestige Plan ($15/mo)',
-    priceCents: 1500,
-    envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE',
-    defaultPriceId: 'price_1UTpwyR0rSVwN0zETADS2cmp',
+    name: 'Special Sauce - Prestige Plan ($19/mo)',
+    priceCents: 1900,
+    billingMode: 'subscription',
+    envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE_19',
+    defaultPriceId: '',
     description:
-      'Priority Spotlight & Unlimited: Unlimited outbound protected applications (40%+ TrueFit™), top-priority placement in Employer Talent Search, and priority shortlist placement.',
+      'Priority Spotlight & Unlimited: Unlimited outbound protected applications (40%+ TrueFit™), top-priority placement in Employer Talent Search, and priority shortlist placement. Downgrade back to $0/mo Explorer anytime.',
   },
+}
+
+export const EMPLOYER_VERIFICATION_PASS = {
+  id: 'employer_verify',
+  name: 'Special Sauce - Employer Organization Verification Pass ($25 One-Time)',
+  priceCents: 2500,
+  envVar: 'STRIPE_PRICE_EMPLOYER_VERIFY_25_ONETIME',
+  defaultPriceId: '',
+  description:
+    'One-Time Organization, Domain/DNS, EIN & Representative Stripe Identity Verification Pass ($0/mo Sandbox): Draft protected roles and preview live verified candidate match counts before activating a monthly plan.',
 }
 
 export const EMPLOYER_SAAS_TIERS: Record<
@@ -99,7 +116,7 @@ export const EMPLOYER_SAAS_TIERS: Record<
     maxActiveJobs: 5,
     monthlyCredits: 10,
     maxSeats: 2,
-    description: "Locked at $149/mo for your first 12 months, then $299/mo standard retail starting Month 13 (cancel anytime). Up to 5 active roles, 10 monthly Invitation Credits, 2 seats.",
+    description: "Locked at $149/mo for your first 12 months, then $299/mo standard retail starting Month 13 (switch to $0/mo Verified Sandbox anytime). Up to 5 active roles, 10 monthly Invitation Credits, 2 seats.",
   },
   growth: {
     id: 'growth',
@@ -113,7 +130,7 @@ export const EMPLOYER_SAAS_TIERS: Record<
     maxActiveJobs: 15,
     monthlyCredits: 35,
     maxSeats: 5,
-    description: "Locked at $499/mo for your first 12 months, then $799/mo standard retail starting Month 13 (cancel anytime). Up to 15 active roles, 35 monthly Invitation Credits, 5 seats.",
+    description: "Locked at $499/mo for your first 12 months, then $799/mo standard retail starting Month 13 (switch to $0/mo Verified Sandbox anytime). Up to 15 active roles, 35 monthly Invitation Credits, 5 seats.",
   },
   enterprise: {
     id: 'enterprise',
@@ -127,7 +144,7 @@ export const EMPLOYER_SAAS_TIERS: Record<
     maxActiveJobs: 999,
     monthlyCredits: 120,
     maxSeats: 999,
-    description: "Locked at $1,250/mo for your first 12 months, then $1,999/mo standard retail starting Month 13 (cancel anytime). Unlimited active roles, 120 monthly Invitation Credits, unlimited seats & ATS Sync.",
+    description: "Locked at $1,250/mo for your first 12 months, then $1,999/mo standard retail starting Month 13 (switch to $0/mo Verified Sandbox anytime). Unlimited active roles, 120 monthly Invitation Credits, unlimited seats & ATS Sync.",
   },
 }
 
@@ -240,14 +257,15 @@ export async function POST(req: Request) {
     const origin = req.headers.get('origin') || 'https://www.specialsauce.io'
 
     // =========================================================================
-    // 1. CANDIDATE SUBSCRIPTIONS: PROFESSIONAL ($9/MO) & PRESTIGE ($15/MO)
+    // 1. CANDIDATE PLANS: EXPLORER ($5 ONE-TIME), PROFESSIONAL ($12/MO), PRESTIGE ($19/MO)
     // =========================================================================
     const candidateTier = CANDIDATE_SAAS_TIERS[rawKey]
     if (candidateTier) {
       const catalogPriceId = process.env[candidateTier.envVar] || candidateTier.defaultPriceId
+      const isOneTimeExplorer = candidateTier.billingMode === 'payment'
 
       const checkoutSession = await stripe.checkout.sessions.create({
-        mode: 'subscription',
+        mode: isOneTimeExplorer ? 'payment' : 'subscription',
         customer_email: user.email,
         client_reference_id: user.id,
         metadata: {
@@ -263,8 +281,10 @@ export async function POST(req: Request) {
                 price_data: {
                   currency: 'usd',
                   unit_amount: candidateTier.priceCents,
-                  recurring: { interval: 'month' },
-                  product_data: { tax_code: "txcd_10103001", name: candidateTier.name,
+                  ...(isOneTimeExplorer ? {} : { recurring: { interval: 'month' } }),
+                  product_data: {
+                    tax_code: 'txcd_10103001',
+                    name: candidateTier.name,
                     description: candidateTier.description,
                   },
                 },
@@ -272,14 +292,17 @@ export async function POST(req: Request) {
               },
         ],
         payment_method_collection: 'always',
-        subscription_data: {
-          trial_period_days: 30,
-          metadata: {
-            audience: 'candidate',
-            userId: user.id,
-            tierId: candidateTier.id,
-          },
-        },
+        ...(isOneTimeExplorer
+          ? { invoice_creation: { enabled: true } }
+          : {
+              subscription_data: {
+                metadata: {
+                  audience: 'candidate',
+                  userId: user.id,
+                  tierId: candidateTier.id,
+                },
+              },
+            }),
         allow_promotion_codes: true,
         billing_address_collection: 'auto',
         success_url: `${origin}/dashboard/billing?billing=success&plan=${candidateTier.id}&session_id={CHECKOUT_SESSION_ID}`,
@@ -291,6 +314,64 @@ export async function POST(req: Request) {
         path: '/',
         maxAge: 60 * 60 * 24,
         sameSite: 'lax',
+      })
+
+      return NextResponse.json({ url: checkoutSession.url })
+    }
+
+    // =========================================================================
+    // 1B. EMPLOYER ONE-TIME ORGANIZATION VERIFICATION PASS ($25 ONE-TIME)
+    // =========================================================================
+    if (rawKey === 'employer_verify' || rawKey === 'verify_org' || rawKey === 'employer_explorer') {
+      const { data: member } = await supabase
+        .from('organization_members')
+        .select('organization_id')
+        .eq('user_id', user.id)
+        .limit(1)
+        .maybeSingle()
+
+      if (!member?.organization_id) {
+        return NextResponse.json(
+          { error: 'Please set up your Company Profile before completing Organization Verification.' },
+          { status: 400 }
+        )
+      }
+
+      const catalogPriceId =
+        process.env[EMPLOYER_VERIFICATION_PASS.envVar] || EMPLOYER_VERIFICATION_PASS.defaultPriceId
+
+      const checkoutSession = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        customer_email: user.email,
+        client_reference_id: member.organization_id,
+        metadata: {
+          audience: 'employer_verify',
+          organizationId: member.organization_id,
+          userId: user.id,
+          tierId: 'employer_verify',
+        },
+        line_items: [
+          catalogPriceId
+            ? { price: catalogPriceId, quantity: 1 }
+            : {
+                price_data: {
+                  currency: 'usd',
+                  unit_amount: EMPLOYER_VERIFICATION_PASS.priceCents,
+                  product_data: {
+                    tax_code: 'txcd_10103001',
+                    name: EMPLOYER_VERIFICATION_PASS.name,
+                    description: EMPLOYER_VERIFICATION_PASS.description,
+                  },
+                },
+                quantity: 1,
+              },
+        ],
+        allow_promotion_codes: true,
+        billing_address_collection: 'auto',
+        tax_id_collection: { enabled: true },
+        invoice_creation: { enabled: true },
+        success_url: `${origin}/dashboard/employer/billing?billing=verify_success&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/dashboard/employer/billing?billing=cancelled`,
       })
 
       return NextResponse.json({ url: checkoutSession.url })
@@ -335,7 +416,9 @@ export async function POST(req: Request) {
                 price_data: {
                   currency: 'usd',
                   unit_amount: topupPack.priceCents,
-                  product_data: { tax_code: "txcd_10103001", name: topupPack.name,
+                  product_data: {
+                    tax_code: 'txcd_10103001',
+                    name: topupPack.name,
                     description: topupPack.description,
                   },
                 },
@@ -379,7 +462,9 @@ export async function POST(req: Request) {
     }
 
     const isRetail = rateType === 'retail'
-    const catalogPriceId = isRetail ? (process.env[tier.retailEnvVar] || tier.defaultRetailPriceId) : (process.env[tier.foundingEnvVar] || tier.defaultFoundingPriceId)
+    const catalogPriceId = isRetail
+      ? process.env[tier.retailEnvVar] || tier.defaultRetailPriceId
+      : process.env[tier.foundingEnvVar] || tier.defaultFoundingPriceId
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -403,7 +488,9 @@ export async function POST(req: Request) {
                 currency: 'usd',
                 unit_amount: isRetail ? tier.retailPriceCents : tier.priceCents,
                 recurring: { interval: 'month' },
-                product_data: { tax_code: "txcd_10103001", name: tier.name,
+                product_data: {
+                  tax_code: 'txcd_10103001',
+                  name: tier.name,
                   description: tier.description,
                 },
               },
@@ -412,7 +499,6 @@ export async function POST(req: Request) {
       ],
       payment_method_collection: 'always',
       subscription_data: {
-        trial_period_days: 30,
         metadata: {
           audience: 'employer',
           organizationId: member.organization_id,

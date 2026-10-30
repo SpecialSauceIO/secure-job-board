@@ -160,7 +160,7 @@ export default function SecurityTrustPage() {
                 Ready to Join the 100% Human-to-Human Marketplace?
               </h3>
               <p className="text-base text-slate-100">
-                Build your profile or stage roles for free, then start a 30-Day Free Trial on any Candidate or Employer Founding Partner plan.
+                Complete your one-time verification ($5 Candidates / $25 Employers) to enter the $0/mo Explorer Vault, then activate an outbound Candidate or Employer Founding Partner plan when ready to connect.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3 shrink-0">
@@ -174,13 +174,13 @@ export default function SecurityTrustPage() {
                 href="/signup/candidate"
                 className="px-5 py-3 rounded-xl bg-indigo-600 text-white text-sm font-extrabold hover:bg-indigo-500 transition-colors"
               >
-                Join as Candidate (30-Day Free Trial) →
+                Join as Candidate ($5 One-Time Verify) →
               </Link>
               <Link
                 href="/signup/employer"
                 className="px-5 py-3 rounded-xl bg-emerald-600 text-white text-sm font-extrabold hover:bg-emerald-500 transition-colors"
               >
-                Join as Employer (30-Day Free Trial) →
+                Join as Employer ($25 Org Verify) →
               </Link>
             </div>
           </div>

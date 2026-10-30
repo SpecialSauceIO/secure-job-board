@@ -19,7 +19,7 @@ function parseRolloverCreditsTag(desc?: string | null): number {
 
 function stripTags(desc?: string | null): string {
   return (desc || '')
-    .replace(/\[TIER:(free|starter|growth|enterprise)\]/gi, '')
+    .replace(/\[TIER:(free|explorer|starter|growth|enterprise)\]/gi, '')
     .replace(/\[TOPUP:\d+\]/gi, '')
     .replace(/\s+/g, ' ')
     .trim()
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
   }
 
   // ============================================================================
-  // 1. CHECKOUT COMPLETED (Candidate Plans, Employer Plans, Top-Up Credit Packs)
+  // 1. CHECKOUT COMPLETED (Candidate Plans, Employer Verification, Employer Plans, Top-Up Packs)
   // ============================================================================
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     const userId = session.metadata?.userId || session.client_reference_id || ''
     const organizationId = session.metadata?.organizationId || session.client_reference_id || ''
 
-    // A) Candidate Subscription (explorer $3/mo, professional $9/mo, or prestige $15/mo)
+    // A) Candidate Plans (explorer $5 one-time -> $0/mo forever, professional $12/mo, or prestige $19/mo)
     if (
       audience === 'candidate' ||
       tierId === 'explorer' ||
@@ -92,6 +92,7 @@ export async function POST(req: Request) {
         const newMeta = {
           _ss_meta: true,
           plan: normalizedPlan,
+          verifiedExplorerPaid: true,
           trialStart: new Date().toISOString(),
           trialBaselineApps: normalizedPlan === 'professional' ? currentApps || 0 : 0,
           stripeCustomerId: typeof session.customer === 'string' ? session.customer : undefined,
@@ -104,6 +105,35 @@ export async function POST(req: Request) {
           .eq('id', userId)
 
         if (error) console.error('Database Update Error (Candidate Plan):', error)
+      }
+    }
+    // A2) Employer One-Time Verification Pass ($25 One-Time -> Unlocks Explorer Sandbox)
+    else if (audience === 'employer_verify' || tierId === 'employer_verify') {
+      if (organizationId) {
+        const { data: orgObj } = await supabaseAdmin
+          .from('organizations')
+          .select('*')
+          .eq('id', organizationId)
+          .maybeSingle()
+
+        const currentTotal = Math.max(0, orgObj?.connection_credits || 0)
+        const preservedRollover = Math.min(currentTotal, parseRolloverCreditsTag(orgObj?.description))
+        const cleanDesc = stripTags(orgObj?.description)
+        const topupTag = preservedRollover > 0 ? `[TOPUP:${preservedRollover}]` : ''
+        const taggedDesc = `${cleanDesc} [TIER:explorer] ${topupTag}`.replace(/\s+/g, ' ').trim()
+
+        await supabaseAdmin
+          .from('organizations')
+          .update({
+            subscription_status: orgObj?.subscription_status === 'active' ? 'active' : 'verified_sandbox',
+            subscription_tier:
+              orgObj?.subscription_tier && ['starter', 'growth', 'enterprise'].includes(orgObj.subscription_tier)
+                ? orgObj.subscription_tier
+                : 'explorer',
+            description: taggedDesc,
+            ...(typeof session.customer === 'string' ? { stripe_customer_id: session.customer } : {}),
+          })
+          .eq('id', organizationId)
       }
     }
     // B) Employer Top-Up Credit Pack (boost +10 / surge +25 / scale +75)
@@ -123,7 +153,7 @@ export async function POST(req: Request) {
           const newRollover = currentRollover + creditsToAdd
           const newTotal = currentPlanCredits + newRollover
 
-          const tierMatch = (orgObj.description || '').match(/\[TIER:(free|starter|growth|enterprise)\]/i)
+          const tierMatch = (orgObj.description || '').match(/\[TIER:(free|explorer|starter|growth|enterprise)\]/i)
           const activeTierTag = tierMatch ? tierMatch[1].toLowerCase() : (orgObj.subscription_tier || 'starter')
           const cleanDesc = stripTags(orgObj.description)
           const taggedDesc = `${cleanDesc} [TIER:${activeTierTag}] [TOPUP:${newRollover}]`.replace(/\s+/g, ' ').trim()
@@ -176,12 +206,11 @@ export async function POST(req: Request) {
     }
   }
 
-
   // ============================================================================
   // 1B. RECURRING MONTHLY RENEWAL (invoice.payment_succeeded)
   //     - Replenishes Employer monthly Pitch Credits (10 / 35 / 120) while
   //       preserving unused [TOPUP:X] rollover credits.
-  //     - Resets Professional ($9/mo) monthly 15-application counter.
+  //     - Resets Professional ($12/mo) monthly 15-application counter.
   // ============================================================================
   if (event.type === 'invoice.payment_succeeded') {
     const invoice = event.data.object as Stripe.Invoice
@@ -276,8 +305,8 @@ export async function POST(req: Request) {
 
   // ============================================================================
   // 1C. SUBSCRIPTION CANCELED / EXPIRED (customer.subscription.deleted)
-  //     - Downgrades Employer to 'free' while preserving any purchased [TOPUP:X]
-  //     - Downgrades Candidate back to 'explorer' ($0/forever)
+  //     - Steps Employer back to Verified Explorer Sandbox ('explorer') while preserving [TOPUP:X]
+  //     - Downgrades Candidate back to 'explorer' ($0/mo forever passive vault)
   // ============================================================================
   if (event.type === 'customer.subscription.deleted') {
     const subscription = event.data.object as Stripe.Subscription
@@ -302,21 +331,21 @@ export async function POST(req: Request) {
       )
       const cleanDesc = stripTags(orgObj.description)
       const topupTag = preservedRollover > 0 ? `[TOPUP:${preservedRollover}]` : ''
-      const taggedDesc = `${cleanDesc} [TIER:free] ${topupTag}`
+      const taggedDesc = `${cleanDesc} [TIER:explorer] ${topupTag}`
         .replace(/\s+/g, ' ')
         .trim()
 
       await supabaseAdmin
         .from('organizations')
         .update({
-          subscription_status: 'canceled',
-          subscription_tier: 'free',
+          subscription_status: 'verified_sandbox',
+          subscription_tier: 'explorer',
           connection_credits: preservedRollover,
           description: taggedDesc,
         })
         .eq('id', orgObj.id)
     } else {
-      // 2) Check Candidate Profile
+      // 2) Check Candidate Profile — Downgrade to 'explorer' ($0/mo forever passive vault)
       const { data: candidates } = await supabaseAdmin
         .from('profiles')
         .select('id, structured_skills')
@@ -335,7 +364,8 @@ export async function POST(req: Request) {
           )
           const downgradedMeta = {
             ...meta,
-            plan: 'free',
+            plan: 'explorer',
+            verifiedExplorerPaid: true,
           }
           await supabaseAdmin
             .from('profiles')

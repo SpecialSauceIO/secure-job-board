@@ -999,7 +999,7 @@ export function parseAndNormalizeCertifications(rawCsv?: string | null): string[
 }
 
 /**
- * Deterministic matcher used by the 5-Point AI Fit Radar and Dealbreaker Engine.
+ * Deterministic matcher used by the 5-Point TrueFit Score™ Radar and Dealbreaker Engine.
  * Evaluates each required certification against the candidate's certifications & corpus,
  * handling 2-character credentials (e.g., "A+", "RN", "PE") and synonym aliases accurately.
  */

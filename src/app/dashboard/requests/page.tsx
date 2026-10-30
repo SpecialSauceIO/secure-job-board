@@ -303,7 +303,7 @@ export default function CandidateRequestsInboxPage() {
             </div>
             <p className="text-xs sm:text-sm text-amber-950 font-medium leading-relaxed">
               {!hasActivePlan
-                ? 'Your account is currently in the Unsubscribed Vault. Activate Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo) — starting with a 30-Day Free Trial — and complete 1-time Stripe ID Verification to accept invitations and message employers.'
+                ? 'Your account is currently in the Unverified Vault. Activate Explorer ($5 One-Time Verification · $0/mo Forever), Professional ($12/mo), or Prestige ($19/mo) and complete 1-time Stripe ID Verification to accept invitations and message employers.'
                 : 'Your membership plan is active, but you must complete your 1-time Stripe Real-Person ID Verification on your Overview Dashboard before accepting invitations or opening private chat threads.'}
             </p>
           </div>
@@ -312,7 +312,7 @@ export default function CandidateRequestsInboxPage() {
             className="shrink-0 inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors shadow-xs"
           >
             {!hasActivePlan
-              ? 'Activate 30-Day Free Trial →'
+              ? 'Verify & Unlock Invitations ($5 One-Time) →'
               : 'Complete 1-Time ID Verification →'}
           </Link>
         </div>
@@ -343,7 +343,7 @@ export default function CandidateRequestsInboxPage() {
         </div>
 
         <span className="text-xs font-bold text-emerald-700">
-          🛡️ Unlimited inbound invitation unlocks included on all ID-Verified plans ($3 / $9 / $15)
+          🛡️ Unlimited inbound invitation unlocks included on all ID-Verified plans ($5 One-Time Explorer · $12/mo Pro · $19/mo Prestige)
         </span>
       </div>
 

@@ -76,7 +76,6 @@ export default async function SupportPage({
   } else {
     const cInfo = await resolveCandidateTierInfo(user.id)
     isPaidSubscriber =
-      cInfo.tier === 'explorer' ||
       cInfo.tier === 'professional' ||
       cInfo.tier === 'prestige' ||
       cInfo.tier === 'pro'

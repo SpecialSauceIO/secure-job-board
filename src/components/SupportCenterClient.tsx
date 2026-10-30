@@ -472,7 +472,7 @@ export default function SupportCenterClient({
               : 'border-transparent text-slate-300 hover:text-white hover:bg-slate-800/60'
           }`}
         >
-          <span>3. Support &amp; My Tickets</span>
+          <span>{canUploadAttachments ? '3. Live Support & My Tickets' : '3. Report a Bug / Feedback'}</span>
           {myTickets.length > 0 && (
             <span
               className={`px-2.5 py-0.5 rounded-full text-xs font-black ${

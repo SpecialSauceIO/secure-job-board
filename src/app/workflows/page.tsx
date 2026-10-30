@@ -71,7 +71,7 @@ export default function WorkflowsPage() {
 
           <div className="relative z-10 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto text-center space-y-5">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/35 text-emerald-300 text-xs sm:text-sm font-extrabold uppercase tracking-wide backdrop-blur-xs">
-              <span>Free Upfront Seeding • 30-Day Free Trial • Intro/Convo Privacy Vault</span>
+              <span>$5 Candidate &amp; $25 Employer One-Time Verify • $0/Mo Explorer Vault • Weekly 1-Yr Giveaway</span>
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight drop-shadow-xs">
               How Special Sauce Works{' '}
@@ -80,7 +80,7 @@ export default function WorkflowsPage() {
               </span>
             </h1>
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Build your profile or stage open roles and run <strong className="text-white">TrueFit Score™</strong> checks for <strong className="text-emerald-400">free</strong>. When you are ready to connect, start a <strong className="text-white">30-Day Free Trial</strong> backed by 1-time real-person ID verification and our Intro/Convo Privacy Handshake.
+              Complete your one-time verification (<strong className="text-white">$5 Candidates / $25 Employers</strong>) to unlock our <strong className="text-emerald-400">$0/mo Explorer Vault</strong>, run <strong className="text-white">TrueFit Score™</strong> checks, and connect via our Intro/Convo Privacy Handshake.
             </p>
             <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
               <Link
@@ -93,7 +93,7 @@ export default function WorkflowsPage() {
                 href="/pricing"
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-400/40 text-xs sm:text-sm font-extrabold transition-all backdrop-blur-md"
               >
-                ★ 30-Day Free Trial • Plans &amp; Perks
+                ★ Start for $5 • Plans &amp; Weekly Giveaway
               </Link>
             </div>
           </div>
@@ -146,7 +146,7 @@ export default function WorkflowsPage() {
                   </div>
                   <div>
                     <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-400">
-                      Free Profile Seeding • 30-Day Free Trial • Intro/Convo Privacy Vault
+                      $5 One-Time Verification • $0/Mo Explorer Forever • Weekly 1-Yr Prestige Drawing
                     </span>
                     <h2 className="text-xl sm:text-2xl font-black text-white">
                       Candidate Workflow: Free Seeding to Protected Offers
@@ -211,7 +211,7 @@ export default function WorkflowsPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span>Run unlimited <strong>TrueFit Score™</strong> checks on live roles for free before starting a trial.</span>
+                        <span>Run unlimited <strong>TrueFit Score™</strong> checks on live roles and accept inbound Employer Invitations at $0/mo in Explorer mode.</span>
                       </li>
                     </ul>
                   </div>
@@ -224,19 +224,19 @@ export default function WorkflowsPage() {
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
                   <div className="space-y-4">
                     <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-indigo-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 3 • 30-Day Free Trial
+                      Step 3 • Explorer ($0/Mo) or Outbound Pro/Prestige
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
-                      3. Start Your 30-Day Free Trial When Ready
+                      3. Match Free in Explorer or Upgrade to Apply Outbound
                     </h3>
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span>When an employer sends you a Professional Invitation or you find a role to apply to, start a <strong>30-Day Free Trial</strong>.</span>
+                        <span>Your <strong>$5 One-Time Explorer Pass</strong> unlocks unlimited inbound Employer Invitations at <strong>$0/mo forever</strong> plus automatic entry into our Weekly 1-Year Prestige Drawing.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span>Choose <strong>Explorer ($3/mo after trial)</strong> for inbound Professional Invitations, <strong>Professional ($9/mo)</strong> for 15 applications/mo, or <strong>Prestige ($15/mo)</strong> for unlimited applications.</span>
+                        <span>Stay on <strong>Explorer ($0/mo forever)</strong> for passive inbound invitations, or upgrade to <strong>Professional ($12/mo)</strong> for 15 outbound applications/mo or <strong>Prestige ($19/mo)</strong> for unlimited applications—and downgrade back to $0/mo Explorer anytime once hired!</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
@@ -245,7 +245,7 @@ export default function WorkflowsPage() {
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ 30-Day Free Trial, Invitation Unlocks &amp; Outbound Applications
+                    Unlocks: ✓ $0/Mo Inbound Invitations, Weekly Giveaway Entry &amp; Outbound Upgrades
                   </div>
                 </div>
 
@@ -261,7 +261,7 @@ export default function WorkflowsPage() {
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span>Included with every Candidate trial—complete a 60-second government photo ID and live selfie check via Stripe Identity.</span>
+                        <span>Included with your $5 One-Time Explorer Pass—complete a 60-second government photo ID and live selfie check via Stripe Identity.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
@@ -316,7 +316,7 @@ export default function WorkflowsPage() {
                   </div>
                   <div>
                     <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400">
-                      Free Talent Discovery • 30-Day Free Trial • Accepted-Only Invitation Guarantee
+                      $25 One-Time Org Verify • $0/Mo Talent Sandbox • Accepted-Only Invitation Guarantee
                     </span>
                     <h2 className="text-xl sm:text-2xl font-black text-white">
                       Employer Workflow: Free Staging to Verified Hiring
@@ -394,15 +394,15 @@ export default function WorkflowsPage() {
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
                   <div className="space-y-4">
                     <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-emerald-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 3 • 30-Day Trial &amp; Pillars 2–3
+                      Step 3 • $25 Org Verify &amp; Founding Partner Plans
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
-                      3. Start 30-Day Free Trial, EIN &amp; Admin ID Check
+                      3. Complete $25 Org Verification &amp; Lock In Founding Rate
                     </h3>
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Start your <strong>30-Day Free Trial</strong> and lock in 12-Month Founding Partner Rates: <strong>Starter ($149/mo)</strong>, <strong>Growth ($499/mo)</strong>, or <strong>Enterprise ($1,250/mo)</strong>.</span>
+                        <span>Complete your <strong>$25 One-Time Organization Verification</strong> to preview matches in the $0/mo Sandbox, then lock in 12-Month Founding Partner Rates when ready to hire: <strong>Starter ($149/mo)</strong>, <strong>Growth ($499/mo)</strong>, or <strong>Enterprise ($1,250/mo)</strong>.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
@@ -415,7 +415,7 @@ export default function WorkflowsPage() {
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ 30-Day Free Trial, 12-Mo Rate Lock &amp; 3-Pillar Verified Shield
+                    Unlocks: ✓ $0/Mo Verified Sandbox, 12-Mo Rate Lock &amp; 3-Pillar Verified Shield
                   </div>
                 </div>
 

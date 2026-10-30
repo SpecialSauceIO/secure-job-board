@@ -37,7 +37,7 @@ export const SECURITY_ARCHITECTURE_DATA = {
     {
       title: 'Credit Cards, ACH & Banking Details (PCI-DSS Level 1)',
       detail:
-        'All Employer subscription payments ($149 / $499 / $1,250 Founding Partner Rates locked for 12 months; $299 / $799 / $1,999 Retail), Rollover Invitation Credit Top-Up Packs ($150 / $350 / $900), and Explorer ($3/mo), Professional ($9/mo), or Prestige ($15/mo) transactions are processed on Stripe-hosted Checkout pages. Raw card numbers, CVV codes, and banking details never touch Special Sauce servers.',
+        'All Employer subscription payments ($149 / $499 / $1,250 Founding Partner Rates locked for 12 months; $299 / $799 / $1,999 Retail), Rollover Invitation Credit Top-Up Packs ($150 / $350 / $900), Employer Organization Verification ($25 one-time), and Candidate Explorer ($5 one-time · $0/mo forever), Professional ($12/mo), or Prestige ($19/mo) transactions are processed on Stripe-hosted Checkout pages. Raw card numbers, CVV codes, and banking details never touch Special Sauce servers.',
     },
   ],
   platformStoredItems: [
@@ -71,7 +71,7 @@ Special Sauce does NOT store government ID images, verification selfies, credit 
 
 2. WHAT IS STORED EXCLUSIVELY INSIDE STRIPE (PCI-DSS LEVEL 1 & SOC 2):
 - Biometric Identity Verification (Stripe Identity): Government IDs and live selfie checks for both Candidates and Employer Account Admins are captured and encrypted (AES-256) directly inside Stripe's isolated vault. Special Sauce only stores a boolean "Identity Verified" status token.
-- Subscription & Billing Data (Stripe Checkout): All payment methods for Starter, Growth & Enterprise ($149/$499/$1,250 Founding Partner Rates locked for 12 months; $299/$799/$1,999 Retail), Rollover Top-Up Packs ($150 / $350 / $900), and Explorer ($3/mo), Professional ($9/mo) & Prestige ($15/mo) plans are tokenized and vaulted by Stripe.
+- Subscription & Billing Data (Stripe Checkout): All payment methods for Starter, Growth & Enterprise ($149/$499/$1,250 Founding Partner Rates locked for 12 months; $299/$799/$1,999 Retail), Rollover Top-Up Packs ($150 / $350 / $900), Employer Verification Passes ($25 one-time), and Explorer ($5 one-time · $0/mo forever), Professional ($12/mo) & Prestige ($19/mo) plans are tokenized and vaulted by Stripe.
 
 3. 3-PILLAR EMPLOYER ANTI-HARVESTING GATE:
 - Pillar 1 (Domain & 90-Day RDAP Age Check): Work-email or DNS TXT verification paired with live DNS MX validation and an automated IANA/RDAP lookup blocking burner domains (<90 days old).
@@ -154,9 +154,9 @@ Special Sauce is a 100% ID-verified, double-blind recruitment marketplace protec
     steps: [
       {
         step: 'Step 1',
-        title: 'Create Account & Activate Your Candidate Plan ($3 / $9 / $15)',
+        title: 'Create Account & Activate Your Candidate Plan ($5 One-Time Explorer / $12 Pro / $19 Prestige)',
         description:
-          'Register and activate Explorer ($3/mo for passive inbound discovery), Professional ($9/mo for 15 monthly protected applications), or Prestige ($15/mo for unlimited protected applications & Top-Priority Spotlight). Joining during launch awards the permanent ★ Founding Member Charter badge.',
+          'Register and activate Explorer ($5 one-time ID verification · $0/mo forever for passive inbound discovery & Weekly 1-Year Prestige Drawing), Professional ($12/mo for 15 monthly protected applications), or Prestige ($19/mo for unlimited protected applications & Top-Priority Spotlight). Joining during launch awards the permanent ★ Founding Member Charter badge.',
       },
       {
         step: 'Step 2',
@@ -197,10 +197,10 @@ SPECIAL SAUCE — CANDIDATE HOW-IT-WORKS & 2-STAGE VAULT REFERENCE GUIDE
 - Set your Minimum Salary ($/yr), Work Model (Remote, Hybrid, On-site), Accepted Employment Types (W-2, 1099/C2C, Contract-to-Hire, Part-Time), and US State/Metro on your Preferences page.
 - All job listings automatically close after 30 days unless manually renewed by the employer—eliminating stale "ghost jobs."
 
-3. CANDIDATE MEMBERSHIP TIERS ($3 / $9 / $15):
-- Explorer ($3/mo): Includes 1-time Stripe Real-Person ID Verification, live anonymous profile in Employer Search, unlimited Inbound Professional Invitation unlocks, and unlimited TrueFit Score™ checks.
-- Professional ($9/mo): Includes 1-time Stripe Real-Person ID Verification, unlimited Inbound Professional Invitation unlocks, 15 Outbound Protected Applications/month (40%+ TrueFit™), and Permanent Founding Member status.
-- Prestige ($15/mo): Includes 1-time Stripe Real-Person ID Verification, Unlimited Outbound Protected Applications (40%+ TrueFit™), unlimited invitation unlocks, and Top-Priority Spotlight placement in Employer Talent Search.
+3. CANDIDATE MEMBERSHIP TIERS ($5 ONE-TIME EXPLORER / $12 PRO / $19 PRESTIGE):
+- Explorer ($5 one-time verification · $0/mo forever): Includes lifetime Stripe Real-Person ID Verification, live anonymous profile in Employer Search, unlimited Inbound Professional Invitation unlocks, unlimited TrueFit Score™ checks, and automatic entry into our Weekly 1-Year Prestige Drawing.
+- Professional ($12/mo): Includes everything in Explorer, 15 Outbound Protected Applications/month (40%+ TrueFit™), and Permanent Founding Member status. Downgrade back to $0/mo Explorer anytime once hired.
+- Prestige ($19/mo): Includes everything in Professional, Unlimited Outbound Protected Applications (40%+ TrueFit™), Top-Priority Spotlight placement in Employer Talent Search, and priority 1-on-1 support. Downgrade back to $0/mo Explorer anytime once hired.
 ====================================================================`,
   },
 }
@@ -216,7 +216,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'Why do I need to verify my identity, and is my government ID stored by Special Sauce?',
     answer:
-      'Identity verification protects the integrity of the Special Sauce marketplace, eliminating automated spam bots and fake profiles. Every candidate plan—Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo)—includes 1-time Stripe Real-Person ID Verification (a 60-second photo ID and live selfie check) so 100% of candidates in Employer Search are real professionals. Your government ID and biometric selfie are NEVER stored on Special Sauce servers—they are vaulted exclusively by Stripe Identity using AES-256 encryption.',
+      'Identity verification protects the integrity of the Special Sauce marketplace, eliminating automated spam bots and fake profiles. Every candidate plan—Explorer ($5 one-time · $0/mo forever), Professional ($12/mo), and Prestige ($19/mo)—includes 1-time Stripe Real-Person ID Verification (a 60-second photo ID and live selfie check) so 100% of candidates in Employer Search are real professionals. Your government ID and biometric selfie are NEVER stored on Special Sauce servers—they are vaulted exclusively by Stripe Identity using AES-256 encryption.',
   },
   {
     id: 'c2',
@@ -275,11 +275,11 @@ export const SUPPORT_FAQS: FAQ[] = [
   {
     id: 'c7',
     target: 'candidate',
-    category: 'Plans, Biometric ID & Candidate Tiers ($3 / $9 / $15)',
+    category: 'Plans, Biometric ID & Candidate Tiers ($5 One-Time / $12 / $19)',
     question:
-      'What is the difference between Explorer ($3/mo), Professional ($9/mo), and Prestige ($15/mo)?',
+      'What is the difference between Explorer ($5 one-time · $0/mo forever), Professional ($12/mo), and Prestige ($19/mo)?',
     answer:
-      'All three candidate tiers include 1-time Stripe Real-Person ID Verification, your private Conversation Resume Vault, and the permanent ★ Founding Member Charter badge during our launch window. Explorer ($3/mo) is built for passive discovery: your verified anonymous profile is live in Employer Search, you can run unlimited TrueFit Score™ checks, and you can unlock and accept unlimited Inbound Professional Invitations. Professional ($9/mo) adds 15 proactive Outbound Protected Applications/month (for roles where you score 40%+ TrueFit™) plus Verified Profile Distinctions. Prestige ($15/mo) unlocks Unlimited Outbound Protected Applications (40%+ TrueFit™) and Top-Priority Spotlight placement at the top of Employer Talent Search. You can upgrade, switch, or downgrade plans anytime.',
+      'All three candidate tiers include 1-time Stripe Real-Person ID Verification, your private Conversation Resume Vault, and the permanent ★ Founding Member Charter badge during our launch window. Explorer ($5 one-time verification · $0/mo forever) is built for passive discovery: your verified anonymous profile is live in Employer Search, you can run unlimited TrueFit Score™ checks, unlock and accept unlimited Inbound Professional Invitations, and enter our Weekly 1-Year Prestige Drawing. Professional ($12/mo) adds 15 proactive Outbound Protected Applications/month (for roles where you score 40%+ TrueFit™) plus Verified Profile Distinctions. Prestige ($19/mo) unlocks Unlimited Outbound Protected Applications (40%+ TrueFit™), Top-Priority Spotlight placement at the top of Employer Talent Search, and priority 1-on-1 support. You can upgrade anytime to apply outbound and downgrade back to $0/mo Explorer once hired.',
   },
 
   // ------------------------------------------------------------------
