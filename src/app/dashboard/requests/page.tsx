@@ -294,7 +294,7 @@ export default function CandidateRequestsInboxPage() {
         </Link>
       </header>
 
-      {/* Subscription & Verification Gate Banner for Unsubscribed / Unverified Candidates */}
+      {/* Subscription & Verification Gate Banner for Unsubscribed / Unverified Professionals */}
       {!isLoading && (!hasActivePlan || !isCandidateVerified) && (
         <div className="p-5 rounded-2xl bg-amber-50 border-2 border-amber-300 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">

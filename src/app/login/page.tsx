@@ -567,7 +567,7 @@ function LoginContent() {
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Candidate Account
+              Professional Account
             </button>
             <button
               type="button"

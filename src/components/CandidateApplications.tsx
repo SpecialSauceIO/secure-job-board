@@ -796,7 +796,7 @@ export function CandidateApplications() {
                         </div>
                       </div>
 
-                      {/* Encrypted Thread + Candidate-Controlled Stage 2 Vault Release */}
+                      {/* Encrypted Thread + Professional-Controlled Stage 2 Vault Release */}
                       <SecureMessageThread
                         applicationId={app.id}
                         referenceId={referenceId}

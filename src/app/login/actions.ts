@@ -463,7 +463,7 @@ export async function lookupAccountEmailHint(
         for (const p of profiles) {
           const directEmail = p.contact_email || p.email
           const label =
-            p.role === 'employer' ? 'Employer Account' : 'Candidate Vault'
+            p.role === 'employer' ? 'Employer Account' : 'Professional Vault'
           if (directEmail) {
             registerRawEmail(directEmail, label)
           } else if (supabaseUrl && serviceRoleKey) {
@@ -491,7 +491,7 @@ export async function lookupAccountEmailHint(
             cName.trim().toLowerCase() === trimmed.toLowerCase() &&
             cEmail
           ) {
-            registerRawEmail(cEmail, 'Candidate Vault')
+            registerRawEmail(cEmail, 'Professional Vault')
           }
         }
       }

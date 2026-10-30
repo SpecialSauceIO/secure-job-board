@@ -253,7 +253,7 @@ export function evaluateLanguageRequirements(
 
     if (candRank < reqRank) {
       missingDescriptions.push(
-        `Requires ${req.language} at ${req.proficiency}+ level (Candidate is ${matched.proficiency})`
+        `Requires ${req.language} at ${req.proficiency}+ level (Professional is ${matched.proficiency})`
       )
       continue
     }
@@ -263,21 +263,21 @@ export function evaluateLanguageRequirements(
       matched.modality !== 'Both (Written & Verbal)'
     ) {
       missingDescriptions.push(
-        `Requires ${req.language} in Both Written & Verbal (Candidate is ${matched.modality})`
+        `Requires ${req.language} in Both Written & Verbal (Professional is ${matched.modality})`
       )
     } else if (
       req.modality === 'Verbal Only' &&
       matched.modality === 'Written Only'
     ) {
       missingDescriptions.push(
-        `Requires Verbal ${req.language} (Candidate is Written Only)`
+        `Requires Verbal ${req.language} (Professional is Written Only)`
       )
     } else if (
       req.modality === 'Written Only' &&
       matched.modality === 'Verbal Only'
     ) {
       missingDescriptions.push(
-        `Requires Written ${req.language} (Candidate is Verbal Only)`
+        `Requires Written ${req.language} (Professional is Verbal Only)`
       )
     }
   }

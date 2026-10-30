@@ -151,7 +151,7 @@ export async function GET(req: NextRequest) {
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: "Return strictly JSON: {\"overall_score\": number, \"radar_data\": [{\"subject\": \"Core Competencies\", \"score\": number}, {\"subject\": \"Skill Tenure\", \"score\": number}, {\"subject\": \"Logistics & Pay\", \"score\": number}, {\"subject\": \"Industry & Creds\", \"score\": number}, {\"subject\": \"Execution & Comm.\", \"score\": number}], \"brief_analysis\": string}" },
-          { role: "user", content: "Candidate Skills: " + JSON.stringify(prof?.structured_skills) + " | Bio: " + prof?.bio + " | Job Title: " + job.title + " | Job Reqs: " + JSON.stringify(job.structured_requirements) }
+          { role: "user", content: "Professional Skills: " + JSON.stringify(prof?.structured_skills) + " | Bio: " + prof?.bio + " | Job Title: " + job.title + " | Job Reqs: " + JSON.stringify(job.structured_requirements) }
         ]
       })
       raw = JSON.parse(chat.choices[0]?.message?.content || "{}")

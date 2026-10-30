@@ -50,7 +50,7 @@ export async function POST(req: Request) {
   }
 
   // ============================================================================
-  // 1. CHECKOUT COMPLETED (Candidate Plans, Employer Verification, Employer Plans, Top-Up Packs)
+  // 1. CHECKOUT COMPLETED (Professional Plans, Employer Verification, Employer Plans, Top-Up Packs)
   // ============================================================================
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     const userId = session.metadata?.userId || session.client_reference_id || ''
     const organizationId = session.metadata?.organizationId || session.client_reference_id || ''
 
-    // A) Candidate Plans (explorer $5 one-time -> $0/mo forever, professional $12/mo, or prestige $19/mo)
+    // A) Professional Plans (explorer $5 one-time -> $0/mo forever, professional $12/mo, or prestige $19/mo)
     if (
       audience === 'candidate' ||
       tierId === 'explorer' ||
@@ -104,7 +104,7 @@ export async function POST(req: Request) {
           .update({ structured_skills: [...filtered, newMeta] })
           .eq('id', userId)
 
-        if (error) console.error('Database Update Error (Candidate Plan):', error)
+        if (error) console.error('Database Update Error (Professional Plan):', error)
       }
     }
     // A2) Employer One-Time Verification Pass ($25 One-Time -> Unlocks Explorer Sandbox)
@@ -264,7 +264,7 @@ export async function POST(req: Request) {
           })
           .eq('id', orgObj.id)
       } else {
-        // 2) Otherwise check if a Candidate Profile holds this subscription
+        // 2) Otherwise check if a Professional Profile holds this subscription
         const { data: candidates } = await supabaseAdmin
           .from('profiles')
           .select('id, structured_skills')
@@ -306,7 +306,7 @@ export async function POST(req: Request) {
   // ============================================================================
   // 1C. SUBSCRIPTION CANCELED / EXPIRED (customer.subscription.deleted)
   //     - Steps Employer back to Verified Explorer Sandbox ('explorer') while preserving [TOPUP:X]
-  //     - Downgrades Candidate back to 'explorer' ($0/mo forever passive vault)
+  //     - Downgrades Professional back to 'explorer' ($0/mo forever passive vault)
   // ============================================================================
   if (event.type === 'customer.subscription.deleted') {
     const subscription = event.data.object as Stripe.Subscription
@@ -345,7 +345,7 @@ export async function POST(req: Request) {
         })
         .eq('id', orgObj.id)
     } else {
-      // 2) Check Candidate Profile — Downgrade to 'explorer' ($0/mo forever passive vault)
+      // 2) Check Professional Profile — Downgrade to 'explorer' ($0/mo forever passive vault)
       const { data: candidates } = await supabaseAdmin
         .from('profiles')
         .select('id, structured_skills')
@@ -378,7 +378,7 @@ export async function POST(req: Request) {
   }
 
   // ============================================================================
-  // 2. CANDIDATE IDENTITY: Handle successful verification
+  // 2. PROFESSIONAL IDENTITY: Handle successful verification
   // ============================================================================
   if (event.type === 'identity.verification_session.verified') {
     const session = event.data.object as Stripe.Identity.VerificationSession
@@ -406,7 +406,7 @@ export async function POST(req: Request) {
       if (error) {
         console.error('Database Update Error (Profile Identity):', error)
       } else {
-        console.log(`Candidate ${userId} successfully verified!`)
+        console.log(`Professional ${userId} successfully verified!`)
       }
     }
   }

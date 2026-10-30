@@ -54,7 +54,7 @@ export default function SecureMessageThread({
   initialMessages = [],
   initialVaultReleased = false,
   employerName = 'Verified Employer',
-  candidateDisplayName = 'Verified Candidate',
+  candidateDisplayName = 'Verified Professional',
   candidateFullName: initialCandidateFullName,
   candidateEmail: initialCandidateEmail,
   employerEmail: initialEmployerEmail,
@@ -350,7 +350,7 @@ export default function SecureMessageThread({
             <p className="text-[11px] text-slate-600 mt-0.5">
               {vaultReleased
                 ? viewerRole === 'employer'
-                  ? 'Candidate has released their full name, direct email, and signed PDF resume.'
+                  ? 'Professional has released their full name, direct email, and signed PDF resume.'
                   : `You have released your direct contact details and PDF resume to ${employerName}.`
                 : viewerRole === 'employer'
                 ? 'To prevent passive resume harvesting, raw email & PDF resume remain vaulted until you message the candidate and they choose to share it.'
@@ -386,19 +386,19 @@ export default function SecureMessageThread({
 
           {viewerRole === 'employer' && !vaultReleased && (
             <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-300 text-amber-800 text-[11px] font-bold">
-              🔒 PDF Resume Vaulted (Message Candidate First)
+              🔒 PDF Resume Vaulted (Message Professional First)
             </span>
           )}
         </div>
       </div>
 
-      {/* Stage 2 Unlocked Contact Card (Only visible AFTER Candidate clicks Release Vault) */}
+      {/* Stage 2 Unlocked Contact Card (Only visible AFTER Professional clicks Release Vault) */}
       {vaultReleased && (
         <div className="px-4 py-2.5 bg-emerald-50/40 border-b border-emerald-300 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex flex-wrap items-center gap-4">
             {candidateFullName && (
               <span>
-                <strong className="text-slate-600">Candidate:</strong>{' '}
+                <strong className="text-slate-600">Professional:</strong>{' '}
                 <span className="font-extrabold text-slate-900">
                   {candidateFullName}
                 </span>
@@ -406,7 +406,7 @@ export default function SecureMessageThread({
             )}
             {candidateEmail && (
               <span>
-                <strong className="text-slate-600">Candidate Email:</strong>{' '}
+                <strong className="text-slate-600">Professional Email:</strong>{' '}
                 <a
                   href={`mailto:${candidateEmail}`}
                   className="font-bold text-indigo-600 hover:underline"

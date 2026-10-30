@@ -32,7 +32,7 @@ export async function signupCandidate(formData: FormData) {
   if (error) {
     await recordHandshakeTelemetry({
       handshakeId: 'candidate_auth_signup',
-      label: 'Candidate Auth & Registration',
+      label: 'Professional Auth & Registration',
       platformArea: 'Onboarding & Authentication',
       ok: false,
       latencyMs: Date.now() - startMs,
@@ -50,7 +50,7 @@ export async function signupCandidate(formData: FormData) {
 
   await recordHandshakeTelemetry({
     handshakeId: 'candidate_auth_signup',
-    label: 'Candidate Auth & Registration',
+    label: 'Professional Auth & Registration',
     platformArea: 'Onboarding & Authentication',
     ok: true,
     latencyMs: Date.now() - startMs,

@@ -285,7 +285,7 @@ export default function EmployerBillingPage() {
             Billing, Role Slots &amp; Invitation Credits
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Reviewing and unlocking candidates who apply to your protected job listings is 100% free (0 credits) on every active plan.
+            Reviewing and unlocking professionals who apply to your protected job listings is 100% free (0 credits) on every active plan.
           </p>
         </div>
 
@@ -770,7 +770,7 @@ export default function EmployerBillingPage() {
                 <span className="text-2xl font-black text-slate-900">$325</span>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Built for hiring managers actively sourcing passive candidates across 2 to 4 concurrent open roles.
+                Built for hiring managers actively sourcing passive professionals across 2 to 4 concurrent open roles.
               </p>
             </div>
 

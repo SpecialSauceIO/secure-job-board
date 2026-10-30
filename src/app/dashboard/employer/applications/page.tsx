@@ -212,7 +212,7 @@ export default function EmployerInboundApplicationsPage() {
               Back to Employer Dashboard
             </Link>
             <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              Inbound Candidate Applications
+              Inbound Professional Applications
             </h1>
             <p className="text-slate-500 mt-1">
               Sort applicants by TrueFit Score™, open private message threads for free, and manage shortlisted talent.
@@ -410,7 +410,7 @@ export default function EmployerInboundApplicationsPage() {
                 <option value="newest">Newest Applications First</option>
                 <option value="oldest">Oldest Applications First</option>
                 <option value="exp_high">
-                  Candidate Experience (Most Years First)
+                  Professional Experience (Most Years First)
                 </option>
               </select>
             </div>
@@ -457,7 +457,7 @@ export default function EmployerInboundApplicationsPage() {
             </h3>
             <p className="text-slate-500 max-w-md mx-auto text-sm mb-4">
               {statusFilter === 'all' && industryFilter === 'all'
-                ? 'When verified candidates apply to your open roles, their protected applications and full review history will appear here.'
+                ? 'When verified professionals apply to your open roles, their protected applications and full review history will appear here.'
                 : 'Try switching status tabs or resetting your Industry Vertical filter.'}
             </p>
             {(statusFilter !== 'all' || industryFilter !== 'all') && (

@@ -23,7 +23,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER_5_ONETIME',
     defaultPriceId: '',
     description:
-      'One-Time Lifetime Real-Person ID Verification ($0/mo forever after): Includes Verified Candidate Shield, live placement in Employer Talent Search, unlimited inbound Professional Invitation unlocks, and entry into our Weekly 1-Year Prestige Drawing.',
+      'One-Time Lifetime Real-Person ID Verification ($0/mo forever after): Includes Verified Professional Shield, live placement in Employer Talent Search, unlimited inbound Professional Invitation unlocks, and entry into our Weekly 1-Year Prestige Drawing.',
   },
   candidate_explorer: {
     id: 'explorer',
@@ -33,7 +33,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER_5_ONETIME',
     defaultPriceId: '',
     description:
-      'One-Time Lifetime Real-Person ID Verification ($0/mo forever after): Includes Verified Candidate Shield, live placement in Employer Talent Search, unlimited inbound Professional Invitation unlocks, and entry into our Weekly 1-Year Prestige Drawing.',
+      'One-Time Lifetime Real-Person ID Verification ($0/mo forever after): Includes Verified Professional Shield, live placement in Employer Talent Search, unlimited inbound Professional Invitation unlocks, and entry into our Weekly 1-Year Prestige Drawing.',
   },
   professional: {
     id: 'professional',
@@ -84,7 +84,7 @@ export const EMPLOYER_VERIFICATION_PASS = {
   envVar: 'STRIPE_PRICE_EMPLOYER_VERIFY_25_ONETIME',
   defaultPriceId: '',
   description:
-    'One-Time Organization, Domain/DNS, EIN & Representative Stripe Identity Verification Pass ($0/mo Sandbox): Draft protected roles and preview live verified candidate match counts before activating a monthly plan.',
+    'One-Time Organization, Domain/DNS, EIN & Representative Stripe Identity Verification Pass ($0/mo Sandbox): Draft protected roles and preview live verified professional match counts before activating a monthly plan.',
 }
 
 export const EMPLOYER_SAAS_TIERS: Record<
@@ -257,7 +257,7 @@ export async function POST(req: Request) {
     const origin = req.headers.get('origin') || 'https://www.specialsauce.io'
 
     // =========================================================================
-    // 1. CANDIDATE PLANS: EXPLORER ($5 ONE-TIME), PROFESSIONAL ($12/MO), PRESTIGE ($19/MO)
+    // 1. PROFESSIONAL PLANS: EXPLORER ($5 ONE-TIME), PROFESSIONAL ($12/MO), PRESTIGE ($19/MO)
     // =========================================================================
     const candidateTier = CANDIDATE_SAAS_TIERS[rawKey]
     if (candidateTier) {

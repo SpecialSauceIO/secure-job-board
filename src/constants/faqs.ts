@@ -22,12 +22,12 @@ export interface PlaybookGuide {
 export const SECURITY_ARCHITECTURE_DATA = {
   title: 'Data Security, Intro/Convo Identity Vault & Stripe Architecture',
   subtitle:
-    'Special Sauce is engineered on a Zero-ID-Storage and Anti-Harvesting architecture. Biometric identity documents and payment credentials for both Candidates and Employer Admins are vaulted exclusively by Stripe, while candidate resumes and direct contact details remain locked behind our Intro/Convo Identity Vault until the candidate explicitly releases them.',
+    'Special Sauce is engineered on a Zero-ID-Storage and Anti-Harvesting architecture. Biometric identity documents and payment credentials for both Professionals and Employer Admins are vaulted exclusively by Stripe, while candidate resumes and direct contact details remain locked behind our Intro/Convo Identity Vault until the candidate explicitly releases them.',
   stripeVaultItems: [
     {
-      title: 'Government IDs & Passports (Candidate & Employer Admin Stripe Identity)',
+      title: 'Government IDs & Passports (Professional & Employer Admin Stripe Identity)',
       detail:
-        'Photos of driver’s licenses, passports, and national ID cards uploaded during Candidate onboarding and Employer Account Admin verification are transmitted directly to Stripe Identity over TLS 1.3 and encrypted using AES-256 inside Stripe’s isolated biometric vault.',
+        'Photos of driver’s licenses, passports, and national ID cards uploaded during Professional onboarding and Employer Account Admin verification are transmitted directly to Stripe Identity over TLS 1.3 and encrypted using AES-256 inside Stripe’s isolated biometric vault.',
     },
     {
       title: 'Biometric Selfie Checks & Zero-Knowledge Tokens',
@@ -37,12 +37,12 @@ export const SECURITY_ARCHITECTURE_DATA = {
     {
       title: 'Credit Cards, ACH & Banking Details (PCI-DSS Level 1)',
       detail:
-        'All Employer subscription payments ($149 / $499 / $1,250 Founding Partner Rates locked for 12 months; $299 / $799 / $1,999 Retail), Rollover Invitation Credit Top-Up Packs ($150 / $350 / $900), Employer Organization Verification ($25 one-time), and Candidate Explorer ($5 one-time · $0/mo forever), Professional ($12/mo), or Prestige ($19/mo) transactions are processed on Stripe-hosted Checkout pages. Raw card numbers, CVV codes, and banking details never touch Special Sauce servers.',
+        'All Employer subscription payments ($149 / $499 / $1,250 Founding Partner Rates locked for 12 months; $299 / $799 / $1,999 Retail), Rollover Invitation Credit Top-Up Packs ($150 / $350 / $900), Employer Organization Verification ($25 one-time), and Professional Explorer ($5 one-time · $0/mo forever), Professional ($12/mo), or Prestige ($19/mo) transactions are processed on Stripe-hosted Checkout pages. Raw card numbers, CVV codes, and banking details never touch Special Sauce servers.',
     },
   ],
   platformStoredItems: [
     {
-      title: 'Intro/Convo Candidate Identity & Resume Vault (Anti-Harvesting)',
+      title: 'Intro/Convo Professional Identity & Resume Vault (Anti-Harvesting)',
       detail:
         'The Introduction (Initial Unlock / Invitation Acceptance) opens an encrypted in-platform message thread and reveals only the candidate’s First Name + Last Initial alongside the employer’s verified company identity. The Conversation requires the candidate’s explicit 1-click consent ("Release Resume & Contact Vault") before their full name, direct email, and 1-hour signed PDF resume URL are revealed.',
     },
@@ -70,7 +70,7 @@ SPECIAL SAUCE — DATA SECURITY, 2-STAGE VAULT & STRIPE COMPLIANCE BRIEF
 Special Sauce does NOT store government ID images, verification selfies, credit card numbers, or bank account details in our application database.
 
 2. WHAT IS STORED EXCLUSIVELY INSIDE STRIPE (PCI-DSS LEVEL 1 & SOC 2):
-- Biometric Identity Verification (Stripe Identity): Government IDs and live selfie checks for both Candidates and Employer Account Admins are captured and encrypted (AES-256) directly inside Stripe's isolated vault. Special Sauce only stores a boolean "Identity Verified" status token.
+- Biometric Identity Verification (Stripe Identity): Government IDs and live selfie checks for both Professionals and Employer Account Admins are captured and encrypted (AES-256) directly inside Stripe's isolated vault. Special Sauce only stores a boolean "Identity Verified" status token.
 - Subscription & Billing Data (Stripe Checkout): All payment methods for Starter, Growth & Enterprise ($149/$499/$1,250 Founding Partner Rates locked for 12 months; $299/$799/$1,999 Retail), Rollover Top-Up Packs ($150 / $350 / $900), Employer Verification Passes ($25 one-time), and Explorer ($5 one-time · $0/mo forever), Professional ($12/mo) & Prestige ($19/mo) plans are tokenized and vaulted by Stripe.
 
 3. 3-PILLAR EMPLOYER ANTI-HARVESTING GATE:
@@ -80,7 +80,7 @@ Special Sauce does NOT store government ID images, verification selfies, credit 
 
 4. INTRO/CONVO ANTI-HARVESTING IDENTITY VAULT & IN-PLATFORM MESSAGING:
 - The Introduction (Encrypted Thread Unlock): When an employer unlocks an inbound application or a candidate accepts a Professional Invitation, an encrypted in-platform chat thread opens (Ref: SS-XXXXXXXX). The employer's verified company name/domain and the candidate's First Name + Last Initial are revealed, while the candidate's raw email and PDF resume remain strictly vaulted.
-- The Conversation (Candidate-Controlled Vault Release): Only after the employer engages in the thread and the candidate clicks "Release Resume & Contact Vault" are the candidate's Full Name, direct email, and 1-hour signed PDF resume URL unlocked.
+- The Conversation (Professional-Controlled Vault Release): Only after the employer engages in the thread and the candidate clicks "Release Resume & Contact Vault" are the candidate's Full Name, direct email, and 1-hour signed PDF resume URL unlocked.
 - Anti-Scraping & Phishing Guardrails: Employers cannot hold more than 5 unlocked threads without sending an introductory message. All job postings automatically expire after 30 days unless manually renewed, and in-platform messages are scanned in real time to block SSN/banking requests and off-platform phishing links.
 ====================================================================`,
 }
@@ -115,11 +115,11 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
         step: 'Step 4',
         title: 'The Introduction Unlock & 100% Accepted-Only Invitation Credit Protection',
         description:
-          'Unlocking inbound applicants (40%+ TrueFit™) is 100% free (0 credits). Sending a Professional Invitation to passive candidates uses 1 Invitation Credit backed by our 100% Accepted-Only Guarantee—declined invitations are automatically refunded. The Introduction opens a live encrypted chat thread and reveals the candidate’s First Name + Last Initial.',
+          'Unlocking inbound applicants (40%+ TrueFit™) is 100% free (0 credits). Sending a Professional Invitation to passive professionals uses 1 Invitation Credit backed by our 100% Accepted-Only Guarantee—declined invitations are automatically refunded. The Introduction opens a live encrypted chat thread and reveals the candidate’s First Name + Last Initial.',
       },
       {
         step: 'Step 5',
-        title: 'The Conversation Unlock: Candidate Releases Full Resume & Contact Vault',
+        title: 'The Conversation Unlock: Professional Releases Full Resume & Contact Vault',
         description:
           'Message the candidate in The Introduction chat to discuss the role. Once the candidate clicks "Release Resume & Contact Vault", their Full Name, direct email, and 1-hour cryptographically signed PDF resume unlock (and auto-sync to Workday or Greenhouse on Enterprise).',
       },
@@ -147,14 +147,14 @@ Special Sauce is a 100% ID-verified, double-blind recruitment marketplace protec
   },
   candidate: {
     id: 'candidate',
-    title: 'Candidate Process & Intro/Convo Vault Guide',
+    title: 'Professional Process & Intro/Convo Vault Guide',
     subtitle:
       'How Special Sauce protects your anonymity, eliminates resume harvesting, and gives you 100% control over when your resume and email are released.',
-    badge: 'Candidate Guide',
+    badge: 'Professional Guide',
     steps: [
       {
         step: 'Step 1',
-        title: 'Create Account & Activate Your Candidate Plan ($5 One-Time Explorer / $12 Pro / $19 Prestige)',
+        title: 'Create Account & Activate Your Professional Plan ($5 One-Time Explorer / $12 Pro / $19 Prestige)',
         description:
           'Register and activate Explorer ($5 one-time ID verification · $0/mo forever for passive inbound discovery & Weekly 1-Year Prestige Drawing), Professional ($12/mo for 15 monthly protected applications), or Prestige ($19/mo for unlimited protected applications & Top-Priority Spotlight). Joining during launch awards the permanent ★ Founding Member Charter badge.',
       },
@@ -168,7 +168,7 @@ Special Sauce is a 100% ID-verified, double-blind recruitment marketplace protec
         step: 'Step 3',
         title: 'Upload PDF Resume to Your Conversation Vault & Set Dealbreakers',
         description:
-          'Upload your PDF resume once. Our One-Click Profile Builder™ extracts your skills, tenure, certifications, and languages into an anonymized profile (Candidate #ID) while locking your name, email, phone, and raw PDF inside your Conversation Vault. Set your minimum pay and dealbreakers upfront.',
+          'Upload your PDF resume once. Our One-Click Profile Builder™ extracts your skills, tenure, certifications, and languages into an anonymized profile (Professional #ID) while locking your name, email, phone, and raw PDF inside your Conversation Vault. Set your minimum pay and dealbreakers upfront.',
       },
       {
         step: 'Step 4',
@@ -184,11 +184,11 @@ Special Sauce is a 100% ID-verified, double-blind recruitment marketplace protec
       },
     ],
     copyPasteText: `====================================================================
-SPECIAL SAUCE — CANDIDATE HOW-IT-WORKS & 2-STAGE VAULT REFERENCE GUIDE
+SPECIAL SAUCE — PROFESSIONAL HOW-IT-WORKS & 2-STAGE VAULT REFERENCE GUIDE
 ====================================================================
 
 1. ZERO RESUME HARVESTING (2-STAGE IDENTITY VAULT):
-- While browsing, employers only see "Anonymous Candidate #ID" with your extracted skills, experience level, US Metro location, and third-person bio.
+- While browsing, employers only see "Anonymous Professional #ID" with your extracted skills, experience level, US Metro location, and third-person bio.
 - The Introduction (Encrypted Thread): When an employer unlocks your application or you accept a Professional Invitation, an encrypted in-platform chat opens. You see the employer's verified company name and domain, and they see only your First Name + Last Initial. Your raw email and PDF resume stay LOCKED in the vault.
 - The Conversation (You Control the Vault Key): After chatting with the employer in the thread to confirm genuine interview interest, click "Release Resume & Contact Vault" in 1 click to share your Full Name, direct email, and 1-hour signed PDF resume link.
 
@@ -197,7 +197,7 @@ SPECIAL SAUCE — CANDIDATE HOW-IT-WORKS & 2-STAGE VAULT REFERENCE GUIDE
 - Set your Minimum Salary ($/yr), Work Model (Remote, Hybrid, On-site), Accepted Employment Types (W-2, 1099/C2C, Contract-to-Hire, Part-Time), and US State/Metro on your Preferences page.
 - All job listings automatically close after 30 days unless manually renewed by the employer—eliminating stale "ghost jobs."
 
-3. CANDIDATE MEMBERSHIP TIERS ($5 ONE-TIME EXPLORER / $12 PRO / $19 PRESTIGE):
+3. PROFESSIONAL MEMBERSHIP TIERS ($5 ONE-TIME EXPLORER / $12 PRO / $19 PRESTIGE):
 - Explorer ($5 one-time verification · $0/mo forever): Includes lifetime Stripe Real-Person ID Verification, live anonymous profile in Employer Search, unlimited Inbound Professional Invitation unlocks, unlimited TrueFit Score™ checks, and automatic entry into our Weekly 1-Year Prestige Drawing.
 - Professional ($12/mo): Includes everything in Explorer, 15 Outbound Protected Applications/month (40%+ TrueFit™), and Permanent Founding Member status. Downgrade back to $0/mo Explorer anytime once hired.
 - Prestige ($19/mo): Includes everything in Professional, Unlimited Outbound Protected Applications (40%+ TrueFit™), Top-Priority Spotlight placement in Employer Talent Search, and priority 1-on-1 support. Downgrade back to $0/mo Explorer anytime once hired.
@@ -207,7 +207,7 @@ SPECIAL SAUCE — CANDIDATE HOW-IT-WORKS & 2-STAGE VAULT REFERENCE GUIDE
 
 export const SUPPORT_FAQS: FAQ[] = [
   // ------------------------------------------------------------------
-  // CANDIDATE FAQS
+  // PROFESSIONAL FAQS
   // ------------------------------------------------------------------
   {
     id: 'c1',
@@ -225,7 +225,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How does the Intro/Convo Identity Vault protect me from resume harvesters?',
     answer:
-      'Unlike traditional job boards that expose your resume, phone number, and email to anyone with a recruiter login, Special Sauce enforces a strict Intro/Convo Unlock. During discovery, you appear only as "Candidate #ID". In The Introduction (when an employer unlocks your application or you accept their invitation), an encrypted chat thread opens: you see the employer’s verified company name, and they see only your First Name + Last Initial. Your raw email, phone, and PDF resume remain locked inside your Conversation Vault until you decide to click "Release Resume & Contact Vault" (which generates a 1-hour cryptographically signed resume link).',
+      'Unlike traditional job boards that expose your resume, phone number, and email to anyone with a recruiter login, Special Sauce enforces a strict Intro/Convo Unlock. During discovery, you appear only as "Professional #ID". In The Introduction (when an employer unlocks your application or you accept their invitation), an encrypted chat thread opens: you see the employer’s verified company name, and they see only your First Name + Last Initial. Your raw email, phone, and PDF resume remain locked inside your Conversation Vault until you decide to click "Release Resume & Contact Vault" (which generates a 1-hour cryptographically signed resume link).',
   },
   {
     id: 'c8',
@@ -243,7 +243,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How do I know if an employer has sent me a Professional Invitation or messaged me in an encrypted thread?',
     answer:
-      'Whenever a verified employer sends you a Professional Invitation or sends a Introduction chat message, three things happen automatically: 1) We send an instant email alert to your inbox with a direct link to the thread, 2) Your Candidate Dashboard displays a pulsing "New Msg" badge on your Applications or Professional Invitations card in real time, and 3) If you have the dashboard open in your browser, a gentle audio chime plays automatically (which you can mute anytime).',
+      'Whenever a verified employer sends you a Professional Invitation or sends a Introduction chat message, three things happen automatically: 1) We send an instant email alert to your inbox with a direct link to the thread, 2) Your Professional Dashboard displays a pulsing "New Msg" badge on your Applications or Professional Invitations card in real time, and 3) If you have the dashboard open in your browser, a gentle audio chime plays automatically (which you can mute anytime).',
   },
   {
     id: 'c4',
@@ -252,7 +252,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How does Special Sauce eliminate stale "ghost jobs" and low-fit resume black holes?',
     answer:
-      'First, every job listing on Special Sauce is governed by a strict 30-Day Auto-Expiration policy—each card displays a live "Closes in Xd" countdown and automatically closes after 30 days unless manually renewed by the hiring team. Second, every listing shows transparent Annual (/yr) or Hourly (/hr) pay bands upfront and calculates your instant TrueFit Score™ score before you apply. A minimum 40%+ TrueFit™ score is required to submit a protected application, ensuring hiring managers review pre-aligned candidates who meet their core role requirements.',
+      'First, every job listing on Special Sauce is governed by a strict 30-Day Auto-Expiration policy—each card displays a live "Closes in Xd" countdown and automatically closes after 30 days unless manually renewed by the hiring team. Second, every listing shows transparent Annual (/yr) or Hourly (/hr) pay bands upfront and calculates your instant TrueFit Score™ score before you apply. A minimum 40%+ TrueFit™ score is required to submit a protected application, ensuring hiring managers review pre-aligned professionals who meet their core role requirements.',
   },
   {
     id: 'c5',
@@ -261,7 +261,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'Can I bookmark or save roles to compare before using my protected applications?',
     answer:
-      'Yes! Click the "Save Role" button on any job card to bookmark it. You can filter by your bookmarked listings at any time using the "Saved Roles" view on your Candidate Dashboard or the Discover Protected Roles page.',
+      'Yes! Click the "Save Role" button on any job card to bookmark it. You can filter by your bookmarked listings at any time using the "Saved Roles" view on your Professional Dashboard or the Discover Protected Roles page.',
   },
   {
     id: 'c6',
@@ -275,7 +275,7 @@ export const SUPPORT_FAQS: FAQ[] = [
   {
     id: 'c7',
     target: 'candidate',
-    category: 'Plans, Biometric ID & Candidate Tiers ($5 One-Time / $12 / $19)',
+    category: 'Plans, Biometric ID & Professional Tiers ($5 One-Time / $12 / $19)',
     question:
       'What is the difference between Explorer ($5 one-time · $0/mo forever), Professional ($12/mo), and Prestige ($19/mo)?',
     answer:
@@ -301,7 +301,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'Why does the Employer Account Admin complete a 1-time Stripe Identity check and IRS EIN attestation?',
     answer:
-      'Senior passive candidates refuse to upload resumes to traditional job boards because anonymous third-party harvesters set up $10 burner domains to scrape contact data. Requiring every Employer Account Admin to complete a 1-time Stripe Identity biometric check alongside IRS Federal EIN attestation proves that a real, accountable hiring leader stands behind the organization—which is why candidates trust Special Sauce enough to make their skills discoverable and accept your Professional Invitations.',
+      'Senior passive professionals refuse to upload resumes to traditional job boards because anonymous third-party harvesters set up $10 burner domains to scrape contact data. Requiring every Employer Account Admin to complete a 1-time Stripe Identity biometric check alongside IRS Federal EIN attestation proves that a real, accountable hiring leader stands behind the organization—which is why candidates trust Special Sauce enough to make their skills discoverable and accept your Professional Invitations.',
   },
   {
     id: 'e2',
@@ -310,7 +310,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How does the Intro/Convo Unlock & 5-Unmessaged-Unlock cap work for Employers?',
     answer:
-      'When you unlock an inbound applicant (100% free / 0 credits) or a passive candidate accepts your Professional Invitation (1 Invitation Credit), The Introduction opens an encrypted in-platform message thread and reveals the candidate’s First Name + Last Initial alongside your verified company identity. Send a quick message in the thread to discuss the role—once the candidate clicks "Release Resume & Contact Vault" (The Conversation), their Full Name, direct email, phone, and 1-hour cryptographically signed PDF resume unlock immediately. To prevent bulk scraping, an organization can hold at most 5 unlocked Introduction threads awaiting an initial introductory message at a time.',
+      'When you unlock an inbound applicant (100% free / 0 credits) or a passive professional accepts your Professional Invitation (1 Invitation Credit), The Introduction opens an encrypted in-platform message thread and reveals the candidate’s First Name + Last Initial alongside your verified company identity. Send a quick message in the thread to discuss the role—once the candidate clicks "Release Resume & Contact Vault" (The Conversation), their Full Name, direct email, phone, and 1-hour cryptographically signed PDF resume unlock immediately. To prevent bulk scraping, an organization can hold at most 5 unlocked Introduction threads awaiting an initial introductory message at a time.',
   },
   {
     id: 'e3',
@@ -337,7 +337,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'Does unlocking an Inbound Protected Application cost a Invitation Credit?',
     answer:
-      'No! Reviewing, unlocking Introduction chat threads, messaging, and shortlisting candidates who proactively submit an inbound protected application (40%+ TrueFit™) to your roles is 100% FREE (0 credits) on all active Employer plans. Invitation Credits are only used (1 credit per invitation) when you proactively send a Professional Invitation to a passive candidate from the Candidate Search pool.',
+      'No! Reviewing, unlocking Introduction chat threads, messaging, and shortlisting professionals who proactively submit an inbound protected application (40%+ TrueFit™) to your roles is 100% FREE (0 credits) on all active Employer plans. Invitation Credits are only used (1 credit per invitation) when you proactively send a Professional Invitation to a passive professional from the Professional Search pool.',
   },
   {
     id: 'e6',
@@ -353,7 +353,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     target: 'employer',
     category: 'Team Seats, BPO Partners & ATS Sync',
     question:
-      'How do we know when a candidate accepts our Professional Invitation, replies, or releases their Resume Vault?',
+      'How do we know when a professional accepts our Professional Invitation, replies, or releases their Resume Vault?',
     answer:
       'Whenever a candidate accepts a Professional Invitation, replies in an Introduction thread, or triggers The Conversation Vault Release, your team receives an instant email notification with the SS-XXXXXXXX Reference ID, a pulsing "New Msg" badge appears on your Employer Dashboard in real time, and an audio chime plays if your browser tab is open.',
   },

@@ -354,8 +354,8 @@ export default function CalibrationOpsCard() {
                 onChange={(e) => setTargetRole(e.target.value as any)}
                 className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-bold text-white"
               >
-                <option value="all">All Users (Candidates + Employers)</option>
-                <option value="candidate">Candidates Only</option>
+                <option value="all">All Users (Professionals + Employers)</option>
+                <option value="candidate">Professionals Only</option>
                 <option value="employer">Employers Only</option>
               </select>
             </div>

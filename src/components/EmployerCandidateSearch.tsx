@@ -1094,7 +1094,7 @@ export default function EmployerCandidateSearch({
         </div>
       )}
 
-      {/* Candidate Feed */}
+      {/* Professional Feed */}
       <div className="grid grid-cols-1 gap-4">
         {isLoading ? (
           <div className="py-12 text-center bg-white rounded-2xl border-2 border-slate-300 shadow-sm border-slate-300">
@@ -1114,7 +1114,7 @@ export default function EmployerCandidateSearch({
             </h3>
             <p className="text-slate-600 text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
               {onlyShortlisted
-                ? 'Click "Shortlist" on any anonymous candidate card to assemble a comparison pool before sending an invitation.'
+                ? 'Click "Shortlist" on any anonymous professional card to assemble a comparison pool before sending an invitation.'
                 : viewMode === 'live'
                 ? 'Real candidates are currently completing resume parsing and Stripe Identity verification in this vertical. Switch to the Practice Sandbox to test-drive TrueFit Score™ checks against our 56 (Demo) profiles!'
                 : 'Try resetting your active filters to broaden your search.'}
@@ -1296,8 +1296,8 @@ export default function EmployerCandidateSearch({
                     <div className="flex items-center gap-2.5 min-w-0">
                       <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight truncate">
                         {(candidate.is_sandbox_benchmark || String(candidate.bio || '').includes('(Demo)'))
-                          ? `Anonymous Candidate #${displayId} (Demo)`
-                          : `Anonymous Candidate #${displayId}`}
+                          ? `Anonymous Professional #${displayId} (Demo)`
+                          : `Anonymous Professional #${displayId}`}
                       </h3>
 
                       <div className="shrink-0">
@@ -1385,7 +1385,7 @@ export default function EmployerCandidateSearch({
                     )}
                   </div>
 
-                  {/* Row 3: Uniform 4-Column Candidate Specification Grid */}
+                  {/* Row 3: Uniform 4-Column Professional Specification Grid */}
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 p-3.5 rounded-xl bg-slate-50/90 border border-slate-300 text-xs">
                     <div className="min-w-0">
                       <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
@@ -1439,7 +1439,7 @@ export default function EmployerCandidateSearch({
 
                   {/* Row 4: Uniform 2-Line Bio Summary */}
                   <p className="text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
-                    {candidate.bio || 'Candidate has not provided a written summary yet.'}
+                    {candidate.bio || 'Professional has not provided a written summary yet.'}
                   </p>
 
                   {/* Row 5: Always-Present Core Skills Bar */}
@@ -1533,7 +1533,7 @@ export default function EmployerCandidateSearch({
                         </div>
                       )}
 
-                      {/* Full-Width 5-Point TrueFit Score™ Breakdown Box (Matches Candidate View) */}
+                      {/* Full-Width 5-Point TrueFit Score™ Breakdown Box (Matches Professional View) */}
                       {selectedJob && !isAnalyzingMatch && matchScore !== null && (
                         <div className="p-5 sm:p-6 rounded-2xl bg-slate-50 border-2 border-slate-300 space-y-5 border-slate-300">
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-300 pb-4">
@@ -1662,7 +1662,7 @@ export default function EmployerCandidateSearch({
                           <div className="text-xs space-y-1">
                             {salaryFails && (
                               <div className="text-rose-600 font-bold">
-                                • Dealbreaker: Candidate min ($
+                                • Dealbreaker: Professional min ($
                                 {(
                                   candidate.min_salary_expectation / 1000
                                 ).toFixed(0)}
@@ -1672,7 +1672,7 @@ export default function EmployerCandidateSearch({
                             )}
                             {modelFails && (
                               <div className="text-rose-600 font-bold capitalize">
-                                • Dealbreaker: Candidate requires{' '}
+                                • Dealbreaker: Professional requires{' '}
                                 {candidate.preferred_work_model}, role is{' '}
                                 {selectedJob.work_model}.
                               </div>
@@ -1699,7 +1699,7 @@ export default function EmployerCandidateSearch({
                             {isRoleAlreadyLocked && activeRoleConn ? (
                               <div className="text-amber-800 bg-amber-50 border border-amber-300 px-3 py-2 rounded-lg font-bold">
                                 🔒 {activeRoleConn.status === 'rejected' || activeRoleConn.status === 'declined'
-                                  ? `Invitation Locked: Candidate already declined or was archived for this role (Ref: ${activeRoleConn.reference_id}).`
+                                  ? `Invitation Locked: Professional already declined or was archived for this role (Ref: ${activeRoleConn.reference_id}).`
                                   : `Already Invited / Applied: An active connection (Ref: ${activeRoleConn.reference_id}) already exists for this role.`}
                               </div>
                             ) : (

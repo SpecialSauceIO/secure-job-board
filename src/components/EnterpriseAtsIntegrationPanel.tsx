@@ -154,7 +154,7 @@ export default function EnterpriseAtsIntegrationPanel() {
               <strong className="text-white">Greenhouse HR Software</strong>, real-time{' '}
               <strong className="text-white">HMAC-SHA256 Signed Webhooks</strong> for{' '}
               <strong className="text-white">Workday Integration Studio</strong>, and 1-click{' '}
-              <strong className="text-emerald-300">Bulk CSV Candidate Exports</strong>, plus 50 active roles, 100 monthly invitation credits, and 10 team/recruiter seats.
+              <strong className="text-emerald-300">Bulk CSV Professional Exports</strong>, plus 50 active roles, 100 monthly invitation credits, and 10 team/recruiter seats.
             </p>
           </div>
 
@@ -200,7 +200,7 @@ export default function EnterpriseAtsIntegrationPanel() {
           <span>
             {isExportingCsv
               ? 'Generating CSV...'
-              : '⬇ Download Candidate List (CSV)'}
+              : '⬇ Download Professional List (CSV)'}
           </span>
         </button>
       </div>
@@ -342,7 +342,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                 className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
               />
               <span className="text-xs font-bold text-slate-700">
-                Auto-send unlocked candidates to HR software immediately when a candidate unlocks their resume
+                Auto-send unlocked candidates to HR software immediately when a professional unlocks their resume
               </span>
             </label>
           </div>
@@ -370,7 +370,7 @@ export default function EnterpriseAtsIntegrationPanel() {
 
         <div className="pt-3 border-t border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <span className="text-xs text-slate-500">
-            🛡️ <strong>Identity-Protected Privacy Guarantee:</strong> Candidate personal contact info never touches your external HR software until the candidate explicitly clicks &ldquo;Release Resume &amp; Contact Vault&rdquo; to start The Conversation.
+            🛡️ <strong>Identity-Protected Privacy Guarantee:</strong> Professional personal contact info never touches your external HR software until the candidate explicitly clicks &ldquo;Release Resume &amp; Contact Vault&rdquo; to start The Conversation.
           </span>
 
           <button

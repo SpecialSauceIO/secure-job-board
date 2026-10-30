@@ -483,7 +483,7 @@ export default async function ProfilePage() {
                 d="M15 19l-7-7 7-7"
               />
             </svg>
-            Back to Candidate Dashboard
+            Back to Professional Dashboard
           </Link>
           <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
             Anonymous Profile

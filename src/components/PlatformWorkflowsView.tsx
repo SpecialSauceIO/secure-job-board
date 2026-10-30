@@ -39,7 +39,7 @@ const CANDIDATE_WORKFLOW_STEPS: WorkflowStep[] = [
       'Your name, email, phone, and raw PDF stay locked inside your Conversation Vault.',
       'Set minimum pay bands and hard dealbreakers upfront.',
     ],
-    unlockBadge: 'Unlocks: ✓ Anonymized Candidate #ID & Dealbreaker Firewall',
+    unlockBadge: 'Unlocks: ✓ Anonymized Professional #ID & Dealbreaker Firewall',
   },
   {
     step: 'Step 4 • Search & Professional Invitations',
@@ -68,7 +68,7 @@ const EMPLOYER_WORKFLOW_STEPS: WorkflowStep[] = [
     step: 'Step 1 • Organization Setup',
     title: '1. Verify Organization ($25) & Lock In Founding Rate',
     bullets: [
-      'Complete your $25 One-Time Organization Verification Pass to unlock the $0/mo Explorer Sandbox and preview verified candidate matches.',
+      'Complete your $25 One-Time Organization Verification Pass to unlock the $0/mo Explorer Sandbox and preview verified professional matches.',
       'Activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo) when ready to publish live roles or invite candidates.',
       'Locks in your Founding Partner rate for a full 12 months.',
     ],
@@ -136,11 +136,11 @@ export default function PlatformWorkflowsView({
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
             How Special Sauce Works{' '}
             <span className={isCandidate ? 'text-indigo-400' : 'text-emerald-400'}>
-              {isCandidate ? 'for Candidates' : 'for Employers'}
+              {isCandidate ? 'for Professionals' : 'for Employers'}
             </span>
           </h1>
           <p className="text-base sm:text-lg text-slate-200 max-w-3xl leading-relaxed">
-            Use the toggle below to explore how Candidates and Employers verify their identity, protect their privacy, and connect without bot spam or resume harvesting.
+            Use the toggle below to explore how Professionals and Employers verify their identity, protect their privacy, and connect without bot spam or resume harvesting.
           </p>
         </div>
 
@@ -154,7 +154,7 @@ export default function PlatformWorkflowsView({
         </div>
       </div>
 
-      {/* Interactive Segmented Toggle (Candidate vs Employer) */}
+      {/* Interactive Segmented Toggle (Professional vs Employer) */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-slate-900 p-3 rounded-2xl border border-slate-700">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
           <button
@@ -169,7 +169,7 @@ export default function PlatformWorkflowsView({
             <span className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center text-sm font-black">
               C
             </span>
-            <span>Candidate Workflow (5 Steps)</span>
+            <span>Professional Workflow (5 Steps)</span>
           </button>
 
           <button
@@ -216,7 +216,7 @@ export default function PlatformWorkflowsView({
               </span>
               <h2 className="text-xl sm:text-2xl font-extrabold text-white mt-0.5">
                 {isCandidate
-                  ? 'Candidate Workflow: Enroll to Job Search'
+                  ? 'Professional Workflow: Enroll to Job Search'
                   : 'Employer Workflow: Enroll to Talent Search'}
               </h2>
             </div>
@@ -231,7 +231,7 @@ export default function PlatformWorkflowsView({
                   : 'bg-emerald-600 hover:bg-emerald-500'
               }`}
             >
-              {isCandidate ? 'Start Candidate Signup ($5 ID Pass) →' : 'Start Employer Signup ($25 Org Verify) →'}
+              {isCandidate ? 'Start Professional Signup ($5 ID Pass) →' : 'Start Employer Signup ($25 Org Verify) →'}
             </Link>
           )}
         </div>
@@ -292,7 +292,7 @@ export default function PlatformWorkflowsView({
               Where Both Workflows Meet • The Double-Blind Handshake
             </span>
             <h3 className="text-xl sm:text-2xl font-extrabold text-white mt-1">
-              Zero Unsolicited Spam, Zero Burner-Domain Harvesting &amp; 100% Candidate-Controlled Disclosure
+              Zero Unsolicited Spam, Zero Burner-Domain Harvesting &amp; 100% Professional-Controlled Disclosure
             </h3>
           </div>
           {!isDashboard && (
@@ -301,7 +301,7 @@ export default function PlatformWorkflowsView({
                 href="/signup/candidate"
                 className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-extrabold transition-colors"
               >
-                Start Candidate Workflow ($5) →
+                Start Professional Workflow ($5) →
               </Link>
               <Link
                 href="/signup/employer"
@@ -319,7 +319,7 @@ export default function PlatformWorkflowsView({
               1. Pre-Match (100% Double-Blind)
             </div>
             <p className="text-base text-slate-100 leading-relaxed">
-              Candidates appear as <code className="text-emerald-300 font-bold">Candidate #ID</code> with structured skills and TrueFit Scores™. Employers appear by Industry Vertical, Company Stage, and upfront salary bands.
+              Professionals appear as <code className="text-emerald-300 font-bold">Professional #ID</code> with structured skills and TrueFit Scores™. Employers appear by Industry Vertical, Company Stage, and upfront salary bands.
             </p>
           </div>
           <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">

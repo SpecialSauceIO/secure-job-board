@@ -238,7 +238,7 @@ export default function NewJobPage() {
           Post a New Protected Role
         </h2>
         <p className="text-sm text-slate-500 mt-1">
-          Candidates will see your compensation band, US metro location, education/certification/language alignment, and standardized industry vertical, while your company name and domain remain hidden until unlock.
+          Professionals will see your compensation band, US metro location, education/certification/language alignment, and standardized industry vertical, while your company name and domain remain hidden until unlock.
         </p>
       </div>
 

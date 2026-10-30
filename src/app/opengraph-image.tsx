@@ -113,7 +113,7 @@ export default async function Image() {
                 maxWidth: '920px',
               }}
             >
-              The Introduction (Anonymous Chat) • The Conversation (Candidate-Controlled Vault Release)
+              The Introduction (Anonymous Chat) • The Conversation (Professional-Controlled Vault Release)
             </div>
           </div>
         </div>

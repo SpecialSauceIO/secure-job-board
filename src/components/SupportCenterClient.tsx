@@ -612,7 +612,7 @@ export default function SupportCenterClient({
                         className="w-full rounded-xl border border-slate-300 bg-white text-slate-900 py-2.5 px-3.5 text-sm font-medium"
                       >
                         <option value="Onboarding & Authentication">Onboarding &amp; Authentication</option>
-                        <option value="Stripe Identity Verification (Candidate)">Stripe Identity Verification (Candidate)</option>
+                        <option value="Stripe Identity Verification (Professional)">Stripe Identity Verification (Professional)</option>
                         <option value="Corporate Domain / DNS Verification (Employer)">Corporate Domain / DNS Verification (Employer)</option>
                         <option value="2-Stage Resume & Contact Vault">Intro/Convo Resume &amp; Contact Vault</option>
                         <option value="TrueFit Score™ & Dealbreakers">TrueFit Score™ &amp; Dealbreakers</option>
@@ -1443,7 +1443,7 @@ export default function SupportCenterClient({
                 Looking for the Step-by-Step Visual Walkthrough?
               </span>
               <h3 className="text-lg sm:text-xl font-extrabold text-white">
-                Explore the Interactive 5-Step Candidate &amp; Employer Workflows
+                Explore the Interactive 5-Step Professional &amp; Employer Workflows
               </h3>
               <p className="text-sm sm:text-base text-slate-200">
                 Our full visual walkthrough is available anytime on the public Platform Workflows page—or copy a plain-text team briefing sheet below.
@@ -1514,7 +1514,7 @@ export default function SupportCenterClient({
                     : 'text-slate-300 hover:text-white'
                 }`}
               >
-                Candidate FAQs
+                Professional FAQs
               </button>
             </div>
           </div>

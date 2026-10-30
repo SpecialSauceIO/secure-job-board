@@ -91,7 +91,7 @@ export async function GET(req: NextRequest) {
 
   checks.push({
     id: 'auth_and_profiles_rls',
-    name: 'Candidate & Employer Auth / Profile Handshake',
+    name: 'Professional & Employer Auth / Profile Handshake',
     platform_area: 'Onboarding & Authentication',
     category: 'Candidate_Handshake',
     status: dbHealthy ? 'healthy' : 'critical',
@@ -126,7 +126,7 @@ export async function GET(req: NextRequest) {
   checks.push({
     id: 'stripe_identity_gate',
     name: 'Stripe Identity Gate & Circuit Breakers (1/day, 2/acct, 50/day)',
-    platform_area: 'Stripe Identity Verification (Candidate)',
+    platform_area: 'Stripe Identity Verification (Professional)',
     category: 'Candidate_Handshake',
     status: stripeKey ? 'healthy' : 'critical',
     latency_ms: 4,

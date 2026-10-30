@@ -49,7 +49,7 @@ export default function PrivacyPolicyPage() {
                 <strong className="text-slate-800">Professional &amp; Preference Data:</strong> Uploaded PDF resumes, extracted skill matrices, years of experience, third-person bios, US State/Metro locations, saved bookmarks/shortlists, and candidate dealbreakers (minimum salary expectations, work models, and accepted W-2/1099 employment types).
               </li>
               <li>
-                <strong className="text-slate-800">Biometric Identity &amp; Payment Data (Vaulted Exclusively by Stripe):</strong> When Candidates complete identity verification via Stripe Identity or when Users purchase subscriptions via Stripe Checkout, government ID images, verification selfies, and payment credentials are transmitted directly to Stripe over TLS 1.3 and encrypted (AES-256) inside Stripe’s PCI-DSS Level 1 infrastructure.{' '}
+                <strong className="text-slate-800">Biometric Identity &amp; Payment Data (Vaulted Exclusively by Stripe):</strong> When Professionals complete identity verification via Stripe Identity or when Users purchase subscriptions via Stripe Checkout, government ID images, verification selfies, and payment credentials are transmitted directly to Stripe over TLS 1.3 and encrypted (AES-256) inside Stripe’s PCI-DSS Level 1 infrastructure.{' '}
                 <span className="font-semibold text-slate-800">
                   Special Sauce never stores your raw government ID documents, facial scans, credit card numbers, or bank account details on our servers.
                 </span>{' '}
@@ -70,13 +70,13 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-5 mt-3 space-y-2 text-slate-700">
               <li>
-                <strong>Default Protected Discovery:</strong> While browsing or evaluating TrueFit Score™ scores, Employers only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">Anonymous Candidate #ID</code>, extracted skills, experience years, target US Metro location, and a third-person bio. Candidates only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">Protected Role • Verified Employer</code> alongside transparent pay bands, employment type, and core skill requirements.
+                <strong>Default Protected Discovery:</strong> While browsing or evaluating TrueFit Score™ scores, Employers only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">Anonymous Professional #ID</code>, extracted skills, experience years, target US Metro location, and a third-person bio. Professionals only see <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">Protected Role • Verified Employer</code> alongside transparent pay bands, employment type, and core skill requirements.
               </li>
               <li>
-                <strong>The Introduction (Encrypted Thread Unlock):</strong> When an Employer unlocks an inbound protected application—or when a Candidate accepts an outbound Employer Pitch—an encrypted in-platform message thread opens under a shared Reference ID (<code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">SS-XXXXXXXX</code>). During The Introduction, the Employer’s verified company name and domain are revealed to the Candidate, and only the Candidate’s <strong>First Name and Last Initial</strong> (e.g., <em>Alex M.</em>) are revealed to the Employer. <strong>The Candidate’s raw email address and original PDF resume remain locked inside the Special Sauce Vault.</strong>
+                <strong>The Introduction (Encrypted Thread Unlock):</strong> When an Employer unlocks an inbound protected application—or when a Professional accepts an outbound Employer Pitch—an encrypted in-platform message thread opens under a shared Reference ID (<code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-emerald-300">SS-XXXXXXXX</code>). During The Introduction, the Employer’s verified company name and domain are revealed to the Professional, and only the Professional’s <strong>First Name and Last Initial</strong> (e.g., <em>Alex M.</em>) are revealed to the Employer. <strong>The Professional’s raw email address and original PDF resume remain locked inside the Special Sauce Vault.</strong>
               </li>
               <li>
-                <strong>The Conversation (Candidate-Controlled Full Vault Release):</strong> The Candidate retains 100% control over when to click the <strong>&ldquo;Release Resume &amp; Contact Vault&rdquo;</strong> button inside the message thread. Only after the Candidate explicitly approves The Conversation release does the platform reveal their Full Name, direct email address, and a time-limited (1-hour expiring) signed URL to view their original PDF resume.
+                <strong>The Conversation (Professional-Controlled Full Vault Release):</strong> The Professional retains 100% control over when to click the <strong>&ldquo;Release Resume &amp; Contact Vault&rdquo;</strong> button inside the message thread. Only after the Professional explicitly approves The Conversation release does the platform reveal their Full Name, direct email address, and a time-limited (1-hour expiring) signed URL to view their original PDF resume.
               </li>
             </ul>
           </section>
@@ -93,7 +93,7 @@ export default function PrivacyPolicyPage() {
                 <strong>Automated Safety &amp; Anti-Phishing Firewall:</strong> Messages sent within in-platform threads are scanned automatically by heuristic and automated safety rules to block requests for Social Security Numbers (SSNs), banking/routing details, advance fees, off-platform encrypted chat lures (e.g., WhatsApp/Telegram), or external survey forms prior to The Conversation vault release.
               </li>
               <li>
-                <strong>Transactional Email Relay:</strong> When a new message or connection event occurs, we dispatch transactional email alerts (via Resend) containing your <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-300">SS-XXXXXXXX</code> Reference ID without exposing the Candidate’s raw email address to the Employer until The Conversation Vault Release is approved.
+                <strong>Transactional Email Relay:</strong> When a new message or connection event occurs, we dispatch transactional email alerts (via Resend) containing your <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-300">SS-XXXXXXXX</code> Reference ID without exposing the Professional’s raw email address to the Employer until The Conversation Vault Release is approved.
               </li>
               <li>
                 <strong>Strict Data Isolation &amp; Zero External Model Training:</strong> Uploaded resumes and job descriptions are processed strictly inside isolated enterprise pipelines strictly for structured skill extraction and TrueFit Score™ scoring. Your private documents are <span className="font-bold underline">never</span> used to train public foundation models.
@@ -104,7 +104,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-xl">5. 30-Day Job Expiration &amp; Data Freshness</h2>
             <p className="text-slate-600 leading-relaxed mt-2">
-              To prevent &ldquo;evergreen&rdquo; ghost listings designed to passively harvest applicant profiles, all active job postings on Special Sauce automatically expire <strong>30 days</strong> after publication unless manually renewed by the verified Employer. Expired listings are immediately removed from Candidate job feeds and blocked from receiving new applications.
+              To prevent &ldquo;evergreen&rdquo; ghost listings designed to passively harvest applicant profiles, all active job postings on Special Sauce automatically expire <strong>30 days</strong> after publication unless manually renewed by the verified Employer. Expired listings are immediately removed from Professional job feeds and blocked from receiving new applications.
             </p>
           </section>
 

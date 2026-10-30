@@ -19,7 +19,7 @@ const SECURITY_PILLARS = [
       'Your uploaded PDF resume stays locked inside a private, non-public vault. During discovery, employers only see your anonymized skill, tenure, certification, and language matrix.',
     bullets: [
       'The Introduction (Safe Thread): Reveals the verified company name and opens encrypted chat while showing only your First Name + Last Initial.',
-      'The Conversation (Candidate-Controlled Release): Generates a 1-hour cryptographically signed PDF resume link only when you click Release Resume & Contact Vault.',
+      'The Conversation (Professional-Controlled Release): Generates a 1-hour cryptographically signed PDF resume link only when you click Release Resume & Contact Vault.',
     ],
   },
   {
@@ -30,7 +30,7 @@ const SECURITY_PILLARS = [
     summary:
       'Special Sauce never stores government ID images, live biometric selfies, Social Security Numbers, or raw credit card numbers in our database.',
     bullets: [
-      'Candidate Verification: Processed directly inside Stripe Identity; Special Sauce stores only a boolean identity_verified flag.',
+      'Professional Verification: Processed directly inside Stripe Identity; Special Sauce stores only a boolean identity_verified flag.',
       'Employer 3-Pillar Verification: Verified via corporate domain DNS MX/TXT checks, 90-day RDAP domain age enforcement, and IRS EIN attestation.',
     ],
   },
@@ -160,7 +160,7 @@ export default function SecurityTrustPage() {
                 Ready to Join the 100% Human-to-Human Marketplace?
               </h3>
               <p className="text-base text-slate-100">
-                Complete your one-time verification ($5 Candidates / $25 Employers) to enter the $0/mo Explorer Vault, then activate an outbound Candidate or Employer Founding Partner plan when ready to connect.
+                Complete your one-time verification ($5 Professionals / $25 Employers) to enter the $0/mo Explorer Vault, then activate an outbound Professional or Employer Founding Partner plan when ready to connect.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3 shrink-0">
@@ -174,7 +174,7 @@ export default function SecurityTrustPage() {
                 href="/signup/candidate"
                 className="px-5 py-3 rounded-xl bg-indigo-600 text-white text-sm font-extrabold hover:bg-indigo-500 transition-colors"
               >
-                Join as Candidate ($5 One-Time Verify) →
+                Join as Professional ($5 One-Time Verify) →
               </Link>
               <Link
                 href="/signup/employer"

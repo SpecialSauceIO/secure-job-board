@@ -272,7 +272,7 @@ export default function LandingPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F97316]"></span>
                 </span>
-                $5 Candidate &amp; $25 Employer One-Time Verification • Weekly 1-Yr Prestige Giveaway
+                $5 Professional &amp; $25 Employer One-Time Verification • Weekly 1-Yr Prestige Giveaway
               </div>
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
                 Test Your{' '}
@@ -283,7 +283,7 @@ export default function LandingPage() {
                 Verify Once. Match Forever at $0/mo.
               </h1>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Complete your one-time verification ($5 Candidates / $25 Employers) to unlock our $0/mo Explorer Vault, unlimited inbound Employer Invitations, and automatic entry into our Weekly 1-Year Prestige Drawing. Upgrade only when ready to actively connect.
+                Complete your one-time verification ($5 Professionals / $25 Employers) to unlock our $0/mo Explorer Vault, unlimited inbound Employer Invitations, and automatic entry into our Weekly 1-Year Prestige Drawing. Upgrade only when ready to actively connect.
               </p>
             </div>
           </div>
@@ -294,7 +294,7 @@ export default function LandingPage() {
               href="/signup/candidate"
               className="px-7 py-3.5 bg-[#0077D4] text-white text-sm sm:text-base font-bold rounded-xl hover:bg-[#1DA1F2] hover:-translate-y-0.5 transition-all shadow-lg shadow-sky-950/50 flex items-center justify-center gap-2"
             >
-              I&apos;m a Candidate
+              I&apos;m a Professional
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -377,7 +377,7 @@ export default function LandingPage() {
                   ? 'bg-[#F97316] w-6'
                   : 'bg-slate-700 hover:bg-slate-500'
               }`}
-              aria-label="View Candidate Privacy Vault slide"
+              aria-label="View Professional Privacy Vault slide"
             />
           </div>
 
@@ -504,7 +504,7 @@ export default function LandingPage() {
         className="scroll-mt-20 py-20 px-4 sm:px-6 md:px-12 bg-white border-t border-slate-300"
       >
         <div className="max-w-7xl mx-auto">
-          {/* TRACK 1: CANDIDATES */}
+          {/* TRACK 1: PROFESSIONALS */}
           <div className="mb-24">
             <div className="text-center mb-12">
               <span className="inline-block px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-xs font-extrabold uppercase tracking-wider mb-3">
@@ -512,12 +512,12 @@ export default function LandingPage() {
               </span>
               <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">
                 How Special Sauce works{' '}
-                <span className="text-emerald-500">for Candidates</span>
+                <span className="text-emerald-500">for Professionals</span>
               </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Candidate Feature 1 */}
+              {/* Professional Feature 1 */}
               <div className="p-5 sm:p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group border-slate-300 flex flex-col">
                 <div
                   onClick={() =>
@@ -582,7 +582,7 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              {/* Candidate Feature 2 */}
+              {/* Professional Feature 2 */}
               <div className="p-5 sm:p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group border-slate-300 flex flex-col">
                 <div
                   onClick={() =>
@@ -647,7 +647,7 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              {/* Candidate Feature 3 */}
+              {/* Professional Feature 3 */}
               <div className="p-5 sm:p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group border-slate-300 flex flex-col">
                 <div
                   onClick={() =>
@@ -856,7 +856,7 @@ export default function LandingPage() {
                   2. 40% Skill-Fit Threshold &amp; Protected Invitations
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Complete your $25 one-time Organization Verification to preview live verified candidate matches in our $0/mo Sandbox, then activate your Founding Partner plan ($149 / $499 / $1,250/mo) when ready to publish live roles or send Professional Invitations. Declined invitations are 100% auto-refunded.
+                  Complete your $25 one-time Organization Verification to preview live verified professional matches in our $0/mo Sandbox, then activate your Founding Partner plan ($149 / $499 / $1,250/mo) when ready to publish live roles or send Professional Invitations. Declined invitations are 100% auto-refunded.
                 </p>
               </div>
 
@@ -922,7 +922,7 @@ export default function LandingPage() {
                     3. Direct Messaging &amp; Team Collaboration
                   </h3>
                   <p className="text-slate-500 leading-relaxed">
-                    Reviewing and messaging candidates who apply to your jobs is 100% free. Start a direct conversation to confirm mutual interest, invite team members or recruiting partners to collaborate, and download the candidate’s resume once released.
+                    Reviewing and messaging professionals who apply to your jobs is 100% free. Start a direct conversation to confirm mutual interest, invite team members or recruiting partners to collaborate, and download the candidate’s resume once released.
                   </p>
                 </div>
               </div>
@@ -967,7 +967,7 @@ export default function LandingPage() {
                 Verified People &amp; Real Companies
               </h3>
               <p className="text-slate-500 leading-relaxed">
-                Candidates ($5 one-time) and employers ($25 one-time) complete real-person Stripe Identity and domain verification upfront to enter the $0/mo Explorer Vault before applying, pitching, or posting live jobs—eliminating bots, fake profiles, and scam listings.
+                Professionals ($5 one-time) and employers ($25 one-time) complete real-person Stripe Identity and domain verification upfront to enter the $0/mo Explorer Vault before applying, pitching, or posting live jobs—eliminating bots, fake profiles, and scam listings.
               </p>
             </div>
 

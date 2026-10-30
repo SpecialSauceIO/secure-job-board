@@ -230,7 +230,7 @@ export default async function DashboardPage({
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2">
-                  I&apos;m a Candidate
+                  I&apos;m a Professional
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed">
                   Create an anonymous skill profile, run TrueFit Score™ checks, and
@@ -819,7 +819,7 @@ export default async function DashboardPage({
                     }`
                   : pendingAppsCount > 0
                   ? `${pendingAppsCount} new protected applications (free to unlock)`
-                  : 'Candidates who applied to your roles (free unlock)'}
+                  : 'Professionals who applied to your roles (free unlock)'}
               </p>
             </div>
             <p
@@ -849,7 +849,7 @@ export default async function DashboardPage({
   }
 
   // ============================================================================
-  // STREAMLINED CANDIDATE VIEW (PASTEL COLOR-CODED WIDGETS)
+  // STREAMLINED PROFESSIONAL VIEW (PASTEL COLOR-CODED WIDGETS)
   // ============================================================================
   const isVerified = Boolean(
     profile?.identity_verified === true ||
@@ -963,13 +963,13 @@ export default async function DashboardPage({
   }
 
   const candidateDisplayName =
-    profile?.full_name || profile?.name || 'Candidate Workspace'
+    profile?.full_name || profile?.name || 'Professional Workspace'
 
   return (
     <div className="max-w-6xl mx-auto py-3 space-y-6">
       <DashboardLiveSync />
 
-      {/* CANDIDATE HERO ROW */}
+      {/* PROFESSIONAL HERO ROW */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b-2 border-slate-300">
         <div>
           <div className="flex flex-wrap items-center gap-3">
@@ -1126,7 +1126,7 @@ export default async function DashboardPage({
         )
       })()}
 
-      {/* 4 CANDIDATE WIDGETS (DEFAULT MINIMALIST WHITE B2B OR ACCESSIBILITY COLOR-CODED) */}
+      {/* 4 PROFESSIONAL WIDGETS (DEFAULT MINIMALIST WHITE B2B OR ACCESSIBILITY COLOR-CODED) */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* Card 1: Manage Profile */}
         <Link
@@ -1394,7 +1394,7 @@ export default async function DashboardPage({
         </Link>
       </section>
 
-      {/* COLLAPSIBLE CANDIDATE REPUTATION & MERIT BADGE BAR */}
+      {/* COLLAPSIBLE PROFESSIONAL REPUTATION & MERIT BADGE BAR */}
       <ReputationBadgeCase summary={candidateGamification} />
       <DashboardAnalyticsReport
         mode="candidate"

@@ -235,7 +235,7 @@ export async function checkAndRecordStripeIdentityCircuitBreaker(params: {
       actorEmail: params.userEmail,
       actorRole: "candidate",
       userId: params.userId,
-      platformArea: "Stripe Identity Verification (Candidate)",
+      platformArea: "Stripe Identity Verification (Professional)",
       summary: "Blocked unsubscribed candidate attempt to initiate Stripe Identity session",
       evidenceSnippet: `User ${params.userEmail} on tier="${tierLower}" attempted to trigger /api/identity/create-session without an active subscription.`,
       createSecTicket: false,
@@ -276,7 +276,7 @@ export async function checkAndRecordStripeIdentityCircuitBreaker(params: {
       actorEmail: params.userEmail,
       actorRole: "candidate",
       userId: params.userId,
-      platformArea: "Stripe Identity Verification (Candidate)",
+      platformArea: "Stripe Identity Verification (Professional)",
       summary: "GLOBAL CIRCUIT BREAKER TRIPPED: 50/day Stripe Identity limit reached",
       evidenceSnippet: `Global daily cap (50/day) reached. Blocked request from ${params.userEmail}.`,
       createSecTicket: true,
@@ -295,9 +295,9 @@ export async function checkAndRecordStripeIdentityCircuitBreaker(params: {
       actorEmail: params.userEmail,
       actorRole: "candidate",
       userId: params.userId,
-      platformArea: "Stripe Identity Verification (Candidate)",
+      platformArea: "Stripe Identity Verification (Professional)",
       summary: "Per-Account Lifetime Circuit Breaker (2/account) tripped on Stripe Identity",
-      evidenceSnippet: `Candidate ${params.userEmail} (${params.userId}) attempted a 3rd lifetime Stripe Identity session.`,
+      evidenceSnippet: `Professional ${params.userEmail} (${params.userId}) attempted a 3rd lifetime Stripe Identity session.`,
       createSecTicket: true,
     })
     return {
@@ -314,9 +314,9 @@ export async function checkAndRecordStripeIdentityCircuitBreaker(params: {
       actorEmail: params.userEmail,
       actorRole: "candidate",
       userId: params.userId,
-      platformArea: "Stripe Identity Verification (Candidate)",
+      platformArea: "Stripe Identity Verification (Professional)",
       summary: "Per-User Daily Circuit Breaker (1/day) tripped on Stripe Identity",
-      evidenceSnippet: `Candidate ${params.userEmail} attempted multiple Stripe Identity sessions within 24 hours.`,
+      evidenceSnippet: `Professional ${params.userEmail} attempted multiple Stripe Identity sessions within 24 hours.`,
       createSecTicket: false,
     })
     return {

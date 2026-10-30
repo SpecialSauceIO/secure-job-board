@@ -140,7 +140,7 @@ function getAdminSupabaseClient() {
 }
 
 function maskCandidateFirstInitial(fullName?: string | null): string {
-  if (!fullName || !fullName.trim()) return 'Verified Candidate'
+  if (!fullName || !fullName.trim()) return 'Verified Professional'
   const parts = fullName.trim().split(/\s+/)
   if (parts.length === 1) return parts[0]
   return `${parts[0]} ${parts[parts.length - 1][0]?.toUpperCase() || ''}.`
@@ -310,7 +310,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 }
 
 // ------------------------------------------------------------------
-// HELPER: STRIP INTERNAL METADATA FROM CANDIDATE STRUCTURED_SKILLS
+// HELPER: STRIP INTERNAL METADATA FROM PROFESSIONAL STRUCTURED_SKILLS
 // ------------------------------------------------------------------
 function filterVisibleSkills(rawSkills: any): any[] {
   if (!Array.isArray(rawSkills)) return []
@@ -1452,7 +1452,7 @@ export async function revealProfile(formData: FormData) {
     profileObj?.full_name ||
     profileObj?.name ||
     existingApp?.match_data?.candidate_full_name ||
-    'Verified Candidate'
+    'Verified Professional'
 
   const vaultReleased = Boolean(
     existingApp?.match_data?.candidate_vault_released === true
@@ -1545,7 +1545,7 @@ export async function updateProfile(formData: FormData) {
       actorRole: 'candidate',
       text: bio,
       platformArea: 'Intro/Convo Resume & Contact Vault',
-      contextLabel: 'Candidate Public Protected Bio',
+      contextLabel: 'Professional Public Protected Bio',
       isStage2Unlocked: false,
     })
   }
@@ -1883,7 +1883,7 @@ export async function parseResumeAutoFill(formData: FormData) {
 }
 
 // ------------------------------------------------------------------
-// CANDIDATE JOB ACTIONS & CONNECTION REQUESTS INBOX
+// PROFESSIONAL JOB ACTIONS & CONNECTION REQUESTS INBOX
 // ------------------------------------------------------------------
 
 export async function applyBlind(formData: FormData) {
@@ -1950,7 +1950,7 @@ export async function applyBlind(formData: FormData) {
       actorRole: 'candidate',
       text: employerPitch,
       platformArea: 'Intro/Convo Resume & Contact Vault',
-      contextLabel: 'Candidate Protected Application',
+      contextLabel: 'Professional Protected Application',
       isStage2Unlocked: false,
     })
     if (pitchScan.blocked) {
@@ -2035,7 +2035,7 @@ export async function applyBlind(formData: FormData) {
     const existingRef = formatReferenceId(existingApp.id)
     if (existingApp.status === 'rejected') {
       return {
-        error: `Application Locked: A final decision was already recorded for this role (Ref: ${existingRef}). Candidates cannot re-apply to archived or declined roles.`,
+        error: `Application Locked: A final decision was already recorded for this role (Ref: ${existingRef}). Professionals cannot re-apply to archived or declined roles.`,
       }
     }
     return {
@@ -2103,7 +2103,7 @@ export async function applyBlind(formData: FormData) {
     to: employerTargetEmail,
     subject: `New ${parsedMatchScore}% Match Protected Application for ${roleTitle}`,
     referenceId: refId,
-    heading: `New Verified Candidate Application (${parsedMatchScore}% TrueFit)`,
+    heading: `New Verified Professional Application (${parsedMatchScore}% TrueFit)`,
     bodyLines: [
       `An Identity-Verified candidate just submitted a protected application for "${roleTitle}".`,
       `TrueFit Score™: ${parsedMatchScore}%`,
@@ -2798,8 +2798,8 @@ export async function respondToConnectionRequest(applicationId: string, decision
         referenceId,
         heading: 'Professional Invitation Declined — +1 Invitation Credit Refunded',
         bodyLines: [
-          `Anonymous Candidate #${String(user.id).slice(0, 6)} respectfully declined your Professional Invitation for "${declineRoleTitle}".`,
-          `Candidate Feedback Reason: "${chosenDeclineReason}"`,
+          `Anonymous Professional #${String(user.id).slice(0, 6)} respectfully declined your Professional Invitation for "${declineRoleTitle}".`,
+          `Professional Feedback Reason: "${chosenDeclineReason}"`,
           refundedCreditNow
             ? `✓ Accepted-Only Invitation Credit Protection: +1 Invitation Credit has been automatically refunded to your organization (${bucketToRestore === "rollover" ? "Rollover Top-Up Bucket" : "Monthly Plan Bucket"}). Current Balance: ${updatedEmployerCredits} Credits.`
             : `Connection Reference ID: ${referenceId}`,
@@ -2854,7 +2854,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
     (existingApp?.profiles as any)?.full_name ||
     (existingApp?.profiles as any)?.name ||
     existingApp?.match_data?.candidate_full_name ||
-    'Verified Candidate'
+    'Verified Professional'
 
   const jobObj: any = Array.isArray(existingApp?.jobs)
     ? existingApp?.jobs[0]
@@ -2971,7 +2971,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
 }
 
 // ------------------------------------------------------------------
-// AI MATCH SCORING (Candidate <-> Job) WITH FAST FAILOVER FOR VERCEL HOBBY
+// AI MATCH SCORING (Professional <-> Job) WITH FAST FAILOVER FOR VERCEL HOBBY
 // ------------------------------------------------------------------
 
 const MATCH_CACHE_PREFIX = '_isolated_match_cache_v3'
@@ -3139,7 +3139,7 @@ export async function analyzeCandidateFit(
     .eq('id', candidateId)
     .single()
 
-  if (!profile) return { error: 'Candidate profile not found' }
+  if (!profile) return { error: 'Professional profile not found' }
 
   const { data: rawJob } = await supabase
     .from('jobs')
@@ -3216,7 +3216,7 @@ function getMatchPrompt(
       * If a candidate pivoted careers (e.g., high total career years, fewer years in a newly acquired technical skill), base "Experience Level" primarily on their hands-on tenure in the job's core required skills, while granting up to a +15 point Transferable Professional Maturity credit for prior leadership, stakeholder management, and operational execution.
       * Conversely, if a candidate has strong per-skill years in the exact required tools, do not penalize them if their overall career years are modest.
     - STRICT DOMAIN & CORE SKILL GATING (CRITICAL — NO INFLATED SCORES):
-      * You MUST be a rigorous, realistic evaluator. Do NOT give generous 75-90% scores when a candidate lacks the job's core functional skills or comes from a completely unrelated industry (e.g., an IT professional applying to or being evaluated for a Food Service Manager, Nursing, or Construction role).
+      * You MUST be a rigorous, realistic evaluator. Do NOT give generous 75-90% scores when a professional lacks the job's core functional skills or comes from a completely unrelated industry (e.g., an IT professional applying to or being evaluated for a Food Service Manager, Nursing, or Construction role).
       * If the candidate has ZERO or near-zero direct overlap with the job's Core Requirements / functional skills, "Core Competencies" MUST score between 5 and 25, "Skill Tenure" (measuring tenure in THIS job's required skills, NOT unrelated career years) MUST score between 10 and 30, and "overall_score" MUST be below 35.
       * High general career years (e.g., 16 years in IT) do NOT count as "Skill Tenure" for an unrelated field (e.g., Food Service Management). Transferable maturity credit (+15 max) only applies on top of actual role-relevant skill tenure.
       * "overall_score" MUST be weighted: 45% Core Competencies + 25% Skill Tenure + 15% Industry & Creds + 10% Logistics & Pay + 5% Execution & Comm. Logistics & Pay or Communication can NEVER pull an unrelated profile above 39%.
@@ -3232,7 +3232,7 @@ function getMatchPrompt(
       * If the job specifies Required/Preferred Certifications and the candidate holds matching or equivalent certifications, boost their Technical Skills and Experience Level scores.
       * Evaluate Language Abilities carefully (including Modality: Written, Verbal, or Both, and Proficiency: Beginner, Intermediate, Advanced, Fluent). If the job requires a specific language/modality/proficiency that the candidate lacks, reflect that gap in Role Alignment and Culture & Soft Skills.
 
-    CANDIDATE PROFILE:
+    PROFESSIONAL PROFILE:
     Experience: ${profile.experience_years || 'Not specified'} years
     Primary Industry Vertical: ${profile.industry_vertical || 'General / Cross-Industry'}
     Education Level: ${profile.education_level || 'Practical Experience & Industry Certifications'}
@@ -3877,10 +3877,10 @@ function buildDeterministicFallbackMatch(
   calibrated.brief_analysis =
     overall < 40
       ? viewerRole === 'employer'
-        ? `Low role alignment (${overall}%): Candidate matched ${baseline.reqMatchCount} of ${baseline.totalReqCount} core requirements for ${job?.title || 'this role'} (Core Competencies: ${calibrated.radar_data[0].score}%).`
+        ? `Low role alignment (${overall}%): Professional matched ${baseline.reqMatchCount} of ${baseline.totalReqCount} core requirements for ${job?.title || 'this role'} (Core Competencies: ${calibrated.radar_data[0].score}%).`
         : `Low role alignment (${overall}%): Your profile matched ${baseline.reqMatchCount} of ${baseline.totalReqCount} core requirements for ${job?.title || 'this role'} (Core Competencies: ${calibrated.radar_data[0].score}%).`
       : viewerRole === 'employer'
-      ? `Candidate matched ${baseline.reqMatchCount} of ${baseline.totalReqCount} core requirements (${overall}% overall fit) across Core Competencies (${calibrated.radar_data[0].score}%) and Skill Tenure (${calibrated.radar_data[1].score}%).`
+      ? `Professional matched ${baseline.reqMatchCount} of ${baseline.totalReqCount} core requirements (${overall}% overall fit) across Core Competencies (${calibrated.radar_data[0].score}%) and Skill Tenure (${calibrated.radar_data[1].score}%).`
       : `You matched ${baseline.reqMatchCount} of ${baseline.totalReqCount} core requirements (${overall}% overall fit) across Core Competencies (${calibrated.radar_data[0].score}%) and Skill Tenure (${calibrated.radar_data[1].score}%).`
 
   calibrated.employer_pitch =
@@ -4456,7 +4456,7 @@ export async function updateStructuredJob(formData: FormData) {
 }
 
 // ------------------------------------------------------------------
-// EMPLOYER: CANDIDATE SEARCH & CONNECTIONS
+// EMPLOYER: PROFESSIONAL SEARCH & CONNECTIONS
 // ------------------------------------------------------------------
 
 export async function searchCandidates(
@@ -4749,7 +4749,7 @@ export async function sendConnectionRequest(
     .eq('id', candidateId)
     .single()
 
-  if (!candidate) return { error: 'Candidate profile not found.' }
+  if (!candidate) return { error: 'Professional profile not found.' }
   const targetPrefMeta: any = extractCandidatePrefMeta(candidate.structured_skills)
   if (targetPrefMeta?.is_sandbox_benchmark) {
     return {
@@ -4782,7 +4782,7 @@ export async function sendConnectionRequest(
     annualizedMaxPay < candidate.min_salary_expectation
   ) {
     return {
-      error: `Request Blocked: Candidate requires a minimum salary of $${(
+      error: `Request Blocked: Professional requires a minimum salary of $${(
         candidate.min_salary_expectation / 1000
       ).toFixed(0)}k/yr.`,
     }
@@ -4799,7 +4799,7 @@ export async function sendConnectionRequest(
     jobWorkModel !== candidatePrefModel
   ) {
     return {
-      error: `Request Blocked: Candidate is only accepting ${candidate.preferred_work_model} roles.`,
+      error: `Request Blocked: Professional is only accepting ${candidate.preferred_work_model} roles.`,
     }
   }
 
@@ -6622,7 +6622,7 @@ export async function submitSupportTicket(formData: FormData) {
     if (!accountTierLabel) accountTierLabel = 'Employer • Starter'
   } else {
     const cInfo = await resolveCandidateTierInfo(user.id)
-    accountTierLabel = `Candidate • ${String(cInfo.tier).toUpperCase()}`
+    accountTierLabel = `Professional • ${String(cInfo.tier).toUpperCase()}`
   }
 
   const ticketId = `TKT-${Date.now().toString().slice(-6)}`
@@ -6656,7 +6656,7 @@ export async function submitSupportTicket(formData: FormData) {
   if (!isPaidSub && !isOneWayTelemetryCategory) {
     return {
       error:
-        '1-on-1 Live Support Tickets require an active monthly plan (Candidate Professional $12/mo or Prestige $19/mo, or Employer Starter/Growth/Enterprise). Explorer ($0/mo) members may use the Knowledge Base FAQs or submit a 1-Way Bug Report / Feature Request.',
+        '1-on-1 Live Support Tickets require an active monthly plan (Professional Professional $12/mo or Prestige $19/mo, or Employer Starter/Growth/Enterprise). Explorer ($0/mo) members may use the Knowledge Base FAQs or submit a 1-Way Bug Report / Feature Request.',
     }
   }
 
@@ -6874,7 +6874,7 @@ export async function submitQuickFeedback(formData: FormData) {
 }
 
 // ------------------------------------------------------------------
-// STAGE 2 CANDIDATE VAULT RELEASE + AUTOMATED ENTERPRISE ATS / WEBHOOK SYNC
+// STAGE 2 PROFESSIONAL VAULT RELEASE + AUTOMATED ENTERPRISE ATS / WEBHOOK SYNC
 // ------------------------------------------------------------------
 
 export async function releaseCandidateVaultAndSyncAts(applicationId: string) {
@@ -6922,7 +6922,7 @@ export async function releaseCandidateVaultAndSyncAts(applicationId: string) {
     profileObj?.full_name ||
     profileObj?.name ||
     app.match_data?.candidate_full_name ||
-    'Verified Candidate'
+    'Verified Professional'
 
   const candidateEmail =
     user.email ||
@@ -6977,7 +6977,7 @@ export async function releaseCandidateVaultAndSyncAts(applicationId: string) {
       `${fullName} (${candidateEmail}) just released their full Conversation Resume & Contact Vault for "${jobObj?.title || 'Open Role'}".`,
       `Transaction Reference ID: ${referenceId}`,
       atsSyncResult?.success
-        ? `✓ Enterprise HR Software Auto-Sync: Candidate vault and TrueFit Score™ were automatically pushed to your connected HR software (${atsSyncResult.syncStatus}).`
+        ? `✓ Enterprise HR Software Auto-Sync: Professional vault and TrueFit Score™ were automatically pushed to your connected HR software (${atsSyncResult.syncStatus}).`
         : `Log in to your Employer Pipeline to view ${fullName}'s full contact details and download their verified PDF resume.`,
     ],
     ctaUrl: '/dashboard/employer/applications',

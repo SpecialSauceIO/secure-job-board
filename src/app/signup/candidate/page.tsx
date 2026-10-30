@@ -41,7 +41,7 @@ export default function CandidateSignupPage({
               🛡️ Intro/Convo Identity Vault Protected
             </span>
             <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-              Candidate Sign Up
+              Professional Sign Up
             </h2>
             <p className="mt-1.5 text-sm text-slate-500 font-medium">
               {selectedPlan === 'prestige'

@@ -72,13 +72,13 @@ export default async function SignupSelectionPage({
                 </span>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">
-                I&apos;m a Candidate
+                I&apos;m a Professional
               </h3>
               <p className="text-slate-500 leading-relaxed text-sm">
                 Verify your identity once for $5 to unlock your $0/mo Explorer Vault forever (unlimited TrueFit Score™ checks, inbound Employer Invitations, & Weekly 1-Year Prestige Drawing). Upgrade to Professional ($12/mo) or Prestige ($19/mo) anytime to apply outbound.
               </p>
               <div className="mt-5 sm:mt-6 flex items-center text-indigo-600 font-bold text-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-hover:translate-x-1 transition-all">
-                Create Verified Candidate Vault
+                Create Verified Professional Vault
                 <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
                 </svg>

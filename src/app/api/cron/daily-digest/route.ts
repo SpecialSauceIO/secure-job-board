@@ -92,7 +92,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 2. Member Breakdown (Candidates & Employer Orgs)
+    // 2. Member Breakdown (Professionals & Employer Orgs)
     const candidates = profiles.filter(
       (p: any) => String(p.role || "").toLowerCase() !== "employer"
     )
@@ -308,22 +308,22 @@ export async function GET(req: NextRequest) {
             </thead>
             <tbody style="font-size: 13px; color: #e2e8f0;">
               <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding: 9px 14px; font-weight: 700;">Candidates — Explorer (Free)</td>
+                <td style="padding: 9px 14px; font-weight: 700;">Professionals — Explorer (Free)</td>
                 <td style="padding: 9px 14px; text-align: right; color: #34d399; font-weight: 800;">+${candTiers24h.Explorer}</td>
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${candTiersTotal.Explorer}</td>
               </tr>
               <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding: 9px 14px; font-weight: 700;">Candidates — Professional</td>
+                <td style="padding: 9px 14px; font-weight: 700;">Professionals — Professional</td>
                 <td style="padding: 9px 14px; text-align: right; color: #34d399; font-weight: 800;">+${candTiers24h.Professional}</td>
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${candTiersTotal.Professional}</td>
               </tr>
               <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding: 9px 14px; font-weight: 700;">Candidates — Prestige</td>
+                <td style="padding: 9px 14px; font-weight: 700;">Professionals — Prestige</td>
                 <td style="padding: 9px 14px; text-align: right; color: #34d399; font-weight: 800;">+${candTiers24h.Prestige}</td>
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${candTiersTotal.Prestige}</td>
               </tr>
               <tr style="border-bottom: 1px solid #334155; background: #020617;">
-                <td style="padding: 9px 14px; font-weight: 800; color: #38bdf8;">Total Candidates (${verifiedCandidatesTotal} Stripe ID Verified)</td>
+                <td style="padding: 9px 14px; font-weight: 800; color: #38bdf8;">Total Professionals (${verifiedCandidatesTotal} Stripe ID Verified)</td>
                 <td style="padding: 9px 14px; text-align: right; color: #38bdf8; font-weight: 900;">+${newCandidates24h.length}</td>
                 <td style="padding: 9px 14px; text-align: right; color: #38bdf8; font-weight: 900;">${candidates.length}</td>
               </tr>
@@ -369,7 +369,7 @@ export async function GET(req: NextRequest) {
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${activeJobs.length} active (${jobs.length} total)</td>
               </tr>
               <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding: 9px 14px; font-weight: 700;">Candidate Applications Submitted</td>
+                <td style="padding: 9px 14px; font-weight: 700;">Professional Applications Submitted</td>
                 <td style="padding: 9px 14px; text-align: right; color: #34d399; font-weight: 800;">+${candidateApps24h.length}</td>
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${candidateAppsTotal.length}</td>
               </tr>

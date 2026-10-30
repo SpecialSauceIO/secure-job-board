@@ -116,7 +116,7 @@ export default function CandidateBillingPage() {
             : 'Professional ($12/mo)'
         setFeedback({
           type: 'success',
-          text: `Stripe Subscription Confirmed: Your Candidate ${planTitle} plan is now active. Complete your 1-time Real-Person ID Verification on your Dashboard to go live in Employer Search.`,
+          text: `Stripe Subscription Confirmed: Your Professional ${planTitle} plan is now active. Complete your 1-time Real-Person ID Verification on your Dashboard to go live in Employer Search.`,
         })
         loadCandidateBillingState()
       })
@@ -238,7 +238,7 @@ export default function CandidateBillingPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Candidate Membership &amp; Human-to-Human Access
+            Professional Membership &amp; Human-to-Human Access
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Every active connection on Special Sauce requires real-person biometric ID verification to guarantee zero bots and zero spam. Start with Explorer ($5 One-Time Verification · $0/mo Forever) for passive inbound Professional Invitations, or upgrade to Professional ($12/mo) &amp; Prestige ($19/mo) when ready to proactively apply to roles.
@@ -271,7 +271,7 @@ export default function CandidateBillingPage() {
         </div>
       </header>
 
-      {/* Mandatory Step 2 Verification Quarantine Callout for Subscribed Candidates */}
+      {/* Mandatory Step 2 Verification Quarantine Callout for Subscribed Professionals */}
       {!isLoading && normalizedTier !== 'free' && !isVerified && (
         <div className="p-6 rounded-2xl border-2 border-amber-400 bg-amber-50 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-1">
@@ -304,7 +304,7 @@ export default function CandidateBillingPage() {
         </div>
       )}
 
-      {/* Unified Gold Launch Frame Wrapping All 3 Candidate Tiers */}
+      {/* Unified Gold Launch Frame Wrapping All 3 Professional Tiers */}
       <div className="rounded-3xl border-2 border-slate-300 bg-gradient-to-b from-amber-50/60 via-white to-white p-4 sm:p-8 shadow-md space-y-8">
         {/* Top Founding Launch Banner */}
         <div className="rounded-2xl bg-slate-900 text-white p-4 sm:p-7 border border-slate-300/60 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -381,7 +381,7 @@ export default function CandidateBillingPage() {
           </div>
         </div>
 
-        {/* 3 Candidate Tier Cards */}
+        {/* 3 Professional Tier Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Card 1: Explorer ($5 One-Time · $0/mo Forever) */}
           <div
@@ -410,7 +410,7 @@ export default function CandidateBillingPage() {
                   <span className="text-xs font-bold text-slate-500">/ month</span>
                 </div>
                 <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                  For passive candidates who want to be discovered and receive verified inbound employer offers without spam or bots.
+                  For passive professionals who want to be discovered and receive verified inbound employer offers without spam or bots.
                 </p>
               </div>
 

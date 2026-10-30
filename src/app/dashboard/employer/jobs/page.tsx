@@ -260,7 +260,7 @@ export default async function JobManagementPage() {
       }
     }
 
-    // Check Renewal Guardrails: (1) Days 25-30 Window, (2) Max 2 Renewals, (3) Active Candidate Engagement
+    // Check Renewal Guardrails: (1) Days 25-30 Window, (2) Max 2 Renewals, (3) Active Professional Engagement
     const rawReqs = Array.isArray(targetJob.structured_requirements)
       ? targetJob.structured_requirements
       : []

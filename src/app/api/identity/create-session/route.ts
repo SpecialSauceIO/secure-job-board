@@ -120,7 +120,7 @@ export async function POST(req: Request) {
     await recordHandshakeTelemetry({
       handshakeId: 'stripe_identity_session',
       label: 'Stripe Identity Session Handshake',
-      platformArea: 'Stripe Identity Verification (Candidate)',
+      platformArea: 'Stripe Identity Verification (Professional)',
       ok: true,
       latencyMs: Date.now() - startMs,
     })
@@ -130,7 +130,7 @@ export async function POST(req: Request) {
     await recordHandshakeTelemetry({
       handshakeId: 'stripe_identity_session',
       label: 'Stripe Identity Session Handshake',
-      platformArea: 'Stripe Identity Verification (Candidate)',
+      platformArea: 'Stripe Identity Verification (Professional)',
       ok: false,
       latencyMs: Date.now() - startMs,
       errorDetail: error?.message || 'Stripe Identity session error',

@@ -198,7 +198,7 @@ export async function fireTestAtsWebhook() {
       ],
     },
     candidate_vault: {
-      full_name: 'Alex Rivera (Test Candidate)',
+      full_name: 'Alex Rivera (Test Professional)',
       email: 'alex.rivera.test@example.com',
       identity_verified: true,
       experience_years: 12,
@@ -242,9 +242,9 @@ export async function fireTestAtsWebhook() {
 
 /**
  * LIVE STAGE 2 VAULT TRIGGER:
- * Automatically dispatches the unlocked Candidate Vault & TrueFit Score™
+ * Automatically dispatches the unlocked Professional Vault & TrueFit Score™
  * to the employer's Workday/Enterprise Webhook and/or Greenhouse HR Software
- * when a candidate releases their Conversation Vault.
+ * when a professional releases their Conversation Vault.
  */
 export async function autoSyncStage2VaultToEnterpriseAts(
   applicationId: string,
@@ -317,7 +317,7 @@ export async function autoSyncStage2VaultToEnterpriseAts(
       return { skipped: true, reason: 'Unauthorized caller for ATS sync' }
     }
     if (!app.match_data?.candidate_vault_released && !releasedVaultOverride) {
-      return { skipped: true, reason: 'Candidate Conversation vault has not been released yet' }
+      return { skipped: true, reason: 'Professional Conversation vault has not been released yet' }
     }
     const candObj: any = Array.isArray(app.profiles) ? app.profiles[0] : app.profiles
     const orgId = jobObj?.organization_id
@@ -366,7 +366,7 @@ export async function autoSyncStage2VaultToEnterpriseAts(
       releasedVaultOverride?.fullName ||
       matchData.candidate_full_name ||
       candObj?.full_name ||
-      'Verified Candidate'
+      'Verified Professional'
 
     const candidateEmail =
       releasedVaultOverride?.email ||
@@ -470,7 +470,7 @@ export async function autoSyncStage2VaultToEnterpriseAts(
         const nameParts = String(fullName).trim().split(/\s+/)
         const firstName = nameParts[0] || 'Verified'
         const lastName =
-          nameParts.length > 1 ? nameParts.slice(1).join(' ') : 'Candidate'
+          nameParts.length > 1 ? nameParts.slice(1).join(' ') : 'Professional'
 
         const basicAuth = Buffer.from(
           atsConfig.greenhouseApiKey.trim() + ':'
@@ -643,7 +643,7 @@ export async function exportEnterpriseCandidatesCsv() {
       : 'Stage 0 Protected'
 
     const candidateName = vaultReleased
-      ? matchData.candidate_full_name || cand?.full_name || 'Released Candidate'
+      ? matchData.candidate_full_name || cand?.full_name || 'Released Professional'
       : 'Anonymous #' + String(cand?.id || 'ANON').split('-')[0].toUpperCase()
 
     const candidateEmail = vaultReleased

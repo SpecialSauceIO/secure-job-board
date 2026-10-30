@@ -233,7 +233,7 @@ export default function EmployerOrganizationForm({
               </span>
             </div>
             <h2 className="text-lg font-extrabold text-slate-900 mt-1.5">
-              Employer Trust &amp; Candidate Vault Protection
+              Employer Trust &amp; Professional Vault Protection
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
               To protect candidate resumes from burner-domain harvesting, all 3 security pillars below are required before publishing roles or sending outbound pitches.
@@ -330,7 +330,7 @@ export default function EmployerOrganizationForm({
             </div>
             <p className="text-xs text-slate-600 mt-1">
               {pillar3Done
-                ? 'Your personal identity is cryptographically verified. Candidates see the "🛡️ ID-Verified Hiring Manager" trust signal on your invitations.'
+                ? 'Your personal identity is cryptographically verified. Professionals see the "🛡️ ID-Verified Hiring Manager" trust signal on your invitations.'
                 : 'Just like candidates, Employer Admins complete a 60-second Stripe Identity check so candidates know a real, accountable hiring leader is behind every role.'}
             </p>
           </div>

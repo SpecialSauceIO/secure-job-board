@@ -105,7 +105,7 @@ function checkCandidateActivePlanAndVerification(profileObj: any): {
 }
 
 function maskCandidateNameForStage1(fullName?: string | null): string {
-  if (!fullName || !fullName.trim()) return 'Verified Candidate'
+  if (!fullName || !fullName.trim()) return 'Verified Professional'
   const parts = fullName.trim().split(/\s+/)
   if (parts.length === 1) return parts[0]
   const firstName = parts[0]
@@ -510,7 +510,7 @@ export async function sendApplicationMessage(
     profileObj?.full_name ||
     profileObj?.name ||
     existingMatchData.candidate_full_name ||
-    'Verified Candidate'
+    'Verified Professional'
 
   const senderDisplayName =
     senderRole === 'employer'
@@ -689,7 +689,7 @@ export async function sendApplicationMessage(
       to: resolvedEmployerEmail,
       subject: `New reply from ${senderDisplayName} for ${roleTitle}`,
       referenceId: refId,
-      heading: `Candidate Reply for ${roleTitle}`,
+      heading: `Professional Reply for ${roleTitle}`,
       bodyLines: [
         `${senderDisplayName} replied in your encrypted thread (${refId}):`,
         `"${trimmed}"`,
@@ -774,7 +774,7 @@ export async function releaseCandidateVaultToEmployer(
     profileObj?.full_name ||
     profileObj?.name ||
     existingMatchData.candidate_full_name ||
-    'Verified Candidate'
+    'Verified Professional'
   const candidateEmail =
     user.email ||
     profileObj?.contact_email ||
@@ -843,15 +843,15 @@ export async function releaseCandidateVaultToEmployer(
       jobObj?.title || 'Open Role'
     }!`,
     referenceId: refId,
-    heading: 'Candidate Released Full Resume & Contact Vault!',
+    heading: 'Professional Released Full Resume & Contact Vault!',
     bodyLines: [
       `${fullName} has shared their full Resume & Contact Info for "${
         jobObj?.title || 'Open Role'
       }".`,
-      `Candidate Full Name: ${fullName}`,
+      `Professional Full Name: ${fullName}`,
       `Direct Email: ${candidateEmail || 'Available in dashboard'}`,
       atsSyncResult?.success
-        ? `✓ Enterprise HR Software Auto-Sync: Candidate vault & TrueFit Score™ were automatically pushed to your connected HR software (${atsSyncResult.syncStatus}).`
+        ? `✓ Enterprise HR Software Auto-Sync: Professional vault & TrueFit Score™ were automatically pushed to your connected HR software (${atsSyncResult.syncStatus}).`
         : `You can now download their original PDF resume and contact them directly.`,
     ],
     ctaUrl:

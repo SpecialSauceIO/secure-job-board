@@ -62,7 +62,7 @@ export default async function EmployerSearchPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-300">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Passive Candidate Search
+            Passive Professional Search
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Browse vaulted anonymous profiles, run TrueFit Score™ checks, and send Professional Invitations for your active roles directly to top talent.

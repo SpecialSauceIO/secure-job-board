@@ -326,7 +326,7 @@ export default function DashboardNav({
                             className="w-full rounded-xl border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs font-bold text-slate-900"
                           >
                             <option value="all">All Users (Cand + Emp)</option>
-                            <option value="candidate">Candidates Only</option>
+                            <option value="candidate">Professionals Only</option>
                             <option value="employer">Employers Only</option>
                           </select>
                         </div>

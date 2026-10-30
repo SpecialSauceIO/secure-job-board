@@ -71,16 +71,16 @@ export default function WorkflowsPage() {
 
           <div className="relative z-10 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto text-center space-y-5">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/35 text-emerald-300 text-xs sm:text-sm font-extrabold uppercase tracking-wide backdrop-blur-xs">
-              <span>$5 Candidate &amp; $25 Employer One-Time Verify • $0/Mo Explorer Vault • Weekly 1-Yr Giveaway</span>
+              <span>$5 Professional &amp; $25 Employer One-Time Verify • $0/Mo Explorer Vault • Weekly 1-Yr Giveaway</span>
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight drop-shadow-xs">
               How Special Sauce Works{' '}
               <span className={activeTab === 'candidate' ? 'text-sky-400' : 'text-emerald-400'}>
-                {activeTab === 'candidate' ? 'for Candidates' : 'for Employers'}
+                {activeTab === 'candidate' ? 'for Professionals' : 'for Employers'}
               </span>
             </h1>
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Complete your one-time verification (<strong className="text-white">$5 Candidates / $25 Employers</strong>) to unlock our <strong className="text-emerald-400">$0/mo Explorer Vault</strong>, run <strong className="text-white">TrueFit Score™</strong> checks, and connect via our Intro/Convo Privacy Handshake.
+              Complete your one-time verification (<strong className="text-white">$5 Professionals / $25 Employers</strong>) to unlock our <strong className="text-emerald-400">$0/mo Explorer Vault</strong>, run <strong className="text-white">TrueFit Score™</strong> checks, and connect via our Intro/Convo Privacy Handshake.
             </p>
             <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
               <Link
@@ -115,7 +115,7 @@ export default function WorkflowsPage() {
               <span className="w-7 h-7 rounded-lg bg-black/20 flex items-center justify-center text-xs font-black">
                 C
               </span>
-              <span>Candidate Workflow (5 Steps)</span>
+              <span>Professional Workflow (5 Steps)</span>
             </button>
 
             <button
@@ -135,7 +135,7 @@ export default function WorkflowsPage() {
           </div>
 
           {/* ==============================================================
-              TAB 1: CANDIDATE WORKFLOW (5 STEPS)
+              TAB 1: PROFESSIONAL WORKFLOW (5 STEPS)
              ============================================================== */}
           {activeTab === 'candidate' ? (
             <section className="rounded-3xl border-2 border-indigo-500/60 bg-slate-950 p-6 sm:p-10 shadow-xl space-y-8">
@@ -149,7 +149,7 @@ export default function WorkflowsPage() {
                       $5 One-Time Verification • $0/Mo Explorer Forever • Weekly 1-Yr Prestige Drawing
                     </span>
                     <h2 className="text-xl sm:text-2xl font-black text-white">
-                      Candidate Workflow: Free Seeding to Protected Offers
+                      Professional Workflow: Free Seeding to Protected Offers
                     </h2>
                   </div>
                 </div>
@@ -157,7 +157,7 @@ export default function WorkflowsPage() {
                   href="/signup/candidate"
                   className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-extrabold text-center transition-colors shrink-0"
                 >
-                  Start Free Candidate Vault →
+                  Start Free Professional Vault →
                 </Link>
               </div>
 
@@ -187,7 +187,7 @@ export default function WorkflowsPage() {
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Anonymous Candidate #ID &amp; Vault-Staged Discovery
+                    Unlocks: ✓ Anonymous Professional #ID &amp; Vault-Staged Discovery
                   </div>
                 </div>
 
@@ -274,7 +274,7 @@ export default function WorkflowsPage() {
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Verified Candidate Shield &amp; Priority Search Ranking
+                    Unlocks: ✓ Verified Professional Shield &amp; Priority Search Ranking
                   </div>
                 </div>
 
@@ -294,7 +294,7 @@ export default function WorkflowsPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span><strong>The Conversation (Candidate-Controlled Vault Release):</strong> Your contact info and raw PDF resume remain hidden until you explicitly click <strong>&ldquo;Release Resume &amp; Contact Vault&rdquo;</strong> inside the chat thread.</span>
+                        <span><strong>The Conversation (Professional-Controlled Vault Release):</strong> Your contact info and raw PDF resume remain hidden until you explicitly click <strong>&ldquo;Release Resume &amp; Contact Vault&rdquo;</strong> inside the chat thread.</span>
                       </li>
                     </ul>
                   </div>
@@ -490,7 +490,7 @@ export default function WorkflowsPage() {
                   Where Both Workflows Meet • The Intro/Convo Privacy Handshake
                 </span>
                 <h2 className="text-xl sm:text-3xl font-black text-white">
-                  Zero Unsolicited Spam, Zero Burner-Domain Harvesting &amp; 100% Candidate-Controlled Disclosure
+                  Zero Unsolicited Spam, Zero Burner-Domain Harvesting &amp; 100% Professional-Controlled Disclosure
                 </h2>
               </div>
               <div className="flex flex-wrap items-center gap-3 shrink-0">
@@ -498,7 +498,7 @@ export default function WorkflowsPage() {
                   href="/signup/candidate"
                   className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-extrabold transition-colors"
                 >
-                  Start Candidate Workflow →
+                  Start Professional Workflow →
                 </Link>
                 <Link
                   href="/signup/employer"
@@ -515,7 +515,7 @@ export default function WorkflowsPage() {
                   1. Pre-Match (Mutual Identity Protection)
                 </h3>
                 <p className="text-sm text-slate-200 leading-relaxed">
-                  Candidates appear as <strong className="text-emerald-400">Candidate #ID</strong> with structured skills, dealbreakers, and TrueFit Score™s. Employers appear by Industry Vertical, Company Stage, and upfront salary bands—preventing resume harvesting and poaching risk.
+                  Professionals appear as <strong className="text-emerald-400">Professional #ID</strong> with structured skills, dealbreakers, and TrueFit Score™s. Employers appear by Industry Vertical, Company Stage, and upfront salary bands—preventing resume harvesting and poaching risk.
                 </p>
               </div>
 

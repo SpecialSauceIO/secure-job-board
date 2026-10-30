@@ -5,7 +5,7 @@ import { PublicFooter } from "@/components/PublicFooter"
 export const metadata = {
   title: "Pricing, Plans & Founding Partner Rates | specialsauce.io",
   description:
-    "Get verified once for life ($5 Candidates / $25 Employers). Browse and match free in Explorer mode, or unlock active Candidate plans ($12 or $19/mo) and Employer Founding Partner plans ($149, $499, or $1,250/mo).",
+    "Get verified once for life ($5 Professionals / $25 Employers). Browse and match free in Explorer mode, or unlock active Professional plans ($12 or $19/mo) and Employer Founding Partner plans ($149, $499, or $1,250/mo).",
 }
 
 export default function PricingMatrixPage() {
@@ -87,11 +87,11 @@ export default function PricingMatrixPage() {
               Connect directly with ID-verified professionals and domain-verified employers—with <strong className="text-white">zero bots, zero ghost jobs, and free TrueFit Score™ checks</strong>. Complete your one-time verification to enter the <strong className="text-emerald-400">$0/mo Explorer Vault</strong> and upgrade only when ready to actively connect.
             </p>
 
-            {/* Split-Screen Onboarding Callout: Left Candidates ($5) | Right Employers ($25) */}
+            {/* Split-Screen Onboarding Callout: Left Professionals ($5) | Right Employers ($25) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-3 text-left">
               <div className="p-4 sm:p-5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-indigo-500/40 shadow-lg space-y-2.5">
                 <div className="text-xs font-extrabold uppercase tracking-wider text-indigo-300">
-                  For Candidates ($5 One-Time ID Verification)
+                  For Professionals ($5 One-Time ID Verification)
                 </div>
                 <ul className="space-y-1.5 text-xs sm:text-sm text-slate-200 leading-relaxed">
                   <li className="flex items-start gap-2">
@@ -119,7 +119,7 @@ export default function PricingMatrixPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-emerald-400 font-bold shrink-0">•</span>
-                    <span>Preview live verified candidate matches in the <strong className="text-emerald-300">$0/mo Sandbox</strong>.</span>
+                    <span>Preview live verified professional matches in the <strong className="text-emerald-300">$0/mo Sandbox</strong>.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-amber-400 font-bold shrink-0">•</span>
@@ -175,10 +175,10 @@ export default function PricingMatrixPage() {
         {/* Main 3x3 Matrix Container */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 pb-20 sm:pb-24 space-y-14 sm:space-y-20">
           {/* ================================================================
-              SECTION 1: CANDIDATE PLANS (Explorer $5 Once / Professional $12 / Prestige $19)
+              SECTION 1: PROFESSIONAL PLANS (Explorer $5 Once / Professional $12 / Prestige $19)
              ================================================================ */}
           <div className="rounded-3xl border-2 border-indigo-500/50 bg-slate-950 p-5 sm:p-8 md:p-10 shadow-xl space-y-8 relative overflow-hidden">
-            {/* Top Unified Candidate Banner */}
+            {/* Top Unified Professional Banner */}
             <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border border-slate-700 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider">
@@ -203,7 +203,7 @@ export default function PricingMatrixPage() {
               </div>
             </div>
 
-            {/* 3 Candidate Cards */}
+            {/* 3 Professional Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Tier 1: Explorer ($5 One-Time / $0 mo Forever) */}
               <div className="bg-slate-900 p-6 sm:p-8 rounded-2xl border-2 border-slate-700 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
@@ -232,7 +232,7 @@ export default function PricingMatrixPage() {
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">Includes Lifetime Real-Person ID Verification</strong> &amp; Verified Candidate Shield ($5 once)</span>
+                      <span><strong className="text-white">Includes Lifetime Real-Person ID Verification</strong> &amp; Verified Professional Shield ($5 once)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -287,7 +287,7 @@ export default function PricingMatrixPage() {
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">Everything in Explorer</strong> + Verified Candidate Shield</span>
+                      <span><strong className="text-white">Everything in Explorer</strong> + Verified Professional Shield</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -391,10 +391,10 @@ export default function PricingMatrixPage() {
                   <span>★ $25 One-Time Org Verification • 12-Month Employer Founding Partner Rate Lock</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  Verify Your Organization for $25 • Preview Live Candidate Matches Free
+                  Verify Your Organization for $25 • Preview Live Professional Matches Free
                 </h2>
                 <ul className="space-y-1.5 pt-1 text-sm sm:text-base text-slate-200">
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-emerald-300">$25 One-Time Verification Sandbox:</strong> Complete Domain, EIN &amp; Stripe ID verification once to draft roles and preview verified candidate matches at $0/mo before activating a plan.</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-emerald-300">$25 One-Time Verification Sandbox:</strong> Complete Domain, EIN &amp; Stripe ID verification once to draft roles and preview verified professional matches at $0/mo before activating a plan.</span></li>
                   <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-amber-300">12-Month Rate Lock:</strong> Lock in $149 / $499 / $1,250 per month for your first 12 months when ready to connect (standard retail applies Month 13).</span></li>
                   <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-white">Accepted-Only Invitation Guarantee:</strong> Inbound applicants are 100% free (0 credits), and declined outbound invitations are auto-refunded.</span></li>
                 </ul>
@@ -679,7 +679,7 @@ export default function PricingMatrixPage() {
                       <span className="text-3xl font-black text-white">$350</span>
                     </div>
                     <p className="text-base text-slate-100 leading-relaxed">
-                      Built for hiring managers actively sourcing passive candidates across 2 to 4 concurrent role openings.
+                      Built for hiring managers actively sourcing passive professionals across 2 to 4 concurrent role openings.
                     </p>
                   </div>
                   <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs sm:text-sm font-bold text-indigo-300">

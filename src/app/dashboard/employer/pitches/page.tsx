@@ -88,7 +88,7 @@ export default function EmployerSentPitchesPage() {
             Sent Professional Invitations
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Track outbound role pitches sent to passive candidates, message accepted matches in private chat, and access unlocked resumes and contact info.
+            Track outbound role pitches sent to passive professionals, message accepted matches in private chat, and access unlocked resumes and contact info.
           </p>
         </div>
 
@@ -108,7 +108,7 @@ export default function EmployerSentPitchesPage() {
             {[
               { id: 'all', label: 'All Sent Invitations' },
               { id: 'accepted', label: '🔓 Accepted / Thread Open' },
-              { id: 'pending', label: '⏳ Pending Candidate Reply' },
+              { id: 'pending', label: '⏳ Pending Professional Reply' },
               { id: 'declined', label: 'Declined' },
             ].map((tab) => (
               <button
@@ -270,8 +270,8 @@ export default function EmployerSentPitchesPage() {
 
             const candidateDisplayName = isAccepted
               ? pitch.unlocked_candidate_name ||
-                `Verified Candidate #${displayId}`
-              : `Anonymous Candidate #${displayId}`
+                `Verified Professional #${displayId}`
+              : `Anonymous Professional #${displayId}`
 
             return (
               <div
@@ -324,7 +324,7 @@ export default function EmployerSentPitchesPage() {
 
                       {!isAccepted && !isDeclined && (
                         <span className="text-amber-700 font-bold">
-                          ⏳ Awaiting Candidate Reply
+                          ⏳ Awaiting Professional Reply
                         </span>
                       )}
 
@@ -336,7 +336,7 @@ export default function EmployerSentPitchesPage() {
                     </div>
                   </div>
 
-                  {/* Candidate Header + Rank & Verified */}
+                  {/* Professional Header + Rank & Verified */}
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="space-y-1.5">
                       <div className="flex flex-wrap items-center gap-2.5">
@@ -433,16 +433,16 @@ export default function EmployerSentPitchesPage() {
                     </div>
                   )}
 
-                  {/* Candidate Decline Feedback Banner */}
+                  {/* Professional Decline Feedback Banner */}
                   {isDeclined && (
                     <div className="px-4 py-3 rounded-xl bg-rose-50/90 border border-rose-300 text-xs text-rose-900 flex flex-wrap items-center justify-between gap-2">
                       <div>
                         <span className="font-extrabold uppercase tracking-wider text-[11px] text-rose-700 mr-2">
-                          📋 Candidate Decline Reason:
+                          📋 Professional Decline Reason:
                         </span>
                         <span className="font-bold">
                           {pitch.match_data?.candidate_decline_reason ||
-                            'Candidate passed on this Professional Invitation'}
+                            'Professional passed on this Professional Invitation'}
                         </span>
                       </div>
                     </div>
@@ -488,7 +488,7 @@ export default function EmployerSentPitchesPage() {
                       {toEmployerPerspective(
     pitch.match_data?.employer_brief_analysis ||
       pitch.match_data?.brief_analysis ||
-      "Candidate matched role requirements and dealbreakers."
+      "Professional matched role requirements and dealbreakers."
   )}
                     </p>
                   </div>
@@ -548,7 +548,7 @@ export default function EmployerSentPitchesPage() {
                     </div>
                   )}
 
-                  {/* Candidate Bio & Clean Skill List */}
+                  {/* Professional Bio & Clean Skill List */}
                   {candidate.bio && (
                     <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
                       {candidate.bio}

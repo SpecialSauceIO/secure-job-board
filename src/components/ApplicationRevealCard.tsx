@@ -46,7 +46,7 @@ function normalizePillarLabel(raw?: string): string {
 
 function maskFirstInitial(fullName?: string | null): string {
   if (!fullName || typeof fullName !== 'string' || !fullName.trim()) {
-    return 'Verified Candidate'
+    return 'Verified Professional'
   }
   const parts = fullName.trim().split(/\s+/)
   if (parts.length === 1) return parts[0]
@@ -208,7 +208,7 @@ export function ApplicationRevealCard({
     app?.match_data?.employer_brief_analysis ||
       app?.match_data?.brief_analysis ||
       app?.employer_pitch ||
-      "Candidate profile evaluated against role requirements."
+      "Professional profile evaluated against role requirements."
   )
 
   const vaultReleased = Boolean(
@@ -270,11 +270,11 @@ export function ApplicationRevealCard({
     ? vaultReleased
       ? unlockedName ||
         app?.match_data?.candidate_full_name ||
-        `Verified Candidate #${displayId}`
+        `Verified Professional #${displayId}`
       : maskFirstInitial(
           unlockedName ||
             app?.match_data?.candidate_full_name ||
-            `Verified Candidate #${displayId}`
+            `Verified Professional #${displayId}`
         )
     : `Anonymous Applicant #${displayId}`
 
@@ -440,7 +440,7 @@ export function ApplicationRevealCard({
           </div>
         </div>
 
-        {/* Candidate Identity Header + Rank & Verified */}
+        {/* Professional Identity Header + Rank & Verified */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2.5">
@@ -633,7 +633,7 @@ export function ApplicationRevealCard({
           </div>
         )}
 
-        {/* Candidate Bio Preview */}
+        {/* Professional Bio Preview */}
         <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
           {candidate?.bio || 'No summary bio provided.'}
         </p>
@@ -649,7 +649,7 @@ export function ApplicationRevealCard({
         {status === 'rejected' && archiveReason && (
           <div className="px-3.5 py-2.5 rounded-xl bg-rose-50/80 border border-rose-200 text-xs text-rose-900 flex items-center justify-between gap-2">
             <span>
-              <strong className="font-extrabold">Archived Reason Shared with Candidate:</strong> {archiveReason}
+              <strong className="font-extrabold">Archived Reason Shared with Professional:</strong> {archiveReason}
             </span>
           </div>
         )}
@@ -657,7 +657,7 @@ export function ApplicationRevealCard({
           <div className="p-3.5 rounded-xl bg-rose-50/70 border-2 border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div className="flex-1 space-y-1">
               <label className="font-extrabold text-rose-950 block">
-                Select Reason for Archiving (Shared with Candidate):
+                Select Reason for Archiving (Shared with Professional):
               </label>
               <select
                 value={archiveReason}
@@ -748,7 +748,7 @@ export function ApplicationRevealCard({
             <div className="flex items-center justify-between w-full">
               <span className="text-slate-600 font-medium">
                 {status === 'shortlisted'
-                  ? '★ Candidate is Shortlisted.'
+                  ? '★ Professional is Shortlisted.'
                   : status === 'rejected'
                   ? `Archived (${archiveReason})`
                   : '✓ Private Chat Open.'}

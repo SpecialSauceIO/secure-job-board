@@ -184,7 +184,7 @@ export function PublicHeader({
               onClick={() => setMobileMenuOpen(false)}
               className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold text-center shadow-xs transition-colors"
             >
-              I&apos;m a Candidate →
+              I&apos;m a Professional →
             </Link>
             <Link
               href="/signup/employer"

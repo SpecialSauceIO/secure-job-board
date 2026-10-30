@@ -390,7 +390,7 @@ export default async function MatchPreferencesPage() {
               />
             </div>
 
-            {/* Clean Pointer to Candidate Profile */}
+            {/* Clean Pointer to Professional Profile */}
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-extrabold text-slate-900">
