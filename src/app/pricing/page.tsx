@@ -89,21 +89,43 @@ export default function PricingMatrixPage() {
 
             {/* Split-Screen Onboarding Callout: Left Candidates ($5) | Right Employers ($25) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-3 text-left">
-              <div className="p-4 rounded-xl bg-slate-900/90 backdrop-blur-md border border-indigo-500/40 shadow-lg">
-                <div className="text-xs font-extrabold uppercase tracking-wider text-indigo-300 mb-1">
+              <div className="p-4 sm:p-5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-indigo-500/40 shadow-lg space-y-2.5">
+                <div className="text-xs font-extrabold uppercase tracking-wider text-indigo-300">
                   For Candidates ($5 One-Time ID Verification)
                 </div>
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-                  Pay <strong className="text-white">$5 once for life</strong> to complete Stripe Real-Person ID Verification. Enjoy <strong className="text-emerald-300">$0/mo Explorer access forever</strong> (unlimited inbound employer invites + Weekly 1-Year Prestige Drawing), or upgrade to <strong className="text-amber-300">$12 / $19 mo</strong> when applying outbound.
-                </p>
+                <ul className="space-y-1.5 text-xs sm:text-sm text-slate-200 leading-relaxed">
+                  <li className="flex items-start gap-2">
+                    <span className="text-indigo-400 font-bold shrink-0">•</span>
+                    <span>Pay <strong className="text-white">$5 once for life</strong> for Stripe Real-Person ID Verification.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-400 font-bold shrink-0">•</span>
+                    <span>Enjoy <strong className="text-emerald-300">$0/mo Explorer access forever</strong> (unlimited inbound invites + Weekly 1-Yr Prestige Drawing).</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 font-bold shrink-0">•</span>
+                    <span>Upgrade to <strong className="text-amber-300">$12 / $19 mo</strong> only when applying outbound.</span>
+                  </li>
+                </ul>
               </div>
-              <div className="p-4 rounded-xl bg-slate-900/90 backdrop-blur-md border border-emerald-500/40 shadow-lg">
-                <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-300 mb-1">
+              <div className="p-4 sm:p-5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-emerald-500/40 shadow-lg space-y-2.5">
+                <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-300">
                   For Employers ($25 One-Time Org Verification)
                 </div>
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-                  Pay <strong className="text-white">$25 once</strong> for Domain, EIN &amp; ID Verification to preview live verified candidate matches in the <strong className="text-emerald-300">$0/mo Sandbox</strong>. Activate <strong className="text-amber-300">Founding Partner Rates ($149 / $499 / $1,250 mo)</strong> when ready to hire.
-                </p>
+                <ul className="space-y-1.5 text-xs sm:text-sm text-slate-200 leading-relaxed">
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-400 font-bold shrink-0">•</span>
+                    <span>Pay <strong className="text-white">$25 once</strong> for Corporate Domain, EIN &amp; Admin ID Verification.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-400 font-bold shrink-0">•</span>
+                    <span>Preview live verified candidate matches in the <strong className="text-emerald-300">$0/mo Sandbox</strong>.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 font-bold shrink-0">•</span>
+                    <span>Activate <strong className="text-amber-300">Founding Partner Rates ($149 / $499 / $1,250 mo)</strong> when ready to hire.</span>
+                  </li>
+                </ul>
               </div>
             </div>
 
