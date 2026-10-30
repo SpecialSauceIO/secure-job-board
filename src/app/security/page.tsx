@@ -154,31 +154,31 @@ export default function SecurityTrustPage() {
           </div>
 
           {/* Bottom CTA */}
-          <div className="bg-slate-900 p-6 sm:p-8 rounded-2xl border border-slate-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-lg">
-            <div className="space-y-1.5">
+          <div className="bg-slate-900 p-6 sm:p-8 rounded-2xl border border-slate-700 flex flex-col gap-6 shadow-lg">
+            <div className="space-y-2 max-w-4xl">
               <h3 className="text-xl sm:text-2xl font-extrabold text-white">
                 Ready to Join the 100% Human-to-Human Marketplace?
               </h3>
-              <p className="text-base text-slate-100">
+              <p className="text-base text-slate-100 leading-relaxed">
                 Complete your one-time verification ($5 Professionals / $25 Employers) to enter the $0/mo Explorer Vault, then activate an outbound Professional or Employer Founding Partner plan when ready to connect.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 pt-1">
               <Link
                 href="/pricing"
-                className="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-black transition-colors"
+                className="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-black text-center transition-colors"
               >
                 ★ Compare Plans &amp; Perks
               </Link>
               <Link
                 href="/signup/candidate"
-                className="px-5 py-3 rounded-xl bg-indigo-600 text-white text-sm font-extrabold hover:bg-indigo-500 transition-colors"
+                className="px-5 py-3 rounded-xl bg-indigo-600 text-white text-sm font-extrabold text-center hover:bg-indigo-500 transition-colors"
               >
                 Join as Professional ($5 One-Time Verify) →
               </Link>
               <Link
                 href="/signup/employer"
-                className="px-5 py-3 rounded-xl bg-emerald-600 text-white text-sm font-extrabold hover:bg-emerald-500 transition-colors"
+                className="px-5 py-3 rounded-xl bg-emerald-600 text-white text-sm font-extrabold text-center hover:bg-emerald-500 transition-colors"
               >
                 Join as Employer ($25 Org Verify) →
               </Link>
