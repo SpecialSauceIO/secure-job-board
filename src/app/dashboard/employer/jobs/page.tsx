@@ -341,7 +341,7 @@ export default async function JobManagementPage() {
     }
 
     // Gate 3c: If a role has 5+ inbound applicants, require real pipeline decisions
-    // (at least 1 two-way thread/Stage 2 vault unlock OR formal declines on non-fits)
+    // (at least 1 two-way thread/Conversation vault unlock OR formal declines on non-fits)
     if (inboundJobApps.length >= 5) {
       const hasRealProgressionOrDecision = inboundJobApps.some((a: any) => {
         const st = String(a?.status || 'pending').toLowerCase()

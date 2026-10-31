@@ -448,7 +448,7 @@ export default function EmployerSentPitchesPage() {
                     </div>
                   )}
 
-                  {/* Encrypted Stage 1 / Stage 2 Thread (When Accepted) */}
+                  {/* Private Chat Thread (When Accepted) */}
                   {isAccepted && (
                     <SecureMessageThread
                       applicationId={pitch.id}

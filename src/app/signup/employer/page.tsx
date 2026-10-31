@@ -36,7 +36,6 @@ export default function EmployerSignupPage({
   }, [router, selectedPlan])
   const [emailError, setEmailError] = useState('')
 
-  // Client-side instant firewall for free email providers
   const validateEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     const email = e.target.value.toLowerCase()
     const freeDomains = [
@@ -74,43 +73,43 @@ export default function EmployerSignupPage({
         <div className="w-full max-w-md rounded-2xl bg-white p-5 sm:p-10 shadow-sm border border-slate-300 border-t-4 border-t-emerald-600">
           <div className="text-center mb-6">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-[11px] font-extrabold uppercase tracking-wider mb-3">
-              🏢 Verified Employers &amp; Recruiting Teams
+              🏢 Verified Employers &amp; Hiring Teams
             </span>
             <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
               Employer Sign Up
             </h2>
             <p className="mt-1.5 text-sm text-slate-500 font-medium">
-              Corporate work email required for domain verification.
+              Use your work email to set up your company account.
             </p>
           </div>
 
-          {/* High-Trust Employer Value Props Callout */}
-          <div className="mb-6 p-4 rounded-xl bg-slate-50 border-2 border-slate-300/80 space-y-2 text-xs text-slate-600 border-slate-300">
+          {/* Simple Value Props Callout */}
+          <div className="mb-6 p-4 rounded-xl bg-slate-50 border-2 border-slate-300/80 space-y-2 text-xs text-slate-600">
             <div className="flex items-start gap-2">
               <span className="text-emerald-600 font-black mt-0.5">✓</span>
               <span>
                 <strong className="text-slate-900">
-                  40%+ TrueFit™ Firewall:
+                  Verified, Matched Talent:
                 </strong>{' '}
-                Every applicant is Stripe Identity-Verified and pre-scored on a TrueFit Score™.
+                Every applicant is ID-verified and matched to your required skills.
               </span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-emerald-600 font-black mt-0.5">✓</span>
               <span>
                 <strong className="text-slate-900">
-                  Free Inbound Unlocks &amp; Live Chat:
+                  Free Inbound &amp; Protected Invites:
                 </strong>{' '}
-                Inbound applicants are 100% free. Outbound invitation credits automatically refund if a professional declines.
+                Inbound applicants are 100% free. Declined invitations are automatically refunded.
               </span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-emerald-600 font-black mt-0.5">✓</span>
               <span>
                 <strong className="text-slate-900">
-                  Shared Team &amp; Recruiter Seats:
+                  Team Collaboration:
                 </strong>{' '}
-                Collaborate with internal hiring managers or authorized external recruiters.
+                Invite hiring managers or recruiting partners to collaborate.
               </span>
             </div>
           </div>
@@ -222,12 +221,12 @@ export default function EmployerSignupPage({
                 }`}
               >
                 {selectedPlan === 'enterprise'
-                  ? 'Verify Org ($25) & Select Enterprise ($1,250/mo) →'
+                  ? 'Create Account & Select Enterprise ($1,250/mo) →'
                   : selectedPlan === 'growth'
-                    ? 'Verify Org ($25) & Select Growth ($499/mo) →'
+                    ? 'Create Account & Select Growth ($499/mo) →'
                     : selectedPlan === 'starter'
-                      ? 'Verify Org ($25) & Select Starter ($149/mo) →'
-                      : 'Create Employer Account ($25 One-Time Org Verify) →'}
+                      ? 'Create Account & Select Starter ($149/mo) →'
+                      : 'Create Employer Account ($25 Once) →'}
               </button>
             </div>
 

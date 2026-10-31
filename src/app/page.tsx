@@ -43,15 +43,13 @@ export default function LandingPage() {
           className="pointer-events-none absolute -top-24 -left-24 w-[38rem] h-[38rem] rounded-full bg-sky-500/10 blur-3xl z-0"
         />
 
-        {/* Full-Width Seamless Right-Side 3D Isometric Interface Accent (Zero Vertical Seam) */}
+        {/* Full-Width Seamless Right-Side 3D Isometric Interface Accent */}
         <div
           aria-hidden="true"
           className="pointer-events-none select-none absolute inset-0 overflow-hidden z-0"
         >
-          {/* Ambient cyan/orange backlight behind the right-side monitor */}
           <div className="absolute top-1/2 right-[-6%] -translate-y-1/2 w-[42rem] h-[42rem] rounded-full bg-gradient-to-tr from-[#0077D4]/25 via-sky-500/15 to-[#EA580C]/15 blur-3xl" />
 
-          {/* Smooth Alpha-Masked Wrapper: 0% opacity on left/center text zone -> 95% crisp visibility on right edge */}
           <div
             className="absolute inset-0"
             style={{
@@ -70,7 +68,6 @@ export default function LandingPage() {
               }}
             >
               <div className="rounded-2xl border border-sky-400/25 bg-[#0a0f1c] p-2 shadow-[0_35px_90px_rgba(0,0,0,0.9)]">
-                {/* Subtle Window Chrome */}
                 <div className="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-white/10 rounded-t-xl">
                   <div className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-slate-700" />
@@ -82,7 +79,6 @@ export default function LandingPage() {
                   </span>
                 </div>
 
-                {/* Cross-Fading High-Res Interface Captures synced to hero slides */}
                 <div className="relative aspect-[16/9] w-full overflow-hidden rounded-b-xl bg-[#0a0f1c]">
                   <img
                     src="/media/ui-card-ai-fit-radar.webp"
@@ -110,16 +106,14 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Soft Top & Bottom Vignettes so the 3D monitor melts into the header and section border */}
           <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#0f172a] to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/90 to-transparent" />
         </div>
 
         {/* Foreground Content Container */}
         <div className="relative z-10 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center text-center">
-          {/* Cross-fading text container */}
           <div className="grid [grid-template-areas:'stack'] mb-10 w-full place-items-center">
-            {/* SLIDE 0 (Slide #1): Universal Opening Slide - LOGO BLUE */}
+            {/* SLIDE 0: Universal Opening Slide */}
             <div
               className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
                 currentSlide === 0
@@ -132,7 +126,7 @@ export default function LandingPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400"></span>
                 </span>
-                Strictly Human-to-Human Hiring • Zero Automated Black Holes
+                Human-to-Human Hiring • Upfront Pay &amp; Privacy
               </div>
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
                 Changing the{' '}
@@ -143,11 +137,11 @@ export default function LandingPage() {
                 For good.
               </h1>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Traditional job boards bury 8 out of 10 résumés in automated filters. Special Sauce restores human-to-human hiring with upfront pay and complete identity protection.
+                Skip the resume black hole. Special Sauce connects verified professionals and verified employers based on real skills, upfront pay, and mutual interest.
               </p>
             </div>
 
-            {/* SLIDE 1 (Slide #2): No More Bots, No More Spam, No More Scams - LOGO ORANGE */}
+            {/* SLIDE 1: No More Bots, Spam, Scams */}
             <div
               className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
                 currentSlide === 1
@@ -160,7 +154,7 @@ export default function LandingPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F97316]"></span>
                 </span>
-                ID-Verified Professionals • ID- &amp; Domain-Verified Employers
+                Verified Professionals • Verified Employers
               </div>
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
                 No More Bots.{' '}
@@ -171,11 +165,11 @@ export default function LandingPage() {
                 No More Scams.
               </h1>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Every active professional and employer completes Stripe Identity verification before connecting—eliminating automated bots, fake listings, and spam so real professionals deal strictly with real hiring teams.
+                Every professional and employer is verified before connecting—so real people talk directly with real hiring teams.
               </p>
             </div>
 
-            {/* SLIDE 2 (Slide #3): The Intro/Convo Privacy Handshake - LOGO BLUE */}
+            {/* SLIDE 2: Privacy Handshake */}
             <div
               className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
                 currentSlide === 2
@@ -188,7 +182,7 @@ export default function LandingPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400"></span>
                 </span>
-                The Intro/Convo Privacy Handshake • Mutual Consent First
+                You Control Your Privacy
               </div>
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
                 Start With{' '}
@@ -199,11 +193,11 @@ export default function LandingPage() {
                 Share Your Resume When Ready.
               </h1>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Chat in an encrypted Introduction thread showing only your First Name and Last Initial. Release your full resume and contact information only after mutual interest is confirmed.
+                Chat first using only your first name and last initial. Share your full resume and contact details only when you want to move forward.
               </p>
             </div>
 
-            {/* SLIDE 3 (Slide #4): Zero Ghost Jobs - LOGO ORANGE */}
+            {/* SLIDE 3: Zero Ghost Jobs */}
             <div
               className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
                 currentSlide === 3
@@ -216,7 +210,7 @@ export default function LandingPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F97316]"></span>
                 </span>
-                30-Day Active Role Guarantee • No Resume Traps
+                30-Day Fresh Listings • No Resume Harvesting
               </div>
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
                 Zero{' '}
@@ -227,11 +221,11 @@ export default function LandingPage() {
                 No resume harvesting.
               </h1>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Every job posting automatically expires after 30 days unless the employer actively renews it, eliminating abandoned listings and resume-collector traps so you never waste time applying to outdated roles.
+                Every job listing expires after 30 days, and every role shows upfront pay—so you never waste time on dead listings.
               </p>
             </div>
 
-            {/* SLIDE 4 (Slide #5): Employers - LOGO BLUE */}
+            {/* SLIDE 4: Employers */}
             <div
               className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
                 currentSlide === 4
@@ -255,11 +249,11 @@ export default function LandingPage() {
                 Skip the resume pile.
               </h1>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Stop sifting through &apos;Easy Apply&apos; spam. Every applicant is an ID-verified human who has already cleared a 40%+ match across your required skills, dealbreakers, and pay bands.
+                Stop sorting through unqualified spam. Every applicant is a verified professional matched to your required skills, pay range, and work model.
               </p>
             </div>
 
-            {/* SLIDE 5 (Slide #6): One-Time Lifetime Verification + $0/mo Explorer Vault - LOGO ORANGE */}
+            {/* SLIDE 5: Verify Once */}
             <div
               className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
                 currentSlide === 5
@@ -272,18 +266,18 @@ export default function LandingPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F97316]"></span>
                 </span>
-                $5 Professional &amp; $25 Employer One-Time Verification • Weekly 1-Yr Prestige Giveaway
+                One-Time Verification • $0/Mo Explorer Mode
               </div>
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
-                Test Your{' '}
+                See Your{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FB923C] to-[#EA580C]">
                   True Market Fit.
                 </span>
                 <br />
-                Verify Once. Match Forever at $0/mo.
+                Verify Once. Match Free at $0/mo.
               </h1>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Complete your one-time verification ($5 Professionals / $25 Employers) to unlock our $0/mo Explorer Vault, unlimited inbound Employer Invitations, and automatic entry into our Weekly 1-Year Prestige Drawing. Upgrade only when ready to actively connect.
+                Get verified once ($5 Professionals / $25 Employers) to browse, check your fit, and receive invitations at $0/mo. Upgrade only when you want to actively apply or hire.
               </p>
             </div>
           </div>
@@ -319,11 +313,11 @@ export default function LandingPage() {
               href="/pricing"
               className="px-6 py-3.5 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-400/40 text-sm sm:text-base font-extrabold rounded-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-1.5 backdrop-blur-xs"
             >
-              ★ Start for $5 • Plans &amp; Weekly Giveaway
+              ★ View Plans &amp; Pricing
             </Link>
           </div>
 
-          {/* 6 Slide Indicators - Alternating Logo Blue & Logo Orange */}
+          {/* 6 Slide Indicators */}
           <div className="flex gap-2.5 mt-8 z-20 relative">
             <button
               onClick={() => setCurrentSlide(0)}
@@ -350,7 +344,7 @@ export default function LandingPage() {
                   ? 'bg-[#38BDF8] w-6'
                   : 'bg-slate-700 hover:bg-slate-500'
               }`}
-              aria-label="View Founding Member & Partner Launch Rewards slide"
+              aria-label="View Privacy Handshake slide"
             />
             <button
               onClick={() => setCurrentSlide(3)}
@@ -377,17 +371,15 @@ export default function LandingPage() {
                   ? 'bg-[#F97316] w-6'
                   : 'bg-slate-700 hover:bg-slate-500'
               }`}
-              aria-label="View Professional Privacy Vault slide"
+              aria-label="View Explorer Mode slide"
             />
           </div>
-
         </div>
       </section>
 
-      {/* Relocated Tour Pill & Operational Trust Strip — Positioned Below Hero */}
+      {/* Tour Pill & Operational Trust Strip */}
       <section className="relative z-20 bg-[#0b1120] border-b border-slate-800 py-8 px-4 sm:px-6 md:px-12">
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
-          {/* Subtle Enterprise Video Tour Trigger */}
           <div className="z-20 relative flex flex-col items-center">
             <button
               type="button"
@@ -408,7 +400,6 @@ export default function LandingPage() {
             </button>
           </div>
 
-          {/* High-Visibility Operational Trust Strip — Dark Slate Edition */}
           <div className="mt-6 w-full max-w-5xl z-20 relative">
             <div className="grid grid-cols-2 lg:grid-cols-4 py-3 px-2 rounded-2xl bg-[#0f172a]/85 backdrop-blur-md border border-slate-800/90 shadow-lg">
               <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center border-r border-slate-800">
@@ -425,13 +416,13 @@ export default function LandingPage() {
                   100% US Human Support
                 </span>
                 <span className="text-[11px] text-slate-400 font-semibold mt-0.5">
-                  Zero Offshore Call Centers
+                  Real People, Zero Bots
                 </span>
               </div>
 
               <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center border-r border-slate-800">
                 <span className="text-[11px] font-extrabold text-white uppercase tracking-[0.14em]">
-                  Daily-Calibrated TrueFit™
+                  TrueFit Score™ Matching
                 </span>
                 <span className="text-[11px] text-slate-400 font-semibold mt-0.5">
                   Tested Daily for Accuracy
@@ -440,16 +431,15 @@ export default function LandingPage() {
 
               <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
                 <span className="text-[11px] font-extrabold text-white uppercase tracking-[0.14em]">
-                  Intro/Convo Privacy Vault
+                  Private Resume Vault
                 </span>
                 <span className="text-[11px] text-slate-400 font-semibold mt-0.5">
-                  Stripe ID &amp; DNS Verified
+                  ID &amp; Business Verified
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Single Clean Scroll-Down Cue */}
           <button
             type="button"
             onClick={scrollToHowItWorks}
@@ -475,7 +465,6 @@ export default function LandingPage() {
             </span>
           </button>
 
-          {/* Floating Bottom-Right Security & Trust Pill -> Navigates directly to /security */}
           <Link
             href="/security"
             className="hidden sm:inline-flex items-center gap-2 fixed right-6 bottom-6 z-30 px-4 py-2.5 rounded-full bg-slate-900/95 backdrop-blur text-white border border-slate-700 shadow-lg hover:bg-indigo-600 hover:border-indigo-500 text-xs font-extrabold transition-all cursor-pointer group"
@@ -518,12 +507,12 @@ export default function LandingPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Professional Feature 1 */}
-              <div className="p-5 sm:p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group border-slate-300 flex flex-col">
+              <div className="p-5 sm:p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group flex flex-col">
                 <div
                   onClick={() =>
                     setActivePreview({
                       title: '1. Build Your Private Profile',
-                      badge: 'Stage 1 Privacy Vault Redaction',
+                      badge: 'Private Profile Vault',
                       mp4: '/media/loop-privacy-calibration.mp4',
                       webm: '/media/loop-privacy-calibration.webm',
                       poster: '/media/ui-card-privacy-vault.webp',
@@ -539,7 +528,7 @@ export default function LandingPage() {
                       <span className="w-2 h-2 rounded-full bg-slate-700" />
                     </div>
                     <span className="text-[10px] font-mono font-bold text-emerald-400 tracking-wide">
-                      STAGE 1 PRIVACY VAULT
+                      PRIVATE PROFILE VAULT
                     </span>
                   </div>
                   <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#0a0f1c]">
@@ -559,7 +548,7 @@ export default function LandingPage() {
                     </span>
                   </div>
                 </div>
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-slate-300 flex items-center justify-center mb-6 text-emerald-600 group-hover:scale-110 transition-transform border-slate-300">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-slate-300 flex items-center justify-center mb-6 text-emerald-600 group-hover:scale-110 transition-transform">
                   <svg
                     className="w-6 h-6"
                     fill="none"
@@ -578,17 +567,17 @@ export default function LandingPage() {
                   1. Build Your Private Profile
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Complete your $5 one-time Real-Person ID Verification to unlock your $0/mo Explorer Vault and upload your resume once to auto-extract your skill matrix, experience, education, and languages—while keeping your name and contact details hidden behind your Verified Professional #ID.
+                  Upload your resume once to automatically organize your skills, experience, and credentials—while keeping your name and contact details completely private.
                 </p>
               </div>
 
               {/* Professional Feature 2 */}
-              <div className="p-5 sm:p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group border-slate-300 flex flex-col">
+              <div className="p-5 sm:p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group flex flex-col">
                 <div
                   onClick={() =>
                     setActivePreview({
                       title: '2. See Your Fit & Get Discovered',
-                      badge: 'Instant 5-Point TrueFit Score™',
+                      badge: 'Instant TrueFit Score™',
                       mp4: '/media/loop-ai-fit-reveal.mp4',
                       webm: '/media/loop-ai-fit-reveal.webm',
                       poster: '/media/ui-card-ai-fit-radar.webp',
@@ -604,7 +593,7 @@ export default function LandingPage() {
                       <span className="w-2 h-2 rounded-full bg-slate-700" />
                     </div>
                     <span className="text-[10px] font-mono font-bold text-sky-400 tracking-wide">
-                      5-POINT TRUEFIT SCORE™
+                      TRUEFIT SCORE™
                     </span>
                   </div>
                   <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#0a0f1c]">
@@ -624,7 +613,7 @@ export default function LandingPage() {
                     </span>
                   </div>
                 </div>
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-slate-300 flex items-center justify-center mb-6 text-cyan-500 group-hover:scale-110 transition-transform border-slate-300">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-slate-300 flex items-center justify-center mb-6 text-cyan-500 group-hover:scale-110 transition-transform">
                   <svg
                     className="w-6 h-6"
                     fill="none"
@@ -643,17 +632,17 @@ export default function LandingPage() {
                   2. See Your Fit &amp; Get Discovered
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Complete your $5 one-time Stripe ID verification to browse transparent pay bands, run TrueFit Score™ checks, and accept unlimited inbound Professional Invitations at $0/mo forever in Explorer mode—or upgrade to Professional ($12/mo) or Prestige ($19/mo) when applying outbound.
+                  Browse roles with upfront pay ranges, check your TrueFit Score™ before applying, and receive direct invitations from verified employers.
                 </p>
               </div>
 
               {/* Professional Feature 3 */}
-              <div className="p-5 sm:p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group border-slate-300 flex flex-col">
+              <div className="p-5 sm:p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group flex flex-col">
                 <div
                   onClick={() =>
                     setActivePreview({
-                      title: '3. The Intro/Convo Privacy Handshake',
-                      badge: 'One-Click Identity & Resume Vault Release',
+                      title: '3. Chat First, Share Your Resume When Ready',
+                      badge: 'One-Click Resume Release',
                       mp4: '/media/loop-mutual-unlock.mp4',
                       webm: '/media/loop-mutual-unlock.webm',
                       poster: '/media/ui-card-mutual-unlock.webp',
@@ -706,22 +695,21 @@ export default function LandingPage() {
                     </svg>
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 mb-3">
-                    3. The Intro/Convo Privacy Handshake
+                    3. Chat First, Share When Ready
                   </h3>
                   <p className="text-slate-500 leading-relaxed">
-                    In The Introduction, you see the employer’s verified company name and chat directly on the platform while remaining anonymous. In The Conversation, you release your full resume and contact card with one click only when you are ready to move forward.
+                    Start with a private introduction showing only your first name and last initial. Release your full resume and contact details with one click when you are ready.
                   </p>
                 </div>
               </div>
             </div>
-
           </div>
 
           {/* TRACK 2: EMPLOYERS */}
           <div>
             <div className="text-center mb-12">
               <span className="inline-block px-3 py-1 rounded-full bg-indigo-50 border border-indigo-300 text-indigo-700 text-xs font-extrabold uppercase tracking-wider mb-3">
-                Built for Businesses Across All 28 Industry Verticals
+                Built for Businesses Across All 28 Industries
               </span>
               <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">
                 How Special Sauce works{' '}
@@ -731,12 +719,12 @@ export default function LandingPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Employer Feature 1 */}
-              <div className="p-5 sm:p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group border-slate-300 flex flex-col">
+              <div className="p-5 sm:p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group flex flex-col">
                 <div
                   onClick={() =>
                     setActivePreview({
                       title: '1. Post Roles in Seconds',
-                      badge: 'Structured Protected Role & Upfront Pay Bands',
+                      badge: 'Protected Roles & Upfront Pay',
                       mp4: '/media/loop-employer-roles.mp4',
                       webm: '/media/loop-employer-roles.webm',
                       poster: '/media/ui-card-employer-roles.webp',
@@ -752,7 +740,7 @@ export default function LandingPage() {
                       <span className="w-2 h-2 rounded-full bg-slate-700" />
                     </div>
                     <span className="text-[10px] font-mono font-bold text-orange-400 tracking-wide">
-                      PROTECTED ROLE STAGING
+                      PROTECTED ROLE BUILDER
                     </span>
                   </div>
                   <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#0a0f1c]">
@@ -772,7 +760,7 @@ export default function LandingPage() {
                     </span>
                   </div>
                 </div>
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-slate-300 flex items-center justify-center mb-6 text-orange-500 group-hover:scale-110 transition-transform border-slate-300">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-slate-300 flex items-center justify-center mb-6 text-orange-500 group-hover:scale-110 transition-transform">
                   <svg
                     className="w-6 h-6"
                     fill="none"
@@ -791,17 +779,17 @@ export default function LandingPage() {
                   1. Post Roles in Seconds
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Complete your $25 one-time Employer Verification Pass to unlock our $0/mo Explorer Sandbox, structure your roles, search our anonymous talent directory, and preview professional alignment with TrueFit Score™ checks. Your company name stays private until you send a Professional Invitation or unlock an applicant.
+                  Set your required skills, pay range, and work model in seconds. Your company name stays private until you unlock an applicant or send an invitation.
                 </p>
               </div>
 
               {/* Employer Feature 2 */}
-              <div className="p-5 sm:p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group border-slate-300 flex flex-col">
+              <div className="p-5 sm:p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group flex flex-col">
                 <div
                   onClick={() =>
                     setActivePreview({
-                      title: '2. 40% Skill-Fit Threshold & Protected Invitations',
-                      badge: '40%+ Baseline Match Verification Gate',
+                      title: '2. Match by Skill & Invite Directly',
+                      badge: 'Verified Skill Matching',
                       mp4: '/media/loop-ai-fit-reveal.mp4',
                       webm: '/media/loop-ai-fit-reveal.webm',
                       poster: '/media/ui-card-ai-fit-radar.webp',
@@ -817,7 +805,7 @@ export default function LandingPage() {
                       <span className="w-2 h-2 rounded-full bg-slate-700" />
                     </div>
                     <span className="text-[10px] font-mono font-bold text-indigo-400 tracking-wide">
-                      40%+ FIT THRESHOLD GATE
+                      SKILL-FIT MATCHING
                     </span>
                   </div>
                   <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#0a0f1c]">
@@ -837,7 +825,7 @@ export default function LandingPage() {
                     </span>
                   </div>
                 </div>
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-slate-300 flex items-center justify-center mb-6 text-indigo-600 group-hover:scale-110 transition-transform border-slate-300">
+                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border-2 border-slate-300 flex items-center justify-center mb-6 text-indigo-600 group-hover:scale-110 transition-transform">
                   <svg
                     className="w-6 h-6"
                     fill="none"
@@ -853,20 +841,20 @@ export default function LandingPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-3">
-                  2. 40% Skill-Fit Threshold &amp; Protected Invitations
+                  2. Match by Skill &amp; Invite Directly
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Complete your $25 one-time Organization Verification to preview live verified professional matches in our $0/mo Sandbox, then activate your Founding Partner plan ($149 / $499 / $1,250/mo) when ready to publish live roles or send Professional Invitations. Declined invitations are 100% auto-refunded.
+                  Every applicant already meets your core requirements. Search our talent directory to invite qualified professionals—and if an invitation is declined, your credit is automatically refunded.
                 </p>
               </div>
 
               {/* Employer Feature 3 */}
-              <div className="p-5 sm:p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group border-slate-300 flex flex-col">
+              <div className="p-5 sm:p-8 rounded-2xl bg-slate-50 border-2 border-slate-300 relative overflow-hidden group flex flex-col">
                 <div
                   onClick={() =>
                     setActivePreview({
                       title: '3. Direct Messaging & Team Collaboration',
-                      badge: '2-Way Direct Chat & Full Resume Release',
+                      badge: 'Direct Chat & Resume Access',
                       mp4: '/media/loop-mutual-unlock.mp4',
                       webm: '/media/loop-mutual-unlock.webm',
                       poster: '/media/ui-card-mutual-unlock.webp',
@@ -882,7 +870,7 @@ export default function LandingPage() {
                       <span className="w-2 h-2 rounded-full bg-slate-700" />
                     </div>
                     <span className="text-[10px] font-mono font-bold text-indigo-400 tracking-wide">
-                      2-WAY DIRECT CHAT &amp; VAULT
+                      DIRECT CHAT &amp; RESUME VAULT
                     </span>
                   </div>
                   <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#0a0f1c]">
@@ -922,18 +910,16 @@ export default function LandingPage() {
                     3. Direct Messaging &amp; Team Collaboration
                   </h3>
                   <p className="text-slate-500 leading-relaxed">
-                    Reviewing and messaging professionals who apply to your jobs is 100% free. Start a direct conversation to confirm mutual interest, invite team members or recruiting partners to collaborate, and download the professional’s resume once released.
+                    Unlocking and messaging inbound applicants is always free. Chat directly to confirm interest, collaborate with your hiring team, and download the full resume once released.
                   </p>
                 </div>
               </div>
             </div>
-
           </div>
-
         </div>
       </section>
 
-      {/* The End Result Section */}
+      {/* Why Both Sides Trust Special Sauce */}
       <section className="py-24 px-4 sm:px-6 md:px-12 bg-slate-50 border-t border-slate-300">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
@@ -941,13 +927,12 @@ export default function LandingPage() {
               Why Both Sides Trust Special Sauce
             </h2>
             <p className="mt-4 text-lg text-slate-500 max-w-2xl mx-auto">
-              A respectful, straightforward hiring community built for real people and real businesses.
+              A straightforward hiring community built for real people and real businesses.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Widget 1: Verified People & Real Companies */}
-            <div className="p-5 sm:p-8 rounded-2xl bg-white border-2 border-slate-300 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-transform border-slate-300">
+            <div className="p-5 sm:p-8 rounded-2xl bg-white border-2 border-slate-300 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-transform">
               <div className="w-12 h-12 bg-emerald-50 rounded-xl border border-emerald-300 flex items-center justify-center mb-6 text-emerald-600">
                 <svg
                   className="w-6 h-6"
@@ -967,12 +952,11 @@ export default function LandingPage() {
                 Verified People &amp; Real Companies
               </h3>
               <p className="text-slate-500 leading-relaxed">
-                Professionals ($5 one-time) and employers ($25 one-time) complete real-person Stripe Identity and domain verification upfront to enter the $0/mo Explorer Vault before applying, pitching, or posting live jobs—eliminating bots, fake profiles, and scam listings.
+                Every professional and employer completes a one-time identity check before connecting—keeping bots, fake profiles, and scam listings off the platform.
               </p>
             </div>
 
-            {/* Widget 2: Always Fresh Opportunities */}
-            <div className="p-5 sm:p-8 rounded-2xl bg-white border-2 border-slate-300 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-transform border-slate-300">
+            <div className="p-5 sm:p-8 rounded-2xl bg-white border-2 border-slate-300 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-transform">
               <div className="w-12 h-12 bg-indigo-50 rounded-xl border border-indigo-300 flex items-center justify-center mb-6 text-indigo-600">
                 <svg
                   className="w-6 h-6"
@@ -992,12 +976,11 @@ export default function LandingPage() {
                 30-Day Fresh Job Guarantee
               </h3>
               <p className="text-slate-500 leading-relaxed">
-                No forgotten job posts sitting around for months. Every listing automatically closes after 30 days unless renewed, and employers must actively respond to professionals in their inbox to keep unlocking new profiles.
+                No forgotten job posts sitting around for months. Every listing closes automatically after 30 days unless renewed, and employers must respond to applicants to keep unlocking profiles.
               </p>
             </div>
 
-            {/* Widget 3: Step-by-Step Privacy */}
-            <div className="p-5 sm:p-8 rounded-2xl bg-white border-2 border-slate-300 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-transform border-slate-300">
+            <div className="p-5 sm:p-8 rounded-2xl bg-white border-2 border-slate-300 shadow-sm relative overflow-hidden group hover:-translate-y-1 transition-transform">
               <div className="relative z-10">
                 <div className="w-12 h-12 bg-orange-100 rounded-xl border border-orange-300 flex items-center justify-center mb-6 text-orange-600">
                   <svg
@@ -1015,17 +998,16 @@ export default function LandingPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-3">
-                  US-Based Support &amp; Calibrated TrueFit™
+                  US-Based Support &amp; Fair Matching
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Special Sauce is 100% US-owned and operated with direct US human support specialists—zero offshore call centers or bot loops. Our TrueFit Score™ is benchmark-tested and calibrated daily to prevent model drift.
+                  Special Sauce is 100% US-owned and operated with real human support specialists—no offshore call centers or automated support loops.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Dedicated Trigger to Open Technical & Security Documentation Page */}
-          <div className="mt-14 p-5 sm:p-8 rounded-2xl bg-white border-2 border-slate-300 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-slate-300">
+          <div className="mt-14 p-5 sm:p-8 rounded-2xl bg-white border-2 border-slate-300 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="flex items-start gap-4">
               <div className="w-11 h-11 rounded-xl bg-indigo-50 border border-indigo-300 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
                 <svg
@@ -1044,10 +1026,10 @@ export default function LandingPage() {
               </div>
               <div>
                 <h4 className="text-base font-extrabold text-slate-900">
-                  Curious how our security, identity verification, and matching work under the hood?
+                  Want to see how we protect your privacy and data?
                 </h4>
                 <p className="text-sm text-slate-500 mt-1">
-                  Read our plain-English and technical documentation covering Stripe Identity verification, Step-by-Step Resume Protection, and our anti-harvesting protections.
+                  Read our straightforward overview of Stripe ID verification, private resume controls, and platform safeguards.
                 </p>
               </div>
             </div>
@@ -1056,7 +1038,7 @@ export default function LandingPage() {
               href="/security"
               className="shrink-0 inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-extrabold hover:bg-indigo-600 transition-colors shadow-sm"
             >
-              Read Technical &amp; Security Docs →
+              View Security &amp; Privacy →
             </Link>
           </div>
         </div>

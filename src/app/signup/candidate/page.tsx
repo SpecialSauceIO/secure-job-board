@@ -38,41 +38,41 @@ export default function CandidateSignupPage({
         <div className="w-full max-w-md rounded-2xl bg-white p-5 sm:p-10 shadow-sm border border-slate-300 border-t-4 border-t-indigo-600">
           <div className="text-center mb-6">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-300 text-indigo-700 text-[11px] font-extrabold uppercase tracking-wider mb-3">
-              🛡️ Intro/Convo Identity Vault Protected
+              🛡️ Private Profile &amp; Resume Vault
             </span>
             <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
               Professional Sign Up
             </h2>
             <p className="mt-1.5 text-sm text-slate-500 font-medium">
               {selectedPlan === 'prestige'
-                ? 'Create your account to complete 1-time ID verification and activate Prestige ($19/mo for unlimited outbound applications — downgrade to $0/mo Explorer anytime).'
+                ? 'Create your account to verify your ID and start Prestige ($19/mo).'
                 : selectedPlan === 'professional'
-                  ? 'Create your account to complete 1-time ID verification and activate Professional ($12/mo for 15 monthly outbound applications — downgrade to $0/mo Explorer anytime).'
-                  : 'Create your account to complete your $5 One-Time ID Verification Pass and unlock Explorer ($0/mo forever for passive matching, inbound Employer Invitations, & our Weekly 1-Year Prestige Drawing).'}
+                  ? 'Create your account to verify your ID and start Professional ($12/mo).'
+                  : 'Create your account to complete your $5 one-time ID check and unlock Explorer ($0/mo forever).'}
             </p>
           </div>
 
-          {/* High-Trust Value Props Callout */}
-          <div className="mb-6 p-4 rounded-xl bg-slate-50 border-2 border-slate-300/80 space-y-2 text-xs text-slate-600 border-slate-300">
+          {/* Simple Value Props Callout */}
+          <div className="mb-6 p-4 rounded-xl bg-slate-50 border-2 border-slate-300/80 space-y-2 text-xs text-slate-600">
             <div className="flex items-start gap-2">
               <span className="text-emerald-600 font-black mt-0.5">✓</span>
               <span>
-                <strong className="text-slate-900">Intro/Convo Vault Control:</strong>{' '}
-                Chat in an encrypted thread first. Your raw email &amp; PDF resume stay locked until you click release.
+                <strong className="text-slate-900">You Control Your Privacy:</strong>{' '}
+                Chat first using only your first name and last initial. Share your resume when ready.
               </span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-emerald-600 font-black mt-0.5">✓</span>
               <span>
-                <strong className="text-slate-900">Dealbreaker Firewall:</strong>{' '}
-                Block pitches that miss your minimum salary, work model, or W-2/1099 preferences.
+                <strong className="text-slate-900">Automatic Dealbreakers:</strong>{' '}
+                Filter out roles that miss your minimum pay or preferred work model.
               </span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-emerald-600 font-black mt-0.5">✓</span>
               <span>
-                <strong className="text-slate-900">30-Day Fresh Roles Only:</strong>{' '}
-                Every job listing auto-expires after 30 days to eliminate ghost jobs.
+                <strong className="text-slate-900">Active Roles Only:</strong>{' '}
+                Every job listing shows upfront pay and expires after 30 days.
               </span>
             </div>
           </div>
@@ -172,7 +172,7 @@ export default function CandidateSignupPage({
                   ? 'Create Account & Select Prestige ($19/mo) →'
                   : selectedPlan === 'professional'
                     ? 'Create Account & Select Professional ($12/mo) →'
-                    : 'Create Account & Verify for $5 ($0/mo Explorer) →'}
+                    : 'Create Account & Start Explorer ($5 Once) →'}
               </button>
             </div>
 

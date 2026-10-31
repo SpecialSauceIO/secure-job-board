@@ -119,10 +119,10 @@ export default function CandidateApplicationsPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            My Protected Application Tracker
+            My Applications
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Track your anonymous applications, chat privately with verified employers, and share your full resume and contact info when ready.
+            Track your applications, chat privately with verified employers, and share your full resume when ready.
           </p>
         </div>
 
@@ -135,15 +135,15 @@ export default function CandidateApplicationsPage() {
       </header>
 
       {/* Filter & Search Bar */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-300 shadow-xs space-y-4 border-slate-300">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-300 shadow-xs space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           {/* Status Filter Pills */}
           <div className="flex flex-wrap items-center gap-1.5">
             {[
               { id: 'all', label: 'All Applications' },
               { id: 'shortlisted', label: '★ Shortlisted' },
-              { id: 'unlocked', label: '💬 Private Chat Open' },
-              { id: 'pending', label: '🔒 Protected / Pending Review' },
+              { id: 'unlocked', label: '💬 Chat Open' },
+              { id: 'pending', label: '🔒 Pending Review' },
               { id: 'rejected', label: 'Archived' },
             ].map((tab) => (
               <button
@@ -169,7 +169,7 @@ export default function CandidateApplicationsPage() {
             <select
               value={daysFilter}
               onChange={(e) => setDaysFilter(Number(e.target.value))}
-              className="rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
+              className="rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
             >
               <option value={0}>All Time</option>
               <option value={7}>Last 7 Days</option>
@@ -188,7 +188,7 @@ export default function CandidateApplicationsPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by role title, skill, Reference ID (SS-...), or unlocked company name..."
+            placeholder="Search by role title, skill, Reference ID (SS-...), or company name..."
             className="w-full min-w-0 sm:flex-1 rounded-xl border-2 border-slate-300 bg-slate-50 px-3.5 sm:px-4 py-2.5 sm:py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
           />
           <button
@@ -218,19 +218,19 @@ export default function CandidateApplicationsPage() {
 
       {/* Applications List */}
       {isLoading ? (
-        <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs border-slate-300">
+        <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs">
           <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-3" />
           <p className="text-sm font-bold text-slate-500">
-            Loading your application pipeline...
+            Loading your applications...
           </p>
         </div>
       ) : applications.length === 0 ? (
-        <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs space-y-3 border-slate-300">
+        <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs space-y-3">
           <h3 className="text-lg font-extrabold text-slate-900">
-            No protected applications match your current filter
+            No applications match your current filter
           </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Run a free TrueFit Score™ check on open roles and submit a protected application whenever you score 40%+.
+            Browse open roles, check your TrueFit Score™, and apply to roles that match your skills.
           </p>
           <Link
             href="/dashboard/jobs"
@@ -305,7 +305,7 @@ export default function CandidateApplicationsPage() {
                 }`}
               >
                 <div className="p-6 md:p-8 space-y-5">
-                  {/* Top Bar: Employer Status / Protected Badge, Metal Rank & Founder Pill, Ref ID, Pay Band */}
+                  {/* Top Bar */}
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-slate-300">
                     <div className="space-y-1.5">
                       <div className="flex flex-wrap items-center gap-2">
@@ -342,7 +342,7 @@ export default function CandidateApplicationsPage() {
                       </h2>
                     </div>
 
-                    {/* Right Side: Pay Band & Stage Status Pill */}
+                    {/* Right Side: Pay Band & Status Pill */}
                     <div className="flex flex-col sm:items-end gap-2 shrink-0">
                       <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 font-black text-base shadow-2xs">
                         <span>{payBand}</span>
@@ -358,25 +358,25 @@ export default function CandidateApplicationsPage() {
                         {normStatus === 'shortlisted' && (
                           <span className="px-3 py-0.5 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
                             ★ Shortlisted{' '}
-                            {vaultReleased ? '• Vault Released' : ''}
+                            {vaultReleased ? '• Resume Shared' : ''}
                           </span>
                         )}
 
                         {normStatus === 'unlocked' && !vaultReleased && (
                           <span className="px-3 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-300">
-                            💬 Private Chat Open (Resume Still Hidden)
+                            💬 Private Chat Open (Resume Hidden)
                           </span>
                         )}
 
                         {normStatus === 'unlocked' && vaultReleased && (
                           <span className="px-3 py-0.5 rounded-full text-xs font-extrabold bg-emerald-600 text-white">
-                            🔓 Full Resume & Contact Shared
+                            🔓 Full Resume &amp; Contact Shared
                           </span>
                         )}
 
                         {normStatus === 'pending' && (
                           <span className="px-3 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300">
-                            🔒 Protected Review Pending
+                            🔒 Pending Review
                           </span>
                         )}
 
@@ -389,7 +389,7 @@ export default function CandidateApplicationsPage() {
                     </div>
                   </div>
 
-                  {/* Role Metadata Pills (Including Required Languages) */}
+                  {/* Role Metadata Pills */}
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-300 text-xs font-extrabold capitalize">
                       {job.work_model || 'Flexible'} Work Model
@@ -424,22 +424,22 @@ export default function CandidateApplicationsPage() {
                     ))}
                   </div>
 
-                  {/* EMPLOYER ARCHIVE FEEDBACK CALLOUT */}
+                  {/* EMPLOYER ARCHIVE FEEDBACK */}
                   {normStatus === 'rejected' && (
                     <div className="px-4 py-3 rounded-xl bg-rose-50/90 border border-rose-300 text-xs text-rose-900 flex flex-wrap items-center justify-between gap-2">
                       <div>
                         <span className="font-extrabold uppercase tracking-wider text-[11px] text-rose-700 mr-2">
-                          📋 Employer Decision Feedback:
+                          📋 Employer Feedback:
                         </span>
                         <span className="font-bold">
                           {app.match_data?.employer_archive_reason ||
-                            'Archived after initial TrueFit Score™ review'}
+                            'Archived after review'}
                         </span>
                       </div>
                     </div>
                   )}
 
-                  {/* STAGE 1 / STAGE 2 ENCRYPTED THREAD & VAULT RELEASE */}
+                  {/* CHAT THREAD */}
                   {isUnlocked && normStatus !== 'rejected' && (
                     <SecureMessageThread
                       applicationId={app.id}
@@ -462,11 +462,11 @@ export default function CandidateApplicationsPage() {
                     />
                   )}
 
-                  {/* TrueFit Score™ Summary & 5-Point Radar Toggle */}
-                  <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-300 border-slate-300">
+                  {/* TrueFit Score™ Summary */}
+                  <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-300">
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
                       <span className="text-xs font-bold text-indigo-600">
-                        ⚡ Submitted 5-Point TrueFit Score™ Summary
+                        ⚡ TrueFit Score™ Summary
                       </span>
                       {radarData && (
                         <button
@@ -475,20 +475,20 @@ export default function CandidateApplicationsPage() {
                           className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
                         >
                           {showRadar
-                            ? 'Hide TrueFit™ Breakdown'
-                            : 'View TrueFit™ Breakdown'}
+                            ? 'Hide Breakdown'
+                            : 'View Breakdown'}
                         </button>
                       )}
                     </div>
                     <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">
                       {app.match_data?.brief_analysis ||
                         app.employer_pitch ||
-                        'Submitted with verified 40%+ TrueFit Score™ match.'}
+                        'Submitted with a verified TrueFit Score™ match.'}
                     </p>
                   </div>
 
                   {isMounted && showRadar && radarData && (
-                    <div className="p-5 rounded-xl bg-slate-50 border-2 border-slate-300 flex flex-col lg:flex-row items-center gap-6 animate-in fade-in duration-200 border-slate-300">
+                    <div className="p-5 rounded-xl bg-slate-50 border-2 border-slate-300 flex flex-col lg:flex-row items-center gap-6 animate-in fade-in duration-200">
                       <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {radarData.map((item: any, idx: number) => (
                           <div
@@ -517,7 +517,8 @@ export default function CandidateApplicationsPage() {
                           <RadarChart
                             cx="50%"
                             cy="50%"
-                            outerRadius="44%" margin={{ top: 14, right: 62, bottom: 14, left: 62 }}
+                            outerRadius="44%"
+                            margin={{ top: 14, right: 62, bottom: 14, left: 62 }}
                             data={radarData}
                           >
                             <PolarGrid stroke="#cbd5e1" />
@@ -554,7 +555,7 @@ export default function CandidateApplicationsPage() {
                   {!isUnlocked && normStatus === 'pending' && (
                     <div className="pt-3 border-t border-slate-300 flex items-center justify-between text-xs text-slate-500">
                       <span>
-                        🛡️ <strong className="text-slate-700">Stage 0 Identity Protection:</strong> Your name, email, and PDF resume are hidden while the hiring team reviews your skill matrix.
+                        🛡️ <strong className="text-slate-700">Identity Protected:</strong> Your name, email, and PDF resume remain hidden while the hiring team reviews your profile.
                       </span>
                     </div>
                   )}

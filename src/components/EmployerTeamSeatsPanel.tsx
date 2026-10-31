@@ -143,7 +143,7 @@ export default function EmployerTeamSeatsPanel({
             </h3>
             <p className="text-xs text-indigo-800/90 leading-relaxed">
               The <strong>Starter Tier ($149/mo Founding ($299 Retail))</strong> includes 2 Team or Recruiter seats. Upgrade to the{' '}
-              <strong>Growth Tier ($499/mo Founding ($799 Retail))</strong> to unlock up to <strong>5 Team & W-2 BPO Partner Seats</strong>, or{' '}
+              <strong>Growth Tier ($499/mo Founding ($799 Retail))</strong> to unlock up to <strong>Up to 5 Team & Recruiter Seats</strong>, or{' '}
               <strong>Enterprise ($1,250/mo Founding ($1,999 Retail))</strong> for <strong>Unlimited Team & Recruiter Seats + HR Software Auto-Sync</strong>.
             </p>
           </div>

@@ -101,7 +101,7 @@ export default async function DashboardPage({
     .single()
 
   // ============================================================================
-  // AUTOMATIC STRIPE IDENTITY SYNC (ONLY RUNS WHEN RETURNING FROM STRIPE FLOW)
+  // AUTOMATIC STRIPE IDENTITY SYNC
   // ============================================================================
   const stripeKey =
     process.env.STRIPE_IDENTITY_SECRET_KEY || process.env.STRIPE_SECRET_KEY
@@ -193,7 +193,7 @@ export default async function DashboardPage({
   if (!profile?.role) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center p-2 sm:p-6">
-        <div className="max-w-3xl w-full bg-white rounded-3xl shadow-xl border-2 border-slate-300 overflow-hidden border-slate-300">
+        <div className="max-w-3xl w-full bg-white rounded-3xl shadow-xl border-2 border-slate-300 overflow-hidden">
           <div className="p-6 sm:p-10 text-center bg-slate-900 text-white">
             <h1 className="text-xl sm:text-2xl md:text-4xl font-extrabold mb-3 tracking-tight">
               Welcome to Special Sauce
@@ -233,8 +233,7 @@ export default async function DashboardPage({
                   I&apos;m a Professional
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed">
-                  Create an anonymous skill profile, run TrueFit Score™ checks, and
-                  submit protected applications to verified roles.
+                  Build your private skill profile, check your TrueFit Score™, and connect with verified employers.
                 </p>
               </button>
 
@@ -263,8 +262,7 @@ export default async function DashboardPage({
                   I&apos;m an Employer
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed">
-                  Verify your corporate domain, post roles, and pitch anonymous
-                  professionals on merit.
+                  Verify your organization, post roles with upfront pay, and invite matched professionals.
                 </p>
               </button>
             </form>
@@ -287,7 +285,7 @@ export default async function DashboardPage({
   const { savedJobsCount, savedCandidatesCount } = extractBookmarkCounts(profile)
 
   // ============================================================================
-  // STREAMLINED EMPLOYER DASHBOARD (ZERO REDUNDANT PLAN LINKS)
+  // EMPLOYER DASHBOARD
   // ============================================================================
   if (profile?.role === 'employer') {
     const { data: member } = await supabase
@@ -396,11 +394,11 @@ export default async function DashboardPage({
         id: String(app.id),
         referenceId: app.match_data?.reference_id || `#${String(app.id).replace(/-/g, '').slice(0, 6).toUpperCase()}`,
         roleTitle: jobObj?.title || 'Active Role',
-        channel: app.initiated_by === 'employer' ? 'Outbound Pitch' : 'Inbound Application',
+        channel: app.initiated_by === 'employer' ? 'Outbound Invitation' : 'Inbound Application',
         counterpartyId: `#${String(app.candidate_id || app.id).replace(/-/g, '').slice(0, 6).toUpperCase()}`,
         matchScore: typeof app.match_score === 'number' ? app.match_score : null,
         status: String(app.status || 'pending'),
-        vaultStage: stage2Released ? 'The Conversation (Vault Released)' : stage1Unlocked ? 'The Introduction (Chat Active)' : 'Identity Protected',
+        vaultStage: stage2Released ? 'The Conversation (Resume Shared)' : stage1Unlocked ? 'The Introduction (Chat Active)' : 'Identity Protected',
       }
     })
 
@@ -420,7 +418,7 @@ export default async function DashboardPage({
       <div className="max-w-6xl mx-auto py-3 space-y-6">
         <DashboardLiveSync />
 
-        {/* WHITE-LABEL COMPANY BRAND HEADER */}
+        {/* COMPANY HEADER */}
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b-2 border-slate-300">
           <div className="flex items-center gap-4">
             <EmployerBrandLogoUploader
@@ -453,7 +451,7 @@ export default async function DashboardPage({
                     className="inline-flex items-center gap-1.5 text-amber-700 font-bold hover:underline"
                   >
                     <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                    Verify Corporate Domain →
+                    Verify Company Domain →
                   </Link>
                 )}
                 <span className="hidden sm:inline">·</span>
@@ -467,7 +465,7 @@ export default async function DashboardPage({
                 </span>
                 <span className="hidden sm:inline">·</span>
                 <span
-                  title="Your Organization Reference ID for Support & Verification"
+                  title="Your Organization Reference ID"
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-300 font-mono text-[11px] font-bold text-slate-700"
                 >
                   Org ID: #{String(orgData?.id || user.id).slice(0, 6).toUpperCase()}
@@ -512,7 +510,7 @@ export default async function DashboardPage({
                 href="/dashboard/employer/organization"
                 className="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold shadow-sm transition-colors"
               >
-                Verify Domain to Start →
+                Verify Company →
               </Link>
             ) : canPostNewJob ? (
               <Link
@@ -527,14 +525,14 @@ export default async function DashboardPage({
                 className="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-colors"
               >
                 {tierInfo.tier === 'free'
-                  ? 'Choose Plan to Post Roles →'
+                  ? 'Select Plan to Post Roles →'
                   : `Role Slots Full (${activeJobsCount}/${tierInfo.maxActiveJobs}) · Upgrade →`}
               </Link>
             )}
           </div>
         </header>
 
-        {/* 4 EMPLOYER WIDGETS (DEFAULT MINIMALIST WHITE B2B OR ACCESSIBILITY COLOR-CODED) */}
+        {/* 4 EMPLOYER WIDGETS */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Card 1: Manage Profile */}
           <Link
@@ -571,14 +569,14 @@ export default async function DashboardPage({
                 </span>
               </div>
               <h3 className="text-lg font-bold text-slate-900">
-                Manage Profile
+                Company Settings
               </h3>
               <p className="text-xs text-slate-500 mt-1">
                 {isOrgVerified
                   ? `Domain verified · Up to ${tierInfo.maxSeats} team ${
                       tierInfo.maxSeats === 1 ? 'seat' : 'seats'
                     }`
-                  : 'Verify domain, manage team seats & HR software sync'}
+                  : 'Verify company domain, team seats & HR sync'}
               </p>
             </div>
             <p className="text-xs font-semibold text-slate-700 group-hover:text-slate-950 mt-5">
@@ -631,7 +629,7 @@ export default async function DashboardPage({
                   a11yColorTiles ? 'text-blue-950' : 'text-slate-900'
                 }`}
               >
-                Manage Active Roles
+                Active Roles
               </h3>
               <p
                 className={`text-xs mt-1 ${
@@ -639,11 +637,11 @@ export default async function DashboardPage({
                 }`}
               >
                 {tierInfo.maxActiveJobs >= 500
-                  ? 'Unlimited active role slots enabled'
+                  ? 'Unlimited active role slots'
                   : `${Math.max(
                       0,
                       tierInfo.maxActiveJobs - activeJobsCount
-                    )} active role slots remaining`}
+                    )} role slots remaining`}
               </p>
             </div>
             <p
@@ -733,7 +731,7 @@ export default async function DashboardPage({
                       pitchesUnreadMsgsCount === 1 ? 'reply' : 'replies'
                     } waiting`
                   : acceptedPitchesCount > 0 || declinedPitchesCount > 0
-                  ? `${acceptedPitchesCount} accepted · ${declinedPitchesCount} declined (view feedback)`
+                  ? `${acceptedPitchesCount} accepted · ${declinedPitchesCount} declined`
                   : 'Professionals you invited from Talent Search'}
               </p>
             </div>
@@ -744,7 +742,7 @@ export default async function DashboardPage({
                   : 'text-slate-700 group-hover:text-slate-950'
               }`}
             >
-              Open outbound pitches →
+              View sent invitations →
             </p>
           </Link>
 
@@ -787,7 +785,7 @@ export default async function DashboardPage({
                     ) : pendingAppsCount > 0 ? (
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-purple-600 text-white text-[11px] font-bold shadow-xs">
                         <span className="h-1.5 w-1.5 rounded-full bg-amber-300 animate-pulse" />
-                        {pendingAppsCount} Pending Review
+                        {pendingAppsCount} Pending
                       </span>
                     ) : null}
                   <span
@@ -818,7 +816,7 @@ export default async function DashboardPage({
                       inboundUnreadMsgsCount === 1 ? 'message' : 'messages'
                     }`
                   : pendingAppsCount > 0
-                  ? `${pendingAppsCount} new protected applications (free to unlock)`
+                  ? `${pendingAppsCount} new applications (free to unlock)`
                   : 'Professionals who applied to your roles (free unlock)'}
               </p>
             </div>
@@ -829,12 +827,11 @@ export default async function DashboardPage({
                   : 'text-slate-700 group-hover:text-slate-950'
               }`}
             >
-              Review inbound applicants →
+              Review applicants →
             </p>
           </Link>
         </section>
 
-        {/* COLLAPSIBLE EMPLOYER REPUTATION & MERIT BADGE BAR */}
         <ReputationBadgeCase summary={employerGamification} />
         <DashboardAnalyticsReport
           mode="employer"
@@ -849,7 +846,7 @@ export default async function DashboardPage({
   }
 
   // ============================================================================
-  // STREAMLINED PROFESSIONAL VIEW (PASTEL COLOR-CODED WIDGETS)
+  // PROFESSIONAL VIEW
   // ============================================================================
   const isVerified = Boolean(
     profile?.identity_verified === true ||
@@ -903,11 +900,11 @@ export default async function DashboardPage({
       id: String(app.id),
       referenceId: app.match_data?.reference_id || `#${String(app.id).replace(/-/g, '').slice(0, 6).toUpperCase()}`,
       roleTitle: app.match_data?.job_title || app.match_data?.employer_org_name || `Role #${String(app.job_id || app.id).slice(0, 6).toUpperCase()}`,
-      channel: app.initiated_by === 'employer' ? 'Outbound Pitch' : 'Inbound Application',
+      channel: app.initiated_by === 'employer' ? 'Employer Invitation' : 'Outbound Application',
       counterpartyId: app.match_data?.employer_org_domain || `#${String(app.job_id || app.id).replace(/-/g, '').slice(0, 6).toUpperCase()}`,
       matchScore: typeof app.match_score === 'number' ? app.match_score : null,
       status: String(app.status || 'pending'),
-      vaultStage: stage2Released ? 'The Conversation (Vault Released)' : stage1Unlocked ? 'The Introduction (Chat Active)' : 'Identity Protected',
+      vaultStage: stage2Released ? 'The Conversation (Resume Shared)' : stage1Unlocked ? 'The Introduction (Chat Active)' : 'Identity Protected',
     }
   })
 
@@ -992,15 +989,15 @@ export default async function DashboardPage({
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 text-amber-700 font-bold">
-                <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
-                🛡️ Vault-Staged in Employer Search
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                ID Check Pending
               </span>
             )}
             <span>·</span>
-            <span>Intro/Convo Identity &amp; Resume Vault Active</span>
+            <span>Private Resume Vault Active</span>
             <span>·</span>
             <span
-              title="Your Anonymous Marketplace Identifier shown on Protected Applications & Talent Search"
+              title="Your Anonymous Marketplace ID"
               className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 border border-indigo-200 font-mono text-[11px] font-bold text-indigo-800"
             >
               Protected ID: #{String(user.id).slice(0, 6).toUpperCase()}
@@ -1050,10 +1047,10 @@ export default async function DashboardPage({
         <div className="rounded-2xl border-2 border-emerald-400 bg-emerald-50/90 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
           <div>
             <h2 className="text-sm font-extrabold text-emerald-950">
-              ✅ Identity Verified via Stripe! Your Protected Profile Is Now Active
+              ✅ Identity Verified! Your Protected Profile Is Active
             </h2>
             <p className="mt-0.5 text-xs text-emerald-800">
-              Your photo ID check succeeded. Employers can now trust your verified status while your personal identity remains 100% hidden until you accept a reveal.
+              Your photo ID check succeeded. Your personal contact details remain hidden until you choose to share them.
             </p>
           </div>
           <Link
@@ -1069,10 +1066,10 @@ export default async function DashboardPage({
         <div className="rounded-2xl border-2 border-sky-300 bg-sky-50/90 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
           <div>
             <h2 className="text-sm font-extrabold text-sky-950">
-              ⏳ Stripe Identity Verification In Progress
+              ⏳ Stripe ID Check Processing
             </h2>
             <p className="mt-0.5 text-xs text-sky-800">
-              Stripe is finalizing your document and selfie verification (usually takes 15–45 seconds). Click Refresh Status below or resume verification if you didn&apos;t finish submitting.
+              Stripe is finishing your ID check (usually 15–45 seconds). Click Refresh Status below.
             </p>
           </div>
           <Link
@@ -1101,13 +1098,13 @@ export default async function DashboardPage({
             <div>
               <h2 className="text-sm font-extrabold text-slate-900">
                 {hasActiveTrialOrPlan
-                  ? "Step 2 of 2: Complete Your 1-Time Biometric ID Check to Unlock Applications & Invitations"
-                  : "🛡️ Your Skill Matrix Is Vault-Staged in Employer Search • Unlock Applications & Invitations"}
+                  ? "Final Step: Complete Your 1-Time Photo ID Check"
+                  : "🛡️ Unlock Employer Invitations & Applications ($5 Once)"}
               </h2>
               <p className="mt-0.5 text-xs text-slate-600">
                 {hasActiveTrialOrPlan
-                  ? "Your membership plan is active! Complete your 1-time Stripe Photo ID check now to earn the Biometric ID Verified badge, rank #1 in Employer Search, and apply or accept pitches."
-                  : "Employers can already discover your anonymous skill matrix and run TrueFit Score™ checks. Complete your $5 One-Time Explorer Verification Pass ($0/mo forever after) or upgrade to Professional ($12/mo) or Prestige ($19/mo) to unlock 1-Time ID Verification, enter our Weekly 1-Year Prestige Drawing, and connect with employers."}
+                  ? "Your plan is active! Complete your 60-second Stripe ID check to go live in Employer Search and connect with hiring teams."
+                  : "Complete your $5 one-time ID verification to unlock Explorer ($0/mo forever) or choose an active plan to apply directly to roles."}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2.5 shrink-0">
@@ -1118,7 +1115,7 @@ export default async function DashboardPage({
                   href="/dashboard/billing"
                   className="inline-flex items-center justify-center rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2.5 text-xs font-extrabold text-white shadow-sm transition-colors"
                 >
-                  Verify & Start for $5 →
+                  Verify &amp; Start ($5) →
                 </Link>
               )}
             </div>
@@ -1126,7 +1123,7 @@ export default async function DashboardPage({
         )
       })()}
 
-      {/* 4 PROFESSIONAL WIDGETS (DEFAULT MINIMALIST WHITE B2B OR ACCESSIBILITY COLOR-CODED) */}
+      {/* 4 PROFESSIONAL WIDGETS */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* Card 1: Manage Profile */}
         <Link
@@ -1163,7 +1160,7 @@ export default async function DashboardPage({
               </span>
             </div>
             <h3 className="text-lg font-bold text-slate-900">
-              Manage Profile
+              My Profile
             </h3>
             <p className="text-xs text-slate-500 mt-1">
               {hasProfileData
@@ -1172,7 +1169,7 @@ export default async function DashboardPage({
             </p>
           </div>
           <p className="text-xs font-semibold text-slate-700 group-hover:text-slate-950 mt-5">
-            {hasProfileData ? 'Skill matrix & resume →' : 'Upload resume →'}
+            {hasProfileData ? 'Skills & resume →' : 'Upload resume →'}
           </p>
         </Link>
 
@@ -1211,7 +1208,7 @@ export default async function DashboardPage({
                   ) : pendingRequestsCount > 0 ? (
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-blue-600 text-white text-[11px] font-bold shadow-xs">
                       <span className="h-1.5 w-1.5 rounded-full bg-amber-300 animate-pulse" />
-                      {pendingRequestsCount} {pendingRequestsCount === 1 ? "New Invitation" : "New Invitations"}
+                      {pendingRequestsCount} New
                     </span>
                   ) : null}
                 <span
@@ -1230,7 +1227,7 @@ export default async function DashboardPage({
                 a11yColorTiles ? 'text-blue-950' : 'text-slate-900'
               }`}
             >
-              Professional Invitations
+              Employer Invitations
             </h3>
             <p
               className={`text-xs mt-1 ${
@@ -1238,10 +1235,10 @@ export default async function DashboardPage({
               }`}
             >
               {unreadPitchMsgsCount > 0
-                ? 'An employer sent you a message in your invitations inbox'
+                ? 'An employer sent you a message'
                 : pendingRequestsCount > 0
-                ? `${pendingRequestsCount} pending invitation — included with your verified plan`
-                : 'Direct Professional Invitations from verified employers'}
+                ? `${pendingRequestsCount} pending invitation waiting`
+                : 'Direct invitations from verified employers'}
             </p>
           </div>
           <p
@@ -1251,7 +1248,7 @@ export default async function DashboardPage({
                 : 'text-slate-700 group-hover:text-slate-950'
             }`}
           >
-            Open inbound pitches →
+            View invitations →
           </p>
         </Link>
 
@@ -1315,7 +1312,7 @@ export default async function DashboardPage({
               </div>
             </div>
             <h3 className="text-lg font-bold text-slate-900">
-              Outbound Applications
+              My Applications
             </h3>
             <p
               className={`text-xs mt-1 ${
@@ -1325,8 +1322,8 @@ export default async function DashboardPage({
               {unreadOutboundMsgsCount > 0
                 ? 'An employer messaged you about your application'
                 : unlockedOutboundAppsCount > 0 || archivedOutboundAppsCount > 0
-                ? `${unlockedOutboundAppsCount} unlocked · ${archivedOutboundAppsCount} archived (view employer feedback)`
-                : 'Track protected applications & unlocked employers'}
+                ? `${unlockedOutboundAppsCount} unlocked · ${archivedOutboundAppsCount} archived`
+                : 'Track your applications & unlocked employers'}
             </p>
           </div>
           <p
@@ -1379,7 +1376,7 @@ export default async function DashboardPage({
                 a11yColorTiles ? 'text-purple-900/80' : 'text-slate-500'
               }`}
             >
-              Set minimum salary, employment types &amp; work model
+              Set minimum pay, employment types &amp; work model
             </p>
           </div>
           <p
@@ -1389,12 +1386,11 @@ export default async function DashboardPage({
                 : 'text-slate-700 group-hover:text-slate-950'
             }`}
           >
-            Edit dealbreakers →
+            Edit preferences →
           </p>
         </Link>
       </section>
 
-      {/* COLLAPSIBLE PROFESSIONAL REPUTATION & MERIT BADGE BAR */}
       <ReputationBadgeCase summary={candidateGamification} />
       <DashboardAnalyticsReport
         mode="candidate"
@@ -1408,10 +1404,10 @@ export default async function DashboardPage({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
           <div>
             <h2 className="text-lg font-extrabold text-slate-900">
-              Recommended Roles (Live Marketplace)
+              Recommended Roles
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Top active roles aligned with your skill matrix—or test-drive your resume in the TrueFit™ Benchmark Sandbox.
+              Active roles matched to your skills—or test-drive your profile in Practice Mode.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
@@ -1419,13 +1415,13 @@ export default async function DashboardPage({
               href="/dashboard/jobs?mode=sandbox"
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 hover:bg-amber-100 text-xs font-extrabold transition-colors"
             >
-              ⚡ Test-Drive in TrueFit™ Sandbox →
+              ⚡ Practice Mode →
             </Link>
             <Link
               href="/dashboard/jobs"
               className="text-xs font-extrabold text-indigo-600 hover:text-indigo-800 transition-colors"
             >
-              Search &amp; filter all roles →
+              View all roles →
             </Link>
           </div>
         </div>

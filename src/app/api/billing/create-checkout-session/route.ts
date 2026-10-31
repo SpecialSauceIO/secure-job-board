@@ -23,7 +23,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER_5_ONETIME',
     defaultPriceId: '',
     description:
-      'One-Time Lifetime Real-Person ID Verification ($0/mo forever after): Includes Verified Professional Shield, live placement in Employer Talent Search, unlimited inbound Professional Invitation unlocks, and entry into our Weekly 1-Year Prestige Drawing.',
+      'One-Time Real-Person ID Verification ($0/mo forever after): Includes Verified Professional Shield, live profile in Employer Search, unlimited employer invitations, and Weekly 1-Year Prestige Drawing entry.',
   },
   candidate_explorer: {
     id: 'explorer',
@@ -33,7 +33,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER_5_ONETIME',
     defaultPriceId: '',
     description:
-      'One-Time Lifetime Real-Person ID Verification ($0/mo forever after): Includes Verified Professional Shield, live placement in Employer Talent Search, unlimited inbound Professional Invitation unlocks, and entry into our Weekly 1-Year Prestige Drawing.',
+      'One-Time Real-Person ID Verification ($0/mo forever after): Includes Verified Professional Shield, live profile in Employer Search, unlimited employer invitations, and Weekly 1-Year Prestige Drawing entry.',
   },
   professional: {
     id: 'professional',
@@ -43,7 +43,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL_12',
     defaultPriceId: '',
     description:
-      'ID-Verified Active Tier: Unlock and accept unlimited inbound Professional Invitations, plus 15 outbound protected applications/month (40%+ TrueFit™). Downgrade back to $0/mo Explorer anytime.',
+      'Includes Real-Person ID Verification, unlimited employer invitations, and 15 outbound protected applications per month. Downgrade to $0/mo Explorer anytime.',
   },
   candidate_pro: {
     id: 'professional',
@@ -53,7 +53,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL_12',
     defaultPriceId: '',
     description:
-      'ID-Verified Active Tier: Unlock and accept unlimited inbound Professional Invitations, plus 15 outbound protected applications/month (40%+ TrueFit™). Downgrade back to $0/mo Explorer anytime.',
+      'Includes Real-Person ID Verification, unlimited employer invitations, and 15 outbound protected applications per month. Downgrade to $0/mo Explorer anytime.',
   },
   prestige: {
     id: 'prestige',
@@ -63,7 +63,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE_19',
     defaultPriceId: '',
     description:
-      'Priority Spotlight & Unlimited: Unlimited outbound protected applications (40%+ TrueFit™), top-priority placement in Employer Talent Search, and priority shortlist placement. Downgrade back to $0/mo Explorer anytime.',
+      'Includes Real-Person ID Verification, unlimited outbound protected applications, and top-priority placement in Employer Search. Downgrade to $0/mo Explorer anytime.',
   },
   candidate_prestige: {
     id: 'prestige',
@@ -73,7 +73,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE_19',
     defaultPriceId: '',
     description:
-      'Priority Spotlight & Unlimited: Unlimited outbound protected applications (40%+ TrueFit™), top-priority placement in Employer Talent Search, and priority shortlist placement. Downgrade back to $0/mo Explorer anytime.',
+      'Includes Real-Person ID Verification, unlimited outbound protected applications, and top-priority placement in Employer Search. Downgrade to $0/mo Explorer anytime.',
   },
 }
 
@@ -84,7 +84,7 @@ export const EMPLOYER_VERIFICATION_PASS = {
   envVar: 'STRIPE_PRICE_EMPLOYER_VERIFY_25_ONETIME',
   defaultPriceId: '',
   description:
-    'One-Time Organization, Domain/DNS, EIN & Representative Stripe Identity Verification Pass ($0/mo Sandbox): Draft protected roles and preview live verified professional match counts before activating a monthly plan.',
+    'One-Time Organization Verification Pass ($0/mo Sandbox): Draft roles and preview verified talent matches before activating a monthly plan.',
 }
 
 export const EMPLOYER_SAAS_TIERS: Record<
@@ -106,7 +106,7 @@ export const EMPLOYER_SAAS_TIERS: Record<
 > = {
   starter: {
     id: 'starter',
-    name: 'Starter Plan ($149/mo Founding Partner Rate — $299/mo Retail — 5 Active Roles & 10 Invitation Credits)',
+    name: 'Starter Plan ($149/mo Founding Rate — 5 Active Roles & 10 Invitation Credits)',
     priceCents: 14900,
     retailPriceCents: 29900,
     foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_STARTER_FOUNDING',
@@ -116,11 +116,12 @@ export const EMPLOYER_SAAS_TIERS: Record<
     maxActiveJobs: 5,
     monthlyCredits: 10,
     maxSeats: 2,
-    description: "Locked at $149/mo for your first 12 months, then $299/mo standard retail starting Month 13 (switch to $0/mo Verified Sandbox anytime). Up to 5 active roles, 10 monthly Invitation Credits, 2 seats.",
+    description:
+      'Locked at $149/mo for your first 12 months ($299/mo Month 13+). Up to 5 active roles, 10 monthly Invitation Credits, and 2 team seats.',
   },
   growth: {
     id: 'growth',
-    name: 'Growth Plan ($499/mo Founding Partner Rate — $799/mo Retail — 15 Active Roles & 35 Invitation Credits)',
+    name: 'Growth Plan ($499/mo Founding Rate — 15 Active Roles & 35 Invitation Credits)',
     priceCents: 49900,
     retailPriceCents: 79900,
     foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_GROWTH_FOUNDING',
@@ -130,11 +131,12 @@ export const EMPLOYER_SAAS_TIERS: Record<
     maxActiveJobs: 15,
     monthlyCredits: 35,
     maxSeats: 5,
-    description: "Locked at $499/mo for your first 12 months, then $799/mo standard retail starting Month 13 (switch to $0/mo Verified Sandbox anytime). Up to 15 active roles, 35 monthly Invitation Credits, 5 seats.",
+    description:
+      'Locked at $499/mo for your first 12 months ($799/mo Month 13+). Up to 15 active roles, 35 monthly Invitation Credits, and 5 team seats.',
   },
   enterprise: {
     id: 'enterprise',
-    name: 'Enterprise Plan ($1,250/mo Founding Partner Rate — $1,999/mo Retail — Unlimited Roles, 120 Credits + HR Software Sync)',
+    name: 'Enterprise Plan ($1,250/mo Founding Rate — Unlimited Roles, 120 Credits & HR Sync)',
     priceCents: 125000,
     retailPriceCents: 199900,
     foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_ENTERPRISE_FOUNDING',
@@ -144,7 +146,8 @@ export const EMPLOYER_SAAS_TIERS: Record<
     maxActiveJobs: 999,
     monthlyCredits: 120,
     maxSeats: 999,
-    description: "Locked at $1,250/mo for your first 12 months, then $1,999/mo standard retail starting Month 13 (switch to $0/mo Verified Sandbox anytime). Unlimited active roles, 120 monthly Invitation Credits, unlimited seats & ATS Sync.",
+    description:
+      'Locked at $1,250/mo for your first 12 months ($1,999/mo Month 13+). Unlimited active roles, 120 monthly Invitation Credits, unlimited seats, and Workday/Greenhouse sync.',
   },
 }
 
@@ -162,63 +165,63 @@ export const EMPLOYER_TOPUP_PACKS: Record<
 > = {
   boost: {
     id: 'boost',
-    name: 'Boost Invitation Credit Top-Up (+10 Rollover Credits)',
+    name: 'Boost Invitation Credit Pack (+10 Rollover Credits)',
     credits: 10,
     priceCents: 15000,
     envVar: 'STRIPE_PRICE_TOPUP_BOOST',
     defaultPriceId: 'price_1UTpx0R0rSVwN0zEKbw5XRnc',
     description:
-      '+10 non-expiring Rollover Invitation Credits ($15.00/invitation) protected by our 100% Accepted-Only Credit Guarantee.',
+      '+10 non-expiring Rollover Invitation Credits ($15/invite). Declined invitations are automatically refunded.',
   },
   topup_boost: {
     id: 'boost',
-    name: 'Boost Invitation Credit Top-Up (+10 Rollover Credits)',
+    name: 'Boost Invitation Credit Pack (+10 Rollover Credits)',
     credits: 10,
     priceCents: 15000,
     envVar: 'STRIPE_PRICE_TOPUP_BOOST',
     defaultPriceId: 'price_1UTpx0R0rSVwN0zEKbw5XRnc',
     description:
-      '+10 non-expiring Rollover Invitation Credits ($15.00/invitation) protected by our 100% Accepted-Only Credit Guarantee.',
+      '+10 non-expiring Rollover Invitation Credits ($15/invite). Declined invitations are automatically refunded.',
   },
   surge: {
     id: 'surge',
-    name: 'Surge Invitation Credit Top-Up (+25 Rollover Credits)',
+    name: 'Surge Invitation Credit Pack (+25 Rollover Credits)',
     credits: 25,
-    priceCents: 32500,
+    priceCents: 35000,
     envVar: 'STRIPE_PRICE_TOPUP_SURGE',
-    defaultPriceId: 'price_1UTpx1R0rSVwN0zEHHg42r6s',
+    defaultPriceId: '',
     description:
-      '+25 non-expiring Rollover Invitation Credits ($13.00/invitation - Save 13%) protected by our 100% Accepted-Only Credit Guarantee.',
+      '+25 non-expiring Rollover Invitation Credits ($14/invite). Declined invitations are automatically refunded.',
   },
   topup_surge: {
     id: 'surge',
-    name: 'Surge Invitation Credit Top-Up (+25 Rollover Credits)',
+    name: 'Surge Invitation Credit Pack (+25 Rollover Credits)',
     credits: 25,
-    priceCents: 32500,
+    priceCents: 35000,
     envVar: 'STRIPE_PRICE_TOPUP_SURGE',
-    defaultPriceId: 'price_1UTpx1R0rSVwN0zEHHg42r6s',
+    defaultPriceId: '',
     description:
-      '+25 non-expiring Rollover Invitation Credits ($13.00/invitation - Save 13%) protected by our 100% Accepted-Only Credit Guarantee.',
+      '+25 non-expiring Rollover Invitation Credits ($14/invite). Declined invitations are automatically refunded.',
   },
   scale: {
     id: 'scale',
-    name: 'Scale Invitation Credit Top-Up (+75 Rollover Credits)',
+    name: 'Scale Invitation Credit Pack (+75 Rollover Credits)',
     credits: 75,
-    priceCents: 82500,
+    priceCents: 90000,
     envVar: 'STRIPE_PRICE_TOPUP_SCALE',
-    defaultPriceId: 'price_1UTpx1R0rSVwN0zEMGzzbsQV',
+    defaultPriceId: '',
     description:
-      '+75 non-expiring Rollover Invitation Credits ($11.00/invitation - Save 27%) protected by our 100% Accepted-Only Credit Guarantee.',
+      '+75 non-expiring Rollover Invitation Credits ($12/invite). Declined invitations are automatically refunded.',
   },
   topup_scale: {
     id: 'scale',
-    name: 'Scale Invitation Credit Top-Up (+75 Rollover Credits)',
+    name: 'Scale Invitation Credit Pack (+75 Rollover Credits)',
     credits: 75,
-    priceCents: 82500,
+    priceCents: 90000,
     envVar: 'STRIPE_PRICE_TOPUP_SCALE',
-    defaultPriceId: 'price_1UTpx1R0rSVwN0zEMGzzbsQV',
+    defaultPriceId: '',
     description:
-      '+75 non-expiring Rollover Invitation Credits ($11.00/invitation - Save 27%) protected by our 100% Accepted-Only Credit Guarantee.',
+      '+75 non-expiring Rollover Invitation Credits ($12/invite). Declined invitations are automatically refunded.',
   },
 }
 
@@ -244,7 +247,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error:
-            'STRIPE_SECRET_KEY is not configured in .env.local yet. Use the QA Sandbox controls below to test plans locally.',
+            'STRIPE_SECRET_KEY is not configured in .env.local yet. Use the QA controls below to test plans locally.',
         },
         { status: 400 }
       )
@@ -256,9 +259,7 @@ export async function POST(req: Request) {
 
     const origin = req.headers.get('origin') || 'https://www.specialsauce.io'
 
-    // =========================================================================
-    // 1. PROFESSIONAL PLANS: EXPLORER ($5 ONE-TIME), PROFESSIONAL ($12/MO), PRESTIGE ($19/MO)
-    // =========================================================================
+    // 1. PROFESSIONAL PLANS
     const candidateTier = CANDIDATE_SAAS_TIERS[rawKey]
     if (candidateTier) {
       const catalogPriceId = process.env[candidateTier.envVar] || candidateTier.defaultPriceId
@@ -319,9 +320,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ url: checkoutSession.url })
     }
 
-    // =========================================================================
-    // 1B. EMPLOYER ONE-TIME ORGANIZATION VERIFICATION PASS ($25 ONE-TIME)
-    // =========================================================================
+    // 1B. EMPLOYER ONE-TIME ORGANIZATION VERIFICATION PASS ($25)
     if (rawKey === 'employer_verify' || rawKey === 'verify_org' || rawKey === 'employer_explorer') {
       const { data: member } = await supabase
         .from('organization_members')
@@ -377,9 +376,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ url: checkoutSession.url })
     }
 
-    // =========================================================================
-    // 2. EMPLOYER TOP-UP CREDIT PACKS (BOOST $150 / SURGE $325 / SCALE $825)
-    // =========================================================================
+    // 2. EMPLOYER TOP-UP CREDIT PACKS (BOOST $150 / SURGE $350 / SCALE $900)
     const topupPack = EMPLOYER_TOPUP_PACKS[rawKey]
     if (topupPack) {
       const { data: member } = await supabase
@@ -436,9 +433,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ url: checkoutSession.url })
     }
 
-    // =========================================================================
-    // 3. EMPLOYER SAAS SUBSCRIPTIONS ($149 / $499 / $1,250 FOUNDING OR RETAIL)
-    // =========================================================================
+    // 3. EMPLOYER SUBSCRIPTIONS ($149 / $499 / $1,250)
     const tier = EMPLOYER_SAAS_TIERS[rawKey]
     if (!tier) {
       return NextResponse.json(
@@ -527,7 +522,7 @@ export async function POST(req: Request) {
       {
         error:
           error.message ||
-          'Stripe Checkout failed. Check your Stripe API permissions or use the QA Sandbox controls below.',
+          'Stripe Checkout failed. Check your Stripe API permissions or use the QA controls below.',
       },
       { status: 500 }
     )

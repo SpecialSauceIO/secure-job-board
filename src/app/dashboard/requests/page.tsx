@@ -8,7 +8,6 @@ import {
   recalculatePitchMatch,
 } from '@/app/dashboard/actions'
 import SecureMessageThread from '@/components/SecureMessageThread'
-import SafetyReportButton from '@/components/SafetyReportButton'
 import { CANDIDATE_DECLINE_REASONS } from '@/constants/feedback-reasons'
 import { normalizeIndustryVertical } from '@/constants/industries'
 import { normalizeJobEducationReq } from '@/constants/education'
@@ -219,38 +218,13 @@ export default function CandidateRequestsInboxPage() {
         type: 'success',
         text:
           decision === 'accepted'
-            ? `Invitation Accepted (Ref: ${res.referenceId})! Your private chat thread is now open below.`
+            ? `Invitation Accepted (Ref: ${res.referenceId})! Your private chat thread is open below.`
             : `Invitation declined (Ref: ${res.referenceId}).`,
       },
     }))
 
     setDecliningId(null)
     setProcessingId(null)
-  }
-
-  const handleRecalculate = async (applicationId: string) => {
-    setRecalculatingId(applicationId)
-    const res: any = await recalculatePitchMatch(applicationId)
-    if (res?.data) {
-      setRequests((prev) =>
-        prev.map((req) =>
-          req.id === applicationId
-            ? {
-                ...req,
-                match_score: res.data.match_score,
-                match_data: res.data.match_data,
-              }
-            : req
-        )
-      )
-      setExpandedRadarIds((prev) => ({ ...prev, [applicationId]: true }))
-    } else if (res?.error) {
-      setFeedback((prev) => ({
-        ...prev,
-        [applicationId]: { type: 'error', text: res.error },
-      }))
-    }
-    setRecalculatingId(null)
   }
 
   const filteredRequests = requests.filter((req) => {
@@ -279,10 +253,10 @@ export default function CandidateRequestsInboxPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Inbound Professional Invitations
+            Employer Invitations
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Domain-verified employers spent a credit to pitch you these roles. Accepting opens a private chat thread.
+            Verified employers invited you to these roles. Accepting opens a private chat thread.
           </p>
         </div>
 
@@ -290,21 +264,21 @@ export default function CandidateRequestsInboxPage() {
           href="/dashboard/jobs"
           className="shrink-0 inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-xs"
         >
-          Browse All Open Roles →
+          Browse Open Roles →
         </Link>
       </header>
 
-      {/* Subscription & Verification Gate Banner for Unsubscribed / Unverified Professionals */}
+      {/* Verification Gate Banner */}
       {!isLoading && (!hasActivePlan || !isCandidateVerified) && (
         <div className="p-5 rounded-2xl bg-amber-50 border-2 border-amber-300 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-amber-900">
-              <span>🔒 Action Required to Unlock Employer Invitations &amp; Private Chat</span>
+              <span>🔒 Unlock Employer Invitations &amp; Private Chat</span>
             </div>
             <p className="text-xs sm:text-sm text-amber-950 font-medium leading-relaxed">
               {!hasActivePlan
-                ? 'Your account is currently in the Unverified Vault. Activate Explorer ($5 One-Time Verification · $0/mo Forever), Professional ($12/mo), or Prestige ($19/mo) and complete 1-time Stripe ID Verification to accept invitations and message employers.'
-                : 'Your membership plan is active, but you must complete your 1-time Stripe Real-Person ID Verification on your Overview Dashboard before accepting invitations or opening private chat threads.'}
+                ? 'Complete your $5 one-time ID verification to unlock Explorer ($0/mo forever) and accept employer invitations.'
+                : 'Your plan is active! Complete your 60-second Stripe ID check on your Dashboard to accept invitations and message employers.'}
             </p>
           </div>
           <Link
@@ -312,19 +286,19 @@ export default function CandidateRequestsInboxPage() {
             className="shrink-0 inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors shadow-xs"
           >
             {!hasActivePlan
-              ? 'Verify & Unlock Invitations ($5 One-Time) →'
-              : 'Complete 1-Time ID Verification →'}
+              ? 'Verify & Unlock ($5) →'
+              : 'Complete ID Check →'}
           </Link>
         </div>
       )}
 
       {/* Filter Tabs */}
-      <div className="bg-white p-4 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-wrap items-center justify-between gap-3 border-slate-300">
+      <div className="bg-white p-4 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-1.5">
           {[
             { id: 'all', label: `All Invitations (${requests.length})` },
-            { id: 'pending', label: '⚡ Pending Your Reply' },
-            { id: 'accepted', label: '🔓 Accepted & Connected' },
+            { id: 'pending', label: '⚡ Pending Reply' },
+            { id: 'accepted', label: '🔓 Accepted' },
             { id: 'declined', label: 'Declined' },
           ].map((tab) => (
             <button
@@ -343,31 +317,31 @@ export default function CandidateRequestsInboxPage() {
         </div>
 
         <span className="text-xs font-bold text-emerald-700">
-          🛡️ Unlimited inbound invitation unlocks included on all ID-Verified plans ($5 One-Time Explorer · $12/mo Pro · $19/mo Prestige)
+          🛡️ Accepting employer invitations is always 100% free
         </span>
       </div>
 
-      {/* Pitches List */}
+      {/* Invitations List */}
       {isLoading ? (
-        <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs border-slate-300">
+        <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs">
           <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-3" />
           <p className="text-sm font-bold text-slate-500">
-            Loading your employer invitation inbox...
+            Loading your invitations...
           </p>
         </div>
       ) : filteredRequests.length === 0 ? (
-        <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs space-y-3 border-slate-300">
+        <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs space-y-3">
           <h3 className="text-lg font-extrabold text-slate-900">
-            No employer pitches in this tab yet
+            No employer invitations in this tab yet
           </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Keep your profile and skill matrix updated so verified employers can discover and pitch you.
+            Keep your skills and preferences updated so verified employers can discover and invite you.
           </p>
           <Link
             href="/dashboard/profile"
             className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors"
           >
-            Review My Anonymous Profile →
+            Update My Profile →
           </Link>
         </div>
       ) : (
@@ -417,7 +391,7 @@ export default function CandidateRequestsInboxPage() {
               ? req.unlocked_employer_name ||
                 job.organizations?.name ||
                 'Verified Employer'
-              : `Protected Professional Invitation • ${industryLabel}`
+              : `Protected Invitation • ${industryLabel}`
 
             return (
               <div
@@ -428,12 +402,12 @@ export default function CandidateRequestsInboxPage() {
                     : isDeclined
                     ? 'border-slate-300 opacity-75'
                     : rankInfo.isFounder
-                    ? 'border-2 border-slate-300 shadow-sm '
+                    ? 'border-2 border-slate-300 shadow-sm'
                     : 'border-slate-300 hover:border-slate-400'
                 }`}
               >
                 <div className="p-4 sm:p-6 md:p-8 space-y-4">
-                  {/* Top Bar: Company Heading & Pay Band */}
+                  {/* Top Bar */}
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-3 border-b border-slate-300">
                     <div className="space-y-1.5">
                       <div className="flex flex-wrap items-center gap-2">
@@ -477,7 +451,7 @@ export default function CandidateRequestsInboxPage() {
                     </div>
                   </div>
 
-                  {/* Clean Inline Role Metadata (No Pills) */}
+                  {/* Role Metadata */}
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600 font-medium">
                     <span className="font-bold text-slate-800 uppercase">
                       {job.work_model || 'Flexible'}
@@ -527,10 +501,10 @@ export default function CandidateRequestsInboxPage() {
                     </p>
                   )}
 
-                  {/* AI Pitch Summary */}
-                  <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-slate-300/80 text-xs text-slate-700 space-y-1 border-slate-300">
+                  {/* Match Summary */}
+                  <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-slate-300/80 text-xs text-slate-700 space-y-1">
                     <div className="flex items-center justify-between font-bold text-indigo-700">
-                      <span>Why You Matched (5-Point TrueFit Score™)</span>
+                      <span>Why You Matched (TrueFit Score™)</span>
                       {radarData && (
                         <button
                           type="button"
@@ -542,20 +516,20 @@ export default function CandidateRequestsInboxPage() {
                           }
                           className="underline cursor-pointer"
                         >
-                          {showRadar ? 'Hide TrueFit™ Breakdown' : 'View TrueFit™ Breakdown'}
+                          {showRadar ? 'Hide Breakdown' : 'View Breakdown'}
                         </button>
                       )}
                     </div>
                     <p className="leading-relaxed">
                       {req.match_data?.employer_pitch ||
                         req.match_data?.brief_analysis ||
-                        'Your anonymous skill matrix and experience matched this employer’s requirements.'}
+                        'Your skills and experience matched this role’s requirements.'}
                     </p>
                   </div>
 
                   {/* Expandable Radar */}
                   {isMounted && showRadar && radarData && (
-                    <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-300 flex flex-col lg:flex-row items-center gap-4 border-slate-300">
+                    <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-300 flex flex-col lg:flex-row items-center gap-4">
                       <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {radarData.map((item: any, idx: number) => (
                           <div
@@ -576,7 +550,8 @@ export default function CandidateRequestsInboxPage() {
                           <RadarChart
                             cx="50%"
                             cy="50%"
-                            outerRadius="44%" margin={{ top: 14, right: 62, bottom: 14, left: 62 }}
+                            outerRadius="44%"
+                            margin={{ top: 14, right: 62, bottom: 14, left: 62 }}
                             data={radarData}
                           >
                             <PolarGrid stroke="#cbd5e1" />
@@ -618,7 +593,7 @@ export default function CandidateRequestsInboxPage() {
                     </div>
                   )}
 
-                  {/* STAGE 1 THREAD */}
+                  {/* Chat Thread */}
                   {isAccepted && (
                     <SecureMessageThread
                       applicationId={req.id}
@@ -644,7 +619,7 @@ export default function CandidateRequestsInboxPage() {
                   {/* Action Footer */}
                   {isDeclined && req.match_data?.candidate_decline_reason && (
                     <div className="px-3.5 py-2.5 rounded-xl bg-rose-50/80 border border-rose-200 text-xs text-rose-900">
-                      <strong className="font-extrabold">Declined Reason Sent to Employer:</strong>{' '}
+                      <strong className="font-extrabold">Declined Reason:</strong>{' '}
                       {req.match_data.candidate_decline_reason}
                     </div>
                   )}
@@ -657,7 +632,7 @@ export default function CandidateRequestsInboxPage() {
                               {declineUndoMap[req.id].seconds}s
                             </span>
                             <span>
-                              Declining pitch (&ldquo;{declineUndoMap[req.id].reason}&rdquo;) in {declineUndoMap[req.id].seconds}s...
+                              Declining invitation (&ldquo;{declineUndoMap[req.id].reason}&rdquo;) in {declineUndoMap[req.id].seconds}s...
                             </span>
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
@@ -666,85 +641,85 @@ export default function CandidateRequestsInboxPage() {
                               onClick={() => handleUndoDecline(req.id)}
                               className="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-indigo-600 text-white font-extrabold transition-colors cursor-pointer shadow-2xs"
                             >
-                              ↺ Undo Decline ({declineUndoMap[req.id].seconds}s)
+                              ↺ Undo ({declineUndoMap[req.id].seconds}s)
                             </button>
                           </div>
                         </div>
                       ) : (
                         <>
-                      {decliningId === req.id && (
-                        <div className="p-3.5 rounded-xl bg-rose-50/70 border-2 border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div className="flex-1 space-y-1">
-                            <label className="font-extrabold text-rose-950 block">
-                              Let the employer know why you are passing on this pitch:
-                            </label>
-                            <select
-                              value={declineReasons[req.id] || CANDIDATE_DECLINE_REASONS[0]}
-                              onChange={(e) =>
-                                setDeclineReasons((prev) => ({
-                                  ...prev,
-                                  [req.id]: e.target.value,
-                                }))
-                              }
-                              className="w-full rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-rose-500"
-                            >
-                              {CANDIDATE_DECLINE_REASONS.map((r) => (
-                                <option key={r} value={r}>
-                                  {r}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            <button
-                              type="button"
-                              disabled={processingId === req.id}
-                              onClick={() => setDecliningId(null)}
-                              className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer"
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              type="button"
-                              disabled={processingId === req.id}
-                              onClick={() =>
-                                handleDecision(
-                                  req.id,
-                                  'declined',
-                                  declineReasons[req.id] || CANDIDATE_DECLINE_REASONS[0]
-                                )
-                              }
-                              className="px-3.5 py-1.5 rounded-lg bg-rose-600 text-white font-extrabold hover:bg-rose-700 cursor-pointer shadow-2xs"
-                            >
-                              {processingId === req.id ? 'Declining...' : 'Confirm Decline'}
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <span className="text-slate-500">
-                          <strong>Private First Connection:</strong> Accepting opens a secure chat thread while keeping your resume vaulted.
-                        </span>
+                          {decliningId === req.id && (
+                            <div className="p-3.5 rounded-xl bg-rose-50/70 border-2 border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                              <div className="flex-1 space-y-1">
+                                <label className="font-extrabold text-rose-950 block">
+                                  Reason for declining:
+                                </label>
+                                <select
+                                  value={declineReasons[req.id] || CANDIDATE_DECLINE_REASONS[0]}
+                                  onChange={(e) =>
+                                    setDeclineReasons((prev) => ({
+                                      ...prev,
+                                      [req.id]: e.target.value,
+                                    }))
+                                  }
+                                  className="w-full rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-rose-500"
+                                >
+                                  {CANDIDATE_DECLINE_REASONS.map((r) => (
+                                    <option key={r} value={r}>
+                                      {r}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                  type="button"
+                                  disabled={processingId === req.id}
+                                  onClick={() => setDecliningId(null)}
+                                  className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 font-bold hover:bg-slate-50 cursor-pointer"
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={processingId === req.id}
+                                  onClick={() =>
+                                    handleDecision(
+                                      req.id,
+                                      'declined',
+                                      declineReasons[req.id] || CANDIDATE_DECLINE_REASONS[0]
+                                    )
+                                  }
+                                  className="px-3.5 py-1.5 rounded-lg bg-rose-600 text-white font-extrabold hover:bg-rose-700 cursor-pointer shadow-2xs"
+                                >
+                                  {processingId === req.id ? 'Declining...' : 'Confirm Decline'}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <span className="text-slate-500">
+                              <strong>Chat First:</strong> Accepting opens a private chat while keeping your resume private.
+                            </span>
 
-                        <div className="flex items-center gap-2 shrink-0">
-                          <button
-                            type="button"
-                            disabled={processingId === req.id}
-                            onClick={() => setDecliningId(req.id)}
-                            className="px-3.5 py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer"
-                          >
-                            Decline Invitation
-                          </button>
-                          <button
-                            type="button"
-                            disabled={processingId === req.id}
-                            onClick={() => handleDecision(req.id, 'accepted')}
-                            className="px-4 py-2 rounded-xl bg-slate-900 text-white font-extrabold hover:bg-emerald-600 transition-colors shadow-2xs cursor-pointer"
-                          >
-                            {processingId === req.id && decliningId !== req.id ? 'Connecting...' : '🔓 Accept & Connect'}
-                          </button>
-                        </div>
-                      </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <button
+                                type="button"
+                                disabled={processingId === req.id}
+                                onClick={() => setDecliningId(req.id)}
+                                className="px-3.5 py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-bold hover:bg-rose-50 transition-colors cursor-pointer"
+                              >
+                                Decline
+                              </button>
+                              <button
+                                type="button"
+                                disabled={processingId === req.id}
+                                onClick={() => handleDecision(req.id, 'accepted')}
+                                className="px-4 py-2 rounded-xl bg-slate-900 text-white font-extrabold hover:bg-emerald-600 transition-colors shadow-2xs cursor-pointer"
+                              >
+                                {processingId === req.id && decliningId !== req.id ? 'Connecting...' : '🔓 Accept & Chat'}
+                              </button>
+                            </div>
+                          </div>
                         </>
                       )}
                     </div>

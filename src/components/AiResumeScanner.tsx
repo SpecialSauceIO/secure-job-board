@@ -6,20 +6,20 @@ import { parseResumeAutoFill } from '@/app/dashboard/actions';
 
 const EXTRACTION_STEPS = [
   {
-    title: 'Securing PDF in Conversation Privacy Vault',
-    detail: 'Isolating raw document and redacting personal contact info from Introduction public index',
+    title: 'Securing PDF in Private Resume Vault',
+    detail: 'Keeping your name and contact details hidden from public search',
   },
   {
-    title: 'Extracting Core Skill Matrix & Role Tenure',
-    detail: 'Mapping technical competencies, years of experience, and primary industry vertical',
+    title: 'Extracting Skills & Experience',
+    detail: 'Organizing your core skills, years of experience, and industry',
   },
   {
-    title: 'Indexing Credentials, Licenses & Languages',
-    detail: 'Standardizing active certifications, academic background, and written/verbal fluency',
+    title: 'Adding Certifications & Languages',
+    detail: 'Formatting your active licenses, education, and language fluency',
   },
   {
-    title: 'Calibrating 5-Point TrueFit Score™ Profile',
-    detail: 'Finalizing anonymous Introduction professional profile for instant >=40% role matching',
+    title: 'Preparing TrueFit Score™ Profile',
+    detail: 'Finalizing your private profile for instant role matching',
   },
 ];
 
@@ -110,21 +110,21 @@ function ScannerForm({ profile }: { profile: any }) {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border-2 border-slate-300 overflow-hidden grid grid-cols-1 lg:grid-cols-12">
-      {/* Left Column: Document Dropzone & Conversation Vault Guarantee */}
+      {/* Left Column: Document Dropzone */}
       <div className="p-6 sm:p-8 lg:col-span-5 bg-slate-50 border-b lg:border-b-0 lg:border-r border-slate-300 flex flex-col justify-between">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-extrabold uppercase tracking-wider mb-4">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
-            Conversation Privacy Vault Protected
+            Private Resume Vault
           </div>
 
           <h3 className="text-base font-extrabold text-slate-900">
-            Upload Resume PDF to One-Click Profile Builder™
+            Upload Resume PDF to Auto-Fill Your Profile
           </h3>
           <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-            Your raw PDF resume and personal contact details are locked inside your Conversation Privacy Vault and never exposed on public feeds.
+            Your PDF resume and contact details stay locked in your private vault until you choose to share them with an employer.
           </p>
 
           <label
@@ -159,7 +159,7 @@ function ScannerForm({ profile }: { profile: any }) {
               {fileName ? fileName : 'Select PDF Resume or Drag & Drop'}
             </span>
             <span className="text-[11px] font-medium text-slate-500 mt-1">
-              {fileName ? 'Ready for structured profile extraction' : 'Standard PDF format • Max 10MB'}
+              {fileName ? 'Ready to build your profile' : 'Standard PDF format • Max 10MB'}
             </span>
 
             <input
@@ -185,7 +185,7 @@ function ScannerForm({ profile }: { profile: any }) {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Building Anonymous Profile...
+                Building Your Profile...
               </>
             ) : (
               'Build & Populate Profile'
@@ -194,7 +194,7 @@ function ScannerForm({ profile }: { profile: any }) {
         </div>
       </div>
 
-      {/* Right Column: Enterprise Calibration Pipeline & Extracted Snapshot */}
+      {/* Right Column: Extracted Snapshot */}
       <div className="p-6 sm:p-8 lg:col-span-7 bg-[#0f172a] text-white flex flex-col justify-between">
         <div>
           <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-slate-800">
@@ -210,15 +210,15 @@ function ScannerForm({ profile }: { profile: any }) {
               />
               <span className="text-xs font-extrabold uppercase tracking-wider text-slate-200">
                 {pending
-                  ? 'One-Click Profile Builder™ Calibration in Progress'
+                  ? 'Building Your Profile'
                   : hasExistingData
-                  ? 'Anonymous Introduction Profile Calibrated'
-                  : 'Awaiting Resume Upload'}
+                  ? 'Private Profile Active'
+                  : 'Waiting for Resume Upload'}
               </span>
             </div>
 
             <span className="text-[11px] font-bold px-2.5 py-1 rounded-md bg-slate-900 border border-slate-700 text-slate-300">
-              {pending ? `${progress}% Processed` : hasExistingData ? '✓ Ready for Matching' : 'Introduction Redaction Active'}
+              {pending ? `${progress}% Complete` : hasExistingData ? '✓ Ready for Matching' : 'Privacy Protected'}
             </span>
           </div>
 
@@ -269,34 +269,34 @@ function ScannerForm({ profile }: { profile: any }) {
             </div>
           )}
 
-          {/* Clean Structured Snapshot when not actively scanning */}
+          {/* Clean Snapshot when not scanning */}
           {!pending && (
             <div className="mt-5 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800">
                   <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Calculated Role Tenure
+                    Experience
                   </div>
                   <div className="text-base font-extrabold text-white mt-1">
                     {profile?.experience_years
                       ? `${profile.experience_years} Years Experience`
-                      : 'Pending Extraction'}
+                      : 'Not Set Yet'}
                   </div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800">
                   <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Identity Vault Status
+                    Privacy Status
                   </div>
                   <div className="text-xs font-extrabold text-emerald-400 mt-1.5 flex items-center gap-1.5">
-                    <span>🔒</span> Name, Email &amp; PDF Locked Until The Conversation
+                    <span>🔒</span> Name, Email &amp; PDF Hidden Until You Share
                   </div>
                 </div>
               </div>
 
               <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-                  Extracted Core Technical &amp; Functional Competencies
+                  Top Skills
                 </div>
                 {skillPills.length > 0 ? (
                   <div className="flex flex-wrap gap-1.5">
@@ -311,18 +311,18 @@ function ScannerForm({ profile }: { profile: any }) {
                   </div>
                 ) : (
                   <p className="text-xs text-slate-500">
-                    Upload your PDF resume on the left to automatically populate your structured skill matrix.
+                    Upload your PDF resume on the left to automatically populate your skills.
                   </p>
                 )}
               </div>
 
               <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                  Anonymized Executive Summary (Introduction Preview)
+                  Anonymous Profile Summary
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
                   {profile?.bio ||
-                    'Your third-person professional summary will appear here immediately after parsing—redacted of personal contact information.'}
+                    'Your professional summary will appear here after uploading your resume—with your personal contact info removed.'}
                 </p>
               </div>
             </div>
@@ -330,7 +330,7 @@ function ScannerForm({ profile }: { profile: any }) {
         </div>
 
         <div className="mt-5 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
-          <span>✓ Zero Public Resume Harvesting</span>
+          <span>✓ Private Resume Vault</span>
           <span>TrueFit Score™ Ready</span>
         </div>
       </div>

@@ -21,7 +21,6 @@ export default function EmployerBillingPage() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const params = new URLSearchParams(window.location.search)
     const isLocal =
       window.location.hostname === 'localhost' ||
       window.location.hostname === '127.0.0.1'
@@ -128,7 +127,7 @@ export default function EmployerBillingPage() {
           })
           setFeedback({
             type: 'success',
-            text: res?.message || `Stripe Subscription Confirmed: Activated ${tierParam.toUpperCase()} plan.`,
+            text: res?.message || `Subscription Confirmed: Activated ${tierParam.toUpperCase()} plan.`,
           })
         }
         loadBillingState()
@@ -138,7 +137,7 @@ export default function EmployerBillingPage() {
       purchaseEmployerCreditTopUp(packParam, sessionIdParam).then((res) => {
         setFeedback({
           type: 'success',
-          text: res?.message || 'Stripe Payment Confirmed: Added non-expiring Rollover Invitation Credits to your organization.',
+          text: res?.message || 'Payment Confirmed: Added rollover invitation credits to your account.',
         })
         loadBillingState()
       })
@@ -146,18 +145,18 @@ export default function EmployerBillingPage() {
       window.history.replaceState({}, '', '/dashboard/employer/billing')
       setFeedback({
         type: 'error',
-        text: 'Stripe Checkout was cancelled. No billing changes were made.',
+        text: 'Checkout was cancelled. No billing changes were made.',
       })
     } else if (selectParam && ['starter', 'growth', 'enterprise'].includes(selectParam)) {
       window.history.replaceState({}, '', '/dashboard/employer/billing')
       const planNames: Record<string, string> = {
-        starter: 'Starter ($149/mo Founding Rate — 5 Active Roles & 10 Invitation Credits)',
-        growth: 'Growth ($499/mo Founding Rate — 15 Active Roles & 35 Invitation Credits)',
-        enterprise: 'Enterprise ($1,250/mo Founding Rate — Unlimited Roles, 120 Credits & HR Software Sync)',
+        starter: 'Starter ($149/mo Founding Rate)',
+        growth: 'Growth ($499/mo Founding Rate)',
+        enterprise: 'Enterprise ($1,250/mo Founding Rate)',
       }
       setFeedback({
         type: 'success',
-        text: `Welcome to Special Sauce: Complete your Company Profile if needed, then click "${planNames[selectParam]}" below to lock in your 12-Month Founding Partner Rate.`,
+        text: `Welcome to Special Sauce: Select ${planNames[selectParam]} below when you are ready to activate your plan.`,
       })
     }
   }, [loadBillingState])
@@ -178,7 +177,20 @@ export default function EmployerBillingPage() {
         ),
       })
       const data = await response.json()
-      if (!response.ok || data.error) { if (!isTopUp && (targetId === "starter" || targetId === "growth" || targetId === "enterprise") && String(data.error || "").includes("Permission denied")) { await handleTierSwitch(targetId); return; } setFeedback({ type: "error", text: data.error || "Could not launch Stripe Checkout." }); window.scrollTo({ top: 0, behavior: "smooth" }); setIsProcessing(false); setProcessingTarget(null); return; }
+      if (!response.ok || data.error) {
+        if (!isTopUp && (targetId === 'starter' || targetId === 'growth' || targetId === 'enterprise') && String(data.error || '').includes('Permission denied')) {
+          await handleTierSwitch(targetId)
+          return
+        }
+        setFeedback({
+          type: 'error',
+          text: data.error || 'Could not launch Stripe Checkout.',
+        })
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        setIsProcessing(false)
+        setProcessingTarget(null)
+        return
+      }
       if (data.url) {
         window.location.href = data.url
         return
@@ -210,29 +222,6 @@ export default function EmployerBillingPage() {
         text:
           res?.message ||
           `✓ Switched organization plan to ${targetTier.toUpperCase()}.`,
-      })
-      await loadBillingState()
-      router.refresh()
-    }
-
-    setIsProcessing(false)
-    setProcessingTarget(null)
-  }
-
-  const handleTopUpPurchase = async (packId: 'boost' | 'surge' | 'scale') => {
-    setIsProcessing(true)
-    setProcessingTarget(`topup_${packId}`)
-    setFeedback(null)
-
-    const res = await purchaseEmployerCreditTopUp(packId)
-    if (res?.error) {
-      setFeedback({ type: 'error', text: res.error })
-    } else {
-      setFeedback({
-        type: 'success',
-        text:
-          res?.message ||
-          '✓ Added non-expiring Rollover Invitation Credits to your organization!',
       })
       await loadBillingState()
       router.refresh()
@@ -282,10 +271,10 @@ export default function EmployerBillingPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Billing, Role Slots &amp; Invitation Credits
+            Billing, Plans &amp; Invitation Credits
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Reviewing and unlocking professionals who apply to your protected job listings is 100% free (0 credits) on every active plan.
+            Inbound applicants are always 100% free to unlock, and declined outbound invitations are automatically refunded.
           </p>
         </div>
 
@@ -302,7 +291,7 @@ export default function EmployerBillingPage() {
             href="/dashboard/employer/organization"
             className="px-4 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors"
           >
-            Company, Team Seats &amp; HR Sync
+            Company &amp; Team Settings
           </Link>
           <Link
             href="/dashboard/employer/search"
@@ -313,12 +302,12 @@ export default function EmployerBillingPage() {
         </div>
       </header>
 
-      {/* Dynamic Founding Partner Status & Live Two-Bucket Plan Summary Banner */}
+      {/* Plan Status & Credit Balances Banner */}
       {isLoading ? (
         <div className="rounded-2xl bg-white border-2 border-slate-300 p-5 sm:p-8 text-center shadow-xs">
           <div className="inline-block w-6 h-6 border-3 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-2" />
           <p className="text-xs font-bold text-slate-500">
-            Syncing organization verification &amp; two-bucket credit ledger...
+            Loading plan and credit balances...
           </p>
         </div>
       ) : isOrgVerified ? (
@@ -327,11 +316,11 @@ export default function EmployerBillingPage() {
             <div className="space-y-2 max-w-2xl">
               <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
                 <span className="text-amber-300">
-                  ★ Founding Partner Charter Active
+                  ★ Founding Partner Rate Lock
                 </span>
                 <span className="text-slate-600">•</span>
                 <span className="text-emerald-400">
-                  ✓ {orgData?.domain || 'Corporate Domain'} Verified
+                  ✓ {orgData?.domain || 'Company Domain'} Verified
                 </span>
               </div>
 
@@ -340,11 +329,11 @@ export default function EmployerBillingPage() {
               </h2>
 
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Your monthly plan allowance (<strong className="text-white">Bucket 1</strong>) is always spent first when inviting professionals. Purchased Top-Up Credits (<strong className="text-amber-300">Bucket 2</strong>) roll over indefinitely while your base subscription remains active.
+                Monthly plan credits are used first, and top-up credits roll over and never expire while your plan is active.
               </p>
             </div>
 
-            {/* Live Two-Bucket Account Balances */}
+            {/* Live Account Balances */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 shrink-0 bg-slate-800/90 border border-slate-700 rounded-2xl p-4 text-center">
               <div className="px-2">
                 <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
@@ -356,7 +345,7 @@ export default function EmployerBillingPage() {
               </div>
               <div className="px-2 sm:border-l border-slate-700">
                 <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                  Plan Credits (1st)
+                  Plan Credits
                 </span>
                 <span className="text-lg font-black text-white mt-0.5 block">
                   {planCredits}
@@ -364,7 +353,7 @@ export default function EmployerBillingPage() {
               </div>
               <div className="px-2 border-t sm:border-t-0 sm:border-l border-slate-700 pt-2 sm:pt-0">
                 <span className="block text-[10px] font-extrabold uppercase tracking-wider text-amber-300">
-                  Rollover Top-Ups
+                  Rollover Credits
                 </span>
                 <span className="text-lg font-black text-amber-300 mt-0.5 block">
                   {rolloverCredits}
@@ -386,33 +375,13 @@ export default function EmployerBillingPage() {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-2 max-w-3xl">
               <div className="text-xs font-extrabold uppercase tracking-wider text-amber-300">
-                ★ 12-Month Employer Founding Partner Rate Lock (Up to 50% Off Retail)
+                ★ 12-Month Founding Partner Rate Lock
               </div>
               <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-                Verify Your Corporate Domain to Lock In 12-Month Founding Partner Rates
+                Verify Your Company to Lock In Founding Partner Rates
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Organizations that verify their corporate domain during our Founding Member Launch automatically receive{' '}
-                <strong className="text-white">
-                  12-Month Founding Partner Pricing ($149 / $499 / $1,250 per month)
-                </strong>{' '}
-                including{' '}
-                <strong className="text-amber-300">
-                  5 Active Protected Job Slots
-                </strong>
-                ,{' '}
-                <strong className="text-amber-300">
-                  10 Outbound Invitation Credits
-                </strong>
-                ,{' '}
-                <strong className="text-amber-300">
-                  2 Team or Recruiter Seats
-                </strong>
-                , and{' '}
-                <strong className="text-emerald-300">
-                  ✓ Permanent Founding Partner Status &amp; Distinctions
-                </strong>
-                .
+                Complete your organization verification to unlock Founding Partner pricing ($149 / $499 / $1,250 per month locked for 12 months) and start posting roles.
               </p>
             </div>
 
@@ -421,7 +390,7 @@ export default function EmployerBillingPage() {
                 href="/dashboard/employer/organization"
                 className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-colors shadow-md"
               >
-                Verify Corporate Domain →
+                Verify Organization →
               </Link>
             </div>
           </div>
@@ -443,7 +412,7 @@ export default function EmployerBillingPage() {
               href="/dashboard/employer/organization"
               className="shrink-0 px-3.5 py-1.5 rounded-lg bg-emerald-700 text-white text-xs font-extrabold hover:bg-emerald-800 transition-colors"
             >
-              Open HR Software Sync Hub →
+              Open HR Software Sync →
             </Link>
           )}
         </div>
@@ -451,7 +420,7 @@ export default function EmployerBillingPage() {
 
       {/* Pricing Tiers Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Tier 1: Starter Tier */}
+        {/* Tier 1: Starter */}
         <div
           className={`bg-white rounded-2xl p-4 sm:p-6 flex flex-col justify-between transition-all ${
             activeTier === 'starter'
@@ -462,7 +431,7 @@ export default function EmployerBillingPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between text-xs font-extrabold">
               <span className="text-amber-700">
-                ★ 12-Month Founding Partner Rate Lock
+                ★ 12-Month Rate Lock
               </span>
               {activeTier === 'starter' && (
                 <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-300">
@@ -473,41 +442,39 @@ export default function EmployerBillingPage() {
 
             <div>
               <h3 className="text-xl font-black text-slate-900">
-                Starter Tier
+                Starter
               </h3>
               <div className="mt-2 flex items-baseline gap-2">
                 <span className="text-base font-bold text-slate-400 line-through">$299</span>
                 <span className="text-3xl font-black text-slate-900">$149</span>
                 <span className="text-xs font-bold text-amber-700">
-                  / mo Founding Rate (Locked 12 Mos)
+                  / mo (Locked 12 Mos)
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                Built for small businesses and focused hiring managers filling 1 to 5 roles at a time.
+                For small teams filling 1 to 5 active roles at a time.
               </p>
             </div>
 
             <ul className="space-y-2.5 pt-4 border-t border-slate-300 text-xs text-slate-700 font-medium">
               <li>
-                ★ <strong className="text-amber-800">$149/mo Locked for First 12 Months</strong> ($299/mo retail after)
+                ★ <strong className="text-amber-800">$149/mo Locked for 12 Months</strong> ($299/mo Month 13+)
               </li>
               <li>
-                ✓ <strong>Up to 5 Simultaneous Active Protected Roles</strong>
+                ✓ <strong>Up to 5 Active Protected Roles</strong>
               </li>
               <li>
-                ✓ <strong>10 Monthly Plan Invitation Credits / month</strong>
+                ✓ <strong>10 Outbound Invitation Credits / mo</strong>
               </li>
               <li className="text-emerald-700 font-bold">
-                🛡️ <strong>100% Accepted-Only Invitation Credit Protection</strong> (Declined invitations are auto-refunded)
+                🛡️ <strong>Accepted-Only Guarantee</strong> (Declined invites auto-refunded)
               </li>
               <li>
-                ✓ <strong>2 Team or Recruiter Seats</strong>
+                ✓ <strong>Unlimited Free Inbound Applicants</strong>
               </li>
               <li>
-                ✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong>
+                ✓ <strong>2 Team Seats</strong> &amp; Founding Partner Badge
               </li>
-              <li>✓ Eligible for Non-Expiring Rollover Top-Up Packs</li>
-              <li>✓ Permanent Founding Partner Status &amp; Distinctions</li>
             </ul>
           </div>
 
@@ -521,13 +488,13 @@ export default function EmployerBillingPage() {
               {processingTarget === 'starter'
                 ? 'Activating Starter...'
                 : activeTier === 'starter'
-                ? 'Reset Monthly Plan Bucket (10 Plan Credits) →'
-                : 'Activate Starter Plan ($149/mo · 10 Plan Credits) →'}
+                ? '✓ Starter Plan Active (Refresh Credits) →'
+                : 'Activate Starter ($149/mo) →'}
             </button>
           </div>
         </div>
 
-        {/* Tier 2: Growth Tier */}
+        {/* Tier 2: Growth */}
         <div
           className={`bg-slate-900 text-white rounded-2xl p-4 sm:p-6 flex flex-col justify-between transition-all ${
             activeTier === 'growth'
@@ -538,7 +505,7 @@ export default function EmployerBillingPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between text-xs font-extrabold">
               <span className="text-indigo-300">
-                Most Popular for Recruiting Teams
+                ★ Most Popular • 12-Month Rate Lock
               </span>
               {activeTier === 'growth' && (
                 <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
@@ -548,40 +515,38 @@ export default function EmployerBillingPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-black text-white">Growth Tier</h3>
+              <h3 className="text-xl font-black text-white">Growth</h3>
               <div className="mt-2 flex items-baseline gap-2">
                 <span className="text-base font-bold text-slate-400 line-through">$799</span>
                 <span className="text-3xl font-black text-white">$499</span>
                 <span className="text-xs font-bold text-amber-300">
-                  / mo Founding Rate (Locked 12 Mos)
+                  / mo (Locked 12 Mos)
                 </span>
               </div>
               <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                Designed for growing companies and multi-department hiring teams actively sourcing passive talent.
+                For growing companies hiring across multiple departments.
               </p>
             </div>
 
             <ul className="space-y-2.5 pt-4 border-t border-slate-800 text-xs text-slate-200 font-medium">
               <li>
-                ★ <strong className="text-amber-300">$499/mo Locked for First 12 Months</strong> ($799/mo retail after)
+                ★ <strong className="text-amber-300">$499/mo Locked for 12 Months</strong> ($799/mo Month 13+)
               </li>
               <li>
-                ✓ <strong>Up to 15 Simultaneous Active Protected Roles</strong>
+                ✓ <strong>Up to 15 Active Protected Roles</strong>
               </li>
               <li>
-                ✓ <strong>35 Monthly Plan Invitation Credits / month</strong>
+                ✓ <strong>35 Outbound Invitation Credits / mo</strong>
               </li>
               <li className="text-emerald-300 font-bold">
-                🛡️ <strong>100% Accepted-Only Invitation Credit Protection</strong> (Declined invitations are auto-refunded)
+                🛡️ <strong>Accepted-Only Guarantee</strong> (Declined invites auto-refunded)
               </li>
               <li>
-                ✓ <strong>Up to 5 Team &amp; External Recruiter Seats</strong>
+                ✓ <strong>Unlimited Free Inbound Applicants</strong>
               </li>
               <li>
-                ✓ <strong>Unlimited Free Inbound Applicant Unlocks</strong>
+                ✓ <strong>Up to 5 Team &amp; Recruiter Seats</strong> + Founding Partner Badge
               </li>
-              <li>✓ Eligible for Non-Expiring Rollover Top-Up Packs</li>
-              <li>✓ Permanent Founding Partner Status &amp; Distinctions</li>
             </ul>
           </div>
 
@@ -595,13 +560,13 @@ export default function EmployerBillingPage() {
               {processingTarget === 'growth'
                 ? 'Activating Growth...'
                 : activeTier === 'growth'
-                ? 'Reset Monthly Plan Bucket (35 Plan Credits) →'
-                : 'Activate Growth Plan ($499/mo · 35 Plan Credits) →'}
+                ? '✓ Growth Plan Active (Refresh Credits) →'
+                : 'Activate Growth ($499/mo) →'}
             </button>
           </div>
         </div>
 
-        {/* Tier 3: Enterprise & Agency Tier */}
+        {/* Tier 3: Enterprise */}
         <div
           className={`bg-white rounded-2xl p-4 sm:p-6 flex flex-col justify-between transition-all ${
             activeTier === 'enterprise'
@@ -612,7 +577,7 @@ export default function EmployerBillingPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between text-xs font-extrabold">
               <span className="text-emerald-700">
-                High-Volume, HR Software &amp; Recruiter Ready
+                ★ Unlimited &amp; HR Auto-Sync
               </span>
               {activeTier === 'enterprise' && (
                 <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-300">
@@ -623,43 +588,39 @@ export default function EmployerBillingPage() {
 
             <div>
               <h3 className="text-xl font-black text-slate-900">
-                Enterprise Tier
+                Enterprise
               </h3>
               <div className="mt-2 flex items-baseline gap-2">
                 <span className="text-base font-bold text-slate-400 line-through">$1,999</span>
                 <span className="text-3xl font-black text-slate-900">$1,250</span>
                 <span className="text-xs font-bold text-amber-700">
-                  / mo Founding Rate (Locked 12 Mos)
+                  / mo (Locked 12 Mos)
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                Built for high-velocity talent acquisition teams, multi-location enterprises, and external recruiting partners.
+                For high-volume hiring teams with automated HR software sync.
               </p>
             </div>
 
             <ul className="space-y-2.5 pt-4 border-t border-slate-300 text-xs text-slate-700 font-medium">
               <li>
-                ★ <strong className="text-amber-800">$1,250/mo Locked for First 12 Months</strong> ($1,999/mo retail after)
+                ★ <strong className="text-amber-800">$1,250/mo Locked for 12 Months</strong> ($1,999/mo Month 13+)
               </li>
               <li>
-                ✓ <strong>Unlimited Simultaneous Active Protected Roles</strong>
+                ✓ <strong>Unlimited Active Protected Roles</strong>
               </li>
               <li>
-                ✓ <strong>120 Monthly Plan Invitation Credits / month</strong>
+                ✓ <strong>120 Outbound Invitation Credits / mo</strong>
               </li>
               <li className="text-emerald-700 font-bold">
-                🛡️ <strong>100% Accepted-Only Invitation Credit Protection</strong> (Declined invitations are auto-refunded)
+                🛡️ <strong>Accepted-Only Guarantee</strong> (Declined invites auto-refunded)
               </li>
               <li>
-                ✓ <strong>Unlimited Team &amp; External Recruiter Seats</strong>
+                ✓ <strong>Workday &amp; Greenhouse Auto-Sync</strong> + CSV Export
               </li>
               <li>
-                ✓ <strong>Workday &amp; Greenhouse HR Software Sync</strong>
+                ✓ <strong>Unlimited Team &amp; Recruiter Seats</strong>
               </li>
-              <li>
-                ✓ <strong>Automated Conversation Vault Export to ATS</strong>
-              </li>
-              <li>✓ Eligible for Non-Expiring Rollover Top-Up Packs</li>
             </ul>
           </div>
 
@@ -673,38 +634,38 @@ export default function EmployerBillingPage() {
               {processingTarget === 'enterprise'
                 ? 'Activating Enterprise...'
                 : activeTier === 'enterprise'
-                ? 'Reset Monthly Plan Bucket (120 Plan Credits) →'
-                : 'Activate Enterprise Plan ($1,250/mo · 120 Plan Credits) →'}
+                ? '✓ Enterprise Plan Active (Refresh Credits) →'
+                : 'Activate Enterprise ($1,250/mo) →'}
             </button>
           </div>
         </div>
       </div>
 
       {/* ====================================================================
-          ON-DEMAND ROLLOVER PITCH CREDIT TOP-UP PACKS (Two-Bucket System)
+          ON-DEMAND ROLLOVER CREDIT TOP-UP PACKS ($150 / $350 / $900)
          ==================================================================== */}
       <section className="rounded-2xl bg-white border-2 border-slate-300 p-4 sm:p-8 shadow-xs space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-200">
           <div className="space-y-1 max-w-3xl">
             <div className="inline-flex items-center gap-2 text-indigo-600 text-xs font-extrabold uppercase tracking-wider">
-              <span>⚡ Bucket 2: Non-Expiring Rollover Top-Up Packs</span>
+              <span>⚡ Rollover Invitation Credit Packs</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              On-Demand Invitation Credit Top-Ups
+              Need Extra Outbound Reach?
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Top-Up Credits are added to your <strong className="text-slate-900">Rollover Top-Up Bucket</strong>. Your monthly plan allowance (<strong className="text-slate-900">{planCredits} Plan Credits remaining</strong>) is always spent first, and Rollover Top-Up Credits (<strong className="text-amber-700">{rolloverCredits} Rollover Credits banked</strong>) never expire as long as your base subscription remains active. Protected by our 100% Accepted-Only Guarantee—if a candidate declines a Professional Invitation, your credit is automatically refunded to the exact bucket it came from.
+              Add invitation credits anytime. Your monthly plan credits are used first, and top-up credits roll over and never expire while your plan is active. If a professional declines an invitation, your credit is automatically refunded.
             </p>
           </div>
 
           <div className="shrink-0 bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-xs font-bold text-slate-700 space-y-1">
             <div className="flex items-center justify-between gap-6">
-              <span className="text-slate-500">1. Monthly Plan Bucket:</span>
-              <span className="font-black text-slate-900">{planCredits} Credits</span>
+              <span className="text-slate-500">Monthly Plan Credits:</span>
+              <span className="font-black text-slate-900">{planCredits}</span>
             </div>
             <div className="flex items-center justify-between gap-6">
-              <span className="text-amber-700">2. Rollover Top-Up Bucket:</span>
-              <span className="font-black text-amber-700">{rolloverCredits} Credits</span>
+              <span className="text-amber-700">Rollover Top-Up Credits:</span>
+              <span className="font-black text-amber-700">{rolloverCredits}</span>
             </div>
           </div>
         </div>
@@ -712,7 +673,7 @@ export default function EmployerBillingPage() {
         {activeTier === 'free' && (
           <div className="p-4 rounded-xl bg-amber-50 border border-amber-300 text-amber-950 text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <span>
-              🔒 <strong>Active Base Plan Required:</strong> Activate Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) above before purchasing standalone Rollover Invitation Credit Top-Up Packs.
+              🔒 <strong>Active Plan Required:</strong> Activate Starter, Growth, or Enterprise above before adding top-up credit packs.
             </span>
           </div>
         )}
@@ -726,7 +687,7 @@ export default function EmployerBillingPage() {
                   ⚡ Boost Pack
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-white border border-slate-300 text-slate-700 text-[11px] font-extrabold">
-                  $15.00 / pitch
+                  $15 / invite
                 </span>
               </div>
               <div className="flex items-baseline justify-between pt-1">
@@ -736,7 +697,7 @@ export default function EmployerBillingPage() {
                 <span className="text-2xl font-black text-slate-900">$150</span>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Quick top-up when you need a few extra Professional Invitations to round out an interview slate this month.
+                Quick top-up to round out an interview slate.
               </p>
             </div>
 
@@ -747,30 +708,30 @@ export default function EmployerBillingPage() {
               className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-40 cursor-pointer"
             >
               {processingTarget === 'topup_boost'
-                ? 'Adding +10 Rollover Credits...'
-                : 'Add +10 Rollover Credits ($150) →'}
+                ? 'Adding +10 Credits...'
+                : 'Add +10 Credits ($150) →'}
             </button>
           </div>
 
-          {/* Surge Pack: +25 Credits ($325) */}
+          {/* Surge Pack: +25 Credits ($350) */}
           <div className="rounded-2xl border-2 border-indigo-500 bg-white p-4 sm:p-6 flex flex-col justify-between space-y-5 shadow-sm relative">
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-600">
-                  🚀 Surge Pack • Save 13%
+                  🚀 Surge Pack • Most Popular
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-extrabold">
-                  $13.00 / pitch
+                  $14 / invite
                 </span>
               </div>
               <div className="flex items-baseline justify-between pt-1">
                 <h3 className="text-2xl font-black text-slate-900">
                   +25 Credits
                 </h3>
-                <span className="text-2xl font-black text-slate-900">$325</span>
+                <span className="text-2xl font-black text-slate-900">$350</span>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Built for hiring managers actively sourcing passive professionals across 2 to 4 concurrent open roles.
+                Built for teams actively sourcing across multiple open roles.
               </p>
             </div>
 
@@ -781,30 +742,30 @@ export default function EmployerBillingPage() {
               className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-40 cursor-pointer"
             >
               {processingTarget === 'topup_surge'
-                ? 'Adding +25 Rollover Credits...'
-                : 'Add +25 Rollover Credits ($325) →'}
+                ? 'Adding +25 Credits...'
+                : 'Add +25 Credits ($350) →'}
             </button>
           </div>
 
-          {/* Scale Pack: +75 Credits ($825) */}
+          {/* Scale Pack: +75 Credits ($900) */}
           <div className="rounded-2xl border-2 border-slate-300 bg-slate-50/50 p-4 sm:p-6 flex flex-col justify-between space-y-5">
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-700">
-                  🏢 Scale Pack • Save 27%
+                  🏢 Scale Pack • Best Value
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-extrabold">
-                  $11.00 / pitch
+                  $12 / invite
                 </span>
               </div>
               <div className="flex items-baseline justify-between pt-1">
                 <h3 className="text-2xl font-black text-slate-900">
                   +75 Credits
                 </h3>
-                <span className="text-2xl font-black text-slate-900">$825</span>
+                <span className="text-2xl font-black text-slate-900">$900</span>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Maximum volume discount for multi-department recruiting pushes and quarterly talent acquisition sprints.
+                Best per-invite value for multi-department hiring sprints.
               </p>
             </div>
 
@@ -815,23 +776,23 @@ export default function EmployerBillingPage() {
               className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-40 cursor-pointer"
             >
               {processingTarget === 'topup_scale'
-                ? 'Adding +75 Rollover Credits...'
-                : 'Add +75 Rollover Credits ($825) →'}
+                ? 'Adding +75 Credits...'
+                : 'Add +75 Credits ($900) →'}
             </button>
           </div>
         </div>
       </section>
 
-      {/* QA Sandbox Controls for Stress Testing (Hidden in production unless ?qa=1) */}
+      {/* QA Sandbox Controls */}
       {showQaControls && (
       <div className="bg-slate-100 rounded-2xl border-2 border-slate-300 p-5 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">
-              🧪 QA Stress-Testing Controls (Remove Before Public Launch)
+              🧪 QA Controls (Local Only)
             </span>
             <p className="text-xs text-slate-600 mt-0.5">
-              Instant 1-click plan switching across all 4 Tiers to test role-slot limits, seat caps, Two-Bucket rollover credits, and the HR Software Sync Hub.
+              Switch between Employer plans to test role limits, seats, and rollover credits.
             </p>
           </div>
         </div>
@@ -847,9 +808,7 @@ export default function EmployerBillingPage() {
                 : 'bg-white border-slate-300 text-slate-700 hover:bg-rose-50 hover:text-rose-700'
             }`}
           >
-            {processingTarget === 'free'
-              ? 'Switching...'
-              : '1. No Active Plan (0 Roles / 0 Credits)'}
+            1. Sandbox ($0/mo)
           </button>
 
           <button
@@ -862,9 +821,7 @@ export default function EmployerBillingPage() {
                 : 'bg-white border-slate-300 text-slate-700 hover:bg-amber-50'
             }`}
           >
-            {processingTarget === 'starter'
-              ? 'Switching...'
-              : '2. Starter ($149 Founding / $299 Retail • 5 Roles / 10 Credits)'}
+            2. Starter ($149/mo)
           </button>
 
           <button
@@ -877,9 +834,7 @@ export default function EmployerBillingPage() {
                 : 'bg-white border-slate-300 text-slate-700 hover:bg-indigo-50'
             }`}
           >
-            {processingTarget === 'growth'
-              ? 'Switching...'
-              : '3. Growth ($499 Founding / $799 Retail • 15 Roles / 35 Credits)'}
+            3. Growth ($499/mo)
           </button>
 
           <button
@@ -892,9 +847,7 @@ export default function EmployerBillingPage() {
                 : 'bg-white border-slate-300 text-slate-900 hover:bg-slate-200'
             }`}
           >
-            {processingTarget === 'enterprise'
-              ? 'Switching...'
-              : '4. Enterprise ($1,250 Founding / $1,999 Retail • Unlimited / 120 Credits)'}
+            4. Enterprise ($1,250/mo)
           </button>
         </div>
       </div>

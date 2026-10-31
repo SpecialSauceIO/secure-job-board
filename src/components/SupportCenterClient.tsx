@@ -594,7 +594,7 @@ export default function SupportCenterClient({
                       >
                         <option value="General Support">General Support &amp; Questions</option>
                         <option value="Intro/Convo Vault & Encrypted Messaging">Intro/Convo Identity Vault &amp; Messaging</option>
-                        <option value="Billing, Plans & Pitch Credits">Billing, Plans &amp; Invitation Credits</option>
+                        <option value="Billing, Plans & Invitation Credits">Billing, Plans &amp; Invitation Credits</option>
                         <option value="Account & Domain Verification">Stripe ID / Corporate Domain Verification</option>
                         <option value="Enterprise ATS & Webhook Integration">HR Software Sync Hub</option>
                         <option value="Technical Issue / Bug Report">Technical Issue / Bug Report</option>
@@ -618,7 +618,7 @@ export default function SupportCenterClient({
                         <option value="TrueFit Score™ & Dealbreakers">TrueFit Score™ &amp; Dealbreakers</option>
                         <option value="Billing, Subscriptions & Credits">Billing, Subscriptions &amp; Credits</option>
                         <option value="HR Software Sync Hub">HR Software Sync Hub</option>
-                        <option value="Encrypted Stage 1/2 Messaging">Encrypted Intro/Convo Messaging</option>
+                        <option value="Private Intro & Conversation Messaging">Encrypted Intro/Convo Messaging</option>
                         <option value="Other / General Platform">Other / General Platform</option>
                       </select>
                     </div>

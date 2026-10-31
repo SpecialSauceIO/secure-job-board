@@ -640,7 +640,7 @@ export async function exportEnterpriseCandidatesCsv() {
       ? 'The Conversation Vault Released'
       : app.is_revealed || app.status === 'accepted'
       ? 'Introduction Thread Active'
-      : 'Stage 0 Protected'
+      : 'Identity Protected'
 
     const candidateName = vaultReleased
       ? matchData.candidate_full_name || cand?.full_name || 'Released Professional'

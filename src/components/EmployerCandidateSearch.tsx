@@ -445,7 +445,7 @@ export default function EmployerCandidateSearch({
         setTimeout(() => {
           resolve({
             error:
-              'TrueFit Score™ analysis took longer than 30 seconds across our 3-tier matching cascade. Please click "Recalculate TrueFit Score™" to retry.',
+              'TrueFit Score™ check took longer than 30 seconds. Please click "Recalculate TrueFit Score™" to retry.',
           })
         }, 30000)
       })
@@ -1029,7 +1029,7 @@ export default function EmployerCandidateSearch({
             <button
               type="button"
               onClick={() => setIncludeHorizonAdjacent((prev) => !prev)}
-              title="When filtering by Industry Vertical, also surface verified professionals from adjacent sectors with ≥72% 6D Operational DNA transferability"
+              title="When filtering by Industry, also include qualified professionals with transferable skills from related industries"
               className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md font-bold border transition-colors cursor-pointer ${
                 includeHorizonAdjacent
                   ? 'bg-sky-50 border-sky-300 text-sky-900'
@@ -1141,7 +1141,7 @@ export default function EmployerCandidateSearch({
               {onlyShortlisted
                 ? 'Click "Shortlist" on any anonymous professional card to assemble a comparison pool before sending an invitation.'
                 : viewMode === 'live'
-                ? 'Real professionals are currently completing resume parsing and Stripe Identity verification in this vertical. Switch to the Practice Sandbox to test-drive TrueFit Score™ checks against our 56 (Demo) profiles!'
+                ? 'New professionals are currently joining this industry. Switch to Practice Mode to test TrueFit Score™ checks on our 56 sample profiles.'
                 : 'Try resetting your active filters to broaden your search.'}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
@@ -1403,9 +1403,9 @@ export default function EmployerCandidateSearch({
                           ? 'bg-sky-50 text-sky-900 border-sky-300'
                           : 'bg-indigo-50/70 text-indigo-900 border-indigo-200'
                       }`}
-                      title={`True Horizon™ 6D Operational DNA (${horizonInfo.topSharedAxes.join(' + ')})`}
+                      title={`Transferable Skills Match (${horizonInfo.topSharedAxes.join(' + ')})`}
                     >
-                      🧭 {horizonInfo.isAdjacentHorizonMatch ? `Horizon Adjacent Match (${horizonInfo.targetVerticalScore}% DNA)` : `Operational DNA: ${horizonInfo.targetVerticalScore}%`}
+                      🧭 {horizonInfo.isAdjacentHorizonMatch ? `Related Industry Match (${horizonInfo.targetVerticalScore}%)` : `Transferable Fit: ${horizonInfo.targetVerticalScore}%`}
                         </span>
                       </>
                     )}

@@ -167,10 +167,9 @@ export default function EmployerJobsTableClient({
 
   return (
     <div className="space-y-5">
-      {/* Organizer Toolbar: Status Tabs + Search + Industry + Work Type + Sort By */}
+      {/* Toolbar */}
       <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-300 shadow-sm space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          {/* Status Filter Tabs */}
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
@@ -209,7 +208,6 @@ export default function EmployerJobsTableClient({
             </button>
           </div>
 
-          {/* Keyword Search Input */}
           <div className="relative flex-1 max-w-md">
             <svg
               className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
@@ -229,16 +227,15 @@ export default function EmployerJobsTableClient({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search roles by title, US metro, or skill..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl border-2 border-slate-300 bg-slate-50 text-xs font-medium text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none border-slate-300"
+              className="w-full pl-10 pr-4 py-2 rounded-xl border-2 border-slate-300 bg-slate-50 text-xs font-medium text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
             />
           </div>
         </div>
 
-        {/* Bottom Row: Industry + Work Type + Sort By Dropdown */}
         <div className="pt-3 border-t border-slate-300 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
           <div className="md:col-span-3 flex items-center gap-2">
-              <label
-                htmlFor="manage-jobs-industry"
+            <label
+              htmlFor="manage-jobs-industry"
               className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
             >
               Industry:
@@ -247,9 +244,9 @@ export default function EmployerJobsTableClient({
               id="manage-jobs-industry"
               value={industryFilter}
               onChange={(e) => setIndustryFilter(e.target.value)}
-              className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
+              className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
             >
-              <option value="all">All Industry Verticals</option>
+              <option value="all">All Industries</option>
               {STANDARD_INDUSTRY_VERTICALS.map((vertical) => (
                 <option key={vertical} value={vertical}>
                   {vertical}
@@ -269,7 +266,7 @@ export default function EmployerJobsTableClient({
               id="manage-jobs-emp-type"
               value={employmentTypeFilter}
               onChange={(e) => setEmploymentTypeFilter(e.target.value)}
-              className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
+              className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
             >
               <option value="all">All Employment Types</option>
               {EMPLOYMENT_TYPES.map((t) => (
@@ -281,8 +278,8 @@ export default function EmployerJobsTableClient({
           </div>
 
           <div className="md:col-span-5 flex items-center gap-2">
-              <label
-                htmlFor="manage-jobs-sort"
+            <label
+              htmlFor="manage-jobs-sort"
               className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 whitespace-nowrap shrink-0"
             >
               Sort:
@@ -293,7 +290,7 @@ export default function EmployerJobsTableClient({
               onChange={(e) =>
                 setSortBy(e.target.value as EmployerJobSortOption)
               }
-              className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer border-slate-300"
+              className="w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-2 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
             >
               <option value="closing_soon">
                 Closing Soonest (30-Day Countdown)
@@ -322,9 +319,9 @@ export default function EmployerJobsTableClient({
 
       {/* Jobs Table or Empty Filter State */}
       {filteredAndSortedJobs.length === 0 ? (
-        <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-sm border-slate-300">
+        <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-sm">
           <p className="text-sm font-bold text-slate-700 mb-2">
-            No roles match your current status, keyword, Employment Type, or Industry Vertical filter.
+            No roles match your current filters.
           </p>
           <button
             type="button"
@@ -336,12 +333,12 @@ export default function EmployerJobsTableClient({
             }}
             className="px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer"
           >
-            Reset Active Filters →
+            Reset Filters →
           </button>
         </div>
       ) : (
         <div className="bg-white rounded-2xl border-2 border-slate-300 shadow-sm overflow-hidden">
-          {/* Mobile Stacked Cards (md:hidden) */}
+          {/* Mobile Stacked Cards */}
           <div className="md:hidden divide-y divide-slate-300">
             {filteredAndSortedJobs.map((job) => {
               const isExpiringSoon =
@@ -378,7 +375,7 @@ export default function EmployerJobsTableClient({
                       ) : job.isExpired ? (
                         <span className="inline-flex items-center gap-1.5 font-extrabold text-amber-700">
                           <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                          Auto-Expired (30d Limit)
+                          Expired (30d Limit)
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 font-bold text-slate-500">
@@ -423,14 +420,14 @@ export default function EmployerJobsTableClient({
                       ) : job.unactionedApplicantCount > 0 ? (
                         <Link
                           href="/dashboard/employer/applications"
-                          title="You must message or decline all pending applicants on this role before renewing."
+                          title="Please message or decline waiting applicants on this role before renewing."
                           className="w-full px-3 py-2 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-300 rounded-xl text-center"
                         >
                           ⚡ Reply to {job.unactionedApplicantCount} Applicant{job.unactionedApplicantCount === 1 ? '' : 's'} to Renew
                         </Link>
                       ) : !job.inRenewalWindow ? (
                         <span
-                          title={`Renewals unlock during the final 5 days of a listing (Days 25–30). ${job.daysRemaining - 5}d until renewal window opens.`}
+                          title={`Renewals open during the final 5 days of a listing (Days 25–30). Opens in ${job.daysRemaining - 5} day(s).`}
                           className="w-full px-3 py-2 text-xs font-bold text-slate-400 bg-slate-100 border border-slate-300 rounded-xl text-center select-none cursor-not-allowed"
                         >
                           🔒 Renews at ≤5d ({job.renewalCount}/{job.maxRenewals})
@@ -495,9 +492,9 @@ export default function EmployerJobsTableClient({
             })}
           </div>
 
-          {/* Desktop Table (hidden md:block) */}
+          {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-left border-collapse border-slate-300">
+            <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-300">
                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -534,7 +531,6 @@ export default function EmployerJobsTableClient({
                           </span>
                         </div>
 
-                        {/* Clean Inline Metadata Row (No Extra Colored Pills) */}
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1.5 text-xs text-slate-500 font-medium">
                           {job.industry && (
                             <>
@@ -588,7 +584,7 @@ export default function EmployerJobsTableClient({
                           ) : job.isExpired ? (
                             <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-amber-700">
                               <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                              Auto-Expired (30d Limit)
+                              Expired (30d Limit)
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500">
@@ -611,7 +607,7 @@ export default function EmployerJobsTableClient({
                             </span>
                           ) : (
                             <span className="text-[11px] text-slate-400 font-medium">
-                              Manual renewal required to reopen
+                              Reopen to accept new applications
                             </span>
                           )}
                         </div>
@@ -654,14 +650,14 @@ export default function EmployerJobsTableClient({
                             ) : job.unactionedApplicantCount > 0 ? (
                               <Link
                                 href="/dashboard/employer/applications"
-                                title="Anti-Harvesting Gate: Please message or decline waiting applicants on this role before renewing."
+                                title="Please message or decline waiting applicants on this role before renewing."
                                 className="px-3 py-1.5 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-300 rounded-lg hover:bg-amber-100 transition-colors"
                               >
-                                ⚡ Action {job.unactionedApplicantCount} Applicant{job.unactionedApplicantCount === 1 ? '' : 's'} to Renew
+                                ⚡ Reply to {job.unactionedApplicantCount} Applicant{job.unactionedApplicantCount === 1 ? '' : 's'} to Renew
                               </Link>
                             ) : !job.inRenewalWindow ? (
                               <span
-                                title={`Anti-Spam Renewal Gate: Active listings can only be renewed during their final 5 days (Days 25–30). Opens in ${job.daysRemaining - 5} day(s).`}
+                                title={`Renewals open during the final 5 days of a listing (Days 25–30). Opens in ${job.daysRemaining - 5} day(s).`}
                                 className="px-3 py-1.5 text-xs font-bold text-slate-400 bg-slate-100 border border-slate-300 rounded-lg select-none cursor-not-allowed"
                               >
                                 🔒 Renews at ≤5d
@@ -736,7 +732,7 @@ export default function EmployerJobsTableClient({
                                 title="Please message or decline waiting applicants on this role before reopening."
                                 className="px-3 py-1.5 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-300 rounded-lg hover:bg-amber-100 transition-colors"
                               >
-                                ⚡ Action {job.unactionedApplicantCount} Applicant{job.unactionedApplicantCount === 1 ? '' : 's'} to Reopen
+                                ⚡ Reply to {job.unactionedApplicantCount} Applicant{job.unactionedApplicantCount === 1 ? '' : 's'} to Reopen
                               </Link>
                             ) : (
                               <>

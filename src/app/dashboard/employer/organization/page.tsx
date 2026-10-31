@@ -203,16 +203,16 @@ export default async function EmployerOrganizationPage({
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-300">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Company Profile, 3-Pillar Trust Gate &amp; Team Seats
+            Company Profile, Verification &amp; Team Seats
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Complete your 3-Pillar Employer Trust Verification (Corporate Domain + 90-Day RDAP Age Check, Federal EIN Attestation, and Admin Stripe Identity) to publish roles and pitch candidates.
+            Verify your business domain, EIN, and admin identity to post roles and invite matched professionals.
           </p>
         </div>
 
         <Link
           href="/dashboard/employer/billing"
-          className="shrink-0 inline-flex items-center px-4 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors border-slate-300"
+          className="shrink-0 inline-flex items-center px-4 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors"
         >
           Manage Plan &amp; Credits →
         </Link>

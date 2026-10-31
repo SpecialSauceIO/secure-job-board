@@ -178,7 +178,7 @@ export async function GET(req: NextRequest) {
       (a: any) => new Date(a.created_at || 0).getTime() >= oneDayAgoMs
     )
 
-    // Level 1: Reached Stage 1 Encrypted Handshake / Mutual Interest
+    // Level 1: Reached The Introduction / Mutual Interest
     const isLevel1Reached = (a: any) => {
       const st = String(a.status || "").toLowerCase()
       const hasMessages =
@@ -190,7 +190,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Level 2: Reached Stage 2 Contact & Resume Vault Release
+    // Level 2: Reached The Conversation Vault Release
     const isLevel2Reached = (a: any) => {
       const st = String(a.status || "").toLowerCase()
       return Boolean(a.is_revealed) || ["stage_2", "stage2", "revealed", "hired"].includes(st)

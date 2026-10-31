@@ -12,107 +12,97 @@ interface WorkflowStep {
 
 const CANDIDATE_WORKFLOW_STEPS: WorkflowStep[] = [
   {
-    step: 'Step 1 • Explorer Onboarding ($5 One-Time)',
-    title: '1. Enroll in Explorer ($5 One-Time — $0/Mo Forever)',
+    step: 'Step 1 • Get Started',
+    title: '1. Unlock Explorer Mode ($5 Once)',
     bullets: [
-      'Complete your $5 One-Time ID Verification Pass to unlock Explorer at $0/mo forever—or activate Professional ($12/mo) or Prestige ($19/mo) immediately.',
-      'Receive automatic entry into our Weekly Drawing for a free 1-year Prestige membership.',
-      'Zero bots, fake profiles, or scrapers—every member is a verified professional.',
+      'Pay $5 once for lifetime verification and $0/mo Explorer access forever.',
+      'Automatically enter our Weekly Drawing for a free 1-year Prestige membership.',
     ],
-    unlockBadge: 'Unlocks: ✓ $0/Mo Explorer Sandbox & Weekly 1-Yr Prestige Drawing Entry',
+    unlockBadge: 'Unlocks: ✓ $0/Mo Explorer Access & Weekly Drawing',
   },
   {
-    step: 'Step 2 • 1-Time Biometric Trust Gate',
-    title: '2. Pass 1-Time Stripe Real-Person ID Check',
+    step: 'Step 2 • Identity Check',
+    title: '2. Quick Stripe Photo ID Check',
     bullets: [
-      'Included with your $5 One-Time Verification Pass—complete a 60-second government photo ID and live selfie check via Stripe Identity.',
-      'Zero raw ID photos or biometrics ever touch Special Sauce servers (only a cryptographic verification token is stored).',
-      'Activates your permanent 🛡️ Verified Professional Shield in Employer Talent Search.',
+      'Complete a 60-second photo ID check powered securely by Stripe.',
+      'Earns your permanent 🛡️ Verified Professional Shield in Employer Search.',
     ],
-    unlockBadge: 'Unlocks: ✓ Verified Professional Shield & Live Search Visibility',
+    unlockBadge: 'Unlocks: ✓ Verified Professional Shield',
   },
   {
-    step: 'Step 3 • Conversation Resume Vault',
-    title: '3. Upload Resume & Set Dealbreakers',
+    step: 'Step 3 • Private Profile',
+    title: '3. Upload Resume & Set Preferences',
     bullets: [
-      'Upload your PDF resume once to auto-extract your anonymous skill matrix, tenure, and certifications.',
-      'Your name, email, phone, and raw PDF stay locked inside your Conversation Vault while employers see only your anonymized Professional #ID.',
-      'Set your minimum salary expectations, work model (Remote/Hybrid/On-Site), and hard dealbreakers upfront.',
+      'Upload your PDF resume once to organize your skills, experience, and certifications automatically.',
+      'Set your minimum pay and work model while keeping your name and contact info private.',
     ],
-    unlockBadge: 'Unlocks: ✓ Anonymized Professional #ID & Dealbreaker Firewall',
+    unlockBadge: 'Unlocks: ✓ Anonymous Skill Profile & Pay Filter',
   },
   {
-    step: 'Step 4 • Inbound Free or Outbound Upgrades',
-    title: '4. Check TrueFit Score™ & Field Invitations',
+    step: 'Step 4 • Match & Apply',
+    title: '4. Check Your Fit & Connect',
     bullets: [
-      'See upfront salary bands and your instant TrueFit Score™ (every job post expires after 30 days—zero ghost jobs).',
-      'Accept Unlimited Inbound Employer Invitations free at $0/mo forever in Explorer mode.',
-      'Upgrade to Professional ($12/mo) for 15 outbound applications/mo + ★ Founding Member Badge, or Prestige ($19/mo) for unlimited outbound applications—and downgrade back to $0/mo Explorer anytime once hired.',
+      'Check your TrueFit Score™ on roles with upfront pay and accept employer invitations free at $0/mo.',
+      'Upgrade to Professional ($12/mo) or Prestige ($19/mo) anytime to submit outbound applications.',
     ],
-    unlockBadge: 'Unlocks: ✓ Free Inbound Invitations, 40%+ TrueFit™ Outbound Apps & Founding Badge',
+    unlockBadge: 'Unlocks: ✓ Free Invitations & Outbound Applications',
   },
   {
-    step: 'Step 5 • Intro/Convo Privacy Handshake',
-    title: '5. Chat First, Release Your Resume Later',
+    step: 'Step 5 • Privacy Handshake',
+    title: '5. Chat First, Share Your Resume Later',
     bullets: [
-      'The Introduction reveals the verified company name and opens encrypted live chat.',
-      'Employers only see your First Name + Last Initial during The Introduction chat.',
-      'Click "Release Resume & Contact Vault" (The Conversation) only when you are ready to share your 1-hour cryptographically signed PDF resume and contact details.',
+      'The Introduction reveals the verified company name and opens private chat showing only your First Name + Last Initial.',
+      'Click "Release Resume & Contact Vault" only when you are ready to share your full PDF resume and contact details.',
     ],
-    unlockBadge: 'Unlocks: ✓ Full Mutual Intro & 1-Hour Signed Resume Link',
+    unlockBadge: 'Unlocks: ✓ Direct Chat & One-Click Resume Release',
   },
 ]
 
 const EMPLOYER_WORKFLOW_STEPS: WorkflowStep[] = [
   {
-    step: 'Step 1 • $25 Verification Pass & Sandbox',
-    title: '1. Unlock $0/Mo Employer Explorer Sandbox ($25 One-Time)',
+    step: 'Step 1 • Sandbox Access',
+    title: '1. Unlock Your $0/Mo Sandbox ($25 Once)',
     bullets: [
-      'Complete your $25 One-Time Employer Verification Pass to unlock the $0/mo Employer Explorer Sandbox.',
-      'Configure your company profile, select your Industry Vertical, and draft role specifications.',
-      'Preview live verified professional match counts and run TrueFit Score™ checks before activating a monthly plan.',
+      'Complete the $25 Organization Verification Pass to access your $0/mo Sandbox.',
+      'Draft roles and preview verified talent matches before starting a monthly plan.',
     ],
-    unlockBadge: 'Unlocks: ✓ $0/Mo Employer Explorer Sandbox & Live Professional Match Previews',
+    unlockBadge: 'Unlocks: ✓ $0/Mo Sandbox & Live Match Previews',
   },
   {
-    step: 'Step 2 • Trust Gate Pillar 1',
-    title: '2. Verify Corporate Domain & 90-Day Age',
+    step: 'Step 2 • Domain Check',
+    title: '2. Confirm Your Business Domain',
     bullets: [
-      'Confirm domain ownership via work-email match or DNS TXT verification.',
-      'Automated DNS MX and IANA/RDAP registry lookup verifies domain age.',
-      'Blocks newly registered burner domains (<90 days old) and free webmail accounts from harvesting talent.',
+      'Verify your company domain automatically using your work email.',
+      'Keeps free webmail and fake accounts out of the marketplace.',
     ],
-    unlockBadge: 'Unlocks: ✓ Domain & 90-Day RDAP Verified Distinction',
+    unlockBadge: 'Unlocks: ✓ Verified Business Domain Badge',
   },
   {
-    step: 'Step 3 • Trust Gate Pillars 2 & 3',
-    title: '3. Attest IRS EIN & Representative Stripe ID',
+    step: 'Step 3 • Business & Admin Check',
+    title: '3. Confirm EIN & Admin ID',
     bullets: [
-      'Submit your 9-digit IRS Federal Tax ID (EIN) and State of Incorporation (Pillar 2).',
-      'Complete a 1-time 60-second Stripe Identity biometric check for the Account Admin (Pillar 3).',
-      'Proves to professionals that every protected role belongs to a real, accountable organization.',
+      'Enter your business tax ID (EIN) and complete a 60-second Stripe ID check for your account admin.',
+      'Shows professionals that every role belongs to a real, trusted company.',
     ],
-    unlockBadge: 'Unlocks: ✓ 3-Pillar Verified Organization Shield',
+    unlockBadge: 'Unlocks: ✓ Verified Organization Shield',
   },
   {
-    step: 'Step 4 • Founding Rate Plans & Invitations',
-    title: '4. Activate Founding Plan, Publish Roles & Invite Pros',
+    step: 'Step 4 • Post & Invite',
+    title: '4. Publish Roles & Invite Talent',
     bullets: [
-      'Lock in 12-Month Founding Partner Rates when ready to hire: Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo).',
-      'Post company-shielded roles showing salary bands and industry; unlocking inbound 40%+ TrueFit™ applicants is 100% free (0 credits).',
-      'Outbound Professional Invitations are 100% auto-refunded if a professional declines, and Rollover Credit Top-Up Packs never expire while active.',
+      'Activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo) when ready to hire.',
+      'Inbound applicants are 100% free to unlock, and declined outbound invitations are automatically refunded.',
     ],
-    unlockBadge: 'Unlocks: ✓ 12-Mo Rate Lock, Protected Roles & Refund-Protected Invitations',
+    unlockBadge: 'Unlocks: ✓ Live Roles & Refund-Protected Invitations',
   },
   {
-    step: 'Step 5 • Handshake & ATS Sync',
-    title: '5. The Introduction Chat, The Conversation Vault & HR Sync',
+    step: 'Step 5 • Chat & Hire',
+    title: '5. Direct Chat, Resume Download & Team Sync',
     bullets: [
-      'Message accepted or unlocked professionals directly in The Introduction encrypted chat.',
-      'Receive 1-hour cryptographically signed PDF resumes and direct contact details upon The Conversation release.',
-      'Collaborate across team/recruiter seats (2 Starter / 5 Growth / Unlimited Enterprise), export via CSV, or auto-sync to Workday & Greenhouse (Enterprise).',
+      'Chat directly with matched professionals and download their full PDF resume once released.',
+      'Collaborate with your team seats, export via CSV, or auto-sync with Workday & Greenhouse (Enterprise).',
     ],
-    unlockBadge: 'Unlocks: ✓ Conversation Resume Access, Team Seats & Enterprise ATS Sync',
+    unlockBadge: 'Unlocks: ✓ Full Resume Access, Team Seats & HR Sync',
   },
 ]
 
@@ -131,7 +121,7 @@ export default function PlatformWorkflowsView({
       <div className="p-6 sm:p-8 rounded-2xl bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 border border-slate-700 shadow-lg">
         <div className="space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-extrabold uppercase tracking-wider">
-            $5 Professional &amp; $25 Employer One-Time Verify • $0/Mo Explorer Sandbox
+            Simple, Step-by-Step Guide • Built for Real People
           </div>
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
             How Special Sauce Works{' '}
@@ -140,7 +130,7 @@ export default function PlatformWorkflowsView({
             </span>
           </h1>
           <p className="text-base sm:text-lg text-slate-200 max-w-3xl leading-relaxed">
-            Use the toggle below to explore how Professionals and Employers complete one-time identity verification, protect their privacy in the $0/mo Explorer Sandbox, and connect without bot spam or resume harvesting.
+            Get verified once, explore matches at $0/mo, and connect on your terms with complete privacy.
           </p>
         </div>
 
@@ -149,12 +139,12 @@ export default function PlatformWorkflowsView({
             href={isDashboard ? '/dashboard/security' : '/security'}
             className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white text-sm font-bold transition-colors"
           >
-            🛡️ View Intro/Convo Vault &amp; Security →
+            🛡️ Security &amp; Privacy →
           </Link>
         </div>
       </div>
 
-      {/* Interactive Segmented Toggle (Professional vs Employer) */}
+      {/* Interactive Segmented Toggle */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-slate-900 p-3 rounded-2xl border border-slate-700">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
           <button
@@ -189,7 +179,7 @@ export default function PlatformWorkflowsView({
         </div>
       </div>
 
-      {/* Active Workflow Section Header + Spacious Landing-Page Card Grid */}
+      {/* Active Workflow Section Header + Card Grid */}
       <div
         className={`rounded-2xl border-2 p-6 sm:p-8 space-y-6 bg-slate-950 ${
           isCandidate ? 'border-indigo-500/60' : 'border-emerald-500/60'
@@ -211,13 +201,13 @@ export default function PlatformWorkflowsView({
                 }`}
               >
                 {isCandidate
-                  ? '$5 One-Time ID Verify • $0/Mo Explorer Forever • Weekly 1-Yr Prestige Drawing'
-                  : '$25 One-Time Org Verify • 3-Pillar Anti-Harvesting Gate • Accepted-Only Credits'}
+                  ? '$5 One-Time Verification • $0/Mo Explorer Mode'
+                  : '$25 One-Time Verification • $0/Mo Sandbox • Refund-Protected Invitations'}
               </span>
               <h2 className="text-xl sm:text-2xl font-extrabold text-white mt-0.5">
                 {isCandidate
-                  ? 'Professional Workflow: Verified Onboarding to Protected Offers'
-                  : 'Employer Workflow: Verified Sandbox to Protected Hiring'}
+                  ? 'Professional Workflow: Private Profile to Direct Offers'
+                  : 'Employer Workflow: Verified Sandbox to Great Hires'}
               </h2>
             </div>
           </div>
@@ -231,12 +221,11 @@ export default function PlatformWorkflowsView({
                   : 'bg-emerald-600 hover:bg-emerald-500'
               }`}
             >
-              {isCandidate ? 'Start Professional Verification ($5) →' : 'Start Employer Verification ($25) →'}
+              {isCandidate ? 'Get Started ($5) →' : 'Verify Organization ($25) →'}
             </Link>
           )}
         </div>
 
-        {/* 3-Column Card Grid matching Landing Page Typography & Contrast */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {activeSteps.map((item, i) => (
             <div
@@ -284,58 +273,42 @@ export default function PlatformWorkflowsView({
         </div>
       </div>
 
-      {/* Bottom Handshake Convergence Banner */}
+      {/* Bottom Handshake Banner */}
       <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border border-slate-700 space-y-6">
         <div className="flex flex-col gap-5 border-b border-slate-800 pb-5">
           <div className="max-w-4xl">
             <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400 block">
-              Where Both Workflows Meet • The Intro/Convo Privacy Handshake
+              Where Both Sides Meet • The Privacy Handshake
             </span>
             <h3 className="text-xl sm:text-2xl font-extrabold text-white mt-1">
-              Zero Unsolicited Spam, Zero Burner-Domain Harvesting &amp; 100% Professional-Controlled Disclosure
+              Mutual Respect, Upfront Pay &amp; Complete Privacy Control
             </h3>
           </div>
-          {!isDashboard && (
-            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
-              <Link
-                href="/signup/candidate"
-                className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-extrabold transition-colors"
-              >
-                Start Professional Workflow ($5) →
-              </Link>
-              <Link
-                href="/signup/employer"
-                className="px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-extrabold transition-colors"
-              >
-                Start Employer Workflow ($25) →
-              </Link>
-            </div>
-          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
             <div className="text-lg font-extrabold text-white">
-              1. Pre-Match (Mutual Identity Protection)
+              1. Anonymous Discovery
             </div>
             <p className="text-base text-slate-100 leading-relaxed">
-              Professionals appear as <code className="text-emerald-300 font-bold">Professional #ID</code> with structured skills and TrueFit Score™s. Employers appear by Industry Vertical, Company Stage, and upfront salary bands.
+              Professionals appear as <code className="text-emerald-300 font-bold">Professional #ID</code> showing skills and experience. Employers show industry, company size, and upfront pay bands.
             </p>
           </div>
           <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
             <div className="text-lg font-extrabold text-white">
-              2. The Introduction (Encrypted Chat)
+              2. The Introduction (Private Chat)
             </div>
             <p className="text-base text-slate-100 leading-relaxed">
-              When a professional accepts an outbound invitation or an employer unlocks an inbound application, the verified company identity is revealed and live chat opens using <code className="text-emerald-300 font-bold">First Name + Last Initial</code>.
+              When an invitation is accepted or an application is unlocked, the verified company name is revealed and chat opens using <code className="text-emerald-300 font-bold">First Name + Last Initial</code>.
             </p>
           </div>
           <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
             <div className="text-lg font-extrabold text-white">
-              3. The Conversation (Full Resume &amp; ATS)
+              3. The Conversation (Resume Shared)
             </div>
             <p className="text-base text-slate-100 leading-relaxed">
-              Only when the professional clicks <strong className="text-white">Release Resume &amp; Contact Vault</strong> does the employer receive the 1-hour cryptographically signed PDF resume link and direct contact credentials.
+              When ready to move forward, the professional clicks <strong className="text-white">Release Resume &amp; Contact Vault</strong> to share their full PDF resume and direct email.
             </p>
           </div>
         </div>

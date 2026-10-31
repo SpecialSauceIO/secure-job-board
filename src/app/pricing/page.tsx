@@ -3,9 +3,9 @@ import { PublicHeader } from "@/components/PublicHeader"
 import { PublicFooter } from "@/components/PublicFooter"
 
 export const metadata = {
-  title: "Pricing, Plans & Founding Partner Rates | specialsauce.io",
+  title: "Pricing & Plans | specialsauce.io",
   description:
-    "Get verified once for life ($5 Professionals / $25 Employers). Browse and match free in Explorer mode, or unlock active Professional plans ($12 or $19/mo) and Employer Founding Partner plans ($149, $499, or $1,250/mo).",
+    "Verify once ($5 Professionals / $25 Employers) to match free in Explorer mode, or activate Professional ($12 or $19/mo) and Employer plans ($149, $499, or $1,250/mo) when ready.",
 }
 
 export default function PricingMatrixPage() {
@@ -14,15 +14,13 @@ export default function PricingMatrixPage() {
       <div>
         <PublicHeader />
 
-        {/* Hero Header — Full-Bleed Dark Slate with Static Right-Side 3D Angled Interface */}
+        {/* Hero Header */}
         <section className="relative overflow-hidden bg-[#0f172a] border-b border-slate-800 py-14 sm:py-18 md:py-24 mb-12 sm:mb-16">
-          {/* Ambient Left-Side Deep Slate Glow */}
           <div
             aria-hidden="true"
             className="pointer-events-none absolute -top-24 -left-24 w-[36rem] h-[36rem] rounded-full bg-sky-500/10 blur-3xl z-0"
           />
 
-          {/* Full-Width Seamless Right-Side Static 3D Isometric Interface Accent */}
           <div
             aria-hidden="true"
             className="pointer-events-none select-none absolute inset-0 overflow-hidden z-0"
@@ -54,7 +52,7 @@ export default function PricingMatrixPage() {
                       <span className="w-2.5 h-2.5 rounded-full bg-slate-700" />
                     </div>
                     <span className="text-[11px] font-mono text-amber-400 tracking-wider">
-                      specialsauce.io • Verified Pay Bands &amp; Founding Partner Roles
+                      specialsauce.io • Verified Pay Bands &amp; Roles
                     </span>
                   </div>
                   <div className="relative aspect-[16/9] w-full overflow-hidden rounded-b-xl bg-[#0a0f1c]">
@@ -72,10 +70,9 @@ export default function PricingMatrixPage() {
             <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/90 to-transparent" />
           </div>
 
-          {/* Foreground Content */}
           <div className="relative z-10 px-4 sm:px-6 md:px-12 max-w-5xl mx-auto text-center space-y-5">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-400/35 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wide backdrop-blur-xs">
-              <span>★ One-Time Lifetime Verification • 100% Human-to-Human Hiring &amp; Founding Partner Rates</span>
+              <span>★ Simple, Transparent Pricing • No Long-Term Contracts</span>
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight drop-shadow-xs">
               Verify Once •{' '}
@@ -84,89 +81,48 @@ export default function PricingMatrixPage() {
               </span>
             </h1>
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Connect directly with ID-verified professionals and domain-verified employers—with <strong className="text-white">zero bots, zero ghost jobs, and free TrueFit Score™ checks</strong>. Complete your one-time verification to enter the <strong className="text-emerald-400">$0/mo Explorer Vault</strong> and upgrade only when ready to actively connect.
+              Complete a one-time verification to enter our <strong className="text-emerald-400">$0/mo Explorer mode</strong>. Browse roles, check your fit, and upgrade only when you are ready to actively apply or hire.
             </p>
 
-            {/* Split-Screen Onboarding Callout: Left Professionals ($5) | Right Employers ($25) */}
+            {/* Split-Screen Onboarding Callout */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-3 text-left">
               <div className="p-4 sm:p-5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-indigo-500/40 shadow-lg space-y-2.5">
                 <div className="text-xs font-extrabold uppercase tracking-wider text-indigo-300">
-                  For Professionals ($5 One-Time ID Verification)
+                  For Professionals ($5 One-Time Verification)
                 </div>
                 <ul className="space-y-1.5 text-xs sm:text-sm text-slate-200 leading-relaxed">
                   <li className="flex items-start gap-2">
                     <span className="text-indigo-400 font-bold shrink-0">•</span>
-                    <span>Pay <strong className="text-white">$5 once for life</strong> for Stripe Real-Person ID Verification.</span>
+                    <span><strong className="text-white">$5 once</strong> for lifetime Stripe ID verification.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-emerald-400 font-bold shrink-0">•</span>
-                    <span>Enjoy <strong className="text-emerald-300">$0/mo Explorer access forever</strong> (unlimited inbound invites + Weekly 1-Yr Prestige Drawing).</span>
+                    <span><strong className="text-emerald-300">$0/mo forever</strong> to receive employer invitations and enter our Weekly 1-Year Prestige Drawing.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-amber-400 font-bold shrink-0">•</span>
-                    <span>Upgrade to <strong className="text-amber-300">$12 / $19 mo</strong> only when applying outbound.</span>
+                    <span>Upgrade to <strong className="text-amber-300">$12 or $19/mo</strong> only when applying to roles.</span>
                   </li>
                 </ul>
               </div>
               <div className="p-4 sm:p-5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-emerald-500/40 shadow-lg space-y-2.5">
                 <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-300">
-                  For Employers ($25 One-Time Org Verification)
+                  For Employers ($25 One-Time Verification)
                 </div>
                 <ul className="space-y-1.5 text-xs sm:text-sm text-slate-200 leading-relaxed">
                   <li className="flex items-start gap-2">
                     <span className="text-emerald-400 font-bold shrink-0">•</span>
-                    <span>Pay <strong className="text-white">$25 once</strong> for Corporate Domain, EIN &amp; Admin ID Verification.</span>
+                    <span><strong className="text-white">$25 once</strong> for business domain, EIN, and admin ID verification.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-emerald-400 font-bold shrink-0">•</span>
-                    <span>Preview live verified professional matches in the <strong className="text-emerald-300">$0/mo Sandbox</strong>.</span>
+                    <span><strong className="text-emerald-300">$0/mo Sandbox</strong> to draft roles and preview verified talent matches.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-amber-400 font-bold shrink-0">•</span>
-                    <span>Activate <strong className="text-amber-300">Founding Partner Rates ($149 / $499 / $1,250 mo)</strong> when ready to hire.</span>
+                    <span>Lock in <strong className="text-amber-300">Founding Partner Rates</strong> when ready to hire.</span>
                   </li>
                 </ul>
-              </div>
-            </div>
-
-            {/* Frameless Operational Trust Strip — Dark Slate Edition */}
-            <div className="pt-6 w-full max-w-5xl mx-auto">
-              <div className="grid grid-cols-2 lg:grid-cols-4 py-3 px-2 rounded-2xl bg-[#0f172a]/85 backdrop-blur-md border border-slate-800/90 shadow-lg">
-                <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center border-r border-slate-800">
-                  <span className="text-[11px] font-extrabold text-white uppercase tracking-[0.14em]">
-                    100% US-Based Company
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-semibold mt-0.5">
-                    US-Owned &amp; Operated
-                  </span>
-                </div>
-
-                <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center lg:border-r border-slate-800">
-                  <span className="text-[11px] font-extrabold text-white uppercase tracking-[0.14em]">
-                    100% US Human Support
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-semibold mt-0.5">
-                    Zero Offshore Call Centers
-                  </span>
-                </div>
-
-                <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center border-r border-slate-800">
-                  <span className="text-[11px] font-extrabold text-white uppercase tracking-[0.14em]">
-                    Human-to-Human Hiring
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-semibold mt-0.5">
-                    Zero Automated Rejections
-                  </span>
-                </div>
-
-                <div className="px-4 py-1.5 lg:py-0 flex flex-col items-center justify-center text-center">
-                  <span className="text-[11px] font-extrabold text-white uppercase tracking-[0.14em]">
-                    Intro/Convo Privacy Vault
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-semibold mt-0.5">
-                    Stripe ID &amp; DNS Verified
-                  </span>
-                </div>
               </div>
             </div>
           </div>
@@ -175,23 +131,20 @@ export default function PricingMatrixPage() {
         {/* Main 3x3 Matrix Container */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 pb-20 sm:pb-24 space-y-14 sm:space-y-20">
           {/* ================================================================
-              SECTION 1: PROFESSIONAL PLANS (Explorer $5 Once / Professional $12 / Prestige $19)
+              SECTION 1: PROFESSIONAL PLANS
              ================================================================ */}
           <div className="rounded-3xl border-2 border-indigo-500/50 bg-slate-950 p-5 sm:p-8 md:p-10 shadow-xl space-y-8 relative overflow-hidden">
-            {/* Top Unified Professional Banner */}
             <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border border-slate-700 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider">
-                  <span>🛡️ 100% Human-to-Human Marketplace • Weekly 1-Year Prestige Membership Giveaway</span>
+                  <span>🛡️ Professional Membership Plans • Weekly 1-Year Prestige Giveaway</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  Get Started Today for $5 • Browse &amp; Receive Invites Free Forever
+                  Start for $5 • Receive Employer Invitations Free Forever
                 </h2>
-                <ul className="space-y-1.5 pt-1 text-sm sm:text-base text-slate-200">
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-emerald-300">Explorer ($5 One-Time ID Pass, then $0/mo):</strong> Lifetime Stripe ID Verification, live anonymous profile, TrueFit Score™ checks, &amp; unlimited inbound Employer Invitations.</span></li>
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-amber-300">Professional ($12/mo) &amp; Prestige ($19/mo):</strong> Upgrade only when you want to proactively submit outbound applications—and downgrade back to $0/mo Explorer anytime once hired!</span></li>
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-white">Weekly Friday Drawing:</strong> Every verified member is automatically entered into our weekly drawing for a free 1-Year Prestige Membership.</span></li>
-                </ul>
+                <p className="text-sm sm:text-base text-slate-200 max-w-3xl leading-relaxed">
+                  Stay in Explorer at $0/mo as long as you like, upgrade anytime to submit applications, and switch back to $0/mo Explorer once hired.
+                </p>
               </div>
               <div className="shrink-0">
                 <Link
@@ -205,15 +158,15 @@ export default function PricingMatrixPage() {
 
             {/* 3 Professional Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Tier 1: Explorer ($5 One-Time / $0 mo Forever) */}
+              {/* Tier 1: Explorer */}
               <div className="bg-slate-900 p-6 sm:p-8 rounded-2xl border-2 border-slate-700 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-emerald-600 text-white text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-bl-xl">
-                  🛡️ $0/Mo Forever After ID Check
+                  🛡️ $0/Mo Forever
                 </div>
                 <div className="space-y-5 pt-2">
                   <div>
                     <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400">
-                      Passive &amp; Inbound Discovery
+                      Inbound Discovery
                     </span>
                     <h3 className="text-2xl sm:text-3xl font-black text-white mt-1">
                       Explorer
@@ -223,32 +176,32 @@ export default function PricingMatrixPage() {
                       <span className="text-sm font-bold text-slate-300">/ month forever</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ $5 One-Time Lifetime ID Verification
+                      ✓ $5 One-Time ID Verification
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    Verify your identity once for $5 and let verified employers come to you with unlimited inbound Professional Invitations at $0/mo.
+                    Get discovered by verified employers and accept unlimited invitations at $0/mo.
                   </p>
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">Includes Lifetime Real-Person ID Verification</strong> &amp; Verified Professional Shield ($5 once)</span>
+                      <span><strong className="text-white">Real-Person ID Verification</strong> &amp; Verified Shield ($5 once)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Live Anonymous Talent Profile</strong> in Employer Search</span>
+                      <span><strong className="text-white">Live Anonymous Profile</strong> in Employer Search</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlock &amp; Accept Unlimited Professional Invitations</strong> (Private Chat)</span>
+                      <span><strong className="text-white">Unlimited Employer Invitations</strong> &amp; Private Chat</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span>Browse protected role feed, run TrueFit Score™ checks &amp; enter Weekly 1-Yr Prestige Drawing</span>
+                      <span>Free TrueFit Score™ checks &amp; Weekly 1-Year Prestige Drawing entry</span>
                     </li>
                     <li className="flex items-start gap-2.5 text-slate-300">
                       <span className="text-slate-400 font-bold shrink-0">✕</span>
-                      <span>Proactive Outbound Applications (Upgrade to $12/mo or $19/mo anytime)</span>
+                      <span>Outbound Applications (Upgrade anytime)</span>
                     </li>
                   </ul>
                 </div>
@@ -256,19 +209,19 @@ export default function PricingMatrixPage() {
                   href="/signup/candidate?plan=explorer"
                   className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
                 >
-                  Start Explorer ($5 One-Time ID Pass) →
+                  Start Explorer ($5 One-Time) →
                 </Link>
               </div>
 
               {/* Tier 2: Professional ($12/mo) */}
               <div className="bg-slate-900 p-6 sm:p-8 rounded-2xl border-2 border-amber-500/80 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-bl-xl">
-                  🛡️ ID-Verified Active Tier
+                  🛡️ Active Job Seeker
                 </div>
                 <div className="space-y-5 pt-2">
                   <div>
                     <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-amber-400">
-                      Targeted Job Seeker
+                      Targeted Applications
                     </span>
                     <h3 className="text-2xl sm:text-3xl font-black text-white mt-1">
                       Professional
@@ -278,36 +231,32 @@ export default function PricingMatrixPage() {
                       <span className="text-sm font-bold text-slate-300">/ month</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-extrabold">
-                      ✓ Activate Only When Ready to Apply ($5 One-Time ID Check)
+                      ✓ Includes Real-Person ID Verification
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    Accept unlimited Professional Invitations and apply directly to up to 15 roles per month.
+                    Apply directly to up to 15 roles per month and receive unlimited employer invitations.
                   </p>
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">Everything in Explorer</strong> + Verified Professional Shield</span>
+                      <span><strong className="text-white">Everything in Explorer</strong> + Verified Shield</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">15 Outbound Protected Applications / mo</strong> (40%+ TrueFit™)</span>
+                      <span><strong className="text-white">15 Outbound Protected Applications / mo</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlock &amp; Accept Unlimited Professional Invitations</strong> (Private Chat)</span>
+                      <span><strong className="text-white">Unlimited Employer Invitations</strong> &amp; Private Chat</span>
                     </li>
                     <li className="flex items-start gap-2.5 text-amber-300 font-bold">
                       <span className="shrink-0">★</span>
-                      <span><strong className="text-white">Verified Profile Distinctions</strong> (Vault-Ready &amp; Responsive Badges)</span>
-                    </li>
-                    <li className="flex items-start gap-2.5 text-amber-300 font-bold">
-                      <span className="shrink-0">★</span>
-                      <span><strong className="text-white">Permanent Founding Member Status</strong> &amp; Badge</span>
+                      <span><strong className="text-white">Permanent Founding Member Badge</strong> &amp; Profile Distinctions</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span>Elevated placement + downgrade to $0/mo Explorer anytime when hired</span>
+                      <span>Elevated search placement &amp; downgrade to $0/mo Explorer anytime</span>
                     </li>
                   </ul>
                 </div>
@@ -322,12 +271,12 @@ export default function PricingMatrixPage() {
               {/* Tier 3: Prestige ($19/mo) */}
               <div className="bg-slate-900 text-white p-6 sm:p-8 rounded-2xl border-2 border-indigo-500 shadow-lg flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-indigo-500 text-white text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-bl-xl">
-                  ★ Priority Spotlight &amp; Unlimited
+                  ★ Priority &amp; Unlimited
                 </div>
                 <div className="space-y-5 pt-2">
                   <div>
                     <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-indigo-300">
-                      Unlimited &amp; Priority Reach
+                      Maximum Visibility
                     </span>
                     <h3 className="text-2xl sm:text-3xl font-black text-white mt-1">
                       Prestige
@@ -337,36 +286,32 @@ export default function PricingMatrixPage() {
                       <span className="text-sm font-bold text-slate-300">/ month</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-extrabold">
-                      ✓ Unlimited Outbound Reach ($5 One-Time ID Check)
+                      ✓ Includes Real-Person ID Verification
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    Unlimited protected applications and Top-Priority Spotlight in Employer Search.
+                    Unlimited protected applications and top-priority placement in Employer Search.
                   </p>
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">Everything in Professional</strong> + Priority 1-on-1 US Support</span>
+                      <span><strong className="text-white">Everything in Professional</strong> + Priority US Support</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlimited Outbound Protected Applications</strong> (40%+ TrueFit™)</span>
+                      <span><strong className="text-white">Unlimited Outbound Protected Applications</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlock &amp; Accept Unlimited Professional Invitations</strong></span>
+                      <span><strong className="text-white">Unlimited Employer Invitations</strong> &amp; Private Chat</span>
                     </li>
                     <li className="flex items-start gap-2.5 text-amber-300 font-bold">
                       <span className="shrink-0">★</span>
                       <span><strong className="text-white">Top-Priority Placement</strong> in Employer Talent Search</span>
                     </li>
-                    <li className="flex items-start gap-2.5 text-amber-300 font-bold">
-                      <span className="shrink-0">★</span>
-                      <span><strong className="text-white">Verified Profile Distinctions</strong> &amp; Priority Shortlist Placement</span>
-                    </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span>Downgrade back to $0/mo Explorer anytime once hired to stay open to headhunting</span>
+                      <span>Downgrade to $0/mo Explorer anytime once hired</span>
                     </li>
                   </ul>
                 </div>
@@ -381,23 +326,20 @@ export default function PricingMatrixPage() {
           </div>
 
           {/* ================================================================
-              SECTION 2: EMPLOYER PLANS (Starter $149 / Growth $499 / Enterprise $1,250)
+              SECTION 2: EMPLOYER PLANS
              ================================================================ */}
           <div className="rounded-3xl border-2 border-emerald-500/50 bg-slate-950 p-5 sm:p-8 md:p-10 shadow-xl space-y-8 relative overflow-hidden">
-            {/* Top Unified Employer Launch Banner */}
             <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border border-slate-700 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider">
-                  <span>★ $25 One-Time Org Verification • 12-Month Employer Founding Partner Rate Lock</span>
+                  <span>★ Employer Plans • 12-Month Founding Partner Rate Lock</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  Verify Your Organization for $25 • Preview Live Professional Matches Free
+                  Verify Your Organization for $25 • Preview Matches Free
                 </h2>
-                <ul className="space-y-1.5 pt-1 text-sm sm:text-base text-slate-200">
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-emerald-300">$25 One-Time Verification Sandbox:</strong> Complete Domain, EIN &amp; Stripe ID verification once to draft roles and preview verified professional matches at $0/mo before activating a plan.</span></li>
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-amber-300">12-Month Rate Lock:</strong> Lock in $149 / $499 / $1,250 per month for your first 12 months when ready to connect (standard retail applies Month 13).</span></li>
-                  <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span><strong className="text-white">Accepted-Only Invitation Guarantee:</strong> Inbound applicants are 100% free (0 credits), and declined outbound invitations are auto-refunded.</span></li>
-                </ul>
+                <p className="text-sm sm:text-base text-slate-200 max-w-3xl leading-relaxed">
+                  Inbound applicants are always 100% free to unlock, and declined outbound invitations are automatically refunded.
+                </p>
               </div>
               <div className="shrink-0">
                 <Link
@@ -411,7 +353,7 @@ export default function PricingMatrixPage() {
 
             {/* 3 Employer Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Employer Tier 1: Starter ($149 Founding / $299 Retail) */}
+              {/* Starter ($149) */}
               <div className="bg-slate-900 p-6 sm:p-8 rounded-2xl border-2 border-slate-700 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-bl-xl">
                   ★ 12-Mo Founding Rate (-50%)
@@ -419,7 +361,7 @@ export default function PricingMatrixPage() {
                 <div className="space-y-5 pt-2">
                   <div>
                     <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-indigo-400">
-                      Small Teams &amp; Focused Hiring
+                      Small Teams
                     </span>
                     <h3 className="text-2xl sm:text-3xl font-black text-white mt-1">
                       Starter
@@ -430,7 +372,7 @@ export default function PricingMatrixPage() {
                       <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ $25 One-Time Org Verification • Activate When Ready
+                      ✓ $25 One-Time Org Verification
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -439,31 +381,27 @@ export default function PricingMatrixPage() {
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Up to 5 Simultaneous Active Protected Roles</strong></span>
+                      <span><strong className="text-white">Up to 5 Active Protected Roles</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5 text-amber-300 font-bold">
                       <span className="shrink-0">★</span>
-                      <span><strong className="text-white">$149/mo Locked for First 12 Months</strong> ($299/mo standard retail starting Month 13)</span>
+                      <span><strong className="text-white">$149/mo Locked for 12 Months</strong> ($299/mo Month 13+)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">10 Outbound Professional Invitation Credits / month</strong></span>
+                      <span><strong className="text-white">10 Outbound Invitation Credits / mo</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">100% Accepted-Only Invitation Credit Protection</strong> (Declined invitations are auto-refunded)</span>
+                      <span><strong className="text-white">Accepted-Only Guarantee</strong> (Declined invites auto-refunded)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlimited Free Inbound Applicant Unlocks</strong> (0 credits)</span>
+                      <span><strong className="text-white">Unlimited Free Inbound Applicants</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">2 Team or Recruiter Seats</strong></span>
-                    </li>
-                    <li className="flex items-start gap-2.5 text-amber-300 font-bold">
-                      <span className="shrink-0">★</span>
-                      <span><strong className="text-white">Permanent Founding Partner Status &amp; Distinctions</strong></span>
+                      <span><strong className="text-white">2 Team Seats</strong> &amp; Founding Partner Badge</span>
                     </li>
                   </ul>
                 </div>
@@ -471,19 +409,19 @@ export default function PricingMatrixPage() {
                   href="/signup/employer?plan=starter"
                   className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
                 >
-                  Verify ($25) &amp; Select Starter ($149/mo) →
+                  Select Starter ($149/mo) →
                 </Link>
               </div>
 
-              {/* Employer Tier 2: Growth ($499 Founding / $799 Retail) */}
+              {/* Growth ($499) */}
               <div className="bg-slate-900 text-white p-6 sm:p-8 rounded-2xl border-2 border-indigo-500 shadow-lg flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-indigo-500 text-white text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-bl-xl">
-                  ★ Most Popular • 12-Mo Rate Lock
+                  ★ Most Popular • 12-Mo Lock
                 </div>
                 <div className="space-y-5 pt-2">
                   <div>
                     <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-indigo-300">
-                      Scaling &amp; Multi-Department Teams
+                      Growing Companies
                     </span>
                     <h3 className="text-2xl sm:text-3xl font-black text-white mt-1">
                       Growth
@@ -494,40 +432,36 @@ export default function PricingMatrixPage() {
                       <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ $25 One-Time Org Verification • Activate When Ready
+                      ✓ $25 One-Time Org Verification
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    For scaling teams sourcing verified talent across multiple departments.
+                    For growing teams hiring across multiple departments.
                   </p>
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Up to 15 Simultaneous Active Protected Roles</strong></span>
+                      <span><strong className="text-white">Up to 15 Active Protected Roles</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5 text-amber-300 font-bold">
                       <span className="shrink-0">★</span>
-                      <span><strong className="text-white">$499/mo Locked for First 12 Months</strong> ($799/mo standard retail starting Month 13)</span>
+                      <span><strong className="text-white">$499/mo Locked for 12 Months</strong> ($799/mo Month 13+)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">35 Outbound Professional Invitation Credits / month</strong></span>
+                      <span><strong className="text-white">35 Outbound Invitation Credits / mo</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">100% Accepted-Only Invitation Credit Protection</strong> (Declined invitations are auto-refunded)</span>
+                      <span><strong className="text-white">Accepted-Only Guarantee</strong> (Declined invites auto-refunded)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlimited Free Inbound Applicant Unlocks</strong> (0 credits)</span>
+                      <span><strong className="text-white">Unlimited Free Inbound Applicants</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Up to 5 Team &amp; External Recruiter Seats</strong></span>
-                    </li>
-                    <li className="flex items-start gap-2.5 text-amber-300 font-bold">
-                      <span className="shrink-0">★</span>
-                      <span><strong className="text-white">Permanent Founding Partner Status &amp; Distinctions</strong></span>
+                      <span><strong className="text-white">Up to 5 Team &amp; Recruiter Seats</strong> + Founding Partner Badge</span>
                     </li>
                   </ul>
                 </div>
@@ -535,19 +469,19 @@ export default function PricingMatrixPage() {
                   href="/signup/employer?plan=growth"
                   className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
                 >
-                  Verify ($25) &amp; Select Growth ($499/mo) →
+                  Select Growth ($499/mo) →
                 </Link>
               </div>
 
-              {/* Employer Tier 3: Enterprise ($1,250 Founding / $1,999 Retail) */}
+              {/* Enterprise ($1,250) */}
               <div className="bg-slate-900 p-6 sm:p-8 rounded-2xl border-2 border-emerald-500/80 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-emerald-500 text-slate-950 text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-bl-xl">
-                  ★ HR Software Sync • 12-Mo Lock
+                  ★ Unlimited &amp; HR Sync
                 </div>
                 <div className="space-y-5 pt-2">
                   <div>
                     <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400">
-                      Enterprise, High-Volume &amp; ATS Connected
+                      High-Volume &amp; Enterprise
                     </span>
                     <h3 className="text-2xl sm:text-3xl font-black text-white mt-1">
                       Enterprise
@@ -558,40 +492,36 @@ export default function PricingMatrixPage() {
                       <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ $25 One-Time Org Verification • Activate When Ready
+                      ✓ $25 One-Time Org Verification
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    For high-volume hiring teams and agencies with automated HR/ATS sync.
+                    For high-volume hiring teams with automated HR software sync.
                   </p>
                   <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlimited Simultaneous Active Protected Roles</strong></span>
+                      <span><strong className="text-white">Unlimited Active Protected Roles</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5 text-amber-300 font-bold">
                       <span className="shrink-0">★</span>
-                      <span><strong className="text-white">$1,250/mo Locked for First 12 Months</strong> ($1,999/mo standard retail starting Month 13)</span>
+                      <span><strong className="text-white">$1,250/mo Locked for 12 Months</strong> ($1,999/mo Month 13+)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">120 Outbound Professional Invitation Credits / month</strong></span>
+                      <span><strong className="text-white">120 Outbound Invitation Credits / mo</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">100% Accepted-Only Invitation Credit Protection</strong> (Declined invitations are auto-refunded)</span>
+                      <span><strong className="text-white">Accepted-Only Guarantee</strong> (Declined invites auto-refunded)</span>
                     </li>
                     <li className="flex items-start gap-2.5 text-indigo-300 font-bold">
                       <span className="shrink-0">⚡</span>
-                      <span><strong className="text-white">Workday &amp; Enterprise Outbound Webhook (HMAC-SHA256)</strong> — real-time signed JSON payloads</span>
-                    </li>
-                    <li className="flex items-start gap-2.5 text-indigo-300 font-bold">
-                      <span className="shrink-0">⚡</span>
-                      <span><strong className="text-white">Native Greenhouse HR Software Connector</strong> — auto-syncs unlocked PDF resumes &amp; TrueFit Score™ cards</span>
+                      <span><strong className="text-white">Workday &amp; Greenhouse Auto-Sync</strong> + CSV Export</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlimited Team &amp; BPO/RPO Recruiter Seats</strong> + CSV Export</span>
+                      <span><strong className="text-white">Unlimited Team &amp; Recruiter Seats</strong></span>
                     </li>
                   </ul>
                 </div>
@@ -599,36 +529,36 @@ export default function PricingMatrixPage() {
                   href="/signup/employer?plan=enterprise"
                   className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
                 >
-                  Verify ($25) &amp; Select Enterprise ($1,250/mo) →
+                  Select Enterprise ($1,250/mo) →
                 </Link>
               </div>
             </div>
 
             {/* ================================================================
-                ON-DEMAND ROLLOVER PITCH CREDIT TOP-UP PACKS ($150 / $350 / $900)
+                ON-DEMAND ROLLOVER CREDIT TOP-UP PACKS ($150 / $350 / $900)
                ================================================================ */}
             <div className="pt-6 border-t border-slate-800 space-y-6">
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-slate-900 text-white p-6 sm:p-8 rounded-2xl border border-slate-700">
                 <div className="space-y-2 max-w-3xl">
                   <div className="inline-flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider">
-                    <span>⚡ Two-Bucket Rollover Credit System • Active Subscribers Only</span>
+                    <span>⚡ Rollover Invitation Credit Packs • Active Subscribers</span>
                   </div>
                   <h3 className="text-2xl font-black text-white tracking-tight">
-                    Need Extra Outbound Reach During a Hiring Surge?
+                    Need Extra Outbound Reach During a Hiring Push?
                   </h3>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    Active <strong className="text-white">Starter, Growth, and Enterprise</strong> subscribers can add on-demand Professional Invitation Credit packs anytime. We use a <strong className="text-amber-300">Monthly-First Depletion Rule</strong>: your monthly plan allowance is always spent first, and purchased Top-Up Credits <strong className="text-emerald-300">roll over month-to-month and never expire</strong> while your subscription is active.
+                    Add invitation credits anytime. Your monthly plan credits are used first, and top-up credits <strong className="text-emerald-300">roll over and never expire</strong> while your plan is active.
                   </p>
                 </div>
                 <div className="shrink-0 flex flex-col gap-2 text-xs sm:text-sm font-extrabold text-slate-100 bg-slate-950 px-5 py-4 rounded-xl border border-slate-700">
                   <span className="flex items-center gap-2 text-emerald-300">
-                    ✓ Bucket 1: Monthly Plan Credits (Used 1st)
+                    ✓ Monthly Plan Credits Used First
                   </span>
                   <span className="flex items-center gap-2 text-amber-300">
-                    ✓ Bucket 2: Top-Up Credits (100% Rollover)
+                    ✓ Top-Up Credits Never Expire
                   </span>
                   <span className="flex items-center gap-2 text-sky-300">
-                    🛡️ Declined Invitations Are Auto-Refunded (+1 Credit)
+                    🛡️ Declined Invitations Auto-Refunded
                   </span>
                 </div>
               </div>
@@ -642,7 +572,7 @@ export default function PricingMatrixPage() {
                         ⚡ Boost Pack
                       </span>
                       <span className="px-3 py-1 rounded-full bg-slate-800 text-slate-100 text-xs font-extrabold border border-slate-600">
-                        $15.00 / invitation
+                        $15 / invite
                       </span>
                     </div>
                     <div className="flex items-baseline justify-between pt-1">
@@ -652,12 +582,12 @@ export default function PricingMatrixPage() {
                       <span className="text-3xl font-black text-white">$150</span>
                     </div>
                     <p className="text-base text-slate-100 leading-relaxed">
-                      Ideal when your team is 2–3 outbound Professional Invitations away from rounding out a final interview slate this month.
+                      Quick top-up to round out an interview slate.
                     </p>
                   </div>
                   <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-300">
-                    <span>✓ Non-expiring rollover</span>
-                    <span className="text-slate-300">One-time top-up</span>
+                    <span>✓ Never expires</span>
+                    <span className="text-slate-300">One-time pack</span>
                   </div>
                 </div>
 
@@ -669,7 +599,7 @@ export default function PricingMatrixPage() {
                         🚀 Surge Pack • Most Popular
                       </span>
                       <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-200 text-xs font-extrabold border border-indigo-400/40">
-                        $14.00 / invitation
+                        $14 / invite
                       </span>
                     </div>
                     <div className="flex items-baseline justify-between pt-1">
@@ -679,12 +609,12 @@ export default function PricingMatrixPage() {
                       <span className="text-3xl font-black text-white">$350</span>
                     </div>
                     <p className="text-base text-slate-100 leading-relaxed">
-                      Built for hiring managers actively sourcing passive professionals across 2 to 4 concurrent role openings.
+                      Built for teams actively sourcing across multiple open roles.
                     </p>
                   </div>
                   <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs sm:text-sm font-bold text-indigo-300">
-                    <span>✓ Non-expiring rollover</span>
-                    <span>Most Popular Top-Up</span>
+                    <span>✓ Never expires</span>
+                    <span>Most Popular</span>
                   </div>
                 </div>
 
@@ -696,7 +626,7 @@ export default function PricingMatrixPage() {
                         🏢 Scale Pack • Best Value
                       </span>
                       <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 text-xs font-extrabold border border-emerald-400/40">
-                        $12.00 / invitation
+                        $12 / invite
                       </span>
                     </div>
                     <div className="flex items-baseline justify-between pt-1">
@@ -706,12 +636,12 @@ export default function PricingMatrixPage() {
                       <span className="text-3xl font-black text-white">$900</span>
                     </div>
                     <p className="text-base text-slate-100 leading-relaxed">
-                      Maximum volume discount for multi-department recruiting pushes and quarterly talent acquisition sprints.
+                      Best per-invite value for multi-department hiring sprints.
                     </p>
                   </div>
                   <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-300">
-                    <span>✓ Non-expiring rollover</span>
-                    <span>Best Value Per Invitation</span>
+                    <span>✓ Never expires</span>
+                    <span>Best Value</span>
                   </div>
                 </div>
               </div>

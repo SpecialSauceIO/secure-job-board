@@ -414,7 +414,7 @@ export default function NewJobPage() {
             name="required_languages"
             initialLanguages={jobData.required_languages}
             title="🌐 Required / Preferred Languages"
-            subtitle="Specify required languages, modality (Written, Verbal, or Both), and minimum proficiency level. Evaluated automatically by the TrueFit Score™ and Outbound Pitch Firewall."
+            subtitle="Specify required languages and minimum fluency level for this role."
             onChange={(updatedLangs) =>
               setJobData((prev) => ({
                 ...prev,

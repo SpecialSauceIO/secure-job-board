@@ -15,7 +15,7 @@ export function StructuredLanguageEditor({
   name = 'languages',
   initialLanguages,
   title = '🌐 Language Proficiency Matrix',
-  subtitle = 'Specify each language, whether your capability is Written, Verbal, or Both, and your proficiency level. Adding a 2nd language at Advanced or Fluent unlocks the Multilingual Specialist distinction.',
+  subtitle = 'Add your languages and fluency level.',
   onChange,
 }: {
   name?: string

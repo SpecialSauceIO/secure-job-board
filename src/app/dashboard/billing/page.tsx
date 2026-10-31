@@ -31,7 +31,6 @@ export default function CandidateBillingPage() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const params = new URLSearchParams(window.location.search)
     const isLocal =
       window.location.hostname === 'localhost' ||
       window.location.hostname === '127.0.0.1'
@@ -116,7 +115,7 @@ export default function CandidateBillingPage() {
             : 'Professional ($12/mo)'
         setFeedback({
           type: 'success',
-          text: `Stripe Subscription Confirmed: Your Professional ${planTitle} plan is now active. Complete your 1-time Real-Person ID Verification on your Dashboard to go live in Employer Search.`,
+          text: `Payment Confirmed: Your ${planTitle} plan is active. Complete your quick Stripe ID check to go live in Employer Search.`,
         })
         loadCandidateBillingState()
       })
@@ -124,7 +123,7 @@ export default function CandidateBillingPage() {
       window.history.replaceState({}, '', '/dashboard/billing')
       setFeedback({
         type: 'error',
-        text: 'Stripe Checkout was cancelled. Your membership plan was not changed.',
+        text: 'Checkout was cancelled. Your plan was not changed.',
       })
     } else if (
       selectParam === 'explorer' ||
@@ -136,10 +135,10 @@ export default function CandidateBillingPage() {
         type: 'success',
         text:
           selectParam === 'prestige'
-            ? 'Welcome to Special Sauce: Activate Prestige ($19/mo) below to unlock 1-Time Biometric ID Verification, unlimited protected applications, and top-priority search placement (downgrade back to $0/mo Explorer anytime once hired).'
+            ? 'Welcome to Special Sauce: Activate Prestige ($19/mo) below to unlock ID verification, unlimited applications, and priority placement.'
             : selectParam === 'professional'
-            ? 'Welcome to Special Sauce: Activate Professional ($12/mo) below to unlock 1-Time Biometric ID Verification and 15 monthly protected applications (downgrade back to $0/mo Explorer anytime once hired).'
-            : 'Welcome to Special Sauce: Complete your $5 One-Time Explorer Verification Pass below to unlock Lifetime Biometric ID Verification, $0/mo passive discovery forever, unlimited inbound Professional Invitation acceptances, and entry into our Weekly 1-Year Prestige Drawing.',
+            ? 'Welcome to Special Sauce: Activate Professional ($12/mo) below to unlock ID verification and 15 monthly applications.'
+            : 'Welcome to Special Sauce: Complete your $5 Explorer Pass below to unlock lifetime ID verification and $0/mo employer invitations forever.',
       })
     }
   }, [loadCandidateBillingState])
@@ -156,7 +155,19 @@ export default function CandidateBillingPage() {
         body: JSON.stringify({ tierId: targetPlan }),
       })
       const data = await response.json()
-      if (!response.ok || data.error) { if (String(data.error || "").includes("Permission denied")) { await handlePlanSwitch(targetPlan); return; } setFeedback({ type: "error", text: data.error || "Could not launch Stripe Checkout." }); window.scrollTo({ top: 0, behavior: "smooth" }); setIsProcessing(false); return; }
+      if (!response.ok || data.error) {
+        if (String(data.error || '').includes('Permission denied')) {
+          await handlePlanSwitch(targetPlan)
+          return
+        }
+        setFeedback({
+          type: 'error',
+          text: data.error || 'Could not launch Stripe Checkout.',
+        })
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        setIsProcessing(false)
+        return
+      }
       if (data.url) {
         window.location.href = data.url
         return
@@ -238,10 +249,10 @@ export default function CandidateBillingPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Professional Membership &amp; Human-to-Human Access
+            Membership &amp; Plan Settings
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Every active connection on Special Sauce requires real-person biometric ID verification to guarantee zero bots and zero spam. Start with Explorer ($5 One-Time Verification · $0/mo Forever) for passive inbound Professional Invitations, or upgrade to Professional ($12/mo) &amp; Prestige ($19/mo) when ready to proactively apply to roles.
+            Start with Explorer ($5 once, $0/mo forever) for employer invitations, or upgrade anytime to apply to roles directly.
           </p>
         </div>
 
@@ -260,7 +271,7 @@ export default function CandidateBillingPage() {
             href="/dashboard/profile"
             className="px-4 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-50 transition-colors"
           >
-            My Anonymous Profile
+            My Profile
           </Link>
           <Link
             href="/dashboard/jobs"
@@ -271,18 +282,18 @@ export default function CandidateBillingPage() {
         </div>
       </header>
 
-      {/* Mandatory Step 2 Verification Quarantine Callout for Subscribed Professionals */}
+      {/* Step 2 Verification Callout for Subscribed Professionals */}
       {!isLoading && normalizedTier !== 'free' && !isVerified && (
         <div className="p-6 rounded-2xl border-2 border-amber-400 bg-amber-50 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-200/80 text-amber-950 text-[11px] font-black uppercase tracking-wider">
-              🛡️ Step 2 of 2 Unlocked • Complete 1-Time Biometric ID Check
+              🛡️ Final Step • Quick Photo ID Check
             </div>
             <h2 className="text-base sm:text-lg font-black text-slate-900">
-              Complete Your 1-Time Photo ID Check to Unlock Applications & Professional Invitations
+              Complete Your 1-Time Stripe ID Check to Go Live
             </h2>
             <p className="text-xs sm:text-sm text-slate-700 max-w-2xl leading-relaxed">
-              Your <strong>{tierInfo?.label}</strong> membership is active! Your anonymous skill matrix is currently <strong>Vault-Staged</strong> in Employer Search—complete your 1-time Stripe Identity check now to earn the <strong>✓ Biometric ID Verified</strong> badge, rank at the top of employer searches, and submit applications or accept pitches.
+              Your <strong>{tierInfo?.label}</strong> plan is active! Complete your 60-second photo ID check to earn your Verified Shield, appear in Employer Search, and connect with hiring teams.
             </p>
           </div>
           <div className="shrink-0">
@@ -304,46 +315,41 @@ export default function CandidateBillingPage() {
         </div>
       )}
 
-      {/* Unified Gold Launch Frame Wrapping All 3 Professional Tiers */}
+      {/* Plan Cards Container */}
       <div className="rounded-3xl border-2 border-slate-300 bg-gradient-to-b from-amber-50/60 via-white to-white p-4 sm:p-8 shadow-md space-y-8">
-        {/* Top Founding Launch Banner */}
+        {/* Top Status Banner */}
         <div className="rounded-2xl bg-slate-900 text-white p-4 sm:p-7 border border-slate-300/60 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
               <span className="text-amber-300">
-                🛡️ 100% Real-Person ID-Verified Network • Zero Bots or Fake Profiles
+                🛡️ Verified Professionals • Weekly 1-Year Prestige Drawing
               </span>
               <span className="text-slate-600">•</span>
               {isVerified ? (
-                <span className="text-emerald-400">✓ Real-Person ID Verified</span>
+                <span className="text-emerald-400">✓ ID Verified</span>
               ) : (
                 <Link
                   href="/dashboard"
                   className="text-amber-400 hover:underline"
                 >
-                  ID Verification Pending (Complete on Dashboard →)
+                  ID Check Pending →
                 </Link>
               )}
             </div>
 
             <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-              Verified Passive Inbound ($5 One-Time · $0/mo Forever) or Proactive Outbound ($12 &amp; $19/mo)
+              Match Free at $0/mo in Explorer or Upgrade to Apply Outbound
             </h2>
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Every plan includes 1-time{" "}
-              <strong className="text-amber-300">Stripe Real-Person ID Verification</strong>{" "}
-              so employers know 100% of our directory is real human talent. Choose{" "}
-              <strong className="text-emerald-300">Explorer ($5 One-Time Verification · $0/mo Forever)</strong> to be discovered, enter our Weekly 1-Year Prestige Drawing, and accept unlimited inbound Professional Invitations, or upgrade to{" "}
-              <strong className="text-white">Professional ($12/mo)</strong> or{" "}
-              <strong className="text-white">Prestige ($19/mo)</strong> to proactively submit outbound protected applications.
+              Every verified member is automatically entered into our Weekly Drawing for a free 1-Year Prestige membership. Switch plans or downgrade back to $0/mo Explorer anytime.
             </p>
           </div>
 
           {/* Live Status Box */}
           <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 sm:p-5 shrink-0 w-full lg:w-auto lg:min-w-[260px] space-y-1.5">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">
-              Current Membership Plan
+              Current Plan
             </span>
             {isLoading ? (
               <div className="h-6 w-40 bg-slate-700 rounded animate-pulse" />
@@ -356,24 +362,23 @@ export default function CandidateBillingPage() {
                   <p className="text-xs text-slate-300">
                     <strong className="text-white">
                       {tierInfo?.freeAppsRemaining} of 15
-                    </strong>{" "}
-                    monthly protected applications remaining •{" "}
-                    <strong className="text-amber-300">Active Tier Unlocked</strong>
+                    </strong>{' '}
+                    monthly applications remaining
                   </p>
                 )}
                 {normalizedTier === 'prestige' && (
                   <p className="text-xs text-emerald-400 font-bold">
-                    ✓ Unlimited Protected Applications + Priority Search Placement Active
+                    ✓ Unlimited Applications &amp; Priority Placement
                   </p>
                 )}
                 {normalizedTier === 'explorer' && (
                   <p className="text-xs text-emerald-300 font-bold">
-                    ✓ Explorer ($0/mo Forever) Active • Unlimited Inbound Professional Invitations
+                    ✓ Explorer ($0/mo Forever) • Unlimited Invitations
                   </p>
                 )}
                 {normalizedTier === 'free' && (
                   <p className="text-xs text-slate-300">
-                    Select Explorer ($5 One-Time · $0/mo Forever), Professional ($12/mo), or Prestige ($19/mo) below to unlock ID Verification
+                    Select a plan below to unlock ID verification
                   </p>
                 )}
               </>
@@ -393,8 +398,8 @@ export default function CandidateBillingPage() {
           >
             <div className="space-y-4">
               <div className="flex items-center justify-between text-xs font-extrabold">
-                <span className="text-slate-600 uppercase tracking-wider">
-                  🛡️ ID-Verified Inbound Vault
+                <span className="text-emerald-700 uppercase tracking-wider">
+                  🛡️ $0/Mo Forever After ID Check
                 </span>
                 {normalizedTier === 'explorer' && (
                   <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-300">
@@ -405,28 +410,31 @@ export default function CandidateBillingPage() {
 
               <div>
                 <h3 className="text-xl font-black text-slate-900">Explorer</h3>
-                <div className="mt-2 flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-slate-900">$3</span>
-                  <span className="text-xs font-bold text-slate-500">/ month</span>
+                <div className="mt-2 flex items-baseline gap-1.5">
+                  <span className="text-3xl font-black text-slate-900">$0</span>
+                  <span className="text-xs font-bold text-slate-500">/ month forever</span>
+                </div>
+                <div className="mt-1.5 inline-flex items-center px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-[11px] font-extrabold text-emerald-800">
+                  ✓ $5 One-Time ID Verification
                 </div>
                 <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                  For passive professionals who want to be discovered and receive verified inbound employer offers without spam or bots.
+                  Get discovered by verified employers and accept unlimited invitations at $0/mo.
                 </p>
               </div>
 
               <ul className="space-y-2.5 pt-4 border-t border-slate-300 text-xs text-slate-700 font-medium">
                 <li className="text-emerald-700 font-bold">
-                  🛡️ <strong>Includes Real-Person ID Verification</strong> &amp; Verified Shield
+                  🛡️ <strong>Includes Real-Person ID Verification</strong> ($5 once)
                 </li>
                 <li>
-                  ✓ <strong>Live Anonymous Profile</strong> in Employer Talent Search
+                  ✓ <strong>Live Anonymous Profile</strong> in Employer Search
                 </li>
                 <li>
-                  ✓ <strong>Unlock &amp; Accept Unlimited Professional Invitations</strong> (Private Chat)
+                  ✓ <strong>Unlimited Employer Invitations</strong> &amp; Private Chat
                 </li>
-                <li>✓ Browse protected role feed &amp; run TrueFit Score™ checks</li>
+                <li>✓ Free TrueFit Score™ checks &amp; Weekly Drawing entry</li>
                 <li className="text-slate-400">
-                  ✕ Outbound Protected Applications (Upgrade to Professional $12/mo or Prestige $19/mo anytime to apply)
+                  ✕ Outbound Applications (Upgrade anytime)
                 </li>
               </ul>
             </div>
@@ -455,7 +463,7 @@ export default function CandidateBillingPage() {
           >
             <div className="space-y-4">
               <div className="flex items-center justify-between text-xs font-extrabold">
-                <span className="text-amber-700">🛡️ ID-Verified Active Tier</span>
+                <span className="text-amber-700">🛡️ Active Job Seeker</span>
                 {normalizedTier === 'professional' && (
                   <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-300">
                     Current Plan
@@ -474,35 +482,32 @@ export default function CandidateBillingPage() {
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                  For targeted job seekers ready to proactively apply to up to 15 roles per month in addition to receiving inbound Professional Invitations.
+                  Apply directly to up to 15 roles per month and receive unlimited employer invitations.
                 </p>
               </div>
 
               <ul className="space-y-2.5 pt-4 border-t border-slate-300 text-xs text-slate-700 font-medium">
                 <li className="text-emerald-700 font-bold">
-                  🛡️ <strong>Includes Real-Person ID Verification</strong> &amp; Verified Shield
+                  🛡️ <strong>Includes Real-Person ID Verification</strong> &amp; Shield
                 </li>
                 <li>
-                  ✓ <strong>15 Outbound Protected Applications / month</strong> (40%+ TrueFit™)
+                  ✓ <strong>15 Outbound Protected Applications / mo</strong>
                 </li>
                 <li>
-                  ✓ <strong>Unlock &amp; Accept Unlimited Professional Invitations</strong>
+                  ✓ <strong>Unlimited Employer Invitations</strong> &amp; Private Chat
                 </li>
                 <li className="text-amber-800 font-bold">
-                  ✓ <strong>Verified Behavioral &amp; Responsiveness Signals</strong>
+                  ★ <strong>Permanent Founding Member Badge</strong>
                 </li>
-                <li className="text-amber-800 font-bold">
-                  ✓ <strong>Permanent Founding Member Status</strong>
-                </li>
-                <li>✓ Elevated Employer Talent Search indexing</li>
+                <li>✓ Elevated search placement &amp; downgrade to $0/mo Explorer anytime</li>
               </ul>
             </div>
 
             <div className="mt-6 pt-4 border-t border-slate-300">
               <button
                 type="button"
-                disabled={isProcessing || normalizedTier === "professional"}
-                  onClick={() => handleStripeCandidateCheckout("professional")}
+                disabled={isProcessing || normalizedTier === 'professional'}
+                onClick={() => handleStripeCandidateCheckout('professional')}
                 className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
               >
                 {normalizedTier === 'professional'
@@ -522,7 +527,7 @@ export default function CandidateBillingPage() {
           >
             <div className="space-y-4">
               <div className="flex items-center justify-between text-xs font-extrabold">
-                <span className="text-indigo-300">★ Priority Spotlight &amp; Unlimited</span>
+                <span className="text-indigo-300">★ Priority &amp; Unlimited</span>
                 {normalizedTier === 'prestige' && (
                   <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-slate-300/30">
                     Current Plan
@@ -539,35 +544,32 @@ export default function CandidateBillingPage() {
                   </span>
                 </div>
                 <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                  Unlimited outbound protected applications, unlimited invitation unlocks, and top-priority placement in Employer Talent Search.
+                  Unlimited protected applications and top-priority placement in Employer Search.
                 </p>
               </div>
 
               <ul className="space-y-2.5 pt-4 border-t border-slate-800 text-xs text-slate-200 font-medium">
                 <li className="text-emerald-300 font-bold">
-                  🛡️ <strong>Includes Real-Person ID Verification</strong> &amp; Verified Shield
+                  🛡️ <strong>Includes Real-Person ID Verification</strong> &amp; Shield
                 </li>
                 <li>
-                  ✓ <strong>Unlimited Outbound Protected Applications</strong> (40%+ TrueFit™)
+                  ✓ <strong>Unlimited Outbound Protected Applications</strong>
                 </li>
                 <li>
-                  ✓ <strong>Unlock &amp; Accept Unlimited Professional Invitations</strong>
+                  ✓ <strong>Unlimited Employer Invitations</strong> &amp; Private Chat
                 </li>
                 <li className="text-amber-300 font-bold">
                   ★ <strong>Top-Priority Placement in Employer Search</strong>
                 </li>
-                <li className="text-amber-300 font-bold">
-                  ✓ <strong>Verified Behavioral &amp; Responsiveness Signals</strong>
-                </li>
-                <li>✓ Switch or downgrade to Professional or Explorer anytime</li>
+                <li>✓ Priority 1-on-1 US Support &amp; downgrade to $0/mo Explorer anytime</li>
               </ul>
             </div>
 
             <div className="mt-6 pt-4 border-t border-slate-800">
               <button
                 type="button"
-                disabled={isProcessing || normalizedTier === "prestige"}
-                  onClick={() => handleStripeCandidateCheckout("prestige")}
+                disabled={isProcessing || normalizedTier === 'prestige'}
+                onClick={() => handleStripeCandidateCheckout('prestige')}
                 className="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
               >
                 {normalizedTier === 'prestige'
@@ -579,15 +581,15 @@ export default function CandidateBillingPage() {
         </div>
       </div>
 
-      {/* QA Stress-Testing Bar (Hidden in production unless ?qa=1) */}
+      {/* QA Stress-Testing Bar */}
       {showQaControls && (
         <div className="bg-slate-100 rounded-2xl border-2 border-slate-300 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">
-              🧪 QA Stress-Testing Controls (Remove Before Public Launch)
+              🧪 QA Controls (Local Only)
             </span>
             <p className="text-xs text-slate-600 mt-0.5">
-              Instant 1-click switching between Unverified, Explorer ($5 One-Time · $0/mo Inbound), Professional ($12/mo · 15 apps), and Prestige ($19/mo · Unlimited apps).
+              Switch between Unsubscribed, Explorer ($0/mo), Professional ($12/mo), and Prestige ($19/mo).
             </p>
           </div>
 
@@ -606,7 +608,7 @@ export default function CandidateBillingPage() {
               onClick={() => handlePlanSwitch('explorer')}
               className="px-3 py-2 rounded-xl bg-white border-2 border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-emerald-50 transition-colors cursor-pointer"
             >
-              1. Explorer ($0/mo Forever · Inbound Vault)
+              1. Explorer ($0/mo)
             </button>
             <button
               type="button"
@@ -614,7 +616,7 @@ export default function CandidateBillingPage() {
               onClick={() => handlePlanSwitch('professional')}
               className="px-3 py-2 rounded-xl bg-white border-2 border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-amber-50 transition-colors cursor-pointer"
             >
-              2. Professional ($12/mo · 15 Monthly Protected Apps)
+              2. Professional ($12/mo)
             </button>
             <button
               type="button"
@@ -622,7 +624,7 @@ export default function CandidateBillingPage() {
               onClick={() => handlePlanSwitch('prestige')}
               className="px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors cursor-pointer"
             >
-              3. Prestige ($19/mo · Unlimited Protected Apps + Priority Placement)
+              3. Prestige ($19/mo)
             </button>
           </div>
         </div>

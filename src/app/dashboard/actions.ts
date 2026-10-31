@@ -4166,7 +4166,7 @@ export async function createStructuredJob(formData: FormData) {
   if (orgObj?.verification_status !== 'verified') {
     return {
       error:
-        'Verification Gate (1/3): Your corporate domain must be verified (including 90-day RDAP domain age check) on your Company Profile page first.',
+        'Verification Step 1 of 3: Please verify your business domain on your Company Settings page first.',
     }
   }
 
@@ -6178,7 +6178,7 @@ export async function verifyOrganizationDomain(domainInput?: string) {
       organizationId: member.organization_id,
       platformArea: 'Corporate Domain / DNS Verification (Employer)',
       summary: `Blocked newly registered domain (${rdapCheck.ageDays}d old) on @${targetDomain}`,
-      evidenceSnippet: rdapCheck.error || `Domain ${targetDomain} failed 90-day RDAP age gate.`,
+      evidenceSnippet: rdapCheck.error || `Domain ${targetDomain} failed business domain age gate.`,
       createSecTicket: true,
     })
     return { error: rdapCheck.error }

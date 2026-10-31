@@ -79,7 +79,7 @@ export default function EmployerInboundApplicationsPage() {
     fetchApplications(true)
   }, [daysFilter])
 
-  // Silent 5-second background sync so new applications & Stage 2 Vault Releases appear live
+  // Silent 5-second background sync so new applications & Conversation Vault Releases appear live
   useEffect(() => {
     const intervalId = setInterval(() => {
       fetchApplications(false)

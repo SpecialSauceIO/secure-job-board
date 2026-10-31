@@ -6,7 +6,7 @@ export interface AnalyticsRecordItem {
   id: string
   referenceId: string
   roleTitle: string
-  channel: 'Inbound Application' | 'Outbound Pitch'
+  channel: 'Inbound Application' | 'Outbound Invitation' | 'Employer Invitation' | 'Outbound Application' | 'Outbound Invitation'
   counterpartyId: string
   matchScore: number | null
   status: string
@@ -33,7 +33,7 @@ export default function DashboardAnalyticsReport({
   const filteredRecords = useMemo(() => {
     return records.filter((r) => {
       if (channelFilter === 'inbound') return r.channel === 'Inbound Application'
-      if (channelFilter === 'pitch') return r.channel === 'Outbound Pitch'
+      if (channelFilter === 'pitch') return r.channel === 'Outbound Invitation'
       return true
     })
   }, [records, channelFilter])
@@ -41,7 +41,7 @@ export default function DashboardAnalyticsReport({
   const stats = useMemo(() => {
     const total = filteredRecords.length
     const inbound = filteredRecords.filter((r) => r.channel === 'Inbound Application').length
-    const pitches = filteredRecords.filter((r) => r.channel === 'Outbound Pitch').length
+    const pitches = filteredRecords.filter((r) => r.channel === 'Outbound Invitation').length
     const scored = filteredRecords.filter((r) => typeof r.matchScore === 'number' && r.matchScore > 0)
     const avgScore =
       scored.length > 0

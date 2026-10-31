@@ -69,7 +69,7 @@ export default function EnterpriseAtsIntegrationPanel() {
       setConfig(res.config)
       setFeedback({
         type: 'success',
-        text: res.message || 'Enterprise ATS settings saved.',
+        text: res.message || 'HR sync settings saved.',
       })
       if (typeof window !== 'undefined') {
         window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -114,7 +114,7 @@ export default function EnterpriseAtsIntegrationPanel() {
 
       setFeedback({
         type: 'success',
-        text: `✓ Exported ${res.rowCount} pipeline records to ${res.filename} for Workday / Greenhouse import.`,
+        text: `✓ Exported ${res.rowCount} records to ${res.filename}.`,
       })
     }
     setIsExportingCsv(false)
@@ -122,15 +122,15 @@ export default function EnterpriseAtsIntegrationPanel() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl border-2 border-slate-300 p-6 text-center shadow-xs border-slate-300">
+      <div className="bg-white rounded-2xl border-2 border-slate-300 p-6 text-center shadow-xs">
         <p className="text-xs font-bold text-slate-400">
-          Loading HR Software Sync Hub...
+          Loading HR Software Sync...
         </p>
       </div>
     )
   }
 
-  // UPSELL CARD FOR STARTER / GROWTH / UNSUBSCRIBED TIERS
+  // UPSELL CARD FOR STARTER / GROWTH / SANDBOX TIERS
   if (!isEnterprise) {
     return (
       <div className="bg-slate-900 text-white rounded-2xl border-2 border-slate-300 shadow-sm p-4 sm:p-8">
@@ -138,26 +138,20 @@ export default function EnterpriseAtsIntegrationPanel() {
           <div className="space-y-2.5 max-w-2xl">
             <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
               <span className="text-amber-300">
-                🔒 Enterprise Tier Exclusive ($1,250/mo Founding ($1,999 Retail))
+                🔒 Enterprise Plan Feature ($1,250/mo Founding Rate)
               </span>
               <span className="text-slate-600">•</span>
               <span className="text-slate-300">
-                Current Plan: {tierLabel || 'Growth / Starter'}
+                Current Plan: {tierLabel || 'Starter / Growth'}
               </span>
             </div>
 
             <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-              Workday &amp; Greenhouse HR Software Sync
+              Workday &amp; Greenhouse HR Software Auto-Sync
             </h3>
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Upgrade to the{' '}
-              <strong className="text-white">Enterprise Tier ($1,250/mo Founding ($1,999 Retail))</strong>{' '}
-              to unlock automated <strong className="text-amber-300">unlocked resume exports</strong> directly into{' '}
-              <strong className="text-white">Greenhouse HR Software</strong>, real-time{' '}
-              <strong className="text-white">HMAC-SHA256 Signed Webhooks</strong> for{' '}
-              <strong className="text-white">Workday Integration Studio</strong>, and 1-click{' '}
-              <strong className="text-emerald-300">Bulk CSV Professional Exports</strong>, plus 50 active roles, 100 monthly invitation credits, and 10 team/recruiter seats.
+              Upgrade to <strong className="text-white">Enterprise ($1,250/mo Locked 12 Mos)</strong> to automatically sync released PDF resumes and TrueFit Score™ summaries to <strong className="text-white">Greenhouse</strong> and <strong className="text-white">Workday</strong>, export professional lists via CSV, and unlock <strong className="text-emerald-300">unlimited active roles, 120 monthly invitation credits, and unlimited team seats</strong>.
             </p>
           </div>
 
@@ -166,7 +160,7 @@ export default function EnterpriseAtsIntegrationPanel() {
               href="/dashboard/employer/billing"
               className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-colors shadow-md"
             >
-              Upgrade to Enterprise Tier →
+              Upgrade to Enterprise →
             </Link>
           </div>
         </div>
@@ -174,23 +168,23 @@ export default function EnterpriseAtsIntegrationPanel() {
     )
   }
 
-  // UNLOCKED CONSOLE FOR ENTERPRISE TIER ($1,250/MO FOUNDING · $1,999/MO RETAIL)
+  // UNLOCKED CONSOLE FOR ENTERPRISE TIER
   return (
-    <div className="bg-white rounded-2xl border-2 border-slate-300 shadow-sm  overflow-hidden">
+    <div className="bg-white rounded-2xl border-2 border-slate-300 shadow-sm overflow-hidden">
       <div className="bg-slate-900 text-white p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-emerald-400">
-            <span>✓ Enterprise Tier Active</span>
+            <span>✓ Enterprise Plan Active</span>
             <span className="text-slate-600">•</span>
             <span className="text-amber-300">
-              Workday &amp; Greenhouse HR Software Sync
+              Workday &amp; Greenhouse Auto-Sync
             </span>
           </div>
           <h3 className="text-xl font-black text-white mt-1">
-            HR Software Connection Hub
+            HR Software Sync Settings
           </h3>
           <p className="text-xs text-slate-300 mt-0.5">
-            Automatically push unlocked professional resumes and TrueFit Score™ Cards to Greenhouse or your Workday webhook receiver.
+            Automatically send released resumes and TrueFit Score™ summaries to Greenhouse or Workday.
           </p>
         </div>
 
@@ -222,20 +216,20 @@ export default function EnterpriseAtsIntegrationPanel() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Column 1: Workday / Universal Signed Webhook */}
-          <div className="p-5 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-4 border-slate-300">
+          {/* Column 1: Workday / Webhook */}
+          <div className="p-5 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-4">
             <div>
               <h4 className="text-sm font-extrabold text-slate-900">
-                1. Workday &amp; Enterprise Outbound Webhook (HMAC-SHA256)
+                1. Workday &amp; Enterprise Webhook
               </h4>
               <p className="text-xs text-slate-500 mt-0.5">
-                Fires a signed <code className="font-mono text-slate-700">candidate.vault_released</code> JSON payload whenever a professional unlocks their Conversation Resume Vault. Compatible with Workday Integration Studio, MuleSoft, Zapier, and Ashby.
+                Sends a real-time notification whenever a professional shares their full resume. Compatible with Workday, Zapier, MuleSoft, and custom HR systems.
               </p>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Destination Webhook Endpoint URL (HTTPS)
+                Webhook URL (HTTPS)
               </label>
               <input
                 type="url"
@@ -243,15 +237,15 @@ export default function EnterpriseAtsIntegrationPanel() {
                 onChange={(e) =>
                   setConfig({ ...config, webhookUrl: e.target.value })
                 }
-                placeholder="https://wd5-impl-services1.workday.com/ccx/service/..."
-                className="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-indigo-500 focus:outline-none border-slate-300"
+                placeholder="https://your-hr-endpoint.com/webhook"
+                className="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-indigo-500 focus:outline-none"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="block text-xs font-bold text-slate-700">
-                  HMAC-SHA256 Signing Secret (<code className="font-mono">X-SpecialSauce-Signature</code>)
+                  Signing Secret (<code className="font-mono">X-SpecialSauce-Signature</code>)
                 </label>
                 <button
                   type="button"
@@ -265,7 +259,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                 type="text"
                 readOnly
                 value={config.webhookSecret}
-                className="w-full rounded-xl border-2 border-slate-300 bg-slate-100 px-3.5 py-2 text-xs font-mono font-bold text-slate-700 border-slate-300"
+                className="w-full rounded-xl border-2 border-slate-300 bg-slate-100 px-3.5 py-2 text-xs font-mono font-bold text-slate-700"
               />
             </div>
 
@@ -274,11 +268,11 @@ export default function EnterpriseAtsIntegrationPanel() {
                 type="button"
                 disabled={isTestingWebhook || !config.webhookUrl}
                 onClick={handleTestWebhook}
-                className="px-3.5 py-2 rounded-xl border-2 border-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50 border-slate-300"
+                className="px-3.5 py-2 rounded-xl border-2 border-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
               >
                 {isTestingWebhook
-                  ? 'Sending Test Payload...'
-                  : '⚡ Send Test Webhook Payload'}
+                  ? 'Sending Test...'
+                  : '⚡ Send Test Webhook'}
               </button>
 
               <button
@@ -286,25 +280,25 @@ export default function EnterpriseAtsIntegrationPanel() {
                 onClick={() => setShowSamplePayload((prev) => !prev)}
                 className="text-xs font-bold text-indigo-600 hover:underline cursor-pointer"
               >
-                {showSamplePayload ? 'Hide JSON Schema' : 'View JSON Schema'}
+                {showSamplePayload ? 'Hide Sample Data' : 'View Sample Data'}
               </button>
             </div>
           </div>
 
-          {/* Column 2: Native Greenhouse HR Software Connector */}
-          <div className="p-5 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-4 border-slate-300">
+          {/* Column 2: Greenhouse */}
+          <div className="p-5 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-4">
             <div>
               <h4 className="text-sm font-extrabold text-slate-900">
-                2. Native Greenhouse HR Software Connector
+                2. Greenhouse HR Connector
               </h4>
               <p className="text-xs text-slate-500 mt-0.5">
-                Automatically creates a professional record in Greenhouse with their released PDF resume and attaches their TrueFit Score™ as an interview note.
+                Automatically adds the professional, their released PDF resume, and their TrueFit Score™ summary to Greenhouse.
               </p>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Greenhouse HR Software Key
+                Greenhouse Harvest API Key
               </label>
               <input
                 type="password"
@@ -312,8 +306,8 @@ export default function EnterpriseAtsIntegrationPanel() {
                 onChange={(e) =>
                   setConfig({ ...config, greenhouseApiKey: e.target.value })
                 }
-                placeholder="Enter Harvest API Key (Configure → Dev Center → API Credentials)..."
-                className="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-indigo-500 focus:outline-none border-slate-300"
+                placeholder="Enter Harvest API Key..."
+                className="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-indigo-500 focus:outline-none"
               />
             </div>
 
@@ -330,8 +324,8 @@ export default function EnterpriseAtsIntegrationPanel() {
                     greenhouseOnBehalfOf: e.target.value,
                   })
                 }
-                placeholder="e.g. 4029184 (Greenhouse Admin User ID for audit logs)"
-                className="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-indigo-500 focus:outline-none border-slate-300"
+                placeholder="e.g. 4029184 (Greenhouse Admin User ID)"
+                className="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-indigo-500 focus:outline-none"
               />
             </div>
 
@@ -345,7 +339,7 @@ export default function EnterpriseAtsIntegrationPanel() {
                 className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
               />
               <span className="text-xs font-bold text-slate-700">
-                Auto-send unlocked professionals to HR software immediately when a professional unlocks their resume
+                Automatically sync when a professional releases their resume
               </span>
             </label>
           </div>
@@ -373,7 +367,7 @@ export default function EnterpriseAtsIntegrationPanel() {
 
         <div className="pt-3 border-t border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <span className="text-xs text-slate-500">
-            🛡️ <strong>Identity-Protected Privacy Guarantee:</strong> Professional personal contact info never touches your external HR software until the professional explicitly clicks &ldquo;Release Resume &amp; Contact Vault&rdquo; to start The Conversation.
+            🛡️ <strong>Privacy First:</strong> Personal contact details are only synced after the professional clicks &ldquo;Release Resume &amp; Contact Vault.&rdquo;
           </span>
 
           <button
@@ -381,7 +375,7 @@ export default function EnterpriseAtsIntegrationPanel() {
             disabled={isSaving}
             className="w-full sm:w-auto text-center justify-center shrink-0 px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors cursor-pointer shadow-xs disabled:opacity-50"
           >
-            {isSaving ? 'Saving...' : 'Save ATS & Webhook Settings'}
+            {isSaving ? 'Saving...' : 'Save HR Sync Settings'}
           </button>
         </div>
       </form>

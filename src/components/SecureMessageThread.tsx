@@ -359,7 +359,7 @@ export default function SecureMessageThread({
           </div>
         </div>
 
-        {/* Stage 2 Action Button */}
+        {/* Vault Release Button */}
         <div className="shrink-0">
           {viewerRole === 'candidate' && !vaultReleased && (
             <button
@@ -392,7 +392,7 @@ export default function SecureMessageThread({
         </div>
       </div>
 
-      {/* Stage 2 Unlocked Contact Card (Only visible AFTER Professional clicks Release Vault) */}
+      {/* Unlocked Contact Card (Only visible AFTER Professional clicks Release Vault) */}
       {vaultReleased && (
         <div className="px-4 py-2.5 bg-emerald-50/40 border-b border-emerald-300 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex flex-wrap items-center gap-4">

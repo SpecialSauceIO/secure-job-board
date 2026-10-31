@@ -372,7 +372,7 @@ export default function TrueHorizonClient({
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
               TrueFit™ and True Horizon™ give you clear, dependable compatibility data before you invest your time or tuition.{' '}
               <strong className="text-sky-300">True Horizon™</strong> evaluates your{' '}
-              <strong className="text-white">6D Operational DNA</strong> across every sector on the platform—showing you where you can legitimately bridge in 2–4 weeks via self-paced certifications, where you need a stepping-stone role, and where hard licensing or physical trade barriers require a full career rebuild.
+              <strong className="text-white">Transferable Skill Profile</strong> across every sector on the platform—showing you where you can legitimately bridge in 2–4 weeks via self-paced certifications, where you need a stepping-stone role, and where hard licensing or physical trade barriers require a full career rebuild.
             </p>
           </div>
 
@@ -401,20 +401,20 @@ export default function TrueHorizonClient({
         </div>
       </section>
 
-      {/* SECTION 1: 6D Operational DNA Radar + Axis Breakdown */}
+      {/* SECTION 1: Transferable Skill Profile Radar + Axis Breakdown */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div className="lg:col-span-5 rounded-3xl bg-white border-2 border-slate-300 p-6 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between gap-2">
               <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">
-                Stage 1 • Deconstruction
+                1 • Your Transferable Skills
               </span>
               <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-bold">
                 {profileSummary.skillCount} Verified Skills • {profileSummary.experienceYears} Yrs
               </span>
             </div>
             <h2 className="mt-1 text-lg sm:text-xl font-black text-slate-900">
-              Your 6D Operational DNA Vector
+              Your Transferable Skill Profile Vector
             </h2>
             <p className="mt-1 text-xs text-slate-600 leading-relaxed">
               Industry-agnostic execution primitives extracted from your skills matrix, tenure, and credentials.
@@ -521,7 +521,7 @@ export default function TrueHorizonClient({
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-slate-200 pb-5">
           <div className="space-y-1">
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">
-              Stage 2 &amp; Stage 3 • Full 28-Industry Feasibility Explorer (Page {safeVerticalPage} of {totalVerticalPages})
+              2 • Explore Related Industries (Page {safeVerticalPage} of {totalVerticalPages})
             </span>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900">
               Explore All {analysis.topHorizonVerticals.length} Cross-Sector Industry Horizons
@@ -1056,7 +1056,7 @@ export default function TrueHorizonClient({
               All Live Roles Ranked by True Operational &amp; Self-Study Feasibility
             </h2>
             <p className="mt-1 text-xs sm:text-sm text-slate-600">
-              Page through every live role on the board. Roles where short-term self-study still leaves you below the <strong>40% TrueFit™ Firewall</strong> are clearly flagged so you never waste time or money.
+              Page through every live role on the board. Roles where short-term self-study still leaves you below the <strong>40%+ TrueFit™ Match</strong> are clearly flagged so you never waste time or money.
             </p>
           </div>
 

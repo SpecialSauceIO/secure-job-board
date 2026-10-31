@@ -312,7 +312,7 @@ export function CandidateJobFeed({
         setTimeout(() => {
           resolve({
             error:
-              'TrueFit Score™ analysis took longer than 30 seconds across our 3-tier matching cascade. Please click "Recalculate TrueFit Score™" to retry.',
+              'TrueFit Score™ check took longer than 30 seconds. Please click "Recalculate TrueFit Score™" to retry.',
           })
         }, 30000)
       })
