@@ -798,7 +798,7 @@ const VERTICAL_ARCHETYPE_MATRIX: VerticalArchetypeSpec[] = [
         modality: 'industry_exposure_required',
         modalityLabel: '🏥 Federal Sponsorship Required (Cannot Self-Study)',
         estimatedTimeToBridge: '3–9 Months Federal Investigation (Apply to Public-Trust / Unclassified GovCon SaaS First)',
-        actionableSteps: ['REALITY CHECK: You cannot buy or self-study a Security Clearance. Filter for "Public Trust Eligible" or commercial FedRAMP SaaS vendors who sponsor clearances after hire.'],
+        actionableSteps: ['True Readiness Note: Security clearances cannot be self-studied or purchased independently. Target "Public Trust Eligible" roles or commercial FedRAMP SaaS organizations that sponsor clearances upon hire.'],
         recommendedCredentialsOrResources: ['CDSE Security Clearance & Public Trust Orientation'],
         honestProfileFraming: 'State "US Citizen — Eligible for Federal Public Trust / Clearance Sponsorship" (never claim an active clearance unless adjudicated).',
       },
@@ -954,7 +954,7 @@ const VERTICAL_ARCHETYPE_MATRIX: VerticalArchetypeSpec[] = [
         modality: 'industry_exposure_required',
         modalityLabel: '🏥 Law Degree / SHRM-CP Tenure Required',
         estimatedTimeToBridge: '1–3 Years (Target Management Consulting, Enablement, or Talent Ops Instead)',
-        actionableSteps: ['REALITY CHECK: Do not apply for Legal Counsel or ER Employment Law Specialist roles without a law degree or SHRM-CP/PHR tenure. Target Management Consulting, OKR Advisory, or Talent Tech Operations instead.'],
+        actionableSteps: ['True Readiness Note: Legal Counsel and dedicated Employee Relations roles require a J.D./Bar admission or dedicated SHRM-CP/PHR tenure. Focus on Management Consulting, OKR Advisory, or Talent Systems Operations.'],
         recommendedCredentialsOrResources: ['SHRM Official Certification Portal'],
         honestProfileFraming: 'Focus on "Management Consulting, OKR Enablement & Talent Systems Operations".',
       },
@@ -1058,7 +1058,7 @@ const VERTICAL_ARCHETYPE_MATRIX: VerticalArchetypeSpec[] = [
         modality: 'industry_exposure_required',
         modalityLabel: '🏥 Clinical License / Direct Hospital Tenure Required',
         estimatedTimeToBridge: '1–4 Years (Target Non-Clinical HealthTech SaaS / Vendor Ops Instead)',
-        actionableSteps: ['REALITY CHECK: Short-term courses will NOT qualify you for clinical nursing, biotech lab benchwork, or senior hospital RevCycle coding. Target non-clinical HealthTech SaaS Enablement, IT Support Leadership, or Vendor Operations first.'],
+        actionableSteps: ['True Readiness Note: Clinical care, wet-lab benchwork, and hospital medical coding require formal licensure or clinical tenure. Focus your transition on non-clinical HealthTech SaaS Enablement, IT Support Leadership, or Vendor Operations.'],
         recommendedCredentialsOrResources: ['HFMA Certified Revenue Cycle Representative (CRCR) Overview', 'CMS.gov Medicare Learning Network (MLN)'],
         honestProfileFraming: 'Keep profile focused on "HealthTech SaaS Enablement, Vendor SLA & IT Support Operations".',
       },
@@ -1150,7 +1150,7 @@ const VERTICAL_ARCHETYPE_MATRIX: VerticalArchetypeSpec[] = [
         modality: 'industry_exposure_required',
         modalityLabel: '🏥 Multi-Year Visual Design Portfolio Required',
         estimatedTimeToBridge: '1–3 Years Portfolio Building (Target Creative Ops / Producer Roles Instead)',
-        actionableSteps: ['REALITY CHECK: Employers hiring Principal UI/UX Designers judge 90% on a multi-year visual case-study portfolio. Target Creative Operations, Video/Media Production Management, or DesignOps instead.'],
+        actionableSteps: ['True Readiness Note: Principal UI/UX Design roles require a multi-year visual case-study portfolio. Target Creative Operations, Media Pipeline Production, or DesignOps Program Management.'],
         recommendedCredentialsOrResources: ['Figma Learn Official Design Systems Guide'],
         honestProfileFraming: 'Target Creative Producer, Media Pipeline, or DesignOps Program roles.',
       },
@@ -1190,7 +1190,7 @@ const VERTICAL_ARCHETYPE_MATRIX: VerticalArchetypeSpec[] = [
         modality: 'industry_exposure_required',
         modalityLabel: '🏥 Physical Factory / Mechanical Engineering Tenure Required',
         estimatedTimeToBridge: '2–5 Years Onsite Plant Floor (Target Manufacturing IT, Vendor Ops, or Training Instead)',
-        actionableSteps: ['REALITY CHECK: Do not apply for onsite Plant Manager or CNC/PLC Engineer roles without factory floor tenure. Target Manufacturing IT Support, Vendor Program Management, or Corporate Training inside industrial companies.'],
+        actionableSteps: ['True Readiness Note: Onsite Plant Management and CNC/PLC Engineering require direct factory floor tenure. Target Manufacturing IT Support, Vendor Program Management, or Operational Training within industrial organizations.'],
         recommendedCredentialsOrResources: ['OSHA.gov Industrial Safety & Operations Overview'],
         honestProfileFraming: 'Target IT Infrastructure, Vendor Operations, or Training leadership within manufacturing firms.',
       },
@@ -1230,7 +1230,7 @@ const VERTICAL_ARCHETYPE_MATRIX: VerticalArchetypeSpec[] = [
         modality: 'industry_exposure_required',
         modalityLabel: '🏥 Engineering Degree or Federal NERC License Required',
         estimatedTimeToBridge: '2–4 Years (Target Corporate Energy IT, Customer Ops, or Vendor Management Instead)',
-        actionableSteps: ['REALITY CHECK: Field engineering and grid control-room roles require specialized degrees or NERC certification exams. Target Corporate IT, Customer Operations, or Vendor Program Management inside energy/CleanTech firms.'],
+        actionableSteps: ['True Readiness Note: Field engineering and grid control-room dispatch require specialized degrees or federal NERC certification. Target Corporate IT, Customer Operations, or Vendor Program Management within Energy and CleanTech.'],
         recommendedCredentialsOrResources: ['Coursera Renewable Energy & CleanTech Business Operations'],
         honestProfileFraming: 'Focus on "Enterprise IT, Vendor Program & Customer Operations" within Energy/CleanTech.',
       },
@@ -1270,7 +1270,7 @@ const VERTICAL_ARCHETYPE_MATRIX: VerticalArchetypeSpec[] = [
         modality: 'industry_exposure_required',
         modalityLabel: '🏥 State CPA License + 150 Accounting Credit Hours Required',
         estimatedTimeToBridge: '2–4 Years University + State Board Exam (Cannot Self-Study Quickly)',
-        actionableSteps: ['REALITY CHECK: You cannot qualify for CPA, Senior Tax Accountant, or Financial Audit Manager roles via short online courses. Only target Advisory Consulting, IT Audit (ITGC), or Internal Operations roles at accounting firms.'],
+        actionableSteps: ['True Readiness Note: CPA, Senior Tax, and Financial Statement Audit roles require 150 accounting credit hours and state board licensure. Focus on Technology Advisory, IT General Controls (ITGC), or Internal Operations within accounting firms.'],
         recommendedCredentialsOrResources: ['AICPA Official CPA Licensure Requirements'],
         honestProfileFraming: 'Never claim GAAP Accounting or Tax Prep without credentials; focus on "Technology Advisory, IT Controls & Operational Consulting".',
       },
@@ -1310,7 +1310,7 @@ const VERTICAL_ARCHETYPE_MATRIX: VerticalArchetypeSpec[] = [
         modality: 'industry_exposure_required',
         modalityLabel: '🏥 Brick-and-Mortar Fitness Tenure / State License Required',
         estimatedTimeToBridge: '1–3 Years Onsite Studio Management or Licensing',
-        actionableSteps: ['REALITY CHECK: Regional Fitness Director roles usually require prior onsite gym P&L management and trainer recruiting tenure. Unless you are targeting corporate IT/Enablement at a wellness brand, expect a steep industry-tenure barrier.'],
+        actionableSteps: ['True Readiness Note: Regional Studio Director roles typically require prior onsite club P&L and trainer management tenure. Target corporate Operations, IT, or Enablement roles within wellness brands.'],
         recommendedCredentialsOrResources: ['NASM Official Certification Portal'],
         honestProfileFraming: 'Target corporate Operations, IT, or Training roles at wellness brands rather than onsite clinical/trainer roles.',
       },
@@ -1350,7 +1350,7 @@ const VERTICAL_ARCHETYPE_MATRIX: VerticalArchetypeSpec[] = [
         modality: 'industry_exposure_required',
         modalityLabel: '🏥 Years of Physical F&B / Hotel Floor Tenure Required',
         estimatedTimeToBridge: '2–5 Years Onsite Hospitality Tenure (Cannot Bridge Online)',
-        actionableSteps: ['REALITY CHECK: Online courses will NOT qualify an office/tech professional to run a commercial kitchen or hotel property. Only target Corporate IT, Guest Support Center, or Hospitality SaaS roles in this vertical.'],
+        actionableSteps: ['True Readiness Note: Onsite Restaurant GM, Culinary, and Hotel Property Director roles require years of physical F&B and property floor tenure. Target Hospitality SaaS, Corporate IT, or Central Guest Support Operations.'],
         recommendedCredentialsOrResources: ['ServSafe Official Food & Alcohol Safety Certification'],
         honestProfileFraming: 'Target Hospitality SaaS, Corporate IT, or Central Guest Operations only.',
       },
@@ -1390,7 +1390,7 @@ const VERTICAL_ARCHETYPE_MATRIX: VerticalArchetypeSpec[] = [
         modality: 'industry_exposure_required',
         modalityLabel: '🛑 Hard Barrier: Multi-Year Apprenticeship / State License Required',
         estimatedTimeToBridge: '2–5 Years Apprenticeship / State Exam (Not Self-Study Bridgeable)',
-        actionableSteps: ['REALITY CHECK: You cannot bridge into Skilled Trades, Commercial Construction Superintendent, or Licensed Real Estate Broker roles through software/ops transferability alone. Only pursue PropTech SaaS or Corporate Vendor Operations in this sector.'],
+        actionableSteps: ['True Readiness Note: Skilled Trades, Commercial Construction Superintendents, and Licensed Brokers require multi-year apprenticeships or state licensing. Focus on PropTech SaaS, Facilities Vendor Governance, or Corporate Operations.'],
         recommendedCredentialsOrResources: ['OSHA.gov Training & Trade Apprenticeship Directories'],
         honestProfileFraming: 'Do not apply for licensed trade/superintendent roles without state credentials.',
       },
@@ -1430,7 +1430,7 @@ const VERTICAL_ARCHETYPE_MATRIX: VerticalArchetypeSpec[] = [
         modality: 'industry_exposure_required',
         modalityLabel: '🛑 Hard Federal License Barrier (FAA / DOT / USCG)',
         estimatedTimeToBridge: '6 Months – 4 Years Federal Licensing School',
-        actionableSteps: ['REALITY CHECK: No online software course can qualify you for FAA Aviation Maintenance, Pilot, or CDL transportation roles. Only target corporate IT, Telematics SaaS, or Training Program roles in this sector.'],
+        actionableSteps: ['True Readiness Note: Commercial Aviation (FAA Pilot/A&P) and CDL fleet roles require federal physical certifications and logged operating hours. Target Fleet Telematics SaaS, Corporate IT, or Technical Training roles.'],
         recommendedCredentialsOrResources: ['FAA.gov Official Licensing & Training Portal'],
         honestProfileFraming: 'Never apply to licensed FAA/DOT operating roles without active federal certificates.',
       },
@@ -1470,7 +1470,7 @@ const VERTICAL_ARCHETYPE_MATRIX: VerticalArchetypeSpec[] = [
         modality: 'industry_exposure_required',
         modalityLabel: '🛑 Hard Statutory Barrier: 4–6 Yr Accredited Degree + PE/RA Exam',
         estimatedTimeToBridge: '4–8 Years University + State Licensure (Full Career Rebuild)',
-        actionableSteps: ['REALITY CHECK: You cannot bridge into Civil Engineering, Architecture, or Environmental Science practitioner roles without an accredited degree and state PE/RA license. Only corporate IT/Operations roles inside AEC firms are accessible.'],
+        actionableSteps: ['True Readiness Note: Civil Engineering, Architecture, and Environmental practitioner roles require ABET/NAAB accredited degrees and state PE/RA licensure. Target IT Infrastructure, BIM Support, or Project Operations within AEC firms.'],
         recommendedCredentialsOrResources: ['edX Civil Engineering & Architecture University Catalog'],
         honestProfileFraming: 'Do not pursue technical engineering/architecture practitioner roles without PE/RA credentials.',
       },
@@ -1510,7 +1510,7 @@ const VERTICAL_ARCHETYPE_MATRIX: VerticalArchetypeSpec[] = [
         modality: 'industry_exposure_required',
         modalityLabel: '🛑 Hard Barrier: Biological Science Degree or Field Tenure Required',
         estimatedTimeToBridge: '2–4 Years Field / University Study',
-        actionableSteps: ['REALITY CHECK: Field agronomy, forestry, and veterinary roles require specialized biological degrees and field tenure. Stick to AgTech SaaS, Supply Chain, or Corporate Operations if exploring this vertical.'],
+        actionableSteps: ['True Readiness Note: Field agronomy, forestry, and veterinary roles require specialized biological degrees and field tenure. Target AgTech SaaS, Agricultural Supply Chain, or Corporate Operations.'],
         recommendedCredentialsOrResources: ['Coursera Sustainable Agriculture & AgTech Catalog'],
         honestProfileFraming: 'Only target AgTech software, vendor operations, or e-commerce roles.',
       },
@@ -1550,7 +1550,7 @@ const VERTICAL_ARCHETYPE_MATRIX: VerticalArchetypeSpec[] = [
         modality: 'industry_exposure_required',
         modalityLabel: '🛑 Hard Statutory Barrier: Police/Fire Academy or EMS License',
         estimatedTimeToBridge: '6–24 Months Full-Time Academy + Physical/Medical Qualification',
-        actionableSteps: ['REALITY CHECK: You cannot transfer into sworn law enforcement, firefighting, or paramedic roles without completing a state academy or EMS clinical license. Only target civilian Public Safety SaaS (e.g., Axon, Motorola, Tyler Tech) or Municipal IT roles.'],
+        actionableSteps: ['True Readiness Note: Sworn Law Enforcement, Fire, and EMS roles require state academy graduation or paramedic licensure. Target civilian Public Safety SaaS (CAD/RMS), CJIS Compliance, or Municipal IT leadership.'],
         recommendedCredentialsOrResources: ['FEMA Emergency Management Institute'],
         honestProfileFraming: 'Strictly target civilian Public Safety Technology, Training, or Municipal IT roles.',
       },
@@ -1656,7 +1656,7 @@ function classifyLiveJobSkillBridge(
       modality: 'industry_exposure_required',
       modalityLabel: '🛑 Requires Direct Industry Tenure or License (Not Self-Study Bridgeable)',
       estimatedTimeToBridge: '1–4 Years Field Tenure / Statutory Licensure',
-      howToBridgeSummary: `REALITY CHECK: "${skillName}" requires verifiable ${jobIndustry.split(',')[0]} field tenure or state/federal licensing. Short-term online courses will NOT satisfy this requirement.`,
+      howToBridgeSummary: `True Readiness Note: "${skillName}" requires verifiable ${jobIndustry.split(',')[0]} field tenure or formal licensing. Self-paced courses alone do not satisfy this requirement.`,
       recommendedResource: `Requires Prior ${jobIndustry.split(',')[0]} Tenure or Formal Licensure`,
     }
   }
@@ -1907,10 +1907,10 @@ export function projectCrossIndustryHorizons(
 
     const executiveSummary =
       feasibilityTier === 'low_structural_barrier'
-        ? `HONEST REALITY CHECK: While your ${rankedAxes[0].name} (${rankedAxes[0].score}%) provides general operational structure, ${spec.vertical} carries a steep structural/licensure barrier. Your current Raw Keyword Fit is ${currentDirectFitEstimate}%, and short-term self-study alone caps out at ${shortTermSelfStudyCeiling}%. ${spec.barrierExplanation}`
+        ? `True Feasibility Assessment: While your ${rankedAxes[0].name} (${rankedAxes[0].score}%) provides general operational structure, ${spec.vertical} carries a steep structural/licensure barrier. Your current Raw Keyword Fit is ${currentDirectFitEstimate}%, and short-term self-study alone caps out at ${shortTermSelfStudyCeiling}%. ${spec.barrierExplanation}`
         : feasibilityTier === 'moderate_stepping_stone'
-        ? `STEPPING-STONE SECTOR: Your ${rankedAxes[0].name} (${rankedAxes[0].score}%) and ${rankedAxes[1].name} (${rankedAxes[1].score}%) transfer at ${transferabilityScore}% operational compatibility. Self-paced certifications lift your fit from ${currentDirectFitEstimate}% to ${shortTermSelfStudyCeiling}%, while reaching ${projectedBridgedFitScore}% requires entering via an adjacent IT/Operations/Vendor role first. ${spec.barrierExplanation}`
-        : `HIGH-TRANSFERABILITY SECTOR: Your ${rankedAxes[0].name} (${rankedAxes[0].score}%) and ${rankedAxes[1].name} (${rankedAxes[1].score}%) align at ${transferabilityScore}% structural compatibility with ${spec.vertical}. Completing the self-paced ${enrichedBridgeSkills[0]?.skill} bridge lifts your TrueFit Score™ from ${currentDirectFitEstimate}% to ${shortTermSelfStudyCeiling}% without needing a career restart.`
+        ? `Stepping-Stone Sector: Your ${rankedAxes[0].name} (${rankedAxes[0].score}%) and ${rankedAxes[1].name} (${rankedAxes[1].score}%) transfer at ${transferabilityScore}% operational compatibility. Self-paced certifications lift your fit from ${currentDirectFitEstimate}% to ${shortTermSelfStudyCeiling}%, while reaching ${projectedBridgedFitScore}% requires entering via an adjacent IT/Operations/Vendor role first. ${spec.barrierExplanation}`
+        : `High-Transferability Sector: Your ${rankedAxes[0].name} (${rankedAxes[0].score}%) and ${rankedAxes[1].name} (${rankedAxes[1].score}%) align at ${transferabilityScore}% structural compatibility with ${spec.vertical}. Completing the self-paced ${enrichedBridgeSkills[0]?.skill} bridge lifts your TrueFit Score™ from ${currentDirectFitEstimate}% to ${shortTermSelfStudyCeiling}% without needing a career restart.`
 
     return {
       vertical: spec.vertical,
@@ -2097,7 +2097,7 @@ export function evaluateLiveJobHorizonBridges(
 
     const whyOperationalDnaFits =
       feasibilityTier === 'low_structural_barrier'
-        ? `HONEST ASSESSMENT: You currently match ${matchedCoreSkills.length} of ${totalReqs} required skills (${currentTrueFitScore}% Raw Fit). Even if you complete all self-paced bridges, your score caps at ${shortTermSelfStudyCeiling}% (below the 40% TrueFit™ application threshold) because this role requires direct ${jobIndustry.split(',')[0]} tenure or licensing.`
+        ? `True Readiness Assessment: You currently match ${matchedCoreSkills.length} of ${totalReqs} required skills (${currentTrueFitScore}% Raw Fit). Even if you complete all self-paced bridges, your score caps at ${shortTermSelfStudyCeiling}% (below the 40% TrueFit™ application threshold) because this role requires direct ${jobIndustry.split(',')[0]} tenure or licensing.`
         : `You match ${matchedCoreSkills.length} of ${totalReqs} core requirements (${currentTrueFitScore}% Raw Fit), backed by ${horizonTransferabilityScore}% Operational DNA in ${topAxes[0]?.axis}. Self-paced bridging lifts your readiness to ${shortTermSelfStudyCeiling}%${
             projectedBridgedTrueFitScore > shortTermSelfStudyCeiling
               ? ` (and ${projectedBridgedTrueFitScore}% with direct industry tenure).`

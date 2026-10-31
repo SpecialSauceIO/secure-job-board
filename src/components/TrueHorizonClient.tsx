@@ -259,13 +259,13 @@ export default function TrueHorizonClient({
             <div className="rounded-xl bg-amber-50 border border-amber-300 p-3 text-xs text-amber-950 space-y-1">
               <p className="font-extrabold">Why we ask before adding to your profile:</p>
               <p className="leading-relaxed">
-                True Horizon™ never grades on a curve or encourages &ldquo;cooking&rdquo; your resume. Only add a capability to your live profile if you have genuinely executed it in prior work, completed the accredited certification/lab, or hold the required license.
+                True Horizon™ is built on verified capability. Only add a skill to your live profile if you have genuinely executed it in prior work, completed the accredited certification or lab, or hold the required credential.
               </p>
             </div>
 
             <div className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-700">
               <span className="font-extrabold text-slate-900 block mb-0.5">
-                Honest Framing Guidance:
+                Recommended Profile Framing:
               </span>
               {attestSkillModal.honestFraming}
             </div>
@@ -358,19 +358,19 @@ export default function TrueHorizonClient({
           <div className="space-y-3 max-w-3xl">
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/15 border border-sky-400/40 text-sky-300 text-[11px] font-extrabold uppercase tracking-wider">
-                🧭 True Horizon™ • Uncurved 28-Industry Transferability Engine
+                🧭 True Horizon™ • 28-Industry Transferability Engine
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-[11px] font-extrabold uppercase tracking-wider">
-                Zero Curve-Grading • Real Licensing &amp; Tenure Firewalls
+                True Capability Mapping • Verified Licensing &amp; Tenure Firewalls
               </span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-white">
-              Brutally Honest Career Mobility Across All 28 Industries.
+              True Career Mobility Across All 28 Industries.
             </h1>
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              We never grade on a curve or set you up to waste time and money on dead-end applications.{' '}
+              TrueFit™ and True Horizon™ give you clear, dependable compatibility data before you invest your time or tuition.{' '}
               <strong className="text-sky-300">True Horizon™</strong> evaluates your{' '}
               <strong className="text-white">6D Operational DNA</strong> across every sector on the platform—showing you where you can legitimately bridge in 2–4 weeks via self-paced certifications, where you need a stepping-stone role, and where hard licensing or physical trade barriers require a full career rebuild.
             </p>
@@ -865,10 +865,10 @@ export default function TrueHorizonClient({
               <div className="lg:col-span-7 space-y-3">
                 <div>
                   <h4 className="text-xs font-black uppercase tracking-wider text-slate-900">
-                    3. Honest Bridge-Delta Simulator &amp; &ldquo;How to Bridge&rdquo; Playbooks
+                    3. True Bridge-Delta Simulator &amp; &ldquo;How to Bridge&rdquo; Playbooks
                   </h4>
                   <p className="text-[11px] text-slate-500 mt-0.5">
-                    Only <strong>Self-Paced Certs &amp; Sandbox Labs</strong> can be checked to simulate short-term score lift. Skills marked <strong>🏥/🛑 Industry Exposure or License Required</strong> are locked from self-study simulation so your projected score stays 100% realistic:
+                    Only <strong>Self-Paced Certs &amp; Sandbox Labs</strong> can be checked to simulate short-term score lift. Skills marked <strong>🏥/🛑 Industry Exposure or License Required</strong> are locked from short-term self-study simulation so your projected score reflects true readiness:
                   </p>
                 </div>
 
@@ -993,7 +993,7 @@ export default function TrueHorizonClient({
 
                             <div className="space-y-1.5">
                               <p className="text-[11px] font-extrabold text-white uppercase tracking-wider">
-                                Honest Reality &amp; How to Close This Gap:
+                                True Readiness Path &amp; Action Steps:
                               </p>
                               <ul className="space-y-1.5 pl-4 list-disc text-slate-300 leading-relaxed">
                                 {b.actionableSteps.map((step, sIdx) => (
@@ -1030,7 +1030,7 @@ export default function TrueHorizonClient({
                             </div>
 
                             <div className="rounded-lg bg-emerald-950/60 border border-emerald-500/30 p-2.5 text-[11px] text-emerald-200">
-                              <strong className="text-emerald-300">Honest Profile Framing: </strong>
+                              <strong className="text-emerald-300">Recommended Profile Framing: </strong>
                               {b.honestProfileFraming}
                             </div>
                           </div>
@@ -1050,10 +1050,10 @@ export default function TrueHorizonClient({
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-slate-200 pb-4">
           <div>
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-600">
-              Uncurved Live Role Bridge Mapping • Showing {filteredJobBridges.length} Active Roles (Page {safeJobPage} of {totalJobPages})
+              True Horizon™ Live Role Mapping • Showing {filteredJobBridges.length} Active Roles (Page {safeJobPage} of {totalJobPages})
             </span>
             <h2 className="mt-1 text-xl sm:text-2xl font-black text-slate-900">
-              All Live Roles Ranked by Honest Operational &amp; Self-Study Feasibility
+              All Live Roles Ranked by True Operational &amp; Self-Study Feasibility
             </h2>
             <p className="mt-1 text-xs sm:text-sm text-slate-600">
               Page through every live role on the board. Roles where short-term self-study still leaves you below the <strong>40% TrueFit™ Firewall</strong> are clearly flagged so you never waste time or money.
@@ -1302,7 +1302,7 @@ export default function TrueHorizonClient({
                                 </button>
                               </div>
                               <p className="text-[11px] text-slate-600 leading-snug">
-                                <strong>Reality &amp; Path:</strong> {bs.howToBridgeSummary}
+                                <strong>True Bridge Path:</strong> {bs.howToBridgeSummary}
                               </p>
                               <div className="flex flex-wrap items-center gap-1.5 pt-1">
                                 {resolveLearningResourceLinks(bs.recommendedResource, bs.skill).map((lnk, lIdx) => (
