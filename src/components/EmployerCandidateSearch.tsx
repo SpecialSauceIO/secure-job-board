@@ -44,6 +44,7 @@ import {
 import { getQuickCandidateCardRank } from '@/constants/gamification'
 import { RankAndFounderPill } from '@/components/ReputationBadgeCase'
 import SafetyReportButton from '@/components/SafetyReportButton'
+import { computeEmployerCandidateHorizonFit, isTrueHorizonDlcEnabled } from '@/lib/true-horizon-engine'
 
 const MIN_MATCH_THRESHOLD = 40
 
@@ -233,6 +234,8 @@ export default function EmployerCandidateSearch({
   const [itemsPerPage, setItemsPerPage] = useState<number>(5)
   const [savedCandidateIds, setSavedCandidateIds] = useState<string[]>([])
   const [onlyShortlisted, setOnlyShortlisted] = useState(false)
+  const horizonDlcActive = isTrueHorizonDlcEnabled()
+  const [includeHorizonAdjacent, setIncludeHorizonAdjacent] = useState(false)
   const [togglingCandidateId, setTogglingCandidateId] = useState<string | null>(
     null
   )
@@ -567,8 +570,15 @@ export default function EmployerCandidateSearch({
       }
       if (industryFilter !== 'all') {
         const candIndustry = getCandidateIndustryVertical(candidate)
-        if (candIndustry.toLowerCase() !== industryFilter.toLowerCase()) {
-          return false
+        const isDirectMatch = candIndustry.toLowerCase() === industryFilter.toLowerCase()
+        if (!isDirectMatch) {
+          if (!horizonDlcActive || !includeHorizonAdjacent) {
+            return false
+          }
+          const horizonCheck = computeEmployerCandidateHorizonFit(candidate, industryFilter)
+          if (!horizonCheck.isAdjacentHorizonMatch) {
+            return false
+          }
         }
       }
       if (educationFilter !== 'all') {
@@ -672,6 +682,7 @@ export default function EmployerCandidateSearch({
     languageFilter,
     sortBy,
     viewMode,
+    includeHorizonAdjacent,
   ])
 
   useEffect(() => {
@@ -1014,6 +1025,21 @@ export default function EmployerCandidateSearch({
               ★ Shortlisted ({savedCandidateIds.length})
             </button>
 
+            {horizonDlcActive && (
+            <button
+              type="button"
+              onClick={() => setIncludeHorizonAdjacent((prev) => !prev)}
+              title="When filtering by Industry Vertical, also surface verified professionals from adjacent sectors with ≥72% 6D Operational DNA transferability"
+              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md font-bold border transition-colors cursor-pointer ${
+                includeHorizonAdjacent
+                  ? 'bg-sky-50 border-sky-300 text-sky-900'
+                  : 'bg-slate-50 border-slate-300 text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              🧭 True Horizon™ Adjacent Talent: {includeHorizonAdjacent ? 'ON' : 'OFF'}
+            </button>
+            )}
+
             {employmentType !== 'all' && (
               <button
                 type="button"
@@ -1146,6 +1172,7 @@ export default function EmployerCandidateSearch({
             const candidateCerts = getCandidateCertifications(candidate)
             const candidateLanguages = getCandidateLanguages(candidate)
             const rankInfo = getQuickCandidateCardRank(candidate)
+            const horizonInfo = computeEmployerCandidateHorizonFit(candidate, industryFilter)
 
             const candidateSkillStrings: string[] =
               Array.isArray(candidate.structured_skills) &&
@@ -1367,6 +1394,21 @@ export default function EmployerCandidateSearch({
                     <span className="font-bold text-slate-800">
                       {candidateIndustry || 'General / Cross-Industry'}
                     </span>
+                    {horizonDlcActive && (
+                      <>
+                        <span className="text-slate-300">•</span>
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-extrabold text-[11px] border ${
+                        horizonInfo.isAdjacentHorizonMatch
+                          ? 'bg-sky-50 text-sky-900 border-sky-300'
+                          : 'bg-indigo-50/70 text-indigo-900 border-indigo-200'
+                      }`}
+                      title={`True Horizon™ 6D Operational DNA (${horizonInfo.topSharedAxes.join(' + ')})`}
+                    >
+                      🧭 {horizonInfo.isAdjacentHorizonMatch ? `Horizon Adjacent Match (${horizonInfo.targetVerticalScore}% DNA)` : `Operational DNA: ${horizonInfo.targetVerticalScore}%`}
+                        </span>
+                      </>
+                    )}
                     <span className="text-slate-300">•</span>
                     <span
                       className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md font-bold text-[11px] border ${getAvailabilityBadgeClasses(

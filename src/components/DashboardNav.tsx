@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import QuickFeedbackWidget from '@/components/QuickFeedbackWidget'
+import { isTrueHorizonDlcEnabled } from '@/lib/true-horizon-engine'
 import type { SystemStatusBanner } from '@/lib/ops-bridge'
 import { updateSystemStatusBannerAction } from '@/app/dashboard/status-banner-actions'
 import {
@@ -142,6 +143,7 @@ export default function DashboardNav({
   const candidateLinks = [
     { href: '/dashboard', label: 'Overview', exact: true },
     { href: '/dashboard/jobs', label: 'Find Roles' },
+    ...(isTrueHorizonDlcEnabled() ? [{ href: '/dashboard/horizon', label: 'True Horizon™ (DLC)' }] : []),
     { href: '/dashboard/applications', label: 'Outbound Applications' },
     { href: '/dashboard/requests', label: 'Professional Invitations' },
     { href: '/dashboard/profile', label: 'My Profile' },
