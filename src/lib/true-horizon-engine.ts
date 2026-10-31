@@ -819,6 +819,108 @@ const VERTICAL_ARCHETYPE_MATRIX: VerticalArchetypeSpec[] = [
   },
 ]
 
+
+export interface LearningResourceLink {
+  label: string
+  url: string
+  provider: string
+  isOfficialAuthority: boolean
+}
+
+const CANONICAL_RESOURCE_URLS: { pattern: RegExp; url: string; provider: string }[] = [
+  { pattern: /sc-900|security, compliance, and identity/i, url: 'https://learn.microsoft.com/en-us/credentials/certifications/security-compliance-and-identity-fundamentals/', provider: 'Microsoft Learn' },
+  { pattern: /az-900|azure fundamentals/i, url: 'https://learn.microsoft.com/en-us/credentials/certifications/azure-fundamentals/', provider: 'Microsoft Learn' },
+  { pattern: /copilot|microsoft learn/i, url: 'https://learn.microsoft.com/en-us/training/', provider: 'Microsoft Learn' },
+  { pattern: /anthropic|claude/i, url: 'https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview', provider: 'Anthropic Docs' },
+  { pattern: /deeplearning\.ai/i, url: 'https://www.deeplearning.ai/short-courses/', provider: 'DeepLearning.AI' },
+  { pattern: /supabase|pgvector/i, url: 'https://supabase.com/docs/guides/ai', provider: 'Supabase Docs' },
+  { pattern: /automate the boring stuff|python/i, url: 'https://automatetheboringstuff.com/', provider: 'Python Open Textbook' },
+  { pattern: /groq|openai api/i, url: 'https://console.groq.com/docs/quickstart', provider: 'Groq Cloud Docs' },
+  { pattern: /hhs\.gov|hipaa/i, url: 'https://www.hhs.gov/hipaa/for-professionals/training/index.html', provider: 'HHS.gov Official' },
+  { pattern: /hitrust/i, url: 'https://hitrustalliance.net/academy/', provider: 'HITRUST Academy' },
+  { pattern: /hl7|fhir/i, url: 'https://www.hl7.org/fhir/overview.html', provider: 'HL7 International' },
+  { pattern: /healthit\.gov|ehr/i, url: 'https://www.healthit.gov/topic/health-it-and-health-information-exchange-basics', provider: 'HealthIT.gov' },
+  { pattern: /hfma|crcr|revenue cycle/i, url: 'https://www.hfma.org/certifications/certified-revenue-cycle-representative-crcr/', provider: 'HFMA Official' },
+  { pattern: /cms\.gov|medicare learning/i, url: 'https://www.cms.gov/training-education/medicare-learning-network', provider: 'CMS.gov MLN' },
+  { pattern: /atlassian|jira|agile/i, url: 'https://university.atlassian.com/', provider: 'Atlassian University' },
+  { pattern: /product school|product operations/i, url: 'https://productschool.com/resources', provider: 'Product School' },
+  { pattern: /gainsight|customer success/i, url: 'https://education.gainsight.com/', provider: 'Gainsight Pulse+' },
+  { pattern: /sqlbolt|sql/i, url: 'https://sqlbolt.com/', provider: 'SQLBolt Interactive' },
+  { pattern: /okta|entra|zero-trust/i, url: 'https://www.microsoft.com/en-us/security/business/zero-trust', provider: 'Microsoft Security' },
+  { pattern: /isc2|certified in cybersecurity/i, url: 'https://www.isc2.org/certifications/cc', provider: 'ISC2 Official' },
+  { pattern: /nist csf|cybersecurity framework/i, url: 'https://www.nist.gov/cyberframework', provider: 'NIST.gov Official' },
+  { pattern: /comptia|security\+/i, url: 'https://www.comptia.org/certifications/security', provider: 'CompTIA Official' },
+  { pattern: /copc|vendor management/i, url: 'https://www.copc.com/standards/', provider: 'COPC Standards' },
+  { pattern: /icmi|workforce management/i, url: 'https://www.icmi.com/Training', provider: 'ICMI Training' },
+  { pattern: /occ bulletin|third-party|tprm|shared assessments/i, url: 'https://www.occ.gov/news-issuances/bulletins/2023/bulletin-2023-17.html', provider: 'OCC.gov Regulatory' },
+  { pattern: /acams|kyc|aml/i, url: 'https://www.acams.org/en/training-and-certification', provider: 'ACAMS Official' },
+  { pattern: /stripe identity|radar/i, url: 'https://docs.stripe.com/identity', provider: 'Stripe Docs' },
+  { pattern: /isaca|crisc/i, url: 'https://www.isaca.org/credentialing/crisc', provider: 'ISACA Official' },
+  { pattern: /ascm|apics|supply chain/i, url: 'https://www.ascm.org/learning-development/', provider: 'ASCM / APICS' },
+  { pattern: /corporate finance institute|cfi|unit economics/i, url: 'https://corporatefinanceinstitute.com/resources/accounting/unit-economics/', provider: 'CFI Education' },
+  { pattern: /ebay|marketplace/i, url: 'https://sellercentre.ebay.com/', provider: 'eBay Seller Academy' },
+  { pattern: /google analytics|ga4/i, url: 'https://skillshop.withgoogle.com/', provider: 'Google Skillshop' },
+  { pattern: /atd|instructional design|addie/i, url: 'https://www.td.org/education-courses', provider: 'ATD Education' },
+  { pattern: /kirkpatrick|okr/i, url: 'https://www.whatmatters.com/get-certified', provider: 'WhatMatters OKR' },
+  { pattern: /cdse|cui|800-171|cmmc/i, url: 'https://www.cdse.edu/Training/eLearning/', provider: 'DoD CDSE Official' },
+  { pattern: /fedramp/i, url: 'https://www.fedramp.gov/training/', provider: 'FedRAMP.gov Official' },
+  { pattern: /pmi|dau|earned value|evm/i, url: 'https://www.dau.edu/', provider: 'Defense Acquisition Univ' },
+  { pattern: /itil/i, url: 'https://www.peoplecert.org/browse-certifications/it-governance-and-service-management/ITIL-1', provider: 'PeopleCert ITIL' },
+  { pattern: /wcag|accessibility/i, url: 'https://www.w3.org/WAI/standards-guidelines/wcag/', provider: 'W3C WAI Official' },
+  { pattern: /shrm|employment law|hris/i, url: 'https://www.shrm.org/credentials/certification', provider: 'SHRM Official' },
+  { pattern: /figma/i, url: 'https://help.figma.com/hc/en-us/categories/360002051613-Get-started', provider: 'Figma Learn' },
+]
+
+/**
+ * Resolves any resource title or skill name into 100% valid, clickable external
+ * learning URLs (Official Authority if matched, or pre-filtered Coursera/edX/Microsoft Learn catalog search).
+ */
+export function resolveLearningResourceLinks(
+  resourceOrSkillText: string,
+  fallbackSkillName?: string
+): LearningResourceLink[] {
+  const cleanText = String(resourceOrSkillText || '').trim()
+  const searchTopic = String(fallbackSkillName || cleanText)
+    .replace(/\(.*?\)/g, '')
+    .replace(/[^a-zA-Z0-9\s&+/-]/g, ' ')
+    .trim()
+  const encodedTopic = encodeURIComponent(searchTopic)
+
+  for (const entry of CANONICAL_RESOURCE_URLS) {
+    if (entry.pattern.test(cleanText) || (fallbackSkillName && entry.pattern.test(fallbackSkillName))) {
+      return [
+        {
+          label: cleanText,
+          url: entry.url,
+          provider: entry.provider,
+          isOfficialAuthority: true,
+        },
+        {
+          label: `Coursera Accredited Courses: ${searchTopic}`,
+          url: `https://www.coursera.org/search?query=${encodedTopic}`,
+          provider: 'Coursera Catalog',
+          isOfficialAuthority: false,
+        },
+      ]
+    }
+  }
+
+  return [
+    {
+      label: `Coursera Certificate Catalog: ${searchTopic}`,
+      url: `https://www.coursera.org/search?query=${encodedTopic}`,
+      provider: 'Coursera',
+      isOfficialAuthority: false,
+    },
+    {
+      label: `edX University Courses: ${searchTopic}`,
+      url: `https://www.edx.org/search?q=${encodedTopic}`,
+      provider: 'edX',
+      isOfficialAuthority: false,
+    },
+  ]
+}
+
 function clampScore(val: number, min = 18, max = 98): number {
   return Math.max(min, Math.min(max, Math.round(val)))
 }
@@ -839,13 +941,16 @@ function classifyLiveJobSkillBridge(
 } {
   const lower = skillName.toLowerCase()
 
-  // Check if it matches any curated skill in VERTICAL_ARCHETYPE_MATRIX first
+  // Strict multi-token check so generic words like "Governance" or "Operations" don't cross-contaminate verticals
+  const stopWords = new Set(['and', 'the', 'for', 'with', 'operations', 'management', 'governance', 'program', 'systems', 'lead', 'specialist'])
+  const skillTokens = lower.split(/[\s,/&-]+/).filter((t) => t.length >= 4 && !stopWords.has(t))
+
   for (const vert of VERTICAL_ARCHETYPE_MATRIX) {
     for (const bs of vert.bridgeSkills) {
-      if (
-        bs.skill.toLowerCase().includes(lower) ||
-        lower.includes(bs.skill.toLowerCase().split(' ')[0])
-      ) {
+      const bsLower = bs.skill.toLowerCase()
+      const bsTokens = bsLower.split(/[\s,/&-]+/).filter((t) => t.length >= 4 && !stopWords.has(t))
+      const sharedSpecificTokens = skillTokens.filter((t) => bsTokens.includes(t))
+      if (bsLower === lower || sharedSpecificTokens.length >= 2) {
         return {
           modality: bs.modality,
           modalityLabel: bs.modalityLabel,

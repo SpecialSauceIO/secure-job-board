@@ -11,9 +11,10 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts'
-import type {
-  TrueHorizonAnalysisResult,
-  BridgeAcquisitionModality,
+import {
+  resolveLearningResourceLinks,
+  type TrueHorizonAnalysisResult,
+  type BridgeAcquisitionModality,
 } from '@/lib/true-horizon-engine'
 import {
   addHorizonBridgeSkillToProfileAction,
@@ -719,15 +720,26 @@ export default function TrueHorizonClient({
                               <p className="text-[11px] font-extrabold text-amber-300 uppercase tracking-wider">
                                 Recommended Certifications, Training or Entry Paths:
                               </p>
-                              <div className="flex flex-wrap gap-1.5 pt-0.5">
-                                {b.recommendedCredentialsOrResources.map((cred, cIdx) => (
-                                  <span
-                                    key={cIdx}
-                                    className="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 text-[11px] font-bold"
-                                  >
-                                    📘 {cred}
-                                  </span>
-                                ))}
+                              <div className="flex flex-wrap gap-2 pt-1">
+                                {b.recommendedCredentialsOrResources.map((cred, cIdx) => {
+                                  const links = resolveLearningResourceLinks(cred, b.skill)
+                                  const primaryLink = links[0]
+                                  return (
+                                    <a
+                                      key={cIdx}
+                                      href={primaryLink.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-indigo-600 border border-slate-600 hover:border-indigo-400 text-slate-100 hover:text-white text-[11px] font-extrabold transition-all shadow-2xs group"
+                                      title={`Open official learning resource (${primaryLink.provider}) in a new tab`}
+                                    >
+                                      <span>📘 {cred}</span>
+                                      <span className="text-sky-300 group-hover:text-white text-xs font-black">
+                                        ↗
+                                      </span>
+                                    </a>
+                                  )
+                                })}
                               </div>
                             </div>
 
@@ -871,9 +883,23 @@ export default function TrueHorizonClient({
                               <p className="text-[11px] text-slate-600 leading-snug">
                                 <strong>How:</strong> {bs.howToBridgeSummary}
                               </p>
-                              <p className="text-[10px] font-bold text-indigo-700">
-                                📘 Path: {bs.recommendedResource} ({bs.estimatedTimeToBridge})
-                              </p>
+                              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                                {resolveLearningResourceLinks(bs.recommendedResource, bs.skill).map((lnk, lIdx) => (
+                                  <a
+                                    key={lIdx}
+                                    href={lnk.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-600 text-indigo-800 hover:text-white border border-indigo-200 hover:border-indigo-500 text-[10px] font-extrabold transition-colors"
+                                  >
+                                    <span>📘 {lnk.isOfficialAuthority ? lnk.label : `${lnk.provider}: ${bs.skill}`}</span>
+                                    <span>↗</span>
+                                  </a>
+                                ))}
+                                <span className="text-[10px] font-bold text-slate-500">
+                                  • ⏱ {bs.estimatedTimeToBridge}
+                                </span>
+                              </div>
                             </div>
                           )
                         })}
