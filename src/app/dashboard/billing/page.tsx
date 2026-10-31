@@ -561,7 +561,7 @@ export default function CandidateBillingPage() {
                 <li className="text-amber-300 font-bold">
                   ★ <strong>Top-Priority Placement in Employer Search</strong>
                 </li>
-                <li>✓ Priority 1-on-1 US Support &amp; downgrade to $0/mo Explorer anytime</li>
+                <li>✓ Priority 1-on-1 US Support &amp; downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime</li>
               </ul>
             </div>
 

@@ -311,7 +311,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span>Downgrade to $0/mo Explorer anytime once hired</span>
+                      <span>Downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime</span>
                     </li>
                   </ul>
                 </div>

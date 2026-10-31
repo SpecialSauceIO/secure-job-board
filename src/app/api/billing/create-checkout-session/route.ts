@@ -63,7 +63,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE_19',
     defaultPriceId: '',
     description:
-      'Includes Real-Person ID Verification, unlimited outbound protected applications, and top-priority placement in Employer Search. Downgrade to $0/mo Explorer anytime.',
+      'Includes Real-Person ID Verification, unlimited outbound protected applications, and top-priority placement in Employer Search. Downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime.',
   },
   candidate_prestige: {
     id: 'prestige',
@@ -73,7 +73,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE_19',
     defaultPriceId: '',
     description:
-      'Includes Real-Person ID Verification, unlimited outbound protected applications, and top-priority placement in Employer Search. Downgrade to $0/mo Explorer anytime.',
+      'Includes Real-Person ID Verification, unlimited outbound protected applications, and top-priority placement in Employer Search. Downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime.',
   },
 }
 

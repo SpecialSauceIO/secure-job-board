@@ -193,7 +193,7 @@ SPECIAL SAUCE — PROFESSIONAL QUICK-START GUIDE
 - Explorer ($5 one-time · $0/mo forever): Lifetime ID verification, live anonymous profile, free TrueFit Score™ checks, unlimited employer invitations, and Weekly 1-Year Prestige Drawing entry.
 - Professional ($12/mo): Everything in Explorer + 15 outbound applications/mo and Permanent Founding Member badge.
 - Prestige ($19/mo): Everything in Professional + unlimited outbound applications, top-priority search placement, and priority support.
-(Switch or downgrade back to $0/mo Explorer anytime once hired.)
+(Downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime.)
 ====================================================================`,
   },
 }
@@ -272,7 +272,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'What is the difference between Explorer ($5 once), Professional ($12/mo), and Prestige ($19/mo)?',
     answer:
-      'Explorer ($5 one-time ID verification · $0/mo forever) lets you get discovered by employers, run free TrueFit Score™ checks, accept unlimited employer invitations, and enter our Weekly 1-Year Prestige Drawing at $0/mo. Professional ($12/mo) adds 15 outbound applications per month and Founding Member status. Prestige ($19/mo) unlocks unlimited outbound applications, top-priority placement in Employer Search, and priority US support. You can downgrade back to $0/mo Explorer anytime once hired.',
+      'Explorer ($5 one-time ID verification · $0/mo forever) lets you get discovered by employers, run free TrueFit Score™ checks, accept unlimited employer invitations, and enter our Weekly 1-Year Prestige Drawing at $0/mo. Professional ($12/mo) adds 15 outbound applications per month and Founding Member status. Prestige ($19/mo) unlocks unlimited outbound applications, top-priority placement in Employer Search, and priority US support. You can downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime.',
   },
 
   // ------------------------------------------------------------------
