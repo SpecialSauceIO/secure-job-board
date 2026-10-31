@@ -393,7 +393,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">Accepted-Only Guarantee</strong> (Declined invites auto-refunded)</span>
+                      <span><strong className="text-white">Accepted-Only Guarantee</strong> (Declined invites auto-refund)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -453,7 +453,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">Accepted-Only Guarantee</strong> (Declined invites auto-refunded)</span>
+                      <span><strong className="text-white">Accepted-Only Guarantee</strong> (Declined invites auto-refund)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -513,7 +513,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">Accepted-Only Guarantee</strong> (Declined invites auto-refunded)</span>
+                      <span><strong className="text-white">Accepted-Only Guarantee</strong> (Declined invites auto-refund)</span>
                     </li>
                     <li className="flex items-start gap-2.5 text-indigo-300 font-bold">
                       <span className="shrink-0">⚡</span>

@@ -467,7 +467,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>10 Outbound Invitation Credits / mo</strong>
               </li>
               <li className="text-emerald-700 font-bold">
-                🛡️ <strong>Accepted-Only Guarantee</strong> (Declined invites auto-refunded)
+                🛡️ <strong>Accepted-Only Guarantee</strong> (Declined invites auto-refund)
               </li>
               <li>
                 ✓ <strong>Unlimited Free Inbound Applicants</strong>
@@ -539,7 +539,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>35 Outbound Invitation Credits / mo</strong>
               </li>
               <li className="text-emerald-300 font-bold">
-                🛡️ <strong>Accepted-Only Guarantee</strong> (Declined invites auto-refunded)
+                🛡️ <strong>Accepted-Only Guarantee</strong> (Declined invites auto-refund)
               </li>
               <li>
                 ✓ <strong>Unlimited Free Inbound Applicants</strong>
@@ -613,7 +613,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>120 Outbound Invitation Credits / mo</strong>
               </li>
               <li className="text-emerald-700 font-bold">
-                🛡️ <strong>Accepted-Only Guarantee</strong> (Declined invites auto-refunded)
+                🛡️ <strong>Accepted-Only Guarantee</strong> (Declined invites auto-refund)
               </li>
               <li>
                 ✓ <strong>Workday &amp; Greenhouse Auto-Sync</strong> + CSV Export
