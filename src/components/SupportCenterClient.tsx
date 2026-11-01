@@ -137,6 +137,14 @@ export default function SupportCenterClient({
   )
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedFaqId, setExpandedFaqId] = useState<string | null>(null)
+
+  // Live Self-Service KB Deflector State inside New Ticket Composer
+  const [draftCategory, setDraftCategory] = useState<string>('General Support')
+  const [draftPlatformArea, setDraftPlatformArea] = useState<string>('Onboarding & Authentication')
+  const [draftSubject, setDraftSubject] = useState<string>('')
+  const [draftMessage, setDraftMessage] = useState<string>('')
+  const [expandedDeflectorFaqId, setExpandedDeflectorFaqId] = useState<string | null>(null)
+  const [dismissedDeflectorIds, setDismissedDeflectorIds] = useState<string[]>([])
   const [ticketStatus, setTicketStatus] = useState<{
     type: 'success' | 'error'
     message: string
@@ -283,6 +291,97 @@ export default function SupportCenterClient({
     return groups
   }, [filteredFaqs])
 
+  const suggestedTicketFaqs = useMemo(() => {
+    const combinedTyped = `${draftSubject} ${draftMessage}`.toLowerCase().trim()
+    const hasTypedContent = combinedTyped.length >= 3
+
+    const STOP_WORDS = new Set([
+      'the', 'and', 'for', 'with', 'that', 'this', 'from', 'have', 'how',
+      'what', 'why', 'when', 'where', 'can', 'not', 'are', 'was', 'were',
+      'need', 'help', 'issue', 'problem', 'question', 'please', 'about', 'into'
+    ])
+
+    const tokens = combinedTyped
+      .replace(/[^a-z0-9]+/g, ' ')
+      .split(' ')
+      .filter((w) => w.length >= 2 && !STOP_WORDS.has(w))
+
+    const areaLower = draftPlatformArea.toLowerCase()
+    const catLower = draftCategory.toLowerCase()
+
+    const scored = faqs
+      .filter((f) => !dismissedDeflectorIds.includes(f.id))
+      .filter((f) => {
+        if (!userRole) return true
+        return f.target === 'all' || f.target === userRole
+      })
+      .map((faq) => {
+        let score = 0
+        const qLower = faq.question.toLowerCase()
+        const aLower = faq.answer.toLowerCase()
+        const cLower = faq.category.toLowerCase()
+        const fullText = `${qLower} ${aLower} ${cLower}`
+
+        // Boost by selected Category / Platform Area if user hasn't typed much yet or if it aligns
+        if (
+          (areaLower.includes('stripe') || catLower.includes('verification')) &&
+          (fullText.includes('stripe') || fullText.includes('verify') || fullText.includes('id'))
+        ) {
+          score += 4
+        }
+        if (
+          areaLower.includes('domain') &&
+          (fullText.includes('domain') || fullText.includes('dns') || fullText.includes('ein'))
+        ) {
+          score += 5
+        }
+        if (
+          (areaLower.includes('vault') || catLower.includes('vault')) &&
+          (fullText.includes('vault') || fullText.includes('resume') || fullText.includes('introduction'))
+        ) {
+          score += 4
+        }
+        if (
+          areaLower.includes('truefit') &&
+          (fullText.includes('truefit') || fullText.includes('dealbreaker') || fullText.includes('minimum pay'))
+        ) {
+          score += 5
+        }
+        if (
+          (areaLower.includes('billing') || catLower.includes('billing')) &&
+          (fullText.includes('plan') || fullText.includes('credit') || fullText.includes('explorer') || fullText.includes('prestige') || fullText.includes('founding'))
+        ) {
+          score += 4
+        }
+        if (
+          (areaLower.includes('sync') || catLower.includes('ats')) &&
+          (fullText.includes('workday') || fullText.includes('greenhouse') || fullText.includes('seat'))
+        ) {
+          score += 5
+        }
+
+        // Token matching from live typing in Subject & Message
+        for (const tok of tokens) {
+          if (qLower.includes(tok)) score += 6
+          if (cLower.includes(tok)) score += 3
+          if (aLower.includes(tok)) score += 2
+        }
+
+        // Exact phrase match bonus
+        if (hasTypedContent && qLower.includes(combinedTyped)) {
+          score += 10
+        }
+
+        return { faq, score }
+      })
+      .filter((item) => (hasTypedContent ? item.score >= 5 : item.score >= 4))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3)
+      .map((item) => item.faq)
+
+    return scored
+  }, [faqs, userRole, draftCategory, draftPlatformArea, draftSubject, draftMessage, dismissedDeflectorIds])
+
   const handleRefreshTickets = useCallback(async () => {
     setIsRefreshingTickets(true)
     try {
@@ -348,6 +447,9 @@ export default function SupportCenterClient({
         message: `Ticket submitted! Reference ID: ${result.ticketId}. A confirmation receipt has been sent to your email.`,
       })
       ;(document.getElementById('support-form') as HTMLFormElement)?.reset()
+      setDraftSubject('')
+      setDraftMessage('')
+      setExpandedDeflectorFaqId(null)
       const refreshed = await fetchMySupportTicketsAction()
       if (refreshed.tickets) {
         setMyTickets(refreshed.tickets)
@@ -590,6 +692,8 @@ export default function SupportCenterClient({
                       <select
                         name="category"
                         required
+                        value={draftCategory}
+                        onChange={(e) => setDraftCategory(e.target.value)}
                         className="w-full rounded-xl border border-slate-300 bg-white text-slate-900 py-2.5 px-3.5 text-sm font-medium"
                       >
                         <option value="General Support">General Support &amp; Questions</option>
@@ -609,6 +713,8 @@ export default function SupportCenterClient({
                       <select
                         name="platform_area"
                         required
+                        value={draftPlatformArea}
+                        onChange={(e) => setDraftPlatformArea(e.target.value)}
                         className="w-full rounded-xl border border-slate-300 bg-white text-slate-900 py-2.5 px-3.5 text-sm font-medium"
                       >
                         <option value="Onboarding & Authentication">Onboarding &amp; Authentication</option>
@@ -633,6 +739,8 @@ export default function SupportCenterClient({
                         type="text"
                         name="subject"
                         required
+                        value={draftSubject}
+                        onChange={(e) => setDraftSubject(e.target.value)}
                         placeholder="Brief summary of your question or issue..."
                         className="w-full rounded-xl border border-slate-300 bg-white text-slate-900 py-2.5 px-3.5 text-sm font-medium"
                       />
@@ -659,10 +767,112 @@ export default function SupportCenterClient({
                       name="message"
                       required
                       rows={5}
+                      value={draftMessage}
+                      onChange={(e) => setDraftMessage(e.target.value)}
                       placeholder="Provide as much detail as possible so our support team can assist you..."
                       className="w-full rounded-xl border border-slate-300 bg-white text-slate-900 py-3 px-3.5 text-sm"
                     />
                   </div>
+
+                  {/* LIVE SELF-SERVICE KNOWLEDGE BASE DEFLECTOR */}
+                  {suggestedTicketFaqs.length > 0 && (
+                    <div className="rounded-2xl border-2 border-indigo-200 bg-indigo-50/60 p-4 sm:p-5 space-y-3 transition-all">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2.5 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider">
+                            💡 Instant Self-Service Answers
+                          </span>
+                          <span className="text-xs font-extrabold text-slate-900">
+                            {draftSubject.trim().length >= 3 || draftMessage.trim().length >= 3
+                              ? 'Recommended articles based on what you are typing:'
+                              : `Helpful articles for ${draftPlatformArea}:`}
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-semibold text-slate-500">
+                          Click any question to view the answer immediately
+                        </span>
+                      </div>
+
+                      <div className="space-y-2">
+                        {suggestedTicketFaqs.map((faq) => {
+                          const isOpen = expandedDeflectorFaqId === faq.id
+                          return (
+                            <div
+                              key={faq.id}
+                              className="rounded-xl border border-slate-300 bg-white overflow-hidden shadow-2xs"
+                            >
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setExpandedDeflectorFaqId(isOpen ? null : faq.id)
+                                }
+                                className="w-full px-4 py-3 text-left flex items-center justify-between gap-3 hover:bg-slate-50 transition-colors cursor-pointer"
+                              >
+                                <div className="min-w-0">
+                                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 block">
+                                    {faq.category}
+                                  </span>
+                                  <span className="text-xs sm:text-sm font-extrabold text-slate-900">
+                                    {faq.question}
+                                  </span>
+                                </div>
+                                <span className="text-xs font-extrabold text-indigo-600 shrink-0">
+                                  {isOpen ? 'Hide ▲' : 'Read Answer ▼'}
+                                </span>
+                              </button>
+
+                              {isOpen && (
+                                <div className="px-4 pb-4 pt-3 border-t border-slate-200 bg-slate-50/70 space-y-3">
+                                  <p className="text-xs sm:text-sm text-slate-800 leading-relaxed">
+                                    {faq.answer}
+                                  </p>
+                                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/80">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setDraftSubject('')
+                                        setDraftMessage('')
+                                        setExpandedDeflectorFaqId(null)
+                                        ;(
+                                          document.getElementById(
+                                            'support-form'
+                                          ) as HTMLFormElement
+                                        )?.reset()
+                                        setTicketStatus({
+                                          type: 'success',
+                                          message:
+                                            '✓ Glad that helped! Your draft ticket was cleared—no support ticket needed.',
+                                        })
+                                        if (myTickets.length > 0) {
+                                          setIsComposingNewTicket(false)
+                                        }
+                                      }}
+                                      className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold transition-colors cursor-pointer shadow-2xs"
+                                    >
+                                      ✓ This Solved My Issue (No Ticket Needed)
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setDismissedDeflectorIds((prev) => [
+                                          ...prev,
+                                          faq.id,
+                                        ])
+                                      }
+                                      className="text-[11px] font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
+                                    >
+                                      Not what I need • Dismiss
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">

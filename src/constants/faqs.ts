@@ -350,4 +350,40 @@ export const SUPPORT_FAQS: FAQ[] = [
     answer:
       'Your team receives an instant email alert, an unread badge on your Employer Dashboard, and a subtle audio chime if your dashboard tab is open.',
   },
+  {
+    id: 'c9',
+    target: 'candidate',
+    category: 'Verification & Privacy',
+    question:
+      'My Stripe photo ID check says processing—how long does it take to update?',
+    answer:
+      'Stripe Identity checks usually finish within 15 to 60 seconds. If your Dashboard still shows "ID Check Pending," click the "Refresh Status" button on your Dashboard banner or reload the page to sync your Verified Professional Shield.',
+  },
+  {
+    id: 'c10',
+    target: 'candidate',
+    category: 'Applications & Roles',
+    question:
+      'How is my TrueFit Score™ calculated, and why do outbound applications require 40%+?',
+    answer:
+      'Your TrueFit Score™ compares your verified skills, experience, and preferences against the role requirements. You can run TrueFit Score™ checks for free in Explorer ($0/mo). Active Professional ($12/mo) and Prestige ($19/mo) members can submit outbound applications on any role where their TrueFit Score™ is 40% or higher, ensuring hiring teams review strong, relevant matches.',
+  },
+  {
+    id: 'e8',
+    target: 'employer',
+    category: 'Organization Verification',
+    question:
+      'Our corporate domain or DNS TXT record is not verifying yet—what should we check?',
+    answer:
+      'If you are verifying via DNS TXT record (e.g., on Cloudflare, GoDaddy, AWS Route 53, or Namecheap), ensure the record is placed on your root domain (@) without extra quotes and allow 1 to 5 minutes for DNS propagation before clicking Verify Domain again.',
+  },
+  {
+    id: 'all1',
+    target: 'all',
+    category: 'Membership Plans ($5 / $12 / $19)',
+    question:
+      'How do I downgrade to Explorer ($0/mo) when hired or manage my billing?',
+    answer:
+      'You can switch plans or downgrade back to Explorer ($0/mo forever) anytime from your Billing & Plans page. Downgrading to Explorer stops monthly billing while keeping your Verified Professional profile active in the passive talent pool for free inbound employer invitations.',
+  },
 ]

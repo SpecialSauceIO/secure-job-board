@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import SupportCenterClient from '@/components/SupportCenterClient'
 import { SUPPORT_FAQS } from '@/constants/faqs'
-import { getUserOpsTickets, getActiveSystemStatusBanner } from '@/lib/ops-bridge'
+import { getUserOpsTickets, getActiveSystemStatusBanner, getMergedPublicSupportFaqs } from '@/lib/ops-bridge'
 import { resolveCandidateTierInfo, resolveEmployerTierInfo } from '@/app/dashboard/actions'
 
 export const dynamic = 'force-dynamic'
@@ -27,13 +27,14 @@ export default async function SupportPage({
 
   const resolvedParams = searchParams ? await searchParams : {}
 
-  const [{ data: profile }, initialTickets] = await Promise.all([
+  const [{ data: profile }, initialTickets, liveFaqs] = await Promise.all([
     supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single(),
     getUserOpsTickets(user.id, user.email),
+    getMergedPublicSupportFaqs(SUPPORT_FAQS),
   ])
 
   const userRole = profile?.role as 'candidate' | 'employer' | null
@@ -112,7 +113,7 @@ export default async function SupportPage({
       </header>
 
       <SupportCenterClient
-        faqs={SUPPORT_FAQS}
+        faqs={liveFaqs}
         userRole={userRole}
         activeStatusBanner={activeStatusBanner}
         userName={userName}

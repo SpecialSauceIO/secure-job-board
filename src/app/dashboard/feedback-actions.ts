@@ -94,6 +94,7 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
     reporter_name: reporterEmail,
     reporter_email: reporterEmail,
     reporter_role: role.toUpperCase(),
+    account_tier: '1-Way Quick Feedback Widget',
     page_url: pageUrl,
     user_agent: userAgent,
   })

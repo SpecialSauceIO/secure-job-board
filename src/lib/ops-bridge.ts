@@ -788,3 +788,75 @@ export async function setManualSystemStatusBanner(params: {
   }
 }
 
+
+
+export async function getMergedPublicSupportFaqs<
+  T extends {
+    id: string
+    target: 'candidate' | 'employer' | 'all'
+    category: string
+    question: string
+    answer: string
+  }
+>(staticFaqs: T[]): Promise<T[]> {
+  const client = getOpsServiceClient()
+  if (!client) return staticFaqs
+
+  try {
+    const vault = await loadMergedOpsVault(client)
+    const rawKb = vault.monitor_meta?.kb_articles
+    if (!Array.isArray(rawKb) || rawKb.length === 0) {
+      return staticFaqs
+    }
+
+    const customerFaqsFromOps = rawKb.filter(
+      (a: any) =>
+        a &&
+        a.visibility === 'customer_faq' &&
+        String(a.title || '').trim().length > 0 &&
+        String(a.customer_reply_macro || '').trim().length > 0
+    )
+
+    if (customerFaqsFromOps.length === 0) {
+      return staticFaqs
+    }
+
+    const merged = [...staticFaqs]
+
+    for (const opsFaq of customerFaqsFromOps) {
+      const cleanAnswer = String(opsFaq.customer_reply_macro || '')
+        .replace(/^Hi\s+\{\{name\}\},?\s*/i, '')
+        .trim()
+      const cleanTitle = String(opsFaq.title || '').trim()
+      const rawId = String(opsFaq.id || '').toLowerCase().replace(/^faq-/, '')
+
+      const existingIdx = merged.findIndex(
+        (f) =>
+          f.id.toLowerCase() === rawId ||
+          f.id.toLowerCase() === String(opsFaq.id || '').toLowerCase() ||
+          f.question.toLowerCase().trim() === cleanTitle.toLowerCase()
+      )
+
+      const formattedFaq = {
+        id: existingIdx >= 0 ? merged[existingIdx].id : String(opsFaq.id || `faq-${Date.now()}`),
+        target:
+          opsFaq.target_role === 'candidate' || opsFaq.target_role === 'employer'
+            ? opsFaq.target_role
+            : 'all',
+        category: String(opsFaq.category || opsFaq.platform_area || 'General Support'),
+        question: cleanTitle,
+        answer: cleanAnswer,
+      } as T
+
+      if (existingIdx >= 0) {
+        merged[existingIdx] = formattedFaq
+      } else {
+        merged.push(formattedFaq)
+      }
+    }
+
+    return merged
+  } catch {
+    return staticFaqs
+  }
+}
