@@ -135,18 +135,10 @@ export default function SecurityTrustPage() {
                 <p className="font-extrabold text-white text-base">Security &amp; Privacy Desk</p>
                 <p>
                   <a
-                    href={`mailto:${LEGAL_CONFIG.legalEmail}`}
+                    href={`mailto:${LEGAL_CONFIG.supportEmail}`}
                     className="text-emerald-300 font-bold hover:underline"
                   >
-                    {LEGAL_CONFIG.legalEmail}
-                  </a>
-                </p>
-                <p>
-                  <a
-                    href={`mailto:${LEGAL_CONFIG.privacyEmail}`}
-                    className="text-slate-200 hover:underline"
-                  >
-                    {LEGAL_CONFIG.privacyEmail}
+                    {LEGAL_CONFIG.supportEmail}
                   </a>
                 </p>
               </div>

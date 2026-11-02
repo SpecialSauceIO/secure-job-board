@@ -42,10 +42,13 @@ export default function PrivacyPolicyPage() {
               </p>
               <ul className="list-disc pl-5 mt-4 space-y-2 text-slate-600">
                 <li>
-                  <strong className="text-slate-800">Account &amp; Contact Data:</strong> Your full name, email address, and login credentials, which remain hidden from public or employer search views by default.
+                  <strong className="text-slate-800">Account &amp; Authentication Data:</strong> Your full name, email address, login credentials, and 6-digit 2-step verification session logs. Your full name and email address remain hidden from public or Employer search views by default.
                 </li>
                 <li>
                   <strong className="text-slate-800">Professional &amp; Preference Data:</strong> Uploaded PDF resumes, extracted skills, years of experience, certifications, languages, general location, saved bookmarks, and match preferences (minimum pay, work model, and employment type).
+                </li>
+                <li>
+                  <strong className="text-slate-800">Employer Organization Data:</strong> Verified corporate domain records, company profile details, Federal Tax ID (EIN) and state registration confirmation status, and published role specifications.
                 </li>
                 <li>
                   <strong className="text-slate-800">Identity &amp; Payment Data (Handled Exclusively by Stripe):</strong> When Professionals and Employer Admins verify their identity via Stripe Identity or complete purchases via Stripe Checkout, government ID images, selfies, and payment details are transmitted directly to Stripe over encrypted connections.{' '}
@@ -55,7 +58,7 @@ export default function PrivacyPolicyPage() {
                   We only receive a simple verification status confirmation. Identity verification is performed with your consent for fraud and bot prevention in compliance with applicable state and federal privacy laws (including the Texas Capture or Use of Biometric Identifier Act). Stripe retains and deletes verification data in accordance with the Stripe Privacy Policy and statutory retention limits.
                 </li>
                 <li>
-                  <strong className="text-slate-800">In-Platform Messaging &amp; Security Logs:</strong> Messages sent inside platform chat threads (<code className="text-xs font-mono bg-slate-100 px-1.5 py-0.5 rounded">SS-XXXXXXXX</code>), read timestamps, and basic security logs used to prevent spam and unauthorized scraping.
+                  <strong className="text-slate-800">In-Platform Messaging, Support Tickets &amp; Security Logs:</strong> Messages sent inside platform chat threads (<code className="text-xs font-mono bg-slate-100 px-1.5 py-0.5 rounded">SS-XXXXXXXX</code>), Help Center support requests or bug reports (including optional screenshot attachments), read timestamps, and velocity/security telemetry used to prevent spam, account takeovers, and unauthorized scraping.
                 </li>
               </ul>
             </section>
@@ -82,14 +85,14 @@ export default function PrivacyPolicyPage() {
 
             <section className="bg-indigo-50/50 p-6 rounded-2xl border border-indigo-300">
               <h2 className="text-xl text-slate-900 mb-3">
-                4. Messaging Safety &amp; Zero External AI Training
+                4. Messaging Safety, Payload Scanning &amp; Zero External AI Training
               </h2>
               <ul className="list-disc pl-5 mt-3 space-y-2 text-slate-700">
                 <li>
-                  <strong>Anti-Phishing Protections:</strong> Platform messages are automatically checked to block requests for Social Security Numbers, bank details, wire transfers, or off-platform chat lures (such as WhatsApp or Telegram).
+                  <strong>Anti-Phishing &amp; Vault Guardrails:</strong> Platform messages and uploaded PDF files are automatically checked to block executable scripts, prompt-injection commands, requests for Social Security Numbers, bank details, wire transfers, or premature contact/off-platform chat links (such as WhatsApp, Telegram, or external links prior to vault release).
                 </li>
                 <li>
-                  <strong>Private Email Notifications:</strong> When you receive a new invitation or message, we send an email alert with your <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-300">SS-XXXXXXXX</code> Reference ID without exposing your email address to the other party.
+                  <strong>Private Email Notifications:</strong> When you receive a new invitation, message, or support update, we send an email alert with your reference number without exposing your personal email address to the other party.
                 </li>
                 <li>
                   <strong>Zero Public AI Model Training:</strong> Uploaded resumes and job descriptions are used solely to organize your profile and calculate your TrueFit Score™. Your private documents are <span className="font-bold underline">never</span> sold or used to train public AI models.
@@ -111,10 +114,10 @@ export default function PrivacyPolicyPage() {
               </p>
               <ul className="list-disc pl-5 mt-4 space-y-2 text-slate-600">
                 <li>
-                  <strong className="text-slate-800">With Verified Employers (With Your Consent):</strong> Private chat opens when you apply to a role or accept an invitation, and your full resume and contact details are shared only when you click &ldquo;Release Resume &amp; Contact Vault.&rdquo;
+                  <strong className="text-slate-800">With Verified Employers (With Your Consent):</strong> Private chat opens when you apply to a role or accept an invitation, and your full resume and contact details (including any Enterprise Employer ATS sync to Workday/Greenhouse or CSV export) are shared strictly after you click &ldquo;Release Resume &amp; Contact Vault.&rdquo;
                 </li>
                 <li>
-                  <strong className="text-slate-800">With Core Service Providers:</strong> Trusted infrastructure providers who power our cloud hosting, encrypted database storage, payment and identity verification (Stripe), and email notifications.
+                  <strong className="text-slate-800">With Core Service Providers:</strong> Trusted infrastructure providers who power our cloud hosting, encrypted database storage, payment and identity verification (Stripe), and transactional email delivery.
                 </li>
                 <li>
                   <strong className="text-slate-800">For Legal &amp; Security Compliance:</strong> When required by law or to enforce our Terms of Service and protect the safety of our users.
@@ -123,36 +126,36 @@ export default function PrivacyPolicyPage() {
             </section>
 
             <section>
-              <h2 className="text-xl">7. Your Data Rights &amp; Account Deletion</h2>
+              <h2 className="text-xl">7. Cookies &amp; Session Security</h2>
               <p className="text-slate-600 leading-relaxed mt-2">
-                You may update or delete your profile and stored PDF resume at any time from your dashboard or by contacting us. When you delete your account, your profile and stored resume files are permanently deleted from our active databases.
+                Special Sauce uses strictly necessary authentication and security cookies to keep you signed in, verify 2-step authentication sessions, and protect your account against cross-site request forgery. We do not use third-party advertising cookies or cross-site behavioral tracking pixels.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl">8. Contact Us</h2>
+              <h2 className="text-xl">8. Your Data Rights, Age Requirement &amp; Account Deletion</h2>
               <p className="text-slate-600 leading-relaxed mt-2">
-                If you have questions or requests regarding this Privacy Policy or your data, please contact us at{' '}
+                You may update or delete your profile and stored PDF resume at any time from your dashboard or by contacting us. When you delete your account, your profile and stored resume files are permanently deleted from our active databases. Special Sauce is intended strictly for individuals <strong>18 years of age or older</strong>, and we do not knowingly collect personal information from anyone under 18.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-xl">9. Contact Us</h2>
+              <p className="text-slate-600 leading-relaxed mt-2">
+                If you have questions or requests regarding this Privacy Policy or your personal data, please contact us at{' '}
                 <a
-                  href="mailto:privacy@specialsauce.io"
+                  href={`mailto:${LEGAL_CONFIG.supportEmail}`}
                   className="text-indigo-600 font-bold hover:underline"
                 >
-                  privacy@specialsauce.io
-                </a>{' '}
-                or{' '}
-                <a
-                  href="mailto:info@specialsauce.io"
-                  className="text-indigo-600 font-bold hover:underline"
-                >
-                  info@specialsauce.io
+                  {LEGAL_CONFIG.supportEmail}
                 </a>
                 .
               </p>
               <div className="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-300 text-xs text-slate-600 space-y-1">
                 <p className="font-bold text-slate-900">{LEGAL_CONFIG.legalEntityName}</p>
-                <p>Attn: Privacy &amp; Data Protection Officer</p>
+                <p>Attn: Privacy &amp; Legal Compliance</p>
                 <p>{LEGAL_CONFIG.legalEntityAddress}</p>
-                <p>Email: {LEGAL_CONFIG.privacyEmail} • {LEGAL_CONFIG.supportEmail}</p>
+                <p>Email: {LEGAL_CONFIG.supportEmail}</p>
               </div>
             </section>
           </div>
