@@ -130,6 +130,9 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
   const safeFeedbackTypeHtml = escapeHtml(feedbackType)
 
   const sendResendEmail = async (toAddr: string, subject: string, html: string, replyToAddr: string) => {
+    const effectiveFrom = toAddr.toLowerCase().endsWith('@specialsauce.io')
+      ? 'Special Sauce System <ops-alerts@specialsauce.io>'
+      : primaryFrom
     let res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -137,7 +140,7 @@ export async function submitQuickFeedbackReliable(formData: FormData): Promise<{
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: primaryFrom,
+        from: effectiveFrom,
         to: [toAddr],
         reply_to: replyToAddr,
         subject,
