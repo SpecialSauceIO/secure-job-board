@@ -25,7 +25,7 @@ async function sendCalibrationAlertEmail(payload: {
 
   const fromEmail = (process.env.RESEND_FROM_EMAIL || "Special Sauce Ops <support@specialsauce.io>").trim()
   const recipients = Array.from(
-    new Set(["steve@specialsauce.io", "info@specialsauce.io", (process.env.RESEND_TEST_TO_EMAIL || "").trim()].filter(Boolean))
+    new Set(["support@specialsauce.io", "info@specialsauce.io", (process.env.RESEND_TEST_TO_EMAIL || "").trim()].filter(Boolean))
   )
 
   const rowsHtml = Object.entries(payload.results)

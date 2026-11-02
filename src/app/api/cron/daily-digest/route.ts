@@ -429,7 +429,7 @@ export async function GET(req: NextRequest) {
         </div>
 
         <div style="background: #020617; padding: 14px 28px; text-align: center; font-size: 11px; color: #64748b; border-top: 1px solid #1e293b;">
-          Delivered automatically to steve@specialsauce.io &amp; rochelle@specialsauce.io • Generated at ${nowIso}
+          Delivered automatically to support@specialsauce.io &amp; rochelle@specialsauce.io • Generated at ${nowIso}
         </div>
       </div>
     `
@@ -446,7 +446,7 @@ export async function GET(req: NextRequest) {
       ? queryTo.split(",").map((e) => e.trim()).filter(Boolean)
       : Array.from(
           new Set([
-            "steve@specialsauce.io",
+            "support@specialsauce.io",
             ...envTo.split(",").map((e) => e.trim()).filter(Boolean),
           ])
         )

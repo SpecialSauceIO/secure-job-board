@@ -581,7 +581,7 @@ export async function pushToOpsControlPlane(payload: Record<string, any>): Promi
                   state: "open",
                   status: "new",
                   priority: "P0_Critical",
-                  owned_by: "Steve Briley (Founder / Lead Ops)",
+                  owned_by: "Special Sauce Support",
                   subject: `[AUTO-DETECTED OUTAGE] Multiple Bug Reports in ${area}`,
                   category: "Technical Issue / Bug Report",
                   platform_area: area,
