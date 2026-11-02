@@ -293,7 +293,7 @@ export async function getUserOpsTickets(
             return false
           }
           const txt = String(m.text || "").trim()
-          if (txt.includes("Support Ticket Received:") || txt.includes("Support Ticket [") || txt.includes("✓ Resolved:") || txt.includes("Update Confirmation:")) { return false }
+          if (txt.startsWith("We received your update on ticket ") || txt.startsWith("Support Ticket Received:")) { return false }
           return true
         })
         .map((m: any) => ({

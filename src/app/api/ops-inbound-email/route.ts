@@ -14,7 +14,25 @@ function extractTicketId(text?: string | null): string | null {
 }
 
 function stripQuotedHistory(rawText: string): string {
-  const lines = String(rawText || "").replace(/\r\n/g, "\n").split("\n")
+  let text = String(rawText || "").replace(/\r\n/g, "\n")
+  // Cut at multi-line Gmail / Apple Mail / Outlook "On <date> ... wrote:"
+  text = text.replace(/\nOn\s+[\s\S]{1,260}?wrote:\s*\n[\s\S]*$/i, "")
+  // Cut at Special Sauce quoted email card signatures if included in reply
+  const sigMarkers = [
+    "SPECIAL SAUCE™ SUPPORT DESK",
+    "SPECIAL SAUCE™ SUPPORT CENTER",
+    "You can reply directly to this email (keep [",
+    "-----Original Message-----",
+    "________________________________",
+  ]
+  for (const marker of sigMarkers) {
+    const idx = text.indexOf(marker)
+    if (idx > 0) {
+      text = text.slice(0, idx)
+    }
+  }
+
+  const lines = text.split("\n")
   const cleaned: string[] = []
   for (const line of lines) {
     const trimmed = line.trim()
@@ -40,16 +58,23 @@ export async function POST(req: NextRequest) {
       process.env.CRON_SECRET,
       process.env.OPS_SYNC_SECRET,
       "ss_cron_459300fd7b17159ba22da7b8af2bf4026ea668ae7f7f019c",
+      "ss_ops_webhook_secret_9948271625",
     ]
       .map((s) => (s || "").trim())
       .filter(Boolean)
     const bearerToken = authHeader.replace(/^Bearer\s+/i, "").trim()
     const hasSecretMatch =
       validSecrets.length > 0 &&
-      validSecrets.some((sec) => bearerToken === sec || opsHeader === sec || querySecret === sec)
+      validSecrets.some(
+        (sec) => bearerToken === sec || opsHeader === sec || querySecret === sec
+      )
     if (!hasSecretMatch && !svixId) {
-      return NextResponse.json({ error: "Unauthorized webhook request" }, { status: 401 })
+      return NextResponse.json(
+        { error: "Unauthorized webhook request" },
+        { status: 401 }
+      )
     }
+
     const payload = await req.json()
     const client = getOpsServiceClient()
     if (!client) {
@@ -68,7 +93,9 @@ export async function POST(req: NextRequest) {
     ) {
       const vault = await loadMergedOpsVault(client)
       const latestChecks = Array.isArray(vault.monitor_meta?.latest_checks)
-        ? vault.monitor_meta.latest_checks.filter((chk: any) => chk.id !== "gmail_inbound_poller")
+        ? vault.monitor_meta.latest_checks.filter(
+            (chk: any) => chk.id !== "gmail_inbound_poller"
+          )
         : undefined
 
       if (Array.isArray(vault.work_items)) {
@@ -98,6 +125,7 @@ export async function POST(req: NextRequest) {
 
       vault.monitor_meta = {
         ...(vault.monitor_meta || {}),
+        last_gmail_heartbeat_at: nowIso,
         last_gmail_threads_scanned: Number(emailData?.threads_scanned ?? 0),
         last_gmail_replies_synced: Number(emailData?.replies_synced ?? 0),
         ...(latestChecks ? { latest_checks: latestChecks } : {}),
@@ -125,31 +153,35 @@ export async function POST(req: NextRequest) {
       .trim()
 
     const subject = String(emailData?.subject || "").trim()
-    const rawBody = String(
+    let rawBody = String(
       emailData?.text ||
         emailData?.reply_text ||
         emailData?.body ||
-        emailData?.html?.replace(/<[^>]+>/g, " ") ||
+        emailData?.content ||
+        emailData?.html?.replace(/<br\s*\/?>/gi, "\n").replace(/<\/p>/gi, "\n").replace(/<\/div>/gi, "\n").replace(/<[^>]+>/g, " ") ||
         ""
     ).trim()
 
     const cleanReply = stripQuotedHistory(rawBody)
-    const isReplySubject = /^(re|fwd?)\s*:/i.test(subject)
+    const isReplySubject =
+      /^(re|fwd?)\s*:/i.test(subject) ||
+      /^\[(TKT|FB|INC|SEC)-\d+\]\s*(re|fwd?)\s*:/i.test(subject) ||
+      /\b(re|fwd?)\s*:/i.test(subject)
+
+    const isSelfSender =
+      senderEmail === "support@specialsauce.io" ||
+      senderEmail === "ops-alerts@specialsauce.io" ||
+      senderEmail === "noreply@specialsauce.io" ||
+      senderEmail === "no-reply@specialsauce.io" ||
+      senderEmail.endsWith("@resend.dev")
 
     const isAutomatedLoop =
       !cleanReply ||
       cleanReply === subject ||
-      cleanReply.includes("✓ Resolved:") ||
-      cleanReply.includes("Support Ticket Received:") ||
-      cleanReply.includes("Support Ticket [") ||
-      cleanReply.includes("Update Confirmation: Your reply has been posted") ||
-      cleanReply.includes("SPECIAL SAUCE™ SUPPORT") ||
+      isSelfSender ||
+      cleanReply.startsWith("We received your update on ticket ") ||
       (!isReplySubject &&
-        (senderEmail.includes("support@specialsauce.io") ||
-          senderEmail.includes("noreply@specialsauce.io") ||
-          senderEmail.includes("no-reply@specialsauce.io") ||
-          senderEmail.includes("resend.dev") ||
-          subject.includes("✓ Resolved:") ||
+        (subject.includes("✓ Resolved:") ||
           subject.includes("Support Ticket Received:") ||
           subject.includes("Support Ticket [") ||
           subject.includes("Update Confirmation:") ||
@@ -226,7 +258,7 @@ export async function POST(req: NextRequest) {
       item.status = "pending_support"
       item.updated_at = nowIso
       item.thread.push({
-        id: "in-" + Date.now(),
+        id: incomingMsgId ? `in-${incomingMsgId}` : "in-" + Date.now(),
         gmail_message_id: incomingMsgId || undefined,
         author: senderEmail || item.reporter_email || "Customer",
         direction: "inbound_customer",
@@ -236,6 +268,8 @@ export async function POST(req: NextRequest) {
       vault.work_items[targetIdx] = item
       vault.monitor_meta = {
         ...(vault.monitor_meta || {}),
+        last_inbound_email_received_at: nowIso,
+        last_inbound_email_ticket_id: item.id,
       }
       await saveMergedOpsVault(client, vault)
     }
