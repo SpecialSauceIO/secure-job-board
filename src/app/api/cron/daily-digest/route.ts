@@ -447,7 +447,6 @@ export async function GET(req: NextRequest) {
       : Array.from(
           new Set([
             "steve@specialsauce.io",
-            "rochelle@specialsauce.io",
             ...envTo.split(",").map((e) => e.trim()).filter(Boolean),
           ])
         )
