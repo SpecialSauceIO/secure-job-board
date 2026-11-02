@@ -105,7 +105,7 @@ export async function replyToSupportTicketAction(
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Special Sauce Support <support@specialsauce.io>',
+          from: user.email.toLowerCase().endsWith('@specialsauce.io') ? 'Special Sauce System <ops-alerts@specialsauce.io>' : 'Special Sauce Support <support@specialsauce.io>',
           to: [user.email],
           reply_to: 'support@specialsauce.io',
           subject: `[${ticketId}] Update Confirmation: Your reply has been posted`,

@@ -129,9 +129,20 @@ export async function loadMergedOpsVault(
           const existTs = existing
             ? new Date(existing.updated_at || existing.created_at || 0).getTime()
             : -1
-          if (!existing || itemTs >= existTs) {
-            itemMap.set(item.id, item)
-          }
+          if (!existing) {
+              itemMap.set(item.id, item)
+            } else {
+              const tMap = new Map<string, any>()
+              for (const msg of [...(existing.thread || []), ...(item.thread || [])]) {
+                if (msg && msg.id) tMap.set(String(msg.id), msg)
+              }
+              const mergedThread = Array.from(tMap.values()).sort(
+                (a, b) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
+              )
+              const winner = itemTs >= existTs ? { ...item } : { ...existing }
+              winner.thread = mergedThread
+              itemMap.set(item.id, winner)
+            }
         }
       }
       if (Array.isArray(parsed.behavioral_flags)) {
@@ -170,11 +181,28 @@ export async function saveMergedOpsVault(
       if (Array.isArray(currentParsed?.work_items) && currentParsed.work_items.length > 0) {
         const mergedMap = new Map<string, any>()
         for (const item of currentParsed.work_items) {
-          if (item?.id) mergedMap.set(item.id, item)
-        }
-        for (const item of vault.work_items || []) {
-          if (item?.id) mergedMap.set(item.id, item)
-        }
+            if (item?.id) mergedMap.set(item.id, item)
+          }
+          for (const item of vault.work_items || []) {
+            if (!item?.id) continue
+            const prev = mergedMap.get(item.id)
+            if (!prev) {
+              mergedMap.set(item.id, item)
+            } else {
+              const tMap = new Map<string, any>()
+              for (const msg of [...(prev.thread || []), ...(item.thread || [])]) {
+                if (msg && msg.id) tMap.set(String(msg.id), msg)
+              }
+              const mergedThread = Array.from(tMap.values()).sort(
+                (a, b) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
+              )
+              const itemTs = new Date(item.updated_at || item.created_at || 0).getTime()
+              const prevTs = new Date(prev.updated_at || prev.created_at || 0).getTime()
+              const winner = itemTs >= prevTs ? { ...item } : { ...prev }
+              winner.thread = mergedThread
+              mergedMap.set(item.id, winner)
+            }
+          }
         vault.work_items = Array.from(mergedMap.values()).sort(
           (a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
         )
@@ -318,13 +346,16 @@ export async function appendUserTicketReply(params: {
   const nowIso = new Date().toISOString()
   const item = vault.work_items[idx]
   item.state = "open"
+  item.closed_at = null
   item.status = "pending_support"
   item.updated_at = nowIso
   item.thread = Array.isArray(item.thread) ? item.thread : []
 
+  const msgId = `in-${Date.now()}`
+  const replyAuthor = params.userEmail || item.reporter_email || "Customer"
   item.thread.push({
-    id: `in-${Date.now()}`,
-    author: params.userEmail || item.reporter_email || "Customer",
+    id: msgId,
+    author: replyAuthor,
     direction: "inbound_customer",
     text: trimmed,
     created_at: nowIso,
@@ -332,6 +363,30 @@ export async function appendUserTicketReply(params: {
 
   vault.work_items[idx] = item
   await saveMergedOpsVault(client, vault)
+
+  const ingestUrl =
+    cleanEnv(process.env.OPS_INGEST_URL) ||
+    "https://ops.specialsauce.io/api/ingest"
+  const ingestSecret =
+    cleanEnv(process.env.OPS_INGEST_SECRET) ||
+    "ss_ops_webhook_secret_9948271625"
+  try {
+    await fetch(ingestUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-ops-secret": ingestSecret,
+      },
+      body: JSON.stringify({
+        event_type: "customer_ticket_reply",
+        ticket_id: item.id,
+        message_id: msgId,
+        author: replyAuthor,
+        text: trimmed,
+        created_at: nowIso,
+      }),
+    })
+  } catch {}
 
   const updatedTickets = await getUserOpsTickets(params.userId, params.userEmail)
   const updatedTicket = updatedTickets.find((t) => t.id.toUpperCase() === cleanId)
