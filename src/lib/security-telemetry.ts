@@ -236,7 +236,7 @@ export async function checkAndRecordStripeIdentityCircuitBreaker(params: {
       actorRole: "candidate",
       userId: params.userId,
       platformArea: "Stripe Identity Verification (Professional)",
-      summary: "Blocked unsubscribed candidate attempt to initiate Stripe Identity session",
+      summary: "Blocked unsubscribed professional attempt to initiate Stripe Identity session",
       evidenceSnippet: `User ${params.userEmail} on tier="${tierLower}" attempted to trigger /api/identity/create-session without an active subscription.`,
       createSecTicket: false,
     })

@@ -809,7 +809,7 @@ const VERTICAL_ARCHETYPE_MATRIX: VerticalArchetypeSpec[] = [
     weights: [0.20, 0.12, 0.10, 0.18, 0.22, 0.18],
     domainKeywords: /media|marketing|advertising|gaming|game|godot|video|ffmpeg|voiceover|content|production|social|brand|campaign|entertainment/i,
     structuralBarrierPenalty: 6,
-    barrierExplanation: 'Low licensing barrier; strongly favors candidates with working media production pipelines (FFmpeg/audio/video), game engine scripting (Godot), or content program planning.',
+    barrierExplanation: 'Low licensing barrier; strongly favors professionals with working media production pipelines (FFmpeg/audio/video), game engine scripting (Godot), or content program planning.',
     roleArchetypes: ['Content & Media Production Program Manager', 'Technical Marketing & Video Pipeline Producer', 'Live-Ops & Gaming Community Enablement Lead'],
     payBand: '$92k – $145k /yr',
     translations: [

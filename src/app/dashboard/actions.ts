@@ -281,7 +281,7 @@ async function checkEmployerSilentUnlockCap(
     return {
       allowed: false,
       silentCount: silentUnlocks.length,
-      error: `Anti-Harvesting Guardrail: You currently have ${silentUnlocks.length} unlocked professionals awaiting an initial message. Please send an introductory message in your open threads (or archive non-fits) before unlocking additional candidate profiles.`,
+      error: `You currently have ${silentUnlocks.length} unlocked professionals awaiting an initial message. Please send an introductory message in your open threads (or archive non-fits) before unlocking additional professional profiles.`,
     }
   }
 
@@ -4723,7 +4723,7 @@ export async function sendConnectionRequest(
   if (tierInfo.tier === 'free' || credits < 1) {
     return {
       error:
-        'Subscription / Invitation Credits Required: Subscribe to Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) on your Billing page to unlock outbound candidate pitches.',
+        'Subscription / Invitation Credits Required: Subscribe to Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) on your Billing page to send outbound professional invitations.',
     }
   }
 
