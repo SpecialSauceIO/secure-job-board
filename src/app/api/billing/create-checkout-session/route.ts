@@ -225,6 +225,22 @@ export const EMPLOYER_TOPUP_PACKS: Record<
   },
 }
 
+const DEPRECATED_LEGACY_PRICE_IDS = new Set([
+  'price_1UTpwxR0rSVwN0zE9vG7uB5M',
+  'price_1UTpwyR0rSVwN0zE7cK2nL4P',
+  'price_1UTpwyR0rSVwN0zEmL9xR3vQ',
+  'price_1UTpx1R0rSVwN0zE5wN2vK8L',
+  'price_1UTpx1R0rSVwN0zE8mP4qR9T',
+])
+
+function resolveCanonicalPriceId(envVarName: string, defaultPriceId: string): string {
+  const envVal = (process.env[envVarName] || '').trim()
+  if (!envVal || DEPRECATED_LEGACY_PRICE_IDS.has(envVal)) {
+    return defaultPriceId
+  }
+  return envVal
+}
+
 export async function POST(req: Request) {
   try {
     const supabase = await createClient()
@@ -262,7 +278,7 @@ export async function POST(req: Request) {
     // 1. PROFESSIONAL PLANS
     const candidateTier = CANDIDATE_SAAS_TIERS[rawKey]
     if (candidateTier) {
-      const catalogPriceId = process.env[candidateTier.envVar] || candidateTier.defaultPriceId
+      const catalogPriceId = resolveCanonicalPriceId(candidateTier.envVar, candidateTier.defaultPriceId)
       const isOneTimeExplorer = candidateTier.billingMode === 'payment'
 
       const checkoutSession = await stripe.checkout.sessions.create({
@@ -337,7 +353,7 @@ export async function POST(req: Request) {
       }
 
       const catalogPriceId =
-        process.env[EMPLOYER_VERIFICATION_PASS.envVar] || EMPLOYER_VERIFICATION_PASS.defaultPriceId
+        resolveCanonicalPriceId(EMPLOYER_VERIFICATION_PASS.envVar, EMPLOYER_VERIFICATION_PASS.defaultPriceId)
 
       const checkoutSession = await stripe.checkout.sessions.create({
         mode: 'payment',
@@ -393,7 +409,7 @@ export async function POST(req: Request) {
         )
       }
 
-      const catalogPriceId = process.env[topupPack.envVar] || topupPack.defaultPriceId
+      const catalogPriceId = resolveCanonicalPriceId(topupPack.envVar, topupPack.defaultPriceId)
 
       const checkoutSession = await stripe.checkout.sessions.create({
         mode: 'payment',
