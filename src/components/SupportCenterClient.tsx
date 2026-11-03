@@ -257,7 +257,7 @@ export default function SupportCenterClient({
   const handleCopySecurityBrief = async () => {
     try {
       await navigator.clipboard.writeText(
-        SECURITY_ARCHITECTURE_DATA.copyPasteSecurityBrief
+        activeSecurityData.copyPasteSecurityBrief
       )
       setCopiedSecurity(true)
       setTimeout(() => setCopiedSecurity(false), 2500)
@@ -1659,7 +1659,7 @@ export default function SupportCenterClient({
                 Explore the Interactive 5-Step Professional &amp; Employer Workflows
               </h3>
               <p className="text-sm sm:text-base text-slate-200 leading-relaxed">
-                Our full visual walkthrough is available anytime on the public Platform Workflows page—or copy a plain-text team briefing sheet below.
+                Our full visual walkthrough is available anytime in the interactive Platform Workflows guide—or copy a plain-text team briefing sheet below.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
@@ -1675,7 +1675,7 @@ export default function SupportCenterClient({
                 {copiedGuideId ? '✓ Copied Quick-Start Brief!' : '📋 Copy Quick-Start Brief'}
               </button>
               <Link
-                href="/workflows"
+                href="/dashboard/workflows"
                 className="px-5 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 text-white text-xs sm:text-sm font-extrabold transition-colors"
               >
                 View Platform Workflows →
@@ -1797,15 +1797,25 @@ export default function SupportCenterClient({
         <div className="p-6 md:p-8 space-y-6 animate-in fade-in duration-300">
           <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-4 border border-slate-700">
             <div className="space-y-1.5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-extrabold uppercase tracking-wider">
-                PCI-DSS Level 1 • Stripe ID Protection • Intro/Convo Anti-Harvesting Vault
-              </div>
-              <h2 className="text-lg sm:text-xl font-extrabold tracking-tight text-white">
-                {SECURITY_ARCHITECTURE_DATA.title}
-              </h2>
-              <p className="text-sm text-slate-200 max-w-4xl leading-relaxed">
-                {SECURITY_ARCHITECTURE_DATA.subtitle}
-              </p>
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 pb-1">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-extrabold uppercase tracking-wider w-fit">
+                    {securityTechMode === "standard" ? "PCI-DSS Level 1 - Stripe ID Protection - Private Resume Vault" : "PCI-DSS Level 1 - AES-256 & TLS 1.3 - RLS Technical Architecture"}
+                  </div>
+                  <div className="inline-flex items-center p-1 rounded-xl bg-slate-950 border border-slate-700 w-full sm:w-auto">
+                    <button type="button" onClick={() => setSecurityTechMode("standard")} className={"flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer " + (securityTechMode === "standard" ? "bg-emerald-500 text-slate-950 shadow-sm" : "text-slate-300 hover:text-white")}>
+                      Standard Overview
+                    </button>
+                    <button type="button" onClick={() => setSecurityTechMode("technical")} className={"flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer " + (securityTechMode === "technical" ? "bg-indigo-500 text-white shadow-sm" : "text-slate-300 hover:text-white")}>
+                      Technical Specs & Cryptography
+                    </button>
+                  </div>
+                </div>
+                <h2 className="text-lg sm:text-xl font-extrabold tracking-tight text-white">
+                  {activeSecurityData.title}
+                </h2>
+                <p className="text-sm text-slate-200 max-w-4xl leading-relaxed">
+                  {activeSecurityData.subtitle}
+                </p>
             </div>
           </div>
 
