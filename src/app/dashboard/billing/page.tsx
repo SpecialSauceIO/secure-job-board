@@ -441,15 +441,21 @@ export default function CandidateBillingPage() {
 
             <div className="mt-6 pt-4 border-t border-slate-300">
               <button
-                type="button"
-                disabled={isProcessing || normalizedTier === 'explorer'}
-                onClick={() => handleStripeCandidateCheckout('explorer')}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold transition-colors disabled:opacity-60 cursor-pointer"
-              >
-                {normalizedTier === 'explorer'
-                  ? '✓ Explorer Plan Active ($0/mo Forever)'
-                  : 'Verify & Start Explorer ($5 One-Time) →'}
-              </button>
+                  type="button"
+                  disabled={isProcessing || normalizedTier === 'explorer'}
+                  onClick={() =>
+                    normalizedTier === 'professional' || normalizedTier === 'prestige' || isVerified
+                      ? handlePlanSwitch('explorer')
+                      : handleStripeCandidateCheckout('explorer')
+                  }
+                  className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold transition-colors disabled:opacity-60 cursor-pointer"
+                >
+                  {normalizedTier === 'explorer'
+                    ? '✓ Explorer Plan Active ($0/mo Forever)'
+                    : normalizedTier === 'professional' || normalizedTier === 'prestige' || isVerified
+                    ? 'Downgrade to Explorer ($0/mo Forever) →'
+                    : 'Verify & Start Explorer ($5 One-Time) →'}
+                </button>
             </div>
           </div>
 
@@ -511,8 +517,10 @@ export default function CandidateBillingPage() {
                 className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
               >
                 {normalizedTier === 'professional'
-                  ? `✓ Professional Plan Active (${tierInfo?.freeAppsRemaining ?? 15}/15 Apps Left)`
-                  : 'Activate Professional ($12/mo) →'}
+                    ? `✓ Professional Plan Active (${tierInfo?.freeAppsRemaining ?? 15}/15 Apps Left)`
+                    : normalizedTier === 'prestige'
+                    ? 'Downgrade to Professional ($12/mo) →'
+                    : 'Activate Professional ($12/mo) →'}
               </button>
             </div>
           </div>

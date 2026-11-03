@@ -32,16 +32,24 @@ export default function DashboardAnalyticsReport({
 
   const filteredRecords = useMemo(() => {
     return records.filter((r) => {
-      if (channelFilter === 'inbound') return r.channel === 'Inbound Application'
-      if (channelFilter === 'pitch') return r.channel === 'Outbound Invitation'
+      if (channelFilter === 'inbound') {
+        return r.channel === 'Inbound Application' || r.channel === 'Outbound Application'
+      }
+      if (channelFilter === 'pitch') {
+        return r.channel === 'Outbound Invitation' || r.channel === 'Employer Invitation'
+      }
       return true
     })
   }, [records, channelFilter])
 
   const stats = useMemo(() => {
     const total = filteredRecords.length
-    const inbound = filteredRecords.filter((r) => r.channel === 'Inbound Application').length
-    const pitches = filteredRecords.filter((r) => r.channel === 'Outbound Invitation').length
+    const inbound = filteredRecords.filter(
+      (r) => r.channel === 'Inbound Application' || r.channel === 'Outbound Application'
+    ).length
+    const pitches = filteredRecords.filter(
+      (r) => r.channel === 'Outbound Invitation' || r.channel === 'Employer Invitation'
+    ).length
     const scored = filteredRecords.filter((r) => typeof r.matchScore === 'number' && r.matchScore > 0)
     const avgScore =
       scored.length > 0
@@ -206,10 +214,14 @@ export default function DashboardAnalyticsReport({
                   }`}
                 >
                   {tab === 'all'
-                    ? 'All Channels'
-                    : tab === 'inbound'
-                    ? 'Inbound Applications'
-                    : 'Sent Invitations'}
+                        ? 'All Channels'
+                        : tab === 'inbound'
+                        ? mode === 'employer'
+                          ? 'Inbound Applications'
+                          : 'Outbound Applications'
+                        : mode === 'employer'
+                        ? 'Sent Invitations'
+                        : 'Employer Invitations'}
                 </button>
               ))}
             </div>

@@ -489,13 +489,14 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
     }
   }
 
-  const { data: profile } = await supabase
+  const db = getAdminSupabaseClient() || supabase
+  const { data: profile } = await db
     .from('profiles')
     .select('structured_skills, created_at')
     .eq('id', targetUserId)
     .single()
 
-  const { count: totalOutboundApps } = await supabase
+  const { count: totalOutboundApps } = await db
     .from('applications')
     .select('*', { count: 'exact', head: true })
     .eq('candidate_id', targetUserId)
@@ -2277,16 +2278,17 @@ export async function getCandidateApplications(
     )
 
     const jobIds = Array.from(
-      new Set(filteredRaw.map((a: any) => a.job_id).filter(Boolean))
+      new Set(filteredRaw.map((a: any) => String(a.job_id || '')).filter(Boolean))
     )
     let jobsById: Record<string, any> = {}
     if (jobIds.length > 0) {
-      const { data: jobRows } = await db
-        .from("jobs")
-        .select("*")
-        .in("id", jobIds)
+      const { data: allJobs } = await db.from("jobs").select("*")
+      const jobIdSet = new Set(jobIds)
+      const jobRows = (allJobs || []).filter(
+        (j: any) => jobIdSet.has(String(j.id || '')) || jobIdSet.has(String(j.uuid || ''))
+      )
       const orgIds = Array.from(
-        new Set((jobRows || []).map((j: any) => j.organization_id).filter(Boolean))
+        new Set(jobRows.map((j: any) => j.organization_id).filter(Boolean))
       )
       let orgsById: Record<string, any> = {}
       if (orgIds.length > 0) {
@@ -2296,11 +2298,13 @@ export async function getCandidateApplications(
           .in("id", orgIds)
         for (const o of orgRows || []) orgsById[o.id] = o
       }
-      for (const j of jobRows || []) {
-        jobsById[j.id] = {
+      for (const j of jobRows) {
+        const enriched = {
           ...j,
           organizations: j.organization_id ? orgsById[j.organization_id] || null : null,
         }
+        if (j.id) jobsById[String(j.id)] = enriched
+        if (j.uuid) jobsById[String(j.uuid)] = enriched
       }
     }
 
@@ -2426,31 +2430,52 @@ export async function getCandidateConnectionRequests() {
   } = await supabase.auth.getUser()
   if (!user) return { data: [], error: 'Not authenticated' }
 
-  const { data: requests, error } = await supabase
+  const db = getAdminSupabaseClient() || supabase
+  const { data: rawRequests, error } = await db
     .from('applications')
-    .select(
-      `
-      *,
-      jobs (
-        id,
-        title,
-        description,
-        work_model,
-        salary_min,
-        salary_max,
-        structured_requirements,
-        organization_id,
-        organizations:organization_id (*)
-      )
-    `
-    )
+    .select('*')
     .eq('candidate_id', user.id)
     .eq('initiated_by', 'employer')
     .order('created_at', { ascending: false })
 
-  if (error || !requests) {
+  if (error || !rawRequests) {
     return { data: [], error: error?.message || null }
   }
+
+  const reqJobIds = Array.from(
+    new Set(rawRequests.map((r: any) => String(r.job_id || '')).filter(Boolean))
+  )
+  const reqJobsById: Record<string, any> = {}
+  if (reqJobIds.length > 0) {
+    const { data: allJobs } = await db.from('jobs').select('*')
+    const reqJobIdSet = new Set(reqJobIds)
+    const matchedJobs = (allJobs || []).filter(
+      (j: any) => reqJobIdSet.has(String(j.id || '')) || reqJobIdSet.has(String(j.uuid || ''))
+    )
+    const orgIds = Array.from(
+      new Set(matchedJobs.map((j: any) => j.organization_id).filter(Boolean))
+    )
+    const orgsById: Record<string, any> = {}
+    if (orgIds.length > 0) {
+      const { data: orgRows } = await db
+        .from('organizations')
+        .select('*')
+        .in('id', orgIds)
+      for (const o of orgRows || []) orgsById[o.id] = o
+    }
+    for (const j of matchedJobs) {
+      const withOrg = {
+        ...j,
+        organizations: j.organization_id ? orgsById[j.organization_id] || null : null,
+      }
+      if (j.id) reqJobsById[String(j.id)] = withOrg
+      if (j.uuid) reqJobsById[String(j.uuid)] = withOrg
+    }
+  }
+  const requests = rawRequests.map((r: any) => ({
+    ...r,
+    jobs: reqJobsById[String(r.job_id || '')] || null,
+  }))
 
   const [{ data: candProfile }, tierInfo] = await Promise.all([
     supabase
