@@ -783,6 +783,31 @@ export default function EmployerBillingPage() {
         </div>
       </section>
 
+      {/* Step Down / Pause Hiring to Verified Employer Sandbox ($0/mo) */}
+      {activeTier !== 'free' && (
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">
+              Hiring Paused Between Roles?
+            </span>
+            <h4 className="text-sm font-black text-slate-900">
+              Step Down to Verified Employer Sandbox ($0/mo)
+            </h4>
+            <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
+              Keep your verified organization badge, company profile, and drafted roles active at $0/mo while hiring is paused. Reactivate Starter, Growth, or Enterprise anytime.
+            </p>
+          </div>
+          <button
+            type="button"
+            disabled={isProcessing}
+            onClick={() => handleTierSwitch('free')}
+            className="shrink-0 px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
+          >
+            {processingTarget === 'free' ? 'Switching...' : 'Pause to $0/mo Sandbox'}
+          </button>
+        </div>
+      )}
+
       {/* QA Sandbox Controls */}
       {showQaControls && (
       <div className="bg-slate-100 rounded-2xl border-2 border-slate-300 p-5 space-y-4">

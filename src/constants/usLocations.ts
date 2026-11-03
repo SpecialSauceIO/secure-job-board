@@ -73,36 +73,41 @@ export function parseLocationString(rawLocation?: string | null): {
   const clean = (rawLocation || '').trim()
   if (!clean) return { stateCode: '', metro: '' }
 
-  // Check if it's one of the US Remote Region presets
+  const lowerClean = clean.toLowerCase()
   if (clean.startsWith('Remote —')) {
-    return { stateCode: 'REMOTE_US', metro: clean }
+    const matchedRemote = US_REMOTE_REGIONS.find(r => r.toLowerCase() === lowerClean) || US_REMOTE_REGIONS[0]
+    return { stateCode: 'REMOTE_US', metro: matchedRemote }
+  }
+  if (lowerClean === 'remote' || lowerClean === 'us remote' || lowerClean.includes('nationwide') || lowerClean.startsWith('remote (') || lowerClean.startsWith('remote -')) {
+    return { stateCode: 'REMOTE_US', metro: US_REMOTE_REGIONS[0] }
   }
 
-  // Check if it ends with ", XX" (two-letter state code)
+  const matchMetroInState = (st: typeof US_STATES_AND_METROS[number], rawMetro: string) => {
+    const mClean = rawMetro.trim()
+    const mLower = mClean.toLowerCase().replace(/[–—-]/g, ' ')
+    const primaryToken = mLower.split(/[,/]/)[0].trim().split(/\s+/)[0] || ''
+    return (
+      st.metros.find(m => m.toLowerCase() === mClean.toLowerCase()) ||
+      st.metros.find(m => m.toLowerCase().replace(/[–—-]/g, ' ').includes(mLower)) ||
+      st.metros.find(m => mLower.includes(m.toLowerCase().replace(' metro', '').replace(/[–—-]/g, ' '))) ||
+      (primaryToken.length >= 3 ? st.metros.find(m => m.toLowerCase().includes(primaryToken)) : undefined) ||
+      `Other / Statewide (${st.code})`
+    )
+  }
+
   const parts = clean.split(',')
   if (parts.length >= 2) {
-    const possibleCode = parts[parts.length - 1].trim().toUpperCase()
+    const possibleCode = parts[parts.length - 1].trim().toUpperCase().replace(/[^A-Z]/g, '')
     const foundState = US_STATES_AND_METROS.find(s => s.code === possibleCode)
     if (foundState) {
       const metroPart = parts.slice(0, parts.length - 1).join(',').trim()
-      const matchedMetro =
-        foundState.metros.find(m => m.toLowerCase() === metroPart.toLowerCase()) ||
-        foundState.metros.find(m => m.toLowerCase().includes(metroPart.toLowerCase())) ||
-        metroPart
-      return { stateCode: foundState.code, metro: matchedMetro }
+      return { stateCode: foundState.code, metro: matchMetroInState(foundState, metroPart) }
     }
   }
 
-  // Fallback: check if any state name or code is mentioned
   for (const st of US_STATES_AND_METROS) {
-    if (
-      clean.toLowerCase().includes(st.name.toLowerCase()) ||
-      clean.toUpperCase().includes(st.code)
-    ) {
-      const matchedMetro =
-        st.metros.find(m => m.toLowerCase().includes(clean.toLowerCase())) ||
-        st.metros[0]
-      return { stateCode: st.code, metro: matchedMetro }
+    if (lowerClean.includes(st.name.toLowerCase()) || clean.toUpperCase().includes(`(${st.code})`) || clean.toUpperCase().endsWith(` ${st.code}`)) {
+      return { stateCode: st.code, metro: matchMetroInState(st, clean) }
     }
   }
 

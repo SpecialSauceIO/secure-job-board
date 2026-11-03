@@ -85,11 +85,35 @@ export default function EditJobPage() {
       const orgIndMatch = orgDesc.match(/\[IND:([^\]]+)\]/i)
       const orgSizeMatch = orgDesc.match(/\[SIZE:([^\]]+)\]/i)
 
+      const isObjReqs =
+        job.structured_requirements &&
+        typeof job.structured_requirements === 'object' &&
+        !Array.isArray(job.structured_requirements)
+      const objReqs: any = isObjReqs ? job.structured_requirements : {}
       const rawReqs = Array.isArray(job.structured_requirements)
         ? job.structured_requirements
+        : Array.isArray(objReqs.required_skills)
+        ? objReqs.required_skills.map((s: any) =>
+            typeof s === 'string'
+              ? {
+                  skill: s,
+                  years: Number(objReqs.min_experience_years) || 3,
+                  level: 'Advanced',
+                }
+              : s
+          )
         : []
       const metaItem =
-        rawReqs.find((r: any) => r && r._ss_job_meta === true) || {}
+        (Array.isArray(job.structured_requirements)
+          ? job.structured_requirements.find((r: any) => r && r._ss_job_meta === true)
+          : null) || {
+          pay_type: objReqs.compensation_type || objReqs.pay_type,
+          location: objReqs.metro_area || objReqs.location || job.location,
+          required_certifications: Array.isArray(objReqs.certifications)
+            ? objReqs.certifications.join(', ')
+            : objReqs.certifications,
+          required_languages: objReqs.languages,
+        }
       const visibleReqs = rawReqs.filter(
         (r: any) => r && !r._ss_job_meta && (r.skill || r.name)
       )
@@ -128,8 +152,8 @@ export default function EditJobPage() {
 
       setJobData({
         title: job.title || '',
-        work_model: job.work_model || 'hybrid',
-        location: metaItem.location || '',
+        work_model: String(job.work_model || 'hybrid').toLowerCase(),
+        location: metaItem.location || job.location || '',
         employment_type: normalizedEmpType,
         experience_level: metaItem.experience_level || 'Senior (5–8 yrs)',
         education_req: normalizedEducationReq,

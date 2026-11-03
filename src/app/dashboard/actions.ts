@@ -378,6 +378,13 @@ export interface JobExtendedMeta {
 }
 
 function filterVisibleJobRequirements(rawReqs: any): any[] {
+  if (rawReqs && typeof rawReqs === 'object' && !Array.isArray(rawReqs) && Array.isArray(rawReqs.required_skills)) {
+    return rawReqs.required_skills.map((s: any) =>
+      typeof s === 'string'
+        ? { skill: s, years: Number(rawReqs.min_experience_years) || 3, level: 'Advanced' }
+        : s
+    )
+  }
   if (!Array.isArray(rawReqs)) return []
   return rawReqs.filter(
     (r: any) =>
@@ -4458,11 +4465,14 @@ export async function updateStructuredJob(formData: FormData) {
     }
   }
 
-  const { error } = await supabase
+  const locationVal = ((formData.get('location') as string) || '').trim() || null
+  const dbClient = getAdminSupabaseClient() || supabase
+  const { error } = await dbClient
     .from('jobs')
     .update({
       title,
-      work_model,
+      work_model: work_model.toLowerCase(),
+      location: locationVal,
       description,
       salary_min,
       salary_max,
@@ -5053,46 +5063,34 @@ export async function getEmployerPitches(
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return { error: 'Unauthorized' }
+  if (!user) return { data: [], error: 'Unauthorized' }
 
-  const { data: member } = await supabase
+  const db = getAdminSupabaseClient() || supabase
+
+  const { data: members } = await db
     .from('organization_members')
     .select('organization_id')
     .eq('user_id', user.id)
-    .single()
 
-  if (!member?.organization_id) return { error: 'No organization found.' }
+  const orgIds = Array.from(
+    new Set((members || []).map((m: any) => m.organization_id).filter(Boolean))
+  )
+  if (orgIds.length === 0) return { data: [], error: 'No organization found.' }
 
-  const { data: jobs } = await supabase
+  const { data: orgJobs } = await db
     .from('jobs')
-    .select('id')
-    .eq('organization_id', member.organization_id)
+    .select('*')
+    .in('organization_id', orgIds)
 
-  if (!jobs || jobs.length === 0) return { data: [] }
-  const jobIds = jobs.map((j) => j.id)
+  const jobRows = orgJobs || []
+  if (jobRows.length === 0) return { data: [] }
+  const jobIds = jobRows.map((j: any) => j.id)
+  const jobsById: Record<string, any> = {}
+  for (const j of jobRows) jobsById[j.id] = j
 
-  let dbQuery = supabase
+  let dbQuery = db
     .from('applications')
-    .select(
-      `
-      id,
-      created_at,
-      status,
-      candidate_id,
-      is_revealed,
-      match_score,
-      match_data,
-      jobs (
-        id,
-        title,
-        work_model,
-        salary_min,
-        salary_max,
-        structured_requirements
-      ),
-      profiles (*)
-    `
-    )
+    .select('*')
     .in('job_id', jobIds)
     .eq('initiated_by', 'employer')
     .order('created_at', { ascending: false })
@@ -5103,8 +5101,26 @@ export async function getEmployerPitches(
     dbQuery = dbQuery.gte('created_at', dateLimit.toISOString())
   }
 
-  const { data, error } = await dbQuery
-  if (error) return { error: error.message }
+  const { data: rawApps, error } = await dbQuery
+  if (error) return { data: [], error: error.message }
+
+  const candidateIds = Array.from(
+    new Set((rawApps || []).map((a: any) => a.candidate_id).filter(Boolean))
+  )
+  const profilesById: Record<string, any> = {}
+  if (candidateIds.length > 0) {
+    const { data: profRows } = await db
+      .from('profiles')
+      .select('*')
+      .in('id', candidateIds)
+    for (const p of profRows || []) profilesById[p.id] = p
+  }
+
+  const data = (rawApps || []).map((a: any) => ({
+    ...a,
+    jobs: jobsById[a.job_id] || null,
+    profiles: profilesById[a.candidate_id] || null,
+  }))
 
   let processedData = await Promise.all(
     (data || []).map(async (app: any) => {

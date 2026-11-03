@@ -21,7 +21,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     priceCents: 500,
     billingMode: 'payment',
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER_5_ONETIME',
-    defaultPriceId: '',
+    defaultPriceId: 'price_1UXlh4R0rSVwN0zE3fvehljM',
     description:
       'One-Time Real-Person ID Verification ($0/mo forever after): Includes Verified Professional Shield, live profile in Employer Search, unlimited employer invitations, and Weekly 1-Year Prestige Drawing entry.',
   },
@@ -31,7 +31,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     priceCents: 500,
     billingMode: 'payment',
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER_5_ONETIME',
-    defaultPriceId: '',
+    defaultPriceId: 'price_1UXlh4R0rSVwN0zE3fvehljM',
     description:
       'One-Time Real-Person ID Verification ($0/mo forever after): Includes Verified Professional Shield, live profile in Employer Search, unlimited employer invitations, and Weekly 1-Year Prestige Drawing entry.',
   },
@@ -41,7 +41,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     priceCents: 1200,
     billingMode: 'subscription',
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL_12',
-    defaultPriceId: '',
+    defaultPriceId: 'price_1UXlh4R0rSVwN0zEbmIYllPA',
     description:
       'Includes Real-Person ID Verification, unlimited employer invitations, and 15 outbound protected applications per month. Downgrade to $0/mo Explorer anytime.',
   },
@@ -51,7 +51,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     priceCents: 1200,
     billingMode: 'subscription',
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL_12',
-    defaultPriceId: '',
+    defaultPriceId: 'price_1UXlh4R0rSVwN0zEbmIYllPA',
     description:
       'Includes Real-Person ID Verification, unlimited employer invitations, and 15 outbound protected applications per month. Downgrade to $0/mo Explorer anytime.',
   },
@@ -61,7 +61,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     priceCents: 1900,
     billingMode: 'subscription',
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE_19',
-    defaultPriceId: '',
+    defaultPriceId: 'price_1UXlh5R0rSVwN0zE8dqI0YWM',
     description:
       'Includes Real-Person ID Verification, unlimited outbound protected applications, and top-priority placement in Employer Search. Downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime.',
   },
@@ -71,7 +71,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     priceCents: 1900,
     billingMode: 'subscription',
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE_19',
-    defaultPriceId: '',
+    defaultPriceId: 'price_1UXlh5R0rSVwN0zE8dqI0YWM',
     description:
       'Includes Real-Person ID Verification, unlimited outbound protected applications, and top-priority placement in Employer Search. Downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime.',
   },
@@ -82,7 +82,7 @@ export const EMPLOYER_VERIFICATION_PASS = {
   name: 'Special Sauce - Employer Organization Verification Pass ($25 One-Time)',
   priceCents: 2500,
   envVar: 'STRIPE_PRICE_EMPLOYER_VERIFY_25_ONETIME',
-  defaultPriceId: '',
+  defaultPriceId: 'price_1UXlh5R0rSVwN0zEFxxbRpPY',
   description:
     'One-Time Organization Verification Pass ($0/mo Sandbox): Draft roles and preview verified talent matches before activating a monthly plan.',
 }
@@ -189,7 +189,7 @@ export const EMPLOYER_TOPUP_PACKS: Record<
     credits: 25,
     priceCents: 35000,
     envVar: 'STRIPE_PRICE_TOPUP_SURGE',
-    defaultPriceId: '',
+    defaultPriceId: 'price_1UXlh6R0rSVwN0zEFvTAWh4V',
     description:
       '+25 non-expiring Rollover Invitation Credits ($14/invite). Declined invitations are automatically refunded.',
   },
@@ -199,7 +199,7 @@ export const EMPLOYER_TOPUP_PACKS: Record<
     credits: 25,
     priceCents: 35000,
     envVar: 'STRIPE_PRICE_TOPUP_SURGE',
-    defaultPriceId: '',
+    defaultPriceId: 'price_1UXlh6R0rSVwN0zEFvTAWh4V',
     description:
       '+25 non-expiring Rollover Invitation Credits ($14/invite). Declined invitations are automatically refunded.',
   },
@@ -209,7 +209,7 @@ export const EMPLOYER_TOPUP_PACKS: Record<
     credits: 75,
     priceCents: 90000,
     envVar: 'STRIPE_PRICE_TOPUP_SCALE',
-    defaultPriceId: '',
+    defaultPriceId: 'price_1UXlh6R0rSVwN0zEDv1v889Y',
     description:
       '+75 non-expiring Rollover Invitation Credits ($12/invite). Declined invitations are automatically refunded.',
   },
@@ -219,7 +219,7 @@ export const EMPLOYER_TOPUP_PACKS: Record<
     credits: 75,
     priceCents: 90000,
     envVar: 'STRIPE_PRICE_TOPUP_SCALE',
-    defaultPriceId: '',
+    defaultPriceId: 'price_1UXlh6R0rSVwN0zEDv1v889Y',
     description:
       '+75 non-expiring Rollover Invitation Credits ($12/invite). Declined invitations are automatically refunded.',
   },
