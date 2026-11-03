@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 export function syncLogoImages(_isDark?: boolean) {
@@ -95,16 +96,41 @@ export default function ThemeToggle() {
   // Inside /dashboard, the toggle lives inside the Accessibility profile dropdown menu
   if (!mounted || pathname?.startsWith('/dashboard')) return null
 
+  const isSecurityPage = pathname === '/security'
+
   return (
-    <button
-      type="button"
-      onClick={toggleTheme}
-      title={dark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-      aria-label="Toggle color theme"
-      className="fixed bottom-[76px] right-6 z-50 hidden md:flex items-center gap-2 px-3.5 py-2 rounded-full shadow-lg border text-xs font-extrabold transition-all cursor-pointer select-none backdrop-blur-md bg-slate-900/90 text-amber-300 border-slate-700 hover:border-amber-400"
-    >
-      <span className="text-sm leading-none">{dark ? '☀️' : '🌙'}</span>
-      <span>{dark ? 'Light Mode' : 'Dark Mode'}</span>
-    </button>
+    <div className="fixed bottom-6 right-6 z-50 hidden sm:flex flex-col items-end gap-2.5">
+      <button
+        type="button"
+        onClick={toggleTheme}
+        title={dark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        aria-label="Toggle color theme"
+        className="hidden md:flex items-center gap-2 px-3.5 py-2 rounded-full shadow-lg border text-xs font-extrabold transition-all cursor-pointer select-none backdrop-blur-md bg-slate-900/90 text-amber-300 border-slate-700 hover:border-amber-400"
+      >
+        <span className="text-sm leading-none">{dark ? '☀️' : '🌙'}</span>
+        <span>{dark ? 'Light Mode' : 'Dark Mode'}</span>
+      </button>
+      {!isSecurityPage && (
+        <Link
+          href="/security"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-900/95 backdrop-blur text-white border border-slate-700 shadow-lg hover:bg-indigo-600 hover:border-indigo-500 text-xs font-extrabold transition-all cursor-pointer group"
+        >
+          <span>🛡️ Security &amp; Trust</span>
+          <svg
+            className="w-3.5 h-3.5 text-emerald-400 group-hover:text-white transition-colors"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2.5"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </Link>
+      )}
+    </div>
   )
 }

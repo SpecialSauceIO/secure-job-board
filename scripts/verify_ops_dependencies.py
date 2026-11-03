@@ -83,10 +83,15 @@ check(
 
 # Tab 6: Global Sticky Header CSS Invariant
 globals_css = (job_repo / "src/app/globals.css").read_text()
+overflow_hidden_pages = [
+    str(p.relative_to(job_repo))
+    for p in sorted((job_repo / "src/app").rglob("page.tsx"))
+    if "overflow-x-hidden" in p.read_text(encoding="utf-8")
+]
 check(
-    "overflow-x: clip" in globals_css,
-    "Tab 6: globals.css preserves overflow-x: clip for sticky headers",
-    "overflow-x: clip missing in src/app/globals.css"
+    "overflow-x: clip" in globals_css and len(overflow_hidden_pages) == 0,
+    "Tab 6: globals.css & all src/app/**/page.tsx preserve overflow-x-clip (zero overflow-x-hidden)",
+    "Sticky header violation: " + (", ".join(overflow_hidden_pages) if overflow_hidden_pages else "overflow-x: clip missing in src/app/globals.css")
 )
 
 # Tab 7: Authenticated Dashboard Navigation & Route Containment

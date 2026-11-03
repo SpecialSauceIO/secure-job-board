@@ -9,9 +9,9 @@ export default function WorkflowsPage() {
   const [activeTab, setActiveTab] = useState<'candidate' | 'employer'>('candidate')
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900 flex flex-col justify-between">
-      <div>
-        <PublicHeader />
+    <div className="min-h-screen w-full overflow-x-clip bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900 flex flex-col justify-between">
+      <PublicHeader />
+      <div className="flex-1">
 
         {/* Hero */}
         <section className="relative overflow-hidden bg-[#0f172a] border-b border-slate-800 py-14 sm:py-18 md:py-24">

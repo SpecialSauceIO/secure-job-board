@@ -464,26 +464,6 @@ export default function LandingPage() {
               </svg>
             </span>
           </button>
-
-          <Link
-            href="/security"
-            className="hidden sm:inline-flex items-center gap-2 fixed right-6 bottom-6 z-30 px-4 py-2.5 rounded-full bg-slate-900/95 backdrop-blur text-white border border-slate-700 shadow-lg hover:bg-indigo-600 hover:border-indigo-500 text-xs font-extrabold transition-all cursor-pointer group"
-          >
-            <span>🛡️ Security &amp; Trust</span>
-            <svg
-              className="w-3.5 h-3.5 text-emerald-400 group-hover:text-white transition-colors"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2.5"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </Link>
         </div>
       </section>
 
@@ -500,7 +480,7 @@ export default function LandingPage() {
                 Privacy, Transparency &amp; Fair Pay
               </span>
               <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">
-                How Special Sauce works{' '}
+                How Special Sauce Works{' '}
                 <span className="text-emerald-500">for Professionals</span>
               </h2>
             </div>
@@ -712,7 +692,7 @@ export default function LandingPage() {
                 Built for Businesses Across All 28 Industries
               </span>
               <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">
-                How Special Sauce works{' '}
+                How Special Sauce Works{' '}
                 <span className="text-indigo-600">for Employers</span>
               </h2>
             </div>
