@@ -6,6 +6,7 @@ import {
   FAQ,
   PLAYBOOK_GUIDES,
   SECURITY_ARCHITECTURE_DATA,
+  TECHNICAL_SECURITY_ARCHITECTURE_DATA,
 } from '@/constants/faqs'
 import { submitSupportTicket } from '@/app/dashboard/actions'
 import {
@@ -120,6 +121,8 @@ export default function SupportCenterClient({
     'guides' | 'kb' | 'security' | 'ticket'
   >(initialTab === 'guides' ? 'kb' : initialTab)
   const [securityVaultTab, setSecurityVaultTab] = useState<'stripe' | 'platform'>('stripe')
+  const [securityTechMode, setSecurityTechMode] = useState<'standard' | 'technical'>('standard')
+  const activeSecurityData = securityTechMode === 'standard' ? SECURITY_ARCHITECTURE_DATA : TECHNICAL_SECURITY_ARCHITECTURE_DATA
   const [selectedGuide, setSelectedGuide] = useState<'employer' | 'candidate'>(
     userRole === 'employer' ? 'employer' : 'candidate'
   )
@@ -1858,7 +1861,7 @@ export default function SupportCenterClient({
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {SECURITY_ARCHITECTURE_DATA.stripeVaultItems.map((item, i) => (
+                {activeSecurityData.stripeVaultItems.map((item, i) => (
                   <div
                     key={i}
                     className="bg-slate-900 p-5 rounded-xl border border-slate-700 space-y-2.5"
@@ -1892,7 +1895,7 @@ export default function SupportCenterClient({
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {SECURITY_ARCHITECTURE_DATA.platformStoredItems.map((item, i) => (
+                {activeSecurityData.platformStoredItems.map((item, i) => (
                   <div
                     key={i}
                     className="bg-slate-900 p-5 rounded-xl border border-slate-700 space-y-2.5"
@@ -1937,7 +1940,7 @@ export default function SupportCenterClient({
             </div>
 
             <pre className="text-sm text-slate-100 font-mono whitespace-pre-wrap leading-relaxed bg-slate-950 p-5 rounded-xl border border-slate-800 overflow-x-auto">
-              {SECURITY_ARCHITECTURE_DATA.copyPasteSecurityBrief}
+              {activeSecurityData.copyPasteSecurityBrief}
             </pre>
           </div>
         </div>

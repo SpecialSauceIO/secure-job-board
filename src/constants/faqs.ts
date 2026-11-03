@@ -85,6 +85,75 @@ Special Sauce never stores government ID images, verification selfies, credit ca
 ====================================================================`,
 }
 
+export const TECHNICAL_SECURITY_ARCHITECTURE_DATA = {
+  title: "Data Security, Intro/Convo Identity Vault & Stripe Architecture (Technical Specs)",
+  subtitle:
+    "Special Sauce is engineered on a Zero-ID-Storage and Anti-Harvesting architecture. Biometric identity documents and payment credentials for both Professionals and Employer Admins are vaulted exclusively by Stripe (PCI-DSS Level 1 / SOC 2 Type II), while professional resumes and direct contact details remain locked behind our PostgreSQL RLS Intro/Convo Identity Vault until explicitly released.",
+  stripeVaultItems: [
+    {
+      title: "Government IDs & Passports (Stripe Identity TLS 1.3 + AES-256)",
+      detail:
+        "Photos of driver\u2019s licenses, passports, and national ID cards uploaded during Professional onboarding and Employer Account Admin verification are transmitted directly to Stripe Identity over TLS 1.3 and encrypted using AES-256 inside Stripe\u2019s isolated biometric vault.",
+    },
+    {
+      title: "Biometric Selfie Checks & Zero-Knowledge Webhook Tokens",
+      detail:
+        "Live facial recognition vectors and selfie verification captures are processed exclusively by Stripe Identity. Special Sauce never ingests raw biometric images and only receives an HMAC-SHA256 signed webhook persisting a boolean verification status (\u201cverified\u201d or \u201crequires_input\u201d) and session reference token.",
+    },
+    {
+      title: "Payment Cards, ACH & Billing Details (PCI-DSS Level 1)",
+      detail:
+        "All Employer subscription payments ($149 / $499 / $1,250 Founding Partner Rates locked for 12 months; $299 / $799 / $1,999 Retail), Rollover Invitation Credit Top-Up Packs ($150 / $350 / $900), Employer Organization Verification ($25 one-time), and Professional Explorer ($5 one-time \u00b7 $0/mo forever), Professional ($12/mo), or Prestige ($19/mo) plans are tokenized directly inside Stripe Checkout.",
+    },
+  ],
+  platformStoredItems: [
+    {
+      title: "Staged Intro/Convo Vault & 1-Hour Signed Resume URLs (RLS + AES-256)",
+      detail:
+        "Uploaded PDF resumes reside in a non-public, AES-256 encrypted Supabase Storage bucket governed by strict PostgreSQL Row-Level Security (RLS). In The Introduction, private chat opens showing only First Name + Last Initial. In The Conversation, clicking \u201cRelease Resume & Contact Vault\u201d generates a 1-hour (3,600s TTL) cryptographically signed PDF URL.",
+    },
+    {
+      title: "3-Pillar Employer Anti-Harvesting Trust Gate (RDAP + DNS + EIN)",
+      detail:
+        "Every employer organization must pass three mandatory trust checks before publishing roles or searching talent: Pillar 1 (Corporate Domain DNS MX/TXT validation + automated 90-Day RDAP registry age check blocking burner domains), Pillar 2 (9-digit IRS Federal EIN & State of Incorporation officer attestation), and Pillar 3 (1-time Stripe Identity biometric check for the Account Admin).",
+    },
+    {
+      title: "In-Platform Encrypted Messaging & Automated Phishing Firewall",
+      detail:
+        "All initial professional-employer conversations occur inside real-time threads tied to a shared Reference ID (SS-XXXXXXXX). Application-layer session secrets use AES-256-GCM authenticated encryption and HMAC-SHA256 signing, and every message passes through an automated heuristic scanner blocking off-platform lures or SSN/financial harvesting.",
+    },
+    {
+      title: "30-Day Job Auto-Expiration & 5-Unlock Anti-Scraping Ceiling",
+      detail:
+        "To eliminate ghost roles and bulk resume scraping, all job listings enforce a hard 30-day TTL unless manually renewed by the employer. Employer accounts are also rate-limited at a maximum of 5 unmessaged unlocked threads at a time.",
+    },
+  ],
+  copyPasteSecurityBrief: `====================================================================
+SPECIAL SAUCE \u2014 TECHNICAL SECURITY, CRYPTOGRAPHY & STRIPE COMPLIANCE BRIEF
+====================================================================
+
+1. ENCRYPTION STANDARDS (IN TRANSIT, AT REST & APPLICATION LAYER):
+- Transport Layer: TLS 1.3 / HTTPS Strict Transport Security (HSTS) across all edge and API routes.
+- Storage at Rest: AES-256 encryption across all PostgreSQL database volumes, backups, and private PDF resume buckets.
+- Application & Token Layer: AES-256-GCM authenticated encryption and HMAC-SHA256 signature verification.
+- Zero External AI Training: Private resumes, compensation floors, and chat transcripts are strictly isolated and never sold or used to train public AI models.
+
+2. ISOLATED INSIDE STRIPE (PCI-DSS LEVEL 1 & SOC 2 TYPE II):
+- Biometric Identity Verification (Stripe Identity): Government IDs and live selfie checks for Professionals and Employer Account Admins are captured over TLS 1.3 and encrypted (AES-256) directly inside Stripe\u2019s isolated vault. Special Sauce stores only a boolean identity_verified flag.
+- Subscription & Billing Data (Stripe Checkout): All payment methods for Starter, Growth & Enterprise ($149/$499/$1,250 Founding Partner Rates; $299/$799/$1,999 Retail), Rollover Top-Up Packs ($150/$350/$900), Employer Verification ($25 one-time), and Explorer ($5 one-time \u00b7 $0/mo forever), Professional ($12/mo) & Prestige ($19/mo) plans are tokenized and vaulted exclusively by Stripe.
+
+3. 3-PILLAR EMPLOYER ANTI-HARVESTING GATE:
+- Pillar 1 (Domain & 90-Day RDAP Age Check): Work-email or DNS TXT verification paired with live DNS MX validation and automated IANA/RDAP lookup blocking domains registered <90 days ago.
+- Pillar 2 (US Tax Entity Attestation): 9-digit IRS Federal Tax ID (EIN) and State of Incorporation officer attestation.
+- Pillar 3 (Admin Biometric ID): 1-time Stripe Identity photo ID & live selfie verification for the Employer Account Admin.
+
+4. INTRO/CONVO IDENTITY VAULT, RLS & ANTI-SCRAPING GUARDRAILS:
+- The Introduction (Encrypted Thread Unlock): Reveals the employer\u2019s verified company name/domain and the professional\u2019s First Name + Last Initial inside an encrypted thread (Ref: SS-XXXXXXXX) while keeping raw email, phone, and PDF resume locked behind PostgreSQL Row-Level Security (RLS).
+- The Conversation (Professional-Controlled Release): Generates a 1-hour (3,600s TTL) cryptographically signed PDF resume link only when the professional clicks Release Resume & Contact Vault.
+- Anti-Scraping Guardrails: 30-day automatic job listing TTL and a hard 5-unlock anti-scraping ceiling on unmessaged threads.
+====================================================================`,
+}
+
 export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = {
   employer: {
     id: 'employer',
@@ -103,7 +172,7 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
         step: 'Step 2',
         title: 'Verify Your Business (3 Quick Steps)',
         description:
-          'Confirm your business domain, enter your 9-digit Federal EIN and state of registration, and complete a 60-second Stripe ID check for your account admin.',
+          'Confirm your business domain, enter your 9-digit Federal EIN and state of registration, and complete a 60-second Stripe ID check for your account admin. Full technical verification specs (90-day RDAP, DNS MX/TXT, and Stripe Identity isolation) are available at specialsauce.io/security?view=technical.',
       },
       {
         step: 'Step 3',
@@ -159,7 +228,7 @@ SPECIAL SAUCE — HIRING TEAM QUICK-START GUIDE
         step: 'Step 2',
         title: 'Complete Your 60-Second Stripe ID Check',
         description:
-          'Verify your identity once via Stripe to earn your Verified Professional Shield. Your ID photo is never stored on Special Sauce servers.',
+          'Verify your identity once via Stripe to earn your Verified Professional Shield. Your ID photo is never stored on Special Sauce servers. (For full AES-256, TLS 1.3, and SOC 2 architectural details, switch to the Technical Specs view on specialsauce.io/security?view=technical.)',
       },
       {
         step: 'Step 3',
@@ -209,7 +278,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'Why do I verify my ID, and is my government ID stored on Special Sauce?',
     answer:
-      'A one-time ID check keeps bots, fake profiles, and scammers off the platform so every connection is human-to-human. Your photo ID and selfie are processed directly by Stripe Identity and are never stored on Special Sauce servers.',
+      'A one-time ID check keeps bots, fake profiles, and scammers off the platform so every connection is human-to-human. Your photo ID and selfie are processed directly by Stripe Identity and are never stored on Special Sauce servers. (For full AES-256, TLS 1.3, and SOC 2 architectural details, switch to the Technical Specs view on specialsauce.io/security?view=technical.)',
   },
   {
     id: 'c2',
@@ -218,7 +287,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How does the Private Resume Vault protect my contact info?',
     answer:
-      'In employer search, you appear only as "Professional #ID." When you accept an invitation or an employer unlocks your application (The Introduction), private chat opens showing only your First Name + Last Initial while revealing the employer’s verified company name. Your email, phone number, and PDF resume stay hidden until you click "Release Resume & Contact Vault" (The Conversation).',
+      'In employer search, you appear only as "Professional #ID." When you accept an invitation or an employer unlocks your application (The Introduction), private chat opens showing only your First Name + Last Initial while revealing the employer’s verified company name. Your email, phone number, and PDF resume stay hidden until you click "Release Resume & Contact Vault" (The Conversation). You can review our full PostgreSQL Row-Level Security (RLS) and 1-hour signed URL specifications at specialsauce.io/security?view=technical.',
   },
   {
     id: 'c8',

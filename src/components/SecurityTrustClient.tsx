@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { LEGAL_CONFIG } from "@/constants/legal"
+import { TECHNICAL_SECURITY_ARCHITECTURE_DATA } from "@/constants/faqs"
 
 type ViewMode = "standard" | "technical"
 
@@ -135,6 +136,14 @@ const TECHNICAL_SPECS_MATRIX = [
 
 export function SecurityTrustClient() {
   const [mode, setMode] = useState<ViewMode>("standard")
+  const [copiedBrief, setCopiedBrief] = useState(false)
+  const handleCopyBrief = () => {
+    if (typeof navigator === "object" && navigator.clipboard) {
+      navigator.clipboard.writeText(TECHNICAL_SECURITY_ARCHITECTURE_DATA.copyPasteSecurityBrief)
+      setCopiedBrief(true)
+      setTimeout(() => setCopiedBrief(false), 2500)
+    }
+  }
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -256,6 +265,24 @@ export function SecurityTrustClient() {
                   ))}
                 </tbody>
               </table>
+            </div>
+            <div className="pt-4 border-t border-slate-800 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400 block">
+                    IT & Procurement Security Summary
+                  </span>
+                  <h3 className="text-lg font-extrabold text-white mt-0.5">
+                    Copy-Paste Technical Security, Cryptography & Stripe Compliance Brief
+                  </h3>
+                </div>
+                <button type="button" onClick={handleCopyBrief} className={"px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-colors shrink-0 cursor-pointer " + (copiedBrief ? "bg-emerald-500 text-slate-950" : "bg-indigo-600 text-white hover:bg-indigo-500")}>
+                  {copiedBrief ? "Copied Technical Security Brief" : "Copy Technical Security Brief"}
+                </button>
+              </div>
+              <pre className="text-xs sm:text-sm text-slate-100 font-mono whitespace-pre-wrap leading-relaxed bg-slate-950 p-4 sm:p-5 rounded-xl border border-slate-800 overflow-x-auto">
+                {TECHNICAL_SECURITY_ARCHITECTURE_DATA.copyPasteSecurityBrief}
+              </pre>
             </div>
           </div>
         )}
