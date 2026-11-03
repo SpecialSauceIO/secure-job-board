@@ -474,8 +474,8 @@ export async function POST(req: Request) {
 
     const isRetail = rateType === 'retail'
     const catalogPriceId = isRetail
-      ? process.env[tier.retailEnvVar] || tier.defaultRetailPriceId
-      : process.env[tier.foundingEnvVar] || tier.defaultFoundingPriceId
+      ? resolveCanonicalPriceId(tier.retailEnvVar, tier.defaultRetailPriceId)
+      : resolveCanonicalPriceId(tier.foundingEnvVar, tier.defaultFoundingPriceId)
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
