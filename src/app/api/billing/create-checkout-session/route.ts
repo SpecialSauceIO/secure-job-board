@@ -21,7 +21,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     priceCents: 500,
     billingMode: 'payment',
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER_5_ONETIME',
-    defaultPriceId: 'price_1UXlh4R0rSVwN0zE3fvehljM',
+    defaultPriceId: 'price_1UYCkwLAill3LX5XeuEcLOxC',
     description:
       'One-Time Real-Person ID Verification ($0/mo forever after): Includes Verified Professional Shield, live profile in Employer Search, unlimited employer invitations, and Weekly 1-Year Prestige Drawing entry.',
   },
@@ -31,7 +31,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     priceCents: 500,
     billingMode: 'payment',
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER_5_ONETIME',
-    defaultPriceId: 'price_1UXlh4R0rSVwN0zE3fvehljM',
+    defaultPriceId: 'price_1UYCkwLAill3LX5XeuEcLOxC',
     description:
       'One-Time Real-Person ID Verification ($0/mo forever after): Includes Verified Professional Shield, live profile in Employer Search, unlimited employer invitations, and Weekly 1-Year Prestige Drawing entry.',
   },
@@ -41,7 +41,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     priceCents: 1200,
     billingMode: 'subscription',
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL_12',
-    defaultPriceId: 'price_1UXlh4R0rSVwN0zEbmIYllPA',
+    defaultPriceId: 'price_1UYCkxLAill3LX5X9ZT7w1w5',
     description:
       'Includes Real-Person ID Verification, unlimited employer invitations, and 15 outbound protected applications per month. Downgrade to $0/mo Explorer anytime.',
   },
@@ -51,7 +51,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     priceCents: 1200,
     billingMode: 'subscription',
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL_12',
-    defaultPriceId: 'price_1UXlh4R0rSVwN0zEbmIYllPA',
+    defaultPriceId: 'price_1UYCkxLAill3LX5X9ZT7w1w5',
     description:
       'Includes Real-Person ID Verification, unlimited employer invitations, and 15 outbound protected applications per month. Downgrade to $0/mo Explorer anytime.',
   },
@@ -61,7 +61,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     priceCents: 1900,
     billingMode: 'subscription',
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE_19',
-    defaultPriceId: 'price_1UXlh5R0rSVwN0zE8dqI0YWM',
+    defaultPriceId: 'price_1UYCkxLAill3LX5XSZkyC6dF',
     description:
       'Includes Real-Person ID Verification, unlimited outbound protected applications, and top-priority placement in Employer Search. Downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime.',
   },
@@ -71,7 +71,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     priceCents: 1900,
     billingMode: 'subscription',
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE_19',
-    defaultPriceId: 'price_1UXlh5R0rSVwN0zE8dqI0YWM',
+    defaultPriceId: 'price_1UYCkxLAill3LX5XSZkyC6dF',
     description:
       'Includes Real-Person ID Verification, unlimited outbound protected applications, and top-priority placement in Employer Search. Downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime.',
   },
@@ -82,7 +82,7 @@ export const EMPLOYER_VERIFICATION_PASS = {
   name: 'Special Sauce - Employer Organization Verification Pass ($25 One-Time)',
   priceCents: 2500,
   envVar: 'STRIPE_PRICE_EMPLOYER_VERIFY_25_ONETIME',
-  defaultPriceId: 'price_1UXlh5R0rSVwN0zEFxxbRpPY',
+  defaultPriceId: 'price_1UYCkyLAill3LX5X3jDyohLy',
   description:
     'One-Time Organization Verification Pass ($0/mo Sandbox): Draft roles and preview verified talent matches before activating a monthly plan.',
 }
@@ -111,8 +111,8 @@ export const EMPLOYER_SAAS_TIERS: Record<
     retailPriceCents: 29900,
     foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_STARTER_FOUNDING',
     retailEnvVar: 'STRIPE_PRICE_EMPLOYER_STARTER_RETAIL',
-    defaultFoundingPriceId: 'price_1UTpwyR0rSVwN0zEa6QpXA8F',
-    defaultRetailPriceId: 'price_1UTpwzR0rSVwN0zEabaW5Sta',
+    defaultFoundingPriceId: 'price_1UYCkyLAill3LX5XYaFupN5s',
+    defaultRetailPriceId: 'price_1UYCl0LAill3LX5XNQu4NTLo',
     maxActiveJobs: 5,
     monthlyCredits: 10,
     maxSeats: 2,
@@ -126,8 +126,8 @@ export const EMPLOYER_SAAS_TIERS: Record<
     retailPriceCents: 79900,
     foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_GROWTH_FOUNDING',
     retailEnvVar: 'STRIPE_PRICE_EMPLOYER_GROWTH_RETAIL',
-    defaultFoundingPriceId: 'price_1UTpwzR0rSVwN0zEtmTHVCBd',
-    defaultRetailPriceId: 'price_1UTpx0R0rSVwN0zElkkrbtTG',
+    defaultFoundingPriceId: 'price_1UYCkzLAill3LX5XNVTDyNnN',
+    defaultRetailPriceId: 'price_1UYCl0LAill3LX5XalxQ4Uu6',
     maxActiveJobs: 15,
     monthlyCredits: 35,
     maxSeats: 5,
@@ -141,8 +141,8 @@ export const EMPLOYER_SAAS_TIERS: Record<
     retailPriceCents: 199900,
     foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_ENTERPRISE_FOUNDING',
     retailEnvVar: 'STRIPE_PRICE_EMPLOYER_ENTERPRISE_RETAIL',
-    defaultFoundingPriceId: 'price_1UTpwzR0rSVwN0zExo1SFwbL',
-    defaultRetailPriceId: 'price_1UTpx0R0rSVwN0zEnC8VnVET',
+    defaultFoundingPriceId: 'price_1UYCkzLAill3LX5XWOgUs4m2',
+    defaultRetailPriceId: 'price_1UYCl1LAill3LX5XkgUpeLDP',
     maxActiveJobs: 999,
     monthlyCredits: 120,
     maxSeats: 999,
@@ -169,7 +169,7 @@ export const EMPLOYER_TOPUP_PACKS: Record<
     credits: 10,
     priceCents: 15000,
     envVar: 'STRIPE_PRICE_TOPUP_BOOST',
-    defaultPriceId: 'price_1UTpx0R0rSVwN0zEKbw5XRnc',
+    defaultPriceId: 'price_1UYCl1LAill3LX5XB4E8fbpp',
     description:
       '+10 non-expiring Rollover Invitation Credits ($15/invite). Declined invitations are automatically refunded.',
   },
@@ -179,7 +179,7 @@ export const EMPLOYER_TOPUP_PACKS: Record<
     credits: 10,
     priceCents: 15000,
     envVar: 'STRIPE_PRICE_TOPUP_BOOST',
-    defaultPriceId: 'price_1UTpx0R0rSVwN0zEKbw5XRnc',
+    defaultPriceId: 'price_1UYCl1LAill3LX5XB4E8fbpp',
     description:
       '+10 non-expiring Rollover Invitation Credits ($15/invite). Declined invitations are automatically refunded.',
   },
@@ -189,7 +189,7 @@ export const EMPLOYER_TOPUP_PACKS: Record<
     credits: 25,
     priceCents: 35000,
     envVar: 'STRIPE_PRICE_TOPUP_SURGE',
-    defaultPriceId: 'price_1UXlh6R0rSVwN0zEFvTAWh4V',
+    defaultPriceId: 'price_1UYCl2LAill3LX5Xru1LvJuh',
     description:
       '+25 non-expiring Rollover Invitation Credits ($14/invite). Declined invitations are automatically refunded.',
   },
@@ -199,7 +199,7 @@ export const EMPLOYER_TOPUP_PACKS: Record<
     credits: 25,
     priceCents: 35000,
     envVar: 'STRIPE_PRICE_TOPUP_SURGE',
-    defaultPriceId: 'price_1UXlh6R0rSVwN0zEFvTAWh4V',
+    defaultPriceId: 'price_1UYCl2LAill3LX5Xru1LvJuh',
     description:
       '+25 non-expiring Rollover Invitation Credits ($14/invite). Declined invitations are automatically refunded.',
   },
@@ -209,7 +209,7 @@ export const EMPLOYER_TOPUP_PACKS: Record<
     credits: 75,
     priceCents: 90000,
     envVar: 'STRIPE_PRICE_TOPUP_SCALE',
-    defaultPriceId: 'price_1UXlh6R0rSVwN0zEDv1v889Y',
+    defaultPriceId: 'price_1UYCl2LAill3LX5XeP7ZpM8C',
     description:
       '+75 non-expiring Rollover Invitation Credits ($12/invite). Declined invitations are automatically refunded.',
   },
@@ -219,23 +219,15 @@ export const EMPLOYER_TOPUP_PACKS: Record<
     credits: 75,
     priceCents: 90000,
     envVar: 'STRIPE_PRICE_TOPUP_SCALE',
-    defaultPriceId: 'price_1UXlh6R0rSVwN0zEDv1v889Y',
+    defaultPriceId: 'price_1UYCl2LAill3LX5XeP7ZpM8C',
     description:
       '+75 non-expiring Rollover Invitation Credits ($12/invite). Declined invitations are automatically refunded.',
   },
 }
 
-const DEPRECATED_LEGACY_PRICE_IDS = new Set([
-  'price_1UTpwxR0rSVwN0zE9vG7uB5M',
-  'price_1UTpwyR0rSVwN0zE7cK2nL4P',
-  'price_1UTpwyR0rSVwN0zEmL9xR3vQ',
-  'price_1UTpx1R0rSVwN0zE5wN2vK8L',
-  'price_1UTpx1R0rSVwN0zE8mP4qR9T',
-])
-
 function resolveCanonicalPriceId(envVarName: string, defaultPriceId: string): string {
   const envVal = (process.env[envVarName] || '').trim()
-  if (!envVal || DEPRECATED_LEGACY_PRICE_IDS.has(envVal)) {
+  if (!envVal || !envVal.startsWith('price_1UYC')) {
     return defaultPriceId
   }
   return envVal
