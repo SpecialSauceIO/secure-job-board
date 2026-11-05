@@ -58,7 +58,7 @@ export function PublicFooter() {
           </p>
         </div>
 
-        <p className="mt-4 text-xs text-slate-500 text-center">
+        <p className="mt-1.5 text-xs text-slate-500 text-center xl:text-right">
           © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName}. All rights reserved.
         </p>
       </div>

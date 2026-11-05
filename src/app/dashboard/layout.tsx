@@ -131,7 +131,7 @@ export default async function DashboardLayout({
                 </Link>
               </div>
             </div>
-            <p className="mt-3 text-xs text-gray-500 text-center">
+            <p className="mt-1.5 text-xs text-gray-500 text-center sm:text-left">
               © {new Date().getFullYear()} Special Sauce Solutions LLC. All rights reserved.
             </p>
           </div>
