@@ -86,18 +86,23 @@ export default async function DashboardLayout({
       <main className="flex-1 px-4 py-6 sm:p-6 md:p-8">{children}</main>
 
       {/* Subtle Dashboard Footer */}
-      <footer className="border-t border-slate-300 bg-white py-6 px-4 sm:px-8 mt-auto">
+      <footer className="border-t border-slate-300 bg-white py-4 px-4 sm:px-8 mt-auto">
           <div className="max-w-[1440px] mx-auto">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <p className="text-xs sm:text-sm font-medium text-gray-600 whitespace-nowrap">
-                5900 Balcones Dr #34619, Austin, TX 78731 •{" "}
-                <a
-                  href="mailto:info@specialsauce.io"
-                  className="hover:text-gray-900 transition-colors underline-offset-4 hover:underline"
-                >
-                  info@specialsauce.io
-                </a>
-              </p>
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+              <div className="text-center sm:text-left space-y-0.5">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 leading-tight whitespace-nowrap">
+                  5900 Balcones Dr #34619, Austin, TX 78731 •{" "}
+                  <a
+                    href="mailto:info@specialsauce.io"
+                    className="hover:text-gray-900 transition-colors underline-offset-4 hover:underline"
+                  >
+                    info@specialsauce.io
+                  </a>
+                </p>
+                <p className="text-xs text-gray-500 leading-tight">
+                  © {new Date().getFullYear()} Special Sauce Solutions LLC. All rights reserved.
+                </p>
+              </div>
               <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2 text-center">
                 <Link
                   href="/dashboard/support"
@@ -131,9 +136,6 @@ export default async function DashboardLayout({
                 </Link>
               </div>
             </div>
-            <p className="mt-1.5 text-xs text-gray-500 text-center sm:text-left">
-              © {new Date().getFullYear()} Special Sauce Solutions LLC. All rights reserved.
-            </p>
           </div>
         </footer>
     </div>
