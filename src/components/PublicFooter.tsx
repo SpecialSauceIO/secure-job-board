@@ -47,8 +47,8 @@ export function PublicFooter() {
             </Link>
           </div>
 
-          <div className="text-xs sm:text-sm font-medium text-slate-600 text-center xl:text-right shrink-0 space-y-1">
-            <p className="whitespace-nowrap">
+          <div className="text-center xl:text-right shrink-0 space-y-1">
+            <p className="text-xs sm:text-sm font-medium text-slate-600 whitespace-nowrap">
               {LEGAL_CONFIG.legalEntityAddress.replace(' US', '')} •{' '}
               <a
                 href={`mailto:${LEGAL_CONFIG.supportEmail}`}
@@ -57,7 +57,7 @@ export function PublicFooter() {
                 {LEGAL_CONFIG.supportEmail}
               </a>
             </p>
-            <p>
+            <p className="text-xs text-slate-500">
               © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName}. All rights reserved.
             </p>
           </div>
