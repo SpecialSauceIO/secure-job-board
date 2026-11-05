@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getOpsServiceClient, loadMergedOpsVault } from "@/lib/ops-bridge"
+import { getOpsServiceClient, loadMergedOpsVault, saveMergedOpsVault } from "@/lib/ops-bridge"
 
 export const dynamic = "force-dynamic"
+export const maxDuration = 60
 
 function cleanEnv(val?: string | null): string {
   if (!val) return ""
@@ -539,8 +540,27 @@ export async function GET(req: NextRequest) {
     const resendKey = cleanEnv(process.env.RESEND_API_KEY)
     const targetInbox = "support@specialsauce.io"
     const dryRun = req.nextUrl.searchParams.get("dry_run") === "1"
+    const forceSend = req.nextUrl.searchParams.get("force") === "1"
+    const chicagoDateStr = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Chicago",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date(now))
+    const lastDigestDate = vault.monitor_meta?.last_digest_sent_date || ""
+    const alreadySentToday = !forceSend && !dryRun && lastDigestDate === chicagoDateStr
     let emailSent = false
     let emailError = ""
+
+    if (alreadySentToday) {
+      return NextResponse.json({
+        ok: true,
+        skipped_duplicate: true,
+        last_digest_sent_date: lastDigestDate,
+        generated_at: nowIso,
+        recipient: targetInbox,
+      })
+    }
 
     if (resendKey && !dryRun) {
       const emailRes = await fetch("https://api.resend.com/emails", {
@@ -557,7 +577,14 @@ export async function GET(req: NextRequest) {
         }),
       })
       emailSent = emailRes.ok
-      if (!emailRes.ok) {
+      if (emailRes.ok) {
+        vault.monitor_meta = {
+          ...(vault.monitor_meta || {}),
+          last_digest_sent_date: chicagoDateStr,
+          last_digest_sent_at: nowIso,
+        }
+        await saveMergedOpsVault(client, vault).catch(() => {})
+      } else {
         emailError = await emailRes.text().catch(() => "Resend error")
       }
     }
