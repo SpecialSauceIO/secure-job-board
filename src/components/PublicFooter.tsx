@@ -48,9 +48,6 @@ export function PublicFooter() {
           </div>
 
           <div className="text-xs sm:text-sm font-medium text-slate-600 text-center xl:text-right shrink-0 space-y-1">
-            <p>
-              © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName}. All rights reserved.
-            </p>
             <p className="whitespace-nowrap">
               {LEGAL_CONFIG.legalEntityAddress.replace(' US', '')} •{' '}
               <a
@@ -59,6 +56,9 @@ export function PublicFooter() {
               >
                 {LEGAL_CONFIG.supportEmail}
               </a>
+            </p>
+            <p>
+              © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName}. All rights reserved.
             </p>
           </div>
         </div>
