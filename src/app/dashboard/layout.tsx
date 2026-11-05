@@ -88,15 +88,18 @@ export default async function DashboardLayout({
       {/* Subtle Dashboard Footer */}
       <footer className="border-t border-slate-300 bg-white py-5 px-4 sm:px-8 mt-auto">
           <div className="max-w-[1440px] mx-auto flex flex-col xl:flex-row justify-between items-center gap-4">
-            <p className="text-xs sm:text-sm font-medium text-gray-600 text-center xl:text-left shrink-0 whitespace-nowrap">
-              5900 Balcones Dr #34619, Austin, TX 78731 •{" "}
-              <a
-                href="mailto:info@specialsauce.io"
-                className="hover:text-gray-900 transition-colors underline-offset-4 hover:underline"
-              >
-                info@specialsauce.io
-              </a>
-            </p>
+            <div className="text-xs sm:text-sm font-medium text-gray-600 text-center xl:text-left shrink-0 leading-snug space-y-0.5">
+              <p className="whitespace-nowrap">5900 Balcones Dr #34619</p>
+              <p className="whitespace-nowrap">Austin, TX 78731</p>
+              <p className="whitespace-nowrap">
+                <a
+                  href="mailto:info@specialsauce.io"
+                  className="hover:text-gray-900 transition-colors underline-offset-4 hover:underline"
+                >
+                  info@specialsauce.io
+                </a>
+              </p>
+            </div>
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-center">
               <Link
                 href="/dashboard/support"
@@ -123,7 +126,7 @@ export default async function DashboardLayout({
                 Privacy Policy
               </Link>
             </div>
-            <p className="text-xs sm:text-sm font-medium text-gray-600 text-center xl:text-right shrink-0 whitespace-nowrap">
+            <p className="text-xs text-gray-500 text-center xl:text-right shrink-0 whitespace-nowrap">
               © {new Date().getFullYear()} Special Sauce Solutions LLC. All rights reserved.
             </p>
           </div>

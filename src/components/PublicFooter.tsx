@@ -3,21 +3,24 @@ import { LEGAL_CONFIG } from '@/constants/legal'
 
 export function PublicFooter() {
   return (
-    <footer className="bg-white border-t border-slate-300 py-6 px-6 w-full overflow-hidden">
+    <footer className="bg-white border-t border-slate-300 py-5 px-6 w-full overflow-hidden">
       <div className="max-w-[1440px] mx-auto">
         <div className="flex flex-col xl:flex-row justify-between items-center gap-4">
-          {/* Left: Corporate Address & General Inquiry Email */}
-          <p className="text-xs sm:text-sm font-medium text-slate-600 text-center xl:text-left shrink-0 whitespace-nowrap">
-            {LEGAL_CONFIG.legalEntityAddress.replace(' US', '')} •{' '}
-            <a
-              href={`mailto:${LEGAL_CONFIG.supportEmail}`}
-              className="hover:text-slate-900 transition-colors underline-offset-4 hover:underline"
-            >
-              {LEGAL_CONFIG.supportEmail}
-            </a>
-          </p>
+          {/* Left: 3-Line Corporate Address & General Inquiry Email */}
+          <div className="text-xs sm:text-sm font-medium text-slate-600 text-center xl:text-left shrink-0 leading-snug space-y-0.5">
+            <p className="whitespace-nowrap">5900 Balcones Dr #34619</p>
+            <p className="whitespace-nowrap">Austin, TX 78731</p>
+            <p className="whitespace-nowrap">
+              <a
+                href={`mailto:${LEGAL_CONFIG.supportEmail}`}
+                className="hover:text-slate-900 transition-colors underline-offset-4 hover:underline"
+              >
+                {LEGAL_CONFIG.supportEmail}
+              </a>
+            </p>
+          </div>
 
-          {/* Center: Public Security & Legal Links */}
+          {/* Center: Public Security & Legal Links (vertically centered against 3-line left block) */}
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <Link
               href="/security"
@@ -39,8 +42,8 @@ export function PublicFooter() {
             </Link>
           </div>
 
-          {/* Right: Copyright Notice */}
-          <p className="text-xs sm:text-sm font-medium text-slate-600 text-center xl:text-right shrink-0 whitespace-nowrap">
+          {/* Right: Smaller Copyright Notice (vertically centered against 3-line left block) */}
+          <p className="text-xs text-slate-500 text-center xl:text-right shrink-0 whitespace-nowrap">
             © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName}. All rights reserved.
           </p>
         </div>
