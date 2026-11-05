@@ -87,9 +87,9 @@ export default async function DashboardLayout({
 
       {/* Subtle Dashboard Footer */}
       <footer className="border-t border-slate-300 bg-white py-5 px-4 sm:px-8 mt-auto">
-          <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-xs sm:text-sm font-medium text-gray-600 text-center sm:text-left whitespace-nowrap">
-              © {new Date().getFullYear()} Special Sauce Solutions LLC • Austin, TX •{" "}
+          <div className="max-w-[1440px] mx-auto flex flex-col xl:flex-row justify-between items-center gap-4">
+            <p className="text-xs sm:text-sm font-medium text-gray-600 text-center xl:text-left shrink-0 whitespace-nowrap">
+              5900 Balcones Dr #34619, Austin, TX 78731 •{" "}
               <a
                 href="mailto:info@specialsauce.io"
                 className="hover:text-gray-900 transition-colors underline-offset-4 hover:underline"
@@ -97,38 +97,35 @@ export default async function DashboardLayout({
                 info@specialsauce.io
               </a>
             </p>
-            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2 text-center">
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-center">
               <Link
                 href="/dashboard/support"
-                className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
+                className="text-xs sm:text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors whitespace-nowrap"
               >
                 Help Center &amp; Playbooks
               </Link>
               <Link
-                href="/dashboard/workflows"
-                className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
-              >
-                Platform Workflows
-              </Link>
-              <Link
                 href="/dashboard/security"
-                className="text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors"
+                className="text-xs sm:text-sm font-bold text-emerald-600 hover:text-emerald-800 transition-colors whitespace-nowrap"
               >
                 Data Security &amp; Stripe Vault
               </Link>
               <Link
                 href="/terms"
-                className="text-xs font-medium text-gray-400 hover:text-gray-900 transition-colors"
+                className="text-xs sm:text-sm font-medium text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap"
               >
-                Terms
+                Terms of Service
               </Link>
               <Link
                 href="/privacy"
-                className="text-xs font-medium text-gray-400 hover:text-gray-900 transition-colors"
+                className="text-xs sm:text-sm font-medium text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap"
               >
-                Privacy
+                Privacy Policy
               </Link>
             </div>
+            <p className="text-xs sm:text-sm font-medium text-gray-600 text-center xl:text-right shrink-0 whitespace-nowrap">
+              © {new Date().getFullYear()} Special Sauce Solutions LLC. All rights reserved.
+            </p>
           </div>
         </footer>
     </div>
