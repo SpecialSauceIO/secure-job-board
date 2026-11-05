@@ -87,16 +87,16 @@ export default async function DashboardLayout({
 
       {/* Subtle Dashboard Footer */}
       <footer className="border-t border-slate-300 bg-white py-6 px-4 sm:px-8 mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="text-xs text-gray-500 text-center sm:text-left space-y-0.5">
-              <p className="font-medium text-gray-600">
+        <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="text-xs sm:text-sm font-medium text-gray-600 text-center sm:text-left space-y-1">
+              <p>
                 © {new Date().getFullYear()} Special Sauce Solutions LLC. All rights reserved.
               </p>
-              <p className="text-[10.5px] text-gray-400 whitespace-nowrap">
+              <p className="whitespace-nowrap">
                 5900 Balcones Dr #34619, Austin, TX 78731 •{" "}
                 <a
                   href="mailto:info@specialsauce.io"
-                  className="hover:text-gray-600 transition-colors underline-offset-2 hover:underline"
+                  className="hover:text-gray-900 transition-colors underline-offset-4 hover:underline"
                 >
                   info@specialsauce.io
                 </a>
