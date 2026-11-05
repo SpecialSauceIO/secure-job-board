@@ -3,7 +3,7 @@ import { LEGAL_CONFIG } from '@/constants/legal'
 
 export function PublicFooter() {
   return (
-    <footer className="bg-white border-t border-slate-300 py-8 px-6 w-full overflow-hidden">
+    <footer className="bg-white border-t border-slate-300 py-7 px-6 w-full overflow-hidden">
       <div className="max-w-[1440px] mx-auto">
         <div className="flex flex-col xl:flex-row justify-between items-center gap-5">
           <Link
@@ -47,21 +47,20 @@ export function PublicFooter() {
             </Link>
           </div>
 
-          <div className="text-center xl:text-right shrink-0 space-y-1">
-            <p className="text-xs sm:text-sm font-medium text-slate-600 whitespace-nowrap">
-              {LEGAL_CONFIG.legalEntityAddress.replace(' US', '')} •{' '}
-              <a
-                href={`mailto:${LEGAL_CONFIG.supportEmail}`}
-                className="hover:text-slate-900 transition-colors underline-offset-4 hover:underline"
-              >
-                {LEGAL_CONFIG.supportEmail}
-              </a>
-            </p>
-            <p className="text-xs text-slate-500">
-              © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName}. All rights reserved.
-            </p>
-          </div>
+          <p className="text-xs sm:text-sm font-medium text-slate-600 text-center xl:text-right shrink-0 whitespace-nowrap">
+            {LEGAL_CONFIG.legalEntityAddress.replace(' US', '')} •{' '}
+            <a
+              href={`mailto:${LEGAL_CONFIG.supportEmail}`}
+              className="hover:text-slate-900 transition-colors underline-offset-4 hover:underline"
+            >
+              {LEGAL_CONFIG.supportEmail}
+            </a>
+          </p>
         </div>
+
+        <p className="mt-4 text-xs text-slate-500 text-center">
+          © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName}. All rights reserved.
+        </p>
       </div>
     </footer>
   )
