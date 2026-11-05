@@ -19,8 +19,8 @@ export function PublicFooter() {
             />
           </Link>
 
-          {/* Legal, Workflows & Help Center Links */}
-          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+          {/* Public Legal, Security & Workflow Links */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <Link
               href="/workflows"
               className="text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
@@ -44,12 +44,6 @@ export function PublicFooter() {
               className="text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
             >
               Privacy Policy
-            </Link>
-            <Link
-              href="/dashboard/support"
-              className="text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
-            >
-              Help &amp; Support
             </Link>
           </div>
 
