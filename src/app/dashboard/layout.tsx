@@ -86,55 +86,48 @@ export default async function DashboardLayout({
       <main className="flex-1 px-4 py-6 sm:p-6 md:p-8">{children}</main>
 
       {/* Subtle Dashboard Footer */}
-      <footer className="border-t border-slate-300 bg-white py-4 px-4 sm:px-8 mt-auto">
-          <div className="max-w-[1440px] mx-auto">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
-              <div className="text-center sm:text-left space-y-0.5">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 leading-tight whitespace-nowrap">
-                  5900 Balcones Dr #34619, Austin, TX 78731 •{" "}
-                  <a
-                    href="mailto:info@specialsauce.io"
-                    className="hover:text-gray-900 transition-colors underline-offset-4 hover:underline"
-                  >
-                    info@specialsauce.io
-                  </a>
-                </p>
-                <p className="text-xs text-gray-500 leading-tight">
-                  © {new Date().getFullYear()} Special Sauce Solutions LLC. All rights reserved.
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2 text-center">
-                <Link
-                  href="/dashboard/support"
-                  className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
-                >
-                  Help Center &amp; Playbooks
-                </Link>
-                <Link
-                  href="/dashboard/workflows"
-                  className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
-                >
-                  Platform Workflows
-                </Link>
-                <Link
-                  href="/dashboard/security"
-                  className="text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors"
-                >
-                  Data Security &amp; Stripe Vault
-                </Link>
-                <Link
-                  href="/terms"
-                  className="text-xs font-medium text-gray-400 hover:text-gray-900 transition-colors"
-                >
-                  Terms
-                </Link>
-                <Link
-                  href="/privacy"
-                  className="text-xs font-medium text-gray-400 hover:text-gray-900 transition-colors"
-                >
-                  Privacy
-                </Link>
-              </div>
+      <footer className="border-t border-slate-300 bg-white py-5 px-4 sm:px-8 mt-auto">
+          <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-xs sm:text-sm font-medium text-gray-600 text-center sm:text-left whitespace-nowrap">
+              © {new Date().getFullYear()} Special Sauce Solutions LLC • Austin, TX •{" "}
+              <a
+                href="mailto:info@specialsauce.io"
+                className="hover:text-gray-900 transition-colors underline-offset-4 hover:underline"
+              >
+                info@specialsauce.io
+              </a>
+            </p>
+            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2 text-center">
+              <Link
+                href="/dashboard/support"
+                className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
+              >
+                Help Center &amp; Playbooks
+              </Link>
+              <Link
+                href="/dashboard/workflows"
+                className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
+              >
+                Platform Workflows
+              </Link>
+              <Link
+                href="/dashboard/security"
+                className="text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors"
+              >
+                Data Security &amp; Stripe Vault
+              </Link>
+              <Link
+                href="/terms"
+                className="text-xs font-medium text-gray-400 hover:text-gray-900 transition-colors"
+              >
+                Terms
+              </Link>
+              <Link
+                href="/privacy"
+                className="text-xs font-medium text-gray-400 hover:text-gray-900 transition-colors"
+              >
+                Privacy
+              </Link>
             </div>
           </div>
         </footer>

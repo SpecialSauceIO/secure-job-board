@@ -3,7 +3,7 @@ import { LEGAL_CONFIG } from '@/constants/legal'
 
 export function PublicFooter() {
   return (
-    <footer className="bg-white border-t border-slate-300 pt-4 pb-5 px-6 w-full overflow-hidden">
+    <footer className="bg-white border-t border-slate-300 py-6 px-6 w-full overflow-hidden">
       <div className="max-w-[1440px] mx-auto">
         <div className="flex flex-col xl:flex-row justify-between items-center gap-4">
           <Link
@@ -47,20 +47,15 @@ export function PublicFooter() {
             </Link>
           </div>
 
-          <div className="relative text-center xl:text-right shrink-0">
-            <p className="text-xs sm:text-sm font-medium text-slate-600 leading-tight whitespace-nowrap">
-              {LEGAL_CONFIG.legalEntityAddress.replace(' US', '')} •{' '}
-              <a
-                href={`mailto:${LEGAL_CONFIG.supportEmail}`}
-                className="hover:text-slate-900 transition-colors underline-offset-4 hover:underline"
-              >
-                {LEGAL_CONFIG.supportEmail}
-              </a>
-            </p>
-            <p className="mt-1 xl:mt-0.5 xl:absolute xl:right-0 xl:top-full text-xs text-slate-500 leading-none whitespace-nowrap">
-              © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName}. All rights reserved.
-            </p>
-          </div>
+          <p className="text-xs sm:text-sm font-medium text-slate-600 text-center xl:text-right shrink-0 whitespace-nowrap">
+            © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName} • Austin, TX •{' '}
+            <a
+              href={`mailto:${LEGAL_CONFIG.supportEmail}`}
+              className="hover:text-slate-900 transition-colors underline-offset-4 hover:underline"
+            >
+              {LEGAL_CONFIG.supportEmail}
+            </a>
+          </p>
         </div>
       </div>
     </footer>
