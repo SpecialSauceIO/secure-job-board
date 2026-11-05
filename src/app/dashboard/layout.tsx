@@ -92,8 +92,14 @@ export default async function DashboardLayout({
               <p className="font-medium text-gray-600">
                 © {new Date().getFullYear()} Special Sauce Solutions LLC. All rights reserved.
               </p>
-              <p className="text-[11px] text-gray-400">
-                5900 Balcones Dr #34619, Austin, TX 78731 US
+              <p className="text-[10.5px] text-gray-400 whitespace-nowrap">
+                5900 Balcones Dr #34619, Austin, TX 78731 •{" "}
+                <a
+                  href="mailto:info@specialsauce.io"
+                  className="hover:text-gray-600 transition-colors underline-offset-2 hover:underline"
+                >
+                  info@specialsauce.io
+                </a>
               </p>
             </div>
           <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2 text-center">

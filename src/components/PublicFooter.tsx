@@ -57,8 +57,14 @@ export function PublicFooter() {
             <p className="font-medium text-slate-600">
               © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName}. All rights reserved.
             </p>
-            <p className="text-[11px] text-slate-400">
-              {LEGAL_CONFIG.legalEntityAddress}
+            <p className="text-[10.5px] text-slate-400 whitespace-nowrap">
+              {LEGAL_CONFIG.legalEntityAddress.replace(" US", "")} •{" "}
+              <a
+                href={"mailto:" + LEGAL_CONFIG.supportEmail}
+                className="hover:text-slate-600 transition-colors underline-offset-2 hover:underline"
+              >
+                {LEGAL_CONFIG.supportEmail}
+              </a>
             </p>
           </div>
         </div>
