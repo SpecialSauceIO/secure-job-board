@@ -53,9 +53,14 @@ export function PublicFooter() {
             </Link>
           </div>
 
-          <p className="text-xs text-slate-500 text-center xl:text-right shrink-0">
-            © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName}. All rights reserved.
-          </p>
+          <div className="text-xs text-slate-500 text-center xl:text-right shrink-0 space-y-0.5">
+            <p className="font-medium text-slate-600">
+              © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName}. All rights reserved.
+            </p>
+            <p className="text-[11px] text-slate-400">
+              {LEGAL_CONFIG.legalEntityAddress}
+            </p>
+          </div>
         </div>
       </div>
     </footer>

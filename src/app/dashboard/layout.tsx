@@ -88,9 +88,14 @@ export default async function DashboardLayout({
       {/* Subtle Dashboard Footer */}
       <footer className="border-t border-slate-300 bg-white py-6 px-4 sm:px-8 mt-auto">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-gray-500">
-            © {new Date().getFullYear()} Special Sauce Solutions LLC. All rights reserved.
-          </p>
+            <div className="text-xs text-gray-500 text-center sm:text-left space-y-0.5">
+              <p className="font-medium text-gray-600">
+                © {new Date().getFullYear()} Special Sauce Solutions LLC. All rights reserved.
+              </p>
+              <p className="text-[11px] text-gray-400">
+                5900 Balcones Dr #34619, Austin, TX 78731 US
+              </p>
+            </div>
           <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2 text-center">
             <Link
               href="/dashboard/support"
