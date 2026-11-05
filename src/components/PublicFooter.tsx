@@ -5,9 +5,9 @@ export function PublicFooter() {
   return (
     <footer className="bg-white border-t border-slate-300 py-5 px-6 w-full overflow-hidden">
       <div className="max-w-[1440px] mx-auto">
-        <div className="flex flex-col xl:flex-row justify-between items-center gap-4">
+        <div className="flex flex-col xl:grid xl:grid-cols-3 items-center gap-4">
           {/* Left: 3-Line Corporate Address & General Inquiry Email */}
-          <div className="text-xs sm:text-sm font-medium text-slate-600 text-center xl:text-left shrink-0 leading-snug space-y-0.5">
+          <div className="text-xs sm:text-sm font-medium text-slate-600 text-center xl:text-left xl:justify-self-start leading-snug space-y-0.5">
             <p className="whitespace-nowrap">5900 Balcones Dr #34619</p>
             <p className="whitespace-nowrap">Austin, TX 78731</p>
             <p className="whitespace-nowrap">
@@ -20,8 +20,8 @@ export function PublicFooter() {
             </p>
           </div>
 
-          {/* Center: Public Security & Legal Links (vertically centered against 3-line left block) */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+          {/* Center: Public Security & Legal Links (true geometric center via grid-cols-3) */}
+          <div className="flex flex-wrap items-center justify-center xl:justify-self-center gap-x-6 gap-y-2">
             <Link
               href="/security"
               className="text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
@@ -42,8 +42,8 @@ export function PublicFooter() {
             </Link>
           </div>
 
-          {/* Right: Smaller Copyright Notice (vertically centered against 3-line left block) */}
-          <p className="text-xs text-slate-500 text-center xl:text-right shrink-0 whitespace-nowrap">
+          {/* Right: Smaller Copyright Notice */}
+          <p className="text-xs text-slate-500 text-center xl:text-right xl:justify-self-end whitespace-nowrap">
             © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName}. All rights reserved.
           </p>
         </div>
