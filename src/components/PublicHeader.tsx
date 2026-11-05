@@ -3,10 +3,6 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import {
-  resolvePreferredThemeIsDark,
-  applyPreferredTheme,
-} from '@/components/ThemeToggle'
 
 export function PublicHeader({
   fixed = false,
@@ -15,28 +11,10 @@ export function PublicHeader({
 }) {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [darkModeEnabled, setDarkModeEnabled] = useState(true)
 
   useEffect(() => {
     setMobileMenuOpen(false)
   }, [pathname])
-
-  useEffect(() => {
-    const syncDark = () => {
-      const preferred = resolvePreferredThemeIsDark()
-      setDarkModeEnabled(preferred)
-    }
-    syncDark()
-    window.addEventListener('ss-theme-change', syncDark)
-    return () => window.removeEventListener('ss-theme-change', syncDark)
-  }, [pathname])
-
-  const toggleDarkMode = () => {
-    const nextDark = !darkModeEnabled
-    setDarkModeEnabled(nextDark)
-    applyPreferredTheme(nextDark)
-    window.dispatchEvent(new Event('ss-theme-change'))
-  }
 
   const publicLinks = [
     { href: '/', label: 'Home', exact: true },
@@ -195,19 +173,7 @@ export function PublicHeader({
             </Link>
           </div>
 
-          {/* Mobile Theme Toggle inside Hamburger Drawer */}
-          <div className="pt-2 border-t border-slate-200 flex items-center justify-between px-1">
-            <span className="text-xs font-bold text-slate-600">
-              Appearance Theme
-            </span>
-            <button
-              type="button"
-              onClick={toggleDarkMode}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-slate-300 bg-slate-100 text-slate-800 text-xs font-extrabold cursor-pointer"
-            >
-              <span>{darkModeEnabled ? '☀️ Switch to Light Mode' : '🌙 Switch to Dark Mode'}</span>
-            </button>
-          </div>
+
         </div>
       )}
     </nav>

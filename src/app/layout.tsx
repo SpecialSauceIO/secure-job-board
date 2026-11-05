@@ -62,17 +62,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             __html: `
               (function() {
                 try {
-                  var saved = localStorage.getItem('ss_theme');
-                  if (!saved) {
-                    var match = document.cookie.match(/(?:^|; )ss_theme=([^;]*)/);
-                    if (match) saved = decodeURIComponent(match[1]);
-                  }
-                  if (saved === 'light') {
-                    document.documentElement.classList.remove('dark');
-                    document.cookie = 'ss_theme=light; path=/; max-age=31536000; SameSite=Lax';
-                  } else {
+                  var isDash = window.location.pathname.indexOf('/dashboard') === 0;
+                  if (!isDash) {
                     document.documentElement.classList.add('dark');
-                    document.cookie = 'ss_theme=dark; path=/; max-age=31536000; SameSite=Lax';
+                  } else {
+                    var saved = localStorage.getItem('ss_theme');
+                    if (!saved) {
+                      var match = document.cookie.match(/(?:^|; )ss_theme=([^;]*)/);
+                      if (match) saved = decodeURIComponent(match[1]);
+                    }
+                    if (saved === 'light') {
+                      document.documentElement.classList.remove('dark');
+                    } else {
+                      document.documentElement.classList.add('dark');
+                    }
                   }
                 } catch (e) {
                   document.documentElement.classList.add('dark');

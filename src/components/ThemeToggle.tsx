@@ -46,26 +46,32 @@ export function applyPreferredTheme(isDark: boolean) {
 }
 
 export default function ThemeToggle() {
-  const [dark, setDark] = useState(true)
   const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
+  const isDashboard = Boolean(pathname?.startsWith('/dashboard'))
 
   useEffect(() => {
     setMounted(true)
-    const preferredDark = resolvePreferredThemeIsDark()
-    applyPreferredTheme(preferredDark)
-    setDark(preferredDark)
-
-    const onThemeChange = () => {
-      const nowDark = resolvePreferredThemeIsDark()
-      applyPreferredTheme(nowDark)
-      setDark(nowDark)
+    const syncThemeForRoute = () => {
+      if (!isDashboard) {
+        if (!document.documentElement.classList.contains('dark')) {
+          document.documentElement.classList.add('dark')
+        }
+      } else {
+        const preferredDark = resolvePreferredThemeIsDark()
+        if (preferredDark) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
+      }
     }
 
-    window.addEventListener('ss-theme-change', onThemeChange)
+    syncThemeForRoute()
+    window.addEventListener('ss-theme-change', syncThemeForRoute)
 
     const htmlObserver = new MutationObserver(() => {
-      const expectedDark = resolvePreferredThemeIsDark()
+      const expectedDark = isDashboard ? resolvePreferredThemeIsDark() : true
       const hasDarkClass = document.documentElement.classList.contains('dark')
       if (expectedDark !== hasDarkClass) {
         if (expectedDark) {
@@ -81,56 +87,34 @@ export default function ThemeToggle() {
     })
 
     return () => {
-      window.removeEventListener('ss-theme-change', onThemeChange)
+      window.removeEventListener('ss-theme-change', syncThemeForRoute)
       htmlObserver.disconnect()
     }
-  }, [pathname])
+  }, [pathname, isDashboard])
 
-  const toggleTheme = () => {
-    const nextDark = !dark
-    setDark(nextDark)
-    applyPreferredTheme(nextDark)
-    window.dispatchEvent(new Event('ss-theme-change'))
-  }
-
-  // Inside /dashboard, the toggle lives inside the Accessibility profile dropdown menu
-  if (!mounted || pathname?.startsWith('/dashboard')) return null
-
-  const isSecurityPage = pathname === '/security'
+  if (!mounted || isDashboard || pathname === '/security') return null
 
   return (
-    <div className="fixed bottom-28 right-6 z-50 hidden sm:flex flex-col items-end gap-2.5">
-      <button
-        type="button"
-        onClick={toggleTheme}
-        title={dark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-        aria-label="Toggle color theme"
-        className="hidden md:flex items-center gap-2 px-3.5 py-2 rounded-full shadow-lg border text-xs font-extrabold transition-all cursor-pointer select-none backdrop-blur-md bg-slate-900/90 text-amber-300 border-slate-700 hover:border-amber-400"
+    <div className="fixed bottom-28 right-6 z-50 hidden sm:flex flex-col items-end">
+      <Link
+        href="/security"
+        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-900/95 backdrop-blur text-white border border-slate-700 shadow-lg hover:bg-indigo-600 hover:border-indigo-500 text-xs font-extrabold transition-all cursor-pointer group"
       >
-        <span className="text-sm leading-none">{dark ? '☀️' : '🌙'}</span>
-        <span>{dark ? 'Light Mode' : 'Dark Mode'}</span>
-      </button>
-      {!isSecurityPage && (
-        <Link
-          href="/security"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-900/95 backdrop-blur text-white border border-slate-700 shadow-lg hover:bg-indigo-600 hover:border-indigo-500 text-xs font-extrabold transition-all cursor-pointer group"
+        <span>🛡️ Security &amp; Trust</span>
+        <svg
+          className="w-3.5 h-3.5 text-emerald-400 group-hover:text-white transition-colors"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-          <span>🛡️ Security &amp; Trust</span>
-          <svg
-            className="w-3.5 h-3.5 text-emerald-400 group-hover:text-white transition-colors"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2.5"
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </Link>
-      )}
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2.5"
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </Link>
     </div>
   )
 }
