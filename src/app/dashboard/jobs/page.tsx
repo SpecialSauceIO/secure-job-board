@@ -478,7 +478,7 @@ export default function CandidateJobsPage() {
             <button
               type="button"
               onClick={() => switchViewMode('sandbox')}
-              className="shrink-0 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-colors cursor-pointer whitespace-nowrap shadow-xs"
+              className="shrink-0 w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black text-center transition-colors cursor-pointer whitespace-normal sm:whitespace-nowrap shadow-xs"
             >
               ⚡ Launch Interactive Benchmark Sandbox →
             </button>
@@ -496,7 +496,7 @@ export default function CandidateJobsPage() {
             <button
               type="button"
               onClick={() => switchViewMode('live')}
-              className="shrink-0 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 text-xs font-extrabold transition-colors cursor-pointer whitespace-nowrap"
+              className="shrink-0 w-full sm:w-auto px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 text-xs font-extrabold text-center transition-colors cursor-pointer whitespace-normal sm:whitespace-nowrap"
             >
               ← Return to 🟢 Live Marketplace
             </button>

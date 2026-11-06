@@ -598,7 +598,7 @@ export default function DashboardNav({
 
         {/* COLLAPSIBLE MOBILE / TABLET UNIFIED WORKSPACE & ACCOUNT DRAWER (< lg) */}
         {mobileNavOpen && (
-          <div className="lg:hidden border-t border-slate-300 py-3.5 space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="lg:hidden border-t border-slate-300 py-3.5 pb-6 max-h-[calc(100dvh-6.25rem)] overflow-y-auto overscroll-contain space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
             {/* Section 1: Workspace Navigation Tabs */}
             <div className="space-y-1.5">
               <p className="px-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">

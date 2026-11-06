@@ -755,7 +755,7 @@ export default function EmployerCandidateSearch({
             <button
               type="button"
               onClick={() => switchViewMode('sandbox')}
-              className="shrink-0 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-colors cursor-pointer whitespace-nowrap shadow-xs"
+              className="shrink-0 w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black text-center transition-colors cursor-pointer whitespace-normal sm:whitespace-nowrap shadow-xs"
             >
               ⚡ Launch Interactive Benchmark Sandbox →
             </button>
@@ -773,7 +773,7 @@ export default function EmployerCandidateSearch({
             <button
               type="button"
               onClick={() => switchViewMode('live')}
-              className="shrink-0 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 text-xs font-extrabold transition-colors cursor-pointer whitespace-nowrap"
+              className="shrink-0 w-full sm:w-auto px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 text-xs font-extrabold text-center transition-colors cursor-pointer whitespace-normal sm:whitespace-nowrap"
             >
               ← Return to 🟢 Live Marketplace
             </button>
@@ -1888,7 +1888,7 @@ export default function EmployerCandidateSearch({
                             </div>
                           </div>
                         )}
-                        <div className="flex items-center justify-between gap-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                           <span className="text-xs text-slate-500 font-medium">
                             {savedScore !== null
                               ? 'Saved TrueFit Score™ evaluation ready. Click to view full TrueFit™ breakdown or send a Professional Invitation.'
@@ -1910,7 +1910,7 @@ export default function EmployerCandidateSearch({
                                 setAiMatchData(null)
                               }
                             }}
-                            className={`px-5 py-2.5 text-xs font-extrabold rounded-xl transition-colors cursor-pointer shrink-0 ${
+                            className={`w-full sm:w-auto text-center px-5 py-2.5 text-xs font-extrabold rounded-xl transition-colors cursor-pointer shrink-0 whitespace-normal sm:whitespace-nowrap ${
                               allActiveRolesLocked || collapsedRoleConn
                                 ? 'bg-slate-100 text-slate-700 border-2 border-slate-300 hover:bg-slate-200'
                                 : 'bg-slate-900 text-white hover:bg-indigo-600'
