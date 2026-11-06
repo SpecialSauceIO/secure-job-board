@@ -1075,18 +1075,27 @@ export function CandidateJobFeed({
 
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto shrink-0">
                     {!isApplied && (
-                      <button
-                        type="button"
-                        disabled={isAnalyzing || isApplying}
-                        onClick={() => handleAnalyzeFit(jobId)}
-                        className="w-full sm:w-auto text-center justify-center px-4 py-2.5 sm:py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer whitespace-nowrap"
-                      >
-                        {isAnalyzing
-                          ? 'Analyzing Fit...'
-                          : matchData
-                          ? '↻ Re-Run Fit'
-                          : '⚡ Check TrueFit Score™'}
-                      </button>
+                      !isVerified ? (
+                        <Link
+                          href="/dashboard/billing?select=explorer"
+                          className="w-full sm:w-auto text-center justify-center px-4 py-2.5 sm:py-2 rounded-xl border-2 border-amber-300 bg-amber-50 text-amber-950 text-xs font-extrabold hover:bg-amber-100 transition-colors shadow-2xs whitespace-nowrap"
+                        >
+                          🔒 Verify ID ($5) to Check TrueFit™ →
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={isAnalyzing || isApplying}
+                          onClick={() => handleAnalyzeFit(jobId)}
+                          className="w-full sm:w-auto text-center justify-center px-4 py-2.5 sm:py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-800 text-xs font-extrabold hover:bg-slate-50 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer whitespace-nowrap"
+                        >
+                          {isAnalyzing
+                            ? 'Analyzing Fit...'
+                            : matchData
+                            ? '↻ Re-Run Fit'
+                            : '⚡ Check TrueFit Score™'}
+                        </button>
+                      )
                     )}
 
                     {matchData &&

@@ -5,6 +5,7 @@ import { evaluateCertificationMatch, parseAndNormalizeCertifications } from '@/c
 import { createClient } from '@/utils/supabase/server'
 import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { GoogleGenAI } from '@google/genai'
 import Groq from 'groq-sdk'
@@ -1546,6 +1547,20 @@ export async function updateProfile(formData: FormData) {
   } = await supabase.auth.getUser()
   if (!user) return
 
+  const { data: verProf } = await supabase
+    .from('profiles')
+    .select('is_verified, identity_verified, role')
+    .eq('id', user.id)
+    .single()
+  const isCandVerified =
+    verProf?.identity_verified === true ||
+    String(verProf?.identity_verified) === 'true' ||
+    verProf?.is_verified === true ||
+    String(verProf?.is_verified) === 'true'
+  if (verProf?.role !== 'employer' && !isCandVerified) {
+    redirect('/dashboard/billing?select=explorer&message=' + encodeURIComponent('Please complete the $5 One-Time ID Verification to build and save your anonymous profile.'))
+  }
+
   const full_name = ((formData.get('full_name') as string) || '').trim()
   const experience_years = formData.get('experience_years') as string
   const bio = formData.get('bio') as string
@@ -1714,6 +1729,20 @@ export async function parseResumeAutoFill(formData: FormData) {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return
+
+  const { data: verProf } = await supabase
+    .from('profiles')
+    .select('is_verified, identity_verified, role')
+    .eq('id', user.id)
+    .single()
+  const isCandVerified =
+    verProf?.identity_verified === true ||
+    String(verProf?.identity_verified) === 'true' ||
+    verProf?.is_verified === true ||
+    String(verProf?.is_verified) === 'true'
+  if (verProf?.role !== 'employer' && !isCandVerified) {
+    redirect('/dashboard/billing?select=explorer&message=' + encodeURIComponent('Please complete the $5 One-Time ID Verification before using the One-Click Profile Builder.'))
+  }
 
   const file = formData.get('resume') as File
   if (!file) return
@@ -3087,9 +3116,20 @@ export async function analyzeJobFit(jobId: string, forceRefresh: boolean = false
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('experience_years, skills, structured_skills, bio, preferred_work_model, min_salary_expectation, location')
+    .select('experience_years, skills, structured_skills, bio, preferred_work_model, min_salary_expectation, location, is_verified, identity_verified')
     .eq('id', user.id)
     .single()
+  const isCandVerified =
+    profile?.identity_verified === true ||
+    String(profile?.identity_verified) === 'true' ||
+    profile?.is_verified === true ||
+    String(profile?.is_verified) === 'true'
+  if (!isCandVerified) {
+    return {
+      error:
+        'ID Verification Required: Please complete your $5 One-Time ID Verification on Membership & Billing to unlock live TrueFit Score™ checks.',
+    }
+  }
   const visibleSkills = filterVisibleSkills(profile?.structured_skills)
   const prefMeta = extractCandidatePrefMeta(profile?.structured_skills)
   if (!profile || (!profile.skills && visibleSkills.length === 0)) {
@@ -6691,10 +6731,17 @@ export async function submitSupportTicket(formData: FormData) {
     String(profile?.identity_verified) === 'true' ||
     profile?.is_verified === true ||
     String(profile?.is_verified) === 'true'
+  const isAccountVerified = Boolean(isProfVer || orgContext.toLowerCase().includes('verified'))
+  if (!isAccountVerified) {
+    return {
+      error:
+        'Account Verification Required: Please complete your one-time ID verification on Membership & Billing before submitting support tickets or feedback.',
+    }
+  }
   const tierUpper = accountTierLabel.toUpperCase()
-  const isExplorerOrFreeTier = tierUpper.includes('FREE') || tierUpper.includes('EXPLORER')
+  const isExplorerOrFreeTier = tierUpper.includes('FREE') || tierUpper.includes('EXPLORER') || tierUpper.includes('SANDBOX') || tierUpper.includes('UNVERIFIED')
   const isPaidSub = isExplorerOrFreeTier === false
-  const canUploadServer = Boolean(isPaidSub && (isProfVer || orgContext.toLowerCase().includes('verified')))
+  const canUploadServer = Boolean(isPaidSub && isAccountVerified)
   const catLower = category.toLowerCase()
   const isOneWayTelemetryCategory =
     catLower.includes('bug') ||
@@ -6707,6 +6754,53 @@ export async function submitSupportTicket(formData: FormData) {
       error:
         '1-on-1 Live Support Tickets require an active monthly plan (Professional $12/mo or Prestige $19/mo, or Employer Starter/Growth/Enterprise). Explorer ($0/mo) members may use the Knowledge Base FAQs or submit a 1-Way Bug Report / Feature Request.',
     }
+  }
+
+  if (!isPaidSub) {
+    const fbRefId = `FB-${Date.now().toString().slice(-6)}`
+    const userFullNameForFb = profile?.full_name || profile?.name || 'User'
+    const userEmailForFb = profile?.contact_email || profile?.email || user.email || 'unknown@user'
+    await pushToOpsControlPlane({
+      event_type: 'work_item',
+      id: fbRefId,
+      work_item_type: catLower.includes('feature') ? 'Feature_Request' : 'Bug_Defect',
+      state: 'open',
+      status: 'new',
+      priority: 'P2_Normal',
+      owned_by: 'Unassigned',
+      subject,
+      category,
+      platform_area: platformArea,
+      root_cause: 'Unclassified',
+      related_ref_id: relatedRefId,
+      account_tier: accountTierLabel,
+      description: message,
+      reporter_user_id: user.id,
+      reporter_name: userFullNameForFb,
+      reporter_email: userEmailForFb,
+      reporter_role: (profile?.role || 'user').toUpperCase(),
+      organization_context: orgContext,
+      page_url: '/dashboard/support',
+      attachments: [],
+    })
+    await sendPlatformNotification({
+      to: 'support@specialsauce.io',
+      replyTo: userEmailForFb,
+      subject: `1-Way Feedback [${fbRefId}]: ${subject}`,
+      referenceId: fbRefId,
+      heading: `1-Way Explorer Feedback: ${category} (${platformArea})`,
+      bodyLines: [
+        `Feedback ID: ${fbRefId} (1-Way Explorer Stream — No 2-Way Thread)`,
+        `User ID: ${user.id}`,
+        `Role & Tier: ${accountTierLabel}`,
+        `Name: ${userFullNameForFb} (${userEmailForFb})`,
+        `Platform Area: ${platformArea}`,
+        '',
+        '--- MESSAGE ---',
+        message,
+      ].filter(Boolean),
+    })
+    return { success: true, oneWayOnly: true, feedbackId: fbRefId }
   }
 
   try {

@@ -493,6 +493,28 @@ export default async function ProfilePage() {
           </p>
         </header>
 
+        {!(profile?.identity_verified === true || String(profile?.identity_verified) === 'true' || profile?.is_verified === true || String(profile?.is_verified) === 'true') && (
+          <div className="p-6 sm:p-8 rounded-2xl bg-amber-50 border-2 border-amber-300 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <div className="space-y-1.5">
+              <span className="inline-block px-2.5 py-0.5 rounded-md bg-amber-200/80 text-amber-950 text-[11px] font-extrabold uppercase tracking-wider">
+                Step 1 Required • $5 One-Time ID Check Pending
+              </span>
+              <h2 className="text-lg font-extrabold text-slate-900">
+                Verify Your Identity to Build &amp; Publish Your Profile
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed max-w-2xl">
+                Every professional completes a one-time $5 Stripe ID check before running the One-Click Profile Builder™, saving skills, or entering employer search.
+              </p>
+            </div>
+            <Link
+              href="/dashboard/billing?select=explorer"
+              className="shrink-0 inline-flex items-center justify-center px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-extrabold shadow-sm transition-colors"
+            >
+              Complete $5 ID Check →
+            </Link>
+          </div>
+        )}
+
         <div className="space-y-8">
           {hasProfileData ? (
             <>

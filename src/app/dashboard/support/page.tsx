@@ -119,9 +119,11 @@ export default async function SupportPage({
         userName={userName}
         userEmail={user.email || ''}
         initialTab={initialTab}
-        initialTickets={initialTickets}
-        initialSelectedTicketId={requestedTicketId}
+        initialTickets={canUploadAttachments ? initialTickets : []}
+        initialSelectedTicketId={canUploadAttachments ? requestedTicketId : undefined}
         canUploadAttachments={canUploadAttachments}
+        isVerifiedAccount={isVerifiedAccount}
+        isPaidSubscriber={isPaidSubscriber}
         initialCsatRating={
           requestedRate && requestedRate >= 1 && requestedRate <= 5
             ? requestedRate

@@ -103,6 +103,8 @@ export default function SupportCenterClient({
   initialTickets = [],
   initialSelectedTicketId,
   canUploadAttachments = false,
+  isVerifiedAccount = false,
+  isPaidSubscriber = false,
   initialCsatRating,
   activeStatusBanner = null,
 }: {
@@ -114,6 +116,8 @@ export default function SupportCenterClient({
   initialTickets?: UserVisibleTicket[]
   initialSelectedTicketId?: string
   canUploadAttachments?: boolean
+  isVerifiedAccount?: boolean
+  isPaidSubscriber?: boolean
   initialCsatRating?: number
   activeStatusBanner?: SystemStatusBanner | null
 }) {
@@ -426,7 +430,7 @@ export default function SupportCenterClient({
   }, [handleRefreshTickets])
 
   useEffect(() => {
-    if (activeTab !== 'ticket') return
+    if (activeTab !== 'ticket' || !canUploadAttachments) return
     const timer = setInterval(() => {
       fetchMySupportTicketsAction()
         .then((res) => {
@@ -445,24 +449,35 @@ export default function SupportCenterClient({
         formData.set('related_ref_id', activeStatusBanner.incident_ref)
       }
     }
-    const result = await submitSupportTicket(formData)
+    const result: any = await submitSupportTicket(formData)
 
     if (result.error) {
       setTicketStatus({ type: 'error', message: result.error })
-    } else {
+    } else if (result.oneWayOnly) {
       setTicketStatus({
         type: 'success',
-        message: `Ticket submitted! Reference ID: ${result.ticketId}. A confirmation receipt has been sent to your email.`,
+        message: `1-Way Feedback Logged (Ref: ${result.feedbackId}). Thank you — your report has been routed directly to our engineering & product team.`,
       })
       ;(document.getElementById('support-form') as HTMLFormElement)?.reset()
       setDraftSubject('')
       setDraftMessage('')
       setExpandedDeflectorFaqId(null)
-      const refreshed = await fetchMySupportTicketsAction()
-      if (refreshed.tickets) {
-        setMyTickets(refreshed.tickets)
-        if (result.ticketId) {
-          selectTicket(result.ticketId)
+    } else {
+      setTicketStatus({
+        type: 'success',
+        message: `Ticket submitted (Ref: ${result.ticketId}). A confirmation receipt has been sent to your email.`,
+      })
+      ;(document.getElementById('support-form') as HTMLFormElement)?.reset()
+      setDraftSubject('')
+      setDraftMessage('')
+      setExpandedDeflectorFaqId(null)
+      if (canUploadAttachments) {
+        const refreshed = await fetchMySupportTicketsAction()
+        if (refreshed.tickets) {
+          setMyTickets(refreshed.tickets)
+          if (result.ticketId) {
+            selectTicket(result.ticketId)
+          }
         }
       }
     }
@@ -600,7 +615,33 @@ export default function SupportCenterClient({
       </div>
 
       {/* TAB 1: SPLIT-PANE HELPDESK WORKSPACE MODELED ON template.webp */}
-      {activeTab === 'ticket' && (
+      {activeTab === 'ticket' && !isVerifiedAccount && (
+        <div className="p-8 sm:p-12 bg-white text-center max-w-2xl mx-auto space-y-5">
+          <div className="w-14 h-14 rounded-2xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center mx-auto text-2xl font-black">
+            🔒
+          </div>
+          <span className="inline-block px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[11px] font-extrabold uppercase tracking-wider">
+            One-Time ID Verification Required
+          </span>
+          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">
+            Complete Verification to Unlock Support &amp; Feedback
+          </h2>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            {userRole === 'employer'
+              ? 'To keep our support channels free of automated spam, please complete your $25 One-Time Employer Verification Pass on Membership & Billing first.'
+              : 'To keep our support channels free of automated spam, please complete your $5 One-Time Stripe ID Verification on Membership & Billing first.'}
+          </p>
+          <div className="pt-2">
+            <Link
+              href={userRole === 'employer' ? '/dashboard/employer/billing' : '/dashboard/billing?select=explorer'}
+              className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-extrabold shadow-sm transition-colors"
+            >
+              {userRole === 'employer' ? 'Complete $25 Employer Verification →' : 'Complete $5 One-Time ID Check →'}
+            </Link>
+          </div>
+        </div>
+      )}
+      {activeTab === 'ticket' && isVerifiedAccount && (
         <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[680px] divide-y lg:divide-y-0 lg:divide-x divide-slate-300">
           {/* LEFT 8 COLUMNS: CONVERSATION STREAM OR NEW TICKET COMPOSER */}
           <div className="lg:col-span-8 flex flex-col justify-between bg-white">
@@ -1370,6 +1411,25 @@ export default function SupportCenterClient({
 
           {/* RIGHT 4 COLUMNS: STRUCTURED INSPECTOR SIDEBAR (Modeled on template.webp) */}
           <div className="lg:col-span-4 bg-slate-50/40 divide-y divide-slate-300">
+            {!canUploadAttachments && (
+              <div className="p-6 space-y-4 bg-indigo-50/60">
+                <span className="inline-block px-2.5 py-1 rounded-md bg-indigo-100 text-indigo-800 border border-indigo-300 text-[11px] font-extrabold uppercase tracking-wider">
+                  Explorer ($0/mo) • 1-Way Stream
+                </span>
+                <h3 className="text-sm font-extrabold text-slate-900">
+                  Need 1-on-1 Human Support?
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Explorer ($0/mo) includes self-service FAQs and 1-way bug or feature reporting to our product team. Activate a monthly plan to unlock live 2-way support tickets and file attachments.
+                </p>
+                <Link
+                  href={userRole === 'employer' ? '/dashboard/employer/billing' : '/dashboard/billing'}
+                  className="inline-flex w-full items-center justify-center px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors"
+                >
+                  View Monthly Plans →
+                </Link>
+              </div>
+            )}
             {/* Reporter Identity Header */}
             <div className="p-5 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">

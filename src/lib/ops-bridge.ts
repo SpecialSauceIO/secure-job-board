@@ -260,6 +260,14 @@ export async function getUserOpsTickets(
       if (item.work_item_type === "System_Outage" || item.work_item_type === "Security_Alert") {
         return false
       }
+      const itemIdUpper = String(item.id || "").toUpperCase().trim()
+      if (itemIdUpper.startsWith("FB-")) {
+        return false
+      }
+      const tierStr = String(item.account_tier || "").toUpperCase()
+      if (tierStr.includes("EXPLORER") || tierStr.includes("FREE") || tierStr.includes("UNVERIFIED") || tierStr.includes("SANDBOX")) {
+        return false
+      }
       const matchId = userId && String(item.reporter_user_id || "") === userId
       const matchEmail =
         cleanEmail &&
@@ -345,6 +353,10 @@ export async function appendUserTicketReply(params: {
 
   const nowIso = new Date().toISOString()
   const item = vault.work_items[idx]
+  const itemTierUpper = String(item.account_tier || "").toUpperCase()
+  if (cleanId.startsWith("FB-") || itemTierUpper.includes("EXPLORER") || itemTierUpper.includes("FREE") || itemTierUpper.includes("UNVERIFIED") || itemTierUpper.includes("SANDBOX")) {
+    return { ok: false, error: "2-way ticket replies require an active monthly subscription." }
+  }
   item.state = "open"
   item.closed_at = null
   item.status = "pending_support"
