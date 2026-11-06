@@ -142,7 +142,12 @@ export default function SupportCenterClient({
   const [expandedFaqId, setExpandedFaqId] = useState<string | null>(null)
 
   // Live Self-Service KB Deflector State inside New Ticket Composer
-  const [draftCategory, setDraftCategory] = useState<string>('General Support')
+  const [draftCategory, setDraftCategory] = useState<string>(canUploadAttachments ? "General Support" : "Technical Issue / Bug Report")
+  useEffect(() => {
+    if (canUploadAttachments === false && draftCategory !== "Technical Issue / Bug Report" && draftCategory !== "Feature Request / Documentation Feedback") {
+      setDraftCategory("Technical Issue / Bug Report")
+    }
+  }, [canUploadAttachments, draftCategory])
   const [draftPlatformArea, setDraftPlatformArea] = useState<string>('Onboarding & Authentication')
   const [draftSubject, setDraftSubject] = useState<string>('')
   const [draftMessage, setDraftMessage] = useState<string>('')
@@ -604,10 +609,10 @@ export default function SupportCenterClient({
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-300 pb-4">
                   <div>
                     <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600 block">
-                      New Support Conversation
+                      {canUploadAttachments ? "New Support Conversation" : "1-Way Product Feedback & Bug Stream"}
                     </span>
                     <h2 className="text-xl font-extrabold text-slate-900">
-                      Open a New Support Ticket
+                      {canUploadAttachments ? "Open a New Support Ticket" : "Report a Bug or Share Feedback"}
                     </h2>
                   </div>
                   {myTickets.length > 0 && (
@@ -699,14 +704,23 @@ export default function SupportCenterClient({
                         onChange={(e) => setDraftCategory(e.target.value)}
                         className="w-full rounded-xl border border-slate-300 bg-white text-slate-900 py-2.5 px-3.5 text-sm font-medium"
                       >
-                        <option value="General Support">General Support &amp; Questions</option>
-                        <option value="Intro/Convo Vault & Encrypted Messaging">Intro/Convo Identity Vault &amp; Messaging</option>
-                        <option value="Billing, Plans & Invitation Credits">Billing, Plans &amp; Invitation Credits</option>
-                        <option value="Account & Domain Verification">Stripe ID / Corporate Domain Verification</option>
-                        <option value="Enterprise ATS & Webhook Integration">HR Software Sync Hub</option>
-                        <option value="Technical Issue / Bug Report">Technical Issue / Bug Report</option>
-                        <option value="Feature Request / Documentation Feedback">Feature Request / Documentation Feedback</option>
-                      </select>
+                        {canUploadAttachments && (
+                              <>
+                                <option value="General Support">General Support &amp; Questions</option>
+                                <option value="Intro/Convo Vault & Encrypted Messaging">Intro/Convo Identity Vault &amp; Messaging</option>
+                                <option value="Billing, Plans & Invitation Credits">Billing, Plans &amp; Invitation Credits</option>
+                                <option value="Account & Domain Verification">Stripe ID / Corporate Domain Verification</option>
+                                <option value="Enterprise ATS & Webhook Integration">HR Software Sync Hub</option>
+                              </>
+                            )}
+                            <option value="Technical Issue / Bug Report">Technical Issue / Bug Report</option>
+                            <option value="Feature Request / Documentation Feedback">Feature Request / Documentation Feedback</option>
+                          </select>
+                          {canUploadAttachments === false && (
+                            <p className="mt-1.5 text-[11px] font-medium text-slate-600 leading-relaxed">
+                              Explorer ($0/mo) includes 1-way Bug Reports &amp; Feature Requests directly to our engineering team. 1-on-1 Live Support Tickets are included with active monthly plans.
+                            </p>
+                          )}
                     </div>
 
                     <div>
@@ -897,7 +911,7 @@ export default function SupportCenterClient({
                             File Attachments Locked (Paid &amp; ID-Verified Subscribers Only)
                           </span>
                           <span className="text-slate-300 leading-relaxed">
-                            For platform security, file and screenshot uploads are restricted to ID-verified accounts on an active paid plan. You may still submit a plain-text support request below.
+                            For platform security, file and screenshot uploads are restricted to ID-verified accounts on an active paid plan. You may still submit a plain-text bug report or feature request below.
                           </span>
                         </div>
                       </div>
@@ -906,11 +920,12 @@ export default function SupportCenterClient({
 
                   <div className="pt-2">
                     <SubmitButton
-                      pendingText="Submitting Ticket..."
-                      className="w-full rounded-xl bg-slate-800/90 hover:bg-slate-700/90 px-8 py-3.5 text-sm font-extrabold text-white shadow-sm transition-colors cursor-pointer"
-                    >
-                      Submit Support Ticket →
-                    </SubmitButton>
+                      scrollToTopOnSuccess={false}
+                          pendingText={canUploadAttachments ? "Submitting Ticket..." : "Submitting Feedback..."}
+                          className="w-full rounded-xl bg-slate-800/90 hover:bg-slate-700/90 px-8 py-3.5 text-sm font-extrabold text-white shadow-sm transition-colors cursor-pointer"
+                        >
+                          {canUploadAttachments ? "Submit Support Ticket →" : "Submit Bug Report / Feedback →"}
+                        </SubmitButton>
                   </div>
                 </form>
               </div>

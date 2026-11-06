@@ -3050,6 +3050,7 @@ async function writeUserMatchCacheEntry(
 
 export async function getPersistedMatchCache(): Promise<{
   userId: string | null
+  hasSkills?: boolean
   cache: Record<string, any>
 }> {
   try {
@@ -3058,8 +3059,12 @@ export async function getPersistedMatchCache(): Promise<{
       data: { user },
     } = await supabase.auth.getUser()
     if (!user) return { userId: null, cache: {} }
+    const { data: profile } = await supabase.from("profiles").select("skills, structured_skills").eq("id", user.id).single()
+    const visibleSkills = filterVisibleSkills(profile?.structured_skills)
+    const hasSkills = Boolean(profile && ((typeof profile.skills === "string" && profile.skills.trim().length > 0) || visibleSkills.length > 0))
+    if (!hasSkills) return { userId: user.id, hasSkills: false, cache: {} }
     const cache = await readUserMatchCache(user.id)
-    return { userId: user.id, cache }
+    return { userId: user.id, hasSkills: true, cache }
   } catch {
     return { userId: null, cache: {} }
   }
@@ -6700,7 +6705,7 @@ export async function submitSupportTicket(formData: FormData) {
   if (!isPaidSub && !isOneWayTelemetryCategory) {
     return {
       error:
-        '1-on-1 Live Support Tickets require an active monthly plan (Professional Professional $12/mo or Prestige $19/mo, or Employer Starter/Growth/Enterprise). Explorer ($0/mo) members may use the Knowledge Base FAQs or submit a 1-Way Bug Report / Feature Request.',
+        '1-on-1 Live Support Tickets require an active monthly plan (Professional $12/mo or Prestige $19/mo, or Employer Starter/Growth/Enterprise). Explorer ($0/mo) members may use the Knowledge Base FAQs or submit a 1-Way Bug Report / Feature Request.',
     }
   }
 

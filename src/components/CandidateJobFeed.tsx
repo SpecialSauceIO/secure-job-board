@@ -221,47 +221,35 @@ export function CandidateJobFeed({
     } catch {}
   }, [])
 
-  // Load persisted AI Match results from localStorage immediately + hydrate from server
+  const [matchCacheUserId, setMatchCacheUserId] = useState<string | null>(null)
+
   useEffect(() => {
     let mounted = true
-    try {
-      const localRaw = localStorage.getItem('ss_cand_match_results_v1')
-      if (localRaw) {
-        const parsed = JSON.parse(localRaw)
-        if (parsed && typeof parsed === 'object') {
-          setMatchResults((prev) => ({ ...parsed, ...prev }))
-        }
+    try { localStorage.removeItem("ss_cand_match_results_v1") } catch {}
+    getPersistedMatchCache().then((res) => {
+      if (!mounted) return
+      if (!res?.userId || res.hasSkills === false) {
+        setMatchCacheUserId(res?.userId || null)
+        setMatchResults({})
+        if (res?.userId) { try { localStorage.removeItem("ss_cand_match_results_v2_" + res.userId) } catch {} }
+        return
       }
-    } catch {}
-
-    getPersistedMatchCache()
-      .then((res) => {
-        if (!mounted || !res?.cache) return
-        const serverMatches: Record<string, any> = {}
-        for (const [k, v] of Object.entries(res.cache)) {
-          if (k.startsWith('cand_v4_') && v && typeof v === 'object') {
-            const jId = k.slice('cand_v4_'.length)
-            serverMatches[jId] = v
-          } else if (k.startsWith('cand_') && v && typeof v === 'object') {
-            const jId = k.slice('cand_'.length)
-            serverMatches[jId] = v
-          }
-        }
-        if (Object.keys(serverMatches).length > 0) {
-          setMatchResults((prev) => {
-            const merged = { ...serverMatches, ...prev }
-            try {
-              localStorage.setItem('ss_cand_match_results_v1', JSON.stringify(merged))
-            } catch {}
-            return merged
-          })
-        }
+      setMatchCacheUserId(res.userId)
+      const sk = "ss_cand_match_results_v2_" + res.userId
+      let loc: Record<string, any> = {}
+      try { const r = localStorage.getItem(sk); if (r) loc = JSON.parse(r) || {} } catch {}
+      const srv: Record<string, any> = {}
+      for (const [k, v] of Object.entries(res.cache || {})) {
+        if (k.startsWith("cand_v4_") && v && typeof v === "object") srv[k.slice(8)] = v
+        else if (k.startsWith("cand_") && v && typeof v === "object") srv[k.slice(5)] = v
+      }
+      setMatchResults((prev) => {
+        const next = { ...loc, ...srv, ...prev }
+        try { localStorage.setItem(sk, JSON.stringify(next)) } catch {}
+        return next
       })
-      .catch(() => {})
-
-    return () => {
-      mounted = false
-    }
+    }).catch(() => {})
+    return () => { mounted = false }
   }, [])
 
   useEffect(() => {
@@ -337,7 +325,7 @@ export function CandidateJobFeed({
             [jobId]: result.data,
           }
           try {
-            localStorage.setItem('ss_cand_match_results_v1', JSON.stringify(updated))
+            if (matchCacheUserId) localStorage.setItem("ss_cand_match_results_v2_" + matchCacheUserId, JSON.stringify(updated))
           } catch {}
           return updated
         })
