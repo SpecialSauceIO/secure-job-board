@@ -25,6 +25,107 @@ function stripTags(desc?: string | null): string {
     .trim()
 }
 
+async function resolveUserSummary(userId?: string | null, fallbackEmail?: string | null) {
+  let email = fallbackEmail || ''
+  let fullName = ''
+  let role = ''
+  if (userId) {
+    try {
+      const { data: prof } = await supabaseAdmin
+        .from('profiles')
+        .select('full_name, email, role')
+        .eq('id', userId)
+        .maybeSingle()
+      if (prof) {
+        fullName = prof.full_name || ''
+        email = email || prof.email || ''
+        role = prof.role || ''
+      }
+      if (!email) {
+        const { data: authData } = await supabaseAdmin.auth.admin.getUserById(userId)
+        if (authData?.user?.email) {
+          email = authData.user.email
+        }
+      }
+    } catch (e) {
+      console.error('resolveUserSummary lookup error:', e)
+    }
+  }
+  return {
+    email: email || 'unknown-email@specialsauce.io',
+    fullName: fullName || 'Verified Member',
+    role: role === 'employer' ? 'Employer' : role === 'candidate' ? 'Professional' : 'Member',
+  }
+}
+
+async function sendRealtimeOpsAlert(params: {
+  subject: string
+  badge: string
+  headline: string
+  details: Array<{ label: string; value: string }>
+}) {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey) {
+    console.warn('RESEND_API_KEY not set — skipping real-time ops email alert:', params.subject)
+    return
+  }
+
+  const timestampCst = new Date().toLocaleString('en-US', {
+    timeZone: 'America/Chicago',
+    dateStyle: 'medium',
+    timeStyle: 'medium',
+  }) + ' CST'
+
+  const rowsHtml = [
+    ...params.details,
+    { label: 'Timestamp', value: timestampCst },
+  ]
+    .map(
+      (r) => `
+      <tr>
+        <td style="padding:8px 12px;border-bottom:1px solid #1e293b;color:#94a3b8;font-size:13px;font-weight:600;width:160px;">${r.label}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #1e293b;color:#f8fafc;font-size:13px;font-family:monospace;">${r.value}</td>
+      </tr>`
+    )
+    .join('')
+
+  const html = `
+    <div style="background-color:#090d16;color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:24px;border-radius:12px;max-width:600px;margin:0 auto;border:1px solid #1e293b;">
+      <div style="display:inline-block;background-color:#10b98120;border:1px solid #10b98160;color:#34d399;font-size:11px;font-weight:700;letter-spacing:0.08em;padding:4px 10px;border-radius:999px;text-transform:uppercase;margin-bottom:12px;">
+        ${params.badge}
+      </div>
+      <h2 style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">${params.headline}</h2>
+      <table style="width:100%;border-collapse:collapse;background-color:#0f172a;border-radius:8px;overflow:hidden;border:1px solid #1e293b;">
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+      <p style="margin:16px 0 0 0;font-size:12px;color:#64748b;">
+        SpecialSauce.io Real-Time Onboarding & Billing Telemetry • Routed to support@specialsauce.io
+      </p>
+    </div>
+  `
+
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'SpecialSauce.io Telemetry <support@specialsauce.io>',
+        to: ['support@specialsauce.io'],
+        reply_to: 'support@specialsauce.io',
+        subject: params.subject,
+        html,
+      }),
+    })
+  } catch (err) {
+    console.error('Failed to send real-time ops alert email:', err)
+  }
+}
+
 export async function POST(req: Request) {
   const body = await req.text()
   const sig = req.headers.get('stripe-signature') as string
@@ -204,6 +305,33 @@ export async function POST(req: Request) {
 
       if (error) console.error('Database Update Error (Organization Subscription):', error)
     }
+
+    // Send real-time onboarding / subscription notification to support@specialsauce.io
+    const customerEmail = session.customer_details?.email || session.customer_email || ''
+    const userSummary = await resolveUserSummary(userId, customerEmail)
+    const amountFormatted = `$${((session.amount_total || 0) / 100).toFixed(2)} ${(session.currency || 'usd').toUpperCase()}`
+    const checkoutLabel = packId
+      ? `Employer Top-Up Pack (${packId.toUpperCase()})`
+      : audience === 'employer_verify' || tierId === 'employer_verify'
+      ? 'Employer Verification Pass ($25 One-Time)'
+      : tierId
+      ? `Plan Tier: ${tierId.toUpperCase()}`
+      : `Checkout (${session.mode || 'payment'})`
+
+    await sendRealtimeOpsAlert({
+      subject: `💳 [NEW CHECKOUT] ${checkoutLabel} (${amountFormatted}) — ${userSummary.email}`,
+      badge: session.mode === 'subscription' ? 'New Subscription' : 'One-Time Purchase / Gate',
+      headline: `${checkoutLabel} Completed`,
+      details: [
+        { label: 'Customer Email', value: userSummary.email },
+        { label: 'Member Name', value: userSummary.fullName },
+        { label: 'Audience / Role', value: audience || userSummary.role },
+        { label: 'Tier / Pack', value: tierId || packId || 'standard' },
+        { label: 'Amount Paid', value: amountFormatted },
+        { label: 'User / Org ID', value: userId || organizationId || 'N/A' },
+        { label: 'Stripe Session ID', value: session.id },
+      ],
+    })
   }
 
   // ============================================================================
@@ -407,6 +535,21 @@ export async function POST(req: Request) {
         console.error('Database Update Error (Profile Identity):', error)
       } else {
         console.log(`Professional ${userId} successfully verified!`)
+        const verifiedUser = await resolveUserSummary(userId, (session as any)?.provided_details?.email)
+        const roleLabel = isEmployerRole ? 'Employer' : 'Professional'
+        await sendRealtimeOpsAlert({
+          subject: `🟢 [ID VERIFIED] ${roleLabel} Identity Verified — ${verifiedUser.email}`,
+          badge: 'Stripe Identity Verified',
+          headline: `New ${roleLabel} Completed ID Verification`,
+          details: [
+            { label: 'Account Role', value: roleLabel },
+            { label: 'Member Email', value: verifiedUser.email },
+            { label: 'Member Name', value: verifiedUser.fullName },
+            { label: 'User ID', value: userId },
+            { label: 'Discoverable', value: isEmployerRole ? 'N/A (Employer)' : 'true (Live in Vault)' },
+            { label: 'Verification ID', value: session.id },
+          ],
+        })
       }
     }
   }
