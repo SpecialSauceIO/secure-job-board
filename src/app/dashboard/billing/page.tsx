@@ -90,6 +90,7 @@ export default function CandidateBillingPage() {
     const planParam = params.get('plan') as 'explorer' | 'professional' | 'prestige' | null
     const sessionIdParam = params.get('session_id')
     const selectParam = params.get('select') as 'explorer' | 'professional' | 'prestige' | null
+      const messageParam = params.get('message')
     if (
       billingStatus === 'success' &&
       sessionIdParam &&
@@ -125,8 +126,14 @@ export default function CandidateBillingPage() {
         type: 'error',
         text: 'Checkout was cancelled. Your plan was not changed.',
       })
-    } else if (
-      selectParam === 'explorer' ||
+    } else if (messageParam) {
+        window.history.replaceState({}, '', '/dashboard/billing')
+        setFeedback({
+          type: 'error',
+          text: messageParam,
+        })
+      } else if (
+        selectParam === 'explorer' ||
       selectParam === 'professional' ||
       selectParam === 'prestige'
     ) {

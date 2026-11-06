@@ -215,6 +215,7 @@ export default function SupportCenterClient({
   const [isSubmittingCsat, setIsSubmittingCsat] = useState(false)
 
   const switchTab = (nextTab: 'ticket' | 'guides' | 'kb' | 'security') => {
+    if (nextTab === 'ticket' && !canUploadAttachments) return
     setActiveTab(nextTab)
     try {
       const url = new URL(window.location.href)
@@ -419,7 +420,7 @@ export default function SupportCenterClient({
       const urlTab = params.get('tab')
       const urlTicket = params.get('ticket')
       if (urlTab === 'ticket' || urlTicket) {
-        setActiveTab('ticket')
+        switchTab('ticket')
         if (urlTicket) {
           setSelectedTicketId(urlTicket.toUpperCase().trim())
           setIsComposingNewTicket(false)
@@ -590,15 +591,24 @@ export default function SupportCenterClient({
 
         <button
           type="button"
+          disabled={!canUploadAttachments}
           onClick={() => switchTab('ticket')}
-          className={`py-4 px-5 text-sm sm:text-base font-extrabold transition-colors border-b-2 cursor-pointer flex items-center justify-center gap-2 ${
-            activeTab === 'ticket'
+          title={!canUploadAttachments ? 'Available on active monthly plans. Use the top-bar Send Feedback button for 1-way feedback.' : 'Submit a support ticket'}
+          className={`py-4 px-5 text-sm sm:text-base font-extrabold transition border-b-2 whitespace-nowrap flex items-center gap-2 rounded-t-xl ${
+            !canUploadAttachments
+              ? 'border-transparent text-slate-500 opacity-50 cursor-not-allowed select-none'
+              : activeTab === 'ticket'
               ? 'border-indigo-400 text-white bg-indigo-600/20'
-              : 'border-transparent text-slate-300 hover:text-white hover:bg-slate-800/60'
+              : 'border-transparent text-slate-300 hover:text-white hover:bg-slate-900/60'
           }`}
         >
-          <span>{canUploadAttachments ? '3. Live Support & My Tickets' : '3. Report a Bug / Feedback'}</span>
-          {myTickets.length > 0 && (
+          <span>{canUploadAttachments ? '3. Submit a Support Ticket' : '🔒 3. Submit a Support Ticket'}</span>
+          {!canUploadAttachments && (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-800 text-slate-400 border border-slate-700">
+              Paid Plan Only
+            </span>
+          )}
+          {canUploadAttachments && myTickets.length > 0 && (
             <span
               className={`px-2.5 py-0.5 rounded-full text-xs font-black ${
                 awaitingCustomerCount > 0

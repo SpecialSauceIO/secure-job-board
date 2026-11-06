@@ -255,8 +255,34 @@ export default async function ProfilePage() {
     u: profile?.resume_url || '',
   })
 
+  const isProfileVerified = Boolean(
+    profile?.identity_verified === true ||
+      String(profile?.identity_verified) === 'true' ||
+      profile?.is_verified === true ||
+      String(profile?.is_verified) === 'true'
+  )
+
   const AiSection = (
-    <div className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm border-slate-300">
+    <div className="relative bg-white p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-indigo-200 shadow-md overflow-hidden">
+      {!isProfileVerified && (
+        <div className="mb-5 rounded-xl border border-amber-300 bg-amber-50 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-wider text-amber-900">
+              🔒 Locked Until One-Time ID Verification Is Complete
+            </p>
+            <p className="text-xs text-amber-800 mt-0.5">
+              Resume parsing and profile saving are disabled until your $5 one-time Stripe ID check is completed.
+            </p>
+          </div>
+          <Link
+            href="/dashboard/billing?select=explorer"
+            className="shrink-0 inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-400 px-4 py-2.5 text-xs font-black text-slate-950 shadow-sm transition"
+          >
+            Unlock Profile ($5 One-Time) →
+          </Link>
+        </div>
+      )}
+      <div className={!isProfileVerified ? 'opacity-45 pointer-events-none select-none grayscale' : ''}>
       <div className="mb-6">
         <h2 className="text-xl font-bold text-slate-800">
           {hasProfileData
@@ -270,6 +296,7 @@ export default async function ProfilePage() {
         </p>
       </div>
       <AiResumeScanner profile={profile} />
+      </div>
     </div>
   )
 

@@ -6950,6 +6950,24 @@ export async function submitQuickFeedback(formData: FormData) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+  if (user) {
+    const { data: fbProf } = await supabase
+      .from('profiles')
+      .select('is_verified, identity_verified')
+      .eq('id', user.id)
+      .maybeSingle()
+    const isUserVerified =
+      fbProf?.identity_verified === true ||
+      String(fbProf?.identity_verified) === 'true' ||
+      fbProf?.is_verified === true ||
+      String(fbProf?.is_verified) === 'true'
+    if (!isUserVerified) {
+      return {
+        error:
+          'Complete your one-time ID verification ($5 Explorer Pass) in Plans & Billing before submitting dashboard feedback.',
+      }
+    }
+  }
 
   const feedbackType = ((formData.get('feedback_type') as string) || 'Bug').trim()
   const notes = ((formData.get('notes') as string) || '').trim()
