@@ -457,7 +457,7 @@ export default function EmployerOrganizationForm({
           </div>
 
           <div className="flex flex-col sm:items-end gap-2 shrink-0">
-            {verificationStatus !== 'verified' ? (
+            {verificationStatus !== 'verified' && (
               <button
                 type="button"
                 disabled={isVerifying || !orgId}
@@ -465,15 +465,6 @@ export default function EmployerOrganizationForm({
                 className="px-5 py-2.5 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-indigo-600 transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
               >
                 {isVerifying ? 'Verifying Domain...' : 'Verify Domain Now'}
-              </button>
-            ) : (
-              <button
-                type="button"
-                disabled={isVerifying}
-                onClick={() => handleSandboxToggle('pending')}
-                className="px-4 py-2 bg-white text-slate-600 border-2 border-slate-300 text-xs font-bold rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
-              >
-                Reset to Pending
               </button>
             )}
           </div>

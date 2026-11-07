@@ -81,7 +81,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
 export const EMPLOYER_VERIFICATION_PASS = {
   id: 'employer_verify',
   name: 'Special Sauce - Employer Organization Verification Pass ($25 One-Time)',
-  priceCents: 50,
+  priceCents: 2500,
   envVar: 'STRIPE_PRICE_EMPLOYER_VERIFY_25_ONETIME',
   defaultPriceId: 'price_1UYCkyLAill3LX5X3jDyohLy',
   description:
@@ -249,9 +249,13 @@ async function ensureEmployerOrganizationId(supabase: any, user: any): Promise<s
 
   const emailStr = String(user.email || '')
   const emailDomain = (emailStr.split('@')[1] || '').toLowerCase()
+  const genericDomains = new Set(['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com', 'aol.com', 'proton.me', 'protonmail.com'])
+  const domainRoot = emailDomain && !genericDomains.has(emailDomain) ? emailDomain.split('.')[0] : ''
+  const formattedDomainName = domainRoot ? domainRoot.charAt(0).toUpperCase() + domainRoot.slice(1) : ''
   const fallbackName =
     user.user_metadata?.company_name ||
     user.user_metadata?.organization_name ||
+    formattedDomainName ||
     user.user_metadata?.full_name ||
     (emailStr.split('@')[0] ? `${emailStr.split('@')[0]} Organization` : 'Employer Organization')
 

@@ -69,7 +69,7 @@ export default async function DashboardLayout({
       if (isEmpVerified === false) {
         redirect('/onboarding')
       }
-    const shortTierMap = { enterprise: "Enterprise Plan", growth: "Growth Plan", starter: "Starter Plan", free: "No Active Plan" }; const shortLabel = shortTierMap[tInfo.tier] || tInfo.label; const seatText = tInfo.tier === "free" ? "Select Tier" : (tInfo.maxSeats >= 100 ? "Unlimited Seats" : `${tInfo.maxSeats} ${tInfo.maxSeats === 1 ? "Seat" : "Seats"}`); tierLabel = `${shortLabel} · ${seatText}`
+    const shortTierMap = { enterprise: "Enterprise Plan", growth: "Growth Plan", starter: "Starter Plan", free: isEmpVerified ? "Verification Pass ($0/mo)" : "No Active Plan" }; const shortLabel = shortTierMap[tInfo.tier] || tInfo.label; const seatText = tInfo.tier === "free" ? (isEmpVerified ? "1 Admin Seat" : "Select Plan") : (tInfo.maxSeats >= 100 ? "Unlimited Seats" : `${tInfo.maxSeats} ${tInfo.maxSeats === 1 ? "Seat" : "Seats"}`); tierLabel = `${shortLabel} · ${seatText}`
   } else if (role === 'candidate') {
     const cInfo = await resolveCandidateTierInfo(user.id)
     const isCandVerified = Boolean((profile as any)?.identity_verified === true || (profile as any)?.is_verified === true)
