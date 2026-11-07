@@ -238,16 +238,20 @@ export function CandidateJobFeed({
       const sk = "ss_cand_match_results_v2_" + res.userId
       let loc: Record<string, any> = {}
       try { const r = localStorage.getItem(sk); if (r) loc = JSON.parse(r) || {} } catch {}
-      const srv: Record<string, any> = {}
-      for (const [k, v] of Object.entries(res.cache || {})) {
-        if (k.startsWith("cand_v4_") && v && typeof v === "object") srv[k.slice(8)] = v
-        else if (k.startsWith("cand_") && v && typeof v === "object") srv[k.slice(5)] = v
-      }
-      setMatchResults((prev) => {
-        const next = { ...loc, ...srv, ...prev }
-        try { localStorage.setItem(sk, JSON.stringify(next)) } catch {}
-        return next
-      })
+        const srv: Record<string, any> = {}
+        for (const [k, v] of Object.entries(res.cache || {})) {
+          if (k.startsWith("cand_v4_") && v && typeof v === "object") srv[k.slice(8)] = v
+        }
+        if (Object.keys(srv).length === 0) {
+          try { localStorage.removeItem(sk) } catch {}
+          setMatchResults((prev) => ({ ...prev }))
+          return
+        }
+        setMatchResults((prev) => {
+          const next = { ...loc, ...srv, ...prev }
+          try { localStorage.setItem(sk, JSON.stringify(next)) } catch {}
+          return next
+        })
     }).catch(() => {})
     return () => { mounted = false }
   }, [])

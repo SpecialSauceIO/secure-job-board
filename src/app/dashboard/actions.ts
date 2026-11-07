@@ -3093,9 +3093,10 @@ export async function getPersistedMatchCache(): Promise<{
       data: { user },
     } = await supabase.auth.getUser()
     if (!user) return { userId: null, cache: {} }
-    const { data: profile } = await supabase.from("profiles").select("skills, structured_skills").eq("id", user.id).single()
+    const { data: profile } = await supabase.from("profiles").select("skills, structured_skills, is_verified, identity_verified").eq("id", user.id).single()
+    const isUserVerified = Boolean(profile?.is_verified === true || String(profile?.is_verified) === "true" || profile?.identity_verified === true || String(profile?.identity_verified) === "true")
     const visibleSkills = filterVisibleSkills(profile?.structured_skills)
-    const hasSkills = Boolean(profile && ((typeof profile.skills === "string" && profile.skills.trim().length > 0) || visibleSkills.length > 0))
+    const hasSkills = Boolean(isUserVerified && profile && ((typeof profile.skills === "string" && profile.skills.trim().length > 0) || visibleSkills.length > 0))
     if (!hasSkills) return { userId: user.id, hasSkills: false, cache: {} }
     const cache = await readUserMatchCache(user.id)
     return { userId: user.id, hasSkills: true, cache }
