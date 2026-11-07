@@ -202,7 +202,7 @@ export async function POST(req: Request) {
 
         const { error } = await supabaseAdmin
           .from('profiles')
-          .update({ structured_skills: [...filtered, newMeta] })
+          .update({ structured_skills: [...filtered, newMeta], identity_verified: true, is_verified: true, is_discoverable: true })
           .eq('id', userId)
 
         if (error) console.error('Database Update Error (Professional Plan):', error)

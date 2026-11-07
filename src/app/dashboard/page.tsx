@@ -849,11 +849,12 @@ export default async function DashboardPage({
   // PROFESSIONAL VIEW
   // ============================================================================
   const isVerified = Boolean(
-    profile?.identity_verified === true ||
-      String(profile?.identity_verified) === 'true' ||
-      profile?.is_verified === true ||
-      String(profile?.is_verified) === 'true'
-  )
+      profile?.identity_verified === true ||
+        String(profile?.identity_verified) === 'true' ||
+        profile?.is_verified === true ||
+        String(profile?.is_verified) === 'true' ||
+        (Array.isArray(profile?.structured_skills) && profile.structured_skills.some((s: any) => s && typeof s === "object" && (s._ss_meta?.verifiedExplorerPaid === true || ["explorer", "professional", "prestige", "pro"].includes(String(s._ss_meta?.plan || "").toLowerCase())))) || ["explorer", "professional", "prestige", "pro"].includes(String((profile as any)?.subscription_tier || "").toLowerCase())
+    )
 
   const { data: allCandidateApps } = await supabase
     .from('applications')
