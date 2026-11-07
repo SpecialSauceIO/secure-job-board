@@ -233,6 +233,24 @@ function resolveCanonicalPriceId(envVarName: string, defaultPriceId: string): st
   return envVal
 }
 
+async function ensureEmployerOrganizationId(supabase: any, user: any): Promise<string | null> {
+  const autoOrgId = await ensureEmployerOrganizationId(supabase, user)
+      const member = autoOrgId ? { organization_id: autoOrgId } : null
+  if (member?.organization_id) return member.organization_id
+  const emailDomain = (user.email || '').split('@')[1] || 'company.com'
+  const defaultOrgName = user.user_metadata?.company_name || emailDomain.split('.')[0].toUpperCase() || 'New Organization'
+  const { data: newOrg } = await supabase
+    .from('organizations')
+    .insert({ name: defaultOrgName, website_domain: emailDomain, verification_status: 'unverified', subscription_tier: 'free' })
+    .select('id')
+    .single()
+  if (newOrg?.id) {
+    await supabase.from('organization_members').insert({ organization_id: newOrg.id, user_id: user.id, role: 'owner' })
+    return newOrg.id
+  }
+  return null
+}
+
 export async function POST(req: Request) {
   try {
     const supabase = await createClient()
@@ -330,12 +348,8 @@ export async function POST(req: Request) {
 
     // 1B. EMPLOYER ONE-TIME ORGANIZATION VERIFICATION PASS ($25)
     if (rawKey === 'employer_verify' || rawKey === 'verify_org' || rawKey === 'employer_explorer') {
-      const { data: member } = await supabase
-        .from('organization_members')
-        .select('organization_id')
-        .eq('user_id', user.id)
-        .limit(1)
-        .maybeSingle()
+      const autoOrgId = await ensureEmployerOrganizationId(supabase, user)
+      const member = autoOrgId ? { organization_id: autoOrgId } : null
 
       if (!member?.organization_id) {
         return NextResponse.json(
@@ -387,12 +401,8 @@ export async function POST(req: Request) {
     // 2. EMPLOYER TOP-UP CREDIT PACKS (BOOST $150 / SURGE $350 / SCALE $900)
     const topupPack = EMPLOYER_TOPUP_PACKS[rawKey]
     if (topupPack) {
-      const { data: member } = await supabase
-        .from('organization_members')
-        .select('organization_id')
-        .eq('user_id', user.id)
-        .limit(1)
-        .maybeSingle()
+      const autoOrgId = await ensureEmployerOrganizationId(supabase, user)
+      const member = autoOrgId ? { organization_id: autoOrgId } : null
 
       if (!member?.organization_id) {
         return NextResponse.json(
@@ -450,12 +460,8 @@ export async function POST(req: Request) {
       )
     }
 
-    const { data: member } = await supabase
-      .from('organization_members')
-      .select('organization_id')
-      .eq('user_id', user.id)
-      .limit(1)
-      .maybeSingle()
+    const autoOrgId = await ensureEmployerOrganizationId(supabase, user)
+      const member = autoOrgId ? { organization_id: autoOrgId } : null
 
     if (!member?.organization_id) {
       return NextResponse.json(
