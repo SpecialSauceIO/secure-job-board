@@ -73,11 +73,11 @@ export default function NewJobPage() {
       if (member?.organization_id) {
         const { data: orgObj } = await supabase
           .from('organizations')
-          .select('verification_status, description')
+          .select('verification_status, subscription_status, subscription_tier, description')
           .eq('id', member.organization_id)
           .single()
 
-        setIsOrgVerified(orgObj?.verification_status === 'verified')
+        setIsOrgVerified(Boolean(orgObj?.verification_status === 'verified' || (orgObj as any)?.is_verified === true || (orgObj as any)?.domain_verified === true || ['active', 'verified_sandbox'].includes(String(orgObj?.subscription_status || '').toLowerCase()) || ['explorer', 'starter', 'growth', 'enterprise'].includes(String(orgObj?.subscription_tier || '').toLowerCase())))
 
         const rawDesc = orgObj?.description || ''
         const indMatch = rawDesc.match(/\[IND:([^\]]+)\]/i)

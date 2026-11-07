@@ -69,7 +69,7 @@ export default async function SupportPage({
           tInfo.tier === 'starter' ||
           tInfo.tier === 'growth' ||
           tInfo.tier === 'enterprise'
-        if (org.verification_status === 'verified') {
+        if (Boolean((org as any)?.verification_status === 'verified' || (org as any)?.is_verified === true || (org as any)?.domain_verified === true || ['active', 'verified_sandbox'].includes(String((org as any)?.subscription_status || '').toLowerCase()) || ['explorer', 'starter', 'growth', 'enterprise'].includes(String((org as any)?.subscription_tier || '').toLowerCase()))) {
           isVerifiedAccount = true
         }
       }

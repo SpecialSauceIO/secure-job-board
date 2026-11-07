@@ -53,6 +53,7 @@ export default function OnboardingStepTwoPage() {
         }
         if (billingStatus === 'verify_success' && sessionId) {
           setStatusText('Confirming your Employer Verification Pass & unlocking your workspace...')
+          await activateSandboxEmployerTier('free', sessionId)
           const { data: mem } = await supabase.from('organization_members').select('organization_id').eq('user_id', user.id).limit(1).maybeSingle()
           if (mem?.organization_id) {
             await supabase.from('organizations').update({ verification_status: 'verified' }).eq('id', mem.organization_id)

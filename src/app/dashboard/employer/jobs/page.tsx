@@ -164,7 +164,7 @@ export default async function JobManagementPage() {
     ? member.organizations[0]
     : member.organizations
 
-  const isOrgVerified = orgObj?.verification_status === 'verified'
+  const isOrgVerified = Boolean(orgObj?.verification_status === 'verified' || (orgObj as any)?.is_verified === true || (orgObj as any)?.domain_verified === true || ['active', 'verified_sandbox'].includes(String(orgObj?.subscription_status || '').toLowerCase()) || ['explorer', 'starter', 'growth', 'enterprise'].includes(String(orgObj?.subscription_tier || '').toLowerCase()))
   const tierInfo = await resolveEmployerTierInfo(orgObj)
 
   // 4. Fetch all jobs belonging to this organization, plus a count of applications

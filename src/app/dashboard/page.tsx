@@ -306,7 +306,7 @@ export default async function DashboardPage({
     }
 
     const hasOrg = Boolean(member?.organization_id && orgData)
-    const isOrgVerified = Boolean(orgData?.verification_status === 'verified')
+    const isOrgVerified = Boolean(orgData?.verification_status === 'verified' || (orgData as any)?.is_verified === true || (orgData as any)?.domain_verified === true || ['active', 'verified_sandbox'].includes(String(orgData?.subscription_status || '').toLowerCase()) || ['explorer', 'starter', 'growth', 'enterprise'].includes(String(orgData?.subscription_tier || '').toLowerCase()))
     const connectionCredits = orgData?.connection_credits ?? 0
     const tierInfo = await resolveEmployerTierInfo(orgData)
 

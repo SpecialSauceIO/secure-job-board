@@ -21,7 +21,7 @@ export default async function EmployerSearchPage() {
   const { data: member } = await supabase
     .from('organization_members')
     .select(
-      'organization_id, organizations(connection_credits, verification_status)'
+      'organization_id, organizations(connection_credits, verification_status, subscription_status, subscription_tier)'
     )
     .eq('user_id', user.id)
     .maybeSingle()
@@ -32,7 +32,7 @@ export default async function EmployerSearchPage() {
       : member.organizations
 
     credits = orgObj?.connection_credits || 0
-    isOrgVerified = orgObj?.verification_status === 'verified'
+    isOrgVerified = Boolean(orgObj?.verification_status === 'verified' || (orgObj as any)?.is_verified === true || (orgObj as any)?.domain_verified === true || ['active', 'verified_sandbox'].includes(String(orgObj?.subscription_status || '').toLowerCase()) || ['explorer', 'starter', 'growth', 'enterprise'].includes(String(orgObj?.subscription_tier || '').toLowerCase()))
 
     if (isOrgVerified) {
       const { data: jobs } = await supabase

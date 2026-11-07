@@ -6470,6 +6470,7 @@ export async function activateSandboxEmployerTier(
     .from('organizations')
     .update({
       subscription_tier: targetTier,
+      ...((targetTier !== 'free' || Boolean(stripeSessionId)) ? { verification_status: 'verified' } : {}),
     })
     .eq('id', member.organization_id)
 

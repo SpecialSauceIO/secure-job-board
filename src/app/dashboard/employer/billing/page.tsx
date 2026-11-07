@@ -73,7 +73,7 @@ export default function EmployerBillingPage() {
 
       if (fetchedOrg) {
         setOrgData(fetchedOrg)
-        setIsOrgVerified(fetchedOrg.verification_status === 'verified')
+        setIsOrgVerified(Boolean(fetchedOrg?.verification_status === 'verified' || (fetchedOrg as any)?.is_verified === true || (fetchedOrg as any)?.domain_verified === true || ['active', 'verified_sandbox'].includes(String(fetchedOrg?.subscription_status || '').toLowerCase()) || ['explorer', 'starter', 'growth', 'enterprise'].includes(String(fetchedOrg?.subscription_tier || '').toLowerCase())))
         setCredits(fetchedOrg.connection_credits ?? 0)
 
         const resolved = await resolveEmployerTierInfo(fetchedOrg)
