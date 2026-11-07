@@ -28,7 +28,7 @@ export default function OnboardingStepTwoPage() {
       }
       setEmail(user.email || '')
       const metaRole = user.user_metadata?.role === 'employer' ? 'employer' : 'candidate'
-      const { data: prof } = await supabase.from('profiles').select('role, identity_verified, is_verified, subscription_tier, structured_skills').eq('id', user.id).maybeSingle()
+      const { data: prof } = await supabase.from('profiles').select('role, identity_verified, is_verified, structured_skills').eq('id', user.id).maybeSingle()
       const resolvedRole = (prof?.role === 'employer' || metaRole === 'employer') ? 'employer' : 'candidate'
       setRole(resolvedRole)
 
@@ -94,7 +94,7 @@ export default function OnboardingStepTwoPage() {
           router.replace('/dashboard')
           return
         }
-        const tierStr = String(prof?.subscription_tier || '').toLowerCase()
+        const tierStr = String((prof as any)?.subscription_tier || '').toLowerCase()
         const skillsArr = Array.isArray((prof as any)?.structured_skills) ? (prof as any).structured_skills : []
         const hasPaidMeta = skillsArr.some((s: any) => s && typeof s === 'object' && s._type === 'ss_candidate_plan' && (s.verifiedExplorerPaid || ['explorer', 'professional', 'prestige'].includes(String(s.tier || '').toLowerCase())))
         if (['explorer', 'professional', 'prestige'].includes(tierStr) || hasPaidMeta) {
