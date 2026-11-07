@@ -226,7 +226,7 @@ export async function POST(req: Request) {
         await supabaseAdmin
           .from('organizations')
           .update({
-            verification_status: 'verified',
+            ...(orgObj?.verification_status === 'verified' ? { verification_status: 'verified' } : {}),
             subscription_status: orgObj?.subscription_status === 'active' ? 'active' : 'verified_sandbox',
             subscription_tier:
               orgObj?.subscription_tier && ['starter', 'growth', 'enterprise'].includes(orgObj.subscription_tier)
@@ -295,7 +295,7 @@ export async function POST(req: Request) {
       const { error } = await supabaseAdmin
         .from('organizations')
         .update({
-          verification_status: 'verified',
+          ...(orgObj?.verification_status === 'verified' ? { verification_status: 'verified' } : {}),
             subscription_status: 'active',
           subscription_tier: targetTier,
           connection_credits: newTotalCredits,
