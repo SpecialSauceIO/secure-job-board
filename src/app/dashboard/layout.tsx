@@ -65,9 +65,17 @@ export default async function DashboardLayout({
     }
 
     const tInfo = await resolveEmployerTierInfo(orgData)
+      const isEmpVerified = Boolean((orgData as any)?.verification_status === 'verified' || (orgData as any)?.is_verified || (orgData as any)?.domain_verified || tInfo.tier !== 'free')
+      if (isEmpVerified === false) {
+        redirect('/onboarding')
+      }
     const shortTierMap = { enterprise: "Enterprise Plan", growth: "Growth Plan", starter: "Starter Plan", free: "No Active Plan" }; const shortLabel = shortTierMap[tInfo.tier] || tInfo.label; const seatText = tInfo.tier === "free" ? "Select Tier" : (tInfo.maxSeats >= 100 ? "Unlimited Seats" : `${tInfo.maxSeats} ${tInfo.maxSeats === 1 ? "Seat" : "Seats"}`); tierLabel = `${shortLabel} · ${seatText}`
   } else if (role === 'candidate') {
     const cInfo = await resolveCandidateTierInfo(user.id)
+      const isCandVerified = Boolean((profile as any)?.identity_verified || (profile as any)?.is_verified || ['explorer', 'professional', 'prestige', 'pro'].includes(cInfo.tier))
+      if (isCandVerified === false) {
+        redirect('/onboarding')
+      }
     tierLabel = cInfo.tier === "prestige" || cInfo.tier === "pro" ? "★ Prestige Plan · Unlimited Apps" : cInfo.tier === "professional" || cInfo.tier === "trial" ? `★ Professional Plan · ${cInfo.freeAppsRemaining}/15 Apps` : cInfo.tier === "explorer" ? "★ Explorer Plan · Verified Vault" : "Unsubscribed · Select Plan"
   }
 

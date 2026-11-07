@@ -47,7 +47,7 @@ export default function EmployerSignupPage({ searchParams }: { searchParams: Pro
     try {
       const res = await verifyAccountSignupOtp(otpCode)
       if (!res.success) { setErrorMsg(res.error || 'Invalid 6-digit verification code.'); setIsSubmitting(false); return }
-      router.replace(res.redirectTo || '/dashboard')
+      router.replace(res.redirectTo || '/onboarding')
     } catch { setErrorMsg('Network error verifying code.'); setIsSubmitting(false) }
   }
   const handleResendOtp = async () => {

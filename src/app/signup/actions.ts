@@ -73,8 +73,7 @@ export async function verifyAccountSignupOtp(otpInput: string): Promise<{ succes
   await supabase.from('profiles').update({ role: ch.role }).eq('id', si.user.id)
   await recordHandshakeTelemetry({ handshakeId: ch.role === 'employer' ? 'employer_auth_signup' : 'candidate_auth_signup', label: ch.role === 'employer' ? 'Employer Auth & Registration' : 'Professional Auth & Registration', platformArea: 'Onboarding & Authentication', ok: true, latencyMs: Date.now() - startMs })
   revalidatePath('/', 'layout')
-  if (ch.role === 'employer') return { success: true, redirectTo: (ch.selectedPlan === 'starter' || ch.selectedPlan === 'growth' || ch.selectedPlan === 'enterprise') ? '/dashboard/employer/billing?select=' + encodeURIComponent(ch.selectedPlan) : '/dashboard' }
-  return { success: true, redirectTo: '/dashboard/billing?select=' + encodeURIComponent(ch.selectedPlan || 'explorer') }
+  return { success: true, redirectTo: '/onboarding' }
 }
 export async function signupCandidate(formData: FormData) {
   const email = ((formData.get('email') as string) || '').trim(); const password = formData.get('password') as string; const plan = ((formData.get('plan') as string) || '').trim().toLowerCase()
