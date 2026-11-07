@@ -27,8 +27,8 @@ export const CANDIDATE_SAAS_TIERS: Record<
   },
   candidate_explorer: {
     id: 'explorer',
-    name: 'Special Sauce - Explorer Plan ($5 One-Time Verification · $0/mo Forever)',
-    priceCents: 500,
+    name: 'Special Sauce - Explorer Plan ($0 Test Mode · $0/mo Forever)',
+    priceCents: 0,
     billingMode: 'payment',
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER_5_ONETIME',
     defaultPriceId: 'price_1UYCkwLAill3LX5XeuEcLOxC',
@@ -306,7 +306,7 @@ export async function POST(req: Request) {
           tierId: candidateTier.id,
         },
         line_items: [
-          catalogPriceId
+          (catalogPriceId && candidateTier.priceCents > 0)
             ? { price: catalogPriceId, quantity: 1 }
             : {
                 price_data: {
@@ -322,9 +322,9 @@ export async function POST(req: Request) {
                 quantity: 1,
               },
         ],
-        ...(candidateTier.billingMode === 'subscription' ? { payment_method_collection: 'always' as const } : {}),
+        ...(candidateTier.billingMode === 'subscription' ? { payment_method_collection: 'always' as const } : candidateTier.priceCents === 0 ? { payment_method_collection: 'if_required' as const } : {}),
         ...(isOneTimeExplorer
-          ? { invoice_creation: { enabled: true } }
+          ? (candidateTier.priceCents > 0 ? { invoice_creation: { enabled: true } } : {})
           : {
               subscription_data: {
                 metadata: {
