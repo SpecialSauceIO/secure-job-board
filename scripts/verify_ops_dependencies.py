@@ -144,26 +144,19 @@ check(
     "Production pricing drift detected in create-checkout-session/route.ts",
 )
 
-# Tab 8: Production Pricing & Onboarding Workflow Contract Invariants
-checkout_txt = (job_repo / "src/app/api/billing/create-checkout-session/route.ts").read_text()
-required_prices = [
-    ("explorer:", "priceCents: 500"),
-    ("candidate_explorer:", "priceCents: 500"),
-    ("professional:", "priceCents: 1200"),
-    ("prestige:", "priceCents: 1900"),
-    ("EMPLOYER_VERIFICATION_PASS", "priceCents: 2500"),
-    ("starter:", "priceCents: 14900"),
-    ("growth:", "priceCents: 49900"),
-    ("enterprise:", "priceCents: 125000"),
-]
-tab8_ok = all(
-    checkout_txt.find(t_key) != -1 and p_str in checkout_txt[checkout_txt.find(t_key):checkout_txt.find(t_key)+400]
-    for t_key, p_str in required_prices
-)
+# Tab 9: Next.js Turbopack "use client" Directive First-Line Guard
+bad_client_files = []
+for repo_root in (job_repo, ops_repo):
+    for f in (repo_root / "src").rglob("*.ts*"):
+        txt_f = f.read_text()
+        if "'use client'" in txt_f or '"use client"' in txt_f:
+            non_empty = [ln.strip() for ln in txt_f.splitlines() if ln.strip() and not ln.strip().startswith("//")]
+            if non_empty and non_empty[0] not in ("'use client'", '"use client"', "'use client';", '"use client";'):
+                bad_client_files.append(f"{repo_root.name}/{f.relative_to(repo_root)}")
 check(
-    tab8_ok,
-    "Tab 8: All Professional ($5/$12/$19) & Employer ($25/$149/$499/$1250) tiers locked at 100% production pricing",
-    "Production pricing drift detected in create-checkout-session/route.ts",
+    len(bad_client_files) == 0,
+    "Tab 9: All Client Components place 'use client' strictly on line 1 (Turbopack build guard)",
+    f"Files with imports before use client: {bad_client_files}",
 )
 
 if failures:
