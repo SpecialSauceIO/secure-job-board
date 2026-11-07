@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 import { resolveCandidateTierInfo } from '@/app/dashboard/actions'
 import {
   checkAndRecordStripeIdentityCircuitBreaker,
@@ -161,13 +162,18 @@ export async function PUT() {
       verifiedSession = list.data.find((s) => (s.client_reference_id === user.id || s.metadata?.userId === user.id) && (s.status === 'verified' || s.status === 'processing'))
     }
     if (verifiedSession) {
-      const { data: prof } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle()
+      const sbAdmin = createSupabaseAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+        process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+        { auth: { persistSession: false } }
+      )
+      const { data: prof } = await sbAdmin.from('profiles').select('role').eq('id', user.id).maybeSingle()
       const isEmp = prof?.role === 'employer'
-      await supabase.from('profiles').update({ identity_verified: true, is_verified: true, ...(isEmp ? {} : { is_discoverable: true }) }).eq('id', user.id)
+      await sbAdmin.from('profiles').update({ identity_verified: true, is_verified: true, ...(isEmp ? {} : { is_discoverable: true }) }).eq('id', user.id)
       if (isEmp) {
-        const { data: mem } = await supabase.from('organization_members').select('organization_id').eq('user_id', user.id).limit(1).maybeSingle()
+        const { data: mem } = await sbAdmin.from('organization_members').select('organization_id').eq('user_id', user.id).limit(1).maybeSingle()
         if (mem?.organization_id) {
-          await supabase.from('organizations').update({ verification_status: 'verified' }).eq('id', mem.organization_id)
+          await sbAdmin.from('organizations').update({ verification_status: 'verified' }).eq('id', mem.organization_id)
         }
       }
       return NextResponse.json({ verified: true, status: verifiedSession.status })

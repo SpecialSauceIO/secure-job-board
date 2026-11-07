@@ -77,7 +77,7 @@ export default function NewJobPage() {
           .eq('id', member.organization_id)
           .single()
 
-        setIsOrgVerified(Boolean(orgObj?.verification_status === 'verified' || (orgObj as any)?.is_verified === true || (orgObj as any)?.domain_verified === true || ['active', 'verified_sandbox'].includes(String(orgObj?.subscription_status || '').toLowerCase()) || ['explorer', 'starter', 'growth', 'enterprise'].includes(String(orgObj?.subscription_tier || '').toLowerCase())))
+        setIsOrgVerified(Boolean(orgObj?.verification_status === 'verified' || (orgObj as any)?.domain_verified === true || ['active', 'verified_sandbox'].includes(String(orgObj?.subscription_status || '').toLowerCase()) || ['explorer', 'starter', 'growth', 'enterprise'].includes(String(orgObj?.subscription_tier || '').toLowerCase())))
 
         const rawDesc = orgObj?.description || ''
         const indMatch = rawDesc.match(/\[IND:([^\]]+)\]/i)
