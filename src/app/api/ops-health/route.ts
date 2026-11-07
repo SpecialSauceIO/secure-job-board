@@ -280,11 +280,11 @@ export async function GET(req: NextRequest) {
   let recentErrors: any[] = []
   try {
     const [profRes, authRes, memRes, orgRes, errRes] = await Promise.all([
-      client.from("profiles").select("id, role, is_verified, identity_verified, structured_skills, updated_at"),
+      client.from("profiles").select("id, role, is_verified, identity_verified"),
       client.auth.admin.listUsers({ page: 1, perPage: 200 }),
       client.from("organization_members").select("user_id, organization_id, role"),
-      client.from("organizations").select("id, name, domain, is_verified, subscription_tier"),
-      client.from("error_logs").select("id, error_type, message, created_at").gte("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()).order("created_at", { ascending: false }).limit(10),
+      client.from("organizations").select("*"),
+      client.from("error_logs").select("*").gte("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()).order("created_at", { ascending: false }).limit(10),
     ])
     allProfiles = Array.isArray(profRes.data) ? profRes.data : []
     const rawAuthUsers = Array.isArray(authRes.data?.users) ? authRes.data.users : []
@@ -308,7 +308,7 @@ export async function GET(req: NextRequest) {
   const proExplorerOk = CANDIDATE_SAAS_TIERS?.explorer?.priceCents === 500 && CANDIDATE_SAAS_TIERS?.explorer?.billingMode === "payment"
   const proMonthlyOk = CANDIDATE_SAAS_TIERS?.professional?.priceCents === 1200 && CANDIDATE_SAAS_TIERS?.prestige?.priceCents === 1900
   const proCatalogOk = Boolean(CANDIDATE_SAAS_TIERS?.explorer?.defaultPriceId && CANDIDATE_SAAS_TIERS?.professional?.defaultPriceId && CANDIDATE_SAAS_TIERS?.prestige?.defaultPriceId)
-  const wfProContractOk = proExplorerOk && proMonthlyOk && proCatalogOk && dbHealthy && stripeHealthy
+  const wfProContractOk = proExplorerOk && proMonthlyOk && proCatalogOk && dbHealthy && stripeHealthy && (profilesCount === 0 || allProfiles.length > 0)
   const wfProStatus = !wfProContractOk ? "critical" : candSplitBrainCount > 0 ? "degraded" : "healthy"
   const wf1Latency = Math.max(2, Date.now() - wf1T0)
 
@@ -346,7 +346,7 @@ export async function GET(req: NextRequest) {
 
   const empPassOk = EMPLOYER_VERIFICATION_PASS?.priceCents === 2500 && Boolean(EMPLOYER_VERIFICATION_PASS?.defaultPriceId)
   const empTiersOk = EMPLOYER_SAAS_TIERS?.starter?.priceCents === 14900 && EMPLOYER_SAAS_TIERS?.growth?.priceCents === 49900 && EMPLOYER_SAAS_TIERS?.enterprise?.priceCents === 125000
-  const wfEmpContractOk = empPassOk && empTiersOk && dbHealthy && stripeHealthy
+  const wfEmpContractOk = empPassOk && empTiersOk && dbHealthy && stripeHealthy && (orgsCount === 0 || orgsList.length > 0)
   const wfEmpStatus = !wfEmpContractOk ? "critical" : (orphanedEmployers > 0 || empSplitBrain > 0) ? "degraded" : "healthy"
   const wf2Latency = Math.max(2, Date.now() - wf2T0)
 
