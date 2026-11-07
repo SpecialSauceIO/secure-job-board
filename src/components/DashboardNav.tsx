@@ -16,25 +16,17 @@ export default function DashboardNav({
   role,
   userEmail,
   tierLabel,
-  isVerified = false,
   initialStatusBanner,
   signOutAction,
 }: {
   role: 'candidate' | 'employer' | null
   userEmail: string
   tierLabel?: string
-  isVerified?: boolean
   initialStatusBanner?: SystemStatusBanner | null
   signOutAction: () => Promise<void>
 }) {
   const pathname = usePathname()
   const router = useRouter()
-  useEffect(() => {
-    const targetBilling = role === 'employer' ? '/dashboard/employer/billing' : '/dashboard/billing'
-    if (!isVerified && pathname && !pathname.startsWith(targetBilling)) {
-      router.replace(targetBilling)
-    }
-  }, [isVerified, pathname, role, router])
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [colorTilesEnabled, setColorTilesEnabled] = useState(false)
@@ -181,7 +173,6 @@ export default function DashboardNav({
 
   const billingHref =
     role === 'employer' ? '/dashboard/employer/billing' : '/dashboard/billing'
-  const gatedNavLinks = isVerified ? navLinks : [{ href: billingHref, label: 'Identity Verification & Plan Activation', exact: true }]
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href
@@ -189,7 +180,7 @@ export default function DashboardNav({
   }
 
   const activeNavItem =
-    gatedNavLinks.find((item) => isActive(item.href, item.exact)) || navLinks[0]
+    navLinks.find((item) => isActive(item.href, item.exact)) || navLinks[0]
 
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-300 shadow-2xs">
@@ -571,7 +562,7 @@ export default function DashboardNav({
         {/* ROW 2 (Desktop lg+): Horizontal Workspace Navigation Tabs */}
         <div className="hidden lg:flex items-center justify-between gap-4 py-2 border-t border-slate-300">
           <nav className="flex items-center gap-1.5 shrink-0">
-            {gatedNavLinks.map((item) => {
+            {navLinks.map((item) => {
               const active = isActive(item.href, item.exact)
               return (
                 <Link
@@ -614,7 +605,7 @@ export default function DashboardNav({
                 Workspace Navigation
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                {gatedNavLinks.map((item) => {
+                {navLinks.map((item) => {
                   const active = isActive(item.href, item.exact)
                   return (
                     <Link

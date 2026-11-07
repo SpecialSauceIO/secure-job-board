@@ -262,10 +262,6 @@ export default async function ProfilePage() {
       String(profile?.is_verified) === 'true'
   )
 
-  if (isProfileVerified === false) {
-    redirect('/dashboard/billing?onboarding=verify')
-  }
-
   const AiSection = (
     <div className="relative bg-white p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-indigo-200 shadow-md overflow-hidden">
       {!isProfileVerified && (
