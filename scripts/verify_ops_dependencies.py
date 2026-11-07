@@ -122,6 +122,28 @@ for name, repo in [("secure-job-board", job_repo), ("special-sauce-ops", ops_rep
     res = subprocess.run(["npx", "tsc", "--noEmit"], cwd=str(repo), capture_output=True, text=True)
     check(res.returncode == 0, f"TypeScript Compiler ({name}): 0 errors", res.stdout + res.stderr)
 
+# Tab 8: Production Pricing & Onboarding Workflow Contract Invariants
+checkout_txt = (job_repo / "src/app/api/billing/create-checkout-session/route.ts").read_text()
+required_prices = [
+    ("explorer:", "priceCents: 500"),
+    ("candidate_explorer:", "priceCents: 500"),
+    ("professional:", "priceCents: 1200"),
+    ("prestige:", "priceCents: 1900"),
+    ("EMPLOYER_VERIFICATION_PASS", "priceCents: 2500"),
+    ("starter:", "priceCents: 14900"),
+    ("growth:", "priceCents: 49900"),
+    ("enterprise:", "priceCents: 125000"),
+]
+tab8_ok = all(
+    checkout_txt.find(t_key) != -1 and p_str in checkout_txt[checkout_txt.find(t_key):checkout_txt.find(t_key)+400]
+    for t_key, p_str in required_prices
+)
+check(
+    tab8_ok,
+    "Tab 8: All Professional ($5/$12/$19) & Employer ($25/$149/$499/$1250) tiers locked at 100% production pricing",
+    "Production pricing drift detected in create-checkout-session/route.ts",
+)
+
 if failures:
     print(f"\n[DEPENDENCY GUARD FAILED] {len(failures)} issue(s) detected.")
     sys.exit(1)
