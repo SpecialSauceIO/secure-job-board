@@ -3,22 +3,28 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import type { FAQ } from '@/constants/faqs'
 export default function PublicFaqClient({ faqs }: { faqs: FAQ[] }) {
+  const [audienceFilter, setAudienceFilter] = useState<'all' | 'candidate' | 'employer'>('all')
   const [categoryFilter, setCategoryFilter] = useState<string>('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [openId, setOpenId] = useState<string | null>(faqs[0]?.id || null)
   const categories = useMemo(() => {
     const set = new Set<string>()
-    faqs.forEach((f) => { if (f.category) set.add(f.category) })
+    faqs.forEach((f) => {
+      const matchesTarget = audienceFilter === 'all' || f.target === 'all' || f.target === audienceFilter
+      if (matchesTarget && f.category) set.add(f.category)
+    })
     return ['All', ...Array.from(set)]
-  }, [faqs])
+  }, [faqs, audienceFilter])
   const filteredFaqs = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
     return faqs.filter((f) => {
+      const matchesTarget = audienceFilter === 'all' || f.target === 'all' || f.target === audienceFilter
+      if (matchesTarget === false) return false
       if (categoryFilter !== 'All' && f.category !== categoryFilter) return false
       if (q === '') return true
       return f.question.toLowerCase().includes(q) || f.answer.toLowerCase().includes(q) || f.category.toLowerCase().includes(q)
     })
-  }, [faqs, categoryFilter, searchQuery])
+  }, [faqs, audienceFilter, categoryFilter, searchQuery])
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
       <div className="text-center max-w-3xl mx-auto mb-10">
@@ -27,8 +33,15 @@ export default function PublicFaqClient({ faqs }: { faqs: FAQ[] }) {
         <p className="mt-3 text-base text-slate-600">Clear answers on how Special Sauce™ verifies every person and business, protects your personal information, and connects Professionals and Employers.</p>
       </div>
       <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-sm mb-8 space-y-4">
-        <div className="relative w-full">
-          <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search questions, pricing, privacy, verification..." className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:bg-white focus:outline-none" />
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+          <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200">
+            {([{ id: 'all', label: 'All Topics' }, { id: 'candidate', label: 'For Professionals' }, { id: 'employer', label: 'For Employers' }] as const).map((tab) => (
+              <button key={tab.id} type="button" onClick={() => { setAudienceFilter(tab.id); setCategoryFilter('All') }} className={audienceFilter === tab.id ? 'px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all bg-slate-900 text-white shadow-sm' : 'px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900'}>{tab.label}</button>
+            ))}
+          </div>
+          <div className="relative flex-1 max-w-md">
+            <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search questions, pricing, privacy, verification..." className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:bg-white focus:outline-none" />
+          </div>
         </div>
         <div className="flex flex-wrap gap-2 pt-1">
           {categories.map((cat) => (
@@ -41,11 +54,15 @@ export default function PublicFaqClient({ faqs }: { faqs: FAQ[] }) {
           <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-500 text-sm">No questions matched your search. Try clearing the search box or switching categories.</div>
         ) : filteredFaqs.map((item) => {
           const isOpen = openId === item.id
+          const badgeLabel = item.target === 'candidate' ? 'Professionals' : item.target === 'employer' ? 'Employers' : 'All Members'
           return (
             <div key={item.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all">
               <button type="button" onClick={() => setOpenId(isOpen ? null : item.id)} className="w-full px-5 py-4 text-left flex items-start justify-between gap-4 hover:bg-slate-50 transition-colors">
                 <div className="space-y-1">
-                  <span className="inline-block text-[11px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md">{item.category}</span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-block text-[11px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md">{item.category}</span>
+                    <span className="inline-block text-[11px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">{badgeLabel}</span>
+                  </div>
                   <h2 className="text-base font-bold text-slate-900">{item.question}</h2>
                 </div>
                 <span className="mt-1 text-slate-400 font-bold text-lg select-none">{isOpen ? '−' : '+'}</span>
