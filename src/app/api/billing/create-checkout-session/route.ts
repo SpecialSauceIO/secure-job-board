@@ -19,7 +19,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
   explorer: {
     id: 'explorer',
     name: 'Special Sauce - Explorer Plan ($5 One-Time Verification · $0/mo Forever)',
-    priceCents: 500,
+    priceCents: 0,
     billingMode: 'payment',
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER_5_ONETIME',
     defaultPriceId: 'price_1UYCkwLAill3LX5XeuEcLOxC',
@@ -29,7 +29,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
   candidate_explorer: {
     id: 'explorer',
     name: 'Special Sauce - Explorer Plan ($5 One-Time Verification · $0/mo Forever)',
-    priceCents: 500,
+    priceCents: 0,
     billingMode: 'payment',
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER_5_ONETIME',
     defaultPriceId: 'price_1UYCkwLAill3LX5XeuEcLOxC',
@@ -81,7 +81,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
 export const EMPLOYER_VERIFICATION_PASS = {
   id: 'employer_verify',
   name: 'Special Sauce - Employer Organization Verification Pass ($25 One-Time)',
-  priceCents: 2500,
+  priceCents: 0,
   envVar: 'STRIPE_PRICE_EMPLOYER_VERIFY_25_ONETIME',
   defaultPriceId: 'price_1UYCkyLAill3LX5X3jDyohLy',
   description:
