@@ -388,6 +388,18 @@ export async function GET(req: NextRequest) {
     checked_at: nowIso,
   })
 
+  let autoResolvedPreWf4 = false
+  if (criticalIssues.length === 0 && Array.isArray(vault?.work_items)) {
+    for (const w of vault.work_items) {
+      if (w.state === "open" && w.work_item_type === "System_Outage") {
+        w.state = "closed"
+        w.status = "resolved"
+        w.closed_at = nowIso
+        w.updated_at = nowIso
+        autoResolvedPreWf4 = true
+      }
+    }
+  }
   const wf4T0 = Date.now()
   const vaultItems: any[] = Array.isArray(vault?.work_items) ? vault.work_items : []
   const openSupportTickets = vaultItems.filter((i) => i.work_item_type === "Support_Ticket" && i.state === "open").length
@@ -417,7 +429,7 @@ export async function GET(req: NextRequest) {
     checked_at: nowIso,
   })
 
-  let autoResolvedWatchdog = false
+  let autoResolvedWatchdog = autoResolvedPreWf4
   if (Array.isArray(vault.work_items)) {
     for (const w of vault.work_items) {
       if (
