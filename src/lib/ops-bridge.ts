@@ -107,7 +107,18 @@ export async function loadMergedOpsVault(
           if (parsed?.monitor_meta && typeof parsed.monitor_meta === "object") {
             const epoch = Number(parsed.monitor_meta.vault_reset_epoch || 0)
             if (epoch > maxResetEpoch) maxResetEpoch = epoch
-            mergedMeta = { ...mergedMeta, ...parsed.monitor_meta }
+            const prevHb = String(mergedMeta.last_gmail_heartbeat_at || "")
+          const nextHb = String(parsed.monitor_meta.last_gmail_heartbeat_at || "")
+          const bestHb = prevHb > nextHb ? prevHb : nextHb
+          const prevHm = String(mergedMeta.last_health_matrix_at || "")
+          const nextHm = String(parsed.monitor_meta.last_health_matrix_at || "")
+          const bestHm = prevHm > nextHm ? prevHm : nextHm
+          mergedMeta = {
+            ...mergedMeta,
+            ...parsed.monitor_meta,
+            ...(bestHb ? { last_gmail_heartbeat_at: bestHb } : {}),
+            ...(bestHm ? { last_health_matrix_at: bestHm } : {}),
+          }
           }
         } catch {}
       }

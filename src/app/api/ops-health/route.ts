@@ -392,8 +392,12 @@ export async function GET(req: NextRequest) {
   const vaultItems: any[] = Array.isArray(vault?.work_items) ? vault.work_items : []
   const openSupportTickets = vaultItems.filter((i) => i.work_item_type === "Support_Ticket" && i.state === "open").length
   const unreadCritAlerts = vaultItems.filter((i) => i.work_item_type === "System_Outage" && i.state === "open").length
+  const lastHbIso = String(vault?.monitor_meta?.last_gmail_heartbeat_at || "").trim()
+  const lastHbMs = lastHbIso ? Date.parse(lastHbIso) : 0
+  const hbAgeMin = lastHbMs > 0 ? Math.max(0, Math.round((now - lastHbMs) / 60000)) : 99999
+  const hbFresh = lastHbMs > 0 && hbAgeMin <= 45
   const wfEmailBridgeOk = vaultHealthy && resendHealthy
-  const wfEmailStatus = !wfEmailBridgeOk ? "critical" : unreadCritAlerts > 0 ? "degraded" : "healthy"
+  const wfEmailStatus = !wfEmailBridgeOk ? "critical" : (unreadCritAlerts > 0 || !hbFresh) ? "degraded" : "healthy"
   const wf4Latency = Math.max(2, Date.now() - wf4T0)
 
   checks.push({
@@ -407,7 +411,9 @@ export async function GET(req: NextRequest) {
       ? "Ops Vault storage or Resend API key missing/unreachable."
       : unreadCritAlerts > 0
         ? `VAULT ALERT: ${unreadCritAlerts} open system outage alert(s) in Ops Vault • ${openSupportTickets} open ticket(s)`
-        : `STEP 1 [PASS] www.specialsauce.io/api/ops-inbound-email POST webhook live | STEP 2 [PASS] Ops Vault synced (${vaultItems.length} work items, ${openSupportTickets} open tickets, 0 open outages) | STEP 3 [PASS] Resend [TKT-XXXXXX] threading verified`,
+        : !hbFresh
+          ? `GMAIL POLLER STALE: Last Google Apps Script heartbeat was ${lastHbIso ? hbAgeMin + "m ago (" + lastHbIso + ")" : "NEVER"} (>45m threshold). Check script.google.com trigger for support@specialsauce.io.`
+          : `STEP 1 [PASS] Gmail Poller Heartbeat fresh (${hbAgeMin}m ago) | STEP 2 [PASS] Ops Vault synced (${vaultItems.length} work items, ${openSupportTickets} open tickets, 0 open outages) | STEP 3 [PASS] Resend [TKT-XXXXXX] threading verified`,
     checked_at: nowIso,
   })
 

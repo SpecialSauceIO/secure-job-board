@@ -271,7 +271,11 @@ export async function POST(req: NextRequest) {
         last_inbound_email_received_at: nowIso,
         last_inbound_email_ticket_id: item.id,
       }
-      await saveMergedOpsVault(client, vault)
+      vault.monitor_meta = {
+      ...(vault.monitor_meta || {}),
+      last_gmail_heartbeat_at: nowIso,
+    }
+    await saveMergedOpsVault(client, vault)
     }
 
     return NextResponse.json({
