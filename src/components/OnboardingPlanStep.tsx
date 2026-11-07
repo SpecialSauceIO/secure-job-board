@@ -162,10 +162,10 @@ export default function OnboardingPlanStep({
             <button
               type="button"
               disabled={loadingPlan !== null}
-              onClick={() => startStripeCheckout('verification_pass')}
+              onClick={() => startStripeCheckout('employer_verify')}
               className="mt-6 w-full rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 px-3 py-3 text-xs font-bold text-white transition"
             >
-              {loadingPlan === 'verification_pass' ? 'Opening Stripe...' : 'Verify Company ($25) →'}
+              {loadingPlan === 'employer_verify' ? 'Opening Stripe...' : 'Verify Company ($25) →'}
             </button>
           </div>
           <div className="flex flex-col justify-between rounded-xl border border-slate-700 bg-slate-900/80 p-5">
