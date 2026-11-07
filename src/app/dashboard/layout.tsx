@@ -37,10 +37,11 @@ export default async function DashboardLayout({
 
   let role: 'candidate' | 'employer' | null = null
   let tierLabel = ''
+  let isVerified = false
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, is_verified, identity_verified')
     .eq('id', user.id)
     .single()
 
@@ -65,9 +66,13 @@ export default async function DashboardLayout({
     }
 
     const tInfo = await resolveEmployerTierInfo(orgData)
+    const orgDesc = String(orgData?.description || '')
+    isVerified = Boolean(tInfo.tier !== 'free' || orgData?.is_verified === true || orgDesc.includes('[VERIFIED_PASS:true]') || orgDesc.includes('[VERIFIED:true]') || profile?.is_verified === true || profile?.identity_verified === true)
     const shortTierMap = { enterprise: "Enterprise Plan", growth: "Growth Plan", starter: "Starter Plan", free: "No Active Plan" }; const shortLabel = shortTierMap[tInfo.tier] || tInfo.label; const seatText = tInfo.tier === "free" ? "Select Tier" : (tInfo.maxSeats >= 100 ? "Unlimited Seats" : `${tInfo.maxSeats} ${tInfo.maxSeats === 1 ? "Seat" : "Seats"}`); tierLabel = `${shortLabel} · ${seatText}`
   } else if (role === 'candidate') {
     const cInfo = await resolveCandidateTierInfo(user.id)
+    const hasFlag = Boolean(profile?.identity_verified === true || String(profile?.identity_verified) === 'true' || profile?.is_verified === true || String(profile?.is_verified) === 'true')
+    isVerified = Boolean(cInfo.tier !== 'free' && hasFlag)
     tierLabel = cInfo.tier === "prestige" || cInfo.tier === "pro" ? "★ Prestige Plan · Unlimited Apps" : cInfo.tier === "professional" || cInfo.tier === "trial" ? `★ Professional Plan · ${cInfo.freeAppsRemaining}/15 Apps` : cInfo.tier === "explorer" ? "★ Explorer Plan · Verified Vault" : "Unsubscribed · Select Plan"
   }
 
@@ -78,6 +83,7 @@ export default async function DashboardLayout({
         role={role}
         userEmail={user.email || ''}
         tierLabel={tierLabel}
+        isVerified={isVerified}
         initialStatusBanner={await getActiveSystemStatusBanner(role)}
         signOutAction={signOut}
       />

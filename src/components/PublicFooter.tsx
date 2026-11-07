@@ -29,6 +29,12 @@ export function PublicFooter() {
               Security &amp; Trust
             </Link>
             <Link
+              href="/faq"
+              className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
+            >
+              FAQ
+            </Link>
+            <Link
               href="/terms"
               className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
             >

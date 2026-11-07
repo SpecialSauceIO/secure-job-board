@@ -16,17 +16,25 @@ export default function DashboardNav({
   role,
   userEmail,
   tierLabel,
+  isVerified = true,
   initialStatusBanner,
   signOutAction,
 }: {
   role: 'candidate' | 'employer' | null
   userEmail: string
   tierLabel?: string
+  isVerified?: boolean
   initialStatusBanner?: SystemStatusBanner | null
   signOutAction: () => Promise<void>
 }) {
   const pathname = usePathname()
   const router = useRouter()
+  useEffect(() => {
+    const targetBilling = role === 'employer' ? '/dashboard/employer/billing' : '/dashboard/billing'
+    if (isVerified === false && pathname && pathname !== targetBilling) {
+      router.replace(targetBilling)
+    }
+  }, [isVerified, pathname, role, router])
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [colorTilesEnabled, setColorTilesEnabled] = useState(false)
