@@ -167,7 +167,7 @@ export default function OnboardingPlanStep({
               <div className="text-xs font-bold uppercase tracking-wider text-emerald-400">One-Time Verification</div>
               <h3 className="mt-1 text-lg font-extrabold text-white">Verification Pass</h3>
               <div className="mt-2 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-white">$0</span>
+                <span className="text-2xl font-black text-white">$25</span>
                 <span className="text-xs text-slate-400">one-time · $0/mo</span>
               </div>
               <ul className="mt-4 space-y-2 text-xs text-slate-300">
@@ -182,7 +182,7 @@ export default function OnboardingPlanStep({
               onClick={() => startStripeCheckout('employer_verify')}
               className="mt-6 w-full rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 px-3 py-3 text-xs font-bold text-white transition"
             >
-              {loadingPlan === 'employer_verify' ? 'Opening Stripe...' : 'Verify Company ($0) →'}
+              {loadingPlan === 'employer_verify' ? 'Opening Stripe...' : 'Verify Company ($25) →'}
             </button>
           </div>
           <div className="flex flex-col justify-between rounded-xl border border-slate-700 bg-slate-900/80 p-5">

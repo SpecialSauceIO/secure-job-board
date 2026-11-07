@@ -81,7 +81,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
 export const EMPLOYER_VERIFICATION_PASS = {
   id: 'employer_verify',
   name: 'Special Sauce - Employer Organization Verification Pass ($25 One-Time)',
-  priceCents: 0,
+  priceCents: 2500,
   envVar: 'STRIPE_PRICE_EMPLOYER_VERIFY_25_ONETIME',
   defaultPriceId: 'price_1UYCkyLAill3LX5X3jDyohLy',
   description:

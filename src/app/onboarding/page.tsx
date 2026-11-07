@@ -81,7 +81,7 @@ export default function OnboardingPage() {
         try {
           await fetch('/api/identity/create-session', { method: 'PUT' })
         } catch (_) {}
-        window.location.href = resolvedRole === 'employer' ? '/dashboard/employer' : '/dashboard'
+        window.location.href = '/dashboard'
         return
       }
 
@@ -124,7 +124,7 @@ export default function OnboardingPage() {
             .single()
           const orgPaid = Boolean(org?.verification_status === 'verified' || (org?.subscription_tier && org.subscription_tier !== 'free'))
           if (orgPaid && Boolean(prof?.identity_verified || prof?.is_verified)) {
-            router.replace('/dashboard/employer')
+            router.replace('/dashboard')
             return
           }
           if (orgPaid && active) {
