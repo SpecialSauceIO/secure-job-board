@@ -119,10 +119,10 @@ export default function OnboardingPage() {
         if (mem?.organization_id) {
           const { data: org } = await supabase
             .from('organizations')
-            .select('is_verified, verification_status, domain_verified, subscription_tier')
+            .select('verification_status, subscription_tier')
             .eq('id', mem.organization_id)
             .single()
-          const orgPaid = Boolean(org?.is_verified || org?.verification_status === 'verified' || org?.domain_verified || (org?.subscription_tier && org.subscription_tier !== 'free'))
+          const orgPaid = Boolean(org?.verification_status === 'verified' || (org?.subscription_tier && org.subscription_tier !== 'free'))
           if (orgPaid && Boolean(prof?.identity_verified || prof?.is_verified)) {
             router.replace('/dashboard/employer')
             return
