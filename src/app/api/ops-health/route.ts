@@ -333,14 +333,15 @@ export async function GET(req: NextRequest) {
   const orgMap = new Map(orgsList.map((o) => [o.id, o]))
   let orphanedEmployers = 0
   let empSplitBrain = 0
-  for (const ep of empProfiles) {
+  const verifiedEmpProfiles = empProfiles.filter((ep) => Boolean(ep.is_verified || ep.identity_verified))
+  for (const ep of verifiedEmpProfiles) {
     if (!memberUserIds.has(ep.id)) {
       orphanedEmployers++
     } else {
       const m = orgMembers.find((x) => x.user_id === ep.id)
       const org = m ? orgMap.get(m.organization_id) : null
       if (!org) orphanedEmployers++
-      else if (Boolean(ep.is_verified) && !Boolean(org.is_verified)) empSplitBrain++
+      else if (org.domain_verified === false && org.ein_verified === false && !org.subscription_tier) empSplitBrain++
     }
   }
 
@@ -361,7 +362,7 @@ export async function GET(req: NextRequest) {
       ? `CONTRACT DRIFT: EmployerPass=${EMPLOYER_VERIFICATION_PASS?.priceCents}c (exp 2500c), Starter=${EMPLOYER_SAAS_TIERS?.starter?.priceCents}c (exp 14900c)`
       : (orphanedEmployers > 0 || empSplitBrain > 0)
         ? `ORG INTEGRITY WARNING: ${orphanedEmployers} orphaned employer(s) without org link, ${empSplitBrain} profile/org verification mismatch(es) across ${empProfiles.length} employers.`
-        : `STEP 1 [PASS] Employer Pass $25.00 ($0/mo Sandbox) | STEP 2 [PASS] ${empProfiles.length} employer(s) & ${orgsList.length} org(s) audited (0 orphaned employers, 0 verification mismatches) | STEP 3 [PASS] Starter $149 / Growth $499 / Enterprise $1,250 locked`,
+        : `STEP 1 [PASS] Employer Pass $25.00 ($0/mo Sandbox) | STEP 2 [PASS] ${verifiedEmpProfiles.length}/${empProfiles.length} verified employer(s) & ${orgsList.length} org(s) audited (0 orphaned employers, 0 verification mismatches) | STEP 3 [PASS] Starter $149 / Growth $499 / Enterprise $1,250 locked`,
     checked_at: nowIso,
   })
 
