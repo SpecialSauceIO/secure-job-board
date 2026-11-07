@@ -6385,14 +6385,23 @@ export async function activateSandboxEmployerTier(
     .limit(1)
     .maybeSingle()
 
-  if (!member?.organization_id) {
+  let orgId = member?.organization_id
+  if (!orgId) {
+    const fallbackName = user.user_metadata?.company_name || user.user_metadata?.full_name || (user.email ? user.email.split('@')[0] + ' Organization' : 'Verified Employer')
+    const { data: newOrg } = await supabase.from('organizations').insert({ name: fallbackName, verification_status: 'verified', subscription_status: 'verified_sandbox', subscription_tier: 'explorer' }).select('id').single()
+    if (newOrg?.id) {
+      await supabase.from('organization_members').insert({ organization_id: newOrg.id, user_id: user.id, role: 'owner' })
+      orgId = newOrg.id
+    }
+  }
+  if (!orgId) {
     return { error: 'Please set up your Company Profile first.' }
   }
 
   if (!isFounderAdminEmail(user.email)) {
     const check = await verifyPaidStripeCheckoutSession({
       sessionId: stripeSessionId,
-      expectedOrgId: member.organization_id,
+      expectedOrgId: orgId,
     })
     if (!check.verified) {
       return {
@@ -6405,7 +6414,7 @@ export async function activateSandboxEmployerTier(
   const { data: orgObj } = await supabase
     .from('organizations')
     .select('*')
-    .eq('id', member.organization_id)
+    .eq('id', orgId)
     .single()
 
   const tierMap = {
@@ -6464,15 +6473,15 @@ export async function activateSandboxEmployerTier(
       connection_credits: newCredits,
       description: taggedDesc,
     })
-    .eq('id', member.organization_id)
+    .eq('id', orgId)
 
   await supabase
     .from('organizations')
     .update({
-      subscription_tier: targetTier,
+      subscription_tier: targetTier === 'free' && stripeSessionId ? 'explorer' : targetTier,
       ...((targetTier !== 'free' || Boolean(stripeSessionId)) ? { verification_status: 'verified' } : {}),
     })
-    .eq('id', member.organization_id)
+    .eq('id', orgId)
 
   if (baseErr) {
     console.warn('Update organizations warning:', baseErr.message)
