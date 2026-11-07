@@ -71,7 +71,11 @@ export default function CandidateBillingPage() {
         profile?.identity_verified === true ||
           String(profile?.identity_verified) === 'true' ||
           profile?.is_verified === true ||
-          String(profile?.is_verified) === 'true'
+          String(profile?.is_verified) === 'true' ||
+            user.user_metadata?.identity_verified === true ||
+            String(user.user_metadata?.identity_verified) === 'true' ||
+            user.user_metadata?.is_verified === true ||
+            String(user.user_metadata?.is_verified) === 'true'
       )
 
     setIsVerified(verified)
@@ -332,7 +336,7 @@ export default function CandidateBillingPage() {
                 🛡️ Verified Professionals • Weekly 1-Year Prestige Drawing
               </span>
               <span className="text-slate-600">•</span>
-              {isVerified ? (
+              {(isVerified || normalizedTier === 'explorer' || normalizedTier === 'professional' || normalizedTier === 'prestige') ? (
                 <span className="text-emerald-400">✓ ID Verified</span>
               ) : (
                 <Link
@@ -363,8 +367,12 @@ export default function CandidateBillingPage() {
             ) : (
               <>
                 <div className="text-base font-black text-amber-300">
-                  {tierInfo?.label}
-                </div>
+                      {tierInfo?.label && tierInfo.label !== '—'
+                        ? tierInfo.label
+                        : normalizedTier === 'explorer' || isVerified
+                        ? 'Explorer ($0/mo)'
+                        : '—'}
+                    </div>
                 {normalizedTier === 'professional' && (
                   <p className="text-xs text-slate-300">
                     <strong className="text-white">
