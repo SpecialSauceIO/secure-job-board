@@ -322,7 +322,7 @@ export async function POST(req: Request) {
                 quantity: 1,
               },
         ],
-        payment_method_collection: 'always',
+        ...(candidateTier.billingMode === 'subscription' ? { payment_method_collection: 'always' as const } : {}),
         ...(isOneTimeExplorer
           ? { invoice_creation: { enabled: true } }
           : {
