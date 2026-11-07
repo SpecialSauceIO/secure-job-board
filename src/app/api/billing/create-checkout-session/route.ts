@@ -314,7 +314,7 @@ export async function POST(req: Request) {
             }),
         allow_promotion_codes: true,
         billing_address_collection: 'auto',
-        success_url: `${origin}/dashboard/billing?billing=success&plan=${candidateTier.id}&session_id={CHECKOUT_SESSION_ID}`,
+        success_url: body?.fromOnboarding ? `${origin}/onboarding?billing=success&plan=${candidateTier.id}&session_id={CHECKOUT_SESSION_ID}` : `${origin}/dashboard/billing?billing=success&plan=${candidateTier.id}&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: body?.fromOnboarding ? `${origin}/onboarding?billing=cancelled` : `${origin}/dashboard/billing?billing=cancelled`,
       })
 
@@ -377,7 +377,7 @@ export async function POST(req: Request) {
         billing_address_collection: 'auto',
         tax_id_collection: { enabled: true },
         invoice_creation: { enabled: true },
-        success_url: `${origin}/dashboard/employer/billing?billing=verify_success&session_id={CHECKOUT_SESSION_ID}`,
+        success_url: body?.fromOnboarding ? `${origin}/onboarding?billing=verify_success&session_id={CHECKOUT_SESSION_ID}` : `${origin}/dashboard/employer/billing?billing=verify_success&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: body?.fromOnboarding ? `${origin}/onboarding?billing=cancelled` : `${origin}/dashboard/employer/billing?billing=cancelled`,
       })
 
@@ -512,7 +512,7 @@ export async function POST(req: Request) {
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
       tax_id_collection: { enabled: true },
-      success_url: `${origin}/dashboard/employer/billing?billing=success&tier=${tier.id}&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: body?.fromOnboarding ? `${origin}/onboarding?billing=success&tier=${tier.id}&session_id={CHECKOUT_SESSION_ID}` : `${origin}/dashboard/employer/billing?billing=success&tier=${tier.id}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: body?.fromOnboarding ? `${origin}/onboarding?billing=cancelled` : `${origin}/dashboard/employer/billing?billing=cancelled`,
     })
 
