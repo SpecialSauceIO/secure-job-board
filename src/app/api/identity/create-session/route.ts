@@ -86,6 +86,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: guard.reason }, { status: 403 })
     }
 
+    const body = await req.json().catch(() => ({}))
+    const customReturnPath = typeof body?.returnTo === 'string' && body.returnTo.startsWith('/') ? body.returnTo : null
     const origin = req.headers.get('origin') || 'https://www.specialsauce.io'
 
     const verificationSession =
@@ -107,7 +109,7 @@ export async function POST(req: Request) {
             require_matching_selfie: true,
           },
         },
-        return_url: isEmployer ? `${origin}/dashboard/employer/organization?verification=pending` : `${origin}/dashboard?verification=pending`,
+        return_url: customReturnPath ? `${origin}${customReturnPath}` : ( isEmployer ? `${origin}/dashboard/employer/organization?verification=pending` : `${origin}/dashboard?verification=pending`),
       })
 
     const cookieStore = await cookies()
@@ -139,5 +141,39 @@ export async function POST(req: Request) {
       { error: error.message || 'Internal Server Error' },
       { status: 500 }
     )
+  }
+}
+
+export async function PUT() {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ verified: false, error: 'Unauthorized' }, { status: 401 })
+    const cookieStore = await cookies()
+    const vsCookie = cookieStore.get('stripe_vs_id')?.value
+    let verifiedSession: any = null
+    if (vsCookie) {
+      const s = await stripe.identity.verificationSessions.retrieve(vsCookie).catch(() => null)
+      if (s && (s.status === 'verified' || s.status === 'processing')) verifiedSession = s
+    }
+    if (!verifiedSession) {
+      const list = await stripe.identity.verificationSessions.list({ limit: 10 })
+      verifiedSession = list.data.find((s) => (s.client_reference_id === user.id || s.metadata?.userId === user.id) && (s.status === 'verified' || s.status === 'processing'))
+    }
+    if (verifiedSession) {
+      const { data: prof } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle()
+      const isEmp = prof?.role === 'employer'
+      await supabase.from('profiles').update({ identity_verified: true, is_verified: true, ...(isEmp ? {} : { is_discoverable: true }) }).eq('id', user.id)
+      if (isEmp) {
+        const { data: mem } = await supabase.from('organization_members').select('organization_id').eq('user_id', user.id).limit(1).maybeSingle()
+        if (mem?.organization_id) {
+          await supabase.from('organizations').update({ verification_status: 'verified' }).eq('id', mem.organization_id)
+        }
+      }
+      return NextResponse.json({ verified: true, status: verifiedSession.status })
+    }
+    return NextResponse.json({ verified: false })
+  } catch (e: any) {
+    return NextResponse.json({ verified: false, error: e?.message || 'Verification check failed' }, { status: 500 })
   }
 }

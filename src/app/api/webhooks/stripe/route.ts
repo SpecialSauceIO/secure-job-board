@@ -202,7 +202,7 @@ export async function POST(req: Request) {
 
         const { error } = await supabaseAdmin
           .from('profiles')
-          .update({ structured_skills: [...filtered, newMeta], identity_verified: true, is_verified: true, is_discoverable: true })
+          .update({ structured_skills: [...filtered, newMeta] })
           .eq('id', userId)
 
         if (error) console.error('Database Update Error (Professional Plan):', error)
@@ -525,6 +525,12 @@ export async function POST(req: Request) {
         .eq('id', userId)
         .maybeSingle()
       const isEmployerRole = existingProfile?.role === 'employer'
+        if (isEmployerRole) {
+          const { data: memRow } = await supabaseAdmin.from('organization_members').select('organization_id').eq('user_id', userId).limit(1).maybeSingle()
+          if (memRow?.organization_id) {
+            await supabaseAdmin.from('organizations').update({ verification_status: 'verified' }).eq('id', memRow.organization_id)
+          }
+        }
       const { error } = await supabaseAdmin
         .from('profiles')
         .update({
