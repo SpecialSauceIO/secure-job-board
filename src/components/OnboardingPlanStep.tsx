@@ -37,6 +37,15 @@ export default function OnboardingPlanStep({
       setErrorMsg(data?.error || 'Unable to start Stripe Checkout. Please try again.')
       setLoadingPlan(null)
     } catch (err: any) {
+      fetch('/api/ops-health', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error_type: 'CLIENT_CHECKOUT_LAUNCH_ERROR',
+          message: (err as any)?.message || 'Checkout launch failed in browser',
+          url: typeof window !== 'undefined' ? window.location.pathname : '/onboarding',
+        }),
+      }).catch(() => {})
       setErrorMsg(err?.message || 'Network error launching Stripe Checkout.')
       setLoadingPlan(null)
     }

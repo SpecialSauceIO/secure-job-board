@@ -184,6 +184,15 @@ export default function CandidateBillingPage() {
         return
       }
     } catch (err: any) {
+      fetch('/api/ops-health', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error_type: 'CLIENT_CHECKOUT_LAUNCH_ERROR',
+          message: (err as any)?.message || 'Checkout launch failed in browser',
+          url: typeof window !== 'undefined' ? window.location.pathname : '/onboarding',
+        }),
+      }).catch(() => {})
       setFeedback({
         type: 'error',
         text: err.message || 'Network error starting Stripe Checkout.',
