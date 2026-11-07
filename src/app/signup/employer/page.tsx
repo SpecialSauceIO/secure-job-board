@@ -24,8 +24,11 @@ export default function EmployerSignupPage({ searchParams }: { searchParams: Pro
   useEffect(() => {
     if (step === 'otp' || isSubmitting) return
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data }) => {
-      if (data?.user) router.replace(selectedPlan ? `/dashboard/employer/billing?select=${selectedPlan}` : '/dashboard')
+    supabase.auth.getUser().then(async ({ data, error }) => {
+      if (error || !data?.user) return
+      const { data: prof } = await supabase.from('profiles').select('id').eq('id', data.user.id).maybeSingle()
+      if (!prof?.id) { await supabase.auth.signOut(); return }
+      router.replace('/onboarding')
     })
   }, [router, selectedPlan, step, isSubmitting])
   const validateEmail = (e: React.ChangeEvent<HTMLInputElement>) => {

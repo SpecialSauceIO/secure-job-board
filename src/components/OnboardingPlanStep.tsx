@@ -5,10 +5,14 @@ export default function OnboardingPlanStep({
   role,
   userEmail,
   onSignOut,
+  alreadyPaid,
+  onVerifyIdentity,
 }: {
   role: 'candidate' | 'employer'
   userEmail?: string
   onSignOut?: () => void
+  alreadyPaid?: boolean
+  onVerifyIdentity?: () => void
 }) {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
@@ -57,6 +61,19 @@ export default function OnboardingPlanStep({
         )}
       </div>
 
+      {alreadyPaid && onVerifyIdentity && (
+        <div className="mb-6 rounded-xl border border-emerald-500/50 bg-emerald-950/40 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <div className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1">✓ Step 2A Payment Confirmed · Final Step Required</div>
+            <div className="text-base font-bold text-white">Complete Your 1-Time Government ID & Selfie Check ($0 Due)</div>
+            <div className="text-xs text-slate-300 mt-0.5">Your plan checkout is already recorded. Click below to launch the live Stripe Identity verification screen and unlock your dashboard.</div>
+          </div>
+          <button type="button" onClick={onVerifyIdentity} className="shrink-0 px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition cursor-pointer">
+            Verify Government ID Now →
+          </button>
+        </div>
+      )}
+
       {errorMsg && (
         <div className="mb-6 rounded-xl border border-rose-500/50 bg-rose-950/50 px-4 py-3 text-xs font-medium text-rose-200 text-center">
           {errorMsg}
@@ -87,7 +104,7 @@ export default function OnboardingPlanStep({
               onClick={() => startStripeCheckout('explorer')}
               className="mt-6 w-full rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 px-4 py-3 text-xs font-bold text-white transition"
             >
-              {loadingPlan === 'explorer' ? 'Opening Stripe...' : 'Verify & Start Explorer ($5 One-Time) →'}
+              {loadingPlan === 'explorer' ? 'Opening Stripe...' : 'Verify & Start Explorer ($0 One-Time) →'}
             </button>
           </div>
 

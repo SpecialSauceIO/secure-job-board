@@ -10,79 +10,88 @@ import {
   activateSandboxEmployerTier,
 } from '@/app/dashboard/actions'
 
-export default function OnboardingStepTwoPage() {
+export default function OnboardingPage() {
   const router = useRouter()
+  const supabase = createClient()
+  const [loading, setLoading] = useState(true)
+  const [statusText, setStatusText] = useState('Loading your onboarding step...')
   const [role, setRole] = useState<'candidate' | 'employer'>('candidate')
   const [email, setEmail] = useState<string>('')
-  const [ready, setReady] = useState(false)
   const [alreadyPaid, setAlreadyPaid] = useState(false)
-  const [launchingId, setLaunchingId] = useState(false)
-  const [statusText, setStatusText] = useState<string>('Loading Step 2: Identity Verification & Plan Selection...')
+
+  const launchStripeIdentityOrEnterDashboard = async () => {
+    try {
+      setLoading(true)
+      setStatusText('Launching Stripe Identity Verification (Government ID & Selfie)...')
+      const idRes = await fetch('/api/identity/create-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ returnTo: '/onboarding?identity=complete' }),
+      })
+      const idData = await idRes.json().catch(() => ({}))
+      if (idRes.ok && idData?.url) {
+        window.location.href = idData.url
+        return
+      }
+      console.error('Stripe Identity session error:', idData?.error)
+      setLoading(false)
+    } catch (err) {
+      console.error('Identity session launch error:', err)
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) {
+    let active = true
+    async function init() {
+      const {
+        data: { user },
+        error: authErr,
+      } = await supabase.auth.getUser()
+      if (authErr || !user) {
+        await supabase.auth.signOut()
         router.replace('/login')
         return
       }
-      setEmail(user.email || '')
-      const metaRole = user.user_metadata?.role === 'employer' ? 'employer' : 'candidate'
-      const { data: prof } = await supabase.from('profiles').select('role, identity_verified, is_verified, structured_skills').eq('id', user.id).maybeSingle()
-      const resolvedRole = (prof?.role === 'employer' || metaRole === 'employer') ? 'employer' : 'candidate'
-      setRole(resolvedRole)
+      if (active) setEmail(user.email || '')
 
-      if (typeof window !== 'undefined') {
-        const params = new URLSearchParams(window.location.search)
-        const billingStatus = params.get('billing')
-        const identityStatus = params.get('identity')
-        const sessionId = params.get('session_id')
-        const planParam = params.get('plan') as 'explorer' | 'professional' | 'prestige' | null
-        const tierParam = params.get('tier') as 'starter' | 'growth' | 'enterprise' | null
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('id, role, identity_verified, is_verified, structured_skills')
+        .eq('id', user.id)
+        .maybeSingle()
 
-        const launchStripeIdentityOrEnterDashboard = async () => {
-          const { data: latestProf } = await supabase.from('profiles').select('identity_verified, is_verified').eq('id', user.id).maybeSingle()
-          if (latestProf?.identity_verified === true || latestProf?.is_verified === true) {
-            router.replace('/dashboard')
-            router.refresh()
-            return
-          }
-          setStatusText('Payment confirmed! Redirecting to Stripe Identity for your 1-time government ID & selfie check...')
-          const idRes = await fetch('/api/identity/create-session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ returnTo: '/onboarding?identity=complete' }),
-          }).catch(() => null)
-          const idData = idRes ? await idRes.json().catch(() => null) : null
-          if (idData?.url) {
-            window.location.href = idData.url
-            return
-          }
-          router.replace('/dashboard')
-          router.refresh()
-        }
+      if (!prof?.id) {
+        await supabase.auth.signOut()
+        router.replace('/signup/candidate')
+        return
+      }
 
-        if (identityStatus === 'complete') {
-          setStatusText('Confirming your Stripe Identity document & selfie verification...')
-          await fetch('/api/identity/create-session', { method: 'PUT' }).catch(() => null)
-          router.replace('/dashboard')
-          router.refresh()
-          return
-        }
-        if (billingStatus === 'success' && sessionId && planParam && ['explorer', 'professional', 'prestige'].includes(planParam)) {
-          setStatusText('Confirming your Stripe payment & preparing ID verification...')
-          await activateSandboxCandidateTier(planParam, sessionId)
+      const resolvedRole = (prof?.role || user.user_metadata?.role || 'candidate') as 'candidate' | 'employer'
+      if (active) setRole(resolvedRole)
+
+      const params = new URLSearchParams(window.location.search)
+      const billingStatus = params.get('billing')
+      const planParam = params.get('plan')
+      const sessionId = params.get('session_id') || undefined
+      const identityStatus = params.get('identity')
+
+      if (identityStatus === 'complete') {
+        if (active) setStatusText('Confirming your government ID verification...')
+        try {
+          await fetch('/api/identity/create-session', { method: 'PUT' })
+        } catch (_) {}
+        window.location.href = resolvedRole === 'employer' ? '/dashboard/employer' : '/dashboard'
+        return
+      }
+
+      if (billingStatus === 'success') {
+        if (active) setStatusText('Recording your plan and preparing ID verification...')
+        if (resolvedRole === 'candidate' && planParam) {
+          await activateSandboxCandidateTier(planParam as any, sessionId)
           await launchStripeIdentityOrEnterDashboard()
           return
-        }
-        if (billingStatus === 'success' && sessionId && tierParam && ['starter', 'growth', 'enterprise'].includes(tierParam)) {
-          setStatusText('Confirming your Stripe plan & preparing ID verification...')
-          await activateSandboxEmployerTier(tierParam, sessionId)
-          await launchStripeIdentityOrEnterDashboard()
-          return
-        }
-        if (billingStatus === 'verify_success' && sessionId) {
-          setStatusText('Confirming your Employer Verification Pass & preparing ID verification...')
+        } else if (resolvedRole === 'employer') {
           await activateSandboxEmployerTier('free', sessionId)
           await launchStripeIdentityOrEnterDashboard()
           return
@@ -94,44 +103,65 @@ export default function OnboardingStepTwoPage() {
           router.replace('/dashboard')
           return
         }
-        const tierStr = String((prof as any)?.subscription_tier || '').toLowerCase()
         const skillsArr = Array.isArray((prof as any)?.structured_skills) ? (prof as any).structured_skills : []
         const hasPaidMeta = skillsArr.some((s: any) => s && typeof s === 'object' && ((s._type === 'ss_candidate_plan' && (s.verifiedExplorerPaid || ['explorer', 'professional', 'prestige'].includes(String(s.tier || '').toLowerCase()))) || (s._ss_meta === true && ['explorer', 'professional', 'prestige', 'pro'].includes(String(s.plan || '').toLowerCase()))))
-        if (['explorer', 'professional', 'prestige'].includes(tierStr) || hasPaidMeta) {
+        if (hasPaidMeta && active) {
           setAlreadyPaid(true)
         }
-      } else {
-        const { data: mem } = await supabase.from('organization_members').select('organization_id').eq('user_id', user.id).limit(1).maybeSingle()
+      } else if (resolvedRole === 'employer') {
+        const { data: mem } = await supabase
+          .from('organization_members')
+          .select('organization_id')
+          .eq('user_id', user.id)
+          .limit(1)
+          .maybeSingle()
         if (mem?.organization_id) {
-          const { data: org } = await supabase.from('organizations').select('verification_status, subscription_status, subscription_tier').eq('id', mem.organization_id).single()
-          const orgPaid = org?.verification_status === 'verified' || ['active', 'verified_sandbox'].includes(String(org?.subscription_status || '').toLowerCase()) || ['explorer', 'starter', 'growth', 'enterprise'].includes(String(org?.subscription_tier || '').toLowerCase())
+          const { data: org } = await supabase
+            .from('organizations')
+            .select('is_verified, verification_status, domain_verified, subscription_tier')
+            .eq('id', mem.organization_id)
+            .single()
+          const orgPaid = Boolean(org?.is_verified || org?.verification_status === 'verified' || org?.domain_verified || (org?.subscription_tier && org.subscription_tier !== 'free'))
           if (orgPaid && Boolean(prof?.identity_verified || prof?.is_verified)) {
-            router.replace('/dashboard')
+            router.replace('/dashboard/employer')
             return
           }
-          if (orgPaid) {
+          if (orgPaid && active) {
             setAlreadyPaid(true)
           }
         }
       }
-      setReady(true)
-    })
-  }, [router])
+
+      if (active) setLoading(false)
+    }
+    init()
+    return () => {
+      active = false
+    }
+  }, [router, supabase])
 
   const handleSignOut = async () => {
-    const supabase = createClient()
     await supabase.auth.signOut()
     router.replace('/login')
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#060B14] text-white">
+    <div className="min-h-screen bg-[#020817] text-white flex flex-col overflow-x-clip">
       <PublicHeader />
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
-        {ready ? (
-          <OnboardingPlanStep role={role} userEmail={email} onSignOut={handleSignOut} />
+      <main className="flex-1 flex flex-col justify-center py-8">
+        {loading ? (
+          <div className="max-w-md mx-auto text-center py-20 px-4">
+            <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-sm text-slate-300 font-medium">{statusText}</p>
+          </div>
         ) : (
-          <div className="text-sm text-slate-400 font-semibold">{statusText}</div>
+          <OnboardingPlanStep
+            role={role}
+            userEmail={email}
+            onSignOut={handleSignOut}
+            alreadyPaid={alreadyPaid}
+            onVerifyIdentity={launchStripeIdentityOrEnterDashboard}
+          />
         )}
       </main>
       <PublicFooter />

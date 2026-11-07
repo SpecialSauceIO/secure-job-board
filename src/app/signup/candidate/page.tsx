@@ -23,7 +23,12 @@ export default function CandidateSignupPage({ searchParams }: { searchParams: Pr
   useEffect(() => {
     if (step === 'otp' || isSubmitting) return
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data }) => { if (data?.user) router.replace(`/dashboard/billing?select=${selectedPlan}`) })
+    supabase.auth.getUser().then(async ({ data, error }) => {
+      if (error || !data?.user) return
+      const { data: prof } = await supabase.from('profiles').select('id').eq('id', data.user.id).maybeSingle()
+      if (!prof?.id) { await supabase.auth.signOut(); return }
+      router.replace('/onboarding')
+    })
   }, [router, selectedPlan, step, isSubmitting])
   const handleRequestOtp = async (e: React.FormEvent) => {
     e.preventDefault(); setErrorMsg(''); setInfoMsg(''); setIsSubmitting(true)
