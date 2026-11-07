@@ -45,7 +45,8 @@ export default async function DashboardLayout({
     .eq('id', user.id)
     .single()
 
-  role = (profile?.role as 'candidate' | 'employer' | null) || null
+  const metaRole = user.user_metadata?.role === 'employer' ? 'employer' : 'candidate'
+    role = (profile?.role as 'candidate' | 'employer' | null) || metaRole
 
   if (role === 'employer') {
     const { data: member } = await supabase
