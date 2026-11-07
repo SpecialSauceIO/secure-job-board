@@ -104,7 +104,7 @@ export default function OnboardingPlanStep({
               onClick={() => startStripeCheckout('explorer')}
               className="mt-6 w-full rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 px-4 py-3 text-xs font-bold text-white transition"
             >
-              {loadingPlan === 'explorer' ? 'Opening Stripe...' : 'Verify & Start Explorer ($0 One-Time) →'}
+              {loadingPlan === 'explorer' ? 'Opening Stripe...' : 'Verify & Start Explorer ($5 One-Time) →'}
             </button>
           </div>
 
