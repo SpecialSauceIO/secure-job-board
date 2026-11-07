@@ -322,6 +322,12 @@ export async function POST(req: Request) {
     if (candidateTier) {
       const catalogPriceId = resolveCanonicalPriceId(candidateTier.envVar, candidateTier.defaultPriceId)
       const isOneTimeExplorer = candidateTier.billingMode === 'payment'
+      if (candidateTier.priceCents === 0) {
+        const zeroUrl = body?.fromOnboarding
+          ? origin + '/onboarding?billing=success&plan=' + candidateTier.id + '&session_id=free_verify_' + Date.now()
+          : origin + '/dashboard/billing?billing=success&plan=' + candidateTier.id + '&session_id=free_verify_' + Date.now()
+        return NextResponse.json({ url: zeroUrl, sessionId: 'free_verify_' + Date.now() })
+      }
 
       const checkoutSession = await stripe.checkout.sessions.create({
         mode: isOneTimeExplorer ? 'payment' : 'subscription',
@@ -393,6 +399,18 @@ export async function POST(req: Request) {
       const catalogPriceId =
         resolveCanonicalPriceId(EMPLOYER_VERIFICATION_PASS.envVar, EMPLOYER_VERIFICATION_PASS.defaultPriceId)
 
+      if (EMPLOYER_VERIFICATION_PASS.priceCents === 0) {
+        const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+        const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+        if (autoOrgId && sbUrl && sbKey) {
+          const sbAdmin = createSupabaseAdmin(sbUrl, sbKey)
+          await sbAdmin.from('organizations').update({ subscription_status: 'active', subscription_tier: 'free' }).eq('id', autoOrgId)
+        }
+        const zeroEmpUrl = body?.fromOnboarding
+          ? origin + '/onboarding?billing=verify_success&plan=verify_org&session_id=free_emp_verify_' + Date.now()
+          : origin + '/dashboard/billing?billing=verify_success&session_id=free_emp_verify_' + Date.now()
+        return NextResponse.json({ url: zeroEmpUrl, sessionId: 'free_emp_verify_' + Date.now() })
+      }
       const checkoutSession = await stripe.checkout.sessions.create({
         mode: 'payment',
         customer_email: user.email,
