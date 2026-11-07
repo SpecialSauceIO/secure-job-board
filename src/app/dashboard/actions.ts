@@ -798,7 +798,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   if (explicitTier === 'free') {
     return {
       tier: 'free',
-      label: 'No Active Plan · Select Plan',
+      label: (org?.verification_status === 'verified' || org?.domain_verified) ? 'Verification Pass ($0/mo)' : 'No Active Plan - Select Plan',
       maxActiveJobs: 0,
       monthlyCredits: 0,
       maxSeats: 1,
@@ -843,7 +843,7 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
 
   return {
     tier: 'free',
-    label: 'No Active Plan · Select Plan',
+    label: (org?.verification_status === 'verified' || org?.domain_verified) ? 'Verification Pass ($0/mo)' : 'No Active Plan - Select Plan',
     maxActiveJobs: 0,
     monthlyCredits: 0,
     maxSeats: 1,

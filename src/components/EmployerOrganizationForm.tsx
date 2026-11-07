@@ -492,6 +492,7 @@ export default function EmployerOrganizationForm({
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            {verificationStatus !== 'verified' && (
             <button
               type="button"
               onClick={() => setShowDnsInstructions(!showDnsInstructions)}
@@ -501,6 +502,7 @@ export default function EmployerOrganizationForm({
                 ? 'Hide DNS Instructions'
                 : 'Verify via DNS Record'}
             </button>
+            )}
 
             {showQaControls && verificationStatus !== 'verified' && orgId && (
               <button
