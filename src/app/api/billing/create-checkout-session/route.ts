@@ -18,7 +18,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
   explorer: {
     id: 'explorer',
     name: 'Special Sauce - Explorer Plan ($5 One-Time Verification · $0/mo Forever)',
-    priceCents: 500,
+    priceCents: 0,
     billingMode: 'payment',
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER_5_ONETIME',
     defaultPriceId: 'price_1UYCkwLAill3LX5XeuEcLOxC',
