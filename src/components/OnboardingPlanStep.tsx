@@ -18,8 +18,8 @@ export default function OnboardingPlanStep({
     setErrorMsg(null)
     try {
       const payload = role === 'employer'
-        ? { role: 'employer', tier: planId, plan: planId, targetId: planId, targetPlan: planId, isTopUp: false, fromOnboarding: true }
-        : { role: 'candidate', tier: planId, plan: planId, targetId: planId, targetPlan: planId, fromOnboarding: true }
+        ? { role: 'employer', tierId: planId, tier: planId, plan: planId, targetId: planId, targetPlan: planId, isTopUp: false, fromOnboarding: true }
+        : { role: 'candidate', tierId: planId, tier: planId, plan: planId, targetId: planId, targetPlan: planId, fromOnboarding: true }
       const res = await fetch('/api/billing/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

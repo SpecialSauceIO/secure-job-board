@@ -234,8 +234,12 @@ function resolveCanonicalPriceId(envVarName: string, defaultPriceId: string): st
 }
 
 async function ensureEmployerOrganizationId(supabase: any, user: any): Promise<string | null> {
-  const autoOrgId = await ensureEmployerOrganizationId(supabase, user)
-      const member = autoOrgId ? { organization_id: autoOrgId } : null
+  const { data: member } = await supabase
+    .from('organization_members')
+    .select('organization_id')
+    .eq('user_id', user.id)
+    .limit(1)
+    .maybeSingle()
   if (member?.organization_id) return member.organization_id
   const emailDomain = (user.email || '').split('@')[1] || 'company.com'
   const defaultOrgName = user.user_metadata?.company_name || emailDomain.split('.')[0].toUpperCase() || 'New Organization'
@@ -264,7 +268,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const rawKey = (body?.tierId || body?.packId || '').toLowerCase().trim()
+    const rawKey = (body?.tierId || body?.packId || body?.tier || body?.plan || body?.targetId || '').toLowerCase().trim()
     const rateType = (body?.rateType || 'founding').toLowerCase().trim()
 
     const stripeKey =
