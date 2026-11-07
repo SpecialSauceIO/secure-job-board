@@ -1,3 +1,4 @@
+import { createClient as createAdminClient } from "@supabase/supabase-js"
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createClient } from '@/utils/supabase/server'
@@ -149,37 +150,31 @@ export async function PUT() {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ verified: false, error: 'Unauthorized' }, { status: 401 })
+    if (!user) return NextResponse.json({ verified: false, error: "Unauthorized" }, { status: 401 })
+    const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
+    const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+    const sbAdmin = sbUrl && sbKey ? createAdminClient(sbUrl, sbKey) : supabase
     const cookieStore = await cookies()
-    const vsCookie = cookieStore.get('stripe_vs_id')?.value
+    const vsCookie = cookieStore.get("stripe_vs_id")?.value
     let verifiedSession: any = null
     if (vsCookie) {
       const s = await stripe.identity.verificationSessions.retrieve(vsCookie).catch(() => null)
-      if (s && (s.status === 'verified' || s.status === 'processing')) verifiedSession = s
+      if (s && (s.status === "verified" || s.status === "processing")) verifiedSession = s
     }
     if (!verifiedSession) {
-      const list = await stripe.identity.verificationSessions.list({ limit: 10 })
-      verifiedSession = list.data.find((s) => (s.client_reference_id === user.id || s.metadata?.userId === user.id) && (s.status === 'verified' || s.status === 'processing'))
+      const list = await stripe.identity.verificationSessions.list({ limit: 15 })
+      verifiedSession = list.data.find((s) => (s.client_reference_id === user.id || s.metadata?.user_id === user.id) && (s.status === "verified" || s.status === "processing"))
     }
     if (verifiedSession) {
-      const sbAdmin = createSupabaseAdminClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-        process.env.SUPABASE_SERVICE_ROLE_KEY || '',
-        { auth: { persistSession: false } }
-      )
-      const { data: prof } = await sbAdmin.from('profiles').select('role').eq('id', user.id).maybeSingle()
-      const isEmp = prof?.role === 'employer'
-      await sbAdmin.from('profiles').update({ identity_verified: true, is_verified: true, ...(isEmp ? {} : { is_discoverable: true }) }).eq('id', user.id)
-      if (isEmp) {
-        const { data: mem } = await sbAdmin.from('organization_members').select('organization_id').eq('user_id', user.id).limit(1).maybeSingle()
-        if (mem?.organization_id) {
-          await sbAdmin.from('organizations').update({ verification_status: 'verified' }).eq('id', mem.organization_id)
-        }
+      await sbAdmin.from("profiles").update({ identity_verified: true, is_verified: true, updated_at: new Date().toISOString() }).eq("id", user.id)
+      const { data: mem } = await sbAdmin.from("organization_members").select("organization_id").eq("user_id", user.id).limit(1).maybeSingle()
+      if (mem?.organization_id) {
+        await sbAdmin.from("organizations").update({ verification_status: "verified" }).eq("id", mem.organization_id)
       }
       return NextResponse.json({ verified: true, status: verifiedSession.status })
     }
     return NextResponse.json({ verified: false })
-  } catch (e: any) {
-    return NextResponse.json({ verified: false, error: e?.message || 'Verification check failed' }, { status: 500 })
+  } catch (err: any) {
+    return NextResponse.json({ verified: false, error: err?.message || "Verification check failed" }, { status: 500 })
   }
 }

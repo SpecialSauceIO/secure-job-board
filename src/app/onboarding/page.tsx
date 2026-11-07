@@ -76,14 +76,22 @@ export default function OnboardingPage() {
       const sessionId = params.get('session_id') || undefined
       const identityStatus = params.get('identity')
 
-      if (identityStatus === 'complete') {
-        if (active) setStatusText('Confirming your government ID verification...')
-        try {
-          await fetch('/api/identity/create-session', { method: 'PUT' })
-        } catch (_) {}
-        window.location.href = '/dashboard'
-        return
-      }
+        if (identityStatus === "complete") {
+          if (active) setStatusText("Confirming your government ID verification...")
+          try {
+            const putRes = await fetch("/api/identity/create-session", { method: "PUT" })
+            const putData = await putRes.json().catch(() => ({}))
+            if (putData?.verified) {
+              window.location.href = "/dashboard"
+              return
+            }
+          } catch (_) {}
+          if (active) {
+            setAlreadyPaid(true)
+            setLoading(false)
+          }
+          return
+        }
 
       if (billingStatus === 'success' || billingStatus === 'verify_success') {
         if (active) setStatusText('Recording your plan and preparing ID verification...')
@@ -119,10 +127,10 @@ export default function OnboardingPage() {
         if (mem?.organization_id) {
           const { data: org } = await supabase
             .from('organizations')
-            .select('verification_status, subscription_tier')
+            .select('verification_status, subscription_tier, subscription_status')
             .eq('id', mem.organization_id)
             .single()
-          const orgPaid = Boolean(org?.verification_status === 'verified' || (org?.subscription_tier && org.subscription_tier !== 'free'))
+          const orgPaid = Boolean(org?.verification_status === 'verified' || org?.subscription_status === 'active' || (org?.subscription_tier && org.subscription_tier !== 'free'))
           if (orgPaid && Boolean(prof?.identity_verified || prof?.is_verified)) {
             router.replace('/dashboard')
             return
