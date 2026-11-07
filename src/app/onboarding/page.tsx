@@ -96,7 +96,7 @@ export default function OnboardingStepTwoPage() {
         }
         const tierStr = String((prof as any)?.subscription_tier || '').toLowerCase()
         const skillsArr = Array.isArray((prof as any)?.structured_skills) ? (prof as any).structured_skills : []
-        const hasPaidMeta = skillsArr.some((s: any) => s && typeof s === 'object' && s._type === 'ss_candidate_plan' && (s.verifiedExplorerPaid || ['explorer', 'professional', 'prestige'].includes(String(s.tier || '').toLowerCase())))
+        const hasPaidMeta = skillsArr.some((s: any) => s && typeof s === 'object' && ((s._type === 'ss_candidate_plan' && (s.verifiedExplorerPaid || ['explorer', 'professional', 'prestige'].includes(String(s.tier || '').toLowerCase()))) || (s._ss_meta === true && ['explorer', 'professional', 'prestige', 'pro'].includes(String(s.plan || '').toLowerCase()))))
         if (['explorer', 'professional', 'prestige'].includes(tierStr) || hasPaidMeta) {
           setAlreadyPaid(true)
         }

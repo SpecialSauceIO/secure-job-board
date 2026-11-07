@@ -653,9 +653,6 @@ export async function activateSandboxCandidateTier(
 
   const updatePayload: Record<string, any> = {
     structured_skills: updatedSkillsArray,
-    identity_verified: true,
-    is_verified: true,
-    is_discoverable: true,
   }
   if (normalizedMode === 'free') {
     updatePayload.is_verified = false
