@@ -6370,12 +6370,13 @@ export async function activateSandboxEmployerTier(
   stripeSessionId?: string
 ) {
   const supabase = await createClient()
+  const sbAdmin = createSupabaseAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL || '', process.env.SUPABASE_SERVICE_ROLE_KEY || '', { auth: { persistSession: false } })
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Unauthorized' }
 
-  const { data: member } = await supabase
+  const { data: member } = await sbAdmin
     .from('organization_members')
     .select('organization_id')
     .eq('user_id', user.id)
@@ -6385,9 +6386,9 @@ export async function activateSandboxEmployerTier(
   let orgId = member?.organization_id
   if (!orgId) {
     const fallbackName = user.user_metadata?.company_name || user.user_metadata?.full_name || (user.email ? user.email.split('@')[0] + ' Organization' : 'Verified Employer')
-    const { data: newOrg } = await supabase.from('organizations').insert({ name: fallbackName, verification_status: 'verified', subscription_status: 'verified_sandbox', subscription_tier: 'explorer' }).select('id').single()
+    const { data: newOrg } = await sbAdmin.from('organizations').insert({ name: fallbackName, verification_status: 'verified', subscription_status: 'verified_sandbox', subscription_tier: 'explorer' }).select('id').single()
     if (newOrg?.id) {
-      await supabase.from('organization_members').insert({ organization_id: newOrg.id, user_id: user.id, role: 'owner' })
+      await sbAdmin.from('organization_members').insert({ organization_id: newOrg.id, user_id: user.id, role: 'owner' })
       orgId = newOrg.id
     }
   }
@@ -6408,7 +6409,7 @@ export async function activateSandboxEmployerTier(
     }
   }
 
-  const { data: orgObj } = await supabase
+  const { data: orgObj } = await sbAdmin
     .from('organizations')
     .select('*')
     .eq('id', orgId)
@@ -6464,7 +6465,7 @@ export async function activateSandboxEmployerTier(
     })
   } catch {}
 
-  const { error: baseErr } = await supabase
+  const { error: baseErr } = await sbAdmin
     .from('organizations')
     .update({
       connection_credits: newCredits,
@@ -6472,10 +6473,10 @@ export async function activateSandboxEmployerTier(
     })
     .eq('id', orgId)
 
-  await supabase
+  await sbAdmin
     .from('organizations')
     .update({
-      subscription_tier: targetTier === 'free' && stripeSessionId ? 'explorer' : targetTier,
+      subscription_tier: targetTier,
       ...((targetTier !== 'free' || Boolean(stripeSessionId)) ? { verification_status: 'verified' } : {}),
     })
     .eq('id', orgId)
