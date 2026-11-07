@@ -85,14 +85,15 @@ export default function OnboardingPage() {
         return
       }
 
-      if (billingStatus === 'success') {
+      if (billingStatus === 'success' || billingStatus === 'verify_success') {
         if (active) setStatusText('Recording your plan and preparing ID verification...')
         if (resolvedRole === 'candidate' && planParam) {
           await activateSandboxCandidateTier(planParam as any, sessionId)
           await launchStripeIdentityOrEnterDashboard()
           return
         } else if (resolvedRole === 'employer') {
-          await activateSandboxEmployerTier('free', sessionId)
+          const empTarget = (planParam && ['starter', 'growth', 'enterprise'].includes(planParam)) ? (planParam as any) : 'free'
+          await activateSandboxEmployerTier(empTarget, sessionId)
           await launchStripeIdentityOrEnterDashboard()
           return
         }

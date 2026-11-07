@@ -376,7 +376,7 @@ export async function POST(req: Request) {
           tierId: 'employer_verify',
         },
         line_items: [
-          catalogPriceId
+          (catalogPriceId && EMPLOYER_VERIFICATION_PASS.priceCents > 0)
             ? { price: catalogPriceId, quantity: 1 }
             : {
                 price_data: {
@@ -394,7 +394,7 @@ export async function POST(req: Request) {
         allow_promotion_codes: true,
         billing_address_collection: 'auto',
         tax_id_collection: { enabled: true },
-        invoice_creation: { enabled: true },
+        ...(EMPLOYER_VERIFICATION_PASS.priceCents > 0 ? { invoice_creation: { enabled: true } } : {}),
         success_url: body?.fromOnboarding ? `${origin}/onboarding?billing=verify_success&session_id={CHECKOUT_SESSION_ID}` : `${origin}/dashboard/employer/billing?billing=verify_success&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: body?.fromOnboarding ? `${origin}/onboarding?billing=cancelled` : `${origin}/dashboard/employer/billing?billing=cancelled`,
       })
