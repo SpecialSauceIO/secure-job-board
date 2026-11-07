@@ -1,3 +1,4 @@
+import { createClient as createSupabaseAdmin } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createClient } from '@/utils/supabase/server'
@@ -234,25 +235,52 @@ function resolveCanonicalPriceId(envVarName: string, defaultPriceId: string): st
 }
 
 async function ensureEmployerOrganizationId(supabase: any, user: any): Promise<string | null> {
-  const { data: member } = await supabase
+  const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const srvKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  const db = (sbUrl && srvKey) ? createSupabaseAdmin(sbUrl, srvKey, { auth: { persistSession: false } }) : supabase
+
+  const { data: existing } = await db
     .from('organization_members')
     .select('organization_id')
     .eq('user_id', user.id)
     .limit(1)
     .maybeSingle()
-  if (member?.organization_id) return member.organization_id
-  const emailDomain = (user.email || '').split('@')[1] || 'company.com'
-  const defaultOrgName = user.user_metadata?.company_name || emailDomain.split('.')[0].toUpperCase() || 'New Organization'
-  const { data: newOrg } = await supabase
+  if (existing?.organization_id) return existing.organization_id
+
+  const emailStr = String(user.email || '')
+  const emailDomain = (emailStr.split('@')[1] || '').toLowerCase()
+  const fallbackName =
+    user.user_metadata?.company_name ||
+    user.user_metadata?.organization_name ||
+    user.user_metadata?.full_name ||
+    (emailStr.split('@')[0] ? `${emailStr.split('@')[0]} Organization` : 'Employer Organization')
+
+  const { data: newOrg, error: orgErr } = await db
     .from('organizations')
-    .insert({ name: defaultOrgName, website_domain: emailDomain, verification_status: 'unverified', subscription_tier: 'free' })
+    .insert({
+      name: fallbackName,
+      domain: emailDomain || null,
+      subscription_tier: 'free',
+    })
     .select('id')
     .single()
-  if (newOrg?.id) {
-    await supabase.from('organization_members').insert({ organization_id: newOrg.id, user_id: user.id, role: 'owner' })
-    return newOrg.id
+
+  if (orgErr || !newOrg?.id) {
+    console.error('[ensureEmployerOrganizationId] org insert error:', orgErr)
+    return null
   }
-  return null
+
+  const { error: memErr } = await db
+    .from('organization_members')
+    .insert({
+      organization_id: newOrg.id,
+      user_id: user.id,
+      role: 'owner',
+    })
+  if (memErr) {
+    console.error('[ensureEmployerOrganizationId] member insert error:', memErr)
+  }
+  return newOrg.id
 }
 
 export async function POST(req: Request) {
