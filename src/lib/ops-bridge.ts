@@ -171,7 +171,7 @@ export async function loadMergedOpsVault(
         new Date(b.created_at || 0).getTime() -
         new Date(a.created_at || 0).getTime()
     )
-    vault.behavioral_flags = Array.from(flagMap.values()).sort(
+    vault.behavioral_flags = Array.from(flagMap.values()).map((flag: any) => { const suffix = String(flag.id || "").replace(/^FLG-/, ""); const pairedSec = itemMap.get("SEC-" + suffix); if (!pairedSec || pairedSec.state === "closed" || pairedSec.status === "resolved") { return { ...flag, status: flag.status === "enforced" ? "enforced" : "dismissed" }; } return flag; }).sort(
       (a, b) =>
         new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
     )
