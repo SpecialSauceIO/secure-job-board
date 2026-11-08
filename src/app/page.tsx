@@ -274,7 +274,7 @@ export default function LandingPage() {
                   True Market Fit.
                 </span>
                 <br />
-                Verify Once. Explore at $0/mo.
+                Verify Once. Explore for FREE.
               </h1>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
                 Get verified once ($5 Professionals / $25 Employers) to browse, check your fit, and receive invitations at $0/mo. Upgrade only when you want to actively apply or hire.
