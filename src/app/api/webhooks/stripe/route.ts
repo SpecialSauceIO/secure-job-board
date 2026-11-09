@@ -3,13 +3,13 @@ import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { recordHandshakeTelemetry, raiseSecurityAlertAndFlag } from '@/lib/security-telemetry'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_build_placeholder', {
   apiVersion: '2026-09-30.endive' as any,
 })
 
 const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'build_placeholder'
 )
 
 function parseRolloverCreditsTag(desc?: string | null): number {

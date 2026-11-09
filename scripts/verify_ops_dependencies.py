@@ -159,6 +159,16 @@ check(
     f"Files with imports before use client: {bad_client_files}",
 )
 
+# Tab 10: Module-level SDK build guard (prevent Vercel Preview build crashes when env vars are missing at page-data collection)
+wh_file = job_repo / "src/app/api/webhooks/stripe/route.ts"
+if wh_file.exists():
+    wh_c = wh_file.read_text()
+    check(
+        "new Stripe(process.env.STRIPE_SECRET_KEY!" not in wh_c and "process.env.SUPABASE_SERVICE_ROLE_KEY!" not in wh_c.split("export async function")[0],
+        "Tab 10: Stripe webhook uses build-safe env fallbacks for Vercel Preview builds",
+        "webhooks/stripe/route.ts contains unguarded module-level env vars",
+    )
+
 if failures:
     print(f"\n[DEPENDENCY GUARD FAILED] {len(failures)} issue(s) detected.")
     sys.exit(1)
