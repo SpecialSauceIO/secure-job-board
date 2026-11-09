@@ -271,25 +271,15 @@ export default function EmployerCandidateSearch({
     }
 
     try {
-      const savedPageSize = Number(localStorage.getItem('ss_candidates_per_page_v2'))
+      const savedPageSize = Number(localStorage.getItem("ss_candidates_per_page_v2"))
       if ([5, 10, 25, 50].includes(savedPageSize)) setItemsPerPage(savedPageSize)
-      const savedMatches = localStorage.getItem('ss_emp_match_cache_v2')
-      if (savedMatches) {
-        const parsed = JSON.parse(savedMatches)
-        if (parsed && typeof parsed === 'object') setMatchCacheMap(parsed)
-      }
-      const savedJobMap = localStorage.getItem('ss_emp_cand_job_map_v1')
-      if (savedJobMap) {
-        const parsedJobs = JSON.parse(savedJobMap)
-        if (parsedJobs && typeof parsedJobs === 'object') setCandidateJobMap(parsedJobs)
-      }
     } catch {}
 
     const fetchInitial = async () => {
       setIsLoading(true)
       try {
         const [result, bookmarks] = await Promise.all([
-          searchCandidates('', '', ''),
+          searchCandidates("", "", ""),
           getUserBookmarks(),
         ])
         if (result?.data) setCandidates(result.data)
@@ -297,49 +287,51 @@ export default function EmployerCandidateSearch({
           setSavedCandidateIds(bookmarks.savedCandidateIds)
         }
       } catch (err) {
-        console.error('Error loading candidates:', err)
+        console.error("Error loading candidates:", err)
       } finally {
         setIsLoading(false)
       }
 
-      // Only fetch remote backup cache if localStorage is empty (avoids queuing extra Server Action on mount)
-      const hasLocalCache = Boolean(localStorage.getItem('ss_emp_match_cache_v2'))
-      if (!hasLocalCache) getPersistedMatchCache()
+      getPersistedMatchCache()
         .then((persisted) => {
-          if (!persisted?.cache) return
+          const rawCache = persisted?.cache && typeof persisted.cache === "object" ? persisted.cache : {}
           const empEntries: Record<string, any> = {}
           const jobEntries: Record<string, string> = {}
-          for (const [k, v] of Object.entries(persisted.cache)) {
-            if (k.startsWith('emp_') && v && typeof v === 'object') {
-              const rest = k.slice('emp_'.length)
+          for (const [k, v] of Object.entries(rawCache)) {
+            if (k.startsWith("emp_") && v && typeof v === "object") {
+              const rest = k.slice("emp_".length)
               empEntries[rest] = v
-              const lastUnderscore = rest.lastIndexOf('_')
+              const lastUnderscore = rest.lastIndexOf("_")
               if (lastUnderscore !== -1) {
                 const cId = rest.slice(0, lastUnderscore)
                 const jId = rest.slice(lastUnderscore + 1)
-                jobEntries[cId] = jId
+                if (cId && jId) jobEntries[cId] = jId
               }
             }
           }
-          if (Object.keys(empEntries).length > 0) {
-            setMatchCacheMap((prev) => {
-              const merged = { ...empEntries, ...prev }
-              try {
-                localStorage.setItem('ss_emp_match_cache_v2', JSON.stringify(merged))
-              } catch {}
-              return merged
-            })
-            setCandidateJobMap((prev) => {
-              const mergedJobs = { ...jobEntries, ...prev }
-              try {
-                localStorage.setItem('ss_emp_cand_job_map_v1', JSON.stringify(mergedJobs))
-              } catch {}
-              return mergedJobs
-            })
+          if (Object.keys(empEntries).length === 0) {
+            try {
+              localStorage.removeItem("ss_emp_match_cache_v2")
+              localStorage.removeItem("ss_emp_cand_job_map_v1")
+            } catch {}
+            setMatchCacheMap({})
+            setCandidateJobMap({})
+            return
+          }
+          setMatchCacheMap(empEntries)
+          try {
+            localStorage.setItem("ss_emp_match_cache_v2", JSON.stringify(empEntries))
+          } catch {}
+          if (Object.keys(jobEntries).length > 0) {
+            setCandidateJobMap(jobEntries)
+            try {
+              localStorage.setItem("ss_emp_cand_job_map_v1", JSON.stringify(jobEntries))
+            } catch {}
           }
         })
         .catch(() => {})
     }
+
     fetchInitial()
   }, [])
 
