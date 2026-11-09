@@ -3980,104 +3980,79 @@ function buildDeterministicFallbackMatch(
 async function analyzeMatchRouter(
   profile: any,
   job: any,
-  viewerRole: 'candidate' | 'employer' = 'candidate'
+  viewerRole: "candidate" | "employer" = "candidate"
 ): Promise<{ data?: any; error?: string }> {
   const prompt = getMatchPrompt(profile, job, viewerRole)
   const groqKey = cleanEnvKey(process.env.GROQ_API_KEY)
   const geminiKey = cleanEnvKey(process.env.GEMINI_API_KEY)
-
-  // Tier 1: Groq openai/gpt-oss-120b (~650ms response time)
   if (groqKey) {
     try {
-      const groq = new Groq({ apiKey: groqKey })
+      const groq = new Groq({ apiKey: groqKey, timeout: 4500, maxRetries: 0 })
       const chatCompletion = await withTimeout(
         groq.chat.completions.create({
           messages: [
-            {
-              role: 'system',
-              content:
-                'You are a rigorous technical recruiter and data analyst. Output strictly valid JSON matching the requested schema. Never inflate scores for unrelated domains.',
-            },
-            { role: 'user', content: prompt },
+            { role: "system", content: "You are a rigorous technical recruiter and data analyst. Output strictly valid JSON only." },
+            { role: "user", content: prompt },
           ],
           model: "openai/gpt-oss-120b",
           temperature: 0.1,
-          max_tokens: 900,
-          response_format: { type: 'json_object' },
+          max_tokens: 2048,
+          response_format: { type: "json_object" },
         }),
-        6000,
-        'Tier 1 (Groq openai/gpt-oss-120b)'
+        4800,
+        "Tier 1 (Groq openai/gpt-oss-120b)"
       )
-
-      if (chatCompletion.choices[0]?.message?.content) {
-        const parsed = parseAiResponse(chatCompletion.choices[0].message.content, profile, job)
-        return { data: parsed }
+      const rawContent = chatCompletion.choices[0]?.message?.content?.trim()
+      if (rawContent) {
+        return { data: parseAiResponse(rawContent, profile, job) }
       }
     } catch (error: any) {
-      console.warn(`[${viewerRole}] Groq Tier 1 (openai/gpt-oss-120b) skipped:`, error.message || error)
+      console.warn(viewerRole, "Groq Tier 1 skipped:", error.message || error)
     }
-
-    // Tier 2: Groq qwen/qwen3.8-27b (~250ms high-availability fallback)
     try {
-      const groq = new Groq({ apiKey: groqKey })
+      const groq = new Groq({ apiKey: groqKey, timeout: 3800, maxRetries: 0 })
       const backupCompletion = await withTimeout(
         groq.chat.completions.create({
           messages: [
-            {
-              role: 'system',
-              content:
-                'You are a rigorous technical recruiter and data analyst. Output strictly valid JSON matching the requested schema.',
-            },
-            { role: 'user', content: prompt },
+            { role: "system", content: "You are a rigorous technical recruiter and data analyst. Output strictly valid JSON only." },
+            { role: "user", content: prompt },
           ],
           model: "openai/gpt-oss-20b",
           temperature: 0.1,
-          max_tokens: 900,
-          response_format: { type: 'json_object' },
+          max_tokens: 2048,
+          response_format: { type: "json_object" },
         }),
-        5000,
-        'Tier 2 (Groq qwen/qwen3.8-27b)'
+        4000,
+        "Tier 2 (Groq openai/gpt-oss-20b)"
       )
-
-      if (backupCompletion.choices[0]?.message?.content) {
-        const parsed = parseAiResponse(backupCompletion.choices[0].message.content, profile, job)
-        return { data: parsed }
+      const rawBackup = backupCompletion.choices[0]?.message?.content?.trim()
+      if (rawBackup) {
+        return { data: parseAiResponse(rawBackup, profile, job) }
       }
     } catch (error: any) {
-      console.warn(`[${viewerRole}] Groq Tier 2 (qwen/qwen3.8-27b) skipped:`, error.message || error)
+      console.warn(viewerRole, "Groq Tier 2 skipped:", error.message || error)
     }
   }
-
-  // Tier 3: Gemini 3.8 Flash
-  if (geminiKey) {
+  if (geminiKey && geminiKey.startsWith("AIza")) {
     try {
       const ai = new GoogleGenAI({ apiKey: geminiKey })
       const response = await withTimeout(
         ai.models.generateContent({
-          model: 'gemini-3.8-flash',
+          model: "gemini-2.5-flash",
           contents: prompt,
-          config: {
-            responseMimeType: 'application/json',
-            thinkingConfig: { thinkingBudget: 0 },
-          },
+          config: { responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 0 } },
         }),
-        6500,
-        'Tier 3 (gemini-3.8-flash)'
+        4000,
+        "Tier 3 (gemini-2.5-flash)"
       )
-
       if (response.text) {
-        const parsed = parseAiResponse(response.text, profile, job)
-        return { data: parsed }
+        return { data: parseAiResponse(response.text, profile, job) }
       }
     } catch (error: any) {
-      console.warn(`[${viewerRole}] Gemini Tier 3 skipped:`, error.message || error)
+      console.warn(viewerRole, "Gemini Tier 3 skipped:", error.message || error)
     }
   }
-
-  // Tier 4: Calibrated 5-Point mathematical engine fallback
-  return {
-    data: buildDeterministicFallbackMatch(profile, job, viewerRole),
-  }
+  return { data: buildDeterministicFallbackMatch(profile, job, viewerRole) }
 }
 
 // ------------------------------------------------------------------
