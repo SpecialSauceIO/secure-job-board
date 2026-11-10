@@ -198,9 +198,9 @@ export function SecurityTrustClient() {
               </>
             ) : (
               <>
-                <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+                <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
                   How Special Sauce Works <span className="text-indigo-400">Under the Hood</span>
-                </h1>
+                </h2>
                 <p className="text-slate-100 text-base sm:text-xl leading-relaxed max-w-3xl">
                   Full technical documentation covering our AES-256 storage encryption, TLS 1.3 transport security, Stripe Identity biometric isolation, PostgreSQL Row-Level Security (RLS), and anti-scraping guardrails.
                 </p>

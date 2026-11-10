@@ -53,6 +53,13 @@ export function PublicFooter() {
             © {new Date().getFullYear()} {LEGAL_CONFIG.legalEntityName}. All rights reserved.
           </p>
         </div>
+        <div className="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
+          <a href="https://www.linkedin.com/company/specialsauceio/" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 dark:hover:text-white transition-colors">LinkedIn</a>
+          <a href="https://x.com/specialsauceio" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 dark:hover:text-white transition-colors">X</a>
+          <a href="https://www.youtube.com/channel/UCIAZM_kRqw0t1aPn1UFvneQ" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 dark:hover:text-white transition-colors">YouTube</a>
+          <a href="https://www.instagram.com/specialsauce.io/" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 dark:hover:text-white transition-colors">Instagram</a>
+          <a href="https://www.facebook.com/profile.php?id=61595271106490" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 dark:hover:text-white transition-colors">Facebook</a>
+        </div>
       </div>
     </footer>
   )

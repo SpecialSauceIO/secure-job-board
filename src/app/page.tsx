@@ -156,14 +156,14 @@ export default function LandingPage() {
                 </span>
                 Verified Professionals • Verified Employers
               </div>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
                 No More Bots.{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FB923C] to-[#EA580C]">
                   No More Spam.
                 </span>
                 <br />
                 No More Scams.
-              </h1>
+              </h2>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
                 Every professional and employer is verified before connecting—so real people talk directly with real hiring teams.
               </p>
@@ -184,14 +184,14 @@ export default function LandingPage() {
                 </span>
                 You Control Your Privacy
               </div>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
                 Start With{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#38BDF8] to-[#0077D4]">
                   An Introduction.
                 </span>
                 <br />
                 Share Your Resume When Ready.
-              </h1>
+              </h2>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
                 Chat first using only your first name and last initial. Share your full resume and contact details only when you want to move forward.
               </p>
@@ -212,14 +212,14 @@ export default function LandingPage() {
                 </span>
                 30-Day Fresh Listings • No Resume Harvesting
               </div>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
                 Zero{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FB923C] to-[#EA580C]">
                   Ghost Jobs.
                 </span>
                 <br />
                 No resume harvesting.
-              </h1>
+              </h2>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
                 Every job listing expires after 30 days, and every role shows upfront pay—so you never waste time on dead listings.
               </p>
@@ -240,14 +240,14 @@ export default function LandingPage() {
                 </span>
                 For Hiring Managers &amp; Recruiting Teams
               </div>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
                 Hire for{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#38BDF8] to-[#0077D4]">
                   True Fit.
                 </span>
                 <br />
                 Skip the resume pile.
-              </h1>
+              </h2>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
                 Stop sorting through unqualified spam. Every applicant is a verified professional matched to your required skills, pay range, and work model.
               </p>
@@ -268,14 +268,14 @@ export default function LandingPage() {
                 </span>
                 One-Time Verification • $0/Mo Explorer Mode
               </div>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
                 See Your{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FB923C] to-[#EA580C]">
                   True Market Fit.
                 </span>
                 <br />
                 Verify Once. Explore for FREE.
-              </h1>
+              </h2>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
                 Get verified once ($5 Professionals / $25 Employers) to browse, check your fit, and receive invitations at $0/mo. Upgrade only when you want to actively apply or hire.
               </p>

@@ -3,7 +3,8 @@ import { PublicFooter } from '@/components/PublicFooter'
 import { LEGAL_CONFIG } from '@/constants/legal'
 
 export const metadata = {
-  title: 'Privacy Policy | specialsauce.io',
+  alternates: { canonical: "/privacy" },
+  title: 'Privacy Policy',
   description:
     'How Special Sauce collects, uses, and protects your data through our Private Resume Vault and Stripe ID protection.',
 }

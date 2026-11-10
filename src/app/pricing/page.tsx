@@ -3,7 +3,8 @@ import { PublicHeader } from "@/components/PublicHeader"
 import { PublicFooter } from "@/components/PublicFooter"
 
 export const metadata = {
-  title: "Pricing & Plans | specialsauce.io",
+  alternates: { canonical: "/pricing" },
+  title: "Pricing & Plans",
   description:
     "Verify once ($5 Professionals / $25 Employers) to match free in Explorer mode, or activate Professional ($12 or $19/mo) and Employer plans ($149, $499, or $1,250/mo) when ready.",
 }

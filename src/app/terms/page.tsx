@@ -3,7 +3,8 @@ import { PublicFooter } from '@/components/PublicFooter'
 import { LEGAL_CONFIG } from '@/constants/legal'
 
 export const metadata = {
-  title: 'Terms of Service | specialsauce.io',
+  alternates: { canonical: "/terms" },
+  title: 'Terms of Service',
   description:
     'Special Sauce Terms of Service, Private Resume Vault Rules, 30-Day Job Expiration Policy, Intellectual Property Notice, and Acceptable Use Policy.',
 }

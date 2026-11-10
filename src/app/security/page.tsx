@@ -3,7 +3,8 @@ import { PublicFooter } from "@/components/PublicFooter"
 import { SecurityTrustClient } from "@/components/SecurityTrustClient"
 
 export const metadata = {
-  title: "Security & Privacy Architecture | specialsauce.io",
+  alternates: { canonical: "/security" },
+  title: "Security & Privacy",
   description: "How Special Sauce protects your identity, resume, and time\u2014with both a plain-language overview and full AES-256, TLS 1.3, Stripe Identity, and RLS technical specifications.",
 }
 

@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/dashboard', '/dashboard/', '/api/', '/auth/'],
+      disallow: ['/onboarding', '/onboarding/', '/dashboard', '/dashboard/', '/api/', '/auth/'],
     },
     sitemap: 'https://www.specialsauce.io/sitemap.xml',
   }

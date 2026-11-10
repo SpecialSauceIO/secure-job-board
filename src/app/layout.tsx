@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import "./globals.css"
 import { Suspense } from "react"
 import MarketingPixels from "@/components/MarketingPixels";
+import SeoJsonLd from "@/components/SeoJsonLd";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const geistSans = Geist({
@@ -19,29 +20,38 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.specialsauce.io"),
   title: {
-    template: "%s | Special Sauce",
-    default: "Special Sauce | Welcome to your future",
+    template: "%s | SpecialSauce.io",
+    default: "SpecialSauce.io | Verified Job Marketplace for Professionals & Employers",
   },
-  description:
-    "The 100% human-to-human, identity-protected hiring marketplace that connects ID-verified professionals and verified employers based purely on skills and experience.",
-  applicationName: "Special Sauce",
+  description: "SpecialSauce.io is the verified job marketplace securely connecting ID-verified professionals and verified employers based on real skills, upfront pay, and mutual interest.",
+  applicationName: "SpecialSauce.io",
+  keywords: ["SpecialSauce.io", "Special Sauce", "Special Sauce jobs", "Special Sauce hiring", "verified job marketplace", "verified professionals", "verified employers", "skill matching job board"],
   alternates: {
     canonical: "/",
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   openGraph: {
-    title: "Special Sauce | Welcome to your future",
-    description:
-      "Bypass the resume black hole. Connect through identity-protected TrueFit Score™ skill matching and professional-controlled identity vault release.",
+    title: "SpecialSauce.io | Verified Job Marketplace for Professionals & Employers",
+    description: "Connect directly with ID-verified professionals and verified employers based on real skills and upfront pay while keeping personal details private until you choose to unlock them.",
     url: "https://www.specialsauce.io",
-    siteName: "Special Sauce",
+    siteName: "SpecialSauce.io",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Special Sauce | Welcome to your future",
-    description:
-      "100% Human-to-Human, identity-protected hiring. Connect directly with verified professionals and employers—zero bots or black holes.",
+    title: "SpecialSauce.io | Verified Job Marketplace for Professionals & Employers",
+    description: "Securely connecting ID-verified professionals and verified employers based on real skills, upfront pay, and mutual interest.",
   },
 };
 
@@ -91,6 +101,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Suspense fallback={null}>
           <MarketingPixels />
         </Suspense>
+        <SeoJsonLd />
       </body>
     </html>
   );
