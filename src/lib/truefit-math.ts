@@ -57,6 +57,12 @@ const CANONICAL_PHRASE_REPLACEMENTS: Array<[RegExp, string]> = [
   [/\b(?:service\s+desk|help\s+desk|it\s+support|technical\s+support)\b/g, "servicedesk"],
   [/\b(?:design\s+systems?)\b/g, "phrase_design_systems"],
   [/\b(?:supply\s+chain)\b/g, "supplychain"],
+  [/\b(?:next\.?js)\b/g, "nextjs"],
+  [/\b(?:node\.?js)\b/g, "nodejs"],
+  [/\b(?:react\.?js|reactjs)\b/g, "react"],
+  [/\b(?:vue\.?js|vuejs)\b/g, "vuejs"],
+  [/\b(?:postgres|postgresql)\b/g, "postgresql"],
+  [/\b(?:iac|infrastructure\s+as\s+code)\b/g, "terraform"],
 ]
 
 const DIRECTIONAL_PHRASE_ADJACENCY: Array<{ have: string; need: string; score: number; tenureFactor: number }> = [
@@ -76,6 +82,18 @@ const DIRECTIONAL_PHRASE_ADJACENCY: Array<{ have: string; need: string; score: n
   { have: "gcp", need: "aws", score: 0.58, tenureFactor: 0.55 },
   { have: "azure", need: "m365", score: 0.68, tenureFactor: 0.65 },
   { have: "m365", need: "azure", score: 0.52, tenureFactor: 0.50 },
+  { have: "react", need: "nextjs", score: 0.72, tenureFactor: 0.75 },
+  { have: "nextjs", need: "react", score: 0.90, tenureFactor: 0.90 },
+  { have: "typescript", need: "nodejs", score: 0.65, tenureFactor: 0.65 },
+  { have: "javascript", need: "nodejs", score: 0.62, tenureFactor: 0.60 },
+  { have: "nodejs", need: "typescript", score: 0.65, tenureFactor: 0.65 },
+  { have: "nodejs", need: "javascript", score: 0.85, tenureFactor: 0.85 },
+  { have: "postgresql", need: "sql", score: 0.90, tenureFactor: 0.90 },
+  { have: "sql", need: "postgresql", score: 0.72, tenureFactor: 0.70 },
+  { have: "postgresql", need: "mysql", score: 0.78, tenureFactor: 0.80 },
+  { have: "mysql", need: "postgresql", score: 0.78, tenureFactor: 0.80 },
+  { have: "kubernetes", need: "docker", score: 0.85, tenureFactor: 0.85 },
+  { have: "docker", need: "kubernetes", score: 0.58, tenureFactor: 0.55 },
 ]
 
 export const DOMAIN_SYNONYM_GROUPS: string[][] = [
@@ -143,6 +161,16 @@ function lookupDirectionalAdjacency(candTokens: Iterable<string>, reqToken: stri
   return best
 }
 
+const CERT_VENDOR_FAMILIES: RegExp[] = [
+  /\baws\s+certified\b/,
+  /\b(?:microsoft\s+certified|az-\d+|ms-\d+)\b/,
+  /\b(?:google\s+cloud\s+certified|professional\s+cloud)\b/,
+  /\b(?:pmp|pgmp|capm|pmi)\b/,
+  /\b(?:comptia|security\+|network\+|a\+)\b/,
+  /\b(?:cissp|cism|cisa|sec\+)\b/,
+  /\b(?:csm|cspo|psm|safe\s+agilist)\b/,
+]
+
 export function evaluateCertificationMatch(
   candCertsLower: string,
   candFullCorpusLower: string,
@@ -154,12 +182,15 @@ export function evaluateCertificationMatch(
     .filter((x) => x && x !== "none" && x !== "none specified" && x !== "n/a")
   if (reqItems.length === 0) return { matchedCount: 0, totalRequired: 0 }
   let matched = 0
-  const combinedCand = canonicalizeSkillText(candCertsLower + " " + candFullCorpusLower)
+  const rawCandCombined = (candCertsLower + " " + candFullCorpusLower).toLowerCase()
+  const combinedCand = canonicalizeSkillText(rawCandCombined)
   for (const reqItem of reqItems) {
     const canonReq = canonicalizeSkillText(reqItem)
     const reqTokens = canonReq.split(/[^a-z0-9+#_]+/).filter((w) => w.length >= 2)
     if (combinedCand.includes(canonReq) || (reqTokens.length > 0 && reqTokens.every((rt) => combinedCand.includes(rt)))) {
-      matched += 1
+      matched += 1.0
+    } else if (CERT_VENDOR_FAMILIES.some((rx) => rx.test(reqItem) && rx.test(rawCandCombined))) {
+      matched += 0.75
     }
   }
   return { matchedCount: matched, totalRequired: reqItems.length }
@@ -176,7 +207,15 @@ function resolveReqWeightAndTargetYears(levelRaw: string, explicitYears: number,
   return { weight: 1.5, reqTargetYears: explicitYears > 0 ? explicitYears : Math.min(roleTargetYears, 3.5), isExpert: false }
 }
 
-export function computeMultiVariablePillarBaseline(profile: any, job: any): TrueFitBaselineResult {
+export function computeMultiVariablePillarBaseline(rawProfile: any, rawJob: any): TrueFitBaselineResult {
+  const prefMeta = Array.isArray(rawProfile?.structured_skills)
+    ? rawProfile.structured_skills.find((s: any) => s && typeof s === "object" && s._ss_pref_meta === true) || {}
+    : {}
+  const jobMeta = Array.isArray(rawJob?.structured_requirements)
+    ? rawJob.structured_requirements.find((r: any) => r && typeof r === "object" && r._ss_job_meta === true) || {}
+    : (rawJob?.job_meta || {})
+  const profile = { ...prefMeta, ...rawProfile, industry_vertical: rawProfile?.industry_vertical || prefMeta?.industry_vertical, education_level: rawProfile?.education_level || prefMeta?.education_level, certifications: rawProfile?.certifications || prefMeta?.certifications, availability_window: rawProfile?.availability_window || prefMeta?.availability_window, languages: rawProfile?.languages || prefMeta?.languages }
+  const job = { ...jobMeta, ...rawJob, industry: rawJob?.industry || jobMeta?.industry, experience_level: rawJob?.experience_level || jobMeta?.experience_level, education_req: rawJob?.education_req || jobMeta?.education_req, required_certifications: rawJob?.required_certifications || jobMeta?.required_certifications, required_languages: rawJob?.required_languages || jobMeta?.required_languages, pay_type: rawJob?.pay_type || jobMeta?.pay_type }
   const expLevelRaw = String(job?.experience_level || job?.job_meta?.experience_level || "Senior (5-8 yrs)").toLowerCase()
   let roleTargetYears = 5.0
   if (expLevelRaw.includes("entry") || expLevelRaw.includes("0-2") || expLevelRaw.includes("0–2")) roleTargetYears = 1.5
@@ -186,7 +225,7 @@ export function computeMultiVariablePillarBaseline(profile: any, job: any): True
   else if (expLevelRaw.includes("executive") || expLevelRaw.includes("director")) roleTargetYears = 10.0
 
   const structuredSkills = Array.isArray(profile?.structured_skills)
-    ? profile.structured_skills.filter((s: any) => !s?._ss_pref_meta && (s?.skill || s?.name))
+    ? profile.structured_skills.filter((s: any) => !s?._ss_pref_meta && !s?._ss_meta && (s?.skill || s?.name))
     : []
 
   const candSkillEntries = structuredSkills.map((s: any) => {
@@ -228,7 +267,7 @@ export function computeMultiVariablePillarBaseline(profile: any, job: any): True
 
   const jobReqs: Array<{ name: string; level: string; years: number }> = Array.isArray(job?.structured_requirements)
     ? job.structured_requirements
-        .filter((r: any) => !r?._ss_job_meta && (r?.skill || r?.name))
+        .filter((r: any) => !r?._ss_job_meta && !String(r?.skill || r?.name || "").startsWith("__SS_") && (r?.skill || r?.name))
         .map((r: any) => ({
           name: String(r?.skill || r?.name || "").toLowerCase().trim(),
           level: String(r?.level || "Intermediate"),
@@ -332,7 +371,7 @@ export function computeMultiVariablePillarBaseline(profile: any, job: any): True
 
     if (cappedReqScore >= 0.45) {
       earnedWeightedUnits += weight * cappedReqScore
-      matchedWeightSum += weight
+      matchedWeightSum += weight * (cappedReqScore >= 0.85 ? 1.0 : cappedReqScore)
       reqMatchCount += 1
       if (bestEffectiveYears > 0) {
         const skillDepthRatio = Math.min(1.15, bestEffectiveYears / Math.max(1.0, reqTargetYears))
@@ -479,7 +518,7 @@ export function computeMultiVariablePillarBaseline(profile: any, job: any): True
   )
   if (isZero) detOverall = Math.min(detOverall, competencyScore + 4, 20)
   else if (competencyScore < 48) detOverall = Math.min(detOverall, competencyScore + 6, 46)
-  else if (competencyScore < 68) detOverall = Math.min(detOverall, competencyScore + 6)
+  else if (competencyScore < 62) detOverall = Math.min(detOverall, competencyScore + 10)
   detOverall = Math.max(8, Math.min(99, detOverall))
 
   return {
@@ -573,8 +612,8 @@ export function normalizeTrueFitScores(rawMatchData: any, profile?: any, job?: a
     weightedOverall = Math.min(weightedOverall, coreScore + 4, 20)
   } else if (coreScore < 48) {
     weightedOverall = Math.min(weightedOverall, coreScore + 6, 46)
-  } else if (coreScore < 68) {
-    weightedOverall = Math.min(weightedOverall, coreScore + 6)
+  } else if (coreScore < 62) {
+    weightedOverall = Math.min(weightedOverall, coreScore + 10)
   }
 
   if (!isZeroSkillMismatch && baseline.deterministicOverall >= 40 && rawAiCore >= 35 && weightedOverall < 40) {
