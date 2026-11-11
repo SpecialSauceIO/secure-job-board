@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react'
 
 export function StructuredSkillEditor({ initialSkills = [] }: { initialSkills?: any[] }) {
   const [skills, setSkills] = useState<{skill: string, years: number | string}[]>([])
+  const initialSig = JSON.stringify(initialSkills || [])
+  useEffect(() => {
+    setSkills(Array.isArray(initialSkills) ? initialSkills : [])
+  }, [initialSig])
 
   // This ensures the UI instantly updates when the AI finishes scanning the resume
   useEffect(() => {

@@ -101,6 +101,7 @@ export default function NewJobPage() {
   }, [router])
 
   const handleAiData = (data: any) => {
+    const matchOpt = (val: any, opts: string[], fb: string) => { if (typeof val === "string" && val.trim().length > 0) { const norm = (s: string) => s.trim().toLowerCase().replace(/[\u2010-\u2015-]/g, "-"); const t = norm(val); if (opts.length === 0) return val.trim(); return opts.find((o) => norm(o) === t) || opts.find((o) => norm(o).includes(t) || t.includes(norm(o))) || fb; } return fb; };
     setJobData((prev) => ({
       ...prev,
       title: data.title || prev.title,
@@ -127,6 +128,10 @@ export default function NewJobPage() {
       description: data.description || prev.description,
       structured_requirements:
         data.structured_requirements || prev.structured_requirements,
+      comp_perks: matchOpt(data.comp_perks, ["Base Salary Only", "+ Annual Bonus", "+ Equity / Stock Options", "+ Bonus & Equity", "+ Commission / OTE"], prev.comp_perks),
+      hiring_timeline: matchOpt(data.hiring_timeline, ["Immediate / Urgent (1–2 Weeks)", "Active Hiring (2–4 Weeks)", "Standard Pipeline (30+ Days)", "Flexible Start for Right Fit"], prev.hiring_timeline),
+      company_size: matchOpt(data.company_size, ["Seed / Startup (1–50 Employees)", "Growth (50–250 Employees)", "Mid-Market (250–1,000 Employees)", "Enterprise (1,000+ Employees)"], prev.company_size),
+      work_auth: matchOpt(data.work_auth, ["US Authorized Only (No Sponsorship)", "Visa Sponsorship Available", "Security Clearance Required"], prev.work_auth),
     }))
   }
 

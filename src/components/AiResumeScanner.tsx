@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
 import { useState, useEffect, useRef } from 'react';
 import { parseResumeAutoFill } from '@/app/dashboard/actions';
@@ -25,33 +26,64 @@ const EXTRACTION_STEPS = [
 
 const RESUME_SCROLL_KEY = 'ss_scroll_top_after_resume';
 
+function isCertificationLikeLabel(label: string, certSet: Set<string>): boolean {
+  const norm = label.trim().toLowerCase();
+  if (!norm) return true;
+  if (certSet.has(norm)) return true;
+  for (const c of certSet) {
+    if (c.length >= 5 && (norm.includes(c) || c.includes(norm))) return true;
+  }
+  return /^(certified\b|comptia\b|pmp\b|cissp\b|itil\b|scrum\s*master\b|aws\s+certified|microsoft\s+certified|google\s+cloud\s+certified|career\s+essentials\s+in\b|.*\baccessibility\s+in\s+action\b|six\s+sigma\b)/i.test(label.trim());
+}
+
+function sanitizeDisplayBio(rawBio: any, expYears?: any): string {
+  const txt = typeof rawBio === "string" ? rawBio.trim() : "";
+  if (!txt) return "";
+  const rounded = Math.max(0, Math.round(Number(expYears) || 0));
+  let cleaned = txt.replace(/(\d+)\.\d+(\+?\s+years)/gi, (_: string, d: string, rest: string) => String(rounded || Math.round(Number(d))) + rest);
+  if (/^Accomplished professional bringing\b/i.test(cleaned)) {
+    cleaned = cleaned.replace(/^Accomplished professional bringing\s+/i, "Seasoned professional bringing ");
+  }
+  return cleaned;
+}
+
 function formatSkillsList(skills: any, structuredSkills: any): string[] {
+  const certSet = new Set<string>();
+  if (Array.isArray(structuredSkills)) {
+    for (const item of structuredSkills) {
+      if (item && typeof item === "object" && item._ss_pref_meta && typeof item.certifications === "string") {
+        item.certifications.split(/[,;\n|]+/).map((c: string) => c.trim().toLowerCase()).filter(Boolean).forEach((c: string) => certSet.add(c));
+      }
+    }
+  }
   if (Array.isArray(structuredSkills) && structuredSkills.length > 0) {
     const names = structuredSkills
-      .filter((s: any) => s && typeof s === 'object' && !s._ss_meta && !s._ss_pref_meta && (s.skill || s.name))
+      .filter((s: any) => s && typeof s === "object" && !s._ss_meta && !s._ss_pref_meta && (s.skill || s.name))
       .map((s: any) => String(s.skill || s.name).trim())
-      .filter(Boolean);
-    if (names.length > 0) return names.slice(0, 10);
+      .filter((n: string) => Boolean(n) && !isCertificationLikeLabel(n, certSet));
+    if (names.length > 0) return Array.from(new Set(names));
   }
   if (Array.isArray(skills)) {
-    return skills.map((s) => String(s).trim()).filter(Boolean).slice(0, 10);
+    return Array.from(new Set(skills.map((s: any) => String(s).trim()).filter((n: string) => Boolean(n) && !isCertificationLikeLabel(n, certSet))));
   }
-  if (typeof skills === 'string' && skills.trim()) {
-    return skills
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .slice(0, 10);
+  if (typeof skills === "string" && skills.trim()) {
+    return Array.from(new Set(skills.split(",").map((s: string) => s.trim()).filter((n: string) => Boolean(n) && !isCertificationLikeLabel(n, certSet))));
   }
   return [];
 }
 
-function ScannerForm({ profile }: { profile: any }) {
+function ScannerForm({ profile, scanError }: { profile: any; scanError: string | null }) {
   const { pending } = useFormStatus();
+  const router = useRouter();
   const [fileName, setFileName] = useState('');
   const [activeStep, setActiveStep] = useState(0);
   const [progress, setProgress] = useState(0);
   const wasPendingRef = useRef(false);
+  useEffect(() => {
+    if (wasPendingRef.current && !pending) {
+      router.refresh();
+    }
+  }, [pending, router]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -120,6 +152,11 @@ function ScannerForm({ profile }: { profile: any }) {
             Private Resume Vault
           </div>
 
+          {scanError && (
+            <div className="mt-3 mb-3 rounded-xl border border-red-300 bg-red-50 px-3.5 py-2.5 text-xs font-semibold text-red-700">
+              {scanError}
+            </div>
+          )}
           <h3 className="text-base font-extrabold text-slate-900">
             Upload Resume PDF to Auto-Fill Your Profile
           </h3>
@@ -279,7 +316,7 @@ function ScannerForm({ profile }: { profile: any }) {
                   </div>
                   <div className="text-base font-extrabold text-white mt-1">
                     {profile?.experience_years
-                      ? `${profile.experience_years} Years Experience`
+                      ? `${Math.round(Number(profile.experience_years) || 0)} Years Experience`
                       : 'Not Set Yet'}
                   </div>
                 </div>
@@ -300,7 +337,7 @@ function ScannerForm({ profile }: { profile: any }) {
                 </div>
                 {skillPills.length > 0 ? (
                   <div className="flex flex-wrap gap-1.5">
-                    {skillPills.map((skill) => (
+                    {skillPills.slice(0, 16).map((skill) => (
                       <span
                         key={skill}
                         className="px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold"
@@ -308,6 +345,11 @@ function ScannerForm({ profile }: { profile: any }) {
                         {skill}
                       </span>
                     ))}
+                    {skillPills.length > 16 && (
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+                        +{skillPills.length - 16} more skills in editor
+                      </span>
+                    )}
                   </div>
                 ) : (
                   <p className="text-xs text-slate-500">
@@ -321,7 +363,7 @@ function ScannerForm({ profile }: { profile: any }) {
                   Anonymous Profile Summary
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
-                  {profile?.bio ||
+                  {sanitizeDisplayBio(profile?.bio, profile?.experience_years) ||
                     'Your professional summary will appear here after uploading your resume—with your personal contact info removed.'}
                 </p>
               </div>
@@ -339,9 +381,26 @@ function ScannerForm({ profile }: { profile: any }) {
 }
 
 export default function AiResumeScanner({ profile }: { profile: any }) {
+  const router = useRouter();
+  const [scanError, setScanError] = useState<string | null>(null);
+
+  async function handleFormAction(formData: FormData) {
+    setScanError(null);
+    try {
+      const res: any = await parseResumeAutoFill(formData);
+      if (res && res.ok === false) {
+        setScanError(res.error || "Resume scan could not complete. Please try again.");
+        return;
+      }
+      router.refresh();
+    } catch (err: any) {
+      setScanError(err?.message || "Unexpected error while scanning your resume.");
+    }
+  }
+
   return (
-    <form action={parseResumeAutoFill}>
-      <ScannerForm profile={profile} />
+    <form action={handleFormAction}>
+      <ScannerForm profile={profile} scanError={scanError} />
     </form>
   );
 }

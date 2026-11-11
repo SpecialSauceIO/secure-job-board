@@ -247,9 +247,17 @@ export default async function ProfilePage() {
   const currentLanguages = normalizeLanguageList(prefMetaObj?.languages, true)
 
   const hasProfileData = Boolean(profile?.bio && String(profile.bio).trim().length > 0 && visibleStructuredSkills.length > 0)
+  const normalizedProfileYears = profile?.experience_years != null && String(profile.experience_years).trim() !== '' && Number.isFinite(Number(profile.experience_years))
+    ? Math.max(0, Math.round(Number(profile.experience_years)))
+    : ''
+  const activeCertNorms = String(prefMetaObj?.certifications || '')
+    .split(/[,;|\n]+/)
+    .map((c: string) => c.toLowerCase().replace(/\([^)]*\)/g, ' ').replace(/[^a-z0-9+\s]/g, ' ').replace(/\s+/g, ' ').trim())
+    .filter((c: string) => c.length >= 3)
+  const certTitleRegex = /^(certified\s+|comptia\s+|career\s+essentials\s+in\s+|microsoft\s+certified\b|microsoft\s+accessibility\s+in\s+action\b|aws\s+certified\b|cisco\s+certified\b|google\s+cloud\s+certified\b|pmp\b|itil\b|cissp\b|scrum\s+master\b|six\s+sigma\b)/i
   const formSyncKey = JSON.stringify({
     b: profile?.bio || '',
-    e: profile?.experience_years || '',
+    e: normalizedProfileYears, sk: JSON.stringify(profile?.structured_skills || []),
     c: currentCertifications || '',
     s: visibleStructuredSkills.length,
     u: profile?.resume_url || '',
@@ -385,7 +393,7 @@ export default async function ProfilePage() {
             <input
               type="number"
               name="experience_years"
-              defaultValue={profile?.experience_years || ''}
+              defaultValue={normalizedProfileYears}
               placeholder="e.g. 5"
               className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
             />
@@ -458,7 +466,7 @@ export default async function ProfilePage() {
 
         {/* The Dynamic Skills Editor */}
         <div className="pt-4 border-t border-slate-300">
-          <StructuredSkillEditor initialSkills={visibleStructuredSkills} />
+          <StructuredSkillEditor key={formSyncKey} initialSkills={(visibleStructuredSkills).filter((item: any) => { const raw = String(item?.skill || '').trim(); if (!raw || certTitleRegex.test(raw)) return false; const b = raw.toLowerCase().replace(/\([^)]*\)/g, ' ').replace(/[^a-z0-9+\s]/g, ' ').replace(/\s+/g, ' ').trim(); return !activeCertNorms.some((c: string) => b === c || (c.length >= 6 && b.length >= 6 && (b.includes(c) || c.includes(b)))); })} />
         </div>
 
         <div>
@@ -471,7 +479,7 @@ export default async function ProfilePage() {
           <textarea
             name="bio"
             rows={6}
-            defaultValue={profile?.bio || ''}
+            defaultValue={typeof profile?.bio === "string" ? profile.bio.replace(/(\d+)\.\d+(\+?\s+years)/gi, (_: string, d: string, r: string) => String(Math.round(Number(profile?.experience_years) || Number(d))) + r).replace(/^Accomplished professional bringing\s+/i, "Seasoned professional bringing ") : ""}
             placeholder="An experienced professional with a track record of..."
             className="block w-full rounded-md border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3"
           />
