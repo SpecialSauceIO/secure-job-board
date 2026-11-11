@@ -389,42 +389,42 @@ export default function LandingPage() {
       {/* Tour Pill & Operational Trust Strip */}
       <section className="relative z-20 bg-[#0b1120] border-b border-slate-800 py-8 px-4 sm:px-6 md:px-12">
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
-          <div className="z-20 relative flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-3xl">
+          <div className="z-20 relative flex flex-col md:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-5xl">
             <button
               type="button"
               onClick={() => setActiveTourRole('professional')}
-              className="group w-full sm:w-auto inline-flex items-center justify-between sm:justify-center gap-3 pl-2.5 pr-4 py-2.5 rounded-full bg-slate-900/90 border border-slate-700 hover:border-[#38BDF8] shadow-md transition-all cursor-pointer"
+              className="group w-full md:w-auto shrink-0 inline-flex items-center justify-between md:justify-center gap-3 pl-3 pr-4 py-2.5 rounded-full bg-slate-900/90 border border-slate-700 hover:border-[#38BDF8] shadow-md transition-all cursor-pointer whitespace-nowrap"
             >
-              <span className="inline-flex items-center gap-2.5">
+              <span className="inline-flex items-center gap-2.5 shrink-0">
                 <span className="w-7 h-7 rounded-full bg-gradient-to-r from-[#0077D4] to-[#1DA1F2] text-white flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform shrink-0">
                   <svg className="w-3.5 h-3.5 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 </span>
-                <span className="text-xs sm:text-sm font-extrabold text-white group-hover:text-sky-300 transition-colors">
+                <span className="text-xs sm:text-sm font-extrabold text-white group-hover:text-sky-300 transition-colors whitespace-nowrap">
                   Watch Professional Platform Tour
                 </span>
               </span>
-              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30 shrink-0">
+              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30 shrink-0 whitespace-nowrap">
                 4:35 • Audio
               </span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTourRole('employer')}
-              className="group w-full sm:w-auto inline-flex items-center justify-between sm:justify-center gap-3 pl-2.5 pr-4 py-2.5 rounded-full bg-slate-900/90 border border-slate-700 hover:border-emerald-400 shadow-md transition-all cursor-pointer"
+              className="group w-full md:w-auto shrink-0 inline-flex items-center justify-between md:justify-center gap-3 pl-3 pr-4 py-2.5 rounded-full bg-slate-900/90 border border-slate-700 hover:border-emerald-400 shadow-md transition-all cursor-pointer whitespace-nowrap"
             >
-              <span className="inline-flex items-center gap-2.5">
+              <span className="inline-flex items-center gap-2.5 shrink-0">
                 <span className="w-7 h-7 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform shrink-0">
                   <svg className="w-3.5 h-3.5 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 </span>
-                <span className="text-xs sm:text-sm font-extrabold text-white group-hover:text-emerald-300 transition-colors">
+                <span className="text-xs sm:text-sm font-extrabold text-white group-hover:text-emerald-300 transition-colors whitespace-nowrap">
                   Watch Employer Platform Tour
                 </span>
               </span>
-              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shrink-0">
+              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shrink-0 whitespace-nowrap">
                 6:38 • Audio
               </span>
             </button>
