@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { createClient as createServerSupabase } from "@/utils/supabase/server"
 import Groq from "groq-sdk"
+import { normalizeTrueFitScores } from "@/lib/truefit-math"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -163,29 +164,8 @@ export async function GET(req: NextRequest) {
     const ms = Date.now() - t0
     totalLatency += ms
 
-    const getS = (k: string, fb: number) => {
-      if (Array.isArray(raw.radar_data)) {
-        const f = raw.radar_data.find((r: any) => String(r?.subject || "").toLowerCase().includes(k))
-        if (f && Number(f.score) > 0) return Number(f.score)
-      } else if (raw.radar_data && typeof raw.radar_data === "object") {
-        const key = Object.keys(raw.radar_data).find((ky) => ky.toLowerCase().includes(k))
-        if (key && Number(raw.radar_data[key]) > 0) return Number(raw.radar_data[key])
-      }
-      return fb
-    }
-
-    const isZero = spec.reqs === 0
-    const floor = spec.reqs > 0 ? Math.round((spec.reqs / spec.total) * 96) : 8
-    const core = isZero ? Math.max(8, Math.min(getS("competenc", spec.base.c), spec.base.c, 16)) : Math.max(spec.base.c, floor, Math.round(getS("competenc", spec.base.c) * 0.25 + spec.base.c * 0.75))
-    const ten = isZero ? Math.max(10, Math.min(getS("tenure", spec.base.t), spec.base.t, 14)) : Math.max(spec.base.t, Math.round(getS("tenure", spec.base.t) * 0.25 + spec.base.t * 0.75))
-    const ind = isZero ? Math.max(12, Math.min(getS("industry", spec.base.i), spec.base.i, 18)) : Math.max(spec.base.i, Math.round(getS("industry", spec.base.i) * 0.25 + spec.base.i * 0.75))
-    const log = Math.max(spec.base.l, Math.round(getS("logistic", spec.base.l) * 0.25 + spec.base.l * 0.75))
-    const com = isZero ? Math.max(25, Math.min(getS("comm", spec.base.m), spec.base.m, 35)) : Math.max(spec.base.m, Math.round(getS("comm", spec.base.m) * 0.25 + spec.base.m * 0.75))
-
-    let overall = Math.round(core * 0.5 + ten * 0.25 + ind * 0.15 + log * 0.05 + com * 0.05)
-    if (isZero) overall = Math.min(overall, core + 4, 20)
-    else if (core < 48) overall = Math.min(overall, core + 6, 46)
-    else if (core < 68) overall = Math.min(overall, core + 6)
+    const normalized = normalizeTrueFitScores(raw, prof, job)
+    const overall = normalized.finalOverall
 
     const inBand = overall >= spec.minPass && overall <= spec.maxPass
     if (!inBand) {
