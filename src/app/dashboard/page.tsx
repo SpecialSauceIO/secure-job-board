@@ -282,7 +282,7 @@ export default async function DashboardPage({
   const cookieStoreForA11y = await cookies()
   const a11yColorTiles = cookieStoreForA11y.get('ss_a11y_color_tiles')?.value === '1'
 
-  const { savedJobsCount, savedCandidatesCount } = extractBookmarkCounts(profile)
+  const { savedJobsCount, savedCandidatesCount, savedJobIds } = extractBookmarkCounts(profile)
 
   // ============================================================================
   // EMPLOYER DASHBOARD
@@ -909,55 +909,175 @@ export default async function DashboardPage({
     }
   })
 
-  const hasProfileData = !!(profile?.skills && profile?.bio)
-  const appliedJobIds = new Set(candidateRecords.map((a) => a.job_id))
+  const rawStructuredSkills = Array.isArray(profile?.structured_skills)
+    ? profile.structured_skills
+    : []
+  const visibleStructuredSkills = rawStructuredSkills.filter(
+    (s: any) =>
+      s &&
+      typeof s === 'object' &&
+      !s._ss_meta &&
+      !s._ss_pref_meta &&
+      (s.skill || s.name) &&
+      !String(s.skill || s.name).startsWith('__SS_')
+  )
+  const hasAnySkills =
+    (Array.isArray(profile?.skills) && profile.skills.length > 0) ||
+    (typeof profile?.skills === 'string' && profile.skills.trim().length > 0) ||
+    visibleStructuredSkills.length > 0
+  const hasProfileData = Boolean(hasAnySkills && profile?.bio)
+  const appliedJobIds = new Set(candidateRecords.map((a) => String(a.job_id)))
   let recommendedJobs: any[] = []
+  let activeSavedJobsCount = savedJobsCount
 
-  if (hasProfileData) {
+  if (hasAnySkills || savedJobIds.length > 0) {
     const { data: allActiveJobs } = await supabase
       .from('jobs')
       .select('*, organizations:organization_id (*)')
-      .eq('is_active', true).not('title', 'ilike', '[CALIBRATION]%')
+      .eq('is_active', true)
+      .not('title', 'ilike', '[CALIBRATION]%')
       .order('created_at', { ascending: false })
 
-    const unappliedJobs = (allActiveJobs || []).filter((job: any) => {
-      if (appliedJobIds.has(job.uuid || job.id)) return false
-      const isBench =
-        String(job.title || '').includes('(Demo)') ||
-        (Array.isArray(job.structured_requirements) &&
-          job.structured_requirements.some((r: any) => r?.is_sandbox_benchmark))
-      return !isBench
+    const liveActiveJobs = (allActiveJobs || []).filter((job: any) => {
+      const rawReqs = Array.isArray(job.structured_requirements)
+        ? job.structured_requirements
+        : []
+      const metaItem =
+        rawReqs.find((r: any) => r && r._ss_job_meta === true) || job.job_meta || {}
+      const isBench = Boolean(
+        job.is_sandbox_benchmark ||
+          metaItem?.is_sandbox_benchmark ||
+          String(job.title || '').includes('(Demo)') ||
+          rawReqs.some((r: any) => r?.is_sandbox_benchmark)
+      )
+      if (isBench) return false
+      const baseDateIso =
+        job.renewed_at || metaItem?.renewed_at || job.created_at || new Date().toISOString()
+      const expiresMs = new Date(baseDateIso).getTime() + 30 * 24 * 60 * 60 * 1000
+      return expiresMs > Date.now()
     })
 
-    let topSkill = ''
-    if (Array.isArray(profile.skills) && profile.skills.length > 0) {
-      topSkill = String(profile.skills[0]).toLowerCase().trim()
-    } else if (typeof profile.skills === 'string') {
-      topSkill = profile.skills.split(',')[0].toLowerCase().trim()
-    }
+    const savedIdSet = new Set(savedJobIds)
+    activeSavedJobsCount = liveActiveJobs.filter((job: any) =>
+      savedIdSet.has(String(job.uuid || job.id))
+    ).length
 
-    let matchedJobs = unappliedJobs
-    if (topSkill) {
-      const filtered = unappliedJobs.filter((job) => {
-        const descMatch = job.description?.toLowerCase().includes(topSkill)
-        const titleMatch = job.title?.toLowerCase().includes(topSkill)
-        const reqsMatch = job.structured_requirements
-          ? JSON.stringify(job.structured_requirements)
-              .toLowerCase()
-              .includes(topSkill)
-          : false
-        return descMatch || titleMatch || reqsMatch
-      })
-      if (filtered.length > 0) {
-        matchedJobs = filtered
+    if (hasAnySkills) {
+      const prefMeta =
+        rawStructuredSkills.find((item: any) => item && item._ss_pref_meta === true) || {}
+      const savedEmpTypes: string[] =
+        Array.isArray(profile?.preferred_employment_types) &&
+        profile.preferred_employment_types.length > 0
+          ? profile.preferred_employment_types
+          : Array.isArray(prefMeta?.employment_types)
+          ? prefMeta.employment_types
+          : []
+      const savedWorkModel = profile?.preferred_work_model
+        ? String(profile.preferred_work_model).toLowerCase()
+        : ''
+      const savedMinSalary = Number(profile?.min_salary_expectation) || 0
+
+      const normalizeEmpKey = (val: string) => {
+        const v = String(val || '').toLowerCase()
+        if (v.includes('1099') || v.includes('c2c') || v.includes('corp-to-corp')) return 'contract_1099'
+        if (v.includes('contract-to-hire')) return 'c2h'
+        if (v.includes('full-time')) return 'full_time'
+        if (v.includes('part-time')) return 'part_time'
+        if (v.includes('seasonal') || v.includes('temporary')) return 'seasonal'
+        return v
       }
-    }
 
-    recommendedJobs = matchedJobs.slice(0, 3).map((job) => ({
-      ...job,
-      id: job.uuid || job.id,
-      has_applied: false,
-    }))
+      const unappliedJobs = liveActiveJobs.filter((job: any) => {
+        if (appliedJobIds.has(String(job.uuid || job.id))) return false
+        const rawReqs = Array.isArray(job.structured_requirements)
+          ? job.structured_requirements
+          : []
+        const metaItem =
+          rawReqs.find((r: any) => r && r._ss_job_meta === true) || job.job_meta || {}
+        const jobEmpType =
+          job.employment_type || metaItem?.employment_type || 'Full-Time (W-2)'
+        if (savedEmpTypes.length > 0) {
+          const matchesEmp = savedEmpTypes.some(
+            (t) => normalizeEmpKey(t) === normalizeEmpKey(jobEmpType)
+          )
+          if (!matchesEmp) return false
+        }
+        if (savedWorkModel && savedWorkModel !== 'any' && savedWorkModel !== 'all') {
+          if (String(job.work_model || '').toLowerCase() !== savedWorkModel) return false
+        }
+        if (savedMinSalary > 0) {
+          const payType =
+            job.pay_type === 'hourly' ||
+            metaItem?.pay_type === 'hourly' ||
+            (job.salary_max && job.salary_max > 0 && job.salary_max <= 500)
+              ? 'hourly'
+              : 'annual'
+          const rawMax = Number(job.salary_max) || Number(job.salary_min) || 0
+          const annualizedMaxPay = payType === 'hourly' ? rawMax * 2080 : rawMax
+          if (annualizedMaxPay > 0 && annualizedMaxPay < savedMinSalary) return false
+        }
+        return true
+      })
+
+      const candidateTerms: string[] = []
+      for (const s of visibleStructuredSkills) {
+        const label = String(s.skill || s.name || '').trim().toLowerCase()
+        if (label && !candidateTerms.includes(label)) candidateTerms.push(label)
+      }
+      if (Array.isArray(profile?.skills)) {
+        for (const s of profile.skills) {
+          const label = String(s || '').trim().toLowerCase()
+          if (label && !candidateTerms.includes(label)) candidateTerms.push(label)
+        }
+      } else if (typeof profile?.skills === 'string') {
+        for (const s of profile.skills.split(',')) {
+          const label = s.trim().toLowerCase()
+          if (label && !candidateTerms.includes(label)) candidateTerms.push(label)
+        }
+      }
+      if (Array.isArray(profile?.certifications)) {
+        for (const c of profile.certifications) {
+          const label = String(typeof c === 'string' ? c : c?.name || '').trim().toLowerCase()
+          if (label && !candidateTerms.includes(label)) candidateTerms.push(label)
+        }
+      }
+
+      const topTerms = candidateTerms.slice(0, 12)
+      const matchesWholeTerm = (haystack: string, needle: string) => {
+        const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        const rx = new RegExp(`(^|[^a-z0-9])${escaped}(?![a-z0-9])`, 'i')
+        return rx.test(haystack)
+      }
+
+      let matchedJobs = unappliedJobs
+      if (topTerms.length > 0) {
+        const scored = unappliedJobs
+          .map((job: any) => {
+            const haystack = [
+              job.title || '',
+              job.description || '',
+              job.structured_requirements ? JSON.stringify(job.structured_requirements) : '',
+            ].join(' ')
+            let hits = 0
+            for (const term of topTerms) {
+              if (matchesWholeTerm(haystack, term)) hits++
+            }
+            return { job, hits }
+          })
+          .filter((item) => item.hits > 0)
+          .sort((a, b) => b.hits - a.hits)
+
+        if (scored.length > 0) {
+          matchedJobs = scored.map((item) => item.job)
+        }
+      }
+
+      recommendedJobs = matchedJobs.slice(0, 3).map((job: any) => ({
+        ...job,
+        id: job.uuid || job.id,
+        has_applied: false,
+      }))
+    }
   }
 
   const candidateDisplayName =
@@ -1010,18 +1130,18 @@ export default async function DashboardPage({
           <Link
             href="/dashboard/jobs?saved=true"
             className={`inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2.5 rounded-xl border-2 text-xs font-extrabold transition-colors shadow-xs ${
-              savedJobsCount > 0
+              activeSavedJobsCount > 0
                 ? 'bg-amber-50 border-slate-300 text-amber-900 hover:bg-amber-100'
                 : 'bg-white border-slate-300 text-slate-700 hover:border-slate-400'
             }`}
           >
             <svg
               className={`w-3.5 h-3.5 ${
-                savedJobsCount > 0
+                activeSavedJobsCount > 0
                   ? 'text-amber-500 fill-amber-500'
                   : 'text-slate-400'
               }`}
-              fill={savedJobsCount > 0 ? 'currentColor' : 'none'}
+              fill={activeSavedJobsCount > 0 ? 'currentColor' : 'none'}
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
@@ -1032,7 +1152,7 @@ export default async function DashboardPage({
                 d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
               />
             </svg>
-            Saved Roles ({savedJobsCount})
+            Saved Roles ({activeSavedJobsCount})
           </Link>
 
           <Link
@@ -1238,7 +1358,7 @@ export default async function DashboardPage({
               {unreadPitchMsgsCount > 0
                 ? 'An employer sent you a message'
                 : pendingRequestsCount > 0
-                ? `${pendingRequestsCount} pending invitation waiting`
+                ? `${pendingRequestsCount} pending invitation${pendingRequestsCount === 1 ? '' : 's'} waiting`
                 : 'Direct invitations from verified employers'}
             </p>
           </div>

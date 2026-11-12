@@ -11,9 +11,9 @@
 - [x] Employer One-Click Role Generator (seniority/type match, cert rescue, skill tenure matrix)
 - [x] Employer Talent Search (`Search Talent` presets, Practice Mode UX, whole-word search, TrueFit v2.2)
 - [x] Professional Job Discovery (`Find Roles` Practice Mode copy, locked counts, clear filters, cert search, dealbreakers)
+- [x] Professional Overview (`src/app/dashboard/page.tsx` — live Saved Roles count, dealbreaker-filtered Recommended Roles, whole-word skill/cert ranking)
 
 ## Remaining Dashboard Pages to Audit
-- [ ] Professional Overview (`src/app/dashboard/page.tsx`)
 - [ ] Outbound Applications (`src/app/dashboard/applications` / `CandidateApplications.tsx`)
 - [ ] Professional Invitations (`src/app/dashboard/invitations`)
 - [ ] Match Preferences (`src/app/dashboard/preferences`)
