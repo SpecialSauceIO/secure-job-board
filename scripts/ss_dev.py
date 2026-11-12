@@ -102,8 +102,11 @@ def cmd_inspect(repo_dir, args):
         sys.exit(1)
     receipt_path = repo_dir / ".git" / ".ss_inspect_receipt.json"
     receipt = load_json(receipt_path, {"files": {}})
-    total_budget = 14000
-    per_budget = max(2200, total_budget // max(1, len(args)))
+    if len(args) > 5:
+        print("[BLOCKED - TOO MANY TARGETS] Pass at most 5 file targets per `ss inspect` call (use needle searches first) to protect chat context.")
+        sys.exit(1)
+    total_budget = 6500
+    per_budget = max(1200, total_budget // max(1, len(args)))
     sections = []
     now_ts = int(time.time())
 
@@ -128,6 +131,10 @@ def cmd_inspect(repo_dir, args):
             s_num, e_num = [int(x) for x in sel.split("-", 1)]
             s_num = max(1, s_num)
             e_num = min(len(flines), e_num)
+            range_clamped = False
+            if e_num - s_num + 1 > 120:
+                e_num = s_num + 119
+                range_clamped = True
             last_included = s_num - 1
             clipped = False
             for ln_no in range(s_num, e_num + 1):
@@ -141,8 +148,8 @@ def cmd_inspect(repo_dir, args):
                 last_included = ln_no
             if last_included >= s_num:
                 credited_ranges.append([s_num, last_included])
-            if clipped:
-                body_lines.append("[CLIPPED AT LINE " + str(last_included) + " — RUN: ss inspect " + rel + ":" + str(last_included + 1) + "-" + str(e_num) + "]")
+            if clipped or range_clamped:
+                body_lines.append("[RANGE CAPPED AT LINE " + str(last_included) + " (120L MAX) — USE NEEDLE SEARCH (`ss inspect " + rel + ":keyword`) INSTEAD OF DUMPING FULL FILES]")
         else:
             keys = [k.strip().lower() for k in sel.split(",") if k.strip()]
             for idx, raw_ln in enumerate(flines, 1):

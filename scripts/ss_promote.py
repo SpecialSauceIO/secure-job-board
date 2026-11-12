@@ -74,9 +74,49 @@ def main():
             except Exception:
                 ver_ok = False
         v_label = "CLEAN" if not dh else ("VERIFIED (ready for ss stage)" if ver_ok else "UNVERIFIED (run ss verify-local after localhost test)")
-        print("Repo: " + REPO_DIR.name + " | Branch: " + br + " (" + head_sha + ") | origin/staging: " + stg_sha + " | origin/main: " + main_sha)
-        print("Local Gate: " + v_label)
-        if st: print(st)
+        recent = run_cmd(["git", "log", "-n", "4", "--oneline"], check=False).stdout.strip()
+        audit_file = REPO_DIR / "AUDIT_STATE.md"
+        if not audit_file.exists() and REPO_DIR.name == "secure-job-board":
+            default_audit = "\n".join([
+                "# SpecialSauce Audit & Parity State",
+                "",
+                "## Locked Decisions & Parity Rules",
+                "- 100% `ss` CLI for all repo ops (`ss status`, `ss find`, `ss inspect`, `ss patch`, `ss verify-local`, `ss stage`, `ss prod`).",
+                "- One Page / One Feature per chat (retire chat after `ss prod` or ~15 turns).",
+                "- Plain English across customer-facing UI; zero 'Candidate', 'sandbox', 'double-blind', or 'cohort'.",
+                "- TrueFit v2.2 deterministic cache (`tf_v2_2_`, `cand_v5_`, `emp_v5_`) & whole-word search (`it`, `aws`, `okr`).",
+                "",
+                "## Completed & Live on Production (`origin/main`)",
+                "- [x] Resume Auto-Fill & Profile Editor (skill years, <=4y GenAI cap, cert cross-filter, 16-pill preview)",
+                "- [x] Employer One-Click Role Generator (seniority/type match, cert rescue, skill tenure matrix)",
+                "- [x] Employer Talent Search (`Search Talent` presets, Practice Mode UX, whole-word search, TrueFit v2.2)",
+                "- [x] Professional Job Discovery (`Find Roles` Practice Mode copy, locked counts, clear filters, cert search, dealbreakers)",
+                "",
+                "## Remaining Dashboard Pages to Audit",
+                "- [ ] Professional Overview (`src/app/dashboard/page.tsx`)",
+                "- [ ] Outbound Applications (`src/app/dashboard/applications` / `CandidateApplications.tsx`)",
+                "- [ ] Professional Invitations (`src/app/dashboard/invitations`)",
+                "- [ ] Match Preferences (`src/app/dashboard/preferences`)",
+                "- [ ] Employer Manage Roles & Inbound Applicants (`ApplicationRevealCard.tsx` / `SecureMessageThread.tsx`)",
+                "- [ ] Support & Membership / Plan Settings (`SupportCenterClient.tsx` / `billing`)",
+            ]) + "\n"
+            audit_file.write_text(default_audit)
+        lines = [
+            "Repo: " + REPO_DIR.name + " | Branch: " + br + " (" + head_sha + ") | origin/staging: " + stg_sha + " | origin/main: " + main_sha,
+            "Local Gate: " + v_label,
+        ]
+        if st:
+            lines.append("Working Tree:\n" + st)
+        if recent:
+            lines.append("Recent Commits:\n" + recent)
+        if audit_file.exists():
+            lines.append("--- AUDIT_STATE.md ---\n" + audit_file.read_text().strip())
+        out_text = "\n".join(lines)
+        try:
+            subprocess.run(["pbcopy"], input=out_text, text=True, check=False)
+        except Exception:
+            pass
+        print(out_text)
         sys.exit(0)
 
     if mode == "staging":
