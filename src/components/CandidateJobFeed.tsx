@@ -221,37 +221,30 @@ export function CandidateJobFeed({
     } catch {}
   }, [])
 
-  const [matchCacheUserId, setMatchCacheUserId] = useState<string | null>(null)
-
   useEffect(() => {
     let mounted = true
-    try { localStorage.removeItem("ss_cand_match_results_v1") } catch {}
+    try {
+      localStorage.removeItem("ss_cand_match_results_v1")
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i)
+        if (key && key.startsWith("ss_cand_match_results_v2_")) {
+          localStorage.removeItem(key)
+        }
+      }
+    } catch {}
     getPersistedMatchCache().then((res) => {
       if (!mounted) return
       if (!res?.userId || res.hasSkills === false) {
-        setMatchCacheUserId(res?.userId || null)
         setMatchResults({})
-        if (res?.userId) { try { localStorage.removeItem("ss_cand_match_results_v2_" + res.userId) } catch {} }
         return
       }
-      setMatchCacheUserId(res.userId)
-      const sk = "ss_cand_match_results_v2_" + res.userId
-      let loc: Record<string, any> = {}
-      try { const r = localStorage.getItem(sk); if (r) loc = JSON.parse(r) || {} } catch {}
-        const srv: Record<string, any> = {}
-        for (const [k, v] of Object.entries(res.cache || {})) {
-          if (k.startsWith("cand_v4_") && v && typeof v === "object") srv[k.slice(8)] = v
+      const srv: Record<string, any> = {}
+      for (const [k, v] of Object.entries(res.cache || {})) {
+        if (k.startsWith("cand_v4_") && v && typeof v === "object" && typeof (v as any).input_sig === "string") {
+          srv[k.slice(8)] = v
         }
-        if (Object.keys(srv).length === 0) {
-          try { localStorage.removeItem(sk) } catch {}
-          setMatchResults((prev) => ({ ...prev }))
-          return
-        }
-        setMatchResults((prev) => {
-          const next = { ...loc, ...srv, ...prev }
-          try { localStorage.setItem(sk, JSON.stringify(next)) } catch {}
-          return next
-        })
+      }
+      setMatchResults((prev) => ({ ...srv, ...prev }))
     }).catch(() => {})
     return () => { mounted = false }
   }, [])
@@ -291,7 +284,8 @@ export function CandidateJobFeed({
     setTogglingSaveId(null)
   }
 
-  const handleAnalyzeFit = async (jobId: string) => {
+  const handleAnalyzeFit = async (jobId: string, forceRefresh?: boolean) => {
+    const shouldForceRefresh = Boolean(forceRefresh || matchResults[jobId])
     setAnalyzingId(jobId)
     setFeedback((prev) => {
       const copy = { ...prev }
@@ -310,7 +304,7 @@ export function CandidateJobFeed({
       })
 
       const result: any = await Promise.race([
-        analyzeJobFit(jobId),
+        analyzeJobFit(jobId, shouldForceRefresh),
         timeoutPromise,
       ])
 
@@ -323,16 +317,10 @@ export function CandidateJobFeed({
           },
         }))
       } else if (result?.data) {
-        setMatchResults((prev) => {
-          const updated = {
-            ...prev,
-            [jobId]: result.data,
-          }
-          try {
-            if (matchCacheUserId) localStorage.setItem("ss_cand_match_results_v2_" + matchCacheUserId, JSON.stringify(updated))
-          } catch {}
-          return updated
-        })
+        setMatchResults((prev) => ({
+          ...prev,
+          [jobId]: result.data,
+        }))
       } else {
         setFeedback((prev) => ({
           ...prev,

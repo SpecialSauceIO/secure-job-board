@@ -292,14 +292,19 @@ export default function EmployerCandidateSearch({
         setIsLoading(false)
       }
 
+      try {
+        localStorage.removeItem("ss_emp_match_cache_v2")
+        localStorage.removeItem("ss_emp_cand_job_map_v1")
+      } catch {}
+
       getPersistedMatchCache()
         .then((persisted) => {
           const rawCache = persisted?.cache && typeof persisted.cache === "object" ? persisted.cache : {}
           const empEntries: Record<string, any> = {}
           const jobEntries: Record<string, string> = {}
           for (const [k, v] of Object.entries(rawCache)) {
-            if (k.startsWith("emp_") && v && typeof v === "object") {
-              const rest = k.slice("emp_".length)
+            if (k.startsWith("emp_v4_") && v && typeof v === "object" && typeof (v as any).input_sig === "string") {
+              const rest = k.slice("emp_v4_".length)
               empEntries[rest] = v
               const lastUnderscore = rest.lastIndexOf("_")
               if (lastUnderscore !== -1) {
@@ -309,25 +314,8 @@ export default function EmployerCandidateSearch({
               }
             }
           }
-          if (Object.keys(empEntries).length === 0) {
-            try {
-              localStorage.removeItem("ss_emp_match_cache_v2")
-              localStorage.removeItem("ss_emp_cand_job_map_v1")
-            } catch {}
-            setMatchCacheMap({})
-            setCandidateJobMap({})
-            return
-          }
           setMatchCacheMap(empEntries)
-          try {
-            localStorage.setItem("ss_emp_match_cache_v2", JSON.stringify(empEntries))
-          } catch {}
-          if (Object.keys(jobEntries).length > 0) {
-            setCandidateJobMap(jobEntries)
-            try {
-              localStorage.setItem("ss_emp_cand_job_map_v1", JSON.stringify(jobEntries))
-            } catch {}
-          }
+          setCandidateJobMap(jobEntries)
         })
         .catch(() => {})
     }
@@ -449,13 +437,7 @@ export default function EmployerCandidateSearch({
 
       if (result?.data) {
         setAiMatchData(result.data)
-        setMatchCacheMap((prev) => {
-          const next = { ...prev, [pairKey]: result.data }
-          try {
-            localStorage.setItem('ss_emp_match_cache_v2', JSON.stringify(next))
-          } catch {}
-          return next
-        })
+        setMatchCacheMap((prev) => ({ ...prev, [pairKey]: result.data }))
       } else if (result?.error) {
         setFeedback({
           type: 'error',

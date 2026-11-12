@@ -2057,6 +2057,7 @@ export async function parseResumeAutoFill(formData: FormData) {
         .eq('id', user.id)
 
       if (!withNameErr) {
+        await clearUserMatchCache(user.id)
         revalidatePath("/dashboard")
         revalidatePath("/dashboard/profile")
         revalidatePath("/dashboard/employer/search")
@@ -2073,6 +2074,7 @@ export async function parseResumeAutoFill(formData: FormData) {
       console.error("Database Update Error:", error)
       return { ok: false, error: "Could not save profile updates: " + (error.message || "Database update failed.") }
     }
+    await clearUserMatchCache(user.id)
     revalidatePath("/dashboard")
     revalidatePath("/dashboard/profile")
     revalidatePath("/dashboard/employer/search")
@@ -3343,13 +3345,125 @@ export async function getPersistedMatchCache(): Promise<{
       data: { user },
     } = await supabase.auth.getUser()
     if (!user) return { userId: null, cache: {} }
-    const { data: profile } = await supabase.from("profiles").select("skills, structured_skills, is_verified, identity_verified").eq("id", user.id).single()
+    const adminDb = getAdminSupabaseClient()
+    const db = adminDb || supabase
+    const { data: profile } = await db
+      .from("profiles")
+      .select("id, experience_years, skills, structured_skills, bio, preferred_work_model, min_salary_expectation, location, is_verified, identity_verified")
+      .eq("id", user.id)
+      .single()
     const isUserVerified = Boolean(profile?.is_verified === true || String(profile?.is_verified) === "true" || profile?.identity_verified === true || String(profile?.identity_verified) === "true")
     const visibleSkills = filterVisibleSkills(profile?.structured_skills)
     const hasSkills = Boolean(isUserVerified && profile && ((typeof profile.skills === "string" && profile.skills.trim().length > 0) || visibleSkills.length > 0))
-    if (!hasSkills) return { userId: user.id, hasSkills: false, cache: {} }
-    const cache = await readUserMatchCache(user.id)
-    return { userId: user.id, hasSkills: true, cache }
+
+    const rawCache = await readUserMatchCache(user.id)
+    const rawKeys = Object.keys(rawCache || {})
+    if (rawKeys.length === 0) {
+      return { userId: user.id, hasSkills, cache: {} }
+    }
+
+    const buildScoringProfile = (p: any) => {
+      const visSkills = filterVisibleSkills(p?.structured_skills)
+      const pref = extractProfilePrefMeta(p?.structured_skills)
+      return {
+        ...p,
+        industry_vertical: pref?.industry_vertical || "",
+        education_level: pref?.education_level || "",
+        availability_window: pref?.availability_window || "Standard (2 Weeks Notice)",
+        certifications: pref?.certifications || "",
+        languages: normalizeLanguageList(pref?.languages, true),
+        structured_skills: visSkills,
+      }
+    }
+
+    const candJobIds = new Set<string>()
+    const empPairs: Array<{ key: string; profId: string; jobId: string; val: any }> = []
+    const empProfIds = new Set<string>()
+    const allJobIds = new Set<string>()
+
+    for (const [k, v] of Object.entries(rawCache)) {
+      if (!v || typeof v !== "object" || typeof (v as any).input_sig !== "string" || !(v as any).input_sig.startsWith("tf_v2_1_")) {
+        continue
+      }
+      if (k.startsWith("cand_v4_")) {
+        if (!hasSkills) continue
+        const jId = k.slice("cand_v4_".length)
+        if (jId) {
+          candJobIds.add(jId)
+          allJobIds.add(jId)
+        }
+      } else if (k.startsWith("emp_v4_")) {
+        const rest = k.slice("emp_v4_".length)
+        const lastUnderscore = rest.lastIndexOf("_")
+        if (lastUnderscore !== -1) {
+          const pId = rest.slice(0, lastUnderscore)
+          const jId = rest.slice(lastUnderscore + 1)
+          if (pId && jId) {
+            empPairs.push({ key: k, profId: pId, jobId: jId, val: v })
+            empProfIds.add(pId)
+            allJobIds.add(jId)
+          }
+        }
+      }
+    }
+
+    const jobsById = new Map<string, any>()
+    if (allJobIds.size > 0) {
+      const { data: jobRows } = await db.from("jobs").select("*").in("id", Array.from(allJobIds))
+      for (const rj of jobRows || []) {
+        if (rj?.id && rj.is_active !== false) {
+          jobsById.set(String(rj.id), enrichJobRecord(rj))
+        }
+      }
+    }
+
+    const profsById = new Map<string, any>()
+    if (empProfIds.size > 0) {
+      const { data: profRows } = await db
+        .from("profiles")
+        .select("id, experience_years, skills, structured_skills, bio, preferred_work_model, min_salary_expectation, location")
+        .in("id", Array.from(empProfIds))
+      for (const rp of profRows || []) {
+        if (rp?.id) profsById.set(String(rp.id), buildScoringProfile(rp))
+      }
+    }
+
+    const verifiedCache: Record<string, any> = {}
+    if (hasSkills && profile && candJobIds.size > 0) {
+      const selfScoringProfile = buildScoringProfile(profile)
+      for (const jId of candJobIds) {
+        const job = jobsById.get(jId)
+        const entry = rawCache[`cand_v4_${jId}`]
+        if (job && entry && entry.input_sig === computeMatchInputSignature(selfScoringProfile, job)) {
+          verifiedCache[`cand_v4_${jId}`] = entry
+        }
+      }
+    }
+
+    for (const pair of empPairs) {
+      const targetProf = profsById.get(pair.profId)
+      const job = jobsById.get(pair.jobId)
+      if (targetProf && job && pair.val.input_sig === computeMatchInputSignature(targetProf, job)) {
+        verifiedCache[pair.key] = pair.val
+      }
+    }
+
+    if (Object.keys(verifiedCache).length !== rawKeys.length) {
+      if (Object.keys(verifiedCache).length === 0) {
+        await clearUserMatchCache(user.id)
+      } else if (adminDb) {
+        try {
+          const path = `${MATCH_CACHE_PREFIX}/${user.id}.json`
+          await adminDb.storage.from("resumes").upload(path, Buffer.from(JSON.stringify(verifiedCache), "utf-8"), {
+            upsert: true,
+            cacheControl: "0",
+            contentType: "application/json",
+          })
+        } catch {}
+      }
+    }
+
+    return { userId: user.id, hasSkills, cache: verifiedCache }
   } catch {
     return { userId: null, cache: {} }
   }
