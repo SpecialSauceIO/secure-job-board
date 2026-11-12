@@ -2216,7 +2216,7 @@ export async function applyBlind(formData: FormData) {
   }
   const expectedInputSig = computeMatchInputSignature(scoringProfileForGate, enrichedJob)
   const userMatchCache = await readUserMatchCache(user.id)
-  const cachedJobMatch = userMatchCache[`cand_v4_${jobId}`]
+  const cachedJobMatch = userMatchCache[`cand_v5_${jobId}`]
 
   let parsedMatchScore: number
   if (
@@ -3244,7 +3244,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
 // AI MATCH SCORING (Professional <-> Job) WITH FAST FAILOVER FOR VERCEL HOBBY
 // ------------------------------------------------------------------
 
-const MATCH_CACHE_PREFIX = '_isolated_match_cache_v3'
+const MATCH_CACHE_PREFIX = '_isolated_match_cache_v4'
 
 async function readUserMatchCache(userId: string): Promise<Record<string, any>> {
   const adminDb = getAdminSupabaseClient()
@@ -3275,7 +3275,7 @@ async function clearUserMatchCache(userId: string): Promise<void> {
 
 function computeMatchInputSignature(scoringProfile: any, job: any): string {
   const canonicalPayload = {
-    v: 'tf_v2_1',
+    v: 'tf_v2_2',
     p: {
       exp: Number(scoringProfile?.experience_years) || 0,
       skills: String(scoringProfile?.skills || '').trim(),
@@ -3306,7 +3306,7 @@ function computeMatchInputSignature(scoringProfile: any, job: any): string {
       minExp: Number(job?.min_years_experience ?? job?.job_meta?.min_years_experience) || 0,
     },
   }
-  return 'tf_v2_1_' + crypto.createHash('sha256').update(JSON.stringify(canonicalPayload)).digest('hex').slice(0, 16)
+  return 'tf_v2_2_' + crypto.createHash('sha256').update(JSON.stringify(canonicalPayload)).digest('hex').slice(0, 16)
 }
 
 async function writeUserMatchCacheEntry(
@@ -3382,18 +3382,18 @@ export async function getPersistedMatchCache(): Promise<{
     const allJobIds = new Set<string>()
 
     for (const [k, v] of Object.entries(rawCache)) {
-      if (!v || typeof v !== "object" || typeof (v as any).input_sig !== "string" || !(v as any).input_sig.startsWith("tf_v2_1_")) {
+      if (!v || typeof v !== "object" || typeof (v as any).input_sig !== "string" || !(v as any).input_sig.startsWith("tf_v2_2_")) {
         continue
       }
-      if (k.startsWith("cand_v4_")) {
+      if (k.startsWith("cand_v5_")) {
         if (!hasSkills) continue
-        const jId = k.slice("cand_v4_".length)
+        const jId = k.slice("cand_v5_".length)
         if (jId) {
           candJobIds.add(jId)
           allJobIds.add(jId)
         }
-      } else if (k.startsWith("emp_v4_")) {
-        const rest = k.slice("emp_v4_".length)
+      } else if (k.startsWith("emp_v5_")) {
+        const rest = k.slice("emp_v5_".length)
         const lastUnderscore = rest.lastIndexOf("_")
         if (lastUnderscore !== -1) {
           const pId = rest.slice(0, lastUnderscore)
@@ -3433,9 +3433,9 @@ export async function getPersistedMatchCache(): Promise<{
       const selfScoringProfile = buildScoringProfile(profile)
       for (const jId of candJobIds) {
         const job = jobsById.get(jId)
-        const entry = rawCache[`cand_v4_${jId}`]
+        const entry = rawCache[`cand_v5_${jId}`]
         if (job && entry && entry.input_sig === computeMatchInputSignature(selfScoringProfile, job)) {
-          verifiedCache[`cand_v4_${jId}`] = entry
+          verifiedCache[`cand_v5_${jId}`] = entry
         }
       }
     }
@@ -3476,7 +3476,7 @@ export async function analyzeJobFit(jobId: string, forceRefresh: boolean = false
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
-  const cacheKey = `cand_v4_${jobId}`
+  const cacheKey = `cand_v5_${jobId}`
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -3570,7 +3570,7 @@ export async function analyzeCandidateFit(
   if (!user) return { error: 'Not authenticated' }
 
   const targetProfId = candidateId
-  const cacheKey = `emp_v4_${targetProfId}_${jobId}`
+  const cacheKey = `emp_v5_${targetProfId}_${jobId}`
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -4774,7 +4774,7 @@ export async function searchCandidates(
   let dbQuery = supabase
     .from('profiles')
     .select(
-      'id, created_at, experience_years, skills, structured_skills, bio, min_salary_expectation, preferred_work_model, location, identity_verified'
+      'id, created_at, experience_years, skills, structured_skills, bio, min_salary_expectation, preferred_work_model, location, identity_verified, is_verified'
     )
     .eq('role', 'candidate')
     .eq('is_discoverable', true)
@@ -4837,13 +4837,23 @@ export async function searchCandidates(
         ? normalizeCandidateEducation(prefMeta.education_level)
         : ''
       const normalizedLangs = normalizeLanguageList(prefMeta?.languages, true)
+      const rawPlanStr = String(rawMeta?.plan || prefMeta?.plan || '').toLowerCase().trim()
+      const resolvedSubTier =
+        rawPlanStr === 'prestige' || rawPlanStr === 'pro'
+          ? 'prestige'
+          : rawPlanStr === 'professional'
+          ? 'professional'
+          : 'explorer'
+      const canonicalCerts = parseAndNormalizeCertifications(prefMeta?.certifications || '')
       return {
         ...candidate,
+        subscription_tier: resolvedSubTier,
         is_sandbox_benchmark: isSandboxBenchmark,
         existing_role_connections: roleConnectionsByCandidate[String(candidate.id)] || {},
         industry_vertical: normalizedIndustry,
         education_level: normalizedEdu,
-        certifications: prefMeta?.certifications || '',
+        certifications: canonicalCerts.length > 0 ? canonicalCerts.join(', ') : String(prefMeta?.certifications || ''),
+        canonical_certifications: canonicalCerts,
         languages: normalizedLangs,
         preferred_employment_types: Array.isArray(prefMeta?.employment_types)
           ? prefMeta.employment_types
@@ -4852,23 +4862,81 @@ export async function searchCandidates(
       }
     })
 
+  const tierPriority = (tier?: string): number => {
+    const t = String(tier || '').toLowerCase().trim()
+    if (t === 'prestige' || t === 'pro') return 3
+    if (t === 'professional') return 2
+    return 1
+  }
+
   let mappedCandidates = [...allMappedCandidates].sort((a, b) => {
     const benchA = a.is_sandbox_benchmark ? 1 : 0
     const benchB = b.is_sandbox_benchmark ? 1 : 0
-    return benchA - benchB
+    if (benchA !== benchB) return benchA - benchB
+    const verA = Boolean(a.identity_verified === true || String(a.identity_verified) === 'true' || (a as any).is_verified === true) ? 1 : 0
+    const verB = Boolean(b.identity_verified === true || String(b.identity_verified) === 'true' || (b as any).is_verified === true) ? 1 : 0
+    if (verB !== verA) return verB - verA
+    const tierDiff = tierPriority((b as any).subscription_tier) - tierPriority((a as any).subscription_tier)
+    if (tierDiff !== 0) return tierDiff
+    return (Number(b.experience_years) || 0) - (Number(a.experience_years) || 0)
   })
 
   if (query && query.trim() !== '') {
     const q = query.toLowerCase().trim()
+    const escapeRx = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const matchesTerm = (haystack: string, term: string) => {
+      if (!haystack || !term) return false
+      if (term.length <= 3) {
+        const rx = new RegExp(`(^|[^a-z0-9])${escapeRx(term)}($|[^a-z0-9])`, 'i')
+        return rx.test(haystack)
+      }
+      return haystack.includes(term)
+    }
+    const queryCanonicalCerts = parseAndNormalizeCertifications(query).map((x) => x.toLowerCase())
+    const queryIndustry = q.length >= 4 ? normalizeIndustryVertical(query).toLowerCase() : ''
+    const tokens = q.split(/[\s,;/|]+/).filter((tok) => tok.length >= 2)
     mappedCandidates = mappedCandidates.filter((c) => {
-      const skillMatch = (c.skills || '').toLowerCase().includes(q)
-      const bioMatch = (c.bio || '').toLowerCase().includes(q)
-      const certMatch = (c.certifications || '').toLowerCase().includes(q)
-      const eduMatch = (c.education_level || '').toLowerCase().includes(q)
-      const langMatch = JSON.stringify(c.languages || [])
-        .toLowerCase()
-        .includes(q)
-      return skillMatch || bioMatch || certMatch || eduMatch || langMatch
+      const structuredNames = Array.isArray(c.structured_skills)
+        ? c.structured_skills
+            .map((s: any) => String(typeof s === 'string' ? s : s?.name || s?.skill || '').toLowerCase())
+            .filter(Boolean)
+        : []
+      const structuredText = structuredNames.join(' | ')
+      const flatSkills = String(c.skills || '').toLowerCase()
+      const bioText = String(c.bio || '').toLowerCase()
+      const certText = String(c.certifications || '').toLowerCase()
+      const profCertList = Array.isArray((c as any).canonical_certifications)
+        ? (c as any).canonical_certifications.map((x: string) => x.toLowerCase())
+        : []
+      const indText = String(c.industry_vertical || '').toLowerCase()
+      const eduText = String(c.education_level || '').toLowerCase()
+      const langText = JSON.stringify(c.languages || []).toLowerCase()
+
+      const directHit =
+        matchesTerm(structuredText, q) ||
+        matchesTerm(flatSkills, q) ||
+        matchesTerm(indText, q) ||
+        matchesTerm(certText, q) ||
+        matchesTerm(bioText, q) ||
+        matchesTerm(eduText, q) ||
+        matchesTerm(langText, q)
+      if (directHit) return true
+
+      if (q === 'it' && (indText.includes('it services') || indText.includes('technology, software'))) {
+        return true
+      }
+      if (queryIndustry && indText && indText === queryIndustry) return true
+      if (
+        queryCanonicalCerts.length > 0 &&
+        queryCanonicalCerts.some((qc) => profCertList.includes(qc) || matchesTerm(certText, qc))
+      ) {
+        return true
+      }
+      if (tokens.length > 1) {
+        const haystack = `${structuredText} ${flatSkills} ${indText} ${certText} ${bioText} ${eduText} ${langText}`
+        if (tokens.every((tok) => matchesTerm(haystack, tok))) return true
+      }
+      return false
     })
   }
 

@@ -217,6 +217,9 @@ export default function EmployerCandidateSearch({
   const [languageFilter, setLanguageFilter] = useState('all')
   const [selectedState, setSelectedState] = useState('')
   const [selectedMetro, setSelectedMetro] = useState('')
+  const [activeRoleFilterId, setActiveRoleFilterId] = useState('')
+  const [hasAppliedServerSearch, setHasAppliedServerSearch] = useState(false)
+  const [baselinePool, setBaselinePool] = useState<any[]>([])
 
   const [viewMode, setViewMode] = useState<'live' | 'sandbox'>('live')
   const [candidates, setCandidates] = useState<any[]>([])
@@ -282,7 +285,10 @@ export default function EmployerCandidateSearch({
           searchCandidates("", "", ""),
           getUserBookmarks(),
         ])
-        if (result?.data) setCandidates(result.data)
+        if (result?.data) {
+          setCandidates(result.data)
+          setBaselinePool(result.data)
+        }
         if (bookmarks?.savedCandidateIds) {
           setSavedCandidateIds(bookmarks.savedCandidateIds)
         }
@@ -303,8 +309,8 @@ export default function EmployerCandidateSearch({
           const empEntries: Record<string, any> = {}
           const jobEntries: Record<string, string> = {}
           for (const [k, v] of Object.entries(rawCache)) {
-            if (k.startsWith("emp_v4_") && v && typeof v === "object" && typeof (v as any).input_sig === "string") {
-              const rest = k.slice("emp_v4_".length)
+            if (k.startsWith("emp_v5_") && v && typeof v === "object" && typeof (v as any).input_sig === "string" && (v as any).input_sig.startsWith("tf_v2_2_")) {
+              const rest = k.slice("emp_v5_".length)
               empEntries[rest] = v
               const lastUnderscore = rest.lastIndexOf("_")
               if (lastUnderscore !== -1) {
@@ -356,25 +362,104 @@ export default function EmployerCandidateSearch({
     setTogglingCandidateId(null)
   }
 
+  const computeLocationParam = (stVal: string, metroVal: string) => {
+    if (metroVal) return metroVal
+    if (stVal && stVal !== 'REMOTE_US') return `, ${stVal}`
+    if (stVal === 'REMOTE_US') return 'Remote'
+    return ''
+  }
+
   const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    const trimmedQ = query.trim()
+    const locationFilter = computeLocationParam(selectedState, selectedMetro)
+    setHasAppliedServerSearch(Boolean(trimmedQ || workModel || locationFilter))
+    const result = await searchCandidates(trimmedQ, workModel, locationFilter)
+    if (result.data) setCandidates(result.data)
+    setIsLoading(false)
+  }
 
-    let locationFilter = ''
-    if (selectedMetro) {
-      locationFilter = selectedMetro
-    } else if (selectedState && selectedState !== 'REMOTE_US') {
-      locationFilter = `, ${selectedState}`
-    } else if (selectedState === 'REMOTE_US') {
-      locationFilter = 'Remote'
+  const handleQueryInputChange = async (nextVal: string) => {
+    setQuery(nextVal)
+    if (nextVal.trim() === '' && hasAppliedServerSearch) {
+      setIsLoading(true)
+      const locationFilter = computeLocationParam(selectedState, selectedMetro)
+      setHasAppliedServerSearch(Boolean(workModel || locationFilter))
+      const result = await searchCandidates('', workModel, locationFilter)
+      if (result.data) setCandidates(result.data)
+      setIsLoading(false)
+    }
+  }
+
+  const applyActiveRolePreset = async (jobId: string) => {
+    setActiveRoleFilterId(jobId)
+    setPitchCandidateId(null)
+    setAiMatchData(null)
+    setFeedback(null)
+    if (!jobId) {
+      setSelectedJobId('')
+      setWorkModel('')
+      setEmploymentType('all')
+      setIndustryFilter('all')
+      setEducationFilter('all')
+      setLanguageFilter('all')
+      setIsLoading(true)
+      const locationFilter = computeLocationParam(selectedState, selectedMetro)
+      setHasAppliedServerSearch(Boolean(query.trim() || locationFilter))
+      const result = await searchCandidates(query.trim(), '', locationFilter)
+      if (result.data) setCandidates(result.data)
+      setIsLoading(false)
+      return
+    }
+    const targetJob = activeJobs.find((j) => String(j.id) === String(jobId))
+    setSelectedJobId(jobId)
+    if (!targetJob) return
+
+    const rawModel = String(targetJob.work_model || '').toLowerCase().trim()
+    const nextModel =
+      rawModel === 'remote' || rawModel === 'hybrid' || rawModel === 'onsite'
+        ? rawModel
+        : rawModel === 'on-site'
+        ? 'onsite'
+        : ''
+    setWorkModel(nextModel)
+
+    const jobEmp = getJobEmploymentType(targetJob)
+    setEmploymentType(EMPLOYMENT_TYPES.includes(jobEmp as any) ? jobEmp : 'all')
+
+    const rawInd = String(targetJob.industry_vertical || targetJob.industry || targetJob.job_meta?.industry || '').trim()
+    const matchedInd = STANDARD_INDUSTRY_VERTICALS.find(
+      (v) => v.toLowerCase() === rawInd.toLowerCase()
+    )
+    setIndustryFilter(matchedInd || 'all')
+
+    const jobLangs = getJobRequiredLanguages(targetJob)
+    const firstLang =
+      jobLangs.length === 1
+        ? typeof jobLangs[0] === 'string'
+          ? jobLangs[0]
+          : String((jobLangs[0] as any)?.language || '')
+        : ''
+    if (firstLang && STANDARD_LANGUAGES.includes(firstLang as any)) {
+      setLanguageFilter(firstLang)
+    } else {
+      setLanguageFilter('all')
     }
 
-    const result = await searchCandidates(query, workModel, locationFilter)
+    setIsLoading(true)
+    const locationFilter = computeLocationParam(selectedState, selectedMetro)
+    setHasAppliedServerSearch(Boolean(query.trim() || nextModel || locationFilter))
+    const result = await searchCandidates(query.trim(), nextModel, locationFilter)
     if (result.data) setCandidates(result.data)
     setIsLoading(false)
   }
 
   const resetAllFilters = async () => {
+    setActiveRoleFilterId('')
+    setSelectedJobId('')
+    setPitchCandidateId(null)
+    setAiMatchData(null)
     setQuery('')
     setWorkModel('')
     setEmploymentType('all')
@@ -384,9 +469,13 @@ export default function EmployerCandidateSearch({
     setSelectedState('')
     setSelectedMetro('')
     setOnlyShortlisted(false)
+    setHasAppliedServerSearch(false)
     setIsLoading(true)
     const result = await searchCandidates('', '', '')
-    if (result.data) setCandidates(result.data)
+    if (result.data) {
+      setCandidates(result.data)
+      setBaselinePool(result.data)
+    }
     setIsLoading(false)
   }
 
@@ -507,13 +596,13 @@ export default function EmployerCandidateSearch({
   const { liveCandidatesCount, sandboxCandidatesCount } = useMemo(() => {
     let live = 0
     let sandbox = 0
-    for (const c of candidates) {
+    for (const c of baselinePool) {
       const isDemo = Boolean(c.is_sandbox_benchmark || String(c.bio || '').includes('(Demo)'))
       if (isDemo) sandbox++
       else live++
     }
     return { liveCandidatesCount: live, sandboxCandidatesCount: sandbox }
-  }, [candidates])
+  }, [baselinePool])
 
   const filteredAndSortedCandidates = useMemo(() => {
     const filtered = candidates.filter((candidate) => {
@@ -614,6 +703,16 @@ export default function EmployerCandidateSearch({
           if (verB !== verA) {
             return verB - verA
           }
+          const subTierRank = (c: any): number => {
+            const raw = String(c?.subscription_tier || '').toLowerCase().trim()
+            if (raw === 'prestige' || raw === 'pro') return 3
+            if (raw === 'professional') return 2
+            return 1
+          }
+          const tierDiff = subTierRank(b) - subTierRank(a)
+          if (tierDiff !== 0) {
+            return tierDiff
+          }
           const rankA = getQuickCandidateCardRank(a)
           const rankB = getQuickCandidateCardRank(b)
           if (rankB.totalXp !== rankA.totalXp) {
@@ -702,7 +801,7 @@ export default function EmployerCandidateSearch({
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <span>⚡ TrueFit™ Benchmark Sandbox (Practice Mode)</span>
+              <span>⚡ Practice Mode (Sample Profiles)</span>
               <span className="px-2 py-0.5 rounded-md bg-slate-900 text-[11px] font-black text-amber-300 border border-slate-700">
                 {sandboxCandidatesCount}
               </span>
@@ -711,7 +810,7 @@ export default function EmployerCandidateSearch({
 
           <p className="text-xs text-slate-300 font-medium">
             {viewMode === 'live'
-              ? 'Showing 100% real, vaulted professional profiles from our Founding Members.'
+              ? 'Showing 100% real, ID-verified professional profiles from our Founding Members.'
               : 'Practice Mode: Run live TrueFit Score™ checks on sample profiles without spending Invitation Credits.'}
           </p>
         </div>
@@ -723,7 +822,7 @@ export default function EmployerCandidateSearch({
                 <span>🟢 Founding Member Onboarding Active</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Verified professionals are currently uploading resumes, locking in dealbreakers, and completing Stripe Identity checks across all 28 verticals. Want to test-drive TrueFit Score™ scoring right now?
+                Verified professionals are uploading resumes, setting preferences, and completing ID checks across all 28 industries. Want to try TrueFit Score™ checks right now?
               </p>
             </div>
             <button
@@ -731,17 +830,17 @@ export default function EmployerCandidateSearch({
               onClick={() => switchViewMode('sandbox')}
               className="shrink-0 w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black text-center transition-colors cursor-pointer whitespace-normal sm:whitespace-nowrap shadow-xs"
             >
-              ⚡ Launch Interactive Benchmark Sandbox →
+              ⚡ Try Practice Mode ({sandboxCandidatesCount} Sample Profiles) →
             </button>
           </div>
         ) : (
           <div className="rounded-xl bg-amber-950/50 border border-amber-500/40 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-0.5">
               <div className="text-xs font-extrabold text-amber-300 flex items-center gap-1.5">
-                <span>⚡ Interactive Benchmark Sandbox — Zero Invitation Credits Used</span>
+                <span>⚡ Practice Mode — Zero Invitation Credits Used</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Select any of your active roles on the {sandboxCandidatesCount} (Demo) sample professional vaults below to test-drive TrueFit Score™ scoring and dealbreaker firewalls across all 28 industries.
+                Select any of your open roles on the {sandboxCandidatesCount} sample profiles below to preview TrueFit Score™ breakdowns and preference checks across all 28 industries.
               </p>
             </div>
             <button
@@ -760,6 +859,43 @@ export default function EmployerCandidateSearch({
         onSubmit={handleSearchSubmit}
         className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-300 shadow-xs space-y-3.5 border-slate-300"
       >
+        {activeJobs.length > 0 && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-slate-200">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-extrabold uppercase tracking-wider">
+                Active Role Preset
+              </span>
+              <span className="text-xs font-bold text-slate-600">
+                Load filters &amp; pre-select role for TrueFit Score™ checks:
+              </span>
+            </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <select
+                value={activeRoleFilterId}
+                onChange={(e) => applyActiveRolePreset(e.target.value)}
+                className="w-full sm:w-80 rounded-xl border-2 border-indigo-200 bg-indigo-50/50 px-3 py-2 text-xs font-extrabold text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
+              >
+                <option value="">All Open Roles (Manual Filters)</option>
+                {activeJobs.map((job) => (
+                  <option key={job.id} value={job.id}>
+                    {job.title} ({getJobEmploymentType(job)})
+                  </option>
+                ))}
+              </select>
+              {activeRoleFilterId && (
+                <button
+                  type="button"
+                  onClick={() => applyActiveRolePreset('')}
+                  className="px-2.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-extrabold text-slate-600 cursor-pointer shrink-0"
+                  title="Clear active role filter preset"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Row 1: Keyword Input + Work Model + Sort By + Filters Drawer Toggle + Search Button */}
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5">
           <div className="relative flex-1">
@@ -778,11 +914,21 @@ export default function EmployerCandidateSearch({
             </svg>
             <input
               type="text"
-              placeholder="Search skills, certifications, languages, or keywords..."
+              placeholder="Search skills, certifications, industries, or keywords..."
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border-2 border-slate-300 bg-slate-50 focus:bg-white focus:border-indigo-500 text-xs sm:text-sm font-medium text-slate-900 focus:outline-none border-slate-300"
+              onChange={(e) => handleQueryInputChange(e.target.value)}
+              className="w-full pl-10 pr-9 py-2.5 rounded-xl border-2 border-slate-300 bg-slate-50 focus:bg-white focus:border-indigo-500 text-xs sm:text-sm font-medium text-slate-900 focus:outline-none border-slate-300"
             />
+            {query.length > 0 && (
+              <button
+                type="button"
+                onClick={() => handleQueryInputChange('')}
+                aria-label="Clear search"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs font-black cursor-pointer"
+              >
+                ✕
+              </button>
+            )}
           </div>
 
           <div className="grid grid-cols-2 sm:flex flex-wrap items-center gap-2 shrink-0">
@@ -1045,6 +1191,8 @@ export default function EmployerCandidateSearch({
             )}
 
             {(activeAdvancedCount > 0 ||
+              Boolean(activeRoleFilterId) ||
+              hasAppliedServerSearch ||
               workModel !== '' ||
               query.trim() !== '' ||
               onlyShortlisted) && (
@@ -1115,7 +1263,7 @@ export default function EmployerCandidateSearch({
               {onlyShortlisted
                 ? 'Click "Shortlist" on any anonymous professional card to assemble a comparison pool before sending an invitation.'
                 : viewMode === 'live'
-                ? 'New professionals are currently joining this industry. Switch to Practice Mode to test TrueFit Score™ checks on our 56 sample profiles.'
+                ? `No verified profiles match this exact filter right now. Switch to Practice Mode to try TrueFit Score™ checks on our ${sandboxCandidatesCount} sample profiles, or reset filters below.`
                 : 'Try resetting your active filters to broaden your search.'}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
@@ -1125,7 +1273,7 @@ export default function EmployerCandidateSearch({
                   onClick={() => switchViewMode('sandbox')}
                   className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-colors cursor-pointer shadow-xs"
                 >
-                  ⚡ Test-Drive TrueFit Score™ in Practice Sandbox ({sandboxCandidatesCount} Demo Profiles) →
+                  ⚡ Try Practice Mode ({sandboxCandidatesCount} Sample Profiles) →
                 </button>
               )}
               <button
@@ -1303,7 +1451,7 @@ export default function EmployerCandidateSearch({
                       <div className="shrink-0">
                         {candidate.is_sandbox_benchmark ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-300 text-amber-900 text-[11px] font-extrabold uppercase tracking-wider">
-                            ⚡ TrueFit™ Benchmark • Practice Profile
+                            ⚡ Sample Practice Profile
                           </span>
                         ) : (
                           <RankAndFounderPill
@@ -1368,18 +1516,14 @@ export default function EmployerCandidateSearch({
                     <span className="font-bold text-slate-800">
                       {candidateIndustry || 'General / Cross-Industry'}
                     </span>
-                    {horizonDlcActive && (
+                    {horizonDlcActive && industryFilter !== 'all' && horizonInfo.isAdjacentHorizonMatch && (
                       <>
                         <span className="text-slate-300">•</span>
                         <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-extrabold text-[11px] border ${
-                        horizonInfo.isAdjacentHorizonMatch
-                          ? 'bg-sky-50 text-sky-900 border-sky-300'
-                          : 'bg-indigo-50/70 text-indigo-900 border-indigo-200'
-                      }`}
-                      title={`Transferable Skills Match (${horizonInfo.topSharedAxes.join(' + ')})`}
-                    >
-                      🧭 {horizonInfo.isAdjacentHorizonMatch ? `Related Industry Match (${horizonInfo.targetVerticalScore}%)` : `Transferable Fit: ${horizonInfo.targetVerticalScore}%`}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-extrabold text-[11px] border bg-sky-50 text-sky-900 border-sky-300"
+                          title={`Transferable Skills Match (${horizonInfo.topSharedAxes.join(' + ')})`}
+                        >
+                          🧭 Related Industry Match ({horizonInfo.targetVerticalScore}%)
                         </span>
                       </>
                     )}
@@ -1520,7 +1664,7 @@ export default function EmployerCandidateSearch({
                               }
                               className="px-3.5 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-xs font-extrabold hover:bg-slate-100 transition-colors cursor-pointer whitespace-nowrap"
                             >
-                              ↻ Re-Run Fit
+                              ↻ Recalculate Score
                             </button>
                           )}
                           <button
@@ -1876,6 +2020,8 @@ export default function EmployerCandidateSearch({
                               if (savedJobForCand && savedPairData) {
                                 setSelectedJobId(savedJobForCand)
                                 setAiMatchData(savedPairData)
+                              } else if (activeRoleFilterId) {
+                                handleRoleSelect(activeRoleFilterId, cid)
                               } else if (activeJobs.length === 1) {
                                 const onlyJobId = String(activeJobs[0].id)
                                 handleRoleSelect(onlyJobId, candidate.id)

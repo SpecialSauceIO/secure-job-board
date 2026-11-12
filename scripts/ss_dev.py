@@ -102,8 +102,8 @@ def cmd_inspect(repo_dir, args):
         sys.exit(1)
     receipt_path = repo_dir / ".git" / ".ss_inspect_receipt.json"
     receipt = load_json(receipt_path, {"files": {}})
-    total_budget = 1120
-    per_budget = max(260, total_budget // max(1, len(args)))
+    total_budget = 14000
+    per_budget = max(2200, total_budget // max(1, len(args)))
     sections = []
     now_ts = int(time.time())
 
@@ -132,7 +132,7 @@ def cmd_inspect(repo_dir, args):
             clipped = False
             for ln_no in range(s_num, e_num + 1):
                 raw_ln = flines[ln_no - 1]
-                disp = str(ln_no) + ": " + raw_ln[:320]
+                disp = str(ln_no) + "|" + raw_ln[:1400]
                 if used + len(disp) + 1 > per_budget - 55:
                     clipped = True
                     break
@@ -150,7 +150,7 @@ def cmd_inspect(repo_dir, args):
                     # Include 2 lines context above and below when needle matches
                     c_start = max(1, idx - 1)
                     c_end = min(len(flines), idx + 1)
-                    disp = str(idx) + ": " + raw_ln.strip()[:260]
+                    disp = str(idx) + "|" + raw_ln[:1400]
                     if used + len(disp) + 1 > per_budget - 40:
                         body_lines.append("[NEEDLE OUTPUT CAP REACHED — INSPECT LINE RANGE DIRECTLY]")
                         break
@@ -298,12 +298,48 @@ def cmd_patch(repo_dir, args):
             print("[BLOCKED - EXPIRED RECEIPT] Inspection receipt for " + rel + " is older than 2 hours. Re-run `ss inspect`.")
             sys.exit(1)
 
-        orig_text = backups[p].decode("utf-8", errors="replace")
+        orig_text = backups[p].decode("utf-8", errors="replace").replace("\u00a0", " ")
+        cur_text = staged_contents[p].replace("\u00a0", " ")
+        staged_contents[p] = cur_text
+        old_str = old_str.replace("\u00a0", " ")
+        new_str = new_str.replace("\u00a0", " ")
         occ_orig = orig_text.count(old_str)
-        cur_text = staged_contents[p]
         occ_cur = cur_text.count(old_str)
+        if (occ_cur != 1 or occ_orig < 1) and "\n" in old_str:
+            old_lines = old_str.splitlines()
+            old_stripped = [ln.strip() for ln in old_lines]
+            orig_lines = orig_text.splitlines()
+            cur_lines = cur_text.splitlines()
+            n_ln = len(old_lines)
+            orig_hits = [i for i in range(len(orig_lines) - n_ln + 1) if [x.strip() for x in orig_lines[i:i + n_ln]] == old_stripped]
+            cur_hits = [i for i in range(len(cur_lines) - n_ln + 1) if [x.strip() for x in cur_lines[i:i + n_ln]] == old_stripped]
+            if len(orig_hits) == 1 and len(cur_hits) == 1:
+                matched_orig_block = "\n".join(orig_lines[orig_hits[0]:orig_hits[0] + n_ln])
+                matched_cur_block = "\n".join(cur_lines[cur_hits[0]:cur_hits[0] + n_ln])
+                fn_idx = next((k for k, ln in enumerate(old_lines) if ln.strip()), 0)
+                old_lead = len(old_lines[fn_idx]) - len(old_lines[fn_idx].lstrip(" "))
+                real_lead = len(cur_lines[cur_hits[0] + fn_idx]) - len(cur_lines[cur_hits[0] + fn_idx].lstrip(" "))
+                delta = real_lead - old_lead
+                if delta != 0:
+                    reindented = []
+                    for nln in new_str.splitlines():
+                        if not nln.strip():
+                            reindented.append("")
+                        elif delta > 0:
+                            reindented.append((" " * delta) + nln)
+                        else:
+                            trim_n = min(-delta, len(nln) - len(nln.lstrip(" ")))
+                            reindented.append(nln[trim_n:])
+                    new_str = "\n".join(reindented)
+                old_str = matched_orig_block if matched_orig_block == matched_cur_block else matched_cur_block
+                occ_orig = orig_text.count(matched_orig_block)
+                occ_cur = cur_text.count(old_str)
         if occ_cur != 1 or occ_orig < 1:
-            print("[BLOCKED - ANCHOR MISMATCH] Edit #" + str(idx) + " on " + rel + ": `old` matched " + str(occ_cur) + " times (must match uniquely 1 time). Zero guessing allowed.")
+            probe = next((ln.strip() for ln in old_str.splitlines() if ln.strip()), "")
+            near = [str(lno) + "|" + rln[:140] for lno, rln in enumerate(cur_text.splitlines(), 1) if probe and probe[:28] in rln][:6]
+            print("[BLOCKED - ANCHOR MISMATCH] Edit #" + str(idx) + " on " + rel + ": `old` matched " + str(occ_cur) + " times (orig=" + str(occ_orig) + ").")
+            if near:
+                print("Nearest lines on disk:\n  " + "\n  ".join(near))
             sys.exit(1)
 
         # Verify 100% of target lines in original file were inspected in receipt ranges!

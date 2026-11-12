@@ -37,13 +37,33 @@ export default async function EmployerSearchPage() {
     if (isOrgVerified) {
       const { data: jobs } = await supabase
         .from('jobs')
-        .select(
-          'id, title, work_model, salary_min, salary_max, structured_requirements, is_active'
-        )
+        .select('*')
         .eq('organization_id', member.organization_id)
 
       if (jobs && jobs.length > 0) {
-        activeJobs = jobs.filter((j) => j.is_active === true)
+        activeJobs = jobs
+          .filter((j) => j.is_active === true)
+          .map((j: any) => {
+            const rawReqs = Array.isArray(j.structured_requirements) ? j.structured_requirements : []
+            const meta = rawReqs.find((r: any) => r && r._ss_job_meta === true) || {}
+            const visibleReqs = rawReqs.filter((r: any) => !r || (!r._ss_job_meta && !r._ss_meta))
+            const industryVal = meta.industry || j.industry_vertical || j.industry || ''
+            const eduVal = meta.education_req || j.education_level || j.education_req || ''
+            return {
+              ...j,
+              industry_vertical: industryVal,
+              industry: industryVal,
+              education_level: eduVal,
+              education_req: eduVal,
+              required_certifications: meta.required_certifications || j.required_certifications || '',
+              location: meta.location || j.location || '',
+              experience_level: meta.experience_level || j.experience_level || '',
+              employment_type: meta.employment_type || j.employment_type || 'Full-Time (W-2)',
+              required_languages: meta.required_languages || j.required_languages || [],
+              job_meta: meta,
+              structured_requirements: visibleReqs,
+            }
+          })
 
         const allOrgJobIds = jobs.map((j) => j.id)
         const { count } = await supabase

@@ -240,7 +240,7 @@ export function CandidateJobFeed({
       }
       const srv: Record<string, any> = {}
       for (const [k, v] of Object.entries(res.cache || {})) {
-        if (k.startsWith("cand_v4_") && v && typeof v === "object" && typeof (v as any).input_sig === "string") {
+        if (k.startsWith("cand_v5_") && v && typeof v === "object" && typeof (v as any).input_sig === "string" && (v as any).input_sig.startsWith("tf_v2_2_")) {
           srv[k.slice(8)] = v
         }
       }

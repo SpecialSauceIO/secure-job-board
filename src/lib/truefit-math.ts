@@ -798,7 +798,7 @@ export function normalizeTrueFitScores(rawMatchData: any, profile?: any, job?: a
     weightedOverall = Math.min(weightedOverall, coreScore + 10)
   }
 
-  if (!isZeroSkillMismatch && baseline.deterministicOverall >= 40 && rawAiCore >= 35 && weightedOverall < 40) {
+  if (!isZeroSkillMismatch && baseline.deterministicOverall >= 40 && (rawAiCore >= 35 || baseline.reqMatchCount >= 2) && weightedOverall < 40) {
     weightedOverall = 40
   }
 

@@ -2,17 +2,17 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { createClient as createServerSupabase } from "@/utils/supabase/server"
 import Groq from "groq-sdk"
-import { normalizeTrueFitScores } from "@/lib/truefit-math"
+import { computeMultiVariablePillarBaseline, normalizeTrueFitScores } from "@/lib/truefit-math"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
 
 const BENCHMARK_SPECS = [
-  { tier: "TIER_1_100", email: "calib.tier100@specialsauce.test", reqs: 5, total: 5, base: { c: 96, t: 98, i: 95, l: 98, m: 92 }, minPass: 90, maxPass: 99 },
-  { tier: "TIER_2_80", email: "calib.tier80@specialsauce.test", reqs: 4, total: 5, base: { c: 84, t: 77, i: 92, l: 98, m: 86 }, minPass: 75, maxPass: 89 },
-  { tier: "TIER_3_60", email: "calib.tier60@specialsauce.test", reqs: 3, total: 5, base: { c: 59, t: 53, i: 88, l: 98, m: 67 }, minPass: 55, maxPass: 72 },
-  { tier: "TIER_4_40", email: "calib.tier40@specialsauce.test", reqs: 2, total: 5, base: { c: 38, t: 35, i: 49, l: 90, m: 55 }, minPass: 40, maxPass: 48 },
-  { tier: "TIER_5_20_BAKER", email: "calib.tier20.baker@specialsauce.test", reqs: 0, total: 5, base: { c: 8, t: 12, i: 16, l: 88, m: 35 }, minPass: 5, maxPass: 20 }
+  { tier: "TIER_1_100", email: "calib.tier100@specialsauce.test", reqs: 5, total: 5, minPass: 90, maxPass: 99 },
+  { tier: "TIER_2_80", email: "calib.tier80@specialsauce.test", reqs: 4, total: 5, minPass: 75, maxPass: 89 },
+  { tier: "TIER_3_60", email: "calib.tier60@specialsauce.test", reqs: 3, total: 5, minPass: 55, maxPass: 72 },
+  { tier: "TIER_4_40", email: "calib.tier40@specialsauce.test", reqs: 2, total: 5, minPass: 40, maxPass: 48 },
+  { tier: "TIER_5_20_BAKER", email: "calib.tier20.baker@specialsauce.test", reqs: 0, total: 5, minPass: 5, maxPass: 20 }
 ]
 
 async function sendCalibrationAlertEmail(payload: {
@@ -140,20 +140,72 @@ export async function GET(req: NextRequest) {
       continue
     }
     const { data: prof } = await supabase.from("profiles").select("*").eq("id", u.id).single()
+    const rawSkills = Array.isArray(prof?.structured_skills) ? prof.structured_skills : []
+    const prefMeta = rawSkills.find((s: any) => s && s._ss_pref_meta === true) || {}
+    const visibleSkills = rawSkills.filter((s: any) => !s || (!s._ss_pref_meta && !s._ss_meta))
+    const enrichedProf = {
+      ...prof,
+      industry_vertical: prefMeta.industry_vertical || prof?.industry_vertical || "",
+      education_level: prefMeta.education_level || prof?.education_level || "",
+      availability_window: prefMeta.availability_window || "Standard (2 Weeks Notice)",
+      certifications: prefMeta.certifications || prof?.certifications || "",
+      languages: Array.isArray(prefMeta.languages) ? prefMeta.languages : [],
+      structured_skills: visibleSkills,
+    }
+
+    const rawReqs = Array.isArray(job.structured_requirements) ? job.structured_requirements : []
+    const jobMeta = rawReqs.find((r: any) => r && r._ss_job_meta === true) || {}
+    const visibleReqs = rawReqs.filter((r: any) => !r || (!r._ss_job_meta && !r._ss_meta))
+    const enrichedJob = {
+      ...job,
+      ...jobMeta,
+      job_meta: jobMeta,
+      industry: jobMeta.industry || job.industry || "",
+      education_req: jobMeta.education_req || job.education_req || "",
+      required_certifications: jobMeta.required_certifications || job.required_certifications || "",
+      location: jobMeta.location || job.location || "",
+      structured_requirements: visibleReqs,
+    }
+
+    const dynamicBaseline = computeMultiVariablePillarBaseline(enrichedProf, enrichedJob)
     const t0 = Date.now()
     let raw: any = {}
-    let providerUsed = "openai/gpt-oss-120b"
+    let providerUsed = targetModel
 
     try {
       const chat = await groq.chat.completions.create({
         model: targetModel,
         temperature: 0.1,
-          max_tokens: 900,
+        max_tokens: 900,
         response_format: { type: "json_object" },
         messages: [
-          { role: "system", content: "Return strictly JSON: {\"overall_score\": number, \"radar_data\": [{\"subject\": \"Core Competencies\", \"score\": number}, {\"subject\": \"Skill Tenure\", \"score\": number}, {\"subject\": \"Logistics & Pay\", \"score\": number}, {\"subject\": \"Industry & Creds\", \"score\": number}, {\"subject\": \"Execution & Comm.\", \"score\": number}], \"brief_analysis\": string}" },
-          { role: "user", content: "Professional Skills: " + JSON.stringify(prof?.structured_skills) + " | Bio: " + prof?.bio + " | Job Title: " + job.title + " | Job Reqs: " + JSON.stringify(job.structured_requirements) }
-        ]
+          {
+            role: "system",
+            content:
+              "You are the Special Sauce TrueFit Score™ v2.2 calibration evaluator across all 28 industry verticals. Evaluate the professional purely on transferable competencies, canonicalized certifications, domain alignment, tenure depth, and logistics. Return strictly JSON: {\"overall_score\": number, \"radar_data\": [{\"subject\": \"Core Competencies\", \"score\": number}, {\"subject\": \"Skill Tenure\", \"score\": number}, {\"subject\": \"Logistics & Pay\", \"score\": number}, {\"subject\": \"Industry & Creds\", \"score\": number}, {\"subject\": \"Execution & Comm.\", \"score\": number}], \"brief_analysis\": string}",
+          },
+          {
+            role: "user",
+            content:
+              "Professional Industry: " + (enrichedProf.industry_vertical || "Unspecified") +
+              " | Experience Years: " + (enrichedProf.experience_years ?? 0) +
+              " | Education: " + (enrichedProf.education_level || "Unspecified") +
+              " | Certifications: " + (enrichedProf.certifications || "None") +
+              " | Work Model Pref: " + (enrichedProf.preferred_work_model || "Any") +
+              " | Location: " + (enrichedProf.location || "US") +
+              " | Min Salary: " + (enrichedProf.min_salary_expectation ?? 0) +
+              " | Structured Skills: " + JSON.stringify(visibleSkills) +
+              " | Bio: " + (enrichedProf.bio || "") +
+              " || Job Title: " + enrichedJob.title +
+              " | Job Industry: " + (enrichedJob.industry || "Unspecified") +
+              " | Job Education Req: " + (enrichedJob.education_req || "Unspecified") +
+              " | Job Required Certs: " + (enrichedJob.required_certifications || "None") +
+              " | Job Work Model: " + (enrichedJob.work_model || "Any") +
+              " | Job Location: " + (enrichedJob.location || "US") +
+              " | Job Max Salary: " + (enrichedJob.salary_max ?? 0) +
+              " | Job Structured Reqs: " + JSON.stringify(visibleReqs),
+          },
+        ],
       })
       raw = JSON.parse(chat.choices[0]?.message?.content || "{}")
     } catch (err: any) {
@@ -164,7 +216,7 @@ export async function GET(req: NextRequest) {
     const ms = Date.now() - t0
     totalLatency += ms
 
-    const normalized = normalizeTrueFitScores(raw, prof, job)
+    const normalized = normalizeTrueFitScores(raw, enrichedProf, enrichedJob)
     const overall = normalized.finalOverall
 
     const inBand = overall >= spec.minPass && overall <= spec.maxPass
@@ -174,10 +226,11 @@ export async function GET(req: NextRequest) {
 
     results[spec.tier] = {
       overall,
+      deterministic_baseline: dynamicBaseline.deterministicOverall,
       expected: spec.minPass + "-" + spec.maxPass + "%",
       passed: inBand,
       latency_ms: ms,
-      provider: providerUsed
+      provider: providerUsed,
     }
 
     await supabase.from("applications").update({ match_score: overall }).eq("job_id", job.id).eq("candidate_id", u.id)
@@ -210,7 +263,9 @@ export async function GET(req: NextRequest) {
   } catch {}
 
   let alertResult: any = null
-  if (status === "failed" || req.nextUrl.searchParams.get("test_alert") === "1") {
+  const isLocalHost = (req.nextUrl.hostname || "").includes("localhost") || (req.nextUrl.hostname || "") === "127.0.0.1"
+  const suppressEmail = req.nextUrl.searchParams.get("no_email") === "1" || (isLocalHost && req.nextUrl.searchParams.get("test_alert") !== "1")
+  if (!suppressEmail && (status === "failed" || req.nextUrl.searchParams.get("test_alert") === "1")) {
     alertResult = await sendCalibrationAlertEmail({
       status,
       avgLatency,
