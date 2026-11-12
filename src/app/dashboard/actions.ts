@@ -2420,26 +2420,31 @@ export async function searchJobs(
 
   if (query && query.trim() !== '') {
     const q = query.toLowerCase().trim()
+    const escapedQ = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const shortWordRx = q.length <= 3 ? new RegExp(`(^|[^a-z0-9])${escapedQ}([^a-z0-9]|$)`, 'i') : null
+    const matchesText = (val: any) => {
+      const str = String(val || '').toLowerCase()
+      if (!str) return false
+      return shortWordRx ? shortWordRx.test(str) : str.includes(q)
+    }
     filteredJobs = filteredJobs.filter((j: any) => {
-      const titleMatch = j.title?.toLowerCase().includes(q)
-      const descMatch = j.description?.toLowerCase().includes(q)
-      const locMatch = j.location?.toLowerCase().includes(q)
-      const indMatch = j.industry?.toLowerCase().includes(q)
-      const certMatch = j.required_certifications?.toLowerCase().includes(q)
-      const langMatch = JSON.stringify(j.required_languages || [])
-        .toLowerCase()
-        .includes(q)
-      const reqMatch = JSON.stringify(j.structured_requirements || [])
-        .toLowerCase()
-        .includes(q)
+      const visibleReqs = Array.isArray(j.structured_requirements)
+        ? j.structured_requirements.filter((r: any) => r && !r._ss_job_meta && !r._ss_meta)
+        : []
+      const reqText = visibleReqs
+        .map((r: any) => (typeof r === 'string' ? r : `${r.skill || r.name || ''} ${r.category || ''}`))
+        .join(' ')
+      const langText = Array.isArray(j.required_languages)
+        ? j.required_languages.map((l: any) => (typeof l === 'string' ? l : l?.language || '')).join(' ')
+        : ''
       return (
-        titleMatch ||
-        descMatch ||
-        locMatch ||
-        indMatch ||
-        certMatch ||
-        langMatch ||
-        reqMatch
+        matchesText(j.title) ||
+        matchesText(j.description) ||
+        matchesText(j.location) ||
+        matchesText(j.industry) ||
+        matchesText(j.required_certifications) ||
+        matchesText(langText) ||
+        matchesText(reqText)
       )
     })
   }

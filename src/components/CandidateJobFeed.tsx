@@ -711,7 +711,7 @@ export function CandidateJobFeed({
                     <div className="shrink-0">
                       {meta.isSandboxBenchmark ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-300 text-amber-900 text-[11px] font-extrabold uppercase tracking-wider">
-                          ⚡ TrueFit™ Benchmark • Practice Role
+                          ⚡ Practice Role (Sample)
                         </span>
                       ) : (
                         <RankAndFounderPill
@@ -1097,10 +1097,10 @@ export function CandidateJobFeed({
                         </span>
                       ) : meta.isSandboxBenchmark ? (
                         <span
-                          title="Practice Benchmark Role — Test your TrueFit Score™ for free without using any monthly applications"
+                          title="Practice Role — Check your TrueFit Score™ for free without using any monthly applications"
                           className="w-full sm:w-auto text-center justify-center px-4 py-2 rounded-xl bg-amber-50 text-amber-900 border border-amber-300 text-xs font-extrabold"
                         >
-                          ⚡ Benchmark Preview (0 Apps Used)
+                          ⚡ Practice Role (0 Apps Used)
                         </span>
                       ) : (
                         !isVerified && score >= MIN_MATCH_THRESHOLD ? (

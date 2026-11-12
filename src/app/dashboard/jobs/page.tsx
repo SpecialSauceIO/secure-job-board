@@ -102,6 +102,7 @@ export default function CandidateJobsPage() {
   const [selectedMetro, setSelectedMetro] = useState('')
 
   const [rawJobs, setRawJobs] = useState<any[]>([])
+  const [baselineJobs, setBaselineJobs] = useState<any[]>([])
   const [savedEmpTypes, setSavedEmpTypes] = useState<string[]>([])
   const [savedJobIds, setSavedJobIds] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<'live' | 'sandbox'>('live')
@@ -125,7 +126,7 @@ export default function CandidateJobsPage() {
       if (params.get('saved') === 'true') {
         setOnlySavedJobs(true)
       }
-      if (params.get('mode') === 'sandbox') {
+      if (params.get('mode') === 'sandbox' || params.get('mode') === 'practice') {
         setViewMode('sandbox')
       }
     }
@@ -179,7 +180,9 @@ export default function CandidateJobsPage() {
       }
 
       const initialJobs = await searchJobs('', 'all', '')
-      setRawJobs(initialJobs || [])
+      const safeInitial = initialJobs || []
+      setRawJobs(safeInitial)
+      setBaselineJobs(safeInitial)
       setIsLoading(false)
     }
 
@@ -194,21 +197,24 @@ export default function CandidateJobsPage() {
       ? stateObj.metros
       : []
 
-  const handleSearch = async (e?: React.FormEvent) => {
+  const buildLocationFilter = () => {
+    if (selectedMetro) return selectedMetro
+    if (selectedState && selectedState !== 'REMOTE_US') return `, ${selectedState}`
+    if (selectedState === 'REMOTE_US') return 'Remote'
+    return ''
+  }
+
+  const handleSearch = async (e?: React.FormEvent, overrideQuery?: string) => {
     if (e) e.preventDefault()
+    const activeQuery = overrideQuery !== undefined ? overrideQuery : query
     setIsLoading(true)
-
-    let locationFilter = ''
-    if (selectedMetro) {
-      locationFilter = selectedMetro
-    } else if (selectedState && selectedState !== 'REMOTE_US') {
-      locationFilter = `, ${selectedState}`
-    } else if (selectedState === 'REMOTE_US') {
-      locationFilter = 'Remote'
+    const locationFilter = buildLocationFilter()
+    const results = await searchJobs(activeQuery, workModel, locationFilter)
+    const safeResults = results || []
+    setRawJobs(safeResults)
+    if (activeQuery.trim() === '' && workModel === 'all' && locationFilter === '') {
+      setBaselineJobs(safeResults)
     }
-
-    const results = await searchJobs(query, workModel, locationFilter)
-    setRawJobs(results || [])
     setIsLoading(false)
   }
 
@@ -247,21 +253,24 @@ export default function CandidateJobsPage() {
     setOnlySavedJobs(false)
     setIsLoading(true)
     const fresh = await searchJobs('', 'all', '')
-    setRawJobs(fresh || [])
+    const safeFresh = fresh || []
+    setRawJobs(safeFresh)
+    setBaselineJobs(safeFresh)
     setIsLoading(false)
   }
 
   const { liveRolesCount, sandboxRolesCount } = useMemo(() => {
+    const sourcePool = baselineJobs.length > 0 ? baselineJobs : rawJobs
     let live = 0
     let sandbox = 0
-    for (const j of rawJobs) {
+    for (const j of sourcePool) {
       const m = extractJobFilterMeta(j)
       if (m.isExpired) continue
       if (m.isSandboxBenchmark) sandbox++
       else live++
     }
     return { liveRolesCount: live, sandboxRolesCount: sandbox }
-  }, [rawJobs])
+  }, [baselineJobs, rawJobs])
 
   // Unified client-side filter + sort
   const filteredAndSortedJobs = useMemo(() => {
@@ -451,7 +460,7 @@ export default function CandidateJobsPage() {
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <span>⚡ TrueFit™ Benchmark Sandbox (Practice Mode)</span>
+              <span>⚡ Practice Mode (Sample Roles)</span>
               <span className="px-2 py-0.5 rounded-md bg-slate-900 text-[11px] font-black text-amber-300 border border-slate-700">
                 {sandboxRolesCount}
               </span>
@@ -461,7 +470,7 @@ export default function CandidateJobsPage() {
           <p className="text-xs text-slate-300 font-medium">
             {viewMode === 'live'
               ? 'Showing 100% verified, active roles from Founding Partner employers.'
-              : 'Practice Mode: Run live TrueFit Score™ benchmarks across all 28 industries without using applications.'}
+              : 'Practice Mode: Check your TrueFit Score™ on sample roles across all 28 industries without using any monthly applications.'}
           </p>
         </div>
 
@@ -472,7 +481,7 @@ export default function CandidateJobsPage() {
                 <span>🟢 Founding Member Onboarding Active</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Verified employers are currently completing corporate domain verification and staging roles across all 28 verticals. Want to test-drive your TrueFit Score™ right now?
+                Verified employers are actively setting up their accounts and posting open jobs across all 28 industries. Want to test-drive your TrueFit Score™ right now?
               </p>
             </div>
             <button
@@ -480,17 +489,17 @@ export default function CandidateJobsPage() {
               onClick={() => switchViewMode('sandbox')}
               className="shrink-0 w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black text-center transition-colors cursor-pointer whitespace-normal sm:whitespace-nowrap shadow-xs"
             >
-              ⚡ Launch Interactive Benchmark Sandbox →
+              ⚡ Try Practice Mode ({sandboxRolesCount} Sample Roles) →
             </button>
           </div>
         ) : (
           <div className="rounded-xl bg-amber-950/50 border border-amber-500/40 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-0.5">
               <div className="text-xs font-extrabold text-amber-300 flex items-center gap-1.5">
-                <span>⚡ Interactive Benchmark Sandbox — Zero Applications Used</span>
+                <span>⚡ Practice Mode — Zero Applications Used</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Run live TrueFit Score™ checks against our {sandboxRolesCount} (Demo) benchmark roles across all 28 industries to see how your resume and skill matrix score across all 5 dimensions.
+                Run live TrueFit Score™ checks on our {sandboxRolesCount} sample roles across all 28 industries to see how your skills and experience match up before applying to live jobs.
               </p>
             </div>
             <button
@@ -528,10 +537,37 @@ export default function CandidateJobsPage() {
             <input
               type="text"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                const nextVal = e.target.value
+                setQuery(nextVal)
+                if (nextVal.trim() === '' && query.trim() !== '') {
+                  if (workModel === 'all' && buildLocationFilter() === '' && baselineJobs.length > 0) {
+                    setRawJobs(baselineJobs)
+                  } else {
+                    void handleSearch(undefined, '')
+                  }
+                }
+              }}
               placeholder="Search title, skills, or certifications..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border-2 border-slate-300 bg-slate-50 text-xs sm:text-sm font-medium text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none border-slate-300"
+              className="w-full pl-10 pr-9 py-2.5 rounded-xl border-2 border-slate-300 bg-slate-50 text-xs sm:text-sm font-medium text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none border-slate-300"
             />
+            {query.trim() !== '' && (
+              <button
+                type="button"
+                aria-label="Clear search"
+                onClick={() => {
+                  setQuery('')
+                  if (workModel === 'all' && buildLocationFilter() === '' && baselineJobs.length > 0) {
+                    setRawJobs(baselineJobs)
+                  } else {
+                    void handleSearch(undefined, '')
+                  }
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-600 text-[11px] font-black flex items-center justify-center cursor-pointer transition-colors"
+              >
+                ✕
+              </button>
+            )}
           </div>
 
           <div className="grid grid-cols-2 sm:flex items-center gap-2 shrink-0">
@@ -776,7 +812,9 @@ export default function CandidateJobsPage() {
                 : 'Live Roles Rolling Out Daily'}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Verified employers are currently completing domain &amp; Stripe Identity checks. While live roles populate in this vertical, test-drive your resume against our 28 industry benchmark roles in the Practice Sandbox!
+              {(activeAdvancedCount > 0 || workModel !== 'all' || query.trim() !== '' || onlySavedJobs)
+                ? `No open jobs match this exact filter right now. Switch to Practice Mode to check your TrueFit Score™ on our ${sandboxRolesCount} sample roles, or reset filters below.`
+                : `Verified employers are actively setting up their accounts and posting open jobs in this industry. While new jobs go live, try checking your TrueFit Score™ on our ${sandboxRolesCount} sample roles in Practice Mode.`}
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
@@ -785,7 +823,7 @@ export default function CandidateJobsPage() {
               onClick={() => switchViewMode('sandbox')}
               className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-colors cursor-pointer shadow-xs"
             >
-              ⚡ Test-Drive TrueFit Score™ in Practice Sandbox ({sandboxRolesCount} Demo Roles) →
+              ⚡ Try Practice Mode ({sandboxRolesCount} Sample Roles) →
             </button>
             {(activeAdvancedCount > 0 || workModel !== 'all' || query.trim() !== '' || onlySavedJobs) && (
               <button
