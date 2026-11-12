@@ -105,20 +105,22 @@ export default function NewJobPage() {
     setJobData((prev) => ({
       ...prev,
       title: data.title || prev.title,
-      work_model: data.work_model || prev.work_model,
+      work_model: matchOpt(data.work_model, ['remote', 'hybrid', 'onsite'], prev.work_model),
       location: data.location || prev.location,
       pay_type: data.pay_type === 'hourly' ? 'hourly' : 'annual',
       salary_min: data.salary_min ? String(data.salary_min) : prev.salary_min,
       salary_max: data.salary_max ? String(data.salary_max) : prev.salary_max,
-      employment_type: data.employment_type || prev.employment_type,
-      experience_level: data.experience_level || prev.experience_level,
+      employment_type: matchOpt(data.employment_type, ["Full-Time (W-2)", "Contract (1099 / Corp-to-Corp)", "Contract-to-Hire", "Part-Time", "Seasonal / Temporary"], prev.employment_type),
+      experience_level: matchOpt(data.experience_level, ["Entry / Junior (0–2 yrs)", "Mid-Level (3–5 yrs)", "Senior (5–8 yrs)", "Lead / Staff / Principal (8+ yrs)", "Executive / Director"], prev.experience_level),
       education_req: data.education_req
         ? normalizeJobEducationReq(data.education_req)
         : prev.education_req,
       required_certifications:
-        typeof data.required_certifications === 'string'
-          ? data.required_certifications
-          : prev.required_certifications,
+        Array.isArray(data.required_certifications)
+          ? data.required_certifications.filter(Boolean).join(', ')
+          : typeof data.required_certifications === 'string' && data.required_certifications.trim()
+            ? data.required_certifications
+            : prev.required_certifications,
       required_languages: data.required_languages
         ? normalizeLanguageList(data.required_languages, true)
         : prev.required_languages,

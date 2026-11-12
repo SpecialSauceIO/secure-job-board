@@ -961,12 +961,30 @@ export function normalizeSingleCertification(rawToken: string): string {
   if (!cleaned) return ''
   const lower = cleaned.toLowerCase()
 
+  const baseLower = lower
+    .replace(/[(][^)]*[)]/g, ' ')
+    .replace(/\b(associate|professional|specialty|foundational|practitioner|level\s*\d+)\b/gi, ' ')
+    .replace(/[-–—:/]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
   for (const cert of STANDARD_CERTIFICATIONS) {
-    if (cert.canonical.toLowerCase() === lower) {
+    const canonLower = cert.canonical.toLowerCase()
+    if (canonLower === lower || (baseLower.length >= 3 && canonLower === baseLower)) {
       return cert.canonical
     }
     for (const alias of cert.aliases) {
-      if (alias.toLowerCase() === lower) {
+      const al = alias.toLowerCase()
+      if (al === lower || (baseLower.length >= 3 && al === baseLower)) {
+        return cert.canonical
+      }
+    }
+  }
+
+  for (const cert of STANDARD_CERTIFICATIONS) {
+    for (const alias of cert.aliases) {
+      const al = alias.toLowerCase()
+      if (al.length >= 5 && (lower.includes(al) || baseLower.includes(al))) {
         return cert.canonical
       }
     }

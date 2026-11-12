@@ -3759,6 +3759,24 @@ export async function parseJobAutoFill(formData: FormData) {
   if (!file) return { error: 'No file provided' }
 
   try {
+    let employerOrgName = ''
+    try {
+      const { data: orgMem } = await supabase
+        .from('organization_members')
+        .select('organization_id, organizations(name)')
+        .eq('user_id', user.id)
+        .limit(1)
+        .maybeSingle()
+      const orgRel = (orgMem as Record<string, unknown> | null)?.organizations
+      if (Array.isArray(orgRel) && orgRel[0] && typeof (orgRel[0] as Record<string, unknown>).name === 'string') {
+        employerOrgName = String((orgRel[0] as Record<string, unknown>).name).trim()
+      } else if (orgRel && typeof (orgRel as Record<string, unknown>).name === 'string') {
+        employerOrgName = String((orgRel as Record<string, unknown>).name).trim()
+      }
+    } catch {
+      // Non-blocking organization lookup
+    }
+
     const arrayBuffer = await file.arrayBuffer()
     const base64Data = Buffer.from(arrayBuffer).toString('base64')
 
@@ -3779,21 +3797,30 @@ export async function parseJobAutoFill(formData: FormData) {
       11. "education_req": Must be one of these exact education requirement options: ${JSON.stringify(JOB_EDUCATION_REQUIREMENTS)}.
       12. "required_certifications": A comma-separated list of any required or preferred certifications/licenses mentioned in the job description (e.g., "AWS Certified, PMP, CompTIA Security+"), or "" if none.
       13. "required_languages": An array of objects representing required/preferred languages for the role (always include English if the job description is in English). Each object MUST have three keys: "language" (e.g., "English", "Spanish"), "modality" ("Both (Written & Verbal)", "Verbal Only", or "Written Only"), and "proficiency" ("Beginner", "Intermediate", "Advanced", or "Fluent / Native").
-      14. "structured_requirements": A JSON array of objects representing the ALL distinct required and preferred professional, domain, operational, credential, leadership, tool, and technical skills/requirements stated in the job description (typically 8-25 items; NEVER cap at 5-8). 
-          Each object MUST have two keys: "skill" (string) and "level" ("Beginner", "Intermediate", or "Expert").
+      14. "structured_requirements": A JSON array of objects representing ALL distinct atomic required and preferred technical, domain, operational, tool, and leadership skills stated in the job description (typically 8-25 concise skill names of 1-4 words each; NEVER cap at 5-8, and NEVER output full sentences). Each object MUST have three keys: "skill" (string), "level" ("Beginner", "Intermediate", or "Expert"), and "years" (integer from [0, 1, 2, 3, 5, 7, 10]). CRITICAL CALIBRATION RULES — NEVER mark every skill "Expert" + 5 years:
+          - Order primary core competencies first, followed by supporting tools/integrations and workflow practices.
+          - Reserve "Expert" (years: 5 or 7, never exceeding overall role tenure) ONLY for the 4-7 primary core competencies explicitly emphasized as "Deep expertise" or central to the role.
+          - Assign "Intermediate" (years: 2 or 3) to secondary/supporting tools, integrations, APIs, CI/CD, infrastructure utilities, and team practices (e.g., Stripe, OAuth 2.0, GitHub Actions, Docker, Terraform, Redis, Supabase, Mentoring, Code Reviews).
+          - Assign "Beginner" (years: 1) to secondary compliance familiarity, bonus/preferred exposure, or peripheral items.
       15. "pay_type": Either "annual" (salaried) or "hourly" (hourly wage), defaulting to "annual".
       16. "comp_perks": Must be EXACTLY one of ["Base Salary Only", "+ Annual Bonus", "+ Equity / Stock Options", "+ Bonus & Equity", "+ Commission / OTE"] if stated or implied in the document, or "".
       17. "hiring_timeline": Must be EXACTLY one of ["Immediate / Urgent (1–2 Weeks)", "Active Hiring (2–4 Weeks)", "Standard Pipeline (30+ Days)", "Flexible Start for Right Fit"] if stated or implied, or "".
       18. "company_size": Must be EXACTLY one of ["Seed / Startup (1–50 Employees)", "Growth (50–250 Employees)", "Mid-Market (250–1,000 Employees)", "Enterprise (1,000+ Employees)"] if stated or implied, or "".
       19. "work_auth": Must be EXACTLY one of ["US Authorized Only (No Sponsorship)", "Visa Sponsorship Available", "Security Clearance Required"] if stated or implied, or "".
+      20. "company_name": Exact hiring company or brand name mentioned in the job description (e.g., "Apex Cloud Systems"), or "" if none is stated (string).
+
+      CRITICAL PROTECTED ROLE & ATOMIC SKILL RULES (HIGHEST PRIORITY):
+      - PROTECTED ROLE ANONYMITY (ZERO COMPANY LEAKS): Extract "company_name" so our server can redact it, and NEVER include the hiring company name, brand/product names, website URLs, or email addresses inside "title" or "description". NEVER start "description" with "[Company Name] is seeking..." or "At [Company Name]..."; always rewrite into neutral phrasing such as "Our organization is seeking..." or "Our engineering team is looking for...".
+      - EXPERIENCE LEVEL TITLE PRIORITY: Role title seniority ALWAYS overrides raw years-of-experience numbers. If "title" contains Director, VP, Vice President, Head of, Chief, CTO, CIO, CFO, COO, CEO, CISO, or C-Suite -> MUST return "Executive / Director". If "title" contains Principal, Staff, Lead, or Architect -> MUST return "Lead / Staff / Principal (8+ yrs)" (NEVER downgrade Principal/Staff/Lead/Architect to "Senior (5–8 yrs)" even if the JD says 5+, 6+, or 7+ years).
+      - ATOMIC 1-4 WORD SKILLS IN structured_requirements: Every "skill" string in "structured_requirements" MUST be a single, atomic, canonical tool, platform, framework, or competency (1-4 words MAX, up to 20-25 distinct items) so it matches Professional atomic skills 1:1 in TrueFit Score. NEVER output compound prose sentences or multi-tool blobs like "Full-stack development with Next.js, React, TypeScript, Node.js", "Relational data modeling, Row-Level Security, PostgreSQL", "AWS infrastructure (ECS, Lambda, RDS, S3)", or "Python programming for backend services". Split every multi-skill requirement into separate atomic objects: e.g. {"skill": "Next.js", "level": "Expert"}, {"skill": "React", "level": "Expert"}, {"skill": "TypeScript", "level": "Expert"}, {"skill": "Node.js", "level": "Expert"}, {"skill": "PostgreSQL", "level": "Expert"}, {"skill": "Row-Level Security (RLS)", "level": "Expert"}, {"skill": "AWS", "level": "Expert"}, {"skill": "AWS ECS", "level": "Intermediate"}, {"skill": "AWS Lambda", "level": "Intermediate"}, {"skill": "Amazon RDS", "level": "Intermediate"}, {"skill": "Amazon S3", "level": "Intermediate"}, {"skill": "Terraform", "level": "Expert"}, {"skill": "Docker", "level": "Intermediate"}, {"skill": "Python", "level": "Intermediate"}, {"skill": "SOC 2 Compliance", "level": "Intermediate"}. Put formal certifications/licenses ONLY in "required_certifications".
     `
 
     const responseText = await extractPdfWithRetry(prompt, base64Data)
 
-    const cleanJsonString = responseText
-      .replace(/```json/gi, '')
-      .replace(/```/g, '')
-      .trim()
+    const stripped = responseText.replace(/```json/gi, '').replace(/```/g, '').trim()
+    const fb = stripped.indexOf('{')
+    const lb = stripped.lastIndexOf('}')
+    const cleanJsonString = fb >= 0 && lb > fb ? stripped.slice(fb, lb + 1) : stripped
     const parsed = JSON.parse(cleanJsonString)
     if (parsed.industry) {
       parsed.industry = normalizeIndustryVertical(parsed.industry)
@@ -3805,6 +3832,247 @@ export async function parseJobAutoFill(formData: FormData) {
       parsed.required_languages,
       true
     )
+    const certRegex = /\b(certified|certification|certificate|comptia|cissp|cism|cisa|ccna|ccnp|pmp|capm|itil|scrum master|csm|aws certified|azure fundamentals|az-\d+|ms-\d+|sc-\d+|dp-\d+|ai-\d+|okr coach|six sigma|lean six sigma|shrm-cp|shrm-scp|phr|sphr|cpa|cfa|series \d+|aws solutions architect|terraform associate|cka|ckad)\b/i
+    const rescuedCerts: string[] = []
+    if (Array.isArray(parsed.structured_requirements)) {
+      for (const item of parsed.structured_requirements) {
+        const s = typeof item?.skill === 'string' ? item.skill.trim() : ''
+        if (s && certRegex.test(s)) rescuedCerts.push(s)
+      }
+    }
+    const rawCertInput = [
+      Array.isArray(parsed.required_certifications)
+        ? parsed.required_certifications.map((c: any) => String(c || '').trim()).filter(Boolean).join(', ')
+        : typeof parsed.required_certifications === 'string'
+          ? parsed.required_certifications
+          : '',
+      ...rescuedCerts,
+    ].filter(Boolean).join(', ')
+    parsed.required_certifications = parseAndNormalizeCertifications(rawCertInput).join(', ')
+    if (Array.isArray(parsed.structured_requirements)) {
+      const certTokens = String(parsed.required_certifications || '')
+        .split(/[,;|\r\n]+/)
+        .map((c: string) => c.trim().toLowerCase())
+        .filter((c: string) => c.length >= 2)
+      const expLvlStr = String(parsed.experience_level || '')
+      const roleMaxYears = expLvlStr.startsWith('Entry') ? 2 : expLvlStr.startsWith('Mid-Level') ? 3 : expLvlStr.startsWith('Senior') ? 5 : 7
+      const validYearBuckets = [0, 1, 2, 3, 5, 7, 10]
+      const secondaryLevelRe = /\b(stripe|oauth|webhook|webhooks|github actions|ci\/cd|docker|terraform|redis|supabase|rls|row-level security|rbac|soc 2|compliance|mentor|mentoring|code review|code reviews|architecture design|agile|scrum|jira|datadog|sentry)\b/i
+      const modernCapRe = /\b(supabase|app router|genai|llm|openai|claude|cursor|copilot|tailwind)\b/i
+      const snapYears = (rawY: any, lvl: string, skillName: string) => {
+        let num = typeof rawY === 'number' && Number.isNaN(rawY) === false ? rawY : Number.parseInt(String(rawY ?? ''), 10)
+        if (Number.isNaN(num)) {
+          num = lvl === 'Expert' ? 5 : lvl === 'Beginner' ? 1 : 2
+        }
+        if (num > roleMaxYears) num = roleMaxYears
+        if (lvl === 'Intermediate' && num > 3) num = 3
+        if (lvl === 'Beginner' && num > 1) num = 1
+        if (secondaryLevelRe.test(skillName) && num > 3) num = 3
+        if (modernCapRe.test(skillName) && num > 3) num = 3
+        return validYearBuckets.reduce((prev: number, curr: number) => (Math.abs(curr - num) < Math.abs(prev - num) ? curr : prev))
+      }
+      const seenReq = new Set<string>()
+      parsed.structured_requirements = parsed.structured_requirements
+        .filter((item: any) => item && typeof item.skill === 'string' && item.skill.trim().length > 0)
+        .filter((item: any) => {
+          const s = item.skill.trim()
+          const sl = s.toLowerCase()
+          if (seenReq.has(sl)) return false
+          if (certRegex.test(s)) return false
+          if (certTokens.some((ct: string) => sl === ct || (ct.length >= 4 && sl.includes(ct)))) return false
+          seenReq.add(sl)
+          return true
+        })
+        .map((item: any, idx: number) => {
+          const skill = item.skill.trim()
+          let level: 'Beginner' | 'Intermediate' | 'Expert' =
+            item.level === 'Expert' ? 'Expert' : item.level === 'Beginner' ? 'Beginner' : 'Intermediate'
+          if (level === 'Expert' && (roleMaxYears <= 2 || secondaryLevelRe.test(skill) || idx >= 7)) {
+            level = 'Intermediate'
+          }
+          if (/\b(soc 2|compliance)\b/i.test(skill) && level === 'Expert') {
+            level = 'Beginner'
+          }
+          const years = snapYears(item.years ?? item.min_years, level, skill)
+          return { skill, level, years }
+        })
+    }
+    // 1. Deterministic Company Name & Brand Privacy Redaction
+    const detectedCompany = typeof parsed.company_name === 'string' ? parsed.company_name.trim() : ''
+    const redactTerms = new Set<string>()
+    const addCompanyVariants = (rawName: string) => {
+      const clean = rawName.replace(/[.,]+$/, '').trim()
+      if (clean.length >= 2) redactTerms.add(clean)
+      const stripped = clean
+        .replace(/\b(Inc\.?|LLC|L\.L\.C\.?|Ltd\.?|Corp\.?|Corporation|Company|Co\.?|Holdings|Group|Systems|Technologies|Solutions|Partners|Labs|Enterprises)\b/gi, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+      const genericRoots = new Set(['cloud', 'global', 'digital', 'modern', 'prime', 'summit', 'nexus', 'vertex', 'united', 'national', 'american', 'pacific', 'first', 'alpha', 'omega', 'health', 'capital', 'media', 'cyber', 'smart'])
+      if (stripped.split(' ').length >= 2 && stripped.length >= 5) {
+        redactTerms.add(stripped)
+      } else if (stripped.length >= 6 && !genericRoots.has(stripped.toLowerCase())) {
+        redactTerms.add(stripped)
+      }
+    }
+    if (detectedCompany) addCompanyVariants(detectedCompany)
+    if (employerOrgName) addCompanyVariants(employerOrgName)
+
+    const escapeRx = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const scrubProtectedText = (input: string, mode: 'title' | 'description'): string => {
+      let out = (input || '').trim()
+      if (!out) return ''
+      out = out
+        .replace(/https?:\/\/\S+/gi, '')
+        .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '')
+      const sortedTerms = Array.from(redactTerms).sort((a, b) => b.length - a.length)
+      for (const term of sortedTerms) {
+        const rxTerm = escapeRx(term)
+        if (mode === 'title') {
+          out = out.replace(new RegExp('^(?:' + rxTerm + ')\\s*[-–—:|]\\s*', 'i'), '')
+          out = out.replace(new RegExp('\\s*(?:[-–—:|]|at\\b)\\s*(?:' + rxTerm + ')$', 'i'), '')
+          out = out.replace(new RegExp('\\b' + rxTerm + '\\b', 'gi'), '').trim()
+        } else {
+          out = out.replace(new RegExp('\\bAt\\s+' + rxTerm + '\\s*,?', 'gi'), 'At our organization,')
+          out = out.replace(new RegExp('\\bJoin\\s+' + rxTerm + "(?:'s|\u2019s)\\b", 'gi'), 'Join our')
+          out = out.replace(new RegExp('\\bJoin\\s+' + rxTerm + '\\b', 'gi'), 'Join our organization')
+          out = out.replace(new RegExp('\\b' + rxTerm + "(?:'s|\u2019s)\\b", 'gi'), "our organization's")
+          out = out.replace(new RegExp('^' + rxTerm + '\\b', 'im'), 'Our organization')
+          out = out.replace(new RegExp('([.!?]\\s+)' + rxTerm + '\\b', 'gi'), '$1Our organization')
+          out = out.replace(new RegExp('\\b' + rxTerm + '\\b', 'gi'), 'our organization')
+        }
+      }
+      return out.replace(/[ \t]{2,}/g, ' ').replace(/^[-–—:|,\s]+|[-–—:|\s]+$/g, '').trim()
+    }
+    if (typeof parsed.title === 'string') {
+      parsed.title = scrubProtectedText(parsed.title, 'title')
+    }
+    if (typeof parsed.description === 'string') {
+      parsed.description = scrubProtectedText(parsed.description, 'description')
+    }
+
+    // 2. Deterministic Experience Level Title Priority Override
+    const cleanRoleTitle = typeof parsed.title === 'string' ? parsed.title : ''
+    if (/\b(director|vp|vice\s+president|head\s+of|chief|c-suite|ceo|cto|cfo|coo|cio|ciso|cmo|cro|svp|evp|managing\s+partner)\b/i.test(cleanRoleTitle)) {
+      parsed.experience_level = 'Executive / Director'
+    } else if (/\b(principal|staff|lead|architect|distinguished|fellow)\b/i.test(cleanRoleTitle)) {
+      parsed.experience_level = 'Lead / Staff / Principal (8+ yrs)'
+    }
+
+    // 3. Atomic 1-4 Word Skill Normalization on structured_requirements ({ skill, level })
+    if (Array.isArray(parsed.structured_requirements)) {
+      const preservedParensRx = /^(rls|sso|iam|rbac|abac|jwt|oauth|oidc|hipaa|gdpr|ccpa|pci|pii|ferpa|fedramp|nist|iso|soc\s*2|ci\/cd|etl|elt|sql|nosql|orm|rest|graphql|grpc|sdk|api|apis|ui|ux|ui\/ux|llm|llms|rag|nlp|ml|ai|genai|erp|crm|hris|ats|seo|sem|ppc|ga4|roi|kpi|kpis|okr|okrs|fp&a|gaap|ifrs|aml|kyc)$/i
+      const canonSkillMap: Record<string, string> = {
+        ecs: 'AWS ECS',
+        eks: 'AWS EKS',
+        lambda: 'AWS Lambda',
+        rds: 'Amazon RDS',
+        s3: 'Amazon S3',
+        sqs: 'Amazon SQS',
+        sns: 'Amazon SNS',
+        dynamodb: 'Amazon DynamoDB',
+        cloudfront: 'Amazon CloudFront',
+        iam: 'IAM',
+        'row-level security': 'Row-Level Security (RLS)',
+        'row level security': 'Row-Level Security (RLS)',
+        rls: 'Row-Level Security (RLS)',
+        nextjs: 'Next.js',
+        'next.js': 'Next.js',
+        nodejs: 'Node.js',
+        'node.js': 'Node.js',
+        reactjs: 'React',
+        'react.js': 'React',
+        typescript: 'TypeScript',
+        javascript: 'JavaScript',
+        postgres: 'PostgreSQL',
+        postgresql: 'PostgreSQL',
+        k8s: 'Kubernetes',
+        'ci/cd': 'CI/CD',
+        'soc 2': 'SOC 2 Compliance',
+        soc2: 'SOC 2 Compliance',
+      }
+      const cleanAtomicSkill = (rawTok: string): string => {
+        let s = rawTok.replace(/^[•\-*\s]+/, '').trim()
+        s = s.replace(/^(?:strong\s+|deep\s+|proven\s+|hands-on\s+|extensive\s+|expert\s+|advanced\s+|solid\s+|working\s+|practical\s+)+/i, '')
+        s = s.replace(/^(?:experience\s+(?:with|in|using|building)|proficiency\s+(?:with|in)|expertise\s+(?:with|in)|knowledge\s+of|familiarity\s+with|background\s+in|understanding\s+of|ability\s+to\s+(?:build|design|manage|lead)|full[-\s]?stack\s+(?:web\s+)?development\s+(?:with|using|in)|backend\s+development\s+(?:with|using|in)|frontend\s+development\s+(?:with|using|in)|cloud\s+infrastructure\s+(?:with|using|in|on)|software\s+development\s+(?:with|using|in)|building\s+scalable\s+systems\s+(?:with|using|in)|developing\s+with|programming\s+in)\s+/i, '')
+        s = s.replace(/^(?:and|or|with|using|including|such\s+as|like|plus)\s+/i, '')
+        s = s.replace(/\s+(?:programming|scripting|development|engineering)\s+(?:for|in|across|to)\s+.*$/i, '')
+        s = s.replace(/\s+(?:for\s+(?:backend|frontend|cloud|enterprise|web|data|distributed|production|modern)\s+.*)$/i, '')
+        s = s.replace(/^aws\s+infrastructure$/i, 'AWS')
+        s = s.replace(/^gcp\s+infrastructure$/i, 'Google Cloud (GCP)')
+        s = s.replace(/^azure\s+infrastructure$/i, 'Microsoft Azure')
+        s = s.replace(/^python\s+programming$/i, 'Python')
+        s = s.replace(/[.;:,]+$/, '').trim()
+        if (!s) return ''
+        const direct = canonSkillMap[s.toLowerCase()]
+        if (direct) return direct
+        if (s.split(/\s+/).length > 5) {
+          const head = s.split(/\s+(?:for|across|within|through|supporting|enabling|including|using|with)\s+/i)[0]?.trim() || s
+          s = head.split(/\s+/).slice(0, 4).join(' ')
+        }
+        return canonSkillMap[s.toLowerCase()] || s
+      }
+      const expandAtomicSkills = (rawSkill: string): string[] => {
+        const parenOut: string[] = []
+        let base = rawSkill.trim()
+        if (!base) return parenOut
+        const pMatches = Array.from(base.matchAll(/\(([^)]+)\)/g))
+        for (const pm of pMatches) {
+          const inner = (pm[1] || '').trim()
+          if (!inner) continue
+          if (!preservedParensRx.test(inner) && (inner.includes(',') || inner.includes('/') || /\b(?:and|or)\b/i.test(inner) || inner.split(/\s+/).length >= 2)) {
+            base = base.replace(pm[0], ' ').trim()
+            for (const sub of inner.split(/,|\s+\/\s+|\b(?:and|or)\b/i)) {
+              const cs = cleanAtomicSkill(sub)
+              if (cs) parenOut.push(cs)
+            }
+          }
+        }
+        const headOut: string[] = []
+        const withM = base.match(/^(.+?)\s+(?:with|using|including|such\s+as|in)\s+(.+)$/i)
+        if (withM && (withM[2].includes(',') || /\band\b/i.test(withM[2]))) {
+          const pref = cleanAtomicSkill(withM[1])
+          if (pref && pref.split(/\s+/).length <= 3 && !/^(?:experience|proficiency|expertise|knowledge|development|full-stack\s+development|full\s+stack\s+development|programming)$/i.test(pref)) {
+            headOut.push(pref)
+          }
+          base = withM[2]
+        }
+        for (const part of base.split(/,|;|\s+\+\s+|\s+\&\s+|\s+and\s+/i)) {
+          const cs = cleanAtomicSkill(part)
+          if (cs) headOut.push(cs)
+        }
+        return [...headOut, ...parenOut]
+      }
+      const certTokensPost = String(parsed.required_certifications || '')
+        .split(/[,;|\r\n]+/)
+        .map((c: string) => c.trim().toLowerCase())
+        .filter((c: string) => c.length >= 2)
+      const postCertRx = /\b(certified|certification|certificate|comptia|cissp|cism|cisa|ccna|ccnp|pmp|capm|itil|security\+|network\+|aws\s+certified|azure\s+certified|gcp\s+certified|cka|ckad|cks|cpa|cfa|shrm-cp|shrm-scp|phr|sphr)\b/i
+      const rescuedCerts: string[] = []
+      const atomicList: Array<{ skill: string; level: string }> = []
+      const seenAtomic = new Set<string>()
+      for (const item of parsed.structured_requirements) {
+        if (!item || typeof item.skill !== 'string') continue
+        const lvl = ['Beginner', 'Intermediate', 'Advanced', 'Expert'].includes(item.level) ? item.level : 'Intermediate'
+        for (const tok of expandAtomicSkills(item.skill)) {
+          const k = tok.toLowerCase()
+          if (tok.length < 2 || seenAtomic.has(k)) continue
+          if (postCertRx.test(tok)) {
+            rescuedCerts.push(tok)
+            continue
+          }
+          if (certTokensPost.some((ct: string) => k === ct || (ct.length >= 4 && k.includes(ct)))) continue
+          seenAtomic.add(k)
+          atomicList.push({ skill: tok, level: lvl })
+          if (atomicList.length >= 25) break
+        }
+        if (atomicList.length >= 25) break
+      }
+      if (rescuedCerts.length > 0) {
+        const combinedCerts = [parsed.required_certifications, ...rescuedCerts].filter(Boolean).join(', ')
+        parsed.required_certifications = parseAndNormalizeCertifications(combinedCerts).join(', ')
+      }
+      parsed.structured_requirements = atomicList
+    }
     return { data: parsed }
   } catch (error: any) {
     console.error('AI Job Parsing Error:', error.message || error)
