@@ -104,6 +104,8 @@ export default function CandidateJobsPage() {
   const [rawJobs, setRawJobs] = useState<any[]>([])
   const [baselineJobs, setBaselineJobs] = useState<any[]>([])
   const [savedEmpTypes, setSavedEmpTypes] = useState<string[]>([])
+  const [savedWorkModel, setSavedWorkModel] = useState<string>('any')
+  const [savedMinSalary, setSavedMinSalary] = useState<number>(0)
   const [savedJobIds, setSavedJobIds] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<'live' | 'sandbox'>('live')
   const [onlyMyDealbreakers, setOnlyMyDealbreakers] = useState(false)
@@ -115,7 +117,7 @@ export default function CandidateJobsPage() {
     setViewMode(target)
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href)
-      url.searchParams.set('mode', target)
+      url.searchParams.set('mode', target === 'sandbox' ? 'practice' : 'live')
       window.history.replaceState({}, '', url.toString())
     }
   }
@@ -170,10 +172,21 @@ export default function CandidateJobsPage() {
         (item: any) => item && item._ss_pref_meta === true
       )
       if (
+        Array.isArray(profile?.preferred_employment_types) &&
+        profile.preferred_employment_types.length > 0
+      ) {
+        setSavedEmpTypes(profile.preferred_employment_types)
+      } else if (
         Array.isArray(prefMeta?.employment_types) &&
         prefMeta.employment_types.length > 0
       ) {
         setSavedEmpTypes(prefMeta.employment_types)
+      }
+      if (profile?.preferred_work_model) {
+        setSavedWorkModel(String(profile.preferred_work_model).toLowerCase())
+      }
+      if (Number(profile?.min_salary_expectation) > 0) {
+        setSavedMinSalary(Number(profile.min_salary_expectation))
       }
       if (Array.isArray(prefMeta?.saved_job_ids)) {
         setSavedJobIds(prefMeta.saved_job_ids.map(String))
@@ -301,13 +314,35 @@ export default function CandidateJobsPage() {
         }
       }
 
+      const normalizeEmpKey = (val: string) => {
+        const v = String(val || '').toLowerCase()
+        if (v.includes('1099') || v.includes('c2c') || v.includes('corp-to-corp')) return 'contract_1099'
+        if (v.includes('contract-to-hire')) return 'c2h'
+        if (v.includes('full-time')) return 'full_time'
+        if (v.includes('part-time')) return 'part_time'
+        if (v.includes('seasonal') || v.includes('temporary')) return 'seasonal'
+        return v
+      }
+
       if (employmentType !== 'all') {
+        if (normalizeEmpKey(meta.employmentType) !== normalizeEmpKey(employmentType)) {
+          return false
+        }
+      }
+
+      if (selectedMetro) {
+        if (!(job.location || '').toLowerCase().includes(selectedMetro.toLowerCase())) {
+          return false
+        }
+      } else if (selectedState === 'REMOTE_US') {
         if (
-          meta.employmentType.toLowerCase() !== employmentType.toLowerCase() &&
-          !meta.employmentType
-            .toLowerCase()
-            .includes(employmentType.toLowerCase())
+          !(job.location || '').toLowerCase().includes('remote') &&
+          (job.work_model || '').toLowerCase() !== 'remote'
         ) {
+          return false
+        }
+      } else if (selectedState) {
+        if (!(job.location || '').toLowerCase().includes(`, ${selectedState.toLowerCase()}`)) {
           return false
         }
       }
@@ -328,13 +363,23 @@ export default function CandidateJobsPage() {
         }
       }
 
-      if (onlyMyDealbreakers && savedEmpTypes.length > 0) {
-        const matchesSaved = savedEmpTypes.some(
-          (t) =>
-            t.toLowerCase() === meta.employmentType.toLowerCase() ||
-            meta.employmentType.toLowerCase().includes(t.toLowerCase())
-        )
-        if (!matchesSaved) return false
+      if (onlyMyDealbreakers) {
+        if (savedEmpTypes.length > 0) {
+          const matchesSaved = savedEmpTypes.some(
+            (t) => normalizeEmpKey(t) === normalizeEmpKey(meta.employmentType)
+          )
+          if (!matchesSaved) return false
+        }
+        if (savedWorkModel && savedWorkModel !== 'any' && savedWorkModel !== 'all') {
+          if ((job.work_model || '').toLowerCase() !== savedWorkModel) {
+            return false
+          }
+        }
+        if (savedMinSalary > 0 && meta.annualizedMaxPay > 0) {
+          if (meta.annualizedMaxPay < savedMinSalary) {
+            return false
+          }
+        }
       }
 
       return true
@@ -367,8 +412,12 @@ export default function CandidateJobsPage() {
     employmentType,
     industryFilter,
     languageFilter,
+    selectedState,
+    selectedMetro,
     onlyMyDealbreakers,
     savedEmpTypes,
+    savedWorkModel,
+    savedMinSalary,
     sortBy,
     viewMode,
   ])
@@ -414,7 +463,7 @@ export default function CandidateJobsPage() {
             Saved Roles ({savedJobIds.length})
           </button>
 
-          {savedEmpTypes.length > 0 && (
+          {(savedEmpTypes.length > 0 || (savedWorkModel && savedWorkModel !== 'any') || savedMinSalary > 0) && (
             <button
               type="button"
               onClick={() => setOnlyMyDealbreakers((prev) => !prev)}
@@ -774,6 +823,19 @@ export default function CandidateJobsPage() {
                 className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 cursor-pointer"
               >
                 {languageFilter} ✕
+              </button>
+            )}
+
+            {selectedState && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedState('')
+                  setSelectedMetro('')
+                }}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 cursor-pointer"
+              >
+                {selectedMetro || (selectedState === 'REMOTE_US' ? 'US Remote' : selectedState)} ✕
               </button>
             )}
           </div>

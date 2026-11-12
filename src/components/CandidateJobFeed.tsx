@@ -384,7 +384,7 @@ export function CandidateJobFeed({
       ...prev,
       [jobId]: {
         type: 'success',
-        text: `Protected Application Submitted (Ref: ${refCode})! Your identity remains hidden until the employer unlocks your profile.`,
+        text: `Protected Application Submitted (Ref: ${refCode})! Your personal info stays private until you choose to unlock it.`,
       },
     }))
 
@@ -399,14 +399,27 @@ export function CandidateJobFeed({
       }))
       .filter((item) => !item.meta.isExpired)
 
+    const normalizeEmpKey = (val: string) => {
+      const v = String(val || '').toLowerCase()
+      if (v.includes('1099') || v.includes('c2c') || v.includes('corp-to-corp')) return 'contract_1099'
+      if (v.includes('contract-to-hire')) return 'c2h'
+      if (v.includes('full-time')) return 'full_time'
+      if (v.includes('part-time')) return 'part_time'
+      if (v.includes('seasonal') || v.includes('temporary')) return 'seasonal'
+      return v
+    }
+
     const filteredByType =
       employmentTypeFilters.length === 0
         ? freshWithMeta
         : freshWithMeta.filter((item) =>
-            employmentTypeFilters.some((selectedType) =>
-              item.meta.employmentType
-                .toLowerCase()
-                .includes(selectedType.toLowerCase())
+            employmentTypeFilters.some(
+              (selectedType) =>
+                normalizeEmpKey(item.meta.employmentType) ===
+                  normalizeEmpKey(selectedType) ||
+                item.meta.employmentType
+                  .toLowerCase()
+                  .includes(selectedType.toLowerCase())
             )
           )
 
@@ -1014,7 +1027,7 @@ export function CandidateJobFeed({
                           {appliedRef})
                         </h4>
                         <p className="text-xs text-emerald-800 mt-0.5 leading-relaxed">
-                          Your anonymous skill matrix and {score}% TrueFit Score™ are now in the employer&apos;s pipeline.
+                          Your anonymous skills summary and {score}% TrueFit Score™ have been shared with the employer—your personal info stays private until you choose to unlock it.
                         </p>
                       </div>
                     </div>
@@ -1032,7 +1045,7 @@ export function CandidateJobFeed({
                   <div className="p-3.5 rounded-xl text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-rose-50 text-rose-700 border border-rose-300">
                     <span>{cardFeedback.text}</span>
                     <div className="flex items-center gap-2 shrink-0">
-                      {!cardFeedback.text.includes('Membership & Billing') && (
+                      {!cardFeedback.text.includes('Membership & Plan Settings') && !cardFeedback.text.includes('Membership & Billing') && (
                         <button
                           type="button"
                           onClick={() => handleAnalyzeFit(jobId)}
@@ -1041,7 +1054,7 @@ export function CandidateJobFeed({
                           ↻ Recalculate TrueFit Score™
                         </button>
                       )}
-                      {cardFeedback.text.includes('Membership & Billing') && (
+                      {(cardFeedback.text.includes('Membership & Plan Settings') || cardFeedback.text.includes('Membership & Billing')) && (
                         <Link
                           href="/dashboard/billing"
                           className="px-3.5 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors text-center"

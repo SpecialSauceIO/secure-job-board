@@ -2131,8 +2131,8 @@ export async function applyBlind(formData: FormData) {
     const isExplorer = candidateTier.tier === 'explorer' || candidateTier.tier === 'free'
     return {
       error: isExplorer
-        ? 'Active Outbound Plan Required: Upgrade to Professional ($12/mo for 15 monthly applications) or Prestige ($19/mo for unlimited applications) on your Membership & Billing page to submit outbound protected applications (and downgrade back to $0/mo Explorer anytime once hired).'
-        : `Monthly Application Quota Reached (${CANDIDATE_TRIAL_MAX_APPS}/${CANDIDATE_TRIAL_MAX_APPS} Used): Upgrade to Prestige ($19/mo) on your Membership & Billing page to unlock Unlimited Outbound Protected Applications.`,
+        ? 'Active Outbound Plan Required: Upgrade to Professional ($12/mo for 15 monthly applications) or Prestige ($19/mo for unlimited applications) on your Membership & Plan Settings page to submit outbound protected applications (and downgrade back to $0/mo Explorer anytime once hired).'
+        : `Monthly Application Quota Reached (${CANDIDATE_TRIAL_MAX_APPS}/${CANDIDATE_TRIAL_MAX_APPS} Used): Upgrade to Prestige ($19/mo) on your Membership & Plan Settings page to unlock Unlimited Outbound Protected Applications.`,
     }
   }
 
@@ -2422,6 +2422,7 @@ export async function searchJobs(
     const q = query.toLowerCase().trim()
     const escapedQ = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
     const shortWordRx = q.length <= 3 ? new RegExp(`(^|[^a-z0-9])${escapedQ}([^a-z0-9]|$)`, 'i') : null
+    const normalizedQueryCerts = parseAndNormalizeCertifications(query)
     const matchesText = (val: any) => {
       const str = String(val || '').toLowerCase()
       if (!str) return false
@@ -2437,12 +2438,20 @@ export async function searchJobs(
       const langText = Array.isArray(j.required_languages)
         ? j.required_languages.map((l: any) => (typeof l === 'string' ? l : l?.language || '')).join(' ')
         : ''
+      const canonicalJobCerts = parseAndNormalizeCertifications(j.required_certifications || '').join(' ')
+      const hasCanonicalCertOverlap =
+        normalizedQueryCerts.length > 0 &&
+        parseAndNormalizeCertifications(j.required_certifications || '').some((c) =>
+          normalizedQueryCerts.includes(c)
+        )
       return (
+        hasCanonicalCertOverlap ||
         matchesText(j.title) ||
         matchesText(j.description) ||
         matchesText(j.location) ||
         matchesText(j.industry) ||
         matchesText(j.required_certifications) ||
+        matchesText(canonicalJobCerts) ||
         matchesText(langText) ||
         matchesText(reqText)
       )
@@ -3496,7 +3505,7 @@ export async function analyzeJobFit(jobId: string, forceRefresh: boolean = false
   if (!isProfVerified) {
     return {
       error:
-        'ID Verification Required: Please complete your $5 One-Time ID Verification on Membership & Billing to unlock live TrueFit Score™ checks.',
+        'ID Verification Required: Please complete your $5 One-Time ID Verification on Membership & Plan Settings to unlock live TrueFit Score™ checks.',
     }
   }
   const visibleSkills = filterVisibleSkills(profile?.structured_skills)
@@ -6979,7 +6988,7 @@ export async function submitSupportTicket(formData: FormData) {
   if (!isAccountVerified) {
     return {
       error:
-        'Account Verification Required: Please complete your one-time ID verification on Membership & Billing before submitting support tickets or feedback.',
+        'Account Verification Required: Please complete your one-time ID verification on Membership & Plan Settings before submitting support tickets or feedback.',
     }
   }
   const tierUpper = accountTierLabel.toUpperCase()
