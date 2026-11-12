@@ -1,3 +1,9 @@
+import {
+  STANDARD_CERTIFICATIONS,
+  normalizeSingleCertification,
+  parseAndNormalizeCertifications,
+} from "@/constants/certifications"
+
 export interface TrueFitBaselineResult {
   competencyScore: number
   tenureScore: number
@@ -162,35 +168,118 @@ function lookupDirectionalAdjacency(candTokens: Iterable<string>, reqToken: stri
 }
 
 const CERT_VENDOR_FAMILIES: RegExp[] = [
-  /\baws\s+certified\b/,
-  /\b(?:microsoft\s+certified|az-\d+|ms-\d+)\b/,
-  /\b(?:google\s+cloud\s+certified|professional\s+cloud)\b/,
-  /\b(?:pmp|pgmp|capm|pmi)\b/,
-  /\b(?:comptia|security\+|network\+|a\+)\b/,
-  /\b(?:cissp|cism|cisa|sec\+)\b/,
-  /\b(?:csm|cspo|psm|safe\s+agilist)\b/,
+  /\baws\s+certified(?!\s+weld)\b/,
+  /\b(?:microsoft\s+certified|az-\d+|ms-\d+|dp-\d+|sc-\d+|pl-\d+)\b/,
+  /\b(?:google\s+cloud\s+certified|professional\s+cloud|associate\s+cloud\s+engineer)\b/,
+  /\b(?:ccna|ccnp|ccie|cisco\s+certified)\b/,
+  /\b(?:pmp|pgmp|capm|pmi-acp|pmi)\b/,
+  /\b(?:comptia|security\+|network\+|a\+|cysa\+|pentest\+|linux\+|cloud\+)\b/,
+  /\b(?:cissp|cism|cisa|ccsp|ceh|oscp|giac|gsec|gcih|sec\+)\b/,
+  /\b(?:csm|cspo|psm|pspo|safe\s+agilist|certified\s+scrum)\b/,
+  /\b(?:cka|ckad|cks|kubernetes|terraform\s+associate|hashicorp\s+certified)\b/,
+  /\b(?:itil)\b/,
+  /\bsalesforce\s+certified\b/,
+  /\b(?:six\s+sigma|lean\s+six\s+sigma|green\s+belt|black\s+belt|yellow\s+belt)\b/,
+  /\b(?:shrm-cp|shrm-scp|phr|sphr|gphr)\b/,
+  /\b(?:cpa|cfa|cma|cia|certified\s+public\s+accountant|series\s+\d+)\b/,
+  /\b(?:bls|acls|pals|nrp|basic\s+life\s+support|advanced\s+cardiac\s+life\s+support)\b/,
+  /\b(?:osha\s*10|osha\s*30|csp|asp|chsp|hazwoper)\b/,
 ]
 
+export function serializeCertificationField(raw: any): string {
+  if (!raw) return ""
+  if (Array.isArray(raw)) {
+    return raw
+      .map((item) => (typeof item === "string" ? item : item?.canonical || item?.name || item?.label || ""))
+      .map((s) => String(s || "").trim())
+      .filter(Boolean)
+      .join("; ")
+  }
+  const str = String(raw).trim()
+  if (str.startsWith("[") && str.endsWith("]")) {
+    try {
+      const parsed = JSON.parse(str)
+      if (Array.isArray(parsed)) return serializeCertificationField(parsed)
+    } catch {}
+  }
+  return str
+}
+
 export function evaluateCertificationMatch(
-  candCertsLower: string,
-  candFullCorpusLower: string,
-  reqCertsRaw: string
+  profCertsInput: string | string[],
+  profFullCorpusLower: string,
+  reqCertsInput: string | string[]
 ): { matchedCount: number; totalRequired: number } {
-  const reqItems = String(reqCertsRaw || "")
-    .split(/[,;/|\n]+/)
-    .map((x) => x.trim().toLowerCase())
-    .filter((x) => x && x !== "none" && x !== "none specified" && x !== "n/a")
+  const reqSerialized = serializeCertificationField(reqCertsInput)
+  const reqItems = reqSerialized
+    .split(/[,;•|\n]+/)
+    .map((x) => x.trim())
+    .filter((x) => {
+      const low = x.toLowerCase()
+      return Boolean(low && low !== "none" && low !== "none specified" && low !== "n/a")
+    })
   if (reqItems.length === 0) return { matchedCount: 0, totalRequired: 0 }
+
+  const profSerialized = serializeCertificationField(profCertsInput)
+  const profCanonicalList = parseAndNormalizeCertifications(profSerialized).map((c) => c.toLowerCase())
+  const profRawLower = profSerialized.toLowerCase()
+  const corpusLower = String(profFullCorpusLower || "").toLowerCase()
+  const rawProfCombined = (profRawLower + " " + corpusLower).trim()
+  const combinedProf = canonicalizeSkillText(rawProfCombined)
+
   let matched = 0
-  const rawCandCombined = (candCertsLower + " " + candFullCorpusLower).toLowerCase()
-  const combinedCand = canonicalizeSkillText(rawCandCombined)
-  for (const reqItem of reqItems) {
-    const canonReq = canonicalizeSkillText(reqItem)
-    const reqTokens = canonReq.split(/[^a-z0-9+#_]+/).filter((w) => w.length >= 2)
-    if (combinedCand.includes(canonReq) || (reqTokens.length > 0 && reqTokens.every((rt) => combinedCand.includes(rt)))) {
+  for (const reqRaw of reqItems) {
+    const reqNormalized = normalizeSingleCertification(reqRaw)
+    const reqNormLower = reqNormalized.toLowerCase()
+    const reqRawLower = reqRaw.toLowerCase()
+
+    const taxonomyDef = STANDARD_CERTIFICATIONS.find(
+      (c) =>
+        c.canonical.toLowerCase() === reqNormLower ||
+        c.aliases.some((a) => a.toLowerCase() === reqRawLower || a.toLowerCase() === reqNormLower)
+    )
+
+    let isFullMatch = profCanonicalList.includes(reqNormLower) || profCanonicalList.includes(reqRawLower)
+
+    if (!isFullMatch && taxonomyDef) {
+      const termsToCheck = [
+        taxonomyDef.canonical.toLowerCase(),
+        ...taxonomyDef.aliases.map((a) => a.toLowerCase()),
+      ]
+      for (const term of termsToCheck) {
+        const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+        const boundaryRegex = new RegExp(`(^|[^a-z0-9])${escaped}($|[^a-z0-9])`, "i")
+        if (boundaryRegex.test(profRawLower) || boundaryRegex.test(corpusLower)) {
+          isFullMatch = true
+          break
+        }
+      }
+    }
+
+    if (!isFullMatch) {
+      const escapedRaw = reqRawLower.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      const rawBoundaryRegex = new RegExp(`(^|[^a-z0-9])${escapedRaw}($|[^a-z0-9])`, "i")
+      if (rawBoundaryRegex.test(profRawLower) || rawBoundaryRegex.test(corpusLower)) {
+        isFullMatch = true
+      } else {
+        const canonReq = canonicalizeSkillText(reqRawLower)
+        const reqTokens = canonReq.split(/[^a-z0-9+#_]+/).filter((w) => w.length >= 2)
+        if (
+          (canonReq.length >= 4 && combinedProf.includes(canonReq)) ||
+          (reqTokens.length >= 2 && reqTokens.every((rt) => combinedProf.includes(rt)))
+        ) {
+          isFullMatch = true
+        }
+      }
+    }
+
+    if (isFullMatch) {
       matched += 1.0
-    } else if (CERT_VENDOR_FAMILIES.some((rx) => rx.test(reqItem) && rx.test(rawCandCombined))) {
-      matched += 0.75
+    } else {
+      const reqProbe = `${reqRawLower} ${reqNormLower}`
+      if (CERT_VENDOR_FAMILIES.some((rx) => rx.test(reqProbe) && rx.test(rawProfCombined))) {
+        matched += 0.75
+      }
     }
   }
   return { matchedCount: matched, totalRequired: reqItems.length }
@@ -260,7 +349,8 @@ export function computeMultiVariablePillarBaseline(rawProfile: any, rawJob: any)
   }
 
   const candBio = String(profile?.bio || "").toLowerCase()
-  const candCerts = String(profile?.certifications || "").toLowerCase()
+  const profCertsRaw = serializeCertificationField(profile?.certifications)
+  const candCerts = profCertsRaw.toLowerCase()
   const candFullCorpus = [...candSkillEntries.map((e: any) => e.name), candBio, candCerts].join(" ")
   const candTokens = new Set(tokenizeSkillText(candFullCorpus))
   const candStems = new Set(Array.from(candTokens).map(stemToken))
@@ -271,7 +361,7 @@ export function computeMultiVariablePillarBaseline(rawProfile: any, rawJob: any)
         .map((r: any) => ({
           name: String(r?.skill || r?.name || "").toLowerCase().trim(),
           level: String(r?.level || "Intermediate"),
-          years: Number(r?.years) || 0,
+          years: Number(r?.years ?? r?.min_years) || 0,
         }))
     : []
 
@@ -402,10 +492,13 @@ export function computeMultiVariablePillarBaseline(rawProfile: any, rawJob: any)
   const exactIndustryMatch = Boolean(candInd && jobInd) && (candInd === jobInd || candInd.includes(jobInd) || jobInd.includes(candInd))
 
   const combinedSkillSignal = totalReqCount > 0 ? reqRatio * 0.85 + titleRatio * 0.15 : titleRatio
+  const minCoreFloor = reqMatchCount > 0 ? Math.round(weightedCoverageFactor * 96) : 8
 
   let competencyScore = Math.round(combinedSkillSignal * 94 + (exactIndustryMatch ? 5 : 0))
   if (reqMatchCount === 0 && combinedSkillSignal < 0.15) {
     competencyScore = Math.max(8, Math.min(18, Math.round(8 + combinedSkillSignal * 40)))
+  } else {
+    competencyScore = Math.max(minCoreFloor, competencyScore)
   }
   competencyScore = Math.max(8, Math.min(99, competencyScore))
 
@@ -474,12 +567,13 @@ export function computeMultiVariablePillarBaseline(rawProfile: any, rawJob: any)
   }
   if (!exactIndustryMatch && combinedSkillSignal < 0.2) eduPoints = Math.min(eduPoints, 8)
 
-  const reqCertsRaw = String(job?.required_certifications || job?.job_meta?.required_certifications || "").trim()
+  const reqCertsRaw = serializeCertificationField(job?.required_certifications ?? job?.job_meta?.required_certifications)
+  const reqCertsLower = reqCertsRaw.toLowerCase()
   let certPoints = 10
-  if (!reqCertsRaw || reqCertsRaw.toLowerCase() === "none" || reqCertsRaw.toLowerCase() === "none specified") {
+  if (!reqCertsRaw || reqCertsLower === "none" || reqCertsLower === "none specified" || reqCertsLower === "n/a") {
     certPoints = exactIndustryMatch || combinedSkillSignal >= 0.4 ? 18 : 6
   } else {
-    const certEval = evaluateCertificationMatch(candCerts, candFullCorpus, reqCertsRaw)
+    const certEval = evaluateCertificationMatch(profCertsRaw, candFullCorpus, reqCertsRaw)
     certPoints = certEval.matchedCount > 0 && certEval.totalRequired > 0
       ? Math.round(10 + (certEval.matchedCount / certEval.totalRequired) * 10)
       : 4

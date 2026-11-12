@@ -13,6 +13,7 @@ import Groq from 'groq-sdk'
 import OpenAI from 'openai'
 import Stripe from 'stripe'
 import dns from 'node:dns/promises'
+import crypto from 'node:crypto'
 import {
   STANDARD_INDUSTRY_VERTICALS,
   normalizeIndustryVertical,
@@ -1707,6 +1708,7 @@ export async function updateProfile(formData: FormData) {
       .eq('id', user.id)
 
     if (!nameErr) {
+      await clearUserMatchCache(user.id)
       revalidatePath('/dashboard')
       revalidatePath('/dashboard/profile')
       revalidatePath('/dashboard/employer/search')
@@ -1722,6 +1724,7 @@ export async function updateProfile(formData: FormData) {
     .eq('id', user.id)
 
   if (error) console.error('Error updating profile:', error)
+  await clearUserMatchCache(user.id)
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/profile')
   revalidatePath('/dashboard/employer/search')
@@ -2163,20 +2166,6 @@ export async function applyBlind(formData: FormData) {
     }
   }
 
-  const parsedMatchScore = matchScoreRaw
-    ? parseInt(matchScoreRaw.toString(), 10)
-    : null
-
-  if (
-    parsedMatchScore === null ||
-    isNaN(parsedMatchScore) ||
-    parsedMatchScore < MIN_MATCH_THRESHOLD
-  ) {
-    return {
-      error: `Application Blocked: A minimum ${MIN_MATCH_THRESHOLD}% TrueFit Score™ is required to apply.`,
-    }
-  }
-
   let match_data: any = {}
   if (matchDataRaw) {
     try {
@@ -2188,9 +2177,7 @@ export async function applyBlind(formData: FormData) {
 
   const { data: jobInfo } = await supabase
     .from('jobs')
-    .select(
-      'title, created_at, is_active, structured_requirements, employer_id, organization_id, organizations:organization_id (name, domain)'
-    )
+    .select('*, organizations:organization_id (name, domain)')
     .eq('id', jobId)
     .single()
 
@@ -2211,6 +2198,58 @@ export async function applyBlind(formData: FormData) {
       error:
         'Role Expired: Under Special Sauce anti-harvesting rules, listings automatically close after 30 days unless manually renewed by the employer.',
     }
+  }
+
+  const enrichedJob = enrichJobRecord(jobInfo)
+  const visibleSkillsForGate = filterVisibleSkills(profile?.structured_skills)
+  const prefMetaForGate = extractProfilePrefMeta(profile?.structured_skills)
+  const scoringProfileForGate = {
+    ...profile,
+    industry_vertical: prefMetaForGate?.industry_vertical || '',
+    education_level: prefMetaForGate?.education_level || '',
+    availability_window: prefMetaForGate?.availability_window || 'Standard (2 Weeks Notice)',
+    certifications: prefMetaForGate?.certifications || '',
+    languages: normalizeLanguageList(prefMetaForGate?.languages, true),
+    structured_skills: visibleSkillsForGate,
+  }
+  const expectedInputSig = computeMatchInputSignature(scoringProfileForGate, enrichedJob)
+  const userMatchCache = await readUserMatchCache(user.id)
+  const cachedJobMatch = userMatchCache[`cand_v4_${jobId}`]
+
+  let parsedMatchScore: number
+  if (
+    cachedJobMatch &&
+    typeof cachedJobMatch.overall_score === 'number' &&
+    cachedJobMatch.input_sig === expectedInputSig
+  ) {
+    parsedMatchScore = Math.round(cachedJobMatch.overall_score)
+    match_data = {
+      ...match_data,
+      ...cachedJobMatch,
+    }
+  } else {
+    const serverBaseline = computeSharedTrueFitBaseline(scoringProfileForGate, enrichedJob)
+    parsedMatchScore = serverBaseline.deterministicOverall
+    if (!Array.isArray(match_data?.radar_data)) {
+      match_data.radar_data = [
+        { subject: 'Core Competencies', score: serverBaseline.competencyScore },
+        { subject: 'Skill Tenure', score: serverBaseline.tenureScore },
+        { subject: 'Logistics & Pay', score: serverBaseline.logisticsScore },
+        { subject: 'Industry & Creds', score: serverBaseline.industryScore },
+        { subject: 'Execution & Comm.', score: serverBaseline.commScore },
+      ]
+    }
+  }
+
+  if (!Number.isFinite(parsedMatchScore) || parsedMatchScore < MIN_MATCH_THRESHOLD) {
+    return {
+      error: `Application Blocked: A minimum ${MIN_MATCH_THRESHOLD}% TrueFit Score™ is required to apply (verified score: ${Number.isFinite(parsedMatchScore) ? parsedMatchScore : 0}%).`,
+    }
+  }
+
+  match_data = {
+    ...match_data,
+    overall_score: parsedMatchScore,
   }
 
   const orgObj: any = Array.isArray(jobInfo?.organizations)
@@ -3219,10 +3258,60 @@ async function readUserMatchCache(userId: string): Promise<Record<string, any>> 
   return {}
 }
 
+function extractProfilePrefMeta(structuredSkills: any): any {
+  if (!Array.isArray(structuredSkills)) return null
+  return structuredSkills.find((s: any) => s && s._ss_pref_meta === true) || null
+}
+
+async function clearUserMatchCache(userId: string): Promise<void> {
+  const adminDb = getAdminSupabaseClient()
+  if (!adminDb || !userId) return
+  try {
+    await adminDb.storage.from('resumes').remove([`${MATCH_CACHE_PREFIX}/${userId}.json`])
+  } catch {}
+}
+
+function computeMatchInputSignature(scoringProfile: any, job: any): string {
+  const canonicalPayload = {
+    v: 'tf_v2_1',
+    p: {
+      exp: Number(scoringProfile?.experience_years) || 0,
+      skills: String(scoringProfile?.skills || '').trim(),
+      structured: Array.isArray(scoringProfile?.structured_skills) ? scoringProfile.structured_skills : [],
+      bio: String(scoringProfile?.bio || '').trim(),
+      wm: String(scoringProfile?.preferred_work_model || '').trim(),
+      sal: Number(scoringProfile?.min_salary_expectation) || 0,
+      loc: String(scoringProfile?.location || '').trim(),
+      ind: String(scoringProfile?.industry_vertical || '').trim(),
+      edu: String(scoringProfile?.education_level || '').trim(),
+      avail: String(scoringProfile?.availability_window || 'Standard (2 Weeks Notice)').trim(),
+      certs: scoringProfile?.certifications ?? '',
+      langs: Array.isArray(scoringProfile?.languages) ? scoringProfile.languages : [],
+    },
+    j: {
+      title: String(job?.title || '').trim(),
+      desc: String(job?.description || '').trim(),
+      wm: String(job?.work_model || '').trim(),
+      loc: String(job?.location || '').trim(),
+      smin: Number(job?.salary_min) || 0,
+      smax: Number(job?.salary_max) || 0,
+      reqs: Array.isArray(job?.structured_requirements) ? job.structured_requirements : [],
+      meta: job?.job_meta ?? null,
+      ind: String(job?.industry || job?.job_meta?.industry || '').trim(),
+      edu: String(job?.education_req || job?.job_meta?.education_req || '').trim(),
+      certs: job?.required_certifications ?? job?.job_meta?.required_certifications ?? '',
+      start: String(job?.target_start_window || job?.job_meta?.target_start_window || '').trim(),
+      minExp: Number(job?.min_years_experience ?? job?.job_meta?.min_years_experience) || 0,
+    },
+  }
+  return 'tf_v2_1_' + crypto.createHash('sha256').update(JSON.stringify(canonicalPayload)).digest('hex').slice(0, 16)
+}
+
 async function writeUserMatchCacheEntry(
   userId: string,
   cacheKey: string,
-  matchData: any
+  matchData: any,
+  inputSig?: string
 ): Promise<void> {
   const adminDb = getAdminSupabaseClient()
   if (!adminDb || !userId || !cacheKey || !matchData) return
@@ -3230,6 +3319,7 @@ async function writeUserMatchCacheEntry(
     const current = await readUserMatchCache(userId)
     current[cacheKey] = {
       ...matchData,
+      ...(inputSig ? { input_sig: inputSig } : {}),
       cached_at: new Date().toISOString(),
     }
     const path = `${MATCH_CACHE_PREFIX}/${userId}.json`
@@ -3273,31 +3363,25 @@ export async function analyzeJobFit(jobId: string, forceRefresh: boolean = false
   if (!user) return { error: 'Not authenticated' }
 
   const cacheKey = `cand_v4_${jobId}`
-  if (!forceRefresh) {
-    const existingCache = await readUserMatchCache(user.id)
-    if (existingCache[cacheKey]?.overall_score !== undefined) {
-      return { data: existingCache[cacheKey] }
-    }
-  }
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('experience_years, skills, structured_skills, bio, preferred_work_model, min_salary_expectation, location, is_verified, identity_verified')
     .eq('id', user.id)
     .single()
-  const isCandVerified =
+  const isProfVerified =
     profile?.identity_verified === true ||
     String(profile?.identity_verified) === 'true' ||
     profile?.is_verified === true ||
     String(profile?.is_verified) === 'true'
-  if (!isCandVerified) {
+  if (!isProfVerified) {
     return {
       error:
         'ID Verification Required: Please complete your $5 One-Time ID Verification on Membership & Billing to unlock live TrueFit Score™ checks.',
     }
   }
   const visibleSkills = filterVisibleSkills(profile?.structured_skills)
-  const prefMeta = extractCandidatePrefMeta(profile?.structured_skills)
+  const prefMeta = extractProfilePrefMeta(profile?.structured_skills)
   if (!profile || (!profile.skills && visibleSkills.length === 0)) {
     return {
       error:
@@ -3313,22 +3397,35 @@ export async function analyzeJobFit(jobId: string, forceRefresh: boolean = false
   if (!rawJob) return { error: 'Job not found' }
 
   const job = enrichJobRecord(rawJob)
+  const scoringProfile = {
+    ...profile,
+    industry_vertical: prefMeta?.industry_vertical || '',
+    education_level: prefMeta?.education_level || '',
+    availability_window: prefMeta?.availability_window || 'Standard (2 Weeks Notice)',
+    certifications: prefMeta?.certifications || '',
+    languages: normalizeLanguageList(prefMeta?.languages, true),
+    structured_skills: visibleSkills,
+  }
+  const inputSig = computeMatchInputSignature(scoringProfile, job)
+
+  if (!forceRefresh) {
+    const existingCache = await readUserMatchCache(user.id)
+    if (
+      existingCache[cacheKey]?.overall_score !== undefined &&
+      existingCache[cacheKey]?.input_sig === inputSig
+    ) {
+      return { data: existingCache[cacheKey] }
+    }
+  }
+
   const res = await analyzeMatchRouter(
-    {
-      ...profile,
-      industry_vertical: prefMeta?.industry_vertical || '',
-      education_level: prefMeta?.education_level || '',
-      availability_window: prefMeta?.availability_window || 'Standard (2 Weeks Notice)',
-      certifications: prefMeta?.certifications || '',
-      languages: normalizeLanguageList(prefMeta?.languages, true),
-      structured_skills: visibleSkills,
-    },
+    scoringProfile,
     job,
     'candidate'
   )
 
   if (res?.data) {
-    await writeUserMatchCacheEntry(user.id, cacheKey, res.data)
+    await writeUserMatchCacheEntry(user.id, cacheKey, res.data, inputSig)
     recordHandshakeTelemetry({
       handshakeId: 'ai_fit_radar_engine',
       label: 'TrueFit Score™ & Dealbreakers',
@@ -3358,10 +3455,45 @@ export async function analyzeCandidateFit(
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
-  const cacheKey = `emp_v4_${candidateId}_${jobId}`
+  const targetProfId = candidateId
+  const cacheKey = `emp_v4_${targetProfId}_${jobId}`
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('experience_years, skills, structured_skills, bio, preferred_work_model, min_salary_expectation, location')
+    .eq('id', targetProfId)
+    .single()
+
+  if (!profile) return { error: 'Professional profile not found' }
+
+  const { data: rawJob } = await supabase
+    .from('jobs')
+    .select('*')
+    .eq('id', jobId)
+    .single()
+
+  if (!rawJob) return { error: 'Job not found' }
+
+  const job = enrichJobRecord(rawJob)
+  const visibleSkills = filterVisibleSkills(profile.structured_skills)
+  const prefMeta = extractProfilePrefMeta(profile.structured_skills)
+  const scoringProfile = {
+    ...profile,
+    industry_vertical: prefMeta?.industry_vertical || '',
+    education_level: prefMeta?.education_level || '',
+    availability_window: prefMeta?.availability_window || 'Standard (2 Weeks Notice)',
+    certifications: prefMeta?.certifications || '',
+    languages: normalizeLanguageList(prefMeta?.languages, true),
+    structured_skills: visibleSkills,
+  }
+  const inputSig = computeMatchInputSignature(scoringProfile, job)
+
   if (!forceRefresh) {
     const existingCache = await readUserMatchCache(user.id)
-    if (existingCache[cacheKey]?.overall_score !== undefined) {
+    if (
+      existingCache[cacheKey]?.overall_score !== undefined &&
+      existingCache[cacheKey]?.input_sig === inputSig
+    ) {
       return { data: existingCache[cacheKey] }
     }
   }
@@ -3379,40 +3511,10 @@ export async function analyzeCandidateFit(
     return { error: empFitVelocity.reason || 'Rate limit exceeded for TrueFit Score™ checks. Please wait a few minutes.' }
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('experience_years, skills, structured_skills, bio, preferred_work_model, min_salary_expectation, location')
-    .eq('id', candidateId)
-    .single()
-
-  if (!profile) return { error: 'Professional profile not found' }
-
-  const { data: rawJob } = await supabase
-    .from('jobs')
-    .select('*')
-    .eq('id', jobId)
-    .single()
-
-  if (!rawJob) return { error: 'Job not found' }
-
-  const job = enrichJobRecord(rawJob)
-  const visibleSkills = filterVisibleSkills(profile.structured_skills)
-  const prefMeta = extractCandidatePrefMeta(profile.structured_skills)
-  const res = await analyzeMatchRouter(
-    {
-      ...profile,
-      industry_vertical: prefMeta?.industry_vertical || '',
-      education_level: prefMeta?.education_level || '',
-      certifications: prefMeta?.certifications || '',
-      languages: normalizeLanguageList(prefMeta?.languages, true),
-      structured_skills: visibleSkills,
-    },
-    job,
-    'employer'
-  )
+  const res = await analyzeMatchRouter(scoringProfile, job, 'employer')
 
   if (res?.data) {
-    await writeUserMatchCacheEntry(user.id, cacheKey, res.data)
+    await writeUserMatchCacheEntry(user.id, cacheKey, res.data, inputSig)
   }
   return res
 }
@@ -3465,7 +3567,7 @@ function getMatchPrompt(
       * You MUST be a rigorous, realistic evaluator. Do NOT give generous 75-90% scores when a professional lacks the job's core functional skills or comes from a completely unrelated industry (e.g., an IT professional applying to or being evaluated for a Food Service Manager, Nursing, or Construction role).
       * If the candidate has ZERO or near-zero direct overlap with the job's Core Requirements / functional skills, "Core Competencies" MUST score between 5 and 25, "Skill Tenure" (measuring tenure in THIS job's required skills, NOT unrelated career years) MUST score between 10 and 30, and "overall_score" MUST be below 35.
       * High general career years (e.g., 16 years in IT) do NOT count as "Skill Tenure" for an unrelated field (e.g., Food Service Management). Transferable maturity credit (+15 max) only applies on top of actual role-relevant skill tenure.
-      * "overall_score" MUST be weighted: 45% Core Competencies + 25% Skill Tenure + 15% Industry & Creds + 10% Logistics & Pay + 5% Execution & Comm. Logistics & Pay or Communication can NEVER pull an unrelated profile above 39%.
+      * "overall_score" MUST be weighted: 50% Core Competencies + 25% Skill Tenure + 15% Industry & Creds + 5% Logistics & Pay + 5% Execution & Comm. Logistics & Pay or Communication can NEVER pull an unrelated profile above 39%.
     - FIVE-PILLAR RADAR SCORING DEFINITIONS:
       1. "Core Competencies": Direct semantic overlap and proficiency across the job's required role skills, tools, and functional capabilities.
       2. "Skill Tenure": Skill-specific tenure alignment against the role's required years per skill + transferable professional maturity (never penalize career changers for having higher total career years than a newer skill's years, and never cite total career years if the role only asks for specific skill tenure).
@@ -4474,6 +4576,7 @@ export async function updateStructuredJob(formData: FormData) {
     return { error: error.message || 'Failed to update job' }
   }
 
+  await clearUserMatchCache(user.id)
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/jobs')
   revalidatePath('/dashboard/employer/jobs')

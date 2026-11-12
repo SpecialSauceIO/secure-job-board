@@ -242,7 +242,7 @@ export const STANDARD_CERTIFICATIONS: CertificationDefinition[] = [
   {
     canonical: 'AWS Certified Solutions Architect (Associate / Professional)',
     category: 'Cybersecurity, Cloud & Network Infrastructure',
-    aliases: ['aws solutions architect', 'aws certified solutions architect', 'saa-c03', 'sap-c02', 'aws certified'],
+    aliases: ['aws solutions architect', 'aws certified solutions architect', 'saa-c03', 'sap-c02'],
     verticals: [
       'Cybersecurity & Cloud Infrastructure',
       'Technology, Software & SaaS',
@@ -253,7 +253,7 @@ export const STANDARD_CERTIFICATIONS: CertificationDefinition[] = [
   {
     canonical: 'AWS Certified Cloud Practitioner / Developer / SysOps',
     category: 'Cybersecurity, Cloud & Network Infrastructure',
-    aliases: ['aws cloud practitioner', 'clf-c02', 'aws developer', 'aws devops', 'aws sysops'],
+    aliases: ['aws cloud practitioner', 'aws certified cloud practitioner', 'clf-c02', 'aws developer', 'aws certified developer', 'dva-c02', 'aws devops', 'aws sysops', 'aws certified sysops', 'soa-c02'],
     verticals: [
       'Cybersecurity & Cloud Infrastructure',
       'Technology, Software & SaaS',
@@ -818,7 +818,7 @@ export const STANDARD_CERTIFICATIONS: CertificationDefinition[] = [
   {
     canonical: 'Salesforce Certified Administrator / Service Cloud Consultant',
     category: 'Hospitality, Food Safety & Customer Operations',
-    aliases: ['salesforce certified', 'salesforce admin', 'zendesk certified', 'copc'],
+    aliases: ['salesforce certified administrator', 'salesforce admin', 'zendesk certified', 'copc'],
     verticals: [
       'BPO, Contact Center & Customer Operations',
       'Technology, Software & SaaS',
@@ -981,14 +981,18 @@ export function normalizeSingleCertification(rawToken: string): string {
     }
   }
 
+  let bestCanonical = ''
+  let bestAliasLen = 0
   for (const cert of STANDARD_CERTIFICATIONS) {
     for (const alias of cert.aliases) {
       const al = alias.toLowerCase()
-      if (al.length >= 5 && (lower.includes(al) || baseLower.includes(al))) {
-        return cert.canonical
+      if (al.length >= 5 && al.length > bestAliasLen && (lower.includes(al) || baseLower.includes(al))) {
+        bestCanonical = cert.canonical
+        bestAliasLen = al.length
       }
     }
   }
+  if (bestCanonical) return bestCanonical
 
   return cleaned
 }

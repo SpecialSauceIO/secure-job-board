@@ -25,18 +25,24 @@ export function StructuredRequirementEditor({
 
   useEffect(() => {
     if (Array.isArray(initialRequirements) && initialRequirements.length > 0) {
-      const normalized = initialRequirements.map((r: any) => ({
-        skill: typeof r === 'string' ? r : r?.skill || r?.name || '',
-        level: r?.level || 'Intermediate',
-        years:
-          typeof r?.years === 'number' && !Number.isNaN(r.years)
-            ? r.years
+      const normalized = initialRequirements.map((r: any) => {
+        const rawYears = r?.years ?? r?.min_years
+        const parsedYears =
+          rawYears !== undefined && rawYears !== null && rawYears !== ''
+            ? Number(rawYears)
+            : Number.NaN
+        return {
+          skill: typeof r === 'string' ? r : r?.skill || r?.name || '',
+          level: r?.level || 'Intermediate',
+          years: !Number.isNaN(parsedYears)
+            ? parsedYears
             : r?.level === 'Expert'
             ? 5
             : r?.level === 'Beginner'
             ? 1
             : 2,
-      }))
+        }
+      })
       while (normalized.length < MIN_REQUIRED_SKILLS) {
         normalized.push({ skill: '', level: 'Intermediate', years: 2 })
       }
