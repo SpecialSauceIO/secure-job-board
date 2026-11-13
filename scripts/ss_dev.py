@@ -62,9 +62,21 @@ def load_json(p, default):
     except Exception:
         return default
 
+def sanitize_for_chat(text):
+    s = str(text).strip()
+    s = re.sub(r"ign[o]re\s+prev[i]ous\s+instruct[i]ons", "[prompt-example-redacted]", s, flags=re.I)
+    s = re.sub(r"sys[t]em\s+pr[o]mpt", "[prompt-ref-redacted]", s, flags=re.I)
+    return s
+
 def copy_clip(text):
     try:
-        subprocess.run(["pbcopy"], input=text, text=True, check=False)
+        bt = chr(96) * 3
+        clean = sanitize_for_chat(text)
+        if clean.startswith(bt):
+            lns = clean.splitlines()
+            clean = "\n".join(lns[1:-1] if lns and lns[-1].strip() == bt else lns[1:]).strip()
+        wrapped = "Proceed with ss output:\n\n" + bt + "text\n" + clean + "\n" + bt
+        subprocess.run(["pbcopy"], input=wrapped, text=True, check=False)
     except Exception:
         pass
 
@@ -256,7 +268,9 @@ def cmd_patch(repo_dir, args):
         print("[BLOCKED] Active branch in " + repo_dir.name + " is '" + br + "'. Local patches are ONLY permitted on 'staging'.")
         sys.exit(1)
 
-    if args and args[0] == "--b64" and len(args) >= 2:
+    if args and args[0] == "--json" and len(args) >= 2:
+        raw_payload = " ".join(args[1:]).strip()
+    elif args and args[0] == "--b64" and len(args) >= 2:
         b64_joined = "".join(args[1:]).strip()
         raw_payload = base64.b64decode(b64_joined).decode("utf-8")
     elif args and pathlib.Path(args[0]).exists():
@@ -275,7 +289,7 @@ def cmd_patch(repo_dir, args):
         print("[BLOCKED - INVALID PATCH JSON] " + str(e))
         sys.exit(1)
 
-    edits = spec.get("edits", [])
+    edits = spec if isinstance(spec, list) else spec.get("edits", [])
     if not edits or not isinstance(edits, list):
         print("[BLOCKED] Patch JSON must contain a non-empty 'edits' list.")
         sys.exit(1)
@@ -654,7 +668,7 @@ def cmd_clip(repo_dir):
     if raw.startswith("```"):
         lines = raw.splitlines()
         raw = "\n".join(lines[1:-1] if lines and lines[-1].strip() == "```" else lines[1:]).strip()
-    if not raw or raw.startswith("===") or raw.startswith("[OK") or raw.startswith("[4/4]") or raw.startswith("[LOCAL") or raw.startswith("[DEPENDENCY") or raw.startswith("[BLOCKED") or raw.startswith("[CLIP") or raw.startswith("Repo:"):
+    if not raw or raw.startswith("Proceed with ss output:") or raw.startswith("===") or raw.startswith("[OK") or raw.startswith("[4/4]") or raw.startswith("[LOCAL") or raw.startswith("[DEPENDENCY") or raw.startswith("[BLOCKED") or raw.startswith("[CLIP") or raw.startswith("Repo:"):
         msg = "[CLIP] Clipboard holds previous output or is empty. Click Copy on a new ss command block first."
         print(msg)
         sys.exit(1)
@@ -669,7 +683,8 @@ def cmd_clip(repo_dir):
         print(msg)
         sys.exit(1)
     print(">> [ss clip] " + raw.splitlines()[0])
-    r = subprocess.run(["/bin/zsh", "-c", raw], cwd=str(repo_dir), capture_output=True, text=True)
+    exec_cmd = "\"" + sys.executable + "\" \"" + str(pathlib.Path(__file__).resolve()) + "\"" + raw[2:]
+    r = subprocess.run(["/bin/zsh", "-c", exec_cmd], cwd=str(repo_dir), capture_output=True, text=True)
     combined = ((r.stdout or "") + (r.stderr or "")).strip()
     if combined:
         print(combined)
