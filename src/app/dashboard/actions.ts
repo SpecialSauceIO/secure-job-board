@@ -2726,7 +2726,10 @@ export async function getCandidateApplications(
   return { data: processedData, error: null }
 }
 
-export async function getCandidateConnectionRequests() {
+export async function getCandidateConnectionRequests(
+  daysFilter?: number,
+  searchQuery?: string
+) {
   const supabase = await createClient()
   const {
     data: { user },
@@ -2734,12 +2737,20 @@ export async function getCandidateConnectionRequests() {
   if (!user) return { data: [], error: 'Not authenticated' }
 
   const db = getAdminSupabaseClient() || supabase
-  const { data: rawRequests, error } = await db
+  let dbQuery = db
     .from('applications')
     .select('*')
     .eq('candidate_id', user.id)
     .eq('initiated_by', 'employer')
     .order('created_at', { ascending: false })
+
+  if (daysFilter && daysFilter > 0) {
+    const dateLimit = new Date()
+    dateLimit.setDate(dateLimit.getDate() - daysFilter)
+    dbQuery = dbQuery.gte('created_at', dateLimit.toISOString())
+  }
+
+  const { data: rawRequests, error } = await dbQuery
 
   if (error || !rawRequests) {
     return { data: [], error: error?.message || null }
@@ -2800,9 +2811,15 @@ export async function getCandidateConnectionRequests() {
   )
   const canEngageInvitations = hasActiveCandidatePlan && isCandIdVerified
 
-  const enriched = requests.map((req: any) => {
+  let enriched = requests.map((req: any) => {
     const rawIsAccepted = req.status === 'accepted' || req.is_revealed === true
+    const isDeclined = req.status === 'rejected' || req.status === 'declined'
     const isAccepted = canEngageInvitations && rawIsAccepted
+    const normalizedStatus: 'pending' | 'accepted' | 'declined' = isDeclined
+      ? 'declined'
+      : rawIsAccepted
+        ? 'accepted'
+        : 'pending'
     const enrichedJob = req.jobs ? enrichJobRecord(req.jobs) : null
 
     if (enrichedJob) {
@@ -2856,11 +2873,78 @@ export async function getCandidateConnectionRequests() {
       unlocked_candidate_email: isAccepted
         ? req.match_data?.candidate_contact_email || user.email || null
         : null,
+      normalized_status: normalizedStatus,
       can_engage_invitations: canEngageInvitations,
       has_active_plan: hasActiveCandidatePlan,
       is_candidate_verified: isCandIdVerified,
     }
   })
+
+  if (searchQuery && searchQuery.trim() !== '') {
+    const lowerQuery = searchQuery.toLowerCase().trim()
+    const escapedQ = lowerQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const shortWordRx =
+      lowerQuery.length <= 3
+        ? new RegExp(`(^|[^a-z0-9])${escapedQ}([^a-z0-9]|$)`, 'i')
+        : null
+    const normalizedQueryCerts = parseAndNormalizeCertifications(searchQuery)
+    const matchesText = (val: any) => {
+      const str = String(val || '').toLowerCase()
+      if (!str) return false
+      return shortWordRx ? shortWordRx.test(str) : str.includes(lowerQuery)
+    }
+
+    enriched = enriched.filter((req: any) => {
+      const job = req.jobs || {}
+      const visibleReqs = Array.isArray(job.structured_requirements)
+        ? job.structured_requirements.filter(
+            (r: any) => r && !r._ss_job_meta && !r._ss_meta
+          )
+        : []
+      const reqText = visibleReqs
+        .map((r: any) =>
+          typeof r === 'string'
+            ? r
+            : `${r.skill || r.name || ''} ${r.category || ''}`
+        )
+        .join(' ')
+      const langText = Array.isArray(job.required_languages)
+        ? job.required_languages
+            .map((l: any) => (typeof l === 'string' ? l : l?.language || ''))
+            .join(' ')
+        : ''
+      const rawJobCerts =
+        job.required_certifications ||
+        job.job_meta?.required_certifications ||
+        ''
+      const parsedJobCerts = parseAndNormalizeCertifications(rawJobCerts)
+      const canonicalJobCerts = parsedJobCerts.join(' ')
+      const hasCanonicalCertOverlap =
+        normalizedQueryCerts.length > 0 &&
+        parsedJobCerts.some((c: string) => normalizedQueryCerts.includes(c))
+
+      const refMatch = String(req.reference_id || '')
+        .toLowerCase()
+        .includes(lowerQuery)
+      const orgMatch = Boolean(req.unlocked_employer_name) &&
+        matchesText(req.unlocked_employer_name)
+
+      return (
+        hasCanonicalCertOverlap ||
+        refMatch ||
+        orgMatch ||
+        matchesText(job.title) ||
+        matchesText(job.description) ||
+        matchesText(job.location || job.job_meta?.location) ||
+        matchesText(job.industry || job.job_meta?.industry) ||
+        matchesText(rawJobCerts) ||
+        matchesText(canonicalJobCerts) ||
+        matchesText(langText) ||
+        matchesText(reqText) ||
+        matchesText(req.match_data?.employer_pitch)
+      )
+    })
+  }
 
   return {
     data: enriched,

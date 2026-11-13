@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import {
   getCandidateConnectionRequests,
@@ -60,6 +60,9 @@ export default function CandidateRequestsInboxPage() {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [itemsPerPage, setItemsPerPage] = useState<number>(5)
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [daysFilter, setDaysFilter] = useState<number>(0)
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const [appliedSearch, setAppliedSearch] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [hasActivePlan, setHasActivePlan] = useState<boolean>(true)
   const [isCandidateVerified, setIsCandidateVerified] = useState<boolean>(true)
@@ -74,28 +77,85 @@ export default function CandidateRequestsInboxPage() {
     Record<string, { type: 'success' | 'error'; text: string }>
   >({})
 
+  const fetchRequests = useCallback(
+    async (silent = false) => {
+      if (!silent) setIsLoading(true)
+      const res: any = await getCandidateConnectionRequests(
+        daysFilter,
+        appliedSearch
+      )
+      if (res?.data) {
+        setRequests(res.data)
+      }
+      if (typeof res?.hasActivePlan === 'boolean') {
+        setHasActivePlan(res.hasActivePlan)
+      }
+      if (typeof res?.isCandidateVerified === 'boolean') {
+        setIsCandidateVerified(res.isCandidateVerified)
+      }
+      if (!silent) setIsLoading(false)
+    },
+    [daysFilter, appliedSearch]
+  )
+
   useEffect(() => {
     setIsMounted(true)
     try {
       const saved = Number(localStorage.getItem('ss_cand_pitches_per_page_v1'))
       if ([5, 10, 25, 50].includes(saved)) setItemsPerPage(saved)
     } catch {}
-    fetchRequests()
   }, [])
 
-  const fetchRequests = async () => {
-    setIsLoading(true)
-    const res: any = await getCandidateConnectionRequests()
+  useEffect(() => {
+    void fetchRequests(false)
+    const intervalId = setInterval(() => {
+      void fetchRequests(true)
+    }, 5000)
+    return () => clearInterval(intervalId)
+  }, [fetchRequests])
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setAppliedSearch(searchQuery.trim())
+  }
+
+  const handleRecalculateMatch = async (applicationId: string) => {
+    setRecalculatingId(applicationId)
+    setFeedback((prev) => {
+      const copy = { ...prev }
+      delete copy[applicationId]
+      return copy
+    })
+    const res: any = await recalculatePitchMatch(applicationId)
+    if (res?.error) {
+      setFeedback((prev) => ({
+        ...prev,
+        [applicationId]: { type: 'error', text: res.error },
+      }))
+      setRecalculatingId(null)
+      return
+    }
     if (res?.data) {
-      setRequests(res.data)
+      setRequests((prev) =>
+        prev.map((req) =>
+          req.id === applicationId
+            ? {
+                ...req,
+                match_score: res.data.match_score,
+                match_data: res.data.match_data,
+              }
+            : req
+        )
+      )
+      setFeedback((prev) => ({
+        ...prev,
+        [applicationId]: {
+          type: 'success',
+          text: `TrueFit Score™ refreshed (${res.data.match_score}%).`,
+        },
+      }))
     }
-    if (typeof res?.hasActivePlan === 'boolean') {
-      setHasActivePlan(res.hasActivePlan)
-    }
-    if (typeof res?.isCandidateVerified === 'boolean') {
-      setIsCandidateVerified(res.isCandidateVerified)
-    }
-    setIsLoading(false)
+    setRecalculatingId(null)
   }
 
   const [declineUndoMap, setDeclineUndoMap] = useState<Record<string, { seconds: number; reason: string }>>({})
@@ -227,18 +287,50 @@ export default function CandidateRequestsInboxPage() {
     setProcessingId(null)
   }
 
-  const filteredRequests = requests.filter((req) => {
-    const isAccepted = req.status === 'accepted' || req.is_revealed === true
-    const isDeclined = req.status === 'rejected' || req.status === 'declined'
-    if (statusFilter === 'accepted') return isAccepted
-    if (statusFilter === 'pending') return !isAccepted && !isDeclined
-    if (statusFilter === 'declined') return isDeclined
-    return true
-  })
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      all: requests.length,
+      pending: 0,
+      accepted: 0,
+      declined: 0,
+    }
+    for (const req of requests) {
+      const isAccepted = req.status === 'accepted' || req.is_revealed === true
+      const isDeclined = req.status === 'rejected' || req.status === 'declined'
+      if (isDeclined) counts.declined += 1
+      else if (isAccepted) counts.accepted += 1
+      else counts.pending += 1
+    }
+    return counts
+  }, [requests])
+
+  const filteredRequests = useMemo(() => {
+    return requests.filter((req) => {
+      const isAccepted = req.status === 'accepted' || req.is_revealed === true
+      const isDeclined = req.status === 'rejected' || req.status === 'declined'
+      if (statusFilter === 'accepted') return isAccepted
+      if (statusFilter === 'pending') return !isAccepted && !isDeclined
+      if (statusFilter === 'declined') return isDeclined
+      return true
+    })
+  }, [requests, statusFilter])
+
+  const hasActiveFilters =
+    statusFilter !== 'all' ||
+    daysFilter !== 0 ||
+    appliedSearch !== '' ||
+    searchQuery.trim() !== ''
+
+  const clearAllFilters = () => {
+    setStatusFilter('all')
+    setDaysFilter(0)
+    setSearchQuery('')
+    setAppliedSearch('')
+  }
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [statusFilter])
+  }, [statusFilter, daysFilter, appliedSearch, filteredRequests.length])
 
   const totalFilteredRequests = filteredRequests.length
   const totalPages = Math.max(1, Math.ceil(totalFilteredRequests / itemsPerPage))
@@ -253,10 +345,10 @@ export default function CandidateRequestsInboxPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Employer Invitations
+            Professional Invitations
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Verified employers invited you to these roles. Accepting opens a private chat thread.
+            Verified employers invited you directly to these roles. Accepting is free and opens a private chat while keeping your resume protected.
           </p>
         </div>
 
@@ -292,33 +384,91 @@ export default function CandidateRequestsInboxPage() {
         </div>
       )}
 
-      {/* Filter Tabs */}
-      <div className="bg-white p-4 rounded-2xl border-2 border-slate-300 shadow-xs flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {[
-            { id: 'all', label: `All Invitations (${requests.length})` },
-            { id: 'pending', label: '⚡ Pending Reply' },
-            { id: 'accepted', label: '🔓 Accepted' },
-            { id: 'declined', label: 'Declined' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setStatusFilter(tab.id)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                statusFilter === tab.id
-                  ? 'bg-slate-900 text-white shadow-2xs'
-                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-300'
-              }`}
+      {/* Filter & Search Bar */}
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-300 shadow-xs space-y-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-1.5">
+            {[
+              { id: 'all', label: 'All Invitations' },
+              { id: 'pending', label: '⚡ Pending Reply' },
+              { id: 'accepted', label: '🔓 Accepted' },
+              { id: 'declined', label: 'Declined' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setStatusFilter(tab.id)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                  statusFilter === tab.id
+                    ? 'bg-slate-900 text-white shadow-2xs'
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-300'
+                }`}
+              >
+                {tab.label} ({statusCounts[tab.id] ?? 0})
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+              Timeframe:
+            </span>
+            <select
+              value={daysFilter}
+              onChange={(e) => setDaysFilter(Number(e.target.value))}
+              className="rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-extrabold text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none cursor-pointer"
             >
-              {tab.label}
-            </button>
-          ))}
+              <option value={0}>All Time</option>
+              <option value={7}>Last 7 Days</option>
+              <option value={30}>Last 30 Days</option>
+              <option value={90}>Last 90 Days</option>
+            </select>
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={clearAllFilters}
+                className="px-3 py-1.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-300 text-xs font-extrabold hover:bg-rose-100 transition-colors cursor-pointer"
+              >
+                Clear Filters
+              </button>
+            )}
+          </div>
         </div>
 
-        <span className="text-xs font-bold text-emerald-700">
+        <form
+          onSubmit={handleSearchSubmit}
+          className="pt-3 border-t border-slate-300 flex flex-col sm:flex-row gap-2"
+        >
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by role title, skill, certification, location, Reference ID (SS-...), or unlocked company..."
+            className="w-full min-w-0 sm:flex-1 rounded-xl border-2 border-slate-300 bg-slate-50 px-3.5 sm:px-4 py-2.5 sm:py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
+          />
+          <button
+            type="submit"
+            className="w-full sm:w-auto px-4 py-2.5 sm:py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors cursor-pointer shrink-0"
+          >
+            Search
+          </button>
+          {(searchQuery || appliedSearch) && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('')
+                setAppliedSearch('')
+              }}
+              className="px-3 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold hover:bg-slate-200 cursor-pointer"
+            >
+              Reset
+            </button>
+          )}
+        </form>
+
+        <div className="text-xs font-bold text-emerald-700">
           🛡️ Accepting employer invitations is always 100% free
-        </span>
+        </div>
       </div>
 
       {/* Invitations List */}
@@ -332,17 +482,31 @@ export default function CandidateRequestsInboxPage() {
       ) : filteredRequests.length === 0 ? (
         <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs space-y-3">
           <h3 className="text-lg font-extrabold text-slate-900">
-            No employer invitations in this tab yet
+            {hasActiveFilters
+              ? 'No invitations match your active filters'
+              : 'No employer invitations yet'}
           </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Keep your skills and preferences updated so verified employers can discover and invite you.
+            {hasActiveFilters
+              ? 'Clear your active status, timeframe, or keyword filters to view all invitations.'
+              : 'Keep your skills and preferences updated so verified employers can discover and invite you.'}
           </p>
-          <Link
-            href="/dashboard/profile"
-            className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors"
-          >
-            Update My Profile →
-          </Link>
+          {hasActiveFilters ? (
+            <button
+              type="button"
+              onClick={clearAllFilters}
+              className="inline-flex items-center px-5 py-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-300 text-xs font-extrabold hover:bg-rose-100 transition-colors cursor-pointer"
+            >
+              Clear All Filters
+            </button>
+          ) : (
+            <Link
+              href="/dashboard/profile"
+              className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors"
+            >
+              Update My Profile →
+            </Link>
+          )}
         </div>
       ) : (
         <div className="space-y-5">
@@ -503,22 +667,34 @@ export default function CandidateRequestsInboxPage() {
 
                   {/* Match Summary */}
                   <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-slate-300/80 text-xs text-slate-700 space-y-1">
-                    <div className="flex items-center justify-between font-bold text-indigo-700">
+                    <div className="flex flex-wrap items-center justify-between gap-2 font-bold text-indigo-700">
                       <span>Why You Matched (TrueFit Score™)</span>
-                      {radarData && (
+                      <div className="flex items-center gap-3">
                         <button
                           type="button"
-                          onClick={() =>
-                            setExpandedRadarIds((prev) => ({
-                              ...prev,
-                              [req.id]: !prev[req.id],
-                            }))
-                          }
-                          className="underline cursor-pointer"
+                          disabled={recalculatingId === req.id}
+                          onClick={() => void handleRecalculateMatch(req.id)}
+                          className="underline cursor-pointer disabled:opacity-50"
                         >
-                          {showRadar ? 'Hide Breakdown' : 'View Breakdown'}
+                          {recalculatingId === req.id
+                            ? 'Refreshing Score...'
+                            : 'Refresh Score'}
                         </button>
-                      )}
+                        {radarData && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setExpandedRadarIds((prev) => ({
+                                ...prev,
+                                [req.id]: !prev[req.id],
+                              }))
+                            }
+                            className="underline cursor-pointer"
+                          >
+                            {showRadar ? 'Hide Breakdown' : 'View Breakdown'}
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <p className="leading-relaxed">
                       {req.match_data?.employer_pitch ||
