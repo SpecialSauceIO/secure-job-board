@@ -16,6 +16,7 @@ export default async function PostJobPage() {
     .single()
     
   if (profile?.role !== 'employer') redirect('/dashboard')
+  redirect('/dashboard/employer/jobs/new')
 
   return (
     <div className="mx-auto max-w-3xl rounded-xl bg-white p-5 sm:p-8 shadow-sm ring-1 ring-gray-200">

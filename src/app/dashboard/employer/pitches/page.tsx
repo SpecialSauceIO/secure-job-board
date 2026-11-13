@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { getEmployerPitches } from '@/app/dashboard/actions'
 import SecureMessageThread from '@/components/SecureMessageThread'
@@ -30,6 +30,7 @@ export default function EmployerSentPitchesPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [daysFilter, setDaysFilter] = useState<number>(0)
   const [searchQuery, setSearchQuery] = useState<string>('')
+  const [appliedSearch, setAppliedSearch] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [expandedRadarIds, setExpandedRadarIds] = useState<
     Record<string, boolean>
@@ -43,22 +44,59 @@ export default function EmployerSentPitchesPage() {
     } catch {}
   }, [])
 
-  const fetchPitches = async () => {
-    setIsLoading(true)
-    const res = await getEmployerPitches(statusFilter, daysFilter, searchQuery)
-    if (res?.data) {
-      setPitches(res.data)
-    }
-    setIsLoading(false)
-  }
+  const fetchPitches = useCallback(
+    async (silent = false) => {
+      if (!silent) setIsLoading(true)
+      const res = await getEmployerPitches('all', daysFilter, appliedSearch)
+      if (res?.data) {
+        setPitches(res.data)
+      }
+      if (!silent) setIsLoading(false)
+    },
+    [daysFilter, appliedSearch]
+  )
 
   useEffect(() => {
-    fetchPitches()
-  }, [statusFilter, daysFilter])
+    void fetchPitches(false)
+    const intervalId = setInterval(() => {
+      void fetchPitches(true)
+    }, 5000)
+    return () => clearInterval(intervalId)
+  }, [fetchPitches])
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    fetchPitches()
+    setAppliedSearch(searchQuery.trim())
+  }
+
+  const statusCounts = useMemo(() => {
+    let accepted = 0
+    let pending = 0
+    let declined = 0
+    for (const p of pitches) {
+      const st = p.normalized_status || (p.status === 'rejected' || p.status === 'declined' ? 'declined' : p.status === 'accepted' || p.is_revealed === true ? 'accepted' : 'pending')
+      if (st === 'accepted') accepted++
+      else if (st === 'declined') declined++
+      else pending++
+    }
+    return { all: pitches.length, accepted, pending, declined }
+  }, [pitches])
+
+  const filteredPitches = useMemo(() => {
+    if (statusFilter === 'all') return pitches
+    return pitches.filter((p) => {
+      const st = p.normalized_status || (p.status === 'rejected' || p.status === 'declined' ? 'declined' : p.status === 'accepted' || p.is_revealed === true ? 'accepted' : 'pending')
+      return st === statusFilter
+    })
+  }, [pitches, statusFilter])
+
+  const hasActiveFilters = statusFilter !== 'all' || daysFilter !== 0 || appliedSearch !== '' || searchQuery.trim() !== ''
+
+  const clearAllFilters = () => {
+    setStatusFilter('all')
+    setDaysFilter(0)
+    setSearchQuery('')
+    setAppliedSearch('')
   }
 
   const toggleRadar = (id: string) => {
@@ -70,14 +108,14 @@ export default function EmployerSentPitchesPage() {
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [statusFilter, daysFilter, pitches.length])
+  }, [statusFilter, daysFilter, appliedSearch, filteredPitches.length])
 
-  const totalSentPitches = pitches.length
+  const totalSentPitches = filteredPitches.length
   const totalPages = Math.max(1, Math.ceil(totalSentPitches / itemsPerPage))
   const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages)
   const startIndex = (safeCurrentPage - 1) * itemsPerPage
   const endIndex = Math.min(startIndex + itemsPerPage, totalSentPitches)
-  const paginatedPitches = pitches.slice(startIndex, startIndex + itemsPerPage)
+  const paginatedPitches = filteredPitches.slice(startIndex, startIndex + itemsPerPage)
 
   return (
     <div className="max-w-6xl mx-auto py-3 space-y-6">
@@ -106,10 +144,10 @@ export default function EmployerSentPitchesPage() {
           {/* Status Filter Pills */}
           <div className="flex flex-wrap items-center gap-1.5">
             {[
-              { id: 'all', label: 'All Sent Invitations' },
-              { id: 'accepted', label: '🔓 Accepted / Thread Open' },
-              { id: 'pending', label: '⏳ Pending Professional Reply' },
-              { id: 'declined', label: 'Declined' },
+              { id: 'all', label: `All Sent Invitations (${statusCounts.all})` },
+              { id: 'accepted', label: `🔓 Accepted / Thread Open (${statusCounts.accepted})` },
+              { id: 'pending', label: `⏳ Pending Professional Reply (${statusCounts.pending})` },
+              { id: 'declined', label: `Declined (${statusCounts.declined})` },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -162,18 +200,13 @@ export default function EmployerSentPitchesPage() {
           >
             Filter
           </button>
-          {searchQuery && (
+          {hasActiveFilters && (
             <button
               type="button"
-              onClick={() => {
-                setSearchQuery('')
-                getEmployerPitches(statusFilter, daysFilter, '').then((res) => {
-                  if (res?.data) setPitches(res.data)
-                })
-              }}
-              className="px-3 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold hover:bg-slate-200 cursor-pointer"
+              onClick={clearAllFilters}
+              className="px-3 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold hover:bg-slate-200 cursor-pointer shrink-0"
             >
-              Reset
+              Clear Filters
             </button>
           )}
         </form>
@@ -187,20 +220,31 @@ export default function EmployerSentPitchesPage() {
             Loading outbound pitch pipeline...
           </p>
         </div>
-      ) : pitches.length === 0 ? (
+      ) : filteredPitches.length === 0 ? (
         <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs space-y-3 border-slate-300">
           <h3 className="text-lg font-extrabold text-slate-900">
-            No outbound pitches match your current filter
+            No sent invitations match your current filter
           </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
             Browse the anonymous passive talent directory to run TrueFit Score™ checks and send direct Professional Invitations.
           </p>
-          <Link
-            href="/dashboard/employer/search"
-            className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors"
-          >
-            Search Passive Talent Pool →
-          </Link>
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={clearAllFilters}
+                className="inline-flex items-center px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-extrabold hover:bg-slate-200 transition-colors cursor-pointer"
+              >
+                Clear Filters
+              </button>
+            )}
+            <Link
+              href="/dashboard/employer/search"
+              className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors"
+            >
+              Search Passive Talent Pool →
+            </Link>
+          </div>
         </div>
       ) : (
         <div className="space-y-5">

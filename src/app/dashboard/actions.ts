@@ -5642,39 +5642,62 @@ export async function getEmployerPitches(
     })
   )
 
+  if (searchQuery && searchQuery.trim() !== '') {
+    const lowerQuery = searchQuery.toLowerCase().trim()
+    const escapedQ = lowerQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const shortWordRx =
+      lowerQuery.length <= 3
+        ? new RegExp(`(^|[^a-z0-9])${escapedQ}([^a-z0-9]|$)`, 'i')
+        : null
+    const normalizedQueryCerts = parseAndNormalizeCertifications(searchQuery)
+    const matchesText = (val: any) => {
+      const str = String(val || '').toLowerCase()
+      if (!str) return false
+      return shortWordRx ? shortWordRx.test(str) : str.includes(lowerQuery)
+    }
+
+    processedData = processedData.filter((app: any) => {
+      const prof = app.profiles || {}
+      const structuredSkillsText = Array.isArray(prof.structured_skills)
+        ? prof.structured_skills
+            .map((s: any) => (typeof s === 'string' ? s : `${s?.skill || s?.name || ''} ${s?.category || ''}`))
+            .join(' ')
+        : ''
+      const langText = Array.isArray(prof.languages)
+        ? prof.languages.map((l: any) => (typeof l === 'string' ? l : l?.language || '')).join(' ')
+        : ''
+      const rawProfCerts = prof.certifications || ''
+      const parsedProfCerts = parseAndNormalizeCertifications(rawProfCerts)
+      const canonicalProfCerts = parsedProfCerts.join(' ')
+      const hasCanonicalCertOverlap =
+        normalizedQueryCerts.length > 0 &&
+        parsedProfCerts.some((c: string) => normalizedQueryCerts.includes(c))
+      const refMatch = String(app.reference_id || '').toLowerCase().includes(lowerQuery)
+      const nameMatch =
+        app.normalized_status === 'accepted'
+          ? matchesText(app.unlocked_candidate_name)
+          : false
+      return (
+        hasCanonicalCertOverlap ||
+        refMatch ||
+        nameMatch ||
+        matchesText(app.jobs?.title) ||
+        matchesText(prof.skills) ||
+        matchesText(structuredSkillsText) ||
+        matchesText(rawProfCerts) ||
+        matchesText(canonicalProfCerts) ||
+        matchesText(langText) ||
+        matchesText(prof.bio) ||
+        matchesText(prof.location) ||
+        matchesText(prof.industry_vertical)
+      )
+    })
+  }
+
   if (statusFilter && statusFilter !== 'all') {
     processedData = processedData.filter(
       (app: any) => app.normalized_status === statusFilter
     )
-  }
-
-  if (searchQuery && searchQuery.trim() !== '') {
-    const lowerQuery = searchQuery.toLowerCase().trim()
-    processedData = processedData.filter((app: any) => {
-      const titleMatch = app.jobs?.title?.toLowerCase().includes(lowerQuery)
-      const skillsMatch = app.profiles?.skills
-        ?.toLowerCase()
-        .includes(lowerQuery)
-      const certMatch = app.profiles?.certifications
-        ?.toLowerCase()
-        .includes(lowerQuery)
-      const bioMatch = app.profiles?.bio?.toLowerCase().includes(lowerQuery)
-      const refMatch = app.reference_id?.toLowerCase().includes(lowerQuery)
-      const nameMatch =
-        app.normalized_status === 'accepted'
-          ? (app.unlocked_candidate_name || '')
-              .toLowerCase()
-              .includes(lowerQuery)
-          : false
-      return (
-        titleMatch ||
-        skillsMatch ||
-        certMatch ||
-        bioMatch ||
-        refMatch ||
-        nameMatch
-      )
-    })
   }
 
   return { data: processedData }
