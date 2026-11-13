@@ -359,8 +359,8 @@ export default function EmployerOrganizationForm({
                 className="px-3 py-1.5 rounded-lg bg-white border border-amber-300 text-amber-900 text-xs font-bold hover:bg-amber-50 transition-colors cursor-pointer"
               >
                 {pillar3Done
-                  ? '⚡ Sandbox: Reset Admin ID'
-                  : '⚡ Sandbox: Mark Admin ID Verified'}
+                  ? '⚡ Dev QA: Reset Admin ID'
+                  : '⚡ Dev QA: Mark Admin ID Verified'}
               </button>
             )}
           </div>
@@ -511,7 +511,7 @@ export default function EmployerOrganizationForm({
                 onClick={() => handleSandboxToggle('verified')}
                 className="px-3 py-1.5 rounded-lg bg-white/90 border border-amber-300 text-amber-900 font-bold hover:bg-white transition-colors shadow-sm cursor-pointer"
               >
-                ⚡ Sandbox: Simulate Verified
+                ⚡ Dev QA: Simulate Verified
               </button>
             )}
           </div>

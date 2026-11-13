@@ -36,7 +36,10 @@ export default function EmployerTeamSeatsPanel({
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   const seatsUsed = seats.length
-  const canAddMoreSeats = seatsUsed < maxSeats && (tier === 'growth' || tier === 'enterprise')
+  const isUnlimitedSeats = maxSeats >= 999
+  const canAddMoreSeats =
+    seatsUsed < maxSeats &&
+    (tier === 'starter' || tier === 'growth' || tier === 'enterprise')
 
   const handleInviteSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -95,7 +98,9 @@ export default function EmployerTeamSeatsPanel({
               Team & External Recruiter Seats
             </h2>
             <span className="px-3 py-1 rounded-full bg-slate-900 text-white text-xs font-extrabold">
-              {seatsUsed} / {maxSeats} {maxSeats === 1 ? 'Seat' : 'Seats'} Used ({tierLabel})
+              {isUnlimitedSeats
+                ? `${seatsUsed} Active ${seatsUsed === 1 ? 'Seat' : 'Seats'} • Unlimited (${tierLabel})`
+                : `${seatsUsed} / ${maxSeats} ${maxSeats === 1 ? 'Seat' : 'Seats'} Used (${tierLabel})`}
             </span>
           </div>
           <p className="text-sm text-slate-500 mt-1">
@@ -104,19 +109,26 @@ export default function EmployerTeamSeatsPanel({
           </p>
         </div>
 
-        {tier === 'free' || tier === 'starter' ? (
+        {tier === 'free' ? (
           <Link
             href="/dashboard/employer/billing"
             className="shrink-0 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-extrabold hover:bg-indigo-700 transition-colors shadow-sm text-center"
           >
-            Upgrade to Growth (3 Seats) →
+            Activate Plan for Team Seats →
+          </Link>
+        ) : seatsUsed >= maxSeats && tier === 'starter' ? (
+          <Link
+            href="/dashboard/employer/billing"
+            className="shrink-0 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-extrabold hover:bg-indigo-700 transition-colors shadow-sm text-center"
+          >
+            Upgrade to Growth (5 Seats) →
           </Link>
         ) : seatsUsed >= maxSeats && tier === 'growth' ? (
           <Link
             href="/dashboard/employer/billing"
             className="shrink-0 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm text-center"
           >
-            Upgrade to Enterprise (10 Seats) →
+            Upgrade to Enterprise (Unlimited Seats) →
           </Link>
         ) : null}
       </div>
@@ -135,16 +147,20 @@ export default function EmployerTeamSeatsPanel({
       )}
 
       {/* Upgrade Callout for Starter / No Active Plan */}
-      {(tier === 'free' || tier === 'starter') && (
+      {(tier === 'free' || (tier === 'starter' && seatsUsed >= maxSeats)) && (
         <div className="p-5 rounded-xl bg-indigo-50/70 border border-indigo-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <h3 className="text-sm font-extrabold text-indigo-950">
-              Need to add a Hiring Manager or External Recruiting Partner?
+              {tier === 'starter'
+                ? 'All 2 Starter Seats Assigned — Need More Collaborators?'
+                : 'Need to Add a Hiring Manager or External Recruiting Partner?'}
             </h3>
             <p className="text-xs text-indigo-800/90 leading-relaxed">
-              The <strong>Starter Tier ($149/mo Founding ($299 Retail))</strong> includes 2 Team or Recruiter seats. Upgrade to the{' '}
-              <strong>Growth Tier ($499/mo Founding ($799 Retail))</strong> to unlock up to <strong>Up to 5 Team & Recruiter Seats</strong>, or{' '}
-              <strong>Enterprise ($1,250/mo Founding ($1,999 Retail))</strong> for <strong>Unlimited Team & Recruiter Seats + HR Software Auto-Sync</strong>.
+              {tier === 'free'
+                ? 'Practice Mode includes 1 admin seat. Activate Starter ($149/mo Locked 12 Mos — $299/mo Month 13+) for 2 Team or Recruiter Seats, '
+                : 'Your Starter Plan includes 2 seats. Upgrade to '}
+              <strong>Growth ($499/mo Locked 12 Mos — $799/mo Month 13+)</strong> for <strong>up to 5 Team & Recruiter Seats</strong>, or{' '}
+              <strong>Enterprise ($1,250/mo Locked 12 Mos — $1,999/mo Month 13+)</strong> for <strong>Unlimited Team & Recruiter Seats + HR Software Auto-Sync</strong>.
             </p>
           </div>
           <Link
@@ -156,8 +172,8 @@ export default function EmployerTeamSeatsPanel({
         </div>
       )}
 
-      {/* Invite Form (Active on Growth & Enterprise when seats are available) */}
-      {(tier === 'growth' || tier === 'enterprise') && (
+      {/* Invite Form (Active on Starter, Growth & Enterprise) */}
+      {(tier === 'starter' || tier === 'growth' || tier === 'enterprise') && (
         <form
           onSubmit={handleInviteSubmit}
           className="p-4 sm:p-5 rounded-xl bg-slate-50 border-2 border-slate-300 space-y-4"
@@ -167,7 +183,9 @@ export default function EmployerTeamSeatsPanel({
               Invite Team Member or Recruiter Seat
             </span>
             <span className="text-xs font-bold text-indigo-600">
-              {Math.max(0, maxSeats - seatsUsed)} {maxSeats - seatsUsed === 1 ? 'Seat' : 'Seats'} Remaining
+              {isUnlimitedSeats
+                ? 'Unlimited Seats Included'
+                : `${Math.max(0, maxSeats - seatsUsed)} ${maxSeats - seatsUsed === 1 ? 'Seat' : 'Seats'} Remaining`}
             </span>
           </div>
 
@@ -179,7 +197,7 @@ export default function EmployerTeamSeatsPanel({
                 disabled={!canAddMoreSeats || isSubmitting}
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
-                placeholder="colleague@company.com or lead@bpo-partner.com"
+                placeholder="colleague@company.com or recruiter@agency.com"
                 className="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none disabled:bg-slate-100 border-slate-300"
               />
             </div>

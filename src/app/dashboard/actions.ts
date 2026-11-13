@@ -6428,7 +6428,7 @@ export async function inviteOrganizationSeat(formData: FormData) {
 
   if (totalSeatsCurrentlyUsed >= tierInfo.maxSeats) {
     return {
-      error: `Seat Limit Reached (${totalSeatsCurrentlyUsed}/${tierInfo.maxSeats} Seats): Your ${tierInfo.label} includes up to ${tierInfo.maxSeats} ${tierInfo.maxSeats === 1 ? 'seat' : 'seats'}. Upgrade your plan to add more collaborators or BPO partners.`,
+      error: `Seat Limit Reached (${totalSeatsCurrentlyUsed}/${tierInfo.maxSeats} Seats): Your ${tierInfo.label} includes up to ${tierInfo.maxSeats} ${tierInfo.maxSeats === 1 ? 'seat' : 'seats'}. Upgrade your plan to add more hiring managers or external recruiters.`,
     }
   }
 

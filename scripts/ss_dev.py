@@ -75,6 +75,9 @@ def copy_clip(text):
         if clean.startswith(bt):
             lns = clean.splitlines()
             clean = "\n".join(lns[1:-1] if lns and lns[-1].strip() == bt else lns[1:]).strip()
+        clean = clean.replace("\u00a0", " ")
+        if len(clean) > 3600:
+            clean = clean[:3600].rsplit("\n", 1)[0] + "\n[CLIPBOARD CAPPED AT 3600 CHARS — USE NARROWER LINE RANGE]"
         wrapped = "Proceed with ss output:\n\n" + bt + "text\n" + clean + "\n" + bt
         subprocess.run(["pbcopy"], input=wrapped, text=True, check=False)
     except Exception:
@@ -116,10 +119,10 @@ def cmd_inspect(repo_dir, args):
         sys.exit(1)
     receipt_path = repo_dir / ".git" / ".ss_inspect_receipt.json"
     receipt = load_json(receipt_path, {"files": {}})
-    if len(args) > 5:
-        print("[BLOCKED - TOO MANY TARGETS] Pass at most 5 file targets per `ss inspect` call (use needle searches first) to protect chat context.")
+    if len(args) > 2:
+        print("[BLOCKED - TOO MANY TARGETS] Pass at most 2 file targets per `ss inspect` call to prevent clipboard truncation.")
         sys.exit(1)
-    total_budget = 6500
+    total_budget = 3400
     per_budget = max(1200, total_budget // max(1, len(args)))
     sections = []
     now_ts = int(time.time())
@@ -146,8 +149,8 @@ def cmd_inspect(repo_dir, args):
             s_num = max(1, s_num)
             e_num = min(len(flines), e_num)
             range_clamped = False
-            if e_num - s_num + 1 > 120:
-                e_num = s_num + 119
+            if e_num - s_num + 1 > 80:
+                e_num = s_num + 79
                 range_clamped = True
             last_included = s_num - 1
             clipped = False
@@ -166,18 +169,26 @@ def cmd_inspect(repo_dir, args):
                 body_lines.append("[RANGE CAPPED AT LINE " + str(last_included) + " (120L MAX) — USE NEEDLE SEARCH (`ss inspect " + rel + ":keyword`) INSTEAD OF DUMPING FULL FILES]")
         else:
             keys = [k.strip().lower() for k in sel.split(",") if k.strip()]
+            seen_ln = set()
+            capped_needle = False
             for idx, raw_ln in enumerate(flines, 1):
+                if capped_needle:
+                    break
                 if any(k in raw_ln.lower() for k in keys):
-                    # Include 2 lines context above and below when needle matches
-                    c_start = max(1, idx - 1)
-                    c_end = min(len(flines), idx + 1)
-                    disp = str(idx) + "|" + raw_ln[:1400]
-                    if used + len(disp) + 1 > per_budget - 40:
-                        body_lines.append("[NEEDLE OUTPUT CAP REACHED — INSPECT LINE RANGE DIRECTLY]")
-                        break
-                    body_lines.append(disp)
-                    used += len(disp) + 1
-                    credited_ranges.append([idx, idx])
+                    c_start = max(1, idx - 2)
+                    c_end = min(len(flines), idx + 2)
+                    for c_ln in range(c_start, c_end + 1):
+                        if c_ln in seen_ln:
+                            continue
+                        disp = str(c_ln) + "|" + flines[c_ln - 1][:1400]
+                        if used + len(disp) + 1 > per_budget - 40:
+                            body_lines.append("[NEEDLE OUTPUT CAP REACHED — INSPECT LINE RANGE DIRECTLY]")
+                            capped_needle = True
+                            break
+                        seen_ln.add(c_ln)
+                        body_lines.append(disp)
+                        used += len(disp) + 1
+                        credited_ranges.append([c_ln, c_ln])
 
         prev = receipt["files"].get(rel, {})
         prev_ranges = prev.get("ranges", []) if prev.get("sha16") == f_hash else []
@@ -284,12 +295,12 @@ def cmd_patch(repo_dir, args):
         sys.exit(1)
 
     try:
-        spec = json.loads(raw_payload)
+        spec = json.loads(raw_payload.replace("\u00a0", " "), strict=False)
     except Exception as e:
         print("[BLOCKED - INVALID PATCH JSON] " + str(e))
         sys.exit(1)
 
-    edits = spec if isinstance(spec, list) else spec.get("edits", [])
+    edits = spec if isinstance(spec, list) else (spec.get("edits", []) if isinstance(spec, dict) else [])
     if not edits or not isinstance(edits, list):
         print("[BLOCKED] Patch JSON must contain a non-empty 'edits' list.")
         sys.exit(1)
@@ -304,6 +315,9 @@ def cmd_patch(repo_dir, args):
     staged_contents = {}
 
     for idx, ed in enumerate(edits, 1):
+        if not isinstance(ed, dict):
+            print("[BLOCKED] Edit #" + str(idx) + " must be a JSON object.")
+            sys.exit(1)
         rel_in = ed.get("file", "")
         exp_sha = ed.get("sha256", "").strip()
         old_str = ed.get("old", "")
@@ -344,7 +358,7 @@ def cmd_patch(repo_dir, args):
         new_str = new_str.replace("\u00a0", " ")
         occ_orig = orig_text.count(old_str)
         occ_cur = cur_text.count(old_str)
-        if (occ_cur != 1 or occ_orig < 1) and "\n" in old_str:
+        if (occ_cur != 1 or occ_orig < 1) and ("\n" in old_str or len(old_str.strip()) >= 15):
             old_lines = old_str.splitlines()
             old_stripped = [ln.strip() for ln in old_lines]
             orig_lines = orig_text.splitlines()
@@ -605,16 +619,16 @@ def cmd_audit_copy(repo_dir, args):
             for q in quotes:
                 if q not in " ".join(pieces):
                     pieces.append(q)
-            if pieces:
-                line_txt = " | ".join(pieces)[:160]
+            if pieces and not re.match(r"^(\.|\?|:|\(|\[|try\b|catch\b|await\b)", s):
+                line_txt = " | ".join(pieces).replace("<", "(").replace(">", ")")[:140]
                 flags = [msg.split("—")[0].strip() for pat, msg in FORBIDDEN_COPY_PATTERNS if re.search(pat, ALLOWED_CODE_IDENT_RX.sub("", s), re.I)]
                 prefix = "[FLAG: " + ", ".join(flags) + "] " if flags else ""
                 out.append("L" + str(idx) + ": " + prefix + line_txt)
         receipt["files"][rel] = {"sha16": f_hash, "ranges": [[1, len(flines)]], "updated_at": now_ts}
-        sections.append("\n".join(out[:140]))
+        sections.append("\n".join(out[:90]))
     receipt_path.parent.mkdir(parents=True, exist_ok=True)
     receipt_path.write_text(json.dumps(receipt, indent=2))
-    final_out = "\n".join(sections)[:6200]
+    final_out = "\n".join(sections)[:3200]
     copy_clip("```text\n" + final_out + "\n```")
     print(final_out)
 

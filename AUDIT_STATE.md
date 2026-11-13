@@ -25,6 +25,8 @@
 
 - [x] Public Security & Legal + Dashboard Wrappers (`src/app/security/page.tsx`, `src/components/SecurityTrustClient.tsx`, `src/app/privacy/page.tsx`, `src/app/terms/page.tsx`, `src/app/dashboard/security/page.tsx`, `src/app/dashboard/workflows/page.tsx`, `scripts/ss_dev.py` — Practice Mode legal copy parity, Standard/Technical security specs, dashboard route containment, and `ss patch --json` stream guard)
 
+- [x] Employer Organization, Verification, Team Seats & HR Sync (`src/app/dashboard/employer/organization/page.tsx`, `EmployerOrganizationForm.tsx`, `EmployerTeamSeatsPanel.tsx`, `EnterpriseAtsIntegrationPanel.tsx`, `src/app/dashboard/actions.ts`, `scripts/ss_dev.py` — Starter 2-seat unlock, Growth 5-seat & Enterprise Unlimited seat display, plain-English recruiter copy, Dev QA labels, and hardened `ss` CLI clipboard/JSON guards)
+
 ## Remaining Public, Secondary & Ops Modules to Audit (In Order)
-- [ ] Secondary Dashboard Views (`src/app/dashboard/employer/organization/page.tsx`, `src/app/dashboard/employer/pitches/page.tsx`, `src/app/dashboard/horizon/page.tsx`, `src/app/dashboard/post-job/page.tsx`)
+- [ ] Secondary Dashboard Views (`src/app/dashboard/employer/pitches/page.tsx`, `src/app/dashboard/post-job/page.tsx` — skipping `horizon` while in development)
 - [ ] Operations Console (`special-sauce-ops` + `ss --ops` flag alignment)
