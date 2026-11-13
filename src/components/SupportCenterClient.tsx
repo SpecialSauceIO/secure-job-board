@@ -275,6 +275,24 @@ export default function SupportCenterClient({
   }
 
   const filteredFaqs = useMemo(() => {
+    const rawTrimmed = searchQuery.trim().toLowerCase()
+    const queryTokens = rawTrimmed
+      ? rawTrimmed.split(/\s+/).filter(Boolean)
+      : []
+    const matchesToken = (haystack: string, needle: string) => {
+      if (!needle) return true
+      const h = haystack.toLowerCase()
+      if (needle.length <= 3 || /^[a-z0-9+.#/-]+$/i.test(needle)) {
+        const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        const boundaryRe = new RegExp(
+          `(?:^|[^a-z0-9])${escaped}(?:$|[^a-z0-9])`,
+          'i'
+        )
+        if (boundaryRe.test(h)) return true
+        return needle.length > 3 && h.includes(needle)
+      }
+      return h.includes(needle)
+    }
     return faqs.filter((faq) => {
       if (
         faqRoleFilter !== 'all' &&
@@ -283,13 +301,12 @@ export default function SupportCenterClient({
       ) {
         return false
       }
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase()
-        return (
-          faq.question.toLowerCase().includes(query) ||
-          faq.answer.toLowerCase().includes(query) ||
-          faq.category.toLowerCase().includes(query)
-        )
+      if (queryTokens.length > 0) {
+        const combined = `${faq.question} ${faq.answer} ${faq.category}`
+        if (rawTrimmed.includes(' ') && combined.toLowerCase().includes(rawTrimmed)) {
+          return true
+        }
+        return queryTokens.every((tok) => matchesToken(combined, tok))
       }
       return true
     })
@@ -438,9 +455,9 @@ export default function SupportCenterClient({
           if (res.tickets) setMyTickets(res.tickets)
         })
         .catch(() => {})
-    }, 12000)
+    }, 5000)
     return () => clearInterval(timer)
-  }, [activeTab])
+  }, [activeTab, canUploadAttachments])
 
   const handleTicketSubmit = async (formData: FormData) => {
     setTicketStatus(null)
@@ -638,8 +655,8 @@ export default function SupportCenterClient({
           </h2>
           <p className="text-sm text-slate-600 leading-relaxed">
             {userRole === 'employer'
-              ? 'To keep our support channels free of automated spam, please complete your $25 One-Time Employer Verification Pass on Membership & Billing first.'
-              : 'To keep our support channels free of automated spam, please complete your $5 One-Time Stripe ID Verification on Membership & Billing first.'}
+              ? 'To keep our support channels free of automated spam, please complete your $25 One-Time Employer Verification Pass on Membership & Plan Settings first.'
+              : 'To keep our support channels free of automated spam, please complete your $5 One-Time Stripe ID Verification on Membership & Plan Settings first.'}
           </p>
           <div className="pt-2">
             <Link
@@ -1770,7 +1787,7 @@ export default function SupportCenterClient({
 
           {/* Search & Role Filter Bar */}
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
+            <div className="relative flex-1 flex items-center gap-2">
               <input
                 type="text"
                 placeholder="Search FAQs (e.g. Intro/Convo Vault, 30-day expiry, shortlist, W-2 vs 1099, Stripe)..."
@@ -1778,6 +1795,15 @@ export default function SupportCenterClient({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-4 py-3.5 rounded-xl border-2 border-slate-600 bg-slate-900 focus:border-indigo-400 text-base font-medium text-white placeholder:text-slate-400 transition-all"
               />
+              {searchQuery.trim() && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="shrink-0 px-3.5 py-3.5 rounded-xl border border-slate-600 bg-slate-800 hover:bg-slate-700 text-xs font-extrabold text-slate-200 transition-colors cursor-pointer"
+                >
+                  Clear
+                </button>
+              )}
             </div>
 
             <div className="inline-flex rounded-xl bg-slate-900 p-1.5 border border-slate-700 shrink-0">
@@ -1821,16 +1847,25 @@ export default function SupportCenterClient({
             <div className="text-center py-12 text-slate-200 text-base font-medium">
               No articles found matching &ldquo;{searchQuery}&rdquo;.
               <br />
-              <button
-                type="button"
-                onClick={() => {
-                  switchTab('ticket')
-                  setIsComposingNewTicket(true)
-                }}
-                className="text-indigo-400 font-bold hover:underline mt-2 cursor-pointer"
-              >
-                Submit a support ticket instead →
-              </button>
+              {canUploadAttachments ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    switchTab('ticket')
+                    setIsComposingNewTicket(true)
+                  }}
+                  className="text-indigo-400 font-bold hover:underline mt-2 cursor-pointer"
+                >
+                  Submit a support ticket instead →
+                </button>
+              ) : (
+                <Link
+                  href={userRole === 'employer' ? '/dashboard/employer/billing' : '/dashboard/billing'}
+                  className="inline-block text-indigo-400 font-bold hover:underline mt-2"
+                >
+                  Activate a monthly plan for 1-on-1 human support (or use Send Feedback in the top bar) →
+                </Link>
+              )}
             </div>
           ) : (
             <div className="space-y-8">
@@ -1884,7 +1919,7 @@ export default function SupportCenterClient({
             <div className="space-y-1.5">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 pb-1">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-extrabold uppercase tracking-wider w-fit">
-                    {securityTechMode === "standard" ? "PCI-DSS Level 1 - Stripe ID Protection - Private Resume Vault" : "PCI-DSS Level 1 - AES-256 & TLS 1.3 - RLS Technical Architecture"}
+                    {securityTechMode === "standard" ? "Stripe Payment Protection - Stripe ID Verification - Private Resume Vault" : "PCI-DSS Level 1 - AES-256 & TLS 1.3 - RLS Technical Architecture"}
                   </div>
                   <div className="inline-flex items-center p-1 rounded-xl bg-slate-950 border border-slate-700 w-full sm:w-auto">
                     <button type="button" onClick={() => setSecurityTechMode("standard")} className={"flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer " + (securityTechMode === "standard" ? "bg-emerald-500 text-slate-950 shadow-sm" : "text-slate-300 hover:text-white")}>

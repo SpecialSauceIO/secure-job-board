@@ -178,7 +178,7 @@ def cmd_inspect(repo_dir, args):
     receipt_path.parent.mkdir(parents=True, exist_ok=True)
     receipt_path.write_text(json.dumps(receipt, indent=2))
     final_out = "\n".join(sections)
-    copy_clip(final_out)
+    copy_clip("```text\n" + final_out + "\n```")
     print(final_out)
 
 def validate_ts_and_invariants(repo_dir, touched_files, added_lines_by_file):

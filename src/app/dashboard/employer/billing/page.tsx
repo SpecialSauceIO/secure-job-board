@@ -280,7 +280,7 @@ export default function EmployerBillingPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Billing, Plans &amp; Invitation Credits
+            Membership &amp; Plan Settings
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Inbound applicants are always 100% free to unlock, and declined outbound invitations are automatically refunded.
@@ -792,7 +792,7 @@ export default function EmployerBillingPage() {
         </div>
       </section>
 
-      {/* Step Down / Pause Hiring to Verified Employer Sandbox ($0/mo) */}
+      {/* Step Down / Pause Hiring to Verified Practice Mode ($0/mo) */}
       {activeTier !== 'free' && (
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
@@ -800,7 +800,7 @@ export default function EmployerBillingPage() {
               Hiring Paused Between Roles?
             </span>
             <h4 className="text-sm font-black text-slate-900">
-              Step Down to Verified Employer Sandbox ($0/mo)
+              Step Down to Verified Practice Mode ($0/mo)
             </h4>
             <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
               Keep your verified organization badge, company profile, and drafted roles active at $0/mo while hiring is paused. Reactivate Starter, Growth, or Enterprise anytime.
@@ -812,7 +812,7 @@ export default function EmployerBillingPage() {
             onClick={() => handleTierSwitch('free')}
             className="shrink-0 px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
           >
-            {processingTarget === 'free' ? 'Switching...' : 'Pause to $0/mo Sandbox'}
+            {processingTarget === 'free' ? 'Switching...' : 'Pause to $0/mo Practice Mode'}
           </button>
         </div>
       )}
@@ -842,7 +842,7 @@ export default function EmployerBillingPage() {
                 : 'bg-white border-slate-300 text-slate-700 hover:bg-rose-50 hover:text-rose-700'
             }`}
           >
-            1. Sandbox ($0/mo)
+            1. Practice Mode ($0/mo)
           </button>
 
           <button

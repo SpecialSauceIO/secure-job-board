@@ -17,5 +17,7 @@
 - [x] Match Preferences (`src/app/dashboard/preferences/page.tsx` & `CandidatePreferencesForm.tsx` — reactive work-model/location sync, Paused inbound invitation lock, and plain-English copy)
 - [x] Employer Manage Roles & Inbound Applicants (`src/app/dashboard/employer/jobs/page.tsx`, `EmployerJobsTableClient.tsx`, `src/app/dashboard/employer/applications/page.tsx`, `ApplicationRevealCard.tsx`, `SecureMessageThread.tsx` — whole-word & cert search, `structured_skills` coverage, committed search + Clear Filters, 30-day renewal gate)
 
+- [x] Support & Membership / Plan Settings (`SupportCenterClient.tsx`, `src/app/dashboard/support/page.tsx`, `src/app/dashboard/billing/page.tsx`, `src/app/dashboard/employer/billing/page.tsx`, `src/constants/faqs.ts` — Practice Mode & plain-English copy, Membership & Plan Settings parity, whole-word FAQ search + Clear, $0/mo empty-state CTA & `?tab=ticket` gate, 5s live ticket poll, fenced `ss inspect` clipboard)
+
 ## Remaining Dashboard Pages to Audit
-- [ ] Support & Membership / Plan Settings (`SupportCenterClient.tsx` / `billing`)
+- None — all dashboard modules audited and aligned!

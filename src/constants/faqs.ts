@@ -35,9 +35,9 @@ export const SECURITY_ARCHITECTURE_DATA = {
         'Live selfie checks are processed exclusively by Stripe. Special Sauce never sees or stores your ID photos—we only receive a simple verified confirmation.',
     },
     {
-      title: 'Payment Cards & Billing (PCI-DSS Level 1)',
+      title: 'Payment Cards & Plan Billing (Handled by Stripe)',
       detail:
-        'All payments for Professional plans ($5 one-time Explorer, $12/mo Professional, $19/mo Prestige) and Employer plans ($25 Organization Verification, $149 / $499 / $1,250 monthly plans, and $150 / $350 / $900 credit packs) are processed securely by Stripe Checkout.',
+        'All payments for Professional plans ($5 one-time Explorer, $12/mo Professional, $19/mo Prestige) and Employer plans ($25 Employer Verification Pass, $149 / $499 / $1,250 monthly plans, and $150 / $350 / $900 credit packs) are processed securely by Stripe Checkout.',
     },
   ],
   platformStoredItems: [
@@ -164,15 +164,15 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
     steps: [
       {
         step: 'Step 1',
-        title: 'Unlock Your $0/Mo Sandbox ($25 Once)',
+        title: 'Unlock Practice Mode ($25 Once · $0/Mo)',
         description:
-          'Complete the $25 Organization Verification Pass to set up your company profile, draft roles, and preview verified talent matches at $0/mo.',
+          'Complete the $25 Employer Verification Pass to set up your company profile, draft roles, and preview verified talent matches in Practice Mode at $0/mo.',
       },
       {
         step: 'Step 2',
         title: 'Verify Your Business (3 Quick Steps)',
         description:
-          'Confirm your business domain, enter your 9-digit Federal EIN and state of registration, and complete a 60-second Stripe ID check for your account admin. Full technical verification specs (90-day RDAP, DNS MX/TXT, and Stripe Identity isolation) are available at specialsauce.io/security?view=technical.',
+          'Confirm your business domain, enter your 9-digit Federal EIN and state of registration, and complete a 60-second Stripe ID check for your account admin. Full technical verification details are available anytime in the Security & Vault tab.',
       },
       {
         step: 'Step 3',
@@ -198,7 +198,7 @@ SPECIAL SAUCE — HIRING TEAM QUICK-START GUIDE
 ====================================================================
 
 1. HOW IT WORKS (5 STEPS):
-- Step 1 ($25 Verification Sandbox): Complete your one-time verification to draft roles and preview matches at $0/mo.
+- Step 1 ($25 Practice Mode Pass): Complete your one-time verification to draft roles and preview matches in Practice Mode at $0/mo.
 - Step 2 (Business Verification): Confirm your company domain, EIN, and admin ID via Stripe.
 - Step 3 (Post Roles): Publish roles with upfront pay bands. Every role expires after 30 days unless renewed.
 - Step 4 (Connect): Inbound applicants are 100% free to unlock. Outbound invitations use 1 credit and are auto-refunded if declined.
@@ -278,7 +278,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'Why do I verify my ID, and is my government ID stored on Special Sauce?',
     answer:
-      'A one-time ID check keeps bots, fake profiles, and scammers off the platform so every connection is human-to-human. Your photo ID and selfie are processed directly by Stripe Identity and are never stored on Special Sauce servers. (For full AES-256, TLS 1.3, and SOC 2 architectural details, switch to the Technical Specs view on specialsauce.io/security?view=technical.)',
+      'A one-time ID check keeps bots, fake profiles, and scammers off the platform so every connection is human-to-human. Your photo ID and selfie are processed directly by Stripe Identity and are never stored on Special Sauce servers. (For full technical security specifications, open the Intro/Convo Vault & Stripe Security tab and select Technical Specs & Cryptography.)',
   },
   {
     id: 'c2',

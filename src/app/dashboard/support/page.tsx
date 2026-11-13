@@ -93,7 +93,7 @@ export default async function SupportPage({
 
   const rawTab = resolvedParams?.tab
   const initialTab: 'ticket' | 'guides' | 'kb' | 'security' =
-    rawTab === 'ticket' || requestedTicketId
+    (rawTab === 'ticket' || requestedTicketId) && canUploadAttachments
       ? 'ticket'
       : rawTab === 'kb' || rawTab === 'security'
       ? rawTab

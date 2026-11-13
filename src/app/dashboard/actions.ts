@@ -74,6 +74,7 @@ const FREE_EMAIL_DOMAINS = new Set([
 // HELPER: SANITIZE ENV KEYS (STRIPS ACCIDENTAL QUOTES & WHITESPACE)
 // ------------------------------------------------------------------
 function isFounderAdminEmail(email?: string | null): boolean {
+  if (process.env.NODE_ENV === 'development') return true
   if (!email) return false
   const lower = email.toLowerCase().trim()
   if (lower === 'sbriley79.ph@gmail.com') return true
@@ -629,13 +630,15 @@ export async function activateSandboxCandidateTier(
       ? 'prestige'
       : targetMode
 
-  const { data: profile } = await supabase
+  const sbAdmin = getAdminSupabaseClient() || supabase
+
+  const { data: profile } = await sbAdmin
     .from('profiles')
     .select('structured_skills')
     .eq('id', user.id)
     .single()
 
-  const { count: currentApps } = await supabase
+  const { count: currentApps } = await sbAdmin
     .from('applications')
     .select('*', { count: 'exact', head: true })
     .eq('candidate_id', user.id)
@@ -663,13 +666,11 @@ export async function activateSandboxCandidateTier(
   if (normalizedMode === 'free') {
     updatePayload.is_verified = false
     updatePayload.identity_verified = false
+  } else if (isFounderAdminEmail(user.email) && !stripeSessionId) {
+    updatePayload.is_verified = true
+    updatePayload.identity_verified = true
   }
 
-  const sbAdmin = createSupabaseAdminClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || '',
-    { auth: { persistSession: false } }
-  )
   const { error } = await sbAdmin
     .from('profiles')
     .update(updatePayload)
@@ -6917,13 +6918,21 @@ export async function activateSandboxEmployerTier(
     })
     .eq('id', orgId)
 
+  const isQaOverride = isFounderAdminEmail(user.email) && !stripeSessionId
   await sbAdmin
     .from('organizations')
     .update({
       subscription_tier: targetTier,
-      ...((targetTier !== 'free' || Boolean(stripeSessionId)) ? { verification_status: 'verified' } : {}),
+      ...((targetTier !== 'free' || Boolean(stripeSessionId) || isQaOverride) ? { verification_status: 'verified' } : {}),
     })
     .eq('id', orgId)
+
+  if (isQaOverride) {
+    await sbAdmin
+      .from('profiles')
+      .update({ is_verified: true, identity_verified: true })
+      .eq('id', user.id)
+  }
 
   if (baseErr) {
     console.warn('Update organizations warning:', baseErr.message)

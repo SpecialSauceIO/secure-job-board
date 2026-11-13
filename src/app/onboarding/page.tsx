@@ -18,6 +18,31 @@ export default function OnboardingPage() {
   const [role, setRole] = useState<'candidate' | 'employer'>('candidate')
   const [email, setEmail] = useState<string>('')
   const [alreadyPaid, setAlreadyPaid] = useState(false)
+  const [showLocalQaUnlock, setShowLocalQaUnlock] = useState(
+    process.env.NODE_ENV === 'development'
+  )
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1'
+    ) {
+      setShowLocalQaUnlock(true)
+    }
+  }, [])
+
+  const handleLocalQaRestore = async () => {
+    setLoading(true)
+    setStatusText('Restoring verified QA access...')
+    if (role === 'employer') {
+      await activateSandboxEmployerTier('free')
+      window.location.href = '/dashboard/employer/billing'
+    } else {
+      await activateSandboxCandidateTier('explorer')
+      window.location.href = '/dashboard/billing'
+    }
+  }
 
   const launchStripeIdentityOrEnterDashboard = async () => {
     try {
@@ -173,13 +198,36 @@ export default function OnboardingPage() {
             <p className="text-sm text-slate-300 font-medium">{statusText}</p>
           </div>
         ) : (
-          <OnboardingPlanStep
-            role={role}
-            userEmail={email}
-            onSignOut={handleSignOut}
-            alreadyPaid={alreadyPaid}
-            onVerifyIdentity={launchStripeIdentityOrEnterDashboard}
-          />
+          <div className="space-y-6">
+            {showLocalQaUnlock && (
+              <div className="max-w-3xl mx-auto px-4">
+                <div className="rounded-2xl border-2 border-emerald-500/60 bg-emerald-950/60 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-300 block">
+                      🧪 QA Controls (Local Only)
+                    </span>
+                    <p className="text-xs text-slate-200 mt-0.5">
+                      Account was reset to Unsubscribed during QA. Restore verified access to return to your dashboard.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleLocalQaRestore}
+                    className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black transition-colors shrink-0 cursor-pointer"
+                  >
+                    Restore Verified Access &amp; Enter Dashboard →
+                  </button>
+                </div>
+              </div>
+            )}
+            <OnboardingPlanStep
+              role={role}
+              userEmail={email}
+              onSignOut={handleSignOut}
+              alreadyPaid={alreadyPaid}
+              onVerifyIdentity={launchStripeIdentityOrEnterDashboard}
+            />
+          </div>
         )}
       </main>
       <PublicFooter />

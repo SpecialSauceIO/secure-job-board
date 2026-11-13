@@ -243,13 +243,12 @@ export default function CandidateBillingPage() {
       setFeedback({ type: 'error', text: res.error })
     } else if (res?.tierInfo) {
       setTierInfo(res.tierInfo)
-      if (res.tierInfo.tier === 'free') {
-        setIsVerified(false)
-      }
+      setIsVerified(res.tierInfo.tier !== 'free')
       setFeedback({
         type: 'success',
         text: res.message || 'Membership plan updated.',
       })
+      await loadCandidateBillingState()
       router.refresh()
     }
 
@@ -615,50 +614,79 @@ export default function CandidateBillingPage() {
 
       {/* QA Stress-Testing Bar */}
       {showQaControls && (
-        <div className="bg-slate-100 rounded-2xl border-2 border-slate-300 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">
-              🧪 QA Controls (Local Only)
-            </span>
-            <p className="text-xs text-slate-600 mt-0.5">
-              Switch between Unsubscribed, Explorer ($0/mo), Professional ($12/mo), and Prestige ($19/mo).
-            </p>
-          </div>
+        <div className="bg-slate-100 rounded-2xl border-2 border-slate-300 p-5 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">
+                🧪 QA Controls (Local Only)
+              </span>
+              <p className="text-xs text-slate-600 mt-0.5">
+                Switch between Unsubscribed, Explorer ($0/mo), Professional ($12/mo), and Prestige ($19/mo).
+              </p>
+            </div>
 
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
-            <button
-              type="button"
-              disabled={isProcessing}
-              onClick={() => handlePlanSwitch('free')}
-              className="px-3 py-2 rounded-xl bg-white border-2 border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer"
-            >
-              0. Reset (Unsubscribed)
-            </button>
-            <button
-              type="button"
-              disabled={isProcessing}
-              onClick={() => handlePlanSwitch('explorer')}
-              className="px-3 py-2 rounded-xl bg-white border-2 border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-emerald-50 transition-colors cursor-pointer"
-            >
-              1. Explorer ($0/mo)
-            </button>
-            <button
-              type="button"
-              disabled={isProcessing}
-              onClick={() => handlePlanSwitch('professional')}
-              className="px-3 py-2 rounded-xl bg-white border-2 border-slate-300 text-slate-700 text-xs font-extrabold hover:bg-amber-50 transition-colors cursor-pointer"
-            >
-              2. Professional ($12/mo)
-            </button>
-            <button
-              type="button"
-              disabled={isProcessing}
-              onClick={() => handlePlanSwitch('prestige')}
-              className="px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors cursor-pointer"
-            >
-              3. Prestige ($19/mo)
-            </button>
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <button
+                type="button"
+                disabled={isProcessing}
+                onClick={() => handlePlanSwitch('free')}
+                className={`px-3 py-2 rounded-xl border-2 text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50 ${
+                  normalizedTier === 'free'
+                    ? 'bg-rose-600 text-white border-rose-600 shadow-xs'
+                    : 'bg-white border-slate-300 text-slate-700 hover:bg-rose-50 hover:text-rose-700'
+                }`}
+              >
+                0. Reset (Unsubscribed)
+              </button>
+              <button
+                type="button"
+                disabled={isProcessing}
+                onClick={() => handlePlanSwitch('explorer')}
+                className={`px-3 py-2 rounded-xl border-2 text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50 ${
+                  normalizedTier === 'explorer'
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                    : 'bg-white border-slate-300 text-slate-700 hover:bg-emerald-50'
+                }`}
+              >
+                1. Explorer ($0/mo)
+              </button>
+              <button
+                type="button"
+                disabled={isProcessing}
+                onClick={() => handlePlanSwitch('professional')}
+                className={`px-3 py-2 rounded-xl border-2 text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50 ${
+                  normalizedTier === 'professional'
+                    ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-xs'
+                    : 'bg-white border-slate-300 text-slate-700 hover:bg-amber-50'
+                }`}
+              >
+                2. Professional ($12/mo)
+              </button>
+              <button
+                type="button"
+                disabled={isProcessing}
+                onClick={() => handlePlanSwitch('prestige')}
+                className={`px-3 py-2 rounded-xl border-2 text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50 ${
+                  normalizedTier === 'prestige'
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+                    : 'bg-slate-900 border-slate-900 text-white hover:bg-indigo-600'
+                }`}
+              >
+                3. Prestige ($19/mo)
+              </button>
+            </div>
           </div>
+          {feedback && (
+            <div
+              className={`px-3.5 py-2.5 rounded-xl text-xs font-extrabold border ${
+                feedback.type === 'error'
+                  ? 'bg-rose-50 text-rose-800 border-rose-300'
+                  : 'bg-emerald-50 text-emerald-900 border-emerald-300'
+              }`}
+            >
+              {feedback.text}
+            </div>
+          )}
         </div>
       )}
     </div>
