@@ -53,6 +53,7 @@ export default function EmployerInboundApplicationsPage() {
   const [sortBy, setSortBy] = useState<ApplicationSortOption>('match_high')
   const [daysFilter, setDaysFilter] = useState<number>(0)
   const [searchQuery, setSearchQuery] = useState('')
+  const [appliedSearch, setAppliedSearch] = useState('')
 
   const fetchApplications = useCallback(
     async (showSpinner = true) => {
@@ -61,7 +62,7 @@ export default function EmployerInboundApplicationsPage() {
         const result = await getEmployerInboundApplications(
           "all",
           daysFilter || undefined,
-          searchQuery || undefined
+          appliedSearch || undefined
         )
         if (Array.isArray(result?.data)) {
           setApplications(result.data)
@@ -69,15 +70,15 @@ export default function EmployerInboundApplicationsPage() {
       } catch (err) {
         console.error("Failed to fetch inbound applications:", err)
       } finally {
-        setIsLoading(false)
+        if (showSpinner) setIsLoading(false)
       }
     },
-    [daysFilter, searchQuery]
+    [daysFilter, appliedSearch]
   )
 
   useEffect(() => {
     fetchApplications(true)
-  }, [daysFilter])
+  }, [fetchApplications])
 
   // Silent 5-second background sync so new applications & Conversation Vault Releases appear live
   useEffect(() => {
@@ -89,7 +90,22 @@ export default function EmployerInboundApplicationsPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    fetchApplications(true)
+    setAppliedSearch(searchQuery.trim())
+  }
+
+  const hasActiveFilters =
+    statusFilter !== 'all' ||
+    industryFilter !== 'all' ||
+    daysFilter !== 0 ||
+    appliedSearch !== '' ||
+    searchQuery.trim() !== ''
+
+  const clearAllFilters = () => {
+    setStatusFilter('all')
+    setIndustryFilter('all')
+    setDaysFilter(0)
+    setSearchQuery('')
+    setAppliedSearch('')
   }
 
   const handleLocalStatusUpdate = (
@@ -350,15 +366,26 @@ export default function EmployerInboundApplicationsPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search applications by Reference ID (SS-...), role title, skill, bio, or unlocked professional name..."
+              placeholder="Search applications by Reference ID (SS-...), role title, skill, certification, bio, or unlocked professional name..."
               className="w-full min-w-0 sm:flex-1 rounded-xl border-2 border-slate-300 bg-slate-50 px-3.5 sm:px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
             />
-            <button
-              type="submit"
-              className="w-full sm:w-auto px-6 py-2.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-300 hover:bg-indigo-100 transition-colors cursor-pointer shrink-0"
-            >
-              Filter
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="submit"
+                className="flex-1 sm:flex-none px-6 py-2.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-300 hover:bg-indigo-100 transition-colors cursor-pointer"
+              >
+                Filter
+              </button>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={clearAllFilters}
+                  className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-600 text-xs font-bold hover:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  Clear Filters
+                </button>
+              )}
+            </div>
           </form>
 
           {/* Organizer Row: Industry Vertical Filter + Sort By Dropdown */}
@@ -458,15 +485,12 @@ export default function EmployerInboundApplicationsPage() {
             <p className="text-slate-500 max-w-md mx-auto text-sm mb-4">
               {statusFilter === 'all' && industryFilter === 'all'
                 ? 'When verified professionals apply to your open roles, their protected applications and full review history will appear here.'
-                : 'Try switching status tabs or resetting your Industry Vertical filter.'}
+                : 'Try switching status tabs or resetting your active search and timeframe filters.'}
             </p>
-            {(statusFilter !== 'all' || industryFilter !== 'all') && (
+            {hasActiveFilters && (
               <button
                 type="button"
-                onClick={() => {
-                  setStatusFilter('all')
-                  setIndustryFilter('all')
-                }}
+                onClick={clearAllFilters}
                 className="px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer"
               >
                 Reset Active Filters →

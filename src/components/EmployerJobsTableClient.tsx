@@ -108,11 +108,21 @@ export default function EmployerJobsTableClient({
 
       if (searchQuery.trim() !== '') {
         const q = searchQuery.toLowerCase().trim()
-        const titleMatch = job.title.toLowerCase().includes(q)
-        const locMatch = job.location.toLowerCase().includes(q)
-        const indMatch = job.industry.toLowerCase().includes(q)
-        const empMatch = job.employmentType.toLowerCase().includes(q)
-        const skillMatch = job.skillsString.toLowerCase().includes(q)
+        const escapedQ = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        const shortWordRx =
+          q.length <= 3
+            ? new RegExp(`(^|[^a-z0-9])${escapedQ}([^a-z0-9]|$)`, 'i')
+            : null
+        const matchesText = (val: string) => {
+          const str = String(val || '').toLowerCase()
+          if (!str) return false
+          return shortWordRx ? shortWordRx.test(str) : str.includes(q)
+        }
+        const titleMatch = matchesText(job.title)
+        const locMatch = matchesText(job.location)
+        const indMatch = matchesText(job.industry)
+        const empMatch = matchesText(job.employmentType)
+        const skillMatch = matchesText(job.skillsString)
         if (!titleMatch && !locMatch && !indMatch && !empMatch && !skillMatch) {
           return false
         }
@@ -208,27 +218,46 @@ export default function EmployerJobsTableClient({
             </button>
           </div>
 
-          <div className="relative flex-1 max-w-md">
-            <svg
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          <div className="flex items-center gap-2 flex-1 max-w-md">
+            <div className="relative flex-1 min-w-0">
+              <svg
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search roles by title, US metro, skill, or certification..."
+                className="w-full pl-10 pr-4 py-2 rounded-xl border-2 border-slate-300 bg-slate-50 text-xs font-medium text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
               />
-            </svg>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search roles by title, US metro, or skill..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl border-2 border-slate-300 bg-slate-50 text-xs font-medium text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
-            />
+            </div>
+            {(statusFilter !== 'all' ||
+              industryFilter !== 'all' ||
+              employmentTypeFilter !== 'all' ||
+              searchQuery.trim() !== '') && (
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter('all')
+                  setIndustryFilter('all')
+                  setEmploymentTypeFilter('all')
+                  setSearchQuery('')
+                }}
+                className="px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-600 text-xs font-bold hover:bg-slate-50 transition-colors cursor-pointer shrink-0"
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
         </div>
 

@@ -5846,20 +5846,57 @@ export async function getEmployerInboundApplications(
 
   if (searchQuery && searchQuery.trim() !== '') {
     const lowerQuery = searchQuery.toLowerCase().trim()
+    const escapedQ = lowerQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const shortWordRx =
+      lowerQuery.length <= 3
+        ? new RegExp(`(^|[^a-z0-9])${escapedQ}([^a-z0-9]|$)`, 'i')
+        : null
+    const normalizedQueryCerts = parseAndNormalizeCertifications(searchQuery)
+    const matchesText = (val: any) => {
+      const str = String(val || '').toLowerCase()
+      if (!str) return false
+      return shortWordRx ? shortWordRx.test(str) : str.includes(lowerQuery)
+    }
+
     processedData = processedData.filter((app: any) => {
-      const titleMatch = app.jobs?.title?.toLowerCase().includes(lowerQuery)
-      const skillsMatch = app.profiles?.skills
-        ?.toLowerCase()
+      const prof = app.profiles || {}
+      const structuredSkillsText = Array.isArray(prof.structured_skills)
+        ? prof.structured_skills
+            .map((s: any) =>
+              typeof s === 'string'
+                ? s
+                : `${s?.skill || s?.name || ''} ${s?.category || ''}`
+            )
+            .join(' ')
+        : ''
+      const langText = Array.isArray(prof.languages)
+        ? prof.languages
+            .map((l: any) => (typeof l === 'string' ? l : l?.language || ''))
+            .join(' ')
+        : ''
+      const rawProfCerts = prof.certifications || ''
+      const parsedProfCerts = parseAndNormalizeCertifications(rawProfCerts)
+      const canonicalProfCerts = parsedProfCerts.join(' ')
+      const hasCanonicalCertOverlap =
+        normalizedQueryCerts.length > 0 &&
+        parsedProfCerts.some((c: string) => normalizedQueryCerts.includes(c))
+
+      const titleMatch = matchesText(app.jobs?.title)
+      const skillsMatch =
+        matchesText(prof.skills) || matchesText(structuredSkillsText)
+      const certMatch =
+        hasCanonicalCertOverlap ||
+        matchesText(rawProfCerts) ||
+        matchesText(canonicalProfCerts)
+      const bioMatch =
+        matchesText(prof.bio) ||
+        matchesText(prof.location) ||
+        matchesText(langText)
+      const refMatch = String(app.reference_id || '')
+        .toLowerCase()
         .includes(lowerQuery)
-      const certMatch = app.profiles?.certifications
-        ?.toLowerCase()
-        .includes(lowerQuery)
-      const bioMatch = app.profiles?.bio?.toLowerCase().includes(lowerQuery)
-      const refMatch = app.reference_id?.toLowerCase().includes(lowerQuery)
       const nameMatch = app.is_revealed
-        ? (app.unlocked_candidate_name || '')
-            .toLowerCase()
-            .includes(lowerQuery)
+        ? matchesText(app.unlocked_candidate_name)
         : false
       return (
         titleMatch ||

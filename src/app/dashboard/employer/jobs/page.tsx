@@ -128,8 +128,11 @@ function enrichJobForManagementTable(job: any): EnrichedEmployerJobRow {
     isExpired,
     expiresAtIso: new Date(expiresMs).toISOString(),
     renewedAtIso: metaItem.renewed_at || null,
-    skillsString: visibleReqs
-      .map((r: any) => r.skill || r.name || '')
+    skillsString: [
+      ...visibleReqs.map((r: any) => r.skill || r.name || ''),
+      metaItem.required_certifications || job?.required_certifications || '',
+    ]
+      .filter(Boolean)
       .join(', '),
   }
 }

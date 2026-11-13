@@ -15,7 +15,7 @@
 - [x] Outbound Applications (`src/app/dashboard/applications/page.tsx` — locked status tab counts, whole-word & cert search, Clear Filters, 5s live thread poll, `ss clip`)
 - [x] Professional Invitations (`src/app/dashboard/requests/page.tsx` — locked status tab counts, timeframe + whole-word & cert search, Clear Filters, 5s live poll, TrueFit refresh)
 - [x] Match Preferences (`src/app/dashboard/preferences/page.tsx` & `CandidatePreferencesForm.tsx` — reactive work-model/location sync, Paused inbound invitation lock, and plain-English copy)
+- [x] Employer Manage Roles & Inbound Applicants (`src/app/dashboard/employer/jobs/page.tsx`, `EmployerJobsTableClient.tsx`, `src/app/dashboard/employer/applications/page.tsx`, `ApplicationRevealCard.tsx`, `SecureMessageThread.tsx` — whole-word & cert search, `structured_skills` coverage, committed search + Clear Filters, 30-day renewal gate)
 
 ## Remaining Dashboard Pages to Audit
-- [ ] Employer Manage Roles & Inbound Applicants (`ApplicationRevealCard.tsx` / `SecureMessageThread.tsx`)
 - [ ] Support & Membership / Plan Settings (`SupportCenterClient.tsx` / `billing`)
