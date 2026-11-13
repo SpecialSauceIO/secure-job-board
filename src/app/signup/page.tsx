@@ -45,9 +45,9 @@ export default async function SignupSelectionPage({
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <PublicHeader />
 
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:p-6">
-        <div className="max-w-3xl w-full bg-white rounded-3xl shadow-xl border-2 border-slate-300 overflow-hidden">
-          <div className="p-5 sm:p-10 text-center bg-slate-900 text-white">
+      <div className="flex-1 flex flex-col items-center px-4 py-10 sm:px-6 sm:py-14">
+        <div className="my-auto max-w-4xl w-full bg-white rounded-3xl shadow-xl border-2 border-slate-300 overflow-hidden">
+          <div className="px-5 py-7 sm:px-10 sm:py-9 text-center bg-slate-900 text-white border-b border-slate-800">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-2 sm:mb-3 tracking-tight">
               Join the Platform
             </h1>
@@ -67,8 +67,8 @@ export default async function SignupSelectionPage({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                   </svg>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-extrabold uppercase tracking-wider">
-                  $5 One-Time Verify • $0/Mo Explorer Forever
+                <span className="px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-extrabold uppercase tracking-wider whitespace-nowrap">
+                  $5 Verify Once • $0/Mo Explorer
                 </span>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">
@@ -95,8 +95,8 @@ export default async function SignupSelectionPage({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                   </svg>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold uppercase tracking-wider">
-                  $25 One-Time Verify • $0/Mo Practice Mode • 12-Mo Rate Lock
+                <span className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold uppercase tracking-wider whitespace-nowrap">
+                  $25 Verify Once • $0/Mo Practice Mode
                 </span>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">

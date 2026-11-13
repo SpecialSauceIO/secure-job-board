@@ -191,14 +191,14 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-[#020817] text-white flex flex-col overflow-x-clip">
       <PublicHeader />
-      <main className="flex-1 flex flex-col justify-center py-8">
+      <main className="flex-1 flex flex-col px-4 py-10 sm:py-14">
         {loading ? (
-          <div className="max-w-md mx-auto text-center py-20 px-4">
+          <div className="my-auto max-w-md mx-auto text-center py-20 px-4">
             <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-sm text-slate-300 font-medium">{statusText}</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="my-auto w-full space-y-6">
             {showLocalQaUnlock && (
               <div className="max-w-3xl mx-auto px-4">
                 <div className="rounded-2xl border-2 border-emerald-500/60 bg-emerald-950/60 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">

@@ -870,7 +870,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <PublicHeader />
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:p-8">
+      <div className="flex-1 flex flex-col items-center px-4 py-10 sm:px-8 sm:py-14"><div className="my-auto w-full flex flex-col items-center">
         <Suspense
           fallback={
             <div className="w-full max-w-md rounded-2xl bg-white p-5 sm:p-10 shadow-sm border-2 border-slate-300 text-center text-xs font-bold text-slate-400">
@@ -892,7 +892,7 @@ export default function LoginPage() {
             Privacy Policy
           </Link>
           .
-        </p>
+        </p></div>
       </div>
     </div>
   )

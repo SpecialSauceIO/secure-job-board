@@ -54,8 +54,8 @@ export default function CandidateSignupPage({ searchParams }: { searchParams: Pr
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <PublicHeader />
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:p-8">
-        <div className="w-full max-w-md rounded-2xl bg-white p-5 sm:p-10 shadow-sm border border-slate-300 border-t-4 border-t-indigo-600">
+      <div className="flex-1 flex flex-col items-center px-4 py-10 sm:px-8 sm:py-14">
+        <div className="my-auto w-full max-w-md rounded-2xl bg-white p-5 sm:p-10 shadow-sm border border-slate-300 border-t-4 border-t-indigo-600">
           <div className="text-center mb-6">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-300 text-indigo-700 text-[11px] font-extrabold uppercase tracking-wider mb-3">🛡️ Private Profile &amp; Resume Vault</span>
             <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">{step === 'otp' ? 'Verify Your Email (6-Digit Code)' : 'Professional Sign Up'}</h2>
