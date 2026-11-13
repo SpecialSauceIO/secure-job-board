@@ -218,16 +218,27 @@ def validate_ts_and_invariants(repo_dir, touched_files, added_lines_by_file):
                 if m_pub:
                     return "[TAB 7 BLOCKED] " + rel + " introduces public href " + m_pub.group(1) + " inside authenticated dashboard scope."
 
-        # 3. Locked Nomenclature Scanner on newly added non-comment display strings
-        if "ops-health" not in rel and "ss_gate" not in rel:
+        # 3. Locked Nomenclature Scanner on newly added customer-facing UI text & string literals
+        if "ops-health" not in rel and "ss_gate" not in rel and "scripts/" not in rel:
             for add_ln in added_lines_by_file.get(rel, []):
+                s_ln = add_ln.strip()
+                if s_ln.startswith("//") or s_ln.startswith("/*") or s_ln.startswith("*") or s_ln.startswith("import "):
+                    continue
                 scrubbed = ALLOWED_CODE_IDENT_RX.sub("", add_ln)
-                # Skip pure code comments explaining what NOT to output inside LLM prompts if explicitly negated
                 if any(neg in scrubbed.upper() for neg in ("NEVER ", "FORBIDDEN", "ZERO ", "DO NOT ")):
                     continue
+                # Extract only customer-facing string literals or JSX text nodes so code identifiers (candidate.*, searchCandidates, etc.) never trip
+                ui_chunks = [m.group(1) for m in re.finditer(r"[\x27\"`]([^\x27\"`]{3,})[\x27\"`]", scrubbed)]
+                if ">" in s_ln or "<" in s_ln or not re.search(r"[=();{}]", s_ln):
+                    jsx_txt = re.sub(r"\{[^}]*\}|<[^>]*>", " ", scrubbed).strip()
+                    if jsx_txt and re.search(r"[A-Za-z]{3,}", jsx_txt) and not re.match(r"^[a-zA-Z0-9_$.]+$", jsx_txt):
+                        ui_chunks.append(jsx_txt)
+                ui_surface = " | ".join(ui_chunks)
+                if not ui_surface:
+                    continue
                 for pat, msg in FORBIDDEN_COPY_PATTERNS:
-                    if re.search(pat, scrubbed, re.I):
-                        return "[NOMENCLATURE BLOCKED] " + rel + ": " + msg + " | Line: " + add_ln.strip()[:90]
+                    if re.search(pat, ui_surface, re.I):
+                        return "[NOMENCLATURE BLOCKED] " + rel + ": " + msg + " | Line: " + s_ln[:90]
 
     # 4. Run npx tsc --noEmit
     tsc = subprocess.run(["npx", "tsc", "--noEmit"], cwd=str(repo_dir), capture_output=True, text=True)

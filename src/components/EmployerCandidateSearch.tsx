@@ -1343,7 +1343,8 @@ export default function EmployerCandidateSearch({
             let langMissingDetails: string[] = []
             let selectedJobEmpType = 'Full-Time (W-2)'
             let scoreFails = false
-            let hasDealbreaker = false
+            const pausedFails = isCandidatePaused(getCandidateAvailability(candidate))
+            let hasDealbreaker = pausedFails
             let annualizedJobMax = 0
 
             const matchScore =
@@ -1388,14 +1389,21 @@ export default function EmployerCandidateSearch({
                   }
                 }
 
+                const normalizeEmpType = (val: string) => {
+                  const v = String(val || '').toLowerCase().trim()
+                  if (v.includes('contract-to-hire') || v.includes('contract to hire')) return 'contract-to-hire'
+                  if (v.includes('1099') || v.includes('corp-to-corp') || v.includes('c2c') || v === 'contract') return 'contract (1099 / corp-to-corp)'
+                  if (v.includes('part-time') || v.includes('part time')) return 'part-time'
+                  if (v.includes('seasonal') || v.includes('temporary') || v.includes('temp')) return 'seasonal / temporary'
+                  if (v.includes('full-time') || v.includes('full time') || v.includes('w-2') || v.includes('w2')) return 'full-time (w-2)'
+                  return v
+                }
+                const normSelectedEmpType = normalizeEmpType(selectedJobEmpType)
+
                 if (
                   acceptedEmploymentTypes.length > 0 &&
                   !acceptedEmploymentTypes.some(
-                    (t) =>
-                      t.toLowerCase() === selectedJobEmpType.toLowerCase() ||
-                      selectedJobEmpType
-                        .toLowerCase()
-                        .includes(t.toLowerCase())
+                    (t) => normalizeEmpType(t) === normSelectedEmpType
                   )
                 ) {
                   empTypeFails = true
@@ -1419,6 +1427,7 @@ export default function EmployerCandidateSearch({
                 }
 
                 hasDealbreaker =
+                  pausedFails ||
                   salaryFails ||
                   modelFails ||
                   empTypeFails ||
@@ -1847,6 +1856,11 @@ export default function EmployerCandidateSearch({
                               <div className="text-rose-600 font-bold">
                                 • Dealbreaker (Language):{' '}
                                 {langMissingDetails.join('; ')}.
+                              </div>
+                            )}
+                            {pausedFails && (
+                              <div className="text-rose-600 font-bold">
+                                • Dealbreaker: Professional has paused inbound invitations right now.
                               </div>
                             )}
                             {scoreFails && (

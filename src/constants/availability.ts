@@ -84,7 +84,10 @@ export function getAvailabilityBadgeClasses(status?: string | null): string {
   if (norm.startsWith('Standard')) {
     return 'bg-indigo-50 text-indigo-700 border-indigo-300'
   }
-  if (norm.startsWith('Open to high-fit')) {
+  if (
+    norm.startsWith('Open to Professional Invitations') ||
+    norm.startsWith('Open to high-fit')
+  ) {
     return 'bg-violet-50 text-violet-800 border-violet-300'
   }
   if (norm.startsWith('Executive Transition')) {

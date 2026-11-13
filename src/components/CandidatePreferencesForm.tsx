@@ -1,143 +1,272 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/utils/supabase/client'
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { SubmitButton } from '@/components/SubmitButton'
+import UsLocationSelector from '@/components/UsLocationSelector'
+import { CANDIDATE_AVAILABILITY_STATUSES } from '@/constants/availability'
 
-export default function CandidatePreferencesForm({ profile }: { profile: any }) {
-  const router = useRouter()
-  const supabase = createClient()
-  
-  const isVerified = Boolean(
-    profile?.identity_verified === true ||
-      String(profile?.identity_verified) === 'true' ||
-      profile?.is_verified === true ||
-      String(profile?.is_verified) === 'true'
+interface EmploymentTypeOption {
+  value: string
+  label: string
+  desc: string
+}
+
+interface CandidatePreferencesFormProps {
+  action: (formData: FormData) => void | Promise<void>
+  isVerified: boolean
+  initialMinSalary: string
+  initialEmploymentTypes: string[]
+  employmentTypeOptions: EmploymentTypeOption[]
+  initialWorkModel: string
+  initialAvailabilityWindow: string
+  initialLocation: string
+  hiddenExperienceYears: string
+  hiddenBio: string
+  hiddenStructuredSkillsJson: string
+}
+
+export default function CandidatePreferencesForm({
+  action,
+  isVerified,
+  initialMinSalary,
+  initialEmploymentTypes,
+  employmentTypeOptions,
+  initialWorkModel,
+  initialAvailabilityWindow,
+  initialLocation,
+  hiddenExperienceYears,
+  hiddenBio,
+  hiddenStructuredSkillsJson,
+}: CandidatePreferencesFormProps) {
+  const [minSalary, setMinSalary] = useState(initialMinSalary)
+  const [selectedEmpTypes, setSelectedEmpTypes] = useState<string[]>(
+    initialEmploymentTypes
   )
-
-  // Initialize state with the user's existing database values (forced false if unverified)
-  const [isDiscoverable, setIsDiscoverable] = useState(
-    isVerified ? (profile?.is_discoverable ?? true) : false
+  const [workModel, setWorkModel] = useState(initialWorkModel || 'remote')
+  const [availabilityWindow, setAvailabilityWindow] = useState(
+    initialAvailabilityWindow
   )
-  const [minSalary, setMinSalary] = useState(profile?.min_salary_expectation?.toString() || '')
-  const [workModel, setWorkModel] = useState(profile?.preferred_work_model || 'any')
-  
-  const [isSaving, setIsSaving] = useState(false)
-  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [location, setLocation] = useState(initialLocation || '')
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSaving(true)
-    setStatusMessage(null)
+  useEffect(() => {
+    setMinSalary(initialMinSalary)
+  }, [initialMinSalary])
 
-    // Clean the salary input to ensure it's a valid integer
-    const cleanedSalary = parseInt(minSalary.replace(/[^0-9]/g, '')) || 0
+  useEffect(() => {
+    setSelectedEmpTypes(initialEmploymentTypes)
+  }, [initialEmploymentTypes])
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        is_discoverable: isVerified ? isDiscoverable : false,
-        min_salary_expectation: cleanedSalary,
-        preferred_work_model: workModel
-      })
-      .eq('id', profile.id)
+  useEffect(() => {
+    setWorkModel(initialWorkModel || 'remote')
+  }, [initialWorkModel])
 
-    setIsSaving(false)
+  useEffect(() => {
+    setAvailabilityWindow(initialAvailabilityWindow)
+  }, [initialAvailabilityWindow])
 
-    if (error) {
-      setStatusMessage({ type: 'error', text: 'Failed to update preferences. Please try again.' })
-    } else {
-      setStatusMessage({ type: 'success', text: 'Dealbreakers successfully locked in.' })
-      router.refresh()
-      
-      // Clear success message after 3 seconds
-      setTimeout(() => setStatusMessage(null), 3000)
-    }
+  useEffect(() => {
+    setLocation(initialLocation || '')
+  }, [initialLocation])
+
+  const toggleEmploymentType = (val: string) => {
+    setSelectedEmpTypes((prev) => {
+      if (prev.includes(val)) {
+        if (prev.length <= 1) return prev
+        return prev.filter((item) => item !== val)
+      }
+      return [...prev, val]
+    })
   }
 
-  return (
-    <form onSubmit={handleSave} className="space-y-6">
-      
-      {/* Discoverability Toggle Card */}
-      <div className={`p-6 rounded-2xl border transition-colors ${isDiscoverable ? 'bg-white border-indigo-300 shadow-sm' : 'bg-slate-50 border-slate-300'}`}>
-        <div className="flex items-start justify-between gap-6">
-          <div>
-            <h3 className="text-lg font-bold text-slate-900">Profile Visibility</h3>
-            <p className="text-sm text-slate-500 mt-1 leading-relaxed">
-              When enabled, verified employers can view your anonymous skills matrix and send you connection requests for relevant roles. Your name and contact info remain hidden until you explicitly accept a request.
-            </p>
-          </div>
-          <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-1">
-            <input 
-              type="checkbox" 
-              className="sr-only peer"
-              checked={isVerified ? isDiscoverable : false}
-              disabled={!isVerified}
-              onChange={() => isVerified && setIsDiscoverable(!isDiscoverable)}
-            />
-            <div className="w-14 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-indigo-600"></div>
-          </label>
-        </div>
-      </div>
+  const isPausedStatus = availabilityWindow.startsWith('Paused')
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Minimum Salary Card */}
-        <div className="bg-white p-6 rounded-2xl border-2 border-slate-300 shadow-sm border-slate-300">
-          <label className="block text-lg font-bold text-slate-900 mb-1">Minimum Salary</label>
-          <p className="text-sm text-slate-500 mb-4">Employers offering below this amount will be blocked from messaging you.</p>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+  return (
+    <form
+      action={action}
+      className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6"
+    >
+      <input type="hidden" name="experience_years" value={hiddenExperienceYears} />
+      <input type="hidden" name="bio" value={hiddenBio} />
+      <input
+        type="hidden"
+        name="structured_skills"
+        value={hiddenStructuredSkillsJson}
+      />
+
+      <div
+        className={
+          !isVerified
+            ? 'opacity-45 pointer-events-none select-none grayscale space-y-6'
+            : 'space-y-6'
+        }
+      >
+        {/* 1. MINIMUM SALARY EXPECTATION */}
+        <div>
+          <label className="block text-sm font-bold text-slate-700">
+            Minimum Salary Expectation (Annual USD)
+          </label>
+          <div className="relative mt-2">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
               <span className="text-slate-500 font-bold">$</span>
             </div>
             <input
-              type="text"
+              type="number"
+              min={0}
+              step={1000}
+              name="min_salary_expectation"
               value={minSalary}
               onChange={(e) => setMinSalary(e.target.value)}
-              placeholder="120000"
-              className="block w-full rounded-xl border-2 border-slate-300 bg-white pl-8 pr-4 py-3 text-slate-900 font-medium placeholder:text-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 shadow-sm border-slate-300"
+              placeholder="95000"
+              className="block w-full rounded-lg border border-slate-300 bg-white pl-8 pr-16 py-2.5 text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm font-bold"
             />
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5">
+              <span className="text-xs font-extrabold text-slate-400">
+                USD /yr
+              </span>
+            </div>
+          </div>
+          <p className="text-xs text-slate-500 mt-1">
+            Employers whose role maximum budget (annual or annualized hourly rate) falls below this floor are blocked from sending you inbound invitations.
+          </p>
+        </div>
+
+        {/* 2. ACCEPTED EMPLOYMENT TYPES (DEALBREAKER) */}
+        <div className="pt-2 border-t border-slate-300">
+          <label className="block text-sm font-bold text-slate-700">
+            Accepted Employment Types (Dealbreaker)
+          </label>
+          <p className="text-xs text-slate-500 mt-0.5 mb-3">
+            Select all employment arrangements you accept. At least one option stays active so roles outside your selection are blocked automatically.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {employmentTypeOptions.map((opt) => {
+              const isChecked = selectedEmpTypes.includes(opt.value)
+              return (
+                <label
+                  key={opt.value}
+                  className={`relative flex items-start gap-3 p-3.5 rounded-xl border-2 transition-colors cursor-pointer ${
+                    isChecked
+                      ? 'border-indigo-300 bg-indigo-50/40'
+                      : 'border-slate-300 bg-slate-50/60 hover:bg-indigo-50/30'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    name="employment_types"
+                    value={opt.value}
+                    checked={isChecked}
+                    onChange={() => toggleEmploymentType(opt.value)}
+                    className="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <div className="text-xs">
+                    <span className="font-extrabold text-slate-900 block">
+                      {opt.label}
+                    </span>
+                    <span className="text-slate-500 leading-snug block mt-0.5">
+                      {opt.desc}
+                    </span>
+                  </div>
+                </label>
+              )
+            })}
           </div>
         </div>
 
-        {/* Work Model Card */}
-        <div className="bg-white p-6 rounded-2xl border-2 border-slate-300 shadow-sm border-slate-300">
-          <label className="block text-lg font-bold text-slate-900 mb-1">Work Model</label>
-          <p className="text-sm text-slate-500 mb-4">Block roles that require an incompatible daily commute.</p>
-          <select
-            value={workModel}
-            onChange={(e) => setWorkModel(e.target.value)}
-            className="block w-full rounded-xl border-2 border-slate-300 bg-white px-4 py-3 text-slate-900 font-medium focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 shadow-sm cursor-pointer border-slate-300"
+        {/* 3. PREFERRED WORK MODEL & SEARCH AVAILABILITY */}
+        <div className="pt-2 border-t border-slate-300 grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-bold text-slate-700">
+              Preferred Work Model (Dealbreaker)
+            </label>
+            <p className="text-xs text-slate-500 mt-0.5 mb-2">
+              Controls which work arrangements verified employers are permitted to send you.
+            </p>
+            <select
+              name="preferred_work_model"
+              value={workModel}
+              onChange={(e) => setWorkModel(e.target.value)}
+              className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
+            >
+              <option value="remote">Remote Only</option>
+              <option value="hybrid">Hybrid</option>
+              <option value="onsite">On-site</option>
+              <option value="any">Open to Any Model</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700">
+              ⚡ Search Status &amp; Start Availability
+            </label>
+            <p className="text-xs text-slate-500 mt-0.5 mb-2">
+              Signals your notice period to verified employers or pauses inbound invitations.
+            </p>
+            <select
+              name="availability_window"
+              value={availabilityWindow}
+              onChange={(e) => setAvailabilityWindow(e.target.value)}
+              className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
+            >
+              {CANDIDATE_AVAILABILITY_STATUSES.map((statusOpt) => (
+                <option key={statusOpt} value={statusOpt}>
+                  {statusOpt}
+                </option>
+              ))}
+            </select>
+            {isPausedStatus && (
+              <p className="text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5 mt-2">
+                Inbound employer invitations are paused while this status is active.
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* 4. US CASCADING LOCATION SELECTOR */}
+        <div className="pt-2 border-t border-slate-300">
+          <label className="block text-sm font-bold text-slate-700 mb-1">
+            Target Work Location
+          </label>
+          <p className="text-xs text-slate-500 mb-3">
+            Select your preferred US state and metro area for hybrid or on-site roles, or choose US Remote alignment when set to Remote Only.
+          </p>
+          <UsLocationSelector
+            name="location"
+            value={location}
+            onChange={(val) => setLocation(val)}
+            workModel={workModel}
+            allowRemoteOption={workModel === 'remote' || workModel === 'any'}
+          />
+        </div>
+
+        {/* Clean Pointer to Professional Profile */}
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-extrabold text-slate-900">
+              Looking for Industry Vertical, Education, Certifications, Languages, or Core Skills?
+            </p>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Your professional capabilities and credentials live exclusively on your Anonymous Profile so you never have to maintain duplicate fields.
+            </p>
+          </div>
+          <Link
+            href="/dashboard/profile"
+            className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-extrabold border border-indigo-200 transition-colors"
           >
-            <option value="any">Open to Any Model</option>
-            <option value="remote">Remote Only</option>
-            <option value="hybrid">Hybrid Allowed</option>
-            <option value="onsite">On-site Allowed</option>
-          </select>
+            Edit My Profile &rarr;
+          </Link>
         </div>
       </div>
 
-      {/* Action Footer */}
-      <div className="flex items-center justify-between pt-4">
-        <div className="flex-1">
-          {statusMessage && (
-            <span className={`text-sm font-bold flex items-center gap-2 ${statusMessage.type === 'success' ? 'text-emerald-600' : 'text-rose-600'}`}>
-              {statusMessage.type === 'success' ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              )}
-              {statusMessage.text}
-            </span>
-          )}
-        </div>
-        
-        <button
-          type="submit"
-          disabled={isSaving}
-          className="w-full sm:w-auto justify-center px-8 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-indigo-600 focus:ring-4 focus:ring-indigo-500/30 transition-all disabled:opacity-50 flex items-center gap-2"
+      <div className="pt-4 flex justify-end">
+        <SubmitButton
+          disabled={!isVerified}
+          pendingText="Saving Preferences..."
+          className="w-full sm:w-auto rounded-xl bg-indigo-600 px-8 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer"
         >
-          {isSaving ? 'Locking in...' : 'Save Preferences'}
-        </button>
+          Save Match Preferences
+        </SubmitButton>
       </div>
     </form>
   )

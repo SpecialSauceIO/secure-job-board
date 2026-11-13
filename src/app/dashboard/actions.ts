@@ -30,6 +30,10 @@ import {
   formatLanguageListSummary,
   evaluateLanguageRequirements,
 } from '@/constants/languages'
+import {
+  normalizeCandidateAvailability,
+  isCandidatePaused,
+} from '@/constants/availability'
 import { isSeasonZeroFounder } from '@/constants/gamification'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
 import { pushToOpsControlPlane,
@@ -1602,6 +1606,7 @@ export async function updateProfile(formData: FormData) {
   const hasLanguagesField = formData.has('languages')
   const languages_raw = ((formData.get('languages') as string) || '').trim()
 
+  const hasMinSalaryField = formData.has('min_salary_expectation')
   const min_salary_expectation = formData.get('min_salary_expectation')
   const preferred_work_model = formData.get('preferred_work_model') as string
   const location = formData.get('location') as string
@@ -1666,19 +1671,25 @@ export async function updateProfile(formData: FormData) {
     skills: skills_string,
     structured_skills,
     bio,
-    is_discoverable: currentProfile?.is_discoverable ?? true,
+    is_discoverable: isCurrentProfileVerified,
   }
 
-  if (min_salary_expectation) {
-    basePayload.min_salary_expectation = parseInt(
-      min_salary_expectation.toString(),
-      10
-    )
+  if (hasMinSalaryField) {
+    const rawSalaryStr = String(min_salary_expectation ?? '').trim()
+    if (!rawSalaryStr) {
+      basePayload.min_salary_expectation = null
+    } else {
+      const parsedSalary = parseInt(rawSalaryStr, 10)
+      basePayload.min_salary_expectation =
+        Number.isFinite(parsedSalary) && parsedSalary > 0 ? parsedSalary : null
+    }
   }
   if (preferred_work_model) {
     basePayload.preferred_work_model = preferred_work_model
   }
-  if (location) basePayload.location = location
+  if (formData.has('location')) {
+    basePayload.location = (location || '').trim()
+  }
 
   if (full_name || user.email) {
     const { data: existingApps } = await supabase
@@ -1711,6 +1722,9 @@ export async function updateProfile(formData: FormData) {
       await clearUserMatchCache(user.id)
       revalidatePath('/dashboard')
       revalidatePath('/dashboard/profile')
+      revalidatePath('/dashboard/preferences')
+      revalidatePath('/dashboard/jobs')
+      revalidatePath('/dashboard/requests')
       revalidatePath('/dashboard/employer/search')
       revalidatePath('/dashboard/employer/applications')
       revalidatePath('/dashboard/employer/pitches')
@@ -1727,6 +1741,9 @@ export async function updateProfile(formData: FormData) {
   await clearUserMatchCache(user.id)
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/profile')
+  revalidatePath('/dashboard/preferences')
+  revalidatePath('/dashboard/jobs')
+  revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/search')
   revalidatePath('/dashboard/employer/applications')
   revalidatePath('/dashboard/employer/pitches')
@@ -5000,6 +5017,7 @@ export async function searchCandidates(
         certifications: canonicalCerts.length > 0 ? canonicalCerts.join(', ') : String(prefMeta?.certifications || ''),
         canonical_certifications: canonicalCerts,
         languages: normalizedLangs,
+        availability_window: normalizeCandidateAvailability(prefMeta?.availability_window),
         preferred_employment_types: Array.isArray(prefMeta?.employment_types)
           ? prefMeta.employment_types
           : undefined,
@@ -5210,7 +5228,7 @@ export async function sendConnectionRequest(
   if (targetPrefMeta?.is_sandbox_benchmark) {
     return {
       error:
-        '⚡ Sandbox Benchmark Profile (0 Credits Used): This is a sample professional profile for testing TrueFit Score™ scoring. No invitation credit was deducted!',
+        '⚡ Practice Mode Sample Profile (0 Credits Used): This is a sample professional profile for testing TrueFit Score™ checks. No invitation credit was deducted!',
     }
   }
 
@@ -5226,9 +5244,18 @@ export async function sendConnectionRequest(
         'Invitation Blocked: This professional is currently hidden from Employer Search.',
     }
   }
+  if (isCandidatePaused(targetPrefMeta?.availability_window)) {
+    return {
+      error:
+        'Invitation Blocked: This professional has paused inbound invitations right now.',
+    }
+  }
 
+  const isHourlyRole =
+    job.pay_type === 'hourly' ||
+    (job.salary_max && job.salary_max > 0 && job.salary_max <= 500)
   const annualizedMaxPay =
-    job.pay_type === 'hourly' && job.salary_max
+    isHourlyRole && job.salary_max
       ? job.salary_max * 2080
       : job.salary_max
 
@@ -5267,13 +5294,20 @@ export async function sendConnectionRequest(
     : []
   const jobEmpType = (job.employment_type || 'Full-Time (W-2)').trim()
 
+  const normalizeEmpType = (val: string) => {
+    const v = String(val || '').toLowerCase().trim()
+    if (v.includes('contract-to-hire') || v.includes('contract to hire')) return 'contract-to-hire'
+    if (v.includes('1099') || v.includes('corp-to-corp') || v.includes('c2c') || v === 'contract') return 'contract (1099 / corp-to-corp)'
+    if (v.includes('part-time') || v.includes('part time')) return 'part-time'
+    if (v.includes('seasonal') || v.includes('temporary') || v.includes('temp')) return 'seasonal / temporary'
+    if (v.includes('full-time') || v.includes('full time') || v.includes('w-2') || v.includes('w2')) return 'full-time (w-2)'
+    return v
+  }
+  const normJobEmpType = normalizeEmpType(jobEmpType)
+
   if (
     acceptedEmpTypes.length > 0 &&
-    !acceptedEmpTypes.some(
-      (t: string) =>
-        t.toLowerCase() === jobEmpType.toLowerCase() ||
-        jobEmpType.toLowerCase().includes(t.toLowerCase())
-    )
+    !acceptedEmpTypes.some((t: string) => normalizeEmpType(t) === normJobEmpType)
   ) {
     return {
       error: `Request Blocked: Role is ${jobEmpType}, but professional only accepts ${acceptedEmpTypes.join(

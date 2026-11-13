@@ -1,26 +1,13 @@
-import StructuredCertificationSelector from '@/components/StructuredCertificationSelector'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import Link from 'next/link'
-import { SubmitButton } from '@/components/SubmitButton'
-import UsLocationSelector from '@/components/UsLocationSelector'
-import { StructuredLanguageEditor } from '@/components/StructuredLanguageEditor'
+import CandidatePreferencesForm from '@/components/CandidatePreferencesForm'
 import { updateProfile } from '@/app/dashboard/actions'
 import VerifyButton from '@/app/dashboard/VerifyButton'
-import {
-  STANDARD_INDUSTRY_VERTICALS,
-  normalizeIndustryVertical,
-} from '@/constants/industries'
-import {
-  CANDIDATE_EDUCATION_LEVELS,
-  normalizeCandidateEducation,
-} from '@/constants/education'
+import { normalizeIndustryVertical } from '@/constants/industries'
+import { normalizeCandidateEducation } from '@/constants/education'
 import { normalizeLanguageList } from '@/constants/languages'
-import {
-  CANDIDATE_AVAILABILITY_STATUSES,
-  normalizeCandidateAvailability,
-} from '@/constants/availability'
+import { normalizeCandidateAvailability } from '@/constants/availability'
 
 export const dynamic = 'force-dynamic'
 
@@ -125,10 +112,10 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
   ).trim()
   const rawSubmittedLanguages = String(formData.get('languages') || '').trim()
 
-  // Fetch latest structured_skills from DB so we preserve saved_job_ids, saved_candidate_ids, languages, and skills
+  // Fetch latest profile fields from DB so we preserve bio, experience, verification, and saved skills
   const { data: currentProfile } = await supabase
     .from('profiles')
-    .select('structured_skills')
+    .select('structured_skills, experience_years, bio, identity_verified, is_verified, is_discoverable')
     .eq('id', user.id)
     .single()
 
@@ -184,6 +171,12 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
   )
   formData.set('availability_window', finalAvailabilityWindow)
   formData.set('languages', JSON.stringify(finalLanguages))
+  if (currentProfile?.experience_years !== undefined && currentProfile?.experience_years !== null) {
+    formData.set('experience_years', String(currentProfile.experience_years))
+  }
+  if (currentProfile?.bio !== undefined && currentProfile?.bio !== null) {
+    formData.set('bio', String(currentProfile.bio))
+  }
 
   await updateProfile(formData)
 
@@ -196,10 +189,19 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
   revalidatePath('/dashboard/profile')
   revalidatePath('/dashboard/preferences')
   revalidatePath('/dashboard/jobs')
+  revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/search')
+  redirect('/dashboard/preferences?saved=1')
 }
 
-export default async function MatchPreferencesPage() {
+export default async function MatchPreferencesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ saved?: string }>
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : {}
+  const showSavedBanner = resolvedSearchParams?.saved === '1'
+
   const supabase = await createClient()
   const {
     data: { user },
@@ -216,24 +218,27 @@ export default async function MatchPreferencesPage() {
 
   const isVerified = Boolean(
     profile?.identity_verified === true ||
-      profile?.is_verified === true
+      String(profile?.identity_verified) === 'true' ||
+      profile?.is_verified === true ||
+      String(profile?.is_verified) === 'true'
   )
 
   const savedEmploymentTypes = extractSavedEmploymentTypes(profile)
-  const {
-    industryVertical,
-    educationLevel,
-    certifications,
-    availabilityWindow,
-    languages,
-  } = extractSavedPrefMeta(profile)
+  const { availabilityWindow } = extractSavedPrefMeta(profile)
 
   return (
     <div className="py-2">
       <div className="max-w-6xl mx-auto py-3 space-y-6">
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-300 pb-4"><div><h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Match Preferences &amp; Dealbreakers</h1><p className="text-sm text-slate-500 mt-1">
-            Configure your hard outbound pitch firewall rules and search logistics: minimum salary expectations, accepted employment types, preferred work model, target US location, and search availability.
-          </p></div></header>
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-300 pb-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+              Match Preferences &amp; Dealbreakers
+            </h1>
+            <p className="text-sm text-slate-500 mt-1">
+              Set your minimum salary floor, accepted employment types, preferred work model, target US location, and search availability.
+            </p>
+          </div>
+        </header>
 
         {!isVerified && (
           <div className="p-4 sm:p-6 rounded-2xl bg-amber-50 border-2 border-slate-300 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -242,7 +247,7 @@ export default async function MatchPreferencesPage() {
                 Identity Verification Required
               </h2>
               <p className="text-xs text-amber-800 mt-0.5">
-                Complete Stripe Identity verification to unlock receiving inbound connection pitches from verified employers.
+                Complete the $5 One-Time ID Verification to unlock your anonymous profile in Employer Search and configure inbound dealbreaker rules.
               </p>
             </div>
             <div className="shrink-0">
@@ -251,173 +256,37 @@ export default async function MatchPreferencesPage() {
           </div>
         )}
 
-        <form
+        {showSavedBanner && isVerified && (
+          <div className="p-4 rounded-xl bg-emerald-50 border-2 border-emerald-300 text-emerald-900 flex items-center justify-between gap-3 shadow-sm">
+            <div className="text-xs sm:text-sm font-bold">
+              ✓ Match Preferences &amp; Dealbreakers saved. Your Recommended Roles, Find Roles filters, and Employer Search rules are updated.
+            </div>
+          </div>
+        )}
+
+        <CandidatePreferencesForm
           action={saveCandidatePreferencesWithEmploymentTypes}
-          className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6 border-slate-300"
-        >
-          <input
-            type="hidden"
-            name="experience_years"
-            value={profile?.experience_years || ''}
-          />
-          <input type="hidden" name="bio" value={profile?.bio || ''} />
-          <input
-            type="hidden"
-            name="structured_skills"
-            value={JSON.stringify(profile?.structured_skills || [])}
-          />
-
-          <div className="space-y-6">
-            {/* 1. MINIMUM SALARY EXPECTATION */}
-            <div>
-              <label className="block text-sm font-bold text-slate-700">
-                Minimum Salary Expectation (Annual USD)
-              </label>
-              <div className="relative mt-2">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-                  <span className="text-slate-500 font-bold">$</span>
-                </div>
-                <input
-                  type="number"
-                  name="min_salary_expectation"
-                  defaultValue={profile?.min_salary_expectation || ''}
-                  placeholder="95000"
-                  className="block w-full rounded-lg border border-slate-300 bg-white pl-8 pr-14 py-2.5 text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm font-bold"
-                />
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5">
-                  <span className="text-xs font-extrabold text-slate-400">
-                    USD /yr
-                  </span>
-                </div>
-              </div>
-              <p className="text-xs text-slate-500 mt-1">
-                Employers whose role maximum budget (annual or annualized hourly rate) is below this threshold will be blocked from pitching you.
-              </p>
-            </div>
-
-            {/* 2. ACCEPTED EMPLOYMENT TYPES (DEALBREAKER) */}
-            <div className="pt-2 border-t border-slate-300">
-              <label className="block text-sm font-bold text-slate-700">
-                Accepted Employment Types (Dealbreaker)
-              </label>
-              <p className="text-xs text-slate-500 mt-0.5 mb-3">
-                Select all employment models you are open to. Roles outside these types will be blocked by your dealbreaker guardrails.
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {EMPLOYMENT_TYPE_OPTIONS.map((opt) => {
-                  const isChecked = savedEmploymentTypes.includes(opt.value)
-                  return (
-                    <label
-                      key={opt.value}
-                      className="relative flex items-start gap-3 p-3.5 rounded-xl border-2 border-slate-300 bg-slate-50/60 hover:bg-indigo-50/40 hover:border-2-indigo-300 transition-colors cursor-pointer border-slate-300"
-                    >
-                      <input
-                        type="checkbox"
-                        name="employment_types"
-                        value={opt.value}
-                        defaultChecked={isChecked}
-                        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <div className="text-xs">
-                        <span className="font-extrabold text-slate-900 block">
-                          {opt.label}
-                        </span>
-                        <span className="text-slate-500 leading-snug block mt-0.5">
-                          {opt.desc}
-                        </span>
-                      </div>
-                    </label>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* 3. PREFERRED WORK MODEL & SEARCH AVAILABILITY */}
-            <div className="pt-2 border-t border-slate-300 grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-bold text-slate-700">
-                  Preferred Work Model (Dealbreaker)
-                </label>
-                <p className="text-xs text-slate-500 mt-0.5 mb-2">
-                  Controls which work arrangements verified employers are permitted to pitch you.
-                </p>
-                <select
-                  name="preferred_work_model"
-                  defaultValue={profile?.preferred_work_model || 'remote'}
-                  className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
-                >
-                  <option value="remote">Remote Only</option>
-                  <option value="hybrid">Hybrid</option>
-                  <option value="onsite">On-site</option>
-                  <option value="any">Open to Any Model</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-slate-700">
-                  ⚡ Search Status &amp; Start Availability
-                </label>
-                <p className="text-xs text-slate-500 mt-0.5 mb-2">
-                  Signals your current search intent and notice period to verified employers.
-                </p>
-                <select
-                  name="availability_window"
-                  defaultValue={availabilityWindow}
-                  className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
-                >
-                  {CANDIDATE_AVAILABILITY_STATUSES.map((statusOpt) => (
-                    <option key={statusOpt} value={statusOpt}>
-                      {statusOpt}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* 4. US CASCADING LOCATION SELECTOR */}
-            <div className="pt-2 border-t border-slate-300">
-              <label className="block text-sm font-bold text-slate-700 mb-1">
-                Target Work Location
-              </label>
-              <p className="text-xs text-slate-500 mb-3">
-                Select your preferred US state and metro area for hybrid/on-site roles or remote search alignment.
-              </p>
-              <UsLocationSelector
-                name="location"
-                value={profile?.location || ''}
-                workModel={profile?.preferred_work_model || 'remote'}
-              />
-            </div>
-
-            {/* Clean Pointer to Professional Profile */}
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-extrabold text-slate-900">
-                  Looking for Industry Vertical, Education, Certifications, Languages, or Core Skills?
-                </p>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Your professional capabilities and credentials live exclusively on your Anonymous Profile so you never have to maintain duplicate fields.
-                </p>
-              </div>
-              <Link
-                href="/dashboard/profile"
-                className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-extrabold border border-indigo-200 transition-colors"
-              >
-                Edit My Profile &rarr;
-              </Link>
-            </div>
-          </div>
-
-          <div className="pt-4 flex justify-end">
-            <SubmitButton
-              pendingText="Saving Preferences..."
-              className="w-full sm:w-auto rounded-xl bg-indigo-600 px-8 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer"
-            >
-              Save Match Preferences
-            </SubmitButton>
-          </div>
-        </form>
+          isVerified={isVerified}
+          initialMinSalary={
+            profile?.min_salary_expectation
+              ? String(profile.min_salary_expectation)
+              : ''
+          }
+          initialEmploymentTypes={savedEmploymentTypes}
+          employmentTypeOptions={EMPLOYMENT_TYPE_OPTIONS}
+          initialWorkModel={profile?.preferred_work_model || 'remote'}
+          initialAvailabilityWindow={availabilityWindow}
+          initialLocation={profile?.location || ''}
+          hiddenExperienceYears={
+            profile?.experience_years !== undefined && profile?.experience_years !== null
+              ? String(profile.experience_years)
+              : ''
+          }
+          hiddenBio={profile?.bio || ''}
+          hiddenStructuredSkillsJson={JSON.stringify(
+            profile?.structured_skills || []
+          )}
+        />
       </div>
     </div>
   )

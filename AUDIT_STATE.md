@@ -14,8 +14,8 @@
 - [x] Professional Overview (`src/app/dashboard/page.tsx` — live Saved Roles count, dealbreaker-filtered Recommended Roles, whole-word skill/cert ranking)
 - [x] Outbound Applications (`src/app/dashboard/applications/page.tsx` — locked status tab counts, whole-word & cert search, Clear Filters, 5s live thread poll, `ss clip`)
 - [x] Professional Invitations (`src/app/dashboard/requests/page.tsx` — locked status tab counts, timeframe + whole-word & cert search, Clear Filters, 5s live poll, TrueFit refresh)
+- [x] Match Preferences (`src/app/dashboard/preferences/page.tsx` & `CandidatePreferencesForm.tsx` — reactive work-model/location sync, Paused inbound invitation lock, and plain-English copy)
 
 ## Remaining Dashboard Pages to Audit
-- [ ] Match Preferences (`src/app/dashboard/preferences`)
 - [ ] Employer Manage Roles & Inbound Applicants (`ApplicationRevealCard.tsx` / `SecureMessageThread.tsx`)
 - [ ] Support & Membership / Plan Settings (`SupportCenterClient.tsx` / `billing`)
