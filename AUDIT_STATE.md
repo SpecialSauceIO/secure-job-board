@@ -28,6 +28,7 @@
 - [x] Employer Organization, Verification, Team Seats & HR Sync (`src/app/dashboard/employer/organization/page.tsx`, `EmployerOrganizationForm.tsx`, `EmployerTeamSeatsPanel.tsx`, `EnterpriseAtsIntegrationPanel.tsx`, `src/app/dashboard/actions.ts`, `scripts/ss_dev.py` — Starter 2-seat unlock, Growth 5-seat & Enterprise Unlimited seat display, plain-English recruiter copy, Dev QA labels, and hardened `ss` CLI clipboard/JSON guards)
 
 - [x] Secondary Dashboard Views (`src/app/dashboard/employer/pitches/page.tsx`, `src/app/dashboard/post-job/page.tsx`, `src/app/dashboard/actions.ts` — locked status tab counts, whole-word & cert search, `structured_skills` coverage, Clear Filters, 5s live thread poll, legacy `/dashboard/post-job` redirect to `/dashboard/employer/jobs/new`; skipping `horizon` while in development)
+- [x] Operations Console (`special-sauce-ops @ 3417ee7` + `ss --ops` flag alignment — plain-English nomenclature parity, `Membership & Plan Settings` & `Practice Mode` KB macros, `support@specialsauce.io` outbound/fallback routing, Production Directory & 11-sensor Live Telemetry checks)
 
-## Remaining Public, Secondary & Ops Modules to Audit (In Order)
-- [ ] Operations Console (`special-sauce-ops` + `ss --ops` flag alignment)
+## Deferred Modules (In Active Development)
+- [ ] True Horizon™ (`horizon` — skipped while in active development)
