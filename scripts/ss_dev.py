@@ -599,10 +599,15 @@ def cmd_clip(repo_dir):
     if raw.startswith("```"):
         lines = raw.splitlines()
         raw = "\n".join(lines[1:-1] if lines and lines[-1].strip() == "```" else lines[1:]).strip()
-    if not raw or raw.startswith("===") or raw.startswith("[OK") or raw.startswith("[BLOCKED") or raw.startswith("[CLIP") or raw.startswith("Repo:"):
+    if not raw or raw.startswith("===") or raw.startswith("[OK") or raw.startswith("[4/4]") or raw.startswith("[LOCAL") or raw.startswith("[DEPENDENCY") or raw.startswith("[BLOCKED") or raw.startswith("[CLIP") or raw.startswith("Repo:"):
         msg = "[CLIP] Clipboard holds previous output or is empty. Click Copy on a new ss command block first."
         print(msg)
         sys.exit(1)
+    first_line = raw.splitlines()[0].strip()
+    if re.search(r"^(?:source\s+\S+.*?&&\s*(?:cd\s+\S+\s*&&\s*)?|cd\s+\S+\s*&&\s*)ss\b", first_line):
+        idx = raw.find("ss ")
+        if idx != -1:
+            raw = raw[idx:].strip()
     first_tok = raw.split()[0] if raw.split() else ""
     if first_tok != "ss" or raw.strip().startswith("ss clip"):
         msg = "[CLIP BLOCKED] Clipboard must start with an ss command (got: " + raw.splitlines()[0][:60] + ")"

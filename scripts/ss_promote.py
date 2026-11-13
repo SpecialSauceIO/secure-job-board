@@ -146,8 +146,12 @@ def main():
         if ver_file.exists():
             ver_file.unlink()
         sha = run_cmd(["git", "rev-parse", "--short", "HEAD"]).stdout.strip()
-        print("[OK - TIER 2 STAGING DEPLOYED] " + REPO_DIR.name + " @ " + sha)
-        print("Verify on your Vercel Preview / Test URL before running `ss prod`.")
+        ok_msg = "[OK - TIER 2 STAGING DEPLOYED] " + REPO_DIR.name + " @ " + sha + "\nVerify on your Vercel Preview / Test URL before running `ss prod`."
+        try:
+            subprocess.run(["pbcopy"], input=ok_msg, text=True, check=False)
+        except Exception:
+            pass
+        print(ok_msg)
         sys.exit(0)
 
     if mode == "prod":
@@ -172,7 +176,12 @@ def main():
         run_cmd(["git", "checkout", "staging"])
         if p.returncode != 0:
             sys.exit(p.returncode)
-        print("[4/4] [OK - TIER 3 PRODUCTION DEPLOYED] " + REPO_DIR.name + " @ " + stg_remote[:7])
+        ok_prod = "[4/4] [OK - TIER 3 PRODUCTION DEPLOYED] " + REPO_DIR.name + " @ " + stg_remote[:7]
+        try:
+            subprocess.run(["pbcopy"], input=ok_prod, text=True, check=False)
+        except Exception:
+            pass
+        print(ok_prod)
         sys.exit(0)
 
 if __name__ == "__main__":
