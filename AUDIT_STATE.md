@@ -1,7 +1,7 @@
 # SpecialSauce Audit & Parity State
 
 ## Locked Decisions & Parity Rules
-- 100% `ss` CLI for all repo ops (`ss status`, `ss find`, `ss inspect`, `ss patch`, `ss verify-local`, `ss stage`, `ss prod`).
+- 100% `ss` CLI for all repo ops (`ss status`, `ss find`, `ss audit-copy`, `ss inspect`, `ss patch`, `ss verify-local`, `ss stage`, `ss prod`) in `text` fences only.
 - One Page / One Feature per chat (retire chat after `ss prod` or ~15 turns).
 - Plain English across customer-facing UI; zero 'Candidate', 'sandbox', 'double-blind', or 'cohort'.
 - TrueFit v2.2 deterministic cache (`tf_v2_2_`, `cand_v5_`, `emp_v5_`) & whole-word search (`it`, `aws`, `okr`).
@@ -21,8 +21,9 @@
 
 - [x] Auth, Signup & Onboarding (`src/app/signup/page.tsx`, `src/app/signup/candidate/page.tsx`, `src/app/signup/employer/page.tsx`, `src/app/signup/actions.ts`, `src/app/login/page.tsx`, `src/app/login/actions.ts`, `src/app/onboarding/page.tsx`, `src/components/OnboardingPlanStep.tsx` — Practice Mode & plain-English copy, Test Inbox OTP/reset banners, locked pricing & verification gates)
 
+- [x] Public Marketing & Pricing (`src/app/page.tsx`, `src/app/pricing/page.tsx`, `src/app/workflows/page.tsx`, `src/app/faq/page.tsx`, `src/components/PublicFaqClient.tsx`, `scripts/ss_dev.py` — Explorer vs Practice Mode clarity, Employer Verification Pass copy, whole-word FAQ search + Clear/Reset Filters, `ss audit-copy` + `sandbox` gate)
+
 ## Remaining Public, Secondary & Ops Modules to Audit (In Order)
-- [ ] Public Marketing & Pricing (`src/app/page.tsx`, `src/app/pricing/page.tsx`, `src/app/workflows/page.tsx`, `src/app/faq/page.tsx`)
 - [ ] Public Security & Legal + Dashboard Wrappers (`src/app/security/page.tsx`, `src/app/privacy/page.tsx`, `src/app/terms/page.tsx`, `src/app/dashboard/security/page.tsx`, `src/app/dashboard/workflows/page.tsx`)
 - [ ] Secondary Dashboard Views (`src/app/dashboard/employer/organization/page.tsx`, `src/app/dashboard/employer/pitches/page.tsx`, `src/app/dashboard/horizon/page.tsx`, `src/app/dashboard/post-job/page.tsx`)
 - [ ] Operations Console (`special-sauce-ops` + `ss --ops` flag alignment)

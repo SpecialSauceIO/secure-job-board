@@ -293,10 +293,10 @@ export default function WorkflowsPage() {
                   </div>
                   <div>
                     <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400">
-                      $25 One-Time Verification • $0/Mo Sandbox • Refund-Protected Invitations
+                      $25 One-Time Verification • $0/Mo Practice Mode • Refund-Protected Invitations
                     </span>
                     <h2 className="text-xl sm:text-2xl font-black text-white">
-                      Employer Workflow: Verified Sandbox to Great Hires
+                      Employer Workflow: Verified Practice Mode to Great Hires
                     </h2>
                   </div>
                 </div>
@@ -313,15 +313,15 @@ export default function WorkflowsPage() {
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between space-y-5">
                   <div className="space-y-4">
                     <span className="inline-block px-3 py-1 rounded-md bg-slate-800 border border-slate-700 text-emerald-300 text-[11px] font-extrabold uppercase tracking-wider">
-                      Step 1 • Sandbox Access
+                      Step 1 • Practice Mode Access
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
-                      1. Unlock Your $0/Mo Sandbox ($25 Once)
+                      1. Unlock Your $0/Mo Practice Mode ($25 Once)
                     </h3>
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Complete the <strong>$25 Organization Verification Pass</strong> to access your $0/mo Sandbox.</span>
+                        <span>Complete the <strong>$25 Employer Verification Pass</strong> to access your $0/mo Practice Mode.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
@@ -330,7 +330,7 @@ export default function WorkflowsPage() {
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ $0/Mo Sandbox &amp; Live Match Previews
+                    Unlocks: ✓ $0/Mo Practice Mode &amp; Live Match Previews
                   </div>
                 </div>
 

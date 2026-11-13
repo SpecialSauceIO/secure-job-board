@@ -6,7 +6,7 @@ export const metadata = {
   alternates: { canonical: "/pricing" },
   title: "Pricing & Plans",
   description:
-    "Verify once ($5 Professionals / $25 Employers) to match free in Explorer mode, or activate Professional ($12 or $19/mo) and Employer plans ($149, $499, or $1,250/mo) when ready.",
+    "Verify once ($5 Professional Explorer Mode / $25 Employer Verification Pass with $0/mo Practice Mode), or activate Professional ($12 or $19/mo) and Employer plans ($149, $499, or $1,250/mo) when ready.",
 }
 
 export default function PricingMatrixPage() {
@@ -82,7 +82,7 @@ export default function PricingMatrixPage() {
               </span>
             </h1>
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Complete a one-time verification to enter our <strong className="text-emerald-400">$0/mo Explorer mode</strong>. Browse roles, check your fit, and upgrade only when you are ready to actively apply or hire.
+              Complete a one-time verification to enter <strong className="text-emerald-400">$0/mo Explorer Mode</strong> (Professionals) or <strong className="text-emerald-400">$0/mo Practice Mode</strong> (Employers). Check your fit, preview matches, and upgrade only when ready to apply or hire.
             </p>
 
             {/* Split-Screen Onboarding Callout */}
@@ -117,7 +117,7 @@ export default function PricingMatrixPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-emerald-400 font-bold shrink-0">•</span>
-                    <span><strong className="text-emerald-300">$0/mo Sandbox</strong> to draft roles and preview verified talent matches.</span>
+                    <span><strong className="text-emerald-300">$0/mo Practice Mode</strong> to draft roles and preview verified talent matches.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-amber-400 font-bold shrink-0">•</span>

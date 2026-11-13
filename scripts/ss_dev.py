@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import hashlib, json, os, pathlib, re, subprocess, sys, time
+import base64, hashlib, html, json, os, pathlib, re, subprocess, sys, time
 
 SJB_DIR = pathlib.Path("/Users/steve/Documents/secure-job-board")
 OPS_DIR = pathlib.Path("/Users/steve/Documents/special-sauce-ops")
@@ -15,13 +15,15 @@ FORBIDDEN_COPY_PATTERNS = [
     (r"\bturing\s+test\b", "Forbidden buzzword Turing test"),
     (r"\bai\s+prox(?:y|ies)\b", "Forbidden buzzword AI proxy"),
     (r"synthetic\s+r[e\u00e9]sum[e\u00e9]s?", "Forbidden buzzword synthetic resume"),
+    (r"\bsandbox\b", "Forbidden term Sandbox — use Practice Mode"),
 ]
 
 # Internal DB/code identifiers allowed in .ts/.tsx code lines
 ALLOWED_CODE_IDENT_RX = re.compile(
     r"(candidate_id|candidate_explorer|CANDIDATE_|candidateId|candidateProfile|candidateExp|"
     r"candidate_profile|candidate_tier|candidate_count|role\s*===?\s*[\x27\"]candidate[\x27\"]|"
-    r"[\x27\"]candidate[\x27\"]\s*[:|\?]|/candidate|Candidate[A-Z]\w*)"
+    r"[\x27\"]candidate[\x27\"]\s*[:|\?]|/candidate|Candidate[A-Z]\w*|"
+    r"allow-scripts\s+allow-same-origin|sandbox=\"|isSandbox|sandboxMode|sandbox_mode|seed-sandbox)"
 )
 
 def sha256_bytes(b):
@@ -254,12 +256,17 @@ def cmd_patch(repo_dir, args):
         print("[BLOCKED] Active branch in " + repo_dir.name + " is '" + br + "'. Local patches are ONLY permitted on 'staging'.")
         sys.exit(1)
 
-    if args and pathlib.Path(args[0]).exists():
+    if args and args[0] == "--b64" and len(args) >= 2:
+        b64_joined = "".join(args[1:]).strip()
+        raw_payload = base64.b64decode(b64_joined).decode("utf-8")
+    elif args and pathlib.Path(args[0]).exists():
         raw_payload = pathlib.Path(args[0]).read_text()
     elif not sys.stdin.isatty():
         raw_payload = sys.stdin.read()
+        if raw_payload.strip().startswith("B64:"):
+            raw_payload = base64.b64decode(raw_payload.strip()[4:].strip()).decode("utf-8")
     else:
-        print("Usage: ss patch <patch.json> OR pipe JSON via stdin")
+        print("Usage: ss patch --b64 <base64_json> | ss patch <patch.json> | stdin")
         sys.exit(1)
 
     try:
@@ -551,6 +558,52 @@ def cmd_doc_check(args):
     copy_clip(ok)
     print(ok)
 
+def cmd_audit_copy(repo_dir, args):
+    if not args:
+        print("Usage: ss audit-copy <file1> [file2]")
+        sys.exit(1)
+    receipt_path = repo_dir / ".git" / ".ss_inspect_receipt.json"
+    receipt = load_json(receipt_path, {"files": {}})
+    now_ts = int(time.time())
+    sections = []
+    for spec in args[:2]:
+        p = resolve_repo_path(repo_dir, spec)
+        if not p:
+            sections.append("=== MISSING: " + spec + " ===")
+            continue
+        rel = str(p.relative_to(repo_dir)) if str(p).startswith(str(repo_dir)) else str(p)
+        raw_bytes = p.read_bytes()
+        f_hash = sha256_bytes(raw_bytes)[:16]
+        flines = raw_bytes.decode("utf-8", errors="replace").splitlines()
+        out = ["=== AUDIT-COPY: " + rel + " (" + str(len(flines)) + "L | sha:" + f_hash + ") ==="]
+        for idx, rln in enumerate(flines, 1):
+            s = rln.strip()
+            if not s or s.startswith("//") or s.startswith("/*") or s.startswith("*") or s.startswith("import "):
+                continue
+            if "PublicHeader" in s or ("pt-" in s and "section" in s):
+                out.append("L" + str(idx) + " [LAYOUT]: " + re.sub(r"\s+", " ", s)[:130])
+            cleaned = html.unescape(re.sub(r"<[^>]+>", " ", re.sub(r"\{[^}]{0,80}\}", " ", s)))
+            cleaned = re.sub(r"\s+", " ", cleaned).strip()
+            quotes = [m.group(1) for m in re.finditer(r"[\x27\"`]([^\x27\"`]{4,})[\x27\"`]", s) if " " in m.group(1) and not re.search(r"\b(flex|grid|bg-|text-|px-|py-|rounded-|border-|hover:|transition|stroke|fill)\b", m.group(1))]
+            pieces = []
+            if cleaned and re.search(r"[A-Za-z]{3,}", cleaned) and not re.search(r"^(const |let |return|export |function |if |\}|\)|<|className=|aria-|onClick=|href=|src=|d=|stroke|viewBox)", s):
+                pieces.append(cleaned)
+            for q in quotes:
+                if q not in " ".join(pieces):
+                    pieces.append(q)
+            if pieces:
+                line_txt = " | ".join(pieces)[:160]
+                flags = [msg.split("—")[0].strip() for pat, msg in FORBIDDEN_COPY_PATTERNS if re.search(pat, ALLOWED_CODE_IDENT_RX.sub("", s), re.I)]
+                prefix = "[FLAG: " + ", ".join(flags) + "] " if flags else ""
+                out.append("L" + str(idx) + ": " + prefix + line_txt)
+        receipt["files"][rel] = {"sha16": f_hash, "ranges": [[1, len(flines)]], "updated_at": now_ts}
+        sections.append("\n".join(out[:140]))
+    receipt_path.parent.mkdir(parents=True, exist_ok=True)
+    receipt_path.write_text(json.dumps(receipt, indent=2))
+    final_out = "\n".join(sections)[:6200]
+    copy_clip("```text\n" + final_out + "\n```")
+    print(final_out)
+
 def main():
     argv = sys.argv[1:]
     repo_dir = SJB_DIR
@@ -589,9 +642,11 @@ def main():
         cmd_media_verify(rest)
     elif cmd == "doc-check":
         cmd_doc_check(rest)
+    elif cmd == "audit-copy":
+        cmd_audit_copy(repo_dir, rest)
     else:
         print("Unknown ss command: " + cmd)
-        print("Allowed: clip | inspect | find | patch | verify-local | stage | prod | status | media-inspect | media-verify | doc-check")
+        print("Allowed: clip | inspect | audit-copy | find | patch | verify-local | stage | prod | status | media-inspect | media-verify | doc-check")
         sys.exit(1)
 
 def cmd_clip(repo_dir):

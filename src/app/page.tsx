@@ -275,7 +275,7 @@ export default function LandingPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F97316]"></span>
                 </span>
-                One-Time Verification • $0/Mo Explorer Mode
+                One-Time Verification • $0/Mo Explorer &amp; Practice Mode
               </div>
               <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
                 See Your{' '}
@@ -286,7 +286,7 @@ export default function LandingPage() {
                 Verify Once. Explore for FREE.
               </h2>
               <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Get verified once ($5 Professionals / $25 Employers) to browse, check your fit, and receive invitations at $0/mo. Upgrade only when you want to actively apply or hire.
+                Get verified once ($5 Professional Explorer Mode • $25 Employer Practice Mode) to check your fit, receive invitations, or preview matches at $0/mo. Upgrade only when ready to apply or hire.
               </p>
             </div>
           </div>
