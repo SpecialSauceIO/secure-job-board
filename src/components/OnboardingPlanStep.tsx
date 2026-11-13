@@ -177,7 +177,7 @@ export default function OnboardingPlanStep({
               <h3 className="mt-1 text-lg font-extrabold text-white">Verification Pass</h3>
               <div className="mt-2 flex items-baseline gap-1">
                 <span className="text-2xl font-black text-white">$25</span>
-                <span className="text-xs text-slate-400">one-time · $0/mo</span>
+                <span className="text-xs text-slate-400">one-time · $0/mo Practice Mode</span>
               </div>
               <ul className="mt-4 space-y-2 text-xs text-slate-300">
                 <li>✓ Domain, EIN &amp; Admin Stripe ID Check</li>

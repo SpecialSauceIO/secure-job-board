@@ -96,7 +96,7 @@ export default function CandidateSignupPage({ searchParams }: { searchParams: Pr
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-5">
               {existingAccountSignIn && <div className="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 text-xs font-bold text-indigo-900">We recognized your existing account and sent a 6-digit verification code to sign you right in.</div>}
-              {routedToFallback && <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-300 text-xs font-bold text-amber-900">Sandbox test address detected: Your 6-digit verification code was routed to the designated test inbox.</div>}
+              {routedToFallback && <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-300 text-xs font-bold text-amber-900">Test address detected: Your 6-digit verification code was routed to the designated test inbox.</div>}
               <div>
                 <label htmlFor="otp" className="block text-xs font-extrabold uppercase tracking-wider text-slate-600 mb-1.5 text-center">6-Digit Email Verification Code</label>
                 <input id="otp" name="otp" type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} required value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="000000" className="block w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-4 py-3.5 text-center font-mono text-2xl font-black tracking-[0.35em] text-slate-900 focus:border-indigo-600 focus:bg-white focus:outline-none" />

@@ -304,7 +304,7 @@ export async function requestBrandedPasswordReset(
         subject: '[' + refId + '] Reset your Special Sauce password',
         html: buildHtml(
           primaryRecipient !== email
-            ? 'Sandbox Routing: Password reset requested for ' + email
+            ? 'Test Inbox Routing: Password reset requested for ' + email
             : undefined
         ),
       }),
@@ -322,7 +322,7 @@ export async function requestBrandedPasswordReset(
           to: [fallbackInbox],
           subject: '[' + refId + '] Reset your Special Sauce password',
           html: buildHtml(
-            'Sandbox Fallback: Password reset requested for ' + email
+            'Test Inbox Fallback: Password reset requested for ' + email
           ),
         }),
       })
@@ -719,7 +719,7 @@ export async function requestAccountLoginOtp(
         subject: "[" + otpCode + "] Your Special Sauce™ verification code",
         html: buildOtpHtml(
           routedToFallback
-            ? "Sandbox Routing: Sign-in OTP code for " + email
+            ? "Test Inbox Routing: Sign-in OTP code for " + email
             : undefined
         ),
       }),
@@ -736,7 +736,7 @@ export async function requestAccountLoginOtp(
           from: fromAddress,
           to: [fallbackInbox],
           subject: "[" + otpCode + "] Your Special Sauce™ verification code",
-          html: buildOtpHtml("Sandbox Fallback: Sign-in OTP code for " + email),
+          html: buildOtpHtml("Test Inbox Fallback: Sign-in OTP code for " + email),
         }),
       })
       if (retryRes.ok) {
