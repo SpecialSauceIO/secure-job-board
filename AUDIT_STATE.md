@@ -12,9 +12,9 @@
 - [x] Employer Talent Search (`Search Talent` presets, Practice Mode UX, whole-word search, TrueFit v2.2)
 - [x] Professional Job Discovery (`Find Roles` Practice Mode copy, locked counts, clear filters, cert search, dealbreakers)
 - [x] Professional Overview (`src/app/dashboard/page.tsx` — live Saved Roles count, dealbreaker-filtered Recommended Roles, whole-word skill/cert ranking)
+- [x] Outbound Applications (`src/app/dashboard/applications/page.tsx` — locked status tab counts, whole-word & cert search, Clear Filters, 5s live thread poll, `ss clip`)
 
 ## Remaining Dashboard Pages to Audit
-- [ ] Outbound Applications (`src/app/dashboard/applications` / `CandidateApplications.tsx`)
 - [ ] Professional Invitations (`src/app/dashboard/invitations`)
 - [ ] Match Preferences (`src/app/dashboard/preferences`)
 - [ ] Employer Manage Roles & Inbound Applicants (`ApplicationRevealCard.tsx` / `SecureMessageThread.tsx`)

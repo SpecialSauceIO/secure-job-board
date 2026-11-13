@@ -2658,21 +2658,68 @@ export async function getCandidateApplications(
 
   if (searchQuery && searchQuery.trim() !== '') {
     const lowerQuery = searchQuery.toLowerCase().trim()
+    const escapedQ = lowerQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const shortWordRx =
+      lowerQuery.length <= 3
+        ? new RegExp(`(^|[^a-z0-9])${escapedQ}([^a-z0-9]|$)`, 'i')
+        : null
+    const normalizedQueryCerts = parseAndNormalizeCertifications(searchQuery)
+    const matchesText = (val: any) => {
+      const str = String(val || '').toLowerCase()
+      if (!str) return false
+      return shortWordRx ? shortWordRx.test(str) : str.includes(lowerQuery)
+    }
+
     processedData = processedData.filter((app: any) => {
-      const titleMatch = app.jobs?.title?.toLowerCase().includes(lowerQuery)
-      const descMatch = app.jobs?.description?.toLowerCase().includes(lowerQuery)
-      const refMatch = app.reference_id?.toLowerCase().includes(lowerQuery)
+      const job = app.jobs || {}
+      const visibleReqs = Array.isArray(job.structured_requirements)
+        ? job.structured_requirements.filter(
+            (r: any) => r && !r._ss_job_meta && !r._ss_meta
+          )
+        : []
+      const reqText = visibleReqs
+        .map((r: any) =>
+          typeof r === 'string'
+            ? r
+            : `${r.skill || r.name || ''} ${r.category || ''}`
+        )
+        .join(' ')
+      const langText = Array.isArray(job.required_languages)
+        ? job.required_languages
+            .map((l: any) => (typeof l === 'string' ? l : l?.language || ''))
+            .join(' ')
+        : ''
+      const rawJobCerts =
+        job.required_certifications ||
+        job.job_meta?.required_certifications ||
+        ''
+      const parsedJobCerts = parseAndNormalizeCertifications(rawJobCerts)
+      const canonicalJobCerts = parsedJobCerts.join(' ')
+      const hasCanonicalCertOverlap =
+        normalizedQueryCerts.length > 0 &&
+        parsedJobCerts.some((c: string) => normalizedQueryCerts.includes(c))
+
+      const refMatch = String(app.reference_id || '')
+        .toLowerCase()
+        .includes(lowerQuery)
       const orgMatch =
         app.is_revealed || app.normalized_status === 'shortlisted'
-          ? app.jobs?.organizations?.name?.toLowerCase().includes(lowerQuery)
+          ? matchesText(job.organizations?.name)
           : false
-      const reqsMatch = app.jobs?.structured_requirements
-        ? JSON.stringify(app.jobs.structured_requirements)
-            .toLowerCase()
-            .includes(lowerQuery)
-        : false
 
-      return titleMatch || descMatch || orgMatch || reqsMatch || refMatch
+      return (
+        hasCanonicalCertOverlap ||
+        refMatch ||
+        orgMatch ||
+        matchesText(job.title) ||
+        matchesText(job.description) ||
+        matchesText(job.location || job.job_meta?.location) ||
+        matchesText(job.industry || job.job_meta?.industry) ||
+        matchesText(rawJobCerts) ||
+        matchesText(canonicalJobCerts) ||
+        matchesText(langText) ||
+        matchesText(reqText)
+      )
     })
   }
 

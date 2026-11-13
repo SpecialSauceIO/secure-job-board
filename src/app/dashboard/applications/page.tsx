@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { getCandidateApplications } from '@/app/dashboard/actions'
 import SecureMessageThread from '@/components/SecureMessageThread'
@@ -60,6 +60,7 @@ export default function CandidateApplicationsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [daysFilter, setDaysFilter] = useState<number>(0)
   const [searchQuery, setSearchQuery] = useState<string>('')
+  const [appliedSearch, setAppliedSearch] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [expandedRadarIds, setExpandedRadarIds] = useState<
     Record<string, boolean>
@@ -73,26 +74,36 @@ export default function CandidateApplicationsPage() {
     } catch {}
   }, [])
 
-  const fetchApplications = async () => {
-    setIsLoading(true)
-    const res = await getCandidateApplications(
-      statusFilter,
-      daysFilter,
-      searchQuery
-    )
-    if (res?.data) {
-      setApplications(res.data)
-    }
-    setIsLoading(false)
-  }
+  const fetchApplications = useCallback(
+    async (showSpinner = true) => {
+      if (showSpinner) setIsLoading(true)
+      const res = await getCandidateApplications(
+        'all',
+        daysFilter,
+        appliedSearch
+      )
+      if (res?.data) {
+        setApplications(res.data)
+      }
+      if (showSpinner) setIsLoading(false)
+    },
+    [daysFilter, appliedSearch]
+  )
 
   useEffect(() => {
-    fetchApplications()
-  }, [statusFilter, daysFilter])
+    fetchApplications(true)
+  }, [fetchApplications])
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchApplications(false)
+    }, 5000)
+    return () => clearInterval(intervalId)
+  }, [fetchApplications])
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    fetchApplications()
+    setAppliedSearch(searchQuery.trim())
   }
 
   const toggleRadar = (id: string) => {
@@ -102,16 +113,52 @@ export default function CandidateApplicationsPage() {
     }))
   }
 
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      all: applications.length,
+      shortlisted: 0,
+      unlocked: 0,
+      pending: 0,
+      rejected: 0,
+    }
+    for (const app of applications) {
+      const st = String(app.normalized_status || 'pending')
+      if (st in counts) counts[st] += 1
+    }
+    return counts
+  }, [applications])
+
+  const filteredApplications = useMemo(() => {
+    if (statusFilter === 'all') return applications
+    return applications.filter((app) => app.normalized_status === statusFilter)
+  }, [applications, statusFilter])
+
+  const hasActiveFilters =
+    statusFilter !== 'all' ||
+    daysFilter !== 0 ||
+    appliedSearch !== '' ||
+    searchQuery.trim() !== ''
+
+  const clearAllFilters = () => {
+    setStatusFilter('all')
+    setDaysFilter(0)
+    setSearchQuery('')
+    setAppliedSearch('')
+  }
+
   useEffect(() => {
     setCurrentPage(1)
-  }, [statusFilter, daysFilter, applications.length])
+  }, [statusFilter, daysFilter, appliedSearch, filteredApplications.length])
 
-  const totalApplications = applications.length
+  const totalApplications = filteredApplications.length
   const totalPages = Math.max(1, Math.ceil(totalApplications / itemsPerPage))
   const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages)
   const startIndex = (safeCurrentPage - 1) * itemsPerPage
   const endIndex = Math.min(startIndex + itemsPerPage, totalApplications)
-  const paginatedApplications = applications.slice(startIndex, startIndex + itemsPerPage)
+  const paginatedApplications = filteredApplications.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  )
 
   return (
     <div className="max-w-6xl mx-auto py-3 space-y-6">
@@ -119,10 +166,10 @@ export default function CandidateApplicationsPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            My Applications
+            Outbound Applications
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Track your applications, chat privately with verified employers, and share your full resume when ready.
+            Track your submitted applications, chat privately with verified employers, and share your full resume when ready.
           </p>
         </div>
 
@@ -156,13 +203,13 @@ export default function CandidateApplicationsPage() {
                     : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-300'
                 }`}
               >
-                {tab.label}
+                {tab.label} ({statusCounts[tab.id] ?? 0})
               </button>
             ))}
           </div>
 
-          {/* Timeframe Filter */}
-          <div className="flex items-center gap-2">
+          {/* Timeframe Filter & Clear Filters */}
+          <div className="flex flex-wrap items-center gap-2">
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
               Timeframe:
             </span>
@@ -176,6 +223,15 @@ export default function CandidateApplicationsPage() {
               <option value={30}>Last 30 Days</option>
               <option value={90}>Last 90 Days</option>
             </select>
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={clearAllFilters}
+                className="px-3 py-1.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-300 text-xs font-extrabold hover:bg-rose-100 transition-colors cursor-pointer"
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
         </div>
 
@@ -188,7 +244,7 @@ export default function CandidateApplicationsPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by role title, skill, Reference ID (SS-...), or company name..."
+            placeholder="Search by role title, skill, certification, location, Reference ID (SS-...), or unlocked company..."
             className="w-full min-w-0 sm:flex-1 rounded-xl border-2 border-slate-300 bg-slate-50 px-3.5 sm:px-4 py-2.5 sm:py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-indigo-500 focus:outline-none"
           />
           <button
@@ -197,16 +253,12 @@ export default function CandidateApplicationsPage() {
           >
             Search
           </button>
-          {searchQuery && (
+          {(searchQuery || appliedSearch) && (
             <button
               type="button"
               onClick={() => {
                 setSearchQuery('')
-                getCandidateApplications(statusFilter, daysFilter, '').then(
-                  (res) => {
-                    if (res?.data) setApplications(res.data)
-                  }
-                )
+                setAppliedSearch('')
               }}
               className="px-3 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold hover:bg-slate-200 cursor-pointer"
             >
@@ -224,20 +276,35 @@ export default function CandidateApplicationsPage() {
             Loading your applications...
           </p>
         </div>
-      ) : applications.length === 0 ? (
+      ) : filteredApplications.length === 0 ? (
         <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs space-y-3">
           <h3 className="text-lg font-extrabold text-slate-900">
-            No applications match your current filter
+            {hasActiveFilters
+              ? 'No applications match your current filters'
+              : 'No outbound applications submitted yet'}
           </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Browse open roles, check your TrueFit Score™, and apply to roles that match your skills.
+            {hasActiveFilters
+              ? 'Clear your active status, timeframe, or keyword filters to view all submitted applications.'
+              : 'Browse open roles, check your TrueFit Score™, and apply to roles that match your skills.'}
           </p>
-          <Link
-            href="/dashboard/jobs"
-            className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors"
-          >
-            Explore Open Roles →
-          </Link>
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={clearAllFilters}
+                className="inline-flex items-center px-5 py-2.5 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-300 text-xs font-extrabold hover:bg-indigo-100 transition-colors cursor-pointer"
+              >
+                Clear All Filters
+              </button>
+            )}
+            <Link
+              href="/dashboard/jobs"
+              className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors"
+            >
+              Explore Open Roles →
+            </Link>
+          </div>
         </div>
       ) : (
         <div className="space-y-5">

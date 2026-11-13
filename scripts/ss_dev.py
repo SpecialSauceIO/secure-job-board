@@ -570,6 +570,8 @@ def main():
     elif cmd == "status":
         r = subprocess.run(["python3", str(repo_dir / "scripts" / "ss_promote.py"), "status"], cwd=str(repo_dir))
         sys.exit(r.returncode)
+    elif cmd == "clip":
+        cmd_clip(repo_dir)
     elif cmd == "media-inspect":
         cmd_media_inspect(rest)
     elif cmd == "media-verify":
@@ -578,8 +580,30 @@ def main():
         cmd_doc_check(rest)
     else:
         print("Unknown ss command: " + cmd)
-        print("Allowed: inspect | find | patch | verify-local | stage | prod | status | media-inspect | media-verify | doc-check")
+        print("Allowed: clip | inspect | find | patch | verify-local | stage | prod | status | media-inspect | media-verify | doc-check")
         sys.exit(1)
+
+def cmd_clip(repo_dir):
+    raw = subprocess.run(["pbpaste"], capture_output=True, text=True, check=False).stdout.strip()
+    if raw.startswith("```"):
+        lines = raw.splitlines()
+        raw = "\n".join(lines[1:-1] if lines and lines[-1].strip() == "```" else lines[1:]).strip()
+    if not raw or raw.startswith("===") or raw.startswith("[OK") or raw.startswith("[BLOCKED") or raw.startswith("[CLIP") or raw.startswith("Repo:"):
+        msg = "[CLIP] Clipboard holds previous output or is empty. Click Copy on a new ss command block first."
+        print(msg)
+        sys.exit(1)
+    first_tok = raw.split()[0] if raw.split() else ""
+    if first_tok != "ss" or raw.strip().startswith("ss clip"):
+        msg = "[CLIP BLOCKED] Clipboard must start with an ss command (got: " + raw.splitlines()[0][:60] + ")"
+        print(msg)
+        sys.exit(1)
+    print(">> [ss clip] " + raw.splitlines()[0])
+    r = subprocess.run(["/bin/zsh", "-c", raw], cwd=str(repo_dir), capture_output=True, text=True)
+    combined = ((r.stdout or "") + (r.stderr or "")).strip()
+    if combined:
+        print(combined)
+        copy_clip(combined)
+    sys.exit(r.returncode)
 
 if __name__ == "__main__":
     main()
