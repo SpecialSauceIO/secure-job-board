@@ -310,6 +310,7 @@ def cmd_patch(repo_dir, args):
     now_ts = int(time.time())
 
     backups = {}
+    created_files = []
     touched_files = {}
     added_lines_by_file = {}
     staged_contents = {}
@@ -319,9 +320,27 @@ def cmd_patch(repo_dir, args):
             print("[BLOCKED] Edit #" + str(idx) + " must be a JSON object.")
             sys.exit(1)
         rel_in = ed.get("file", "")
+        is_create = bool(ed.get("create", False))
         exp_sha = ed.get("sha256", "").strip()
         old_str = ed.get("old", "")
         new_str = ed.get("new", "")
+        if is_create:
+            if not rel_in or not new_str:
+                print("[BLOCKED] Create edit #" + str(idx) + " missing file or new.")
+                sys.exit(1)
+            cand_p = (repo_dir / rel_in.strip()).resolve()
+            if not str(cand_p).startswith(str(repo_dir.resolve())):
+                print("[BLOCKED] Invalid repo path: " + rel_in)
+                sys.exit(1)
+            if cand_p.exists():
+                print("[BLOCKED] File already exists for create: " + rel_in)
+                sys.exit(1)
+            rel = str(cand_p.relative_to(repo_dir))
+            created_files.append(cand_p)
+            touched_files[rel] = cand_p
+            staged_contents[cand_p] = new_str
+            added_lines_by_file.setdefault(rel, []).extend([ln for ln in new_str.splitlines() if ln.strip()])
+            continue
         if not rel_in or not exp_sha or not old_str:
             print("[BLOCKED] Edit #" + str(idx) + " missing required fields (file, sha256, old, new).")
             sys.exit(1)
@@ -417,16 +436,23 @@ def cmd_patch(repo_dir, args):
     # Write all staged edits to disk, then run mechanical validations
     try:
         for p, new_txt in staged_contents.items():
+            p.parent.mkdir(parents=True, exist_ok=True)
             p.write_text(new_txt)
         err = validate_ts_and_invariants(repo_dir, touched_files, added_lines_by_file)
         if err:
             for p, orig_b in backups.items():
                 p.write_bytes(orig_b)
+            for cp in created_files:
+                if cp.exists():
+                    cp.unlink()
             print("[AUTO-ROLLBACK COMPLETE] All files restored to pre-patch state.\n" + err)
             sys.exit(1)
     except Exception as exc:
         for p, orig_b in backups.items():
             p.write_bytes(orig_b)
+        for cp in created_files:
+            if cp.exists():
+                cp.unlink()
         print("[AUTO-ROLLBACK COMPLETE] Unexpected error: " + str(exc))
         sys.exit(1)
 

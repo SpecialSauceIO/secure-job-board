@@ -18,6 +18,7 @@ export function PublicHeader({
 
   const publicLinks = [
     { href: '/', label: 'Home', exact: true },
+    { href: '/about', label: 'About' },
     { href: '/workflows', label: 'How It Works' },
     { href: '/pricing', label: 'Pricing & Perks' },
     { href: '/security', label: 'Security & Trust' },
@@ -71,6 +72,16 @@ export function PublicHeader({
             }`}
           >
             Home
+          </Link>
+          <Link
+            href="/about"
+            className={`text-sm font-bold transition-colors whitespace-nowrap ${
+              pathname === '/about'
+                ? 'text-indigo-600'
+                : 'text-slate-600 hover:text-indigo-600'
+            }`}
+          >
+            About
           </Link>
           <Link
             href="/workflows"

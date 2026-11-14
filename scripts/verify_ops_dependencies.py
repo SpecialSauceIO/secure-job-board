@@ -108,12 +108,12 @@ for df in dash_files:
             if "isDashboard" not in tag:
                 route_leaks.append(str(df.relative_to(job_repo)) + ": " + tag[:80])
         for line_no, line in enumerate(content.splitlines(), 1):
-            if "href=" in line and any(pub in line for pub in ["\"/pricing\"", "\"/security\"", "\"/workflows\"", "\"/signup\"", "\x27/pricing\x27", "\x27/security\x27", "\x27/workflows\x27", "\x27/signup\x27"]):
+            if "href=" in line and any(pub in line for pub in ["\"/about\"", "\"/pricing\"", "\"/security\"", "\"/workflows\"", "\"/signup\"", "\x27/about\x27", "\x27/pricing\x27", "\x27/security\x27", "\x27/workflows\x27", "\x27/signup\x27"]):
                 if "isDashboard ?" not in line and not line.strip().startswith("//"):
                     route_leaks.append(str(df.relative_to(job_repo)) + ":" + str(line_no))
 check(
     len(route_leaks) == 0,
-    "Tab 7: Zero dashboard-to-public route leaks (/pricing, /security, /workflows, /signup)",
+    "Tab 7: Zero dashboard-to-public route leaks (/about, /pricing, /security, /workflows, /signup)",
     "Found unguarded public links in dashboard: " + ", ".join(route_leaks[:5])
 )
 
