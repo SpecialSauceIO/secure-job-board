@@ -644,12 +644,24 @@ export async function activateSandboxCandidateTier(
     .eq('candidate_id', user.id)
     .neq('initiated_by', 'employer')
 
+  const rawSkillsArr = Array.isArray(profile?.structured_skills) ? profile.structured_skills : []
+  const prevMeta = rawSkillsArr.find((s: any) => s && typeof s === 'object' && s._ss_meta === true) || {}
   const visibleSkills = filterVisibleSkills(profile?.structured_skills)
   const existingPrefMeta = extractCandidatePrefMeta(profile?.structured_skills)
+  const isFreeReset = normalizedMode === 'free'
 
   const newMeta = {
+    ...prevMeta,
     _ss_meta: true,
     plan: normalizedMode,
+    verifiedExplorerPaid: !isFreeReset,
+    firstMonthCreditUsed: isFreeReset
+      ? false
+      : Boolean(
+          prevMeta.firstMonthCreditUsed ||
+            normalizedMode === 'professional' ||
+            normalizedMode === 'prestige'
+        ),
     trialStart: new Date().toISOString(),
     trialBaselineApps: normalizedMode === 'professional' ? currentApps || 0 : 0,
   }
@@ -6183,6 +6195,8 @@ export async function saveOrganizationProfile(formData: FormData) {
     if (atsMatch) existingAtsTag = atsMatch[0]
     const topupMatch = (currentOrg?.description || '').match(/\[TOPUP:\d+\]/i)
     if (topupMatch) existingAtsTag = `${existingAtsTag} ${topupMatch[0]}`.trim()
+    const verifyFlags = (currentOrg?.description || '').match(/\[(VERIFY_PAID|CREDIT25_USED)\]/gi)
+    if (verifyFlags?.length) existingAtsTag = `${existingAtsTag} ${Array.from(new Set(verifyFlags.map((f: string) => f.toUpperCase()))).join(' ')}`.trim()
   }
 
   let autoVerified = false
@@ -6916,13 +6930,16 @@ export async function activateSandboxEmployerTier(
   const preservedRollover = targetTier === 'free' ? 0 : existingRollover
   const newCredits = targetTier === 'free' ? 0 : chosen.credits + preservedRollover
 
-  const cleanDesc = await stripTierTag(orgObj?.description)
-  const seatsMatch = (orgObj?.description || '').match(/\[SEATS:[^\]]+\]/i)
+  const rawDescStr = String(orgObj?.description || '')
+  const cleanDesc = (await stripTierTag(rawDescStr)).replace(/\[(VERIFY_PAID|CREDIT25_USED)\]/gi, '').trim()
+  const seatsMatch = rawDescStr.match(/\[SEATS:[^\]]+\]/i)
   const existingSeatsTag = seatsMatch ? seatsMatch[0] : ''
-  const atsMatch = (orgObj?.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i)
+  const atsMatch = rawDescStr.match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i)
   const existingAtsTag = atsMatch ? atsMatch[0] : ''
+  const verifyPaidTag = (targetTier === 'free' && Boolean(stripeSessionId)) || targetTier !== 'free' || /\[VERIFY_PAID\]/i.test(rawDescStr) ? '[VERIFY_PAID]' : ''
+  const creditUsedTag = targetTier !== 'free' || /\[CREDIT25_USED\]/i.test(rawDescStr) ? '[CREDIT25_USED]' : ''
   const topupTag = preservedRollover > 0 ? `[TOPUP:${preservedRollover}]` : ''
-  const taggedDesc = `${cleanDesc} [TIER:${targetTier}] ${topupTag} ${existingSeatsTag} ${existingAtsTag}`.replace(/\s+/g, ' ').trim()
+  const taggedDesc = `${cleanDesc} [TIER:${targetTier === 'free' && Boolean(stripeSessionId) ? 'explorer' : targetTier}] ${verifyPaidTag} ${creditUsedTag} ${topupTag} ${existingSeatsTag} ${existingAtsTag}`.replace(/\s+/g, ' ').trim()
 
   try {
     const cookieStore = await cookies()

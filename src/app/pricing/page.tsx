@@ -102,7 +102,7 @@ export default function PricingMatrixPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-amber-400 font-bold shrink-0">•</span>
-                    <span>Upgrade to <strong className="text-amber-300">$12 or $19/mo</strong> only when applying to roles.</span>
+                    <span>Your $5 ID check covers your <strong className="text-amber-300">first 30 days</strong> if you activate $12 or $19/mo.</span>
                   </li>
                 </ul>
               </div>
@@ -121,7 +121,7 @@ export default function PricingMatrixPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-amber-400 font-bold shrink-0">•</span>
-                    <span>Lock in <strong className="text-amber-300">Founding Partner Rates</strong> when ready to hire.</span>
+                    <span>Your $25 deposit is <strong className="text-amber-300">credited toward Month 1</strong> when you activate a plan.</span>
                   </li>
                 </ul>
               </div>
@@ -144,7 +144,7 @@ export default function PricingMatrixPage() {
                   Start for $5 • Receive Employer Invitations Free Forever
                 </h2>
                 <p className="text-sm sm:text-base text-slate-200 max-w-3xl leading-relaxed">
-                  Stay in Explorer at $0/mo as long as you like, upgrade anytime to submit applications, and switch back to $0/mo Explorer once hired.
+                  Stay in Explorer at $0/mo forever, and subscribe only when you're ready to submit applications.
                 </p>
               </div>
               <div className="shrink-0">
@@ -200,6 +200,10 @@ export default function PricingMatrixPage() {
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
                       <span>Free TrueFit Score™ checks &amp; Weekly 1-Year Prestige Drawing entry</span>
                     </li>
+                    <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
+                      <span className="shrink-0">✓</span>
+                      <span><strong className="text-white">First 30 days included</strong> when you upgrade later</span>
+                    </li>
                     <li className="flex items-start gap-2.5 text-slate-300">
                       <span className="text-slate-400 font-bold shrink-0">✕</span>
                       <span>Outbound Applications (Upgrade anytime)</span>
@@ -232,7 +236,7 @@ export default function PricingMatrixPage() {
                       <span className="text-sm font-bold text-slate-300">/ month</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-extrabold">
-                      ✓ Includes Real-Person ID Verification
+                      ✓ $5 ID Check Covers First 30 Days
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -257,7 +261,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span>Elevated search placement &amp; downgrade to $0/mo Explorer anytime</span>
+                      <span>Elevated placement in Employer Talent Search</span>
                     </li>
                   </ul>
                 </div>
@@ -287,7 +291,7 @@ export default function PricingMatrixPage() {
                       <span className="text-sm font-bold text-slate-300">/ month</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-extrabold">
-                      ✓ Includes Real-Person ID Verification
+                      ✓ $5 ID Check Covers First 30 Days
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -312,7 +316,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span>Downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime</span>
+                      <span>Priority 1-on-1 US Human Support</span>
                     </li>
                   </ul>
                 </div>
@@ -373,7 +377,7 @@ export default function PricingMatrixPage() {
                       <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ $25 One-Time Org Verification
+                      ✓ $25 Deposit Credited Toward Month 1
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -433,7 +437,7 @@ export default function PricingMatrixPage() {
                       <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ $25 One-Time Org Verification
+                      ✓ $25 Deposit Credited Toward Month 1
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -493,7 +497,7 @@ export default function PricingMatrixPage() {
                       <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ $25 One-Time Org Verification
+                      ✓ $25 Deposit Credited Toward Month 1
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">

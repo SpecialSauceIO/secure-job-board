@@ -189,15 +189,23 @@ export async function POST(req: Request) {
           .neq('initiated_by', 'employer')
 
         const rawSkills = Array.isArray(profile?.structured_skills) ? profile.structured_skills : []
+        const existingMeta = rawSkills.find((item: any) => item && typeof item === 'object' && item._ss_meta) || {}
         const filtered = rawSkills.filter((item: any) => !(item && typeof item === 'object' && item._ss_meta))
         const newMeta = {
+          ...existingMeta,
           _ss_meta: true,
           plan: normalizedPlan,
           verifiedExplorerPaid: true,
+          firstMonthCreditUsed: Boolean(
+            existingMeta.firstMonthCreditUsed ||
+              normalizedPlan === 'professional' ||
+              normalizedPlan === 'prestige' ||
+              session.metadata?.firstMonthCreditUsed === 'true'
+          ),
           trialStart: new Date().toISOString(),
           trialBaselineApps: normalizedPlan === 'professional' ? currentApps || 0 : 0,
-          stripeCustomerId: typeof session.customer === 'string' ? session.customer : undefined,
-          stripeSubscriptionId: typeof session.subscription === 'string' ? session.subscription : undefined,
+          stripeCustomerId: typeof session.customer === 'string' ? session.customer : existingMeta.stripeCustomerId,
+          stripeSubscriptionId: typeof session.subscription === 'string' ? session.subscription : existingMeta.stripeSubscriptionId,
         }
 
         const { error } = await supabaseAdmin
@@ -219,9 +227,9 @@ export async function POST(req: Request) {
 
         const currentTotal = Math.max(0, orgObj?.connection_credits || 0)
         const preservedRollover = Math.min(currentTotal, parseRolloverCreditsTag(orgObj?.description))
-        const cleanDesc = stripTags(orgObj?.description)
+        const cleanDesc = stripTags(orgObj?.description).replace(/\[VERIFY_PAID\]/gi, '').trim()
         const topupTag = preservedRollover > 0 ? `[TOPUP:${preservedRollover}]` : ''
-        const taggedDesc = `${cleanDesc} [TIER:explorer] ${topupTag}`.replace(/\s+/g, ' ').trim()
+        const taggedDesc = `${cleanDesc} [TIER:explorer] [VERIFY_PAID] ${topupTag}`.replace(/\s+/g, ' ').trim()
 
         await supabaseAdmin
           .from('organizations')
@@ -288,9 +296,9 @@ export async function POST(req: Request) {
       const currentTotal = Math.max(0, orgObj?.connection_credits || 0)
       const preservedRollover = Math.min(currentTotal, parseRolloverCreditsTag(orgObj?.description))
       const newTotalCredits = planCredits + preservedRollover
-      const cleanDesc = stripTags(orgObj?.description)
+      const cleanDesc = stripTags(orgObj?.description).replace(/\[(VERIFY_PAID|CREDIT25_USED)\]/gi, '').trim()
       const topupTag = preservedRollover > 0 ? `[TOPUP:${preservedRollover}]` : ''
-      const taggedDesc = `${cleanDesc} [TIER:${targetTier}] ${topupTag}`.replace(/\s+/g, ' ').trim()
+      const taggedDesc = `${cleanDesc} [TIER:${targetTier}] [VERIFY_PAID] [CREDIT25_USED] ${topupTag}`.replace(/\s+/g, ' ').trim()
 
       const { error } = await supabaseAdmin
         .from('organizations')

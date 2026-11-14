@@ -49,6 +49,7 @@ function extractOrgIndustryAndSize(rawDescription?: string | null): {
     .replace(/\s*\[INC_STATE:[^\]]*\]/gi, '')
     .replace(/\s*\[RDAP:[^\]]*\]/gi, '')
     .replace(/\s*\[ATS_CFG:[A-Za-z0-9+/=]+\]/gi, '')
+    .replace(/\s*\[(VERIFY_PAID|CREDIT25_USED)\]/gi, '')
     .trim()
 
   return {

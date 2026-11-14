@@ -390,7 +390,7 @@ export default function EmployerBillingPage() {
                 Verify Your Company to Lock In Founding Partner Rates
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Complete your organization verification to unlock Founding Partner pricing ($149 / $499 / $1,250 per month locked for 12 months) and start posting roles.
+                Complete your one-time $25 organization verification to enter $0/mo Practice Mode—your $25 deposit is credited directly toward Month 1 when you activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo).
               </p>
             </div>
 
@@ -469,6 +469,9 @@ export default function EmployerBillingPage() {
               <li>
                 ★ <strong className="text-amber-800">$149/mo Locked for 12 Months</strong> ($299/mo Month 13+)
               </li>
+              <li className="text-emerald-700 font-bold">
+                ✓ <strong>$25 Verification Deposit Credited</strong> toward Month 1
+              </li>
               <li>
                 ✓ <strong>Up to 5 Active Protected Roles</strong>
               </li>
@@ -540,6 +543,9 @@ export default function EmployerBillingPage() {
             <ul className="space-y-2.5 pt-4 border-t border-slate-800 text-xs text-slate-200 font-medium">
               <li>
                 ★ <strong className="text-amber-300">$499/mo Locked for 12 Months</strong> ($799/mo Month 13+)
+              </li>
+              <li className="text-emerald-300 font-bold">
+                ✓ <strong>$25 Verification Deposit Credited</strong> toward Month 1
               </li>
               <li>
                 ✓ <strong>Up to 15 Active Protected Roles</strong>
@@ -614,6 +620,9 @@ export default function EmployerBillingPage() {
             <ul className="space-y-2.5 pt-4 border-t border-slate-300 text-xs text-slate-700 font-medium">
               <li>
                 ★ <strong className="text-amber-800">$1,250/mo Locked for 12 Months</strong> ($1,999/mo Month 13+)
+              </li>
+              <li className="text-emerald-700 font-bold">
+                ✓ <strong>$25 Verification Deposit Credited</strong> toward Month 1
               </li>
               <li>
                 ✓ <strong>Unlimited Active Protected Roles</strong>

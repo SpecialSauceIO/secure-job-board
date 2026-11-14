@@ -85,7 +85,7 @@ export const EMPLOYER_VERIFICATION_PASS = {
   envVar: 'STRIPE_PRICE_EMPLOYER_VERIFY_25_ONETIME',
   defaultPriceId: 'price_1UYCkyLAill3LX5X3jDyohLy',
   description:
-    'One-Time Organization Verification Pass ($0/mo Sandbox): Draft roles and preview verified talent matches before activating a monthly plan.',
+    'One-Time Organization Verification Deposit ($0/mo Practice Mode · $25 Credited Toward Month 1): Draft Protected Roles and preview verified matches before activating a monthly plan.',
 }
 
 export const EMPLOYER_SAAS_TIERS: Record<
@@ -321,11 +321,78 @@ export async function POST(req: Request) {
 
     const origin = req.headers.get('origin') || 'https://www.specialsauce.io'
 
+    const sbAdmin =
+      process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
+        ? createSupabaseAdmin(
+            process.env.NEXT_PUBLIC_SUPABASE_URL,
+            process.env.SUPABASE_SERVICE_ROLE_KEY,
+            { auth: { persistSession: false } }
+          )
+        : supabase
+
     // 1. PROFESSIONAL PLANS
     const candidateTier = CANDIDATE_SAAS_TIERS[rawKey]
     if (candidateTier) {
       const catalogPriceId = resolveCanonicalPriceId(candidateTier.envVar, candidateTier.defaultPriceId)
+      const explorerTier = CANDIDATE_SAAS_TIERS.explorer
+      const explorerCatalogPriceId = resolveCanonicalPriceId(explorerTier.envVar, explorerTier.defaultPriceId)
       const isOneTimeExplorer = candidateTier.billingMode === 'payment'
+
+      const { data: candProf } = await sbAdmin
+        .from('profiles')
+        .select('is_verified, identity_verified, structured_skills')
+        .eq('id', user.id)
+        .maybeSingle()
+      const skillsList = Array.isArray(candProf?.structured_skills) ? candProf.structured_skills : []
+      const metaObj = skillsList.find((s: any) => s && typeof s === 'object' && s._ss_meta === true) || {}
+      const legacyPlanObj = skillsList.find((s: any) => s && typeof s === 'object' && s._type === 'ss_candidate_plan') || {}
+      const priorPlan = String(metaObj?.plan || legacyPlanObj?.tier || '').toLowerCase()
+      const alreadyPaidVerify = Boolean(
+        candProf?.is_verified ||
+          candProf?.identity_verified ||
+          metaObj?.verifiedExplorerPaid ||
+          legacyPlanObj?.verifiedExplorerPaid ||
+          ['explorer', 'professional', 'prestige', 'pro'].includes(priorPlan)
+      )
+      const firstMonthCreditUsed = Boolean(
+        metaObj?.firstMonthCreditUsed ||
+          ['professional', 'prestige', 'pro'].includes(priorPlan)
+      )
+      const includeUpfrontVerifyFee = !isOneTimeExplorer && !alreadyPaidVerify
+      const includeFirstMonthFree = !isOneTimeExplorer && !firstMonthCreditUsed
+
+      const primaryLineItem: Stripe.Checkout.SessionCreateParams.LineItem =
+        catalogPriceId && candidateTier.priceCents >= 500
+          ? { price: catalogPriceId, quantity: 1 }
+          : {
+              price_data: {
+                currency: 'usd',
+                unit_amount: candidateTier.priceCents,
+                ...(isOneTimeExplorer ? {} : { recurring: { interval: 'month' } }),
+                product_data: {
+                  tax_code: 'txcd_10103001',
+                  name: candidateTier.name,
+                  description: candidateTier.description,
+                },
+              },
+              quantity: 1,
+            }
+
+      const verifyDepositLineItem: Stripe.Checkout.SessionCreateParams.LineItem =
+        explorerCatalogPriceId
+          ? { price: explorerCatalogPriceId, quantity: 1 }
+          : {
+              price_data: {
+                currency: 'usd',
+                unit_amount: explorerTier.priceCents,
+                product_data: {
+                  tax_code: 'txcd_10103001',
+                  name: 'Special Sauce - One-Time Real-Person ID Verification ($5)',
+                  description: 'One-time Stripe Identity verification — includes your first 30 days of membership.',
+                },
+              },
+              quantity: 1,
+            }
 
       const checkoutSession = await stripe.checkout.sessions.create({
         mode: isOneTimeExplorer ? 'payment' : 'subscription',
@@ -336,33 +403,20 @@ export async function POST(req: Request) {
           planType: `candidate_${candidateTier.id}`,
           userId: user.id,
           tierId: candidateTier.id,
+          firstMonthCreditUsed: (!isOneTimeExplorer && (firstMonthCreditUsed || includeFirstMonthFree)) ? 'true' : 'false',
         },
-        line_items: [
-          (catalogPriceId && candidateTier.priceCents >= 500)
-            ? { price: catalogPriceId, quantity: 1 }
-            : {
-                price_data: {
-                  currency: 'usd',
-                  unit_amount: candidateTier.priceCents,
-                  ...(isOneTimeExplorer ? {} : { recurring: { interval: 'month' } }),
-                  product_data: {
-                    tax_code: 'txcd_10103001',
-                    name: candidateTier.name,
-                    description: candidateTier.description,
-                  },
-                },
-                quantity: 1,
-              },
-        ],
+        line_items: includeUpfrontVerifyFee ? [verifyDepositLineItem, primaryLineItem] : [primaryLineItem],
         ...(candidateTier.billingMode === 'subscription' ? { payment_method_collection: 'always' as const } : {}),
         ...(isOneTimeExplorer
           ? (candidateTier.priceCents > 0 ? { invoice_creation: { enabled: true } } : {})
           : {
               subscription_data: {
+                ...(includeFirstMonthFree ? { trial_period_days: 30 } : {}),
                 metadata: {
                   audience: 'candidate',
                   userId: user.id,
                   tierId: candidateTier.id,
+                  firstMonthCreditUsed: 'true',
                 },
               },
             }),
@@ -510,6 +564,46 @@ export async function POST(req: Request) {
       ? resolveCanonicalPriceId(tier.retailEnvVar, tier.defaultRetailPriceId)
       : resolveCanonicalPriceId(tier.foundingEnvVar, tier.defaultFoundingPriceId)
 
+    const { data: orgRecord } = await sbAdmin
+      .from('organizations')
+      .select('subscription_status, subscription_tier, description')
+      .eq('id', member.organization_id)
+      .maybeSingle()
+    const orgDesc = String(orgRecord?.description || '')
+    const orgTierLower = String(orgRecord?.subscription_tier || '').toLowerCase()
+    const hasPaidVerifyDeposit =
+      /\[VERIFY_PAID\]/i.test(orgDesc) ||
+      orgRecord?.subscription_status === 'verified_sandbox' ||
+      orgTierLower === 'explorer'
+    const hasUsedVerifyCredit =
+      /\[CREDIT25_USED\]/i.test(orgDesc) ||
+      orgRecord?.subscription_status === 'active' ||
+      ['starter', 'growth', 'enterprise'].includes(orgTierLower)
+
+    let verifyCreditCouponId: string | null = null
+    if (hasPaidVerifyDeposit && !hasUsedVerifyCredit) {
+      const couponKey = 'ss_employer_verify_credit_2500'
+      try {
+        const existingCoupon = await stripe.coupons.retrieve(couponKey)
+        if (existingCoupon && !existingCoupon.deleted) {
+          verifyCreditCouponId = existingCoupon.id
+        }
+      } catch {
+        try {
+          const createdCoupon = await stripe.coupons.create({
+            id: couponKey,
+            amount_off: 2500,
+            currency: 'usd',
+            duration: 'once',
+            name: '$25 Verification Deposit Credit',
+          })
+          verifyCreditCouponId = createdCoupon.id
+        } catch (couponErr) {
+          console.error('Unable to provision $25 employer verification credit coupon:', couponErr)
+        }
+      }
+    }
+
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer_email: user.email,
@@ -523,6 +617,7 @@ export async function POST(req: Request) {
         maxActiveJobs: String(tier.maxActiveJobs),
         creditsToAdd: String(tier.monthlyCredits),
         maxSeats: String(tier.maxSeats),
+        verifyCreditApplied: verifyCreditCouponId ? 'true' : 'false',
       },
       line_items: [
         catalogPriceId
@@ -550,10 +645,12 @@ export async function POST(req: Request) {
           tierId: tier.id,
         },
       },
-      allow_promotion_codes: true,
+      ...(verifyCreditCouponId
+        ? { discounts: [{ coupon: verifyCreditCouponId }] }
+        : { allow_promotion_codes: true }),
       billing_address_collection: 'auto',
       tax_id_collection: { enabled: true },
-      success_url: body?.fromOnboarding ? `${origin}/onboarding?billing=success&tier=${tier.id}&session_id={CHECKOUT_SESSION_ID}` : `${origin}/dashboard/employer/billing?billing=success&tier=${tier.id}&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: body?.fromOnboarding ? `${origin}/onboarding?billing=success&tier=${tier.id}&plan=${tier.id}&session_id={CHECKOUT_SESSION_ID}` : `${origin}/dashboard/employer/billing?billing=success&tier=${tier.id}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: body?.fromOnboarding ? `${origin}/onboarding?billing=cancelled` : `${origin}/dashboard/employer/billing?billing=cancelled`,
     })
 

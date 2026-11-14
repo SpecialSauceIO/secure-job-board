@@ -361,7 +361,7 @@ export default function CandidateBillingPage() {
             </h2>
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Every verified member is automatically entered into our Weekly Drawing for a free 1-Year Prestige membership. Switch plans or downgrade back to $0/mo Explorer anytime.
+              Stay in Explorer at $0/mo forever, and subscribe only when you're ready to submit applications. Every verified member is automatically entered into our Weekly Drawing for a free 1-Year Prestige membership.
             </p>
           </div>
 
@@ -456,6 +456,9 @@ export default function CandidateBillingPage() {
                   ✓ <strong>Unlimited Employer Invitations</strong> &amp; Private Chat
                 </li>
                 <li>✓ Free TrueFit Score™ checks &amp; Weekly Drawing entry</li>
+                <li className="text-emerald-700 font-bold">
+                  ✓ <strong>First 30 days included</strong> when you upgrade later
+                </li>
                 <li className="text-slate-400">
                   ✕ Outbound Applications (Upgrade anytime)
                 </li>
@@ -511,7 +514,7 @@ export default function CandidateBillingPage() {
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                  Apply directly to up to 15 roles per month and receive unlimited employer invitations.
+                  Your $5 ID check covers your first 30 days ($0 due today when upgrading from Explorer), then $12/mo.
                 </p>
               </div>
 
@@ -528,7 +531,7 @@ export default function CandidateBillingPage() {
                 <li className="text-amber-800 font-bold">
                   ★ <strong>Permanent Founding Member Badge</strong>
                 </li>
-                <li>✓ Elevated search placement &amp; downgrade to $0/mo Explorer anytime</li>
+                <li>✓ Elevated placement in Employer Talent Search</li>
               </ul>
             </div>
 
@@ -575,7 +578,7 @@ export default function CandidateBillingPage() {
                   </span>
                 </div>
                 <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                  Unlimited protected applications and top-priority placement in Employer Search.
+                  Your $5 ID check covers your first 30 days ($0 due today when upgrading from Explorer), then $19/mo.
                 </p>
               </div>
 
@@ -592,7 +595,7 @@ export default function CandidateBillingPage() {
                 <li className="text-amber-300 font-bold">
                   ★ <strong>Top-Priority Placement in Employer Search</strong>
                 </li>
-                <li>✓ Priority 1-on-1 US Support &amp; downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime</li>
+                <li>✓ Priority 1-on-1 US Human Support</li>
               </ul>
             </div>
 
