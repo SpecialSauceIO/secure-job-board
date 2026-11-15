@@ -32,7 +32,7 @@ export default function PrivacyPolicyPage() {
             <section>
               <h2 className="text-xl">1. Introduction</h2>
               <p className="text-slate-600 leading-relaxed mt-2">
-                At specialsauce.io, operated by <strong>{LEGAL_CONFIG.legalEntityName}</strong> (&ldquo;Special Sauce,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;), privacy and trust are the foundation of our hiring marketplace. This Privacy Policy explains how we collect, use, store, and protect your information when you use our platform.
+                At specialsauce.io, operated by <strong>{LEGAL_CONFIG.legalEntityName}</strong> (&ldquo;Special Sauce,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;), privacy and trust are the foundation of our secured workforce ecosystem. This Privacy Policy explains how we collect, use, store, and protect your information when you use our platform.
               </p>
             </section>
 

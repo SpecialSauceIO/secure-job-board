@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "SpecialSauce.io | Verified Job Marketplace",
+    name: "SpecialSauce.io | The World's First Secured Workforce Ecosystem",
     short_name: "SpecialSauce.io",
-    description: "Verified job marketplace securely connecting ID-verified professionals and verified employers based on real skills and upfront pay.",
+    description: "The world's first secured workforce ecosystem—securely connecting ID-verified Professionals and domain-verified Employers based on real skills and upfront pay.",
     start_url: "/",
     display: "standalone",
     background_color: "#020617",

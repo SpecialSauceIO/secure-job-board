@@ -3,7 +3,7 @@
 ## Locked Decisions & Parity Rules
 - 100% `ss` CLI for all repo ops (`ss status`, `ss find`, `ss audit-copy`, `ss inspect`, `ss patch --json`, `ss verify-local`, `ss stage`, `ss prod`) in `text` fences only.
 - One Page / One Feature per chat (retire chat after `ss prod` or ~15 turns).
-- Plain English across customer-facing UI; zero 'Candidate', 'sandbox', 'double-blind', or 'cohort'.
+- Plain English across customer-facing UI; zero 'Candidate', 'job marketplace', 'sandbox', 'double-blind', or 'cohort'; official positioning: "The World's First Secured Workforce Ecosystem".
 - TrueFit v2.2 deterministic cache (`tf_v2_2_`, `cand_v5_`, `emp_v5_`) & whole-word search (`it`, `aws`, `okr`).
 
 ## Completed & Live on Production (`origin/main`)
@@ -32,6 +32,8 @@
 - [x] Public About Page & Single-Row Footer Parity (`src/app/about/page.tsx`, `PublicHeader.tsx`, `PublicFooter.tsx`, `src/app/sitemap.ts`, `scripts/verify_ops_dependencies.py` — dark-slate institutional pillars, plain-English $5/$25 verification rationale, `1fr_auto_1fr` single-row footer nav, sitemap entry, and Tab 7 `/about` route-leak guard)
 - [x] Employer Practice Mode Role Drafting, Overview & Edit Parity (`src/app/dashboard/page.tsx`, `src/app/dashboard/actions.ts`, `src/app/dashboard/employer/jobs/new/page.tsx`, `src/app/dashboard/employer/jobs/[id]/edit/page.tsx`, `src/app/dashboard/employer/jobs/page.tsx`, `src/components/EmployerJobsTableClient.tsx` — $0/mo Practice Draft saving up to 5 drafts with `practice_draft: true`, Employer Overview `Role Drafts` tile + `+ Draft Role (Practice)` CTA, Edit Role Practice Mode banner + `handleAiData` enum parity, active-slot & 90-day renewal exemption, and `Publish Live (30d)` unlock upon paid subscription)
 - [x] Professional $5 Month 1 Upgrade Credit & Pricing Copy Parity (`src/app/pricing/page.tsx`, `src/app/dashboard/billing/page.tsx`, `src/constants/faqs.ts`, `src/app/terms/page.tsx` — dynamic $7/$14 Month 1 Explorer verification credit display, included ID verification on direct $12/$19 plans, and removal of legacy zero-due-today copy across billing, pricing, FAQs, and legal terms)
+- [x] Secured Workforce Ecosystem Positioning Parity (`src/app/layout.tsx`, `src/app/manifest.ts`, `src/components/SeoJsonLd.tsx`, `src/app/page.tsx`, `src/app/about/page.tsx`, `src/app/workflows/page.tsx`, `src/app/privacy/page.tsx`, `src/app/terms/page.tsx`, `scripts/ss_dev.py` — replaced legacy job marketplace framing with "The World's First Secured Workforce Ecosystem" across browser metadata, OpenGraph/Twitter cards, JSON-LD schema, homepage hero badge, About narrative, Workflows, Privacy, Terms, and `ss` CLI copy gate)
 
-## Deferred Modules (In Active Development)
+## Next Feature Queue & Deferred Modules
+- [ ] Inbound Shield & Unlinkable Blind Airlock (burner one-time verification drop-links with zero persistent profile correlation)
 - [ ] True Horizon™ (`horizon` — skipped while in active development)

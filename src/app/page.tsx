@@ -135,7 +135,7 @@ export default function LandingPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400"></span>
                 </span>
-                Human-to-Human Hiring • Upfront Pay &amp; Privacy
+                The World's First Secured Workforce Ecosystem
               </div>
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
                 Changing the{' '}

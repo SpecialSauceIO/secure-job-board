@@ -10,8 +10,8 @@ const seoSchemaGraph = {
       legalName: "Special Sauce Solutions LLC",
       alternateName: [
         "Special Sauce",
-        "Special Sauce Jobs",
-        "Special Sauce Job Marketplace",
+        "Special Sauce Workforce Ecosystem",
+        "Secured Workforce Ecosystem",
       ],
       url: "https://www.specialsauce.io",
       logo: {
@@ -24,7 +24,7 @@ const seoSchemaGraph = {
       image: { "@id": "https://www.specialsauce.io/#logo" },
       email: "info@specialsauce.io",
       description:
-        "Verified job marketplace securely connecting ID-verified professionals and verified employers based on real skills, upfront pay, and mutual interest.",
+        "The world's first secured workforce ecosystem—securely connecting ID-verified Professionals and domain-verified Employers based on real skills, upfront pay, and mutual interest.",
       address: {
         "@type": "PostalAddress",
         streetAddress: "5900 Balcones Dr #34619",
@@ -46,7 +46,7 @@ const seoSchemaGraph = {
       "@id": "https://www.specialsauce.io/#website",
       url: "https://www.specialsauce.io",
       name: "SpecialSauce.io",
-      alternateName: ["Special Sauce", "Special Sauce Job Marketplace"],
+      alternateName: ["Special Sauce", "The World's First Secured Workforce Ecosystem"],
       description:
         "Securely connecting ID-verified professionals and verified employers based on real skills and upfront pay.",
       publisher: {
@@ -64,7 +64,7 @@ const seoSchemaGraph = {
         "@id": "https://www.specialsauce.io/#organization",
       },
       description:
-        "Online job marketplace where ID-verified professionals and verified employers match on real skills and upfront pay while keeping personal details private until unlocked.",
+        "The world's first secured workforce ecosystem where ID-verified Professionals and domain-verified Employers connect on real skills and upfront pay while keeping personal details private until unlocked.",
     },
   ],
 };

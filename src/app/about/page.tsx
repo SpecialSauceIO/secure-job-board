@@ -7,7 +7,7 @@ export const metadata = {
   alternates: { canonical: "/about" },
   title: "About Special Sauce",
   description:
-    "Why Special Sauce Solutions LLC built a verified, privacy-first hiring marketplace where real Professionals and real Employers connect without bots, ghost roles, or resume scraping.",
+    "Why Special Sauce Solutions LLC built the world's first secured workforce ecosystem where verified Professionals and verified Employers connect without bots, ghost roles, or resume scraping.",
 }
 
 const INSTITUTIONAL_PILLARS = [
@@ -43,7 +43,7 @@ export default function AboutPage() {
         <section className="bg-slate-900 text-white py-14 sm:py-20 px-4 sm:px-6 md:px-12 border-b border-slate-800">
           <div className="max-w-5xl mx-auto space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider w-fit">
-              About Special Sauce
+              About Special Sauce • Secured Workforce Ecosystem
             </div>
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight text-white">
               Built to Put Real Humans Back at the Center of Hiring.
@@ -59,7 +59,7 @@ export default function AboutPage() {
           <div className="max-w-5xl mx-auto space-y-12">
             <div className="bg-slate-900 text-white rounded-2xl border border-slate-700 shadow-lg p-6 sm:p-10 space-y-5">
               <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Why We Built a Different Kind of Marketplace
+                Why We Built the World's First Secured Workforce Ecosystem
               </h2>
               <p className="text-slate-200 leading-relaxed text-base">
                 After spending years inside global cloud, enterprise support, and frontier AI enablement teams, we watched both sides of the hiring market hit a wall at the exact same time. Qualified Professionals were sending tailored applications into a black hole—dodging ghost roles, identity harvesters, and automated rejections—while overwhelmed HR teams were buried under hundreds of bot-generated submissions within hours of posting a role.

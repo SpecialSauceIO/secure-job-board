@@ -16,6 +16,7 @@ FORBIDDEN_COPY_PATTERNS = [
     (r"\bai\s+prox(?:y|ies)\b", "Forbidden buzzword AI proxy"),
     (r"synthetic\s+r[e\u00e9]sum[e\u00e9]s?", "Forbidden buzzword synthetic resume"),
     (r"\bsandbox\b", "Forbidden term Sandbox — use Practice Mode"),
+    (r"\bjob\s+marketplaces?\b", "Forbidden term job marketplace — use Secured Workforce Ecosystem"),
 ]
 
 # Internal DB/code identifiers allowed in .ts/.tsx code lines

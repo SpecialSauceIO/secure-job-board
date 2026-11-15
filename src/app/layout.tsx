@@ -21,11 +21,11 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.specialsauce.io"),
   title: {
     template: "%s | SpecialSauce.io",
-    default: "SpecialSauce.io | Verified Job Marketplace for Professionals & Employers",
+    default: "SpecialSauce.io | The World's First Secured Workforce Ecosystem",
   },
-  description: "SpecialSauce.io is the verified job marketplace securely connecting ID-verified professionals and verified employers based on real skills, upfront pay, and mutual interest.",
+  description: "SpecialSauce.io is the world's first secured workforce ecosystem—securely connecting ID-verified Professionals and domain-verified Employers based on real skills, upfront pay, and mutual interest.",
   applicationName: "SpecialSauce.io",
-  keywords: ["SpecialSauce.io", "Special Sauce", "Special Sauce jobs", "Special Sauce hiring", "verified job marketplace", "verified professionals", "verified employers", "skill matching job board"],
+  keywords: ["SpecialSauce.io", "Special Sauce", "secured workforce ecosystem", "verified workforce ecosystem", "verified professionals", "verified employers", "2-Stage Privacy Vault", "Special Sauce hiring"],
   alternates: {
     canonical: "/",
   },
@@ -41,8 +41,8 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "SpecialSauce.io | Verified Job Marketplace for Professionals & Employers",
-    description: "Connect directly with ID-verified professionals and verified employers based on real skills and upfront pay while keeping personal details private until you choose to unlock them.",
+    title: "SpecialSauce.io | The World's First Secured Workforce Ecosystem",
+    description: "The world's first secured workforce ecosystem—connect directly with ID-verified Professionals and domain-verified Employers while keeping personal details private until you choose to unlock them.",
     url: "https://www.specialsauce.io",
     siteName: "SpecialSauce.io",
     locale: "en_US",
@@ -50,8 +50,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "SpecialSauce.io | Verified Job Marketplace for Professionals & Employers",
-    description: "Securely connecting ID-verified professionals and verified employers based on real skills, upfront pay, and mutual interest.",
+    title: "SpecialSauce.io | The World's First Secured Workforce Ecosystem",
+    description: "The world's first secured workforce ecosystem—securely connecting ID-verified Professionals and domain-verified Employers.",
   },
 };
 

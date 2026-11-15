@@ -350,7 +350,7 @@ export default function WorkflowsPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Keeps free webmail and fake accounts out of the marketplace.</span>
+                        <span>Keeps free webmail and fake accounts out of the ecosystem.</span>
                       </li>
                     </ul>
                   </div>

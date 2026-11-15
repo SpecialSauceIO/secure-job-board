@@ -39,7 +39,7 @@ export default function TermsOfServicePage() {
             <section>
               <h2 className="text-xl">2. Description of Service</h2>
               <p className="text-slate-600 leading-relaxed mt-2">
-                Special Sauce is a verified, privacy-protected hiring marketplace. We connect ID-verified professionals (&ldquo;Professionals&rdquo;) with verified hiring organizations (&ldquo;Employers&rdquo;) based on skill alignment, upfront pay bands, and mutual interest. We do not guarantee employment, interview outcomes, or on-the-job performance.
+                Special Sauce is a secured workforce ecosystem. We connect ID-verified professionals (&ldquo;Professionals&rdquo;) with domain-verified hiring organizations (&ldquo;Employers&rdquo;) based on skill alignment, upfront pay bands, and mutual interest. We do not guarantee employment, interview outcomes, or on-the-job performance.
               </p>
             </section>
 
@@ -62,7 +62,7 @@ export default function TermsOfServicePage() {
 
             <section className="bg-indigo-50/60 p-6 rounded-2xl border border-indigo-300">
               <h2 className="text-xl text-slate-900 mb-3">
-                4. Marketplace Rules &amp; Privacy Protections
+                4. Ecosystem Rules &amp; Privacy Protections
               </h2>
               <ul className="list-disc pl-5 mt-3 space-y-2 text-slate-700">
                 <li>
@@ -165,7 +165,7 @@ export default function TermsOfServicePage() {
                   <strong className="text-slate-800">Ownership of Platform and Content:</strong> The Special Sauce™ platform (accessible via <code className="text-xs font-mono bg-white px-1.5 py-0.5 rounded border border-slate-300">specialsauce.io</code>), including all underlying source code, databases, system architecture, matching workflows, scoring methodologies, user interface designs, text, graphics, audio, and video, is owned by <strong>{LEGAL_CONFIG.legalEntityName}</strong>, its parent holding company, and its licensors. The Platform is protected by United States and international copyright, trademark, trade secret, and unfair competition laws. Except as expressly permitted in these Terms, no part of the Platform may be copied, reproduced, scraped, reverse-engineered, or distributed without our prior written consent.
                 </p>
                 <p>
-                  <strong className="text-slate-800">Trademarks and Proprietary Identifiers:</strong> <strong>Special Sauce™</strong>, the Special Sauce logo, <strong>TrueFit Score™</strong>, <strong>TrueFit™</strong>, <strong>Private Resume Vault™</strong>, <strong>Securely Connecting Professionals &amp; Employers™</strong>, and all related product or service names, feature designations, taglines, logos, and trade dress displayed on the Platform are the proprietary trademarks and service marks of <strong>{LEGAL_CONFIG.legalEntityName}</strong> (or its parent holding company). You are hereby placed on notice that {LEGAL_CONFIG.legalEntityName} actively claims and enforces common-law and statutory trademark rights in these marks in connection with online employment marketplaces, professional-employer matching software, and identity-verified recruiting services. Nothing in these Terms grants you any license or right to use any trademark, service mark, or logo of {LEGAL_CONFIG.legalEntityName} without our express prior written permission, including in metadata, ad keywords, or competing software services.
+                  <strong className="text-slate-800">Trademarks and Proprietary Identifiers:</strong> <strong>Special Sauce™</strong>, the Special Sauce logo, <strong>TrueFit Score™</strong>, <strong>TrueFit™</strong>, <strong>Private Resume Vault™</strong>, <strong>Securely Connecting Professionals &amp; Employers™</strong>, and all related product or service names, feature designations, taglines, logos, and trade dress displayed on the Platform are the proprietary trademarks and service marks of <strong>{LEGAL_CONFIG.legalEntityName}</strong> (or its parent holding company). You are hereby placed on notice that {LEGAL_CONFIG.legalEntityName} actively claims and enforces common-law and statutory trademark rights in these marks in connection with secured workforce ecosystems, online hiring platforms, professional-employer matching software, and identity-verified recruiting services. Nothing in these Terms grants you any license or right to use any trademark, service mark, or logo of {LEGAL_CONFIG.legalEntityName} without our express prior written permission, including in metadata, ad keywords, or competing software services.
                 </p>
                 <p>
                   <strong className="text-slate-800">Third-Party Marks:</strong> All other trademarks, service marks, and company logos appearing on the Platform are the property of their respective owners and do not imply any endorsement, sponsorship, or affiliation with {LEGAL_CONFIG.legalEntityName} unless expressly stated.
