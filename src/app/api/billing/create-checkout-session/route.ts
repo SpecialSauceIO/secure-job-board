@@ -24,7 +24,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER_5_ONETIME',
     defaultPriceId: 'price_1UYCkwLAill3LX5XeuEcLOxC',
     description:
-      'One-Time Real-Person ID Verification ($0/mo forever after): Includes Verified Professional Shield, live profile in Employer Search, unlimited employer invitations, and Weekly 1-Year Prestige Drawing entry.',
+      'One-Time Real-Person ID Verification ($0/mo forever after · $5 Credited Toward Month 1 if You Ever Subscribe): Includes Verified Professional Shield, live profile in Employer Search, unlimited employer invitations, and Weekly 1-Year Prestige Drawing entry.',
   },
   candidate_explorer: {
     id: 'explorer',
@@ -34,7 +34,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_EXPLORER_5_ONETIME',
     defaultPriceId: 'price_1UYCkwLAill3LX5XeuEcLOxC',
     description:
-      'One-Time Real-Person ID Verification ($0/mo forever after): Includes Verified Professional Shield, live profile in Employer Search, unlimited employer invitations, and Weekly 1-Year Prestige Drawing entry.',
+      'One-Time Real-Person ID Verification ($0/mo forever after · $5 Credited Toward Month 1 if You Ever Subscribe): Includes Verified Professional Shield, live profile in Employer Search, unlimited employer invitations, and Weekly 1-Year Prestige Drawing entry.',
   },
   professional: {
     id: 'professional',
@@ -338,11 +338,19 @@ export async function POST(req: Request) {
       const explorerCatalogPriceId = resolveCanonicalPriceId(explorerTier.envVar, explorerTier.defaultPriceId)
       const isOneTimeExplorer = candidateTier.billingMode === 'payment'
 
-      const { data: candProf } = await sbAdmin
+      const { data: adminCandProf } = await sbAdmin
         .from('profiles')
         .select('is_verified, identity_verified, structured_skills')
         .eq('id', user.id)
         .maybeSingle()
+      const { data: userCandProf } = adminCandProf
+        ? { data: null }
+        : await supabase
+            .from('profiles')
+            .select('is_verified, identity_verified, structured_skills')
+            .eq('id', user.id)
+            .maybeSingle()
+      const candProf = adminCandProf || userCandProf
       const skillsList = Array.isArray(candProf?.structured_skills) ? candProf.structured_skills : []
       const metaObj = skillsList.find((s: any) => s && typeof s === 'object' && s._ss_meta === true) || {}
       const legacyPlanObj = skillsList.find((s: any) => s && typeof s === 'object' && s._type === 'ss_candidate_plan') || {}
@@ -358,8 +366,46 @@ export async function POST(req: Request) {
         metaObj?.firstMonthCreditUsed ||
           ['professional', 'prestige', 'pro'].includes(priorPlan)
       )
-      const includeUpfrontVerifyFee = !isOneTimeExplorer && !alreadyPaidVerify
-      const includeFirstMonthFree = !isOneTimeExplorer && !firstMonthCreditUsed
+      let proVerifyCouponId: string | null = null
+      if (!isOneTimeExplorer && alreadyPaidVerify && !firstMonthCreditUsed) {
+        const couponKey = 'ss_professional_verify_credit_500'
+        let lastCouponErr: any = null
+        try {
+          const existingCoupon = await stripe.coupons.retrieve(couponKey)
+          if (existingCoupon && !existingCoupon.deleted) {
+            proVerifyCouponId = existingCoupon.id
+          }
+        } catch (retrieveErr: any) {
+          lastCouponErr = retrieveErr
+        }
+        if (!proVerifyCouponId) {
+          try {
+            const createdCoupon = await stripe.coupons.create({
+              id: couponKey,
+              amount_off: 500,
+              currency: 'usd',
+              duration: 'once',
+              name: '$5 Explorer Verification Credit',
+            })
+            proVerifyCouponId = createdCoupon.id
+          } catch (couponErr: any) {
+            lastCouponErr = couponErr
+            console.error('Unable to provision $5 Explorer verification credit coupon:', couponErr)
+          }
+        }
+        if (!proVerifyCouponId) {
+          const errMsg = String(lastCouponErr?.message || 'Unable to provision $5 Month 1 credit coupon.')
+          return NextResponse.json(
+            {
+              error:
+                'Could not apply your $5 Month 1 Explorer credit in Stripe (' +
+                errMsg +
+                '). Enable Coupons Write permission on your Stripe Restricted API Key in Stripe Dashboard.',
+            },
+            { status: 400 }
+          )
+        }
+      }
 
       const primaryLineItem: Stripe.Checkout.SessionCreateParams.LineItem =
         catalogPriceId && candidateTier.priceCents >= 500
@@ -378,22 +424,6 @@ export async function POST(req: Request) {
               quantity: 1,
             }
 
-      const verifyDepositLineItem: Stripe.Checkout.SessionCreateParams.LineItem =
-        explorerCatalogPriceId
-          ? { price: explorerCatalogPriceId, quantity: 1 }
-          : {
-              price_data: {
-                currency: 'usd',
-                unit_amount: explorerTier.priceCents,
-                product_data: {
-                  tax_code: 'txcd_10103001',
-                  name: 'Special Sauce - One-Time Real-Person ID Verification ($5)',
-                  description: 'One-time Stripe Identity verification — includes your first 30 days of membership.',
-                },
-              },
-              quantity: 1,
-            }
-
       const checkoutSession = await stripe.checkout.sessions.create({
         mode: isOneTimeExplorer ? 'payment' : 'subscription',
         customer_email: user.email,
@@ -403,24 +433,27 @@ export async function POST(req: Request) {
           planType: `candidate_${candidateTier.id}`,
           userId: user.id,
           tierId: candidateTier.id,
-          firstMonthCreditUsed: (!isOneTimeExplorer && (firstMonthCreditUsed || includeFirstMonthFree)) ? 'true' : 'false',
+          firstMonthCreditUsed: !isOneTimeExplorer ? 'true' : firstMonthCreditUsed ? 'true' : 'false',
+          verifyCreditApplied: proVerifyCouponId ? 'true' : 'false',
         },
-        line_items: includeUpfrontVerifyFee ? [verifyDepositLineItem, primaryLineItem] : [primaryLineItem],
+        line_items: [primaryLineItem],
         ...(candidateTier.billingMode === 'subscription' ? { payment_method_collection: 'always' as const } : {}),
         ...(isOneTimeExplorer
           ? (candidateTier.priceCents > 0 ? { invoice_creation: { enabled: true } } : {})
           : {
               subscription_data: {
-                ...(includeFirstMonthFree ? { trial_period_days: 30 } : {}),
                 metadata: {
                   audience: 'candidate',
                   userId: user.id,
                   tierId: candidateTier.id,
                   firstMonthCreditUsed: 'true',
+                  verifyCreditApplied: proVerifyCouponId ? 'true' : 'false',
                 },
               },
             }),
-        allow_promotion_codes: true,
+        ...(proVerifyCouponId
+          ? { discounts: [{ coupon: proVerifyCouponId }] }
+          : { allow_promotion_codes: true }),
         billing_address_collection: 'auto',
         success_url: body?.fromOnboarding ? `${origin}/onboarding?billing=success&plan=${candidateTier.id}&session_id={CHECKOUT_SESSION_ID}` : `${origin}/dashboard/billing?billing=success&plan=${candidateTier.id}&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: body?.fromOnboarding ? `${origin}/onboarding?billing=cancelled` : `${origin}/dashboard/billing?billing=cancelled`,
@@ -583,12 +616,16 @@ export async function POST(req: Request) {
     let verifyCreditCouponId: string | null = null
     if (hasPaidVerifyDeposit && !hasUsedVerifyCredit) {
       const couponKey = 'ss_employer_verify_credit_2500'
+      let lastCouponErr: any = null
       try {
         const existingCoupon = await stripe.coupons.retrieve(couponKey)
         if (existingCoupon && !existingCoupon.deleted) {
           verifyCreditCouponId = existingCoupon.id
         }
-      } catch {
+      } catch (retrieveErr: any) {
+        lastCouponErr = retrieveErr
+      }
+      if (!verifyCreditCouponId) {
         try {
           const createdCoupon = await stripe.coupons.create({
             id: couponKey,
@@ -598,9 +635,22 @@ export async function POST(req: Request) {
             name: '$25 Verification Deposit Credit',
           })
           verifyCreditCouponId = createdCoupon.id
-        } catch (couponErr) {
+        } catch (couponErr: any) {
+          lastCouponErr = couponErr
           console.error('Unable to provision $25 employer verification credit coupon:', couponErr)
         }
+      }
+      if (!verifyCreditCouponId) {
+        const errMsg = String(lastCouponErr?.message || 'Unable to provision $25 Month 1 credit coupon.')
+        return NextResponse.json(
+          {
+            error:
+              'Could not apply your $25 Month 1 verification deposit credit in Stripe (' +
+              errMsg +
+              '). Enable Coupons Write permission on your Stripe Restricted API Key in Stripe Dashboard.',
+          },
+          { status: 400 }
+        )
       }
     }
 

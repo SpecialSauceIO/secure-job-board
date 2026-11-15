@@ -105,7 +105,7 @@ export default function OnboardingPlanStep({
                 <li>✓ Unlimited Inbound Employer Invitations</li>
                 <li>✓ Instant TrueFit Score™ Checks</li>
                 <li>✓ Automatic Weekly 1-Year Prestige Drawing</li>
-                <li className="text-emerald-300 font-semibold">✓ First 30 days included if you upgrade later</li>
+                <li className="text-emerald-300 font-semibold">✓ $5 credited toward Month 1 if you ever subscribe</li>
               </ul>
             </div>
             <button
@@ -124,10 +124,10 @@ export default function OnboardingPlanStep({
               <h3 className="mt-1 text-xl font-extrabold text-white">Professional</h3>
               <div className="mt-2 flex items-baseline gap-1">
                 <span className="text-2xl font-black text-white">$12</span>
-                <span className="text-xs text-slate-400">/ mo after Month 1 ($5 ID check today)</span>
+                <span className="text-xs text-slate-400">/ mo</span>
               </div>
               <ul className="mt-4 space-y-2 text-xs text-slate-300">
-                <li className="text-indigo-300 font-semibold">✓ $5 ID check covers your first 30 days</li>
+                <li className="text-indigo-300 font-semibold">✓ Includes Real-Person ID Verification &amp; Shield</li>
                 <li>✓ 15 Outbound Protected Applications / mo</li>
                 <li>✓ Elevated Placement in Employer Search</li>
                 <li>✓ Founding Member Status &amp; Badge</li>
@@ -150,10 +150,10 @@ export default function OnboardingPlanStep({
               <h3 className="mt-1 text-xl font-extrabold text-white">Prestige</h3>
               <div className="mt-2 flex items-baseline gap-1">
                 <span className="text-2xl font-black text-white">$19</span>
-                <span className="text-xs text-slate-400">/ mo after Month 1 ($5 ID check today)</span>
+                <span className="text-xs text-slate-400">/ mo</span>
               </div>
               <ul className="mt-4 space-y-2 text-xs text-slate-300">
-                <li className="text-amber-300 font-semibold">✓ $5 ID check covers your first 30 days</li>
+                <li className="text-amber-300 font-semibold">✓ Includes Real-Person ID Verification &amp; Shield</li>
                 <li>✓ Unlimited Outbound Protected Applications</li>
                 <li>✓ Top-Priority Spotlight in Talent Search</li>
                 <li>✓ Priority Shortlist Placement &amp; 1-on-1 Support</li>

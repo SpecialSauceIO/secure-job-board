@@ -334,9 +334,11 @@ function filterVisibleSkills(rawSkills: any): any[] {
 }
 
 function extractCandidateMeta(rawSkills: any): {
-  plan?: 'trial' | 'expired' | 'pro'
+  plan?: 'explorer' | 'professional' | 'prestige' | 'trial' | 'expired' | 'pro' | 'free'
   trialStart?: string
   trialBaselineApps?: number
+  verifiedExplorerPaid?: boolean
+  firstMonthCreditUsed?: boolean
 } {
   if (!Array.isArray(rawSkills)) return {}
   const metaItem = rawSkills.find(
@@ -481,6 +483,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
   freeAppsRemaining: number
   daysRemaining: number
   trialExpired: boolean
+  verifyCreditEligible?: boolean
 }> {
   const supabase = await createClient()
   let targetUserId = candidateUserId
@@ -583,6 +586,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
       freeAppsRemaining: 0,
       daysRemaining: 30,
       trialExpired: false,
+      verifyCreditEligible: !Boolean(meta.firstMonthCreditUsed),
     }
   }
 

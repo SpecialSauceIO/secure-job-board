@@ -102,7 +102,7 @@ export default function PricingMatrixPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-amber-400 font-bold shrink-0">•</span>
-                    <span>Your $5 ID check covers your <strong className="text-amber-300">first 30 days</strong> if you activate $12 or $19/mo.</span>
+                    <span>Your $5 ID check is <strong className="text-amber-300">credited toward Month 1</strong> when you activate your Professional or Prestige membership.</span>
                   </li>
                 </ul>
               </div>
@@ -121,7 +121,7 @@ export default function PricingMatrixPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-amber-400 font-bold shrink-0">•</span>
-                    <span>Your $25 deposit is <strong className="text-amber-300">credited toward Month 1</strong> when you activate a plan.</span>
+                    <span>Your $25 deposit is <strong className="text-amber-300">credited toward Month 1</strong> when you activate your Starter, Growth, or Enterprise membership.</span>
                   </li>
                 </ul>
               </div>
@@ -202,7 +202,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
                       <span className="shrink-0">✓</span>
-                      <span><strong className="text-white">First 30 days included</strong> when you upgrade later</span>
+                      <span><strong className="text-white">$5 Credited Toward Month 1</strong> if you ever subscribe</span>
                     </li>
                     <li className="flex items-start gap-2.5 text-slate-300">
                       <span className="text-slate-400 font-bold shrink-0">✕</span>
@@ -236,7 +236,7 @@ export default function PricingMatrixPage() {
                       <span className="text-sm font-bold text-slate-300">/ month</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-extrabold">
-                      ✓ $5 ID Check Covers First 30 Days
+                      ✓ $5 ID Check Credited Toward Month 1
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -291,7 +291,7 @@ export default function PricingMatrixPage() {
                       <span className="text-sm font-bold text-slate-300">/ month</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-extrabold">
-                      ✓ $5 ID Check Covers First 30 Days
+                      ✓ $5 ID Check Credited Toward Month 1
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -377,7 +377,7 @@ export default function PricingMatrixPage() {
                       <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ $25 Deposit Credited Toward Month 1
+                      ✓ $25 ID Check Credited Toward Month 1
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -437,7 +437,7 @@ export default function PricingMatrixPage() {
                       <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ $25 Deposit Credited Toward Month 1
+                      ✓ $25 ID Check Credited Toward Month 1
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">
@@ -497,7 +497,7 @@ export default function PricingMatrixPage() {
                       <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ $25 Deposit Credited Toward Month 1
+                      ✓ $25 ID Check Credited Toward Month 1
                     </div>
                   </div>
                   <p className="text-base text-slate-100 leading-relaxed">

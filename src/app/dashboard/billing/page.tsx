@@ -21,6 +21,7 @@ export default function CandidateBillingPage() {
     freeAppsRemaining: number
     daysRemaining: number
     trialExpired: boolean
+    verifyCreditEligible?: boolean
   } | null>(null)
   const [isVerified, setIsVerified] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -167,10 +168,6 @@ export default function CandidateBillingPage() {
       })
       const data = await response.json()
       if (!response.ok || data.error) {
-        if (String(data.error || '').includes('Permission denied')) {
-          await handlePlanSwitch(targetPlan)
-          return
-        }
         setFeedback({
           type: 'error',
           text: data.error || 'Could not launch Stripe Checkout.',
@@ -233,11 +230,15 @@ export default function CandidateBillingPage() {
   }
 
   const handlePlanSwitch = async (
-    targetMode: 'explorer' | 'professional' | 'prestige' | 'free'
+    targetMode: 'explorer' | 'professional' | 'prestige' | 'free',
+    resetCredit?: boolean
   ) => {
     setIsProcessing(true)
     setFeedback(null)
 
+    if (resetCredit && targetMode === 'explorer') {
+      await activateSandboxCandidateTier('free')
+    }
     const res = await activateSandboxCandidateTier(targetMode)
     if (res?.error) {
       setFeedback({ type: 'error', text: res.error })
@@ -457,7 +458,7 @@ export default function CandidateBillingPage() {
                 </li>
                 <li>✓ Free TrueFit Score™ checks &amp; Weekly Drawing entry</li>
                 <li className="text-emerald-700 font-bold">
-                  ✓ <strong>First 30 days included</strong> when you upgrade later
+                  ✓ <strong>$5 credited toward Month 1</strong> if you ever subscribe
                 </li>
                 <li className="text-slate-400">
                   ✕ Outbound Applications (Upgrade anytime)
@@ -514,7 +515,9 @@ export default function CandidateBillingPage() {
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                  Your $5 ID check covers your first 30 days ($0 due today when upgrading from Explorer), then $12/mo.
+                  {tierInfo?.verifyCreditEligible
+                    ? '$7 due today (your $5 Explorer ID credit applied to Month 1), then $12/mo. Downgrade to Explorer ($0/mo) anytime.'
+                    : 'Includes Real-Person ID Verification at no extra fee. Downgrade to Explorer ($0/mo) anytime.'}
                 </p>
               </div>
 
@@ -543,10 +546,12 @@ export default function CandidateBillingPage() {
                 className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
               >
                 {normalizedTier === 'professional'
-                    ? `✓ Professional Plan Active (${tierInfo?.freeAppsRemaining ?? 15}/15 Apps Left)`
-                    : normalizedTier === 'prestige'
-                    ? 'Downgrade to Professional ($12/mo) →'
-                    : 'Activate Professional ($12/mo) →'}
+                  ? `✓ Professional Plan Active (${tierInfo?.freeAppsRemaining ?? 15}/15 Apps Left)`
+                  : normalizedTier === 'prestige'
+                  ? 'Downgrade to Professional ($12/mo) →'
+                  : tierInfo?.verifyCreditEligible
+                  ? 'Upgrade for $7 Month 1 (Then $12/mo) →'
+                  : 'Activate Professional ($12/mo) →'}
               </button>
             </div>
           </div>
@@ -578,7 +583,9 @@ export default function CandidateBillingPage() {
                   </span>
                 </div>
                 <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                  Your $5 ID check covers your first 30 days ($0 due today when upgrading from Explorer), then $19/mo.
+                  {tierInfo?.verifyCreditEligible
+                    ? '$14 due today (your $5 Explorer ID credit applied to Month 1), then $19/mo. Downgrade to Explorer ($0/mo) anytime.'
+                    : 'Includes Real-Person ID Verification at no extra fee. Downgrade to Explorer ($0/mo) anytime.'}
                 </p>
               </div>
 
@@ -608,6 +615,8 @@ export default function CandidateBillingPage() {
               >
                 {normalizedTier === 'prestige'
                   ? '✓ Prestige Plan Active (Unlimited Apps)'
+                  : tierInfo?.verifyCreditEligible
+                  ? 'Upgrade for $14 Month 1 (Then $19/mo) →'
                   : 'Activate Prestige ($19/mo) →'}
               </button>
             </div>
@@ -644,7 +653,7 @@ export default function CandidateBillingPage() {
               <button
                 type="button"
                 disabled={isProcessing}
-                onClick={() => handlePlanSwitch('explorer')}
+                onClick={() => handlePlanSwitch('explorer', true)}
                 className={`px-3 py-2 rounded-xl border-2 text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50 ${
                   normalizedTier === 'explorer'
                     ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
