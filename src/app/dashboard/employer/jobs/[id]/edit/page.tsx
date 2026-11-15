@@ -31,6 +31,8 @@ export default function EditJobPage() {
   const jobId = params?.id as string
 
   const [isLoading, setIsLoading] = useState(true)
+  const [isPracticeMode, setIsPracticeMode] = useState(false)
+  const [isPracticeDraft, setIsPracticeDraft] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [jobData, setJobData] = useState({
     title: '',
@@ -68,7 +70,7 @@ export default function EditJobPage() {
 
       const { data: job, error } = await supabase
         .from('jobs')
-        .select('*, organizations:organization_id (description)')
+        .select('*, organizations:organization_id (description, subscription_status, subscription_tier)')
         .eq('id', jobId)
         .single()
 
@@ -114,6 +116,12 @@ export default function EditJobPage() {
             : objReqs.certifications,
           required_languages: objReqs.languages,
         }
+      const tierNorm = String(orgObj?.subscription_tier || '').toLowerCase()
+      const statusNorm = String(orgObj?.subscription_status || '').toLowerCase()
+      const hasPaidActivePlan = statusNorm === 'active' && ['starter', 'growth', 'enterprise'].includes(tierNorm)
+      setIsPracticeMode(!hasPaidActivePlan)
+      setIsPracticeDraft(Boolean(metaItem?.practice_draft === true))
+
       const visibleReqs = rawReqs.filter(
         (r: any) => r && !r._ss_job_meta && (r.skill || r.name)
       )
@@ -177,23 +185,34 @@ export default function EditJobPage() {
   }, [jobId, router])
 
   const handleAiData = (data: any) => {
+    const matchOpt = (val: any, opts: string[], fb: string) => {
+      if (typeof val === 'string' && val.trim().length > 0) {
+        const norm = (s: string) => s.trim().toLowerCase().replace(/[\u2010-\u2015-]/g, '-')
+        const t = norm(val)
+        if (opts.length === 0) return val.trim()
+        return opts.find((o) => norm(o) === t) || opts.find((o) => norm(o).includes(t) || t.includes(norm(o))) || fb
+      }
+      return fb
+    }
     setJobData((prev) => ({
       ...prev,
       title: data.title || prev.title,
-      work_model: data.work_model || prev.work_model,
+      work_model: matchOpt(data.work_model, ['remote', 'hybrid', 'onsite'], prev.work_model),
       location: data.location || prev.location,
-      pay_type: data.pay_type === 'hourly' ? 'hourly' : prev.pay_type,
+      pay_type: data.pay_type === 'hourly' ? 'hourly' : data.pay_type === 'annual' ? 'annual' : prev.pay_type,
       salary_min: data.salary_min ? String(data.salary_min) : prev.salary_min,
       salary_max: data.salary_max ? String(data.salary_max) : prev.salary_max,
-      employment_type: data.employment_type || prev.employment_type,
-      experience_level: data.experience_level || prev.experience_level,
+      employment_type: matchOpt(data.employment_type, ['Full-Time (W-2)', 'Contract (1099 / Corp-to-Corp)', 'Contract-to-Hire', 'Part-Time', 'Seasonal / Temporary'], prev.employment_type),
+      experience_level: matchOpt(data.experience_level, ['Entry / Junior (0–2 yrs)', 'Mid-Level (3–5 yrs)', 'Senior (5–8 yrs)', 'Lead / Staff / Principal (8+ yrs)', 'Executive / Director'], prev.experience_level),
       education_req: data.education_req
         ? normalizeJobEducationReq(data.education_req)
         : prev.education_req,
       required_certifications:
-        typeof data.required_certifications === 'string'
-          ? data.required_certifications
-          : prev.required_certifications,
+        Array.isArray(data.required_certifications)
+          ? data.required_certifications.filter(Boolean).join(', ')
+          : typeof data.required_certifications === 'string' && data.required_certifications.trim()
+            ? data.required_certifications
+            : prev.required_certifications,
       required_languages: data.required_languages
         ? normalizeLanguageList(data.required_languages, true)
         : prev.required_languages,
@@ -203,6 +222,10 @@ export default function EditJobPage() {
       description: data.description || prev.description,
       structured_requirements:
         data.structured_requirements || prev.structured_requirements,
+      comp_perks: matchOpt(data.comp_perks, ['Base Salary Only', '+ Annual Bonus', '+ Equity / Stock Options', '+ Bonus & Equity', '+ Commission / OTE'], prev.comp_perks),
+      hiring_timeline: matchOpt(data.hiring_timeline, ['Immediate / Urgent (1–2 Weeks)', 'Active Hiring (2–4 Weeks)', 'Standard Pipeline (30+ Days)', 'Flexible Start for Right Fit'], prev.hiring_timeline),
+      company_size: matchOpt(data.company_size, ['Seed / Startup (1–50 Employees)', 'Growth (50–250 Employees)', 'Mid-Market (250–1,000 Employees)', 'Enterprise (1,000+ Employees)'], prev.company_size),
+      work_auth: matchOpt(data.work_auth, ['US Authorized Only (No Sponsorship)', 'Visa Sponsorship Available', 'Security Clearance Required'], prev.work_auth),
     }))
   }
 
@@ -265,16 +288,34 @@ export default function EditJobPage() {
             href="/dashboard/employer/jobs"
             className="text-slate-500 font-bold text-sm hover:text-slate-800"
           >
-            Back to Job Management
+            Back to Manage Roles
           </Link>
         </div>
 
         <h2 className="text-2xl font-bold text-slate-900">
-          Edit Protected Role Listing
+          {isPracticeDraft || isPracticeMode ? 'Edit Protected Role Draft (Practice Mode)' : 'Edit Protected Role Listing'}
         </h2>
         <p className="text-sm text-slate-500 mt-1">
           Update the compensation band (/yr or /hr), US metro location, education, certifications, required languages, standardized industry vertical, and core skill requirements.
         </p>
+        {(isPracticeDraft || isPracticeMode) && (
+          <div className="mt-4 p-4 rounded-xl bg-amber-50 border border-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <p className="text-xs font-semibold text-amber-950">
+              <strong>{isPracticeMode ? 'Practice Mode Active ($0/mo):' : 'Saved Practice Draft:'}</strong>{' '}
+              {isPracticeMode
+                ? 'Changes save directly to your inactive Practice Mode draft. When you are ready to publish roles live to Verified Professionals, activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo).'
+                : 'This role is currently an inactive Practice Mode draft. Save any updates here, then publish it live from Manage Roles whenever a role slot is open.'}
+            </p>
+            {isPracticeMode && (
+              <Link
+                href="/dashboard/employer/billing"
+                className="shrink-0 px-3.5 py-2 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-indigo-600 transition-colors text-center"
+              >
+                View Employer Plans →
+              </Link>
+            )}
+          </div>
+        )}
       </div>
 
       {errorMsg && (
@@ -728,10 +769,10 @@ export default function EditJobPage() {
             Cancel
           </Link>
           <SubmitButton
-            pendingText="Saving Changes..."
+            pendingText={isPracticeDraft || isPracticeMode ? 'Saving Draft...' : 'Saving Changes...'}
             className="w-full sm:w-auto rounded-xl bg-indigo-600 px-8 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer"
           >
-            Save Role Updates
+            {isPracticeDraft || isPracticeMode ? 'Save Draft Updates' : 'Save Role Updates'}
           </SubmitButton>
         </div>
       </form>

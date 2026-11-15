@@ -311,6 +311,7 @@ export default async function DashboardPage({
     const tierInfo = await resolveEmployerTierInfo(orgData)
 
     let activeJobsCount = 0
+    let practiceDraftsCount = 0
     let inboundTotalCount = 0
     let pendingAppsCount = 0
     let inboundUnreadMsgsCount = 0
@@ -370,13 +371,18 @@ export default async function DashboardPage({
 
       const { data: fetchedOrgJobs } = await supabase
         .from('jobs')
-        .select('id, is_active, salary_min, salary_max')
+        .select('id, is_active, salary_min, salary_max, structured_requirements')
         .eq('organization_id', member.organization_id)
 
       orgJobsList = fetchedOrgJobs || []
       activeJobsCount = orgJobsList.filter(
         (j: any) => j.is_active !== false
       ).length
+      practiceDraftsCount = orgJobsList.filter((j: any) => {
+        if (j.is_active !== false || !Array.isArray(j.structured_requirements)) return false
+        const meta = j.structured_requirements.find((r: any) => r && r._ss_job_meta === true)
+        return meta?.practice_draft === true
+      }).length
     }
 
     const employerGamification = calculateEmployerGamification(
@@ -402,15 +408,18 @@ export default async function DashboardPage({
       }
     })
 
+    const isPracticeEmployer = isOrgVerified && tierInfo.maxActiveJobs === 0
     const canPostNewJob =
       isOrgVerified &&
       tierInfo.maxActiveJobs > 0 &&
       activeJobsCount < tierInfo.maxActiveJobs
+    const canDraftPracticeJob = isPracticeEmployer && practiceDraftsCount < 5
 
     const companyDisplayName =
       orgData?.name || orgData?.domain || 'Set Up Your Company'
-    const rolesBadgeText =
-      tierInfo.maxActiveJobs >= 500 || tierInfo.maxActiveJobs === 0
+    const rolesBadgeText = isPracticeEmployer
+      ? `${practiceDraftsCount} / 5 Drafts`
+      : tierInfo.maxActiveJobs >= 500 || tierInfo.maxActiveJobs === 0
         ? `${activeJobsCount} Active`
         : `${activeJobsCount} / ${tierInfo.maxActiveJobs}`
 
@@ -512,21 +521,23 @@ export default async function DashboardPage({
               >
                 Verify Company →
               </Link>
-            ) : canPostNewJob ? (
+            ) : canPostNewJob || canDraftPracticeJob ? (
               <Link
                 href="/dashboard/employer/jobs/new"
                 className="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold shadow-sm transition-colors"
               >
-                + Post New Role
+                {canDraftPracticeJob ? '+ Draft Role (Practice)' : '+ Post New Role'}
               </Link>
             ) : (
               <Link
                 href="/dashboard/employer/billing"
                 className="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-colors"
               >
-                {tierInfo.tier === 'free'
-                  ? 'Select Plan to Post Roles →'
-                  : `Role Slots Full (${activeJobsCount}/${tierInfo.maxActiveJobs}) · Upgrade →`}
+                {isPracticeEmployer
+                  ? 'Practice Drafts Full (5/5) · Activate Plan →'
+                  : tierInfo.tier === 'free'
+                    ? 'Select Plan to Post Roles →'
+                    : `Role Slots Full (${activeJobsCount}/${tierInfo.maxActiveJobs}) · Upgrade →`}
               </Link>
             )}
           </div>
@@ -629,19 +640,21 @@ export default async function DashboardPage({
                   a11yColorTiles ? 'text-blue-950' : 'text-slate-900'
                 }`}
               >
-                Active Roles
+                {isPracticeEmployer ? 'Role Drafts' : 'Active Roles'}
               </h3>
               <p
                 className={`text-xs mt-1 ${
                   a11yColorTiles ? 'text-blue-900/80' : 'text-slate-500'
                 }`}
               >
-                {tierInfo.maxActiveJobs >= 500
-                  ? 'Unlimited active role slots'
-                  : `${Math.max(
-                      0,
-                      tierInfo.maxActiveJobs - activeJobsCount
-                    )} role slots remaining`}
+                {isPracticeEmployer
+                  ? `${Math.max(0, 5 - practiceDraftsCount)} Practice Mode draft slots remaining`
+                  : tierInfo.maxActiveJobs >= 500
+                    ? 'Unlimited active role slots'
+                    : `${Math.max(
+                        0,
+                        tierInfo.maxActiveJobs - activeJobsCount
+                      )} role slots remaining`}
               </p>
             </div>
             <p
