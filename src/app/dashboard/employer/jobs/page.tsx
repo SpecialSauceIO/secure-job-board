@@ -128,6 +128,7 @@ function enrichJobForManagementTable(job: any): EnrichedEmployerJobRow {
     isExpired,
     expiresAtIso: new Date(expiresMs).toISOString(),
     renewedAtIso: metaItem.renewed_at || null,
+    isPracticeDraft: Boolean(metaItem.practice_draft === true && !job.is_active),
     skillsString: [
       ...visibleReqs.map((r: any) => r.skill || r.name || ''),
       metaItem.required_certifications || job?.required_certifications || '',
@@ -239,7 +240,13 @@ export default async function JobManagementPage() {
       return
     }
 
-    // Reopening or Renewing a role for a fresh 30-day window: check tier active role limits first
+    // Reopening, Publishing, or Renewing a role for a fresh 30-day window: require active monthly plan + check slot limits
+    const actionTierNorm = String(orgRecord?.subscription_tier || '').toLowerCase()
+    const actionStatusNorm = String(orgRecord?.subscription_status || '').toLowerCase()
+    if (!(actionStatusNorm === 'active' && ['starter', 'growth', 'enterprise'].includes(actionTierNorm))) {
+      revalidatePath('/dashboard/employer/jobs')
+      return
+    }
     const currentTier = await resolveEmployerTierInfo(orgRecord)
     const { data: targetJob } = await supabaseAction
       .from('jobs')
@@ -363,11 +370,13 @@ export default async function JobManagementPage() {
     }
 
     const nowIso = new Date().toISOString()
+    const isInitialDraftPublish = Boolean(existingMeta.practice_draft === true && !targetJob.is_active)
     const updatedMeta = {
       ...existingMeta,
       _ss_job_meta: true,
+      practice_draft: false,
       renewed_at: nowIso,
-      renewal_count: currentRenewalCount + 1,
+      renewal_count: isInitialDraftPublish ? currentRenewalCount : currentRenewalCount + 1,
     }
 
     await supabaseAction
@@ -384,8 +393,12 @@ export default async function JobManagementPage() {
     revalidatePath('/dashboard')
   }
 
+  const orgTierNorm = String(orgObj?.subscription_tier || '').toLowerCase()
+  const orgStatusNorm = String(orgObj?.subscription_status || '').toLowerCase()
+  const isPracticeMode = !(orgStatusNorm === 'active' && ['starter', 'growth', 'enterprise'].includes(orgTierNorm))
+  const practiceDraftCount = enrichedRows.filter((j) => j.isPracticeDraft).length
   const activeJobsCount = enrichedRows.filter((j) => j.is_active).length
-  const slotsFull = tierInfo.maxActiveJobs > 0 && activeJobsCount >= tierInfo.maxActiveJobs
+  const slotsFull = !isPracticeMode && tierInfo.maxActiveJobs > 0 && activeJobsCount >= tierInfo.maxActiveJobs
 
   return (
     <div className="py-2">
@@ -415,9 +428,17 @@ export default async function JobManagementPage() {
               Job Management
             </h1>
             <p className="text-slate-500 mt-1 text-sm">
-              Manage your active listings ({activeJobsCount}/
-              {tierInfo.maxActiveJobs} slots used). To prevent passive resume harvesting, all roles automatically close after{' '}
-              <strong>{JOB_EXPIRATION_DAYS} days</strong> unless manually renewed.
+              {isPracticeMode ? (
+                <>
+                  <strong>Practice Mode ($0/mo):</strong> Draft protected roles ({practiceDraftCount} saved) and preview verified professional match counts before activating a monthly plan.
+                </>
+              ) : (
+                <>
+                  Manage your active listings ({activeJobsCount}/
+                  {tierInfo.maxActiveJobs} slots used). To prevent passive resume harvesting, all roles automatically close after{' '}
+                  <strong>{JOB_EXPIRATION_DAYS} days</strong> unless manually renewed.
+                </>
+              )}
             </p>
           </div>
           <div className="flex gap-3 shrink-0">
@@ -426,7 +447,7 @@ export default async function JobManagementPage() {
                 href="/dashboard/employer/jobs/new"
                 className="w-full sm:w-auto text-center justify-center px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-sm transition-all text-sm"
               >
-                + Post New Job
+                {isPracticeMode ? '+ Draft New Role' : '+ Post New Job'}
               </Link>
             ) : (
               <Link
@@ -451,6 +472,23 @@ export default async function JobManagementPage() {
             )}
           </div>
         </header>
+
+        {isPracticeMode && isOrgVerified && (
+          <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+            <div className="text-xs text-indigo-950 leading-relaxed">
+              <span className="font-extrabold block text-sm mb-0.5">
+                Practice Mode Active ($0/mo)
+              </span>
+              You can build and refine protected role drafts right now without using renewal credits. Activate a monthly plan whenever you are ready to publish your drafts live for 30 days and receive verified applications.
+            </div>
+            <Link
+              href="/dashboard/employer/billing"
+              className="shrink-0 px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-colors text-center"
+            >
+              Activate Monthly Plan →
+            </Link>
+          </div>
+        )}
 
         {/* Anti-Harvesting 30-Day Expiration Policy Callout */}
         <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -520,19 +558,21 @@ export default async function JobManagementPage() {
                 </svg>
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-2">
-                No jobs posted yet
+                {isPracticeMode ? 'No role drafts saved yet' : 'No jobs posted yet'}
               </h3>
               <p className="text-slate-500 mb-6">
-                {isOrgVerified
-                  ? 'Create your first protected job listing to start receiving anonymous applications.'
-                  : 'Verify your corporate domain first to unlock protected job postings.'}
+                {!isOrgVerified
+                  ? 'Verify your corporate domain first to unlock protected job postings.'
+                  : isPracticeMode
+                    ? 'Draft your first protected role in Practice Mode and preview verified match counts before activating a monthly plan.'
+                    : 'Create your first protected job listing to start receiving anonymous applications.'}
               </p>
               {isOrgVerified ? (
                 <Link
                   href="/dashboard/employer/jobs/new"
                   className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 shadow-sm transition-all"
                 >
-                  Post your first job
+                  {isPracticeMode ? 'Draft your first role' : 'Post your first job'}
                 </Link>
               ) : (
                 <Link
@@ -549,6 +589,7 @@ export default async function JobManagementPage() {
               activeJobsCount={activeJobsCount}
               maxActiveJobs={tierInfo.maxActiveJobs}
               slotsFull={slotsFull}
+              isPracticeMode={isPracticeMode}
               toggleOrRenewJobStatus={toggleOrRenewJobStatus}
             />
           )}

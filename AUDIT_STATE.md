@@ -30,6 +30,7 @@
 - [x] Secondary Dashboard Views (`src/app/dashboard/employer/pitches/page.tsx`, `src/app/dashboard/post-job/page.tsx`, `src/app/dashboard/actions.ts` — locked status tab counts, whole-word & cert search, `structured_skills` coverage, Clear Filters, 5s live thread poll, legacy `/dashboard/post-job` redirect to `/dashboard/employer/jobs/new`; skipping `horizon` while in development)
 - [x] Operations Console (`special-sauce-ops @ 3417ee7` + `ss --ops` flag alignment — plain-English nomenclature parity, `Membership & Plan Settings` & `Practice Mode` KB macros, `support@specialsauce.io` outbound/fallback routing, Production Directory & 11-sensor Live Telemetry checks)
 - [x] Public About Page & Single-Row Footer Parity (`src/app/about/page.tsx`, `PublicHeader.tsx`, `PublicFooter.tsx`, `src/app/sitemap.ts`, `scripts/verify_ops_dependencies.py` — dark-slate institutional pillars, plain-English $5/$25 verification rationale, `1fr_auto_1fr` single-row footer nav, sitemap entry, and Tab 7 `/about` route-leak guard)
+- [x] Employer Practice Mode Role Drafting (`src/app/dashboard/actions.ts`, `src/app/dashboard/employer/jobs/new/page.tsx`, `src/app/dashboard/employer/jobs/page.tsx`, `src/components/EmployerJobsTableClient.tsx` — $0/mo Practice Draft saving with `practice_draft: true`, active-slot & 90-day renewal exemption, Practice Draft mobile/desktop badges, Activate Monthly Plan CTA, and `Publish Live (30d)` unlock upon paid subscription)
 
 ## Deferred Modules (In Active Development)
 - [ ] True Horizon™ (`horizon` — skipped while in active development)

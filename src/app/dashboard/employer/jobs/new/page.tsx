@@ -29,6 +29,7 @@ export default function NewJobPage() {
   const router = useRouter()
   const [isCheckingAccess, setIsCheckingAccess] = useState(true)
   const [isOrgVerified, setIsOrgVerified] = useState(false)
+  const [isPracticeMode, setIsPracticeMode] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   const [jobData, setJobData] = useState({
@@ -77,7 +78,11 @@ export default function NewJobPage() {
           .eq('id', member.organization_id)
           .single()
 
-        setIsOrgVerified(Boolean(orgObj?.verification_status === 'verified' || (orgObj as any)?.domain_verified === true || ['active', 'verified_sandbox'].includes(String(orgObj?.subscription_status || '').toLowerCase()) || ['explorer', 'starter', 'growth', 'enterprise'].includes(String(orgObj?.subscription_tier || '').toLowerCase())))
+        const tierNorm = String(orgObj?.subscription_tier || '').toLowerCase()
+        const statusNorm = String(orgObj?.subscription_status || '').toLowerCase()
+        const hasPaidActivePlan = statusNorm === 'active' && ['starter', 'growth', 'enterprise'].includes(tierNorm)
+        setIsPracticeMode(!hasPaidActivePlan)
+        setIsOrgVerified(Boolean(orgObj?.verification_status === 'verified' || (orgObj as any)?.domain_verified === true || ['active', 'verified_sandbox'].includes(statusNorm) || ['explorer', 'starter', 'growth', 'enterprise'].includes(tierNorm)))
 
         const rawDesc = orgObj?.description || ''
         const indMatch = rawDesc.match(/\[IND:([^\]]+)\]/i)
@@ -248,11 +253,24 @@ export default function NewJobPage() {
           Back to Employer Dashboard
         </Link>
         <h2 className="text-2xl font-bold text-slate-900">
-          Post a New Protected Role
+          {isPracticeMode ? 'Draft a Protected Role (Practice Mode)' : 'Post a New Protected Role'}
         </h2>
         <p className="text-sm text-slate-500 mt-1">
           Professionals will see your compensation band, US metro location, education/certification/language alignment, and standardized industry vertical, while your company name and domain remain hidden until unlock.
         </p>
+        {isPracticeMode && (
+          <div className="mt-4 p-4 rounded-xl bg-amber-50 border border-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <p className="text-xs font-semibold text-amber-950">
+              <strong>Practice Mode Active ($0/mo):</strong> You can save up to 5 inactive Protected Role drafts right now. When you are ready to publish roles live to Verified Professionals, activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo).
+            </p>
+            <Link
+              href="/dashboard/employer/billing"
+              className="shrink-0 px-3.5 py-2 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-indigo-600 transition-colors text-center"
+            >
+              View Employer Plans →
+            </Link>
+          </div>
+        )}
       </div>
 
       {submitError && (
@@ -698,10 +716,10 @@ export default function NewJobPage() {
 
         <div className="pt-2 flex justify-end">
           <SubmitButton
-            pendingText="Publishing..."
+            pendingText={isPracticeMode ? 'Saving Draft...' : 'Publishing...'}
             className="w-full sm:w-auto rounded-xl bg-indigo-600 px-8 py-3.5 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer"
           >
-            Publish Protected Job Post
+            {isPracticeMode ? 'Save Practice Mode Draft' : 'Publish Protected Job Post'}
           </SubmitButton>
         </div>
       </form>

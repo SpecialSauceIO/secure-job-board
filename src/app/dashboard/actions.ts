@@ -4588,7 +4588,7 @@ export async function createStructuredJob(formData: FormData) {
   if (!entityTrust.hasValidEntityMeta) {
     return {
       error:
-        'Verification Gate (2/3): Please save your company Federal EIN (XX-XXXXXXX) and State of Incorporation on your Company Profile page before accessing professional vaults or publishing roles.',
+        'Verification Gate (2/3): Please save your company Federal EIN (XX-XXXXXXX) and State of Incorporation in Organization Settings before publishing or drafting protected roles.',
     }
   }
 
@@ -4608,27 +4608,35 @@ export async function createStructuredJob(formData: FormData) {
   if (!isEmployerAdminIdVerified) {
     return {
       error:
-        'Verification Gate (3/3): Employer Admin Real-Person ID Verification (Stripe Identity) is required on your Company Profile page before publishing roles or sending Professional Invitations candidates.',
+        'Verification Gate (3/3): Employer Admin Real-Person ID Verification (Stripe Identity) is required in Organization Settings before publishing Protected Roles or sending Professional Invitations.',
     }
   }
 
   const tierInfo = await resolveEmployerTierInfo(orgObj)
-  if (tierInfo.tier === 'free' || tierInfo.maxActiveJobs < 1) {
-    return {
-      error:
-        'Subscription Required: Your organization does not currently have an active employer plan (browse-only). Subscribe to Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) on your Billing page to publish active roles.',
+  const isPracticeModeDraft = tierInfo.tier === 'free' || tierInfo.maxActiveJobs < 1
+
+  if (isPracticeModeDraft) {
+    const { count: existingDraftCount } = await supabase
+      .from('jobs')
+      .select('*', { count: 'exact', head: true })
+      .eq('organization_id', currentMember.organization_id)
+    if ((existingDraftCount || 0) >= 5) {
+      return {
+        error:
+          'Practice Mode Draft Limit Reached: Practice Mode supports up to 5 saved role drafts. Activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo) in Membership & Plan Settings to publish live Protected Roles.',
+      }
     }
-  }
+  } else {
+    const { count: currentActiveJobs } = await supabase
+      .from('jobs')
+      .select('*', { count: 'exact', head: true })
+      .eq('organization_id', currentMember.organization_id)
+      .eq('is_active', true)
 
-  const { count: currentActiveJobs } = await supabase
-    .from('jobs')
-    .select('*', { count: 'exact', head: true })
-    .eq('organization_id', currentMember.organization_id)
-    .eq('is_active', true)
-
-  if ((currentActiveJobs || 0) >= tierInfo.maxActiveJobs) {
-    return {
-      error: `Active Role Limit Reached: Your ${tierInfo.label} allows up to ${tierInfo.maxActiveJobs} simultaneous active roles (currently ${currentActiveJobs}/${tierInfo.maxActiveJobs}). Please close an existing role or upgrade your subscription tier.`,
+    if ((currentActiveJobs || 0) >= tierInfo.maxActiveJobs) {
+      return {
+        error: `Active Role Limit Reached: Your ${tierInfo.label} allows up to ${tierInfo.maxActiveJobs} simultaneous active roles (currently ${currentActiveJobs}/${tierInfo.maxActiveJobs}). Please close an existing role or upgrade your plan in Membership & Plan Settings.`,
+      }
     }
   }
 
@@ -4650,7 +4658,7 @@ export async function createStructuredJob(formData: FormData) {
   const visibleSkillReqs = filterVisibleJobRequirements(structured_requirements)
   if (visibleSkillReqs.length < 3) {
     return {
-      error: `Minimum 3 Core Skills Required: Please enter at least 3 core skills in Section 4 (currently ${visibleSkillReqs.length} added) so the TrueFit Score™ engine can accurately score candidates.`,
+      error: `Minimum 3 Core Skills Required: Please enter at least 3 core skills in Section 4 (currently ${visibleSkillReqs.length} added) so the TrueFit Score™ engine can accurately score Professionals.`,
     }
   }
 
@@ -4714,6 +4722,9 @@ export async function createStructuredJob(formData: FormData) {
             (r: any) => r && typeof r === 'object' && r._ss_job_meta === true
           )
         : null
+      if (oldMeta?.practice_draft === true && !oldJob.is_active) {
+        continue
+      }
       const priorRenewals = Math.max(0, Number(oldMeta?.renewal_count) || 0)
       const effectiveCarryover = oldJob.is_active
         ? priorRenewals
@@ -4745,7 +4756,7 @@ export async function createStructuredJob(formData: FormData) {
     }
   }
 
-  if (inheritedRenewalCount > 0) {
+  if (!isPracticeModeDraft && inheritedRenewalCount > 0) {
     structured_requirements = structured_requirements.map((item: any) =>
       item && typeof item === 'object' && item._ss_job_meta === true
         ? {
@@ -4769,6 +4780,14 @@ export async function createStructuredJob(formData: FormData) {
     })
   }
 
+  if (isPracticeModeDraft) {
+    structured_requirements = structured_requirements.map((item: any) =>
+      item && typeof item === 'object' && item._ss_job_meta === true
+        ? { ...item, practice_draft: true }
+        : item
+    )
+  }
+
   const { error } = await supabase.from('jobs').insert({
     organization_id: currentMember.organization_id,
     employer_id: user.id,
@@ -4778,7 +4797,7 @@ export async function createStructuredJob(formData: FormData) {
     salary_min,
     salary_max,
     structured_requirements,
-    is_active: true,
+    is_active: !isPracticeModeDraft,
   })
 
   if (error) {
@@ -4840,7 +4859,7 @@ export async function updateStructuredJob(formData: FormData) {
   const visibleSkillReqs = filterVisibleJobRequirements(structured_requirements)
   if (visibleSkillReqs.length < 3) {
     return {
-      error: `Minimum 3 Core Skills Required: Please keep at least 3 core skills in Section 4 (currently ${visibleSkillReqs.length} added) so the TrueFit Score™ engine can accurately score candidates.`,
+      error: `Minimum 3 Core Skills Required: Please keep at least 3 core skills in Section 4 (currently ${visibleSkillReqs.length} added) so the TrueFit Score™ engine can accurately score Professionals.`,
     }
   }
 

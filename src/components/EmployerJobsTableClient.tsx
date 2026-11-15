@@ -49,6 +49,7 @@ export interface EnrichedEmployerJobRow {
   expiresAtIso: string
   renewedAtIso: string | null
   skillsString: string
+  isPracticeDraft?: boolean
 }
 
 export default function EmployerJobsTableClient({
@@ -56,12 +57,14 @@ export default function EmployerJobsTableClient({
   activeJobsCount,
   maxActiveJobs,
   slotsFull,
+  isPracticeMode = false,
   toggleOrRenewJobStatus,
 }: {
   jobs: EnrichedEmployerJobRow[]
   activeJobsCount: number
   maxActiveJobs: number
   slotsFull: boolean
+  isPracticeMode?: boolean
   toggleOrRenewJobStatus: (formData: FormData) => Promise<void>
 }) {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'closed'>(
@@ -401,6 +404,11 @@ export default function EmployerJobsTableClient({
                           <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                           Active ({job.daysRemaining}d left)
                         </span>
+                      ) : job.isPracticeDraft ? (
+                        <span className="inline-flex items-center gap-1.5 font-extrabold text-indigo-700">
+                          <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                          Practice Draft
+                        </span>
                       ) : job.isExpired ? (
                         <span className="inline-flex items-center gap-1.5 font-extrabold text-amber-700">
                           <span className="w-2 h-2 rounded-full bg-amber-500"></span>
@@ -496,6 +504,13 @@ export default function EmployerJobsTableClient({
                             Close Listing
                           </SubmitButton>
                         </>
+                      ) : isPracticeMode ? (
+                        <Link
+                          href="/dashboard/employer/billing"
+                          className="block w-full text-center px-3 py-2 text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-300 rounded-xl hover:bg-indigo-100"
+                        >
+                          Activate Plan to Publish →
+                        </Link>
                       ) : slotsFull ? (
                         <Link
                           href="/dashboard/employer/billing"
@@ -507,10 +522,10 @@ export default function EmployerJobsTableClient({
                         <>
                           <input type="hidden" name="action_type" value="renew" />
                           <SubmitButton
-                            pendingText="Renewing..."
+                            pendingText={job.isPracticeDraft ? 'Publishing...' : 'Renewing...'}
                             className="w-full px-3 py-2 text-xs font-extrabold text-white bg-slate-900 rounded-xl hover:bg-indigo-600 cursor-pointer"
                           >
-                            ↻ Reopen (+30d)
+                            {job.isPracticeDraft ? 'Publish Live (30d)' : '↻ Reopen (+30d)'}
                           </SubmitButton>
                         </>
                       )}
@@ -610,6 +625,11 @@ export default function EmployerJobsTableClient({
                               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                               Active
                             </span>
+                          ) : job.isPracticeDraft ? (
+                            <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-indigo-700">
+                              <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                              Practice Draft
+                            </span>
                           ) : job.isExpired ? (
                             <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-amber-700">
                               <span className="w-2 h-2 rounded-full bg-amber-500"></span>
@@ -633,6 +653,10 @@ export default function EmployerJobsTableClient({
                               Closes in {job.daysRemaining}{' '}
                               {job.daysRemaining === 1 ? 'day' : 'days'} (
                               {new Date(job.expiresAtIso).toLocaleDateString()})
+                            </span>
+                          ) : job.isPracticeDraft ? (
+                            <span className="text-[11px] text-indigo-600 font-semibold">
+                              {isPracticeMode ? 'Activate monthly plan to publish live' : 'Ready to publish live for 30 days'}
                             </span>
                           ) : (
                             <span className="text-[11px] text-slate-400 font-medium">
@@ -740,6 +764,13 @@ export default function EmployerJobsTableClient({
                                   Close
                                 </SubmitButton>
                               </>
+                            ) : isPracticeMode ? (
+                              <Link
+                                href="/dashboard/employer/billing"
+                                className="px-3 py-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-300 rounded-lg hover:bg-indigo-100 transition-colors"
+                              >
+                                Activate Plan to Publish →
+                              </Link>
                             ) : slotsFull ? (
                               <Link
                                 href="/dashboard/employer/billing"
@@ -771,10 +802,10 @@ export default function EmployerJobsTableClient({
                                   value="renew"
                                 />
                                 <SubmitButton
-                                  pendingText="Renewing..."
+                                  pendingText={job.isPracticeDraft ? 'Publishing...' : 'Renewing...'}
                                   className="px-3 py-1.5 text-xs font-extrabold text-white bg-slate-900 rounded-lg hover:bg-indigo-600 transition-colors cursor-pointer"
                                 >
-                                  ↻ Reopen (+30d • {job.renewalCount}/{job.maxRenewals})
+                                  {job.isPracticeDraft ? 'Publish Live (30d)' : `↻ Reopen (+30d • ${job.renewalCount}/${job.maxRenewals})`}
                                 </SubmitButton>
                               </>
                             )}
