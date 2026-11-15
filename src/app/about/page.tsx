@@ -80,7 +80,7 @@ export default function AboutPage() {
                 </h2>
               </div>
               <p className="text-slate-300 leading-relaxed text-base">
-                When creating an account on a job board costs nothing and checks nothing, scam networks can spin up thousands of fake profiles and fake job listings before breakfast. Our upfront verification gate exists for one reason: mathematical protection for everyone inside.
+                When creating an account on a job board costs nothing and checks nothing, scam networks can spin up thousands of fake profiles and fake job listings before breakfast. Our upfront verification gate exists for one reason: mathematical protection for everyone inside—and whenever you choose to activate a paid monthly membership, 100% of your upfront verification fee is credited right back toward Month 1.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
                 <div className="rounded-xl bg-slate-800/80 border border-slate-700 p-5 space-y-2.5">
@@ -90,13 +90,19 @@ export default function AboutPage() {
                   <p className="text-sm text-slate-300 leading-relaxed">
                     We do not believe in taxing people who are looking for work. Explorer is $0/month forever. The one-time $5 verification covers live government ID verification through Stripe Identity so automated bots cannot impersonate real talent—while keeping your name, resume, and contact details private inside your vault until you choose to unlock them.
                   </p>
+                  <p className="text-xs font-bold text-emerald-400 pt-1">
+                    100% Credited Back: Whenever you upgrade to a Professional or Prestige monthly membership, your $5 verification fee is credited right toward Month 1.
+                  </p>
                 </div>
                 <div className="rounded-xl bg-slate-800/80 border border-slate-700 p-5 space-y-2.5">
                   <h3 className="text-lg font-extrabold text-white">
                     For Employers ($25 One-Time — $0/mo Practice Mode)
                   </h3>
                   <p className="text-sm text-slate-300 leading-relaxed">
-                    Employers are held to an even stricter standard. Every organization completes corporate domain verification, U.S. business entity review, and Stripe administrator ID verification before accessing Practice Mode—letting hiring teams configure Protected Roles and preview verified match counts before activating a monthly plan.
+                    Employers are held to an even stricter standard. Every organization completes corporate domain verification, U.S. business entity review, and Stripe administrator ID verification before accessing Practice Mode—letting hiring teams configure Protected Roles and preview verified match counts before activating a monthly membership.
+                  </p>
+                  <p className="text-xs font-bold text-emerald-400 pt-1">
+                    100% Credited Back: When your team activates a Starter, Growth, or Enterprise monthly membership, your $25 verification fee is credited right toward Month 1.
                   </p>
                 </div>
               </div>
