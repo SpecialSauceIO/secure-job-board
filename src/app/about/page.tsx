@@ -99,7 +99,7 @@ export default function AboutPage() {
                     For Employers ($25 One-Time — $0/mo Practice Mode)
                   </h3>
                   <p className="text-sm text-slate-300 leading-relaxed">
-                    Employers are held to an even stricter standard. Every organization completes corporate domain verification, U.S. business entity review, and Stripe administrator ID verification before accessing Practice Mode—letting hiring teams configure Protected Roles and preview verified match counts before activating a monthly membership.
+                    Employers are held to an even stricter standard. Your $25 verification fee and administrator Stripe ID scan unlock Practice Mode immediately so your team can configure company settings and preview verified match counts—while corporate domain verification and U.S. business entity review must clear before publishing Protected Roles or sending Professional Invitations.
                   </p>
                   <p className="text-xs font-bold text-emerald-400 pt-1">
                     100% Credited Back: When your team activates a Starter, Growth, or Enterprise monthly membership, your $25 verification fee is credited right toward Month 1.
