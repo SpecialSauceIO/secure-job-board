@@ -38,6 +38,14 @@ import { isSeasonZeroFounder } from '@/constants/gamification'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
 import { pushToOpsControlPlane,
   getUserOpsTickets, getOpsServiceClient } from '@/lib/ops-bridge'
+import {
+  listShieldLinksForProfessional,
+  mintShieldLinkForProfessional,
+  revokeShieldLinkForProfessional,
+  inspectPublicAirlockToken,
+  resolveActiveAirlockTarget,
+  markAirlockTokenRedeemed,
+} from '@/lib/inbound-shield'
 import { inspectResumeAndTextForBadActorPayloads, inspectStage1TextForContactLeakOrInjection, checkActionVelocityAndSpray, raiseSecurityAlertAndFlag, recordHandshakeTelemetry } from '@/lib/security-telemetry'
 
 const MIN_MATCH_THRESHOLD = 40
@@ -2844,6 +2852,17 @@ export async function getCandidateConnectionRequests(
       String(candProfile?.is_verified) === 'true'
   )
   const canEngageInvitations = hasActiveCandidatePlan && isCandIdVerified
+  const shieldLinks = await listShieldLinksForProfessional(user.id)
+  const shieldMemoByAppId: Record<string, string> = {}
+  const shieldAppIdSet = new Set<string>()
+  for (const sl of shieldLinks) {
+    if (sl.application_id) {
+      shieldAppIdSet.add(String(sl.application_id))
+      if (sl.private_memo) {
+        shieldMemoByAppId[String(sl.application_id)] = sl.private_memo
+      }
+    }
+  }
 
   let enriched = requests.map((req: any) => {
     const rawIsAccepted = req.status === 'accepted' || req.is_revealed === true
@@ -2911,6 +2930,10 @@ export async function getCandidateConnectionRequests(
       can_engage_invitations: canEngageInvitations,
       has_active_plan: hasActiveCandidatePlan,
       is_candidate_verified: isCandIdVerified,
+      inbound_shield_verified: Boolean(
+        req.match_data?.via_inbound_shield === true || shieldAppIdSet.has(String(req.id))
+      ),
+      inbound_shield_memo: shieldMemoByAppId[String(req.id)] || null,
     }
   })
 
@@ -2975,7 +2998,9 @@ export async function getCandidateConnectionRequests(
         matchesText(canonicalJobCerts) ||
         matchesText(langText) ||
         matchesText(reqText) ||
-        matchesText(req.match_data?.employer_pitch)
+        matchesText(req.match_data?.employer_pitch) ||
+        matchesText(req.inbound_shield_memo) ||
+        (req.inbound_shield_verified && matchesText('inbound shield'))
       )
     })
   }
@@ -7799,5 +7824,426 @@ export async function toggleSandboxEmployerAdminIdentity(targetVerified: boolean
     message: targetVerified
       ? '⚡ Sandbox: Employer Admin Stripe Identity marked as Verified.'
       : 'Sandbox: Employer Admin Stripe Identity reset to Unverified.',
+  }
+}
+
+export async function getProfessionalShieldLinksAction() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized', links: [], isVerified: false, isDiscoverable: true }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, identity_verified, is_verified, is_discoverable')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (!profile?.role || profile.role === 'employer') {
+    return { error: 'Inbound Shield is reserved for verified Professional accounts.', links: [], isVerified: false, isDiscoverable: true }
+  }
+
+  const isVerified = Boolean(
+    profile?.identity_verified === true ||
+      String(profile?.identity_verified) === 'true' ||
+      profile?.is_verified === true ||
+      String(profile?.is_verified) === 'true'
+  )
+
+  const links = await listShieldLinksForProfessional(user.id)
+  return {
+    links,
+    isVerified,
+    isDiscoverable: profile?.is_discoverable !== false,
+  }
+}
+
+export async function createProfessionalShieldLinkAction(params: {
+  privateMemo?: string
+  ttlDays?: number
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, identity_verified, is_verified')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (!profile?.role || profile.role === 'employer') {
+    return { error: 'Inbound Shield is reserved for verified Professional accounts.' }
+  }
+
+  const isVerified = Boolean(
+    profile?.identity_verified === true ||
+      String(profile?.identity_verified) === 'true' ||
+      profile?.is_verified === true ||
+      String(profile?.is_verified) === 'true'
+  )
+  if (!isVerified) {
+    return { error: 'Complete your one-time $5 Explorer ID check first to generate Inbound Shield verification links.' }
+  }
+
+  const minted = await mintShieldLinkForProfessional({
+    candidateId: user.id,
+    privateMemo: params.privateMemo,
+    ttlDays: params.ttlDays,
+  })
+  if (minted.error || !minted.token || !minted.record) {
+    return { error: minted.error || 'Could not create link.' }
+  }
+
+  revalidatePath('/dashboard/shield')
+  return { token: minted.token, record: minted.record }
+}
+
+export async function revokeProfessionalShieldLinkAction(linkId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const res = await revokeShieldLinkForProfessional({
+    candidateId: user.id,
+    linkId: String(linkId || '').trim(),
+  })
+  if (!res.ok) return { error: res.error || 'Could not revoke link.' }
+  revalidatePath('/dashboard/shield')
+  return { success: true }
+}
+
+export async function getAirlockEmployerContextAction(rawToken: string) {
+  const airlock = await inspectPublicAirlockToken(rawToken)
+  if (!airlock.active) {
+    return { active: false }
+  }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { active: true, authenticated: false }
+  }
+
+  const db = getAdminSupabaseClient() || supabase
+  const { data: profile } = await db
+    .from('profiles')
+    .select('role, identity_verified, is_verified')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (profile?.role !== 'employer') {
+    return {
+      active: true,
+      authenticated: true,
+      viewerRole: 'professional',
+    }
+  }
+
+  const { data: member } = await db
+    .from('organization_members')
+    .select('organization_id')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (!member?.organization_id) {
+    return {
+      active: true,
+      authenticated: true,
+      viewerRole: 'employer',
+      hasOrg: false,
+    }
+  }
+
+  const { data: orgObj } = await db
+    .from('organizations')
+    .select('*')
+    .eq('id', member.organization_id)
+    .maybeSingle()
+
+  const entityTrust = parseOrgEntityTrustMeta(orgObj?.description)
+  const isAdminIdVerified = Boolean(
+    profile?.identity_verified === true ||
+      String(profile?.identity_verified) === 'true' ||
+      profile?.is_verified === true ||
+      String(profile?.is_verified) === 'true'
+  )
+  const isDomainVerified = orgObj?.verification_status === 'verified'
+  const tierInfo = await resolveEmployerTierInfo(orgObj)
+  const credits = Number(orgObj?.connection_credits || 0)
+
+  const { data: rawJobs } = await db
+    .from('jobs')
+    .select('id, title, created_at, is_active, description, salary_min, salary_max, work_model, structured_requirements')
+    .eq('organization_id', member.organization_id)
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+
+  const liveJobs = (rawJobs || [])
+    .map((j: any) => enrichJobRecord(j))
+    .filter((j: any) => !j.is_expired && j.job_meta?.practice_draft !== true)
+    .map((j: any) => ({
+      id: String(j.id),
+      title: String(j.title || 'Protected Role'),
+      work_model: String(j.work_model || 'Flexible'),
+      salary_min: j.salary_min ?? null,
+      salary_max: j.salary_max ?? null,
+      pay_type: j.pay_type || j.job_meta?.pay_type || 'annual',
+    }))
+
+  return {
+    active: true,
+    authenticated: true,
+    viewerRole: 'employer',
+    hasOrg: true,
+    orgName: orgObj?.name || 'Your Organization',
+    isDomainVerified,
+    hasEntityMeta: entityTrust.hasValidEntityMeta,
+    isAdminIdVerified,
+    tier: tierInfo.tier,
+    credits,
+    liveJobs,
+  }
+}
+
+export async function submitEmployerAirlockInvitationAction(params: {
+  rawToken: string
+  jobId: string
+  employerPitch?: string
+}) {
+  const rawToken = String(params.rawToken || '').trim()
+  const jobId = String(params.jobId || '').trim()
+  const cleanPitch = String(params.employerPitch || '').replace(/[<>]/g, '').trim().slice(0, 600)
+
+  const target = await resolveActiveAirlockTarget(rawToken)
+  if (!target.active || !target.candidateId) {
+    return { error: 'This one-time verification link is no longer active.' }
+  }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Please sign in with a verified Employer account first.' }
+
+  const db = getAdminSupabaseClient() || supabase
+  const { data: member } = await db
+    .from('organization_members')
+    .select('organization_id')
+    .eq('user_id', user.id)
+    .maybeSingle()
+  if (!member?.organization_id) return { error: 'No employer organization found.' }
+
+  const { data: orgObj } = await db
+    .from('organizations')
+    .select('*')
+    .eq('id', member.organization_id)
+    .maybeSingle()
+
+  if (orgObj?.verification_status !== 'verified') {
+    return { error: 'Verification Gate (1/3): Verify your company domain on Company Profile before submitting a Protected Role.' }
+  }
+
+  const entityTrust = parseOrgEntityTrustMeta(orgObj?.description)
+  if (!entityTrust.hasValidEntityMeta) {
+    return { error: 'Verification Gate (2/3): Save your Federal EIN and State of Incorporation on Company Profile first.' }
+  }
+
+  const { data: empProfile } = await db
+    .from('profiles')
+    .select('identity_verified, is_verified')
+    .eq('id', user.id)
+    .maybeSingle()
+  const isEmpVerified = Boolean(
+    empProfile?.identity_verified === true ||
+      String(empProfile?.identity_verified) === 'true' ||
+      empProfile?.is_verified === true ||
+      String(empProfile?.is_verified) === 'true'
+  )
+  if (!isEmpVerified) {
+    return { error: 'Verification Gate (3/3): Complete Admin Real-Person ID Verification on Company Profile first.' }
+  }
+
+  const tierInfo = await resolveEmployerTierInfo(orgObj)
+  const credits = Number(orgObj?.connection_credits || 0)
+  const totalSent = Number(orgObj?.total_requests_sent || 0)
+  if (tierInfo.tier === 'free' || credits < 1) {
+    return { error: 'Active Employer Plan Required: Activate Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) — your $25 verification fee is 100% credited toward Month 1 — to send Protected Role invitations.' }
+  }
+
+  const { data: rawJob } = await db
+    .from('jobs')
+    .select('title, created_at, is_active, description, salary_min, salary_max, work_model, structured_requirements')
+    .eq('id', jobId)
+    .eq('organization_id', member.organization_id)
+    .maybeSingle()
+  if (!rawJob) return { error: 'Selected role was not found in your organization.' }
+
+  const job = enrichJobRecord(rawJob)
+  if (job.is_expired || !rawJob.is_active || job.job_meta?.practice_draft === true) {
+    return { error: 'Please select an active published Protected Role (not an expired role or Practice Mode draft).' }
+  }
+
+  const { data: targetMember } = await db
+    .from('profiles')
+    .select('*')
+    .eq('id', target.candidateId)
+    .maybeSingle()
+  if (!targetMember) {
+    return { error: 'This one-time verification link is no longer active.' }
+  }
+
+  const targetPrefMeta: any = extractCandidatePrefMeta(targetMember.structured_skills)
+  const neutralAlignmentBlock =
+    'This Protected Role did not clear the member\u2019s private alignment preferences, so no credit was used and this link remains active if you wish to submit a better-aligned role.'
+
+  if (isCandidatePaused(targetPrefMeta?.availability_window)) {
+    return { error: 'This member has temporarily paused inbound invitations. No credit was deducted.' }
+  }
+
+  const isHourlyRole =
+    job.pay_type === 'hourly' ||
+    (job.salary_max && job.salary_max > 0 && job.salary_max <= 500)
+  const annualizedMaxPay =
+    isHourlyRole && job.salary_max ? job.salary_max * 2080 : job.salary_max
+
+  if (
+    targetMember.min_salary_expectation > 0 &&
+    annualizedMaxPay &&
+    annualizedMaxPay < targetMember.min_salary_expectation
+  ) {
+    return { error: neutralAlignmentBlock }
+  }
+
+  const memberPrefModel = String(targetMember.preferred_work_model || 'any').toLowerCase().trim()
+  const jobWorkModel = String(job.work_model || '').toLowerCase().trim()
+  if (
+    memberPrefModel !== 'any' &&
+    memberPrefModel !== 'open' &&
+    jobWorkModel !== memberPrefModel
+  ) {
+    return { error: neutralAlignmentBlock }
+  }
+
+  const { data: matchResult, error: matchErr } = await analyzeMatchRouter(
+    {
+      ...targetMember,
+      industry_vertical: targetPrefMeta?.industry_vertical || '',
+      education_level: targetPrefMeta?.education_level || '',
+      certifications: targetPrefMeta?.certifications || '',
+      languages: normalizeLanguageList(targetPrefMeta?.languages, true),
+      structured_skills: filterVisibleSkills(targetMember.structured_skills),
+    },
+    job,
+    'employer'
+  )
+  if (matchErr) return { error: matchErr }
+  const matchScore = matchResult?.overall_score ?? null
+  if (matchScore === null || matchScore < MIN_MATCH_THRESHOLD) {
+    return { error: neutralAlignmentBlock }
+  }
+
+  const { data: existingPitch } = await db
+    .from('applications')
+    .select('id')
+    .eq('job_id', jobId)
+    .eq('candidate_id', target.candidateId)
+    .maybeSingle()
+  if (existingPitch?.id) {
+    return { error: 'An active invitation or application already exists for this role. No credit was deducted.' }
+  }
+
+  let knownMemberEmail = targetMember?.email || targetMember?.contact_email || null
+  let knownMemberName = targetMember?.full_name || targetMember?.name || null
+  if (!knownMemberEmail) {
+    try {
+      const { data: authTarget } = await db.auth.admin.getUserById(target.candidateId)
+      knownMemberEmail = authTarget?.user?.email || null
+    } catch {}
+  }
+
+  const preCheckRollover = Math.min(credits, parseRolloverCreditsTag(orgObj?.description))
+  const preCheckPlanBucket = Math.max(0, credits - preCheckRollover)
+  const creditBucketUsed: 'plan' | 'rollover' = preCheckPlanBucket > 0 ? 'plan' : 'rollover'
+
+  const enrichedMatchData = {
+    ...(matchResult || {}),
+    employer_org_name: orgObj?.name || null,
+    employer_org_domain: orgObj?.domain || null,
+    employer_contact_email: user.email || (orgObj?.domain ? `hiring@${orgObj.domain}` : null),
+    candidate_contact_email: knownMemberEmail,
+    candidate_full_name: knownMemberName,
+    credit_bucket_used: creditBucketUsed,
+    credit_refunded: false,
+    via_inbound_shield: true,
+    ...(cleanPitch ? { employer_pitch: cleanPitch } : {}),
+  }
+
+  const { data: insertedPitch, error: insertError } = await db
+    .from('applications')
+    .insert({
+      job_id: jobId,
+      candidate_id: target.candidateId,
+      status: 'pending',
+      initiated_by: 'employer',
+      is_revealed: false,
+      match_score: matchScore,
+      match_data: enrichedMatchData,
+    })
+    .select('id')
+    .single()
+
+  if (insertError || !insertedPitch?.id) {
+    return { error: insertError?.message || 'Unable to deliver Protected Role invitation.' }
+  }
+
+  await markAirlockTokenRedeemed({
+    rawToken,
+    applicationId: String(insertedPitch.id),
+  })
+
+  const currentRollover = Math.min(credits, parseRolloverCreditsTag(orgObj?.description))
+  const currentPlanBucket = Math.max(0, credits - currentRollover)
+  const nextRollover = currentPlanBucket > 0 ? currentRollover : Math.max(0, currentRollover - 1)
+  const nextTotalCredits = Math.max(0, credits - 1)
+  const rawDesc = orgObj?.description || ''
+  const updatedDescWithTopup = /\[TOPUP:\d+\]/i.test(rawDesc)
+    ? rawDesc.replace(/\[TOPUP:\d+\]/i, `[TOPUP:${nextRollover}]`)
+    : nextRollover > 0
+      ? `${rawDesc} [TOPUP:${nextRollover}]`.trim()
+      : rawDesc
+
+  await db
+    .from('organizations')
+    .update({
+      connection_credits: nextTotalCredits,
+      total_requests_sent: totalSent + 1,
+      description: updatedDescWithTopup,
+    })
+    .eq('id', member.organization_id)
+
+  const refId = formatReferenceId(insertedPitch.id)
+  await sendPlatformNotification({
+    to: knownMemberEmail,
+    subject: `Inbound Shield Verified Invitation: ${job.title} (${matchScore}% TrueFit)`,
+    referenceId: refId,
+    heading: `Inbound Shield Verified Invitation (${matchScore}% TrueFit)`,
+    bodyLines: [
+      `An external recruiter completed Employer verification through your one-time Inbound Shield link and submitted a Protected Role invitation for "${job.title}".`,
+      target.privateMemo ? `Your Private Link Note: ${target.privateMemo}` : `One-Time Link Status: Redeemed & Burned`,
+      `Transaction Reference ID: ${refId}`,
+      `Your personal contact details and resume remain private until you choose to accept and unlock Stage 2.`,
+    ],
+    ctaUrl: '/dashboard/requests',
+    ctaLabel: 'Review Verified Invitation →',
+  })
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/shield')
+  revalidatePath('/dashboard/requests')
+  revalidatePath('/dashboard/employer/pitches')
+  revalidatePath('/dashboard/employer/billing')
+
+  return {
+    success: true,
+    referenceId: refId,
+    remainingCredits: nextTotalCredits,
   }
 }

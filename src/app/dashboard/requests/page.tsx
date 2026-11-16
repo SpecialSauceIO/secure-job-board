@@ -596,7 +596,19 @@ export default function CandidateRequestsInboxPage() {
                         <span className="font-mono text-xs text-slate-500">
                           Ref: {req.reference_id}
                         </span>
+
+                        {req.inbound_shield_verified && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-300 text-emerald-800 text-[11px] font-extrabold">
+                            🛡️ Inbound Shield Verified
+                          </span>
+                        )}
                       </div>
+
+                      {req.inbound_shield_memo && (
+                        <p className="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg px-2.5 py-1 inline-block">
+                          🔒 Your Private Link Note: {req.inbound_shield_memo}
+                        </p>
+                      )}
 
                       <h2 className="text-2xl font-black text-slate-900 tracking-tight">
                         {job.title || 'Open Role'}

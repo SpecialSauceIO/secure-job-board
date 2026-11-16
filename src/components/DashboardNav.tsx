@@ -146,6 +146,7 @@ export default function DashboardNav({
     ...(isTrueHorizonDlcEnabled() ? [{ href: '/dashboard/horizon', label: 'True Horizon™ (DLC)' }] : []),
     { href: '/dashboard/applications', label: 'Outbound Applications' },
     { href: '/dashboard/requests', label: 'Professional Invitations' },
+    { href: '/dashboard/shield', label: 'Inbound Shield' },
     { href: '/dashboard/profile', label: 'My Profile' },
     { href: '/dashboard/preferences', label: 'Match Preferences' },
     { href: '/dashboard/support', label: 'Support' },

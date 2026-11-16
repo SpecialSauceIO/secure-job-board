@@ -22,8 +22,11 @@ function LoginContent() {
   const recoveryType = searchParams.get('type')
   const authCode = searchParams.get('code')
   const planParam = (searchParams.get('plan') || '').trim().toLowerCase()
-  const postLoginDestination =
-    planParam === 'explorer' || planParam === 'professional' || planParam === 'prestige'
+  const nextParam = (searchParams.get('next') || '').trim()
+  const safeNextShield = /^\/shield\/ss_air_[A-Za-z0-9_-]{24,64}$/.test(nextParam) ? nextParam : ''
+  const postLoginDestination = safeNextShield
+    ? safeNextShield
+    : planParam === 'explorer' || planParam === 'professional' || planParam === 'prestige'
       ? `/dashboard/billing?select=${encodeURIComponent(planParam)}`
       : planParam === 'starter' || planParam === 'growth' || planParam === 'enterprise'
         ? `/dashboard/employer/billing?select=${encodeURIComponent(planParam)}`
