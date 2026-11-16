@@ -206,7 +206,7 @@ export default function DashboardNav({
           <div className="hidden xl:flex items-center justify-center gap-3 mx-auto px-2 pointer-events-none shrink-0">
             <span className="h-5 w-px bg-slate-400"></span>
             <p className="text-[11px] font-semibold text-slate-700 tracking-[0.12em] uppercase whitespace-nowrap">
-              SECURELY CONNECTING PROFESSIONALS &amp; EMPLOYERS
+              THE WORLD&apos;S FIRST SECURED WORKFORCE ECOSYSTEM™
             </p>
             <span className="h-5 w-px bg-slate-400"></span>
           </div>
