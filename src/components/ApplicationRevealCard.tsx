@@ -413,7 +413,12 @@ export function ApplicationRevealCard({
             <span>Applied {safeFormatDate(app?.created_at)}</span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {Boolean(app?.via_talent_shield || app?.match_data?.via_talent_shield) && (
+              <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 font-bold border border-emerald-300">
+                🛡️ Talent Shield
+              </span>
+            )}
             {matchScore !== null && (
               <span className="px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold border border-indigo-300">
                 {matchScore}% TrueFit
@@ -533,6 +538,13 @@ export function ApplicationRevealCard({
                   .join(', ')}
               </span>
             )}
+          </div>
+        )}
+
+        {Boolean(app?.talent_shield_memo) && (
+          <div className="rounded-xl border border-indigo-200 bg-indigo-50/70 px-4 py-3 text-xs sm:text-sm text-slate-700">
+            <strong className="text-indigo-950 font-bold">🔒 Private Hiring-Team Note (Employer-Only):</strong>{' '}
+            {String(app.talent_shield_memo)}
           </div>
         )}
 

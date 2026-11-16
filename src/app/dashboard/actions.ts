@@ -45,6 +45,14 @@ import {
   inspectPublicAirlockToken,
   resolveActiveAirlockTarget,
   markAirlockTokenRedeemed,
+  listEmployerTalentShieldLinks,
+  mintEmployerTalentShieldLink,
+  revokeEmployerTalentShieldLink,
+  inspectPublicEmployerTalentShieldToken,
+  resolveActiveEmployerTalentShieldTarget,
+  markEmployerTalentShieldTokenRedeemed,
+  recordEmployerTalentShieldBelowThresholdCheck,
+  type EmployerTalentShieldMode,
 } from '@/lib/inbound-shield'
 import { inspectResumeAndTextForBadActorPayloads, inspectStage1TextForContactLeakOrInjection, checkActionVelocityAndSpray, raiseSecurityAlertAndFlag, recordHandshakeTelemetry } from '@/lib/security-telemetry'
 
@@ -53,6 +61,42 @@ const CANDIDATE_TRIAL_MAX_APPS = 15
 const CANDIDATE_TRIAL_DAYS = 30
 const EMPLOYER_FOUNDER_GRANT_DAYS = 30
 const EMPLOYER_FOUNDER_GRANT_JOBS = 0
+
+async function attachEmployerTalentShieldNotes(apps: any[], orgIds: string[]): Promise<any[]> {
+  if (!Array.isArray(apps) || apps.length === 0 || !Array.isArray(orgIds) || orgIds.length === 0) {
+    return apps
+  }
+  const hasShieldRow = apps.some((a) => Boolean(a?.match_data?.via_talent_shield))
+  if (!hasShieldRow) return apps
+  try {
+    const linkLists = await Promise.all(orgIds.map((oid) => listEmployerTalentShieldLinks(oid)))
+    const byAppId = new Map<string, { memo: string; mode: string }>()
+    const byLinkId = new Map<string, { memo: string; mode: string }>()
+    for (const list of linkLists) {
+      for (const link of list) {
+        const info = { memo: link.private_memo || '', mode: link.mode }
+        if (link.application_id) byAppId.set(String(link.application_id), info)
+        if (link.id) byLinkId.set(String(link.id), info)
+      }
+    }
+    return apps.map((app) => {
+      if (!app?.match_data?.via_talent_shield) return app
+      const found =
+        byAppId.get(String(app.id)) ||
+        (app.match_data?.talent_shield_link_id
+          ? byLinkId.get(String(app.match_data.talent_shield_link_id))
+          : undefined)
+      return {
+        ...app,
+        via_talent_shield: true,
+        talent_shield_mode: found?.mode || app.match_data?.talent_shield_mode || 'outbound_sourcing',
+        talent_shield_memo: found?.memo || '',
+      }
+    })
+  } catch {
+    return apps
+  }
+}
 const EMPLOYER_FOUNDER_GRANT_CREDITS = 0
 const JOB_EXPIRATION_DAYS = 30
 const MAX_SILENT_UNLOCKS = 5
@@ -5702,6 +5746,8 @@ export async function getEmployerPitches(
     })
   )
 
+  processedData = await attachEmployerTalentShieldNotes(processedData, orgIds)
+
   if (searchQuery && searchQuery.trim() !== '') {
     const lowerQuery = searchQuery.toLowerCase().trim()
     const escapedQ = lowerQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -5749,7 +5795,8 @@ export async function getEmployerPitches(
         matchesText(langText) ||
         matchesText(prof.bio) ||
         matchesText(prof.location) ||
-        matchesText(prof.industry_vertical)
+        matchesText(prof.industry_vertical) ||
+        matchesText(app.talent_shield_memo)
       )
     })
   }
@@ -5922,6 +5969,8 @@ export async function getEmployerInboundApplications(
     })
   )
 
+  processedData = await attachEmployerTalentShieldNotes(processedData, orgIds)
+
   if (statusFilter && statusFilter !== 'all') {
     processedData = processedData.filter(
       (app: any) => app.normalized_status === statusFilter
@@ -5982,13 +6031,15 @@ export async function getEmployerInboundApplications(
       const nameMatch = app.is_revealed
         ? matchesText(app.unlocked_candidate_name)
         : false
+      const memoMatch = matchesText(app.talent_shield_memo)
       return (
         titleMatch ||
         skillsMatch ||
         certMatch ||
         bioMatch ||
         nameMatch ||
-        refMatch
+        refMatch ||
+        memoMatch
       )
     })
   }
@@ -8245,5 +8296,721 @@ export async function submitEmployerAirlockInvitationAction(params: {
     success: true,
     referenceId: refId,
     remainingCredits: nextTotalCredits,
+  }
+}
+
+export async function getEmployerTalentShieldWorkspaceAction() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const db = getAdminSupabaseClient() || supabase
+  const { data: profile } = await db
+    .from('profiles')
+    .select('role, identity_verified, is_verified')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (profile?.role !== 'employer') {
+    return { error: 'Talent Shield is reserved for verified Employer accounts.' }
+  }
+
+  const { data: member } = await db
+    .from('organization_members')
+    .select('organization_id')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (!member?.organization_id) {
+    return { error: 'Complete Company Profile setup first.' }
+  }
+
+  const { data: orgObj } = await db
+    .from('organizations')
+    .select('*')
+    .eq('id', member.organization_id)
+    .maybeSingle()
+
+  const entityTrust = parseOrgEntityTrustMeta(orgObj?.description)
+  const isAdminIdVerified = Boolean(
+    profile?.identity_verified === true ||
+      String(profile?.identity_verified) === 'true' ||
+      profile?.is_verified === true ||
+      String(profile?.is_verified) === 'true'
+  )
+  const isDomainVerified = orgObj?.verification_status === 'verified'
+  const tierInfo = await resolveEmployerTierInfo(orgObj)
+  const credits = Number(orgObj?.connection_credits || 0)
+
+  const { data: rawJobs } = await db
+    .from('jobs')
+    .select('id, title, created_at, is_active, description, salary_min, salary_max, work_model, structured_requirements')
+    .eq('organization_id', member.organization_id)
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+
+  const activeJobs = (rawJobs || [])
+    .map((j: any) => enrichJobRecord(j))
+    .filter((j: any) => !j.is_expired && j.job_meta?.practice_draft !== true)
+    .map((j: any) => ({
+      id: String(j.id),
+      title: String(j.title || 'Protected Role'),
+      work_model: String(j.work_model || 'remote'),
+      salary_min: j.salary_min ?? null,
+      salary_max: j.salary_max ?? null,
+    }))
+
+  const allOrgJobsMap: Record<string, string> = {}
+  const { data: allOrgJobs } = await db
+    .from('jobs')
+    .select('id, title')
+    .eq('organization_id', member.organization_id)
+  for (const j of allOrgJobs || []) {
+    if (j?.id) allOrgJobsMap[String(j.id)] = String(j.title || 'Protected Role')
+  }
+
+  const links = await listEmployerTalentShieldLinks(member.organization_id)
+  const enrichedLinks = links.map((l) => ({
+    ...l,
+    job_title: allOrgJobsMap[l.job_id] || 'Protected Role',
+  }))
+
+  return {
+    organizationId: String(member.organization_id),
+    organizationName: String(orgObj?.name || 'Organization'),
+    isDomainVerified,
+    hasValidEntityMeta: Boolean(entityTrust.hasValidEntityMeta),
+    isAdminIdVerified,
+    isFullyVerified3of3: Boolean(isDomainVerified && entityTrust.hasValidEntityMeta && isAdminIdVerified),
+    hasActivePaidPlan: tierInfo.tier !== 'free',
+    tierLabel: tierInfo.label || tierInfo.tier,
+    credits,
+    activeJobs,
+    links: enrichedLinks,
+  }
+}
+
+export async function createEmployerTalentShieldLinkAction(params: {
+  jobId: string
+  mode: EmployerTalentShieldMode
+  employerPitch?: string
+  privateMemo?: string
+  ttlDays?: number
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const db = getAdminSupabaseClient() || supabase
+  const { data: profile } = await db
+    .from('profiles')
+    .select('role, identity_verified, is_verified')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (profile?.role !== 'employer') {
+    return { error: 'Talent Shield is reserved for verified Employer accounts.' }
+  }
+
+  const { data: member } = await db
+    .from('organization_members')
+    .select('organization_id')
+    .eq('user_id', user.id)
+    .maybeSingle()
+  if (!member?.organization_id) {
+    return { error: 'Complete Company Profile setup first.' }
+  }
+
+  const { data: orgObj } = await db
+    .from('organizations')
+    .select('*')
+    .eq('id', member.organization_id)
+    .maybeSingle()
+
+  if (orgObj?.verification_status !== 'verified') {
+    return { error: 'Verification Gate (1/3): Verify your company domain on Company Profile first.' }
+  }
+  const entityTrust = parseOrgEntityTrustMeta(orgObj?.description)
+  if (!entityTrust.hasValidEntityMeta) {
+    return { error: 'Verification Gate (2/3): Save your Federal EIN and State of Incorporation on Company Profile first.' }
+  }
+  const isAdminIdVerified = Boolean(
+    profile?.identity_verified === true ||
+      String(profile?.identity_verified) === 'true' ||
+      profile?.is_verified === true ||
+      String(profile?.is_verified) === 'true'
+  )
+  if (!isAdminIdVerified) {
+    return { error: 'Verification Gate (3/3): Complete Admin Real-Person ID Verification on Company Profile first.' }
+  }
+
+  const tierInfo = await resolveEmployerTierInfo(orgObj)
+  if (tierInfo.tier === 'free') {
+    return {
+      error:
+        'Active Employer Plan Required: Activate Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) — your $25 verification fee is 100% credited toward Month 1 — to issue Talent Shield Protected Role links.',
+    }
+  }
+
+  const mode: EmployerTalentShieldMode =
+    params.mode === 'inbound_dm_gate' ? 'inbound_dm_gate' : 'outbound_sourcing'
+  const credits = Number(orgObj?.connection_credits || 0)
+  if (mode === 'outbound_sourcing' && credits < 1) {
+    return {
+      error:
+        'At least 1 Outbound Credit is required to issue an Outbound Sourcing link (1 credit is deducted only when a verified Professional clears 40%+ TrueFit™ and receives your invitation). Add a Rollover Credit Top-Up Pack on Billing or switch to Inbound Hiring-Manager DM Gate (0 Employer credits).',
+    }
+  }
+
+  const cleanJobId = String(params.jobId || '').trim()
+  const { data: rawJob } = await db
+    .from('jobs')
+    .select('id, title, created_at, is_active, description, salary_min, salary_max, work_model, structured_requirements')
+    .eq('id', cleanJobId)
+    .eq('organization_id', member.organization_id)
+    .maybeSingle()
+  if (!rawJob) return { error: 'Selected Protected Role was not found in your organization.' }
+
+  const job = enrichJobRecord(rawJob)
+  if (job.is_expired || !rawJob.is_active || job.job_meta?.practice_draft === true) {
+    return { error: 'Please select an active published Protected Role (not an expired role or Practice Mode draft).' }
+  }
+
+  const cleanPitch = String(params.employerPitch || '').trim().slice(0, 600)
+  if (cleanPitch) {
+    const stage1Check = await inspectStage1TextForContactLeakOrInjection({
+      userId: user.id,
+      userEmail: user.email || '',
+      actorRole: 'employer',
+      text: cleanPitch,
+      platformArea: 'Employer Talent Shield',
+      contextLabel: 'Employer Talent Shield Invitation Pitch',
+      isStage2Unlocked: false,
+    })
+    if (stage1Check.blocked) {
+      return {
+        error:
+          stage1Check.reason ||
+          'Stage 1 Privacy Guard: Keep personal emails, phone numbers, and direct URLs out of Stage 1 notes until mutual Stage 2 unlock.',
+      }
+    }
+  }
+
+  const minted = await mintEmployerTalentShieldLink({
+    organizationId: member.organization_id,
+    createdByUserId: user.id,
+    jobId: cleanJobId,
+    mode,
+    employerPitch: cleanPitch,
+    privateMemo: params.privateMemo,
+    ttlDays: params.ttlDays,
+  })
+  if (minted.error || !minted.token || !minted.record) {
+    return { error: minted.error || 'Could not create Talent Shield link.' }
+  }
+
+  revalidatePath('/dashboard/employer/shield')
+  return {
+    token: minted.token,
+    record: {
+      ...minted.record,
+      job_title: String(job.title || 'Protected Role'),
+    },
+  }
+}
+
+export async function revokeEmployerTalentShieldLinkAction(linkId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const db = getAdminSupabaseClient() || supabase
+  const { data: member } = await db
+    .from('organization_members')
+    .select('organization_id')
+    .eq('user_id', user.id)
+    .maybeSingle()
+  if (!member?.organization_id) return { error: 'No employer organization found.' }
+
+  const res = await revokeEmployerTalentShieldLink({
+    organizationId: member.organization_id,
+    linkId,
+  })
+  if (!res.ok) return { error: res.error || 'Could not retire link.' }
+
+  revalidatePath('/dashboard/employer/shield')
+  return { ok: true }
+}
+
+export async function getTalentShieldProfessionalContextAction(rawToken: string) {
+  const pub = await inspectPublicEmployerTalentShieldToken(rawToken)
+  if (!pub.active || !pub.mode) {
+    return { active: false }
+  }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return {
+      active: true,
+      mode: pub.mode,
+      authenticated: false,
+    }
+  }
+
+  const db = getAdminSupabaseClient() || supabase
+  const { data: profile } = await db
+    .from('profiles')
+    .select('role, identity_verified, is_verified, structured_skills, experience_years, min_salary_expectation, preferred_work_model, bio')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (profile?.role === 'employer') {
+    return {
+      active: true,
+      mode: pub.mode,
+      authenticated: true,
+      viewerRole: 'employer',
+    }
+  }
+
+  const isIdVerified = Boolean(
+    profile?.identity_verified === true ||
+      String(profile?.identity_verified) === 'true' ||
+      profile?.is_verified === true ||
+      String(profile?.is_verified) === 'true'
+  )
+  const candidateTier = await resolveCandidateTierInfo(user.id)
+  const hasStructuredSkills =
+    Array.isArray(profile?.structured_skills) &&
+    filterVisibleSkills(profile.structured_skills).length > 0
+
+  if (!isIdVerified) {
+    return {
+      active: true,
+      mode: pub.mode,
+      authenticated: true,
+      viewerRole: 'professional',
+      isIdVerified: false,
+      hasStructuredSkills,
+      canApplyOutbound: candidateTier.canApply,
+      tierLabel: candidateTier.tier,
+    }
+  }
+
+  const resolved = await resolveActiveEmployerTalentShieldTarget(rawToken)
+  if (!resolved.active || !resolved.organizationId || !resolved.jobId) {
+    return { active: false }
+  }
+
+  const { data: orgObj } = await db
+    .from('organizations')
+    .select('*')
+    .eq('id', resolved.organizationId)
+    .maybeSingle()
+
+  const entityTrust = parseOrgEntityTrustMeta(orgObj?.description)
+  const empTierInfo = await resolveEmployerTierInfo(orgObj)
+  if (
+    orgObj?.verification_status !== 'verified' ||
+    !entityTrust.hasValidEntityMeta ||
+    empTierInfo.tier === 'free'
+  ) {
+    return { active: false }
+  }
+
+  const { data: rawJob } = await db
+    .from('jobs')
+    .select('id, title, created_at, is_active, description, salary_min, salary_max, work_model, structured_requirements')
+    .eq('id', resolved.jobId)
+    .eq('organization_id', resolved.organizationId)
+    .maybeSingle()
+
+  if (!rawJob) return { active: false }
+  const job = enrichJobRecord(rawJob)
+  if (job.is_expired || !rawJob.is_active || job.job_meta?.practice_draft === true) {
+    return { active: false }
+  }
+
+  return {
+    active: true,
+    mode: resolved.mode || pub.mode,
+    authenticated: true,
+    viewerRole: 'professional',
+    isIdVerified: true,
+    hasStructuredSkills,
+    canApplyOutbound: candidateTier.canApply,
+    tierLabel: candidateTier.tier,
+    protectedRolePreview: {
+      title: String(job.title || 'Protected Role'),
+      work_model: String(job.work_model || 'remote'),
+      salary_min: job.salary_min ?? null,
+      salary_max: job.salary_max ?? null,
+      industry_vertical: String(job.industry_vertical || ''),
+      employer_pitch: resolved.mode === 'outbound_sourcing' ? String(resolved.employerPitch || '') : '',
+    },
+  }
+}
+
+export async function redeemEmployerTalentShieldLinkAction(params: {
+  rawToken: string
+  candidateNote?: string
+}) {
+  const rawToken = String(params.rawToken || '').trim()
+  const target = await resolveActiveEmployerTalentShieldTarget(rawToken)
+  if (!target.active || !target.organizationId || !target.jobId || !target.mode) {
+    return { error: 'This one-time Protected Role verification link is no longer active.' }
+  }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Please sign in with a verified Professional account first.' }
+
+  const db = getAdminSupabaseClient() || supabase
+  const { data: memberProfile } = await db
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (!memberProfile || memberProfile.role === 'employer') {
+    return { error: 'Protected Role verification links can only be redeemed by a verified Professional account.' }
+  }
+
+  const isProfVerified = Boolean(
+    memberProfile?.identity_verified === true ||
+      String(memberProfile?.identity_verified) === 'true' ||
+      memberProfile?.is_verified === true ||
+      String(memberProfile?.is_verified) === 'true'
+  )
+  if (!isProfVerified) {
+    return {
+      error:
+        'Complete your one-time $5 Explorer Real-Person ID check on your dashboard before unlocking this Protected Role.',
+    }
+  }
+
+  const visibleSkills = filterVisibleSkills(memberProfile.structured_skills)
+  if (!Array.isArray(visibleSkills) || visibleSkills.length === 0) {
+    return {
+      error:
+        'Complete your anonymous Structured Skills profile on Dashboard -> Profile first so Special Sauce can verify your 40%+ TrueFit™ alignment.',
+    }
+  }
+
+  if (target.mode === 'inbound_dm_gate') {
+    const candidateTier = await resolveCandidateTierInfo(user.id)
+    if (!candidateTier.canApply) {
+      const isExplorer = candidateTier.tier === 'explorer' || candidateTier.tier === 'free'
+      return {
+        error: isExplorer
+          ? 'Active Outbound Plan Required: Upgrade to Professional ($12/mo — 15 Outbound Protected Applications/mo, with your $5 verification fee 100% credited toward Month 1) or Prestige ($19/mo — Unlimited) on Membership & Plan Settings to submit an Outbound Protected Application through this Hiring-Manager DM Gate.'
+          : `Monthly Outbound Protected Application Quota Reached (${CANDIDATE_TRIAL_MAX_APPS}/${CANDIDATE_TRIAL_MAX_APPS} Used): Upgrade to Prestige ($19/mo) on Membership & Plan Settings for Unlimited Outbound Protected Applications.`,
+      }
+    }
+  }
+
+  const memberActorRole = memberProfile?.role === 'candidate' ? memberProfile.role : ('employer' as const)
+  const cleanNote = String(params.candidateNote || '').trim().slice(0, 600)
+  if (cleanNote) {
+    const stage1Check = await inspectStage1TextForContactLeakOrInjection({
+      userId: user.id,
+      userEmail: user.email || '',
+      actorRole: memberActorRole,
+      text: cleanNote,
+      platformArea: 'Intro/Convo Resume & Contact Vault',
+      contextLabel: 'Talent Shield Protected Application Note',
+      isStage2Unlocked: false,
+    })
+    if (stage1Check.blocked) {
+      return {
+        error:
+          stage1Check.reason ||
+          'Stage 1 Privacy Guard: Keep personal emails, phone numbers, and external links out of your Stage 1 note until mutual Stage 2 unlock.',
+      }
+    }
+  }
+
+  const { data: orgObj } = await db
+    .from('organizations')
+    .select('*')
+    .eq('id', target.organizationId)
+    .maybeSingle()
+  if (!orgObj || orgObj.verification_status !== 'verified') {
+    return { error: 'This Employer organization is not currently verified for Protected Role handshakes.' }
+  }
+  const entityTrust = parseOrgEntityTrustMeta(orgObj.description)
+  if (!entityTrust.hasValidEntityMeta) {
+    return { error: 'This Employer organization has not completed 3/3 entity verification.' }
+  }
+
+  if (target.createdByUserId) {
+    const { data: creatorProf } = await db
+      .from('profiles')
+      .select('identity_verified, is_verified')
+      .eq('id', target.createdByUserId)
+      .maybeSingle()
+    const creatorVerified = Boolean(
+      creatorProf?.identity_verified === true ||
+        String(creatorProf?.identity_verified) === 'true' ||
+        creatorProf?.is_verified === true ||
+        String(creatorProf?.is_verified) === 'true'
+    )
+    if (!creatorVerified) {
+      return { error: 'Employer admin ID verification is incomplete for this link.' }
+    }
+  }
+
+  const empTierInfo = await resolveEmployerTierInfo(orgObj)
+  const credits = Number(orgObj.connection_credits || 0)
+  const totalSent = Number(orgObj.total_requests_sent || 0)
+  if (empTierInfo.tier === 'free') {
+    return { error: 'This Employer organization does not currently have an active Protected Roles plan.' }
+  }
+  if (target.mode === 'outbound_sourcing' && credits < 1) {
+    return {
+      error:
+        'This Employer organization currently has 0 Outbound Credits available to deliver this invitation. Your profile stayed 100% private and the link was not redeemed.',
+    }
+  }
+
+  const { data: rawJob } = await db
+    .from('jobs')
+    .select('id, title, created_at, is_active, description, salary_min, salary_max, work_model, structured_requirements')
+    .eq('id', target.jobId)
+    .eq('organization_id', target.organizationId)
+    .maybeSingle()
+  if (!rawJob) return { error: 'This Protected Role is no longer available.' }
+
+  const job = enrichJobRecord(rawJob)
+  if (job.is_expired || !rawJob.is_active || job.job_meta?.practice_draft === true) {
+    return { error: 'This Protected Role is no longer active.' }
+  }
+
+  const { data: existingApp } = await db
+    .from('applications')
+    .select('id, initiated_by')
+    .eq('job_id', target.jobId)
+    .eq('candidate_id', user.id)
+    .maybeSingle()
+  if (existingApp?.id) {
+    return {
+      error:
+        'You already have an active Protected Role connection or application on file for this role. No duplicate entry was created.',
+    }
+  }
+
+  const prefMeta: any = extractCandidatePrefMeta(memberProfile.structured_skills)
+  const scoringPayload = {
+    ...memberProfile,
+    industry_vertical: prefMeta?.industry_vertical || '',
+    education_level: prefMeta?.education_level || '',
+    certifications: prefMeta?.certifications || '',
+    languages: normalizeLanguageList(prefMeta?.languages, true),
+    structured_skills: visibleSkills,
+  }
+  const { data: matchResult, error: matchErr } =
+    target.mode === 'outbound_sourcing'
+      ? await analyzeMatchRouter(scoringPayload, job, 'employer')
+      : await analyzeMatchRouter(scoringPayload, job)
+  if (matchErr) return { error: matchErr }
+
+  const matchScore = matchResult?.overall_score ?? null
+  if (matchScore === null || matchScore < MIN_MATCH_THRESHOLD) {
+    await recordEmployerTalentShieldBelowThresholdCheck({
+      rawToken,
+      matchScore: matchScore ?? 0,
+    })
+    return {
+      belowThreshold: true,
+      matchScore: matchScore ?? 0,
+      minThreshold: MIN_MATCH_THRESHOLD,
+      error: `TrueFit™ Alignment Below ${MIN_MATCH_THRESHOLD}% Threshold (Verified Score: ${matchScore ?? 0}%): Protected Role handshakes require at least ${MIN_MATCH_THRESHOLD}% TrueFit™ alignment. Your identity remained completely private and this link was not burned.`,
+    }
+  }
+
+  let employerContactEmail: string | null = orgObj?.domain ? `hiring@${orgObj.domain}` : null
+  if (target.createdByUserId) {
+    try {
+      const { data: empAuth } = await db.auth.admin.getUserById(target.createdByUserId)
+      if (empAuth?.user?.email) employerContactEmail = empAuth.user.email
+    } catch {}
+  }
+  const candidateLiveEmail =
+    user.email || memberProfile?.contact_email || memberProfile?.email || null
+  const candidateFullName = memberProfile?.full_name || memberProfile?.name || null
+
+  if (target.mode === 'outbound_sourcing') {
+    const preCheckRollover = Math.min(credits, parseRolloverCreditsTag(orgObj?.description))
+    const preCheckPlanBucket = Math.max(0, credits - preCheckRollover)
+    const creditBucketUsed: 'plan' | 'rollover' = preCheckPlanBucket > 0 ? 'plan' : 'rollover'
+    const cleanPitch = String(target.employerPitch || '').trim()
+
+    const enrichedMatchData = {
+      ...(matchResult || {}),
+      overall_score: matchScore,
+      employer_org_name: orgObj?.name || null,
+      employer_org_domain: orgObj?.domain || null,
+      employer_contact_email: employerContactEmail,
+      candidate_contact_email: candidateLiveEmail,
+      candidate_full_name: candidateFullName,
+      credit_bucket_used: creditBucketUsed,
+      credit_refunded: false,
+      via_talent_shield: true,
+      talent_shield_mode: 'outbound_sourcing',
+      talent_shield_link_id: target.linkId || null,
+      ...(cleanPitch ? { employer_pitch: cleanPitch } : {}),
+    }
+
+    const { data: insertedPitch, error: insertError } = await db
+      .from('applications')
+      .insert({
+        job_id: target.jobId,
+        candidate_id: user.id,
+        status: 'pending',
+        initiated_by: 'employer',
+        is_revealed: false,
+        match_score: matchScore,
+        match_data: enrichedMatchData,
+      })
+      .select('id')
+      .single()
+
+    if (insertError || !insertedPitch?.id) {
+      return { error: insertError?.message || 'Unable to deliver Protected Role invitation.' }
+    }
+
+    const marked = await markEmployerTalentShieldTokenRedeemed({
+      rawToken,
+      applicationId: String(insertedPitch.id),
+    })
+    if (!marked) {
+      await db.from('applications').delete().eq('id', insertedPitch.id)
+      return { error: 'This one-time link was just redeemed or expired. No duplicate invitation was created.' }
+    }
+
+    const currentRollover = Math.min(credits, parseRolloverCreditsTag(orgObj?.description))
+    const currentPlanBucket = Math.max(0, credits - currentRollover)
+    const nextRollover = currentPlanBucket > 0 ? currentRollover : Math.max(0, currentRollover - 1)
+    const nextTotalCredits = Math.max(0, credits - 1)
+    const rawDesc = orgObj?.description || ''
+    const updatedDescWithTopup = /\[TOPUP:\d+\]/i.test(rawDesc)
+      ? rawDesc.replace(/\[TOPUP:\d+\]/i, `[TOPUP:${nextRollover}]`)
+      : nextRollover > 0
+        ? `${rawDesc} [TOPUP:${nextRollover}]`.trim()
+        : rawDesc
+
+    await db
+      .from('organizations')
+      .update({
+        connection_credits: nextTotalCredits,
+        total_requests_sent: totalSent + 1,
+        description: updatedDescWithTopup,
+      })
+      .eq('id', target.organizationId)
+
+    const refId = formatReferenceId(insertedPitch.id)
+    if (employerContactEmail) {
+      await sendPlatformNotification({
+        to: employerContactEmail,
+        subject: `Talent Shield Invitation Redeemed: ${job.title} (${matchScore}% TrueFit)`,
+        referenceId: refId,
+        heading: `Talent Shield Invitation Delivered (${matchScore}% TrueFit)`,
+        bodyLines: [
+          `A verified Professional redeemed your one-time Talent Shield Outbound Sourcing link and cleared ${matchScore}% TrueFit™ alignment for "${job.title}".`,
+          target.privateMemo ? `Your Private Link Note: ${target.privateMemo}` : `One-Time Link Status: Redeemed & Burned`,
+          `1 Outbound Credit was applied (Accepted-Only Guarantee protected). Their identity stays private until they accept and unlock Stage 2.`,
+        ],
+        ctaUrl: '/dashboard/employer/pitches',
+        ctaLabel: 'View Sent Invitations →',
+      })
+    }
+
+    revalidatePath('/dashboard')
+    revalidatePath('/dashboard/requests')
+    revalidatePath('/dashboard/employer/shield')
+    revalidatePath('/dashboard/employer/pitches')
+    revalidatePath('/dashboard/employer/billing')
+
+    return {
+      success: true,
+      mode: 'outbound_sourcing' as const,
+      referenceId: refId,
+      matchScore,
+      destinationUrl: '/dashboard/requests',
+    }
+  }
+
+  const enrichedInboundMatchData = {
+    ...(matchResult || {}),
+    overall_score: matchScore,
+    employer_org_name: orgObj?.name || null,
+    employer_org_domain: orgObj?.domain || null,
+    employer_contact_email: employerContactEmail,
+    candidate_contact_email: candidateLiveEmail,
+    candidate_full_name: candidateFullName,
+    via_talent_shield: true,
+    talent_shield_mode: 'inbound_dm_gate',
+    talent_shield_link_id: target.linkId || null,
+    ...(cleanNote ? { candidate_note: cleanNote } : {}),
+  }
+
+  const memberInitiatedRole = memberProfile?.role === 'candidate' ? memberProfile.role : 'professional'
+  const { data: insertedApp, error: appInsertErr } = await db
+    .from('applications')
+    .insert({
+      job_id: target.jobId,
+      candidate_id: user.id,
+      status: 'pending',
+      initiated_by: memberInitiatedRole,
+      is_revealed: false,
+      match_score: matchScore,
+      employer_pitch: cleanNote || null,
+      match_data: enrichedInboundMatchData,
+    })
+    .select('id')
+    .single()
+
+  if (appInsertErr || !insertedApp?.id) {
+    return { error: appInsertErr?.message || 'Unable to submit Outbound Protected Application.' }
+  }
+
+  const markedInbound = await markEmployerTalentShieldTokenRedeemed({
+    rawToken,
+    applicationId: String(insertedApp.id),
+  })
+  if (!markedInbound) {
+    await db.from('applications').delete().eq('id', insertedApp.id)
+    return { error: 'This one-time link was just redeemed or expired. No duplicate application was created.' }
+  }
+
+  const refId = formatReferenceId(insertedApp.id)
+  if (employerContactEmail) {
+    await sendPlatformNotification({
+      to: employerContactEmail,
+      subject: `Talent Shield Verified Applicant: ${job.title} (${matchScore}% TrueFit)`,
+      referenceId: refId,
+      heading: `Verified Inbound Application via Talent Shield (${matchScore}% TrueFit)`,
+      bodyLines: [
+        `A Real-Person ID-verified Professional redeemed your one-time Hiring-Manager DM Gate link and submitted an Outbound Protected Application for "${job.title}".`,
+        target.privateMemo ? `Your Private Link Note: ${target.privateMemo}` : `One-Time Link Status: Redeemed & Burned`,
+        `0 Employer credits were used. Review their anonymous Stage 1 TrueFit™ scorecard in Inbound Applications.`,
+      ],
+      ctaUrl: '/dashboard/employer/applications',
+      ctaLabel: 'Review Verified Application →',
+    })
+  }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/employer/shield')
+  revalidatePath('/dashboard/employer/applications')
+
+  return {
+    success: true,
+    mode: 'inbound_dm_gate' as const,
+    referenceId: refId,
+    matchScore,
+    destinationUrl: '/dashboard/applications',
   }
 }

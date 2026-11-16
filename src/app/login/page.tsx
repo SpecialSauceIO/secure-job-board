@@ -23,7 +23,7 @@ function LoginContent() {
   const authCode = searchParams.get('code')
   const planParam = (searchParams.get('plan') || '').trim().toLowerCase()
   const nextParam = (searchParams.get('next') || '').trim()
-  const safeNextShield = /^\/shield\/ss_air_[A-Za-z0-9_-]{24,64}$/.test(nextParam) ? nextParam : ''
+  const safeNextShield = /^\/shield\/ss_(?:air|inv)_[A-Za-z0-9_-]{24,64}$/.test(nextParam) ? nextParam : ''
   const postLoginDestination = safeNextShield
     ? safeNextShield
     : planParam === 'explorer' || planParam === 'professional' || planParam === 'prestige'

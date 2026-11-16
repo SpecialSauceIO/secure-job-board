@@ -5,9 +5,10 @@ import { createClient } from '@/utils/supabase/client'
 import { requestAccountSignupOtp, verifyAccountSignupOtp } from '@/app/signup/actions'
 import Link from 'next/link'
 import { PublicHeader } from '@/components/PublicHeader'
-export default function CandidateSignupPage({ searchParams }: { searchParams: Promise<{ message?: string; plan?: string; step?: string }> }) {
+export default function CandidateSignupPage({ searchParams }: { searchParams: Promise<{ message?: string; plan?: string; step?: string; next?: string }> }) {
   const resolvedParams = use(searchParams)
   const selectedPlan = resolvedParams.plan === 'professional' || resolvedParams.plan === 'prestige' ? resolvedParams.plan : 'explorer'
+  const nextPath = typeof resolvedParams.next === 'string' && resolvedParams.next.startsWith('/shield/') ? resolvedParams.next : ''
   const router = useRouter()
   const [step, setStep] = useState<'credentials' | 'otp'>(resolvedParams.step === 'otp' ? 'otp' : 'credentials')
   const [email, setEmail] = useState('')
@@ -21,6 +22,9 @@ export default function CandidateSignupPage({ searchParams }: { searchParams: Pr
   const [errorMsg, setErrorMsg] = useState(resolvedParams.message || '')
   const [infoMsg, setInfoMsg] = useState('')
   useEffect(() => {
+    if (nextPath && typeof window !== 'undefined') {
+      try { window.sessionStorage.setItem('ss_shield_return_to', nextPath) } catch {}
+    }
     if (step === 'otp' || isSubmitting) return
     const supabase = createClient()
     supabase.auth.getUser().then(async ({ data, error }) => {
@@ -110,7 +114,7 @@ export default function CandidateSignupPage({ searchParams }: { searchParams: Pr
           )}
         </div>
         <div className="mt-6 text-center space-y-2">
-          <p className="text-xs text-slate-500">Already have an account? <Link href={`/login?plan=${selectedPlan}`} className="font-bold text-indigo-600 hover:text-indigo-500">Sign in</Link></p>
+          <p className="text-xs text-slate-500">Already have an account? <Link href={nextPath ? `/login?next=${encodeURIComponent(nextPath)}` : `/login?plan=${selectedPlan}`} className="font-bold text-indigo-600 hover:text-indigo-500">Sign in</Link></p>
           <p className="text-xs text-slate-400">Hiring for your company? <Link href="/signup/employer" className="font-semibold text-slate-600 hover:text-slate-900 underline">Create an Employer Account</Link></p>
         </div>
       </div>

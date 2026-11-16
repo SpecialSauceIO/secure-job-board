@@ -32,15 +32,27 @@ export default function OnboardingPage() {
     }
   }, [])
 
+  const consumeShieldReturnPath = (fallbackPath: string): string => {
+    if (typeof window === 'undefined') return fallbackPath
+    try {
+      const saved = window.sessionStorage.getItem('ss_shield_return_to')
+      if (saved && saved.startsWith('/shield/')) {
+        window.sessionStorage.removeItem('ss_shield_return_to')
+        return saved
+      }
+    } catch {}
+    return fallbackPath
+  }
+
   const handleLocalQaRestore = async () => {
     setLoading(true)
     setStatusText('Restoring verified QA access...')
     if (role === 'employer') {
       await activateSandboxEmployerTier('free')
-      window.location.href = '/dashboard/employer/billing'
+      window.location.href = consumeShieldReturnPath('/dashboard/employer/billing')
     } else {
       await activateSandboxCandidateTier('explorer')
-      window.location.href = '/dashboard/billing'
+      window.location.href = consumeShieldReturnPath('/dashboard/billing')
     }
   }
 
@@ -116,7 +128,7 @@ export default function OnboardingPage() {
             const putRes = await fetch("/api/identity/create-session", { method: "PUT" })
             const putData = await putRes.json().catch(() => ({}))
             if (putData?.verified) {
-              window.location.href = "/dashboard"
+              window.location.href = consumeShieldReturnPath("/dashboard")
               return
             }
           } catch (_) {}
@@ -143,7 +155,7 @@ export default function OnboardingPage() {
 
       if (resolvedRole === 'candidate') {
         if (Boolean(prof?.identity_verified || prof?.is_verified)) {
-          router.replace('/dashboard')
+          router.replace(consumeShieldReturnPath('/dashboard'))
           return
         }
         const skillsArr = Array.isArray((prof as any)?.structured_skills) ? (prof as any).structured_skills : []
@@ -166,7 +178,7 @@ export default function OnboardingPage() {
             .single()
           const orgPaid = Boolean(org?.verification_status === 'verified' || org?.subscription_status === 'active' || (org?.subscription_tier && org.subscription_tier !== 'free'))
           if (orgPaid && Boolean(prof?.identity_verified || prof?.is_verified)) {
-            router.replace('/dashboard')
+            router.replace(consumeShieldReturnPath('/dashboard'))
             return
           }
           if (orgPaid && active) {

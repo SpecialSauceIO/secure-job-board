@@ -8,6 +8,8 @@ import { PublicFooter } from '@/components/PublicFooter'
 import {
   getAirlockEmployerContextAction,
   submitEmployerAirlockInvitationAction,
+  getTalentShieldProfessionalContextAction,
+  redeemEmployerTalentShieldLinkAction,
 } from '@/app/dashboard/actions'
 
 interface AirlockLiveJob {
@@ -33,6 +35,58 @@ interface AirlockState {
   liveJobs?: AirlockLiveJob[]
 }
 
+function ShieldWorkspaceHeader({ viewerRole }: { viewerRole?: string | null }) {
+  const isEmployer = viewerRole === 'employer'
+  const dashboardHref = isEmployer ? '/dashboard/employer' : '/dashboard'
+  const secondaryHref = isEmployer ? '/dashboard/employer/shield' : '/dashboard/profile'
+  const secondaryLabel = isEmployer ? 'Talent Shield' : 'My Profile'
+  const primaryLabel = isEmployer ? 'Employer Workspace →' : 'Professional Dashboard →'
+
+  return (
+    <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-300">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-10 h-20 sm:h-24 flex items-center justify-between gap-3">
+        <div className="flex items-center min-w-0">
+          <Link
+            href={dashboardHref}
+            className="flex items-center hover:opacity-90 transition-opacity focus:outline-none"
+          >
+            <img
+              src="/logo.png?v=20261024"
+              alt="specialsauce.io Logo"
+              width={420}
+              height={105}
+              className="h-11 sm:h-15 md:h-[68px] w-auto max-w-[200px] sm:max-w-none object-contain"
+            />
+          </Link>
+        </div>
+
+        <div className="hidden xl:flex items-center justify-center gap-3 mx-auto px-2 pointer-events-none shrink-0">
+          <span className="h-5 w-px bg-slate-400" />
+          <p className="text-[11px] font-semibold text-slate-700 tracking-[0.12em] uppercase whitespace-nowrap">
+            THE WORLD&apos;S FIRST SECURED WORKFORCE ECOSYSTEM™
+          </p>
+          <span className="h-5 w-px bg-slate-400" />
+        </div>
+
+        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+          <Link
+            href={secondaryHref}
+            className="hidden sm:inline-flex items-center rounded-xl border border-slate-300 bg-white hover:bg-slate-50 px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 transition"
+          >
+            {secondaryLabel}
+          </Link>
+          <Link
+            href={dashboardHref}
+            className="inline-flex items-center rounded-xl bg-indigo-600 hover:bg-indigo-700 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition"
+          >
+            {primaryLabel}
+          </Link>
+        </div>
+      </div>
+    </nav>
+  )
+}
+
 function formatRolePaySummary(job: AirlockLiveJob): string {
   const isHourly = job.pay_type === 'hourly' || (job.salary_max !== null && job.salary_max > 0 && job.salary_max <= 500)
   const fmt = (val: number | null) => {
@@ -49,25 +103,64 @@ function formatRolePaySummary(job: AirlockLiveJob): string {
   return 'Compensation Listed Inside Role'
 }
 
+interface TalentShieldProfessionalState {
+  active: boolean
+  mode?: 'outbound_sourcing' | 'inbound_dm_gate'
+  authenticated?: boolean
+  viewerRole?: string | null
+  isIdVerified?: boolean
+  hasStructuredSkills?: boolean
+  canApplyOutbound?: boolean
+  tierLabel?: string
+  protectedRolePreview?: {
+    title: string
+    work_model: string
+    salary_min: number | null
+    salary_max: number | null
+    industry_vertical: string
+    employer_pitch: string
+  }
+}
+
 export default function PublicInboundShieldAirlockPage() {
   const params = useParams()
   const rawTokenParam = params?.token
   const token = Array.isArray(rawTokenParam) ? rawTokenParam[0] || '' : String(rawTokenParam || '')
+  const isEmployerInviteToken = token.startsWith('ss_inv_')
 
   const [loading, setLoading] = useState(true)
   const [ctx, setCtx] = useState<AirlockState | null>(null)
+  const [profCtx, setProfCtx] = useState<TalentShieldProfessionalState | null>(null)
   const [selectedJobId, setSelectedJobId] = useState('')
   const [employerPitch, setEmployerPitch] = useState('')
+  const [professionalNote, setProfessionalNote] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [belowThresholdInfo, setBelowThresholdInfo] = useState<{
+    matchScore: number
+    minThreshold: number
+  } | null>(null)
   const [deliverySuccess, setDeliverySuccess] = useState<{
     referenceId: string
     remainingCredits: number
+  } | null>(null)
+  const [profRedeemSuccess, setProfRedeemSuccess] = useState<{
+    mode: 'outbound_sourcing' | 'inbound_dm_gate'
+    referenceId: string
+    matchScore: number
+    destinationUrl: string
   } | null>(null)
 
   const loadContext = useCallback(async () => {
     if (!token) {
       setCtx({ active: false })
+      setProfCtx({ active: false })
+      setLoading(false)
+      return
+    }
+    if (token.startsWith('ss_inv_')) {
+      const res = await getTalentShieldProfessionalContextAction(token)
+      setProfCtx(res as TalentShieldProfessionalState)
       setLoading(false)
       return
     }
@@ -109,7 +202,327 @@ export default function PublicInboundShieldAirlockPage() {
     }
   }
 
+  const handleRedeemProtectedRole = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setErrorMsg(null)
+    setBelowThresholdInfo(null)
+    setSubmitting(true)
+    const res = await redeemEmployerTalentShieldLinkAction({
+      rawToken: token,
+      candidateNote: professionalNote,
+    })
+    setSubmitting(false)
+    if ('belowThreshold' in res && res.belowThreshold) {
+      setBelowThresholdInfo({
+        matchScore: Number(res.matchScore ?? 0),
+        minThreshold: Number(res.minThreshold ?? 40),
+      })
+      return
+    }
+    if (res.error) {
+      setErrorMsg(res.error)
+      return
+    }
+    if (res.success && res.referenceId && res.mode) {
+      setProfRedeemSuccess({
+        mode: res.mode,
+        referenceId: res.referenceId,
+        matchScore: Number(res.matchScore ?? 0),
+        destinationUrl: String(res.destinationUrl || '/dashboard'),
+      })
+    }
+  }
+
   const returnPath = `/shield/${encodeURIComponent(token)}`
+
+  if (isEmployerInviteToken) {
+    const preview = profCtx?.protectedRolePreview
+    const previewPay = preview
+      ? formatRolePaySummary({
+          id: 'preview',
+          title: preview.title,
+          work_model: preview.work_model,
+          salary_min: preview.salary_min,
+          salary_max: preview.salary_max,
+          pay_type: 'annual',
+        })
+      : ''
+    const isDmGate = profCtx?.mode === 'inbound_dm_gate'
+
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+        {profCtx?.authenticated ? (
+          <ShieldWorkspaceHeader viewerRole={profCtx.viewerRole} />
+        ) : (
+          <PublicHeader />
+        )}
+
+        <main className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-12 sm:py-16">
+          {loading ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-8 sm:p-10 shadow-sm text-center space-y-3">
+              <p className="text-sm font-semibold text-slate-600">
+                Checking one-time Talent Shield Protected Role link...
+              </p>
+            </div>
+          ) : profRedeemSuccess ? (
+            <div className="rounded-2xl border-2 border-emerald-500 bg-white p-8 sm:p-10 shadow-sm space-y-6">
+              <span className="inline-flex items-center rounded-full bg-emerald-100 border border-emerald-300 px-3 py-1 text-xs font-bold text-emerald-800">
+                ✓ {profRedeemSuccess.matchScore}% TrueFit™ Verified • Single-Use Link Burned
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                {profRedeemSuccess.mode === 'inbound_dm_gate'
+                  ? 'Outbound Protected Application Submitted'
+                  : 'Protected Role Invitation Delivered'}
+              </h1>
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                {profRedeemSuccess.mode === 'inbound_dm_gate'
+                  ? `Your anonymous Stage 1 TrueFit™ scorecard (${profRedeemSuccess.matchScore}%) has been delivered to this Employer's Inbound Applications queue (Ref: ${profRedeemSuccess.referenceId}). Your personal info stays private until you both choose to unlock Stage 2.`
+                  : `This Protected Role invitation (${profRedeemSuccess.matchScore}% TrueFit™) is now in your Professional Invitations inbox (Ref: ${profRedeemSuccess.referenceId}). Review the full role details and choose whether to accept and unlock Stage 2.`}
+              </p>
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <Link
+                  href={profRedeemSuccess.destinationUrl}
+                  className="inline-flex items-center justify-center rounded-xl bg-indigo-600 hover:bg-indigo-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition"
+                >
+                  {profRedeemSuccess.mode === 'inbound_dm_gate'
+                    ? 'View Outbound Applications →'
+                    : 'Open Professional Invitations →'}
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white hover:bg-slate-50 px-5 py-2.5 text-sm font-semibold text-slate-800 transition"
+                >
+                  Dashboard Overview
+                </Link>
+              </div>
+            </div>
+          ) : !profCtx?.active ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-8 sm:p-10 shadow-sm space-y-5">
+              <span className="inline-flex items-center rounded-full bg-slate-100 border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700">
+                One-Time Link Inactive
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                This one-time Protected Role link is no longer active.
+              </h1>
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                SpecialSauce.io Talent Shield links are single-use and time-limited. Once redeemed, expired, or retired by the verified Employer, the link closes permanently and exposes zero company or role details.
+              </p>
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center justify-center rounded-xl bg-indigo-600 hover:bg-indigo-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition"
+                >
+                  Join as a Verified Professional →
+                </Link>
+                <Link
+                  href="/workflows"
+                  className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white hover:bg-slate-50 px-5 py-2.5 text-sm font-semibold text-slate-800 transition"
+                >
+                  How the 2-Stage Privacy Handshake Works
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-10 shadow-sm space-y-6">
+              <div className="space-y-3">
+                <span className="inline-flex items-center gap-2 rounded-full bg-indigo-50 border border-indigo-200 px-3 py-1 text-xs font-semibold text-indigo-800">
+                  🛡️ SpecialSauce.io Talent Shield •{' '}
+                  {isDmGate ? 'Verified Hiring-Manager Gate' : 'Verified Protected Role Invitation'}
+                </span>
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                  {isDmGate
+                    ? 'Verify & Submit Your Protected Application'
+                    : 'Unlock Your Private Protected Role Invitation'}
+                </h1>
+                <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                  A 3/3 verified Employer in The World's First Secured Workforce Ecosystem shared this single-use Protected Role link with you. Your personal name, resume, and contact details stay completely private until you both choose to unlock Stage 2.
+                </p>
+              </div>
+
+              {belowThresholdInfo && (
+                <div className="rounded-xl border border-amber-300 bg-amber-50/90 p-5 space-y-3 text-amber-950">
+                  <p className="text-sm font-bold">
+                    TrueFit™ Alignment Below {belowThresholdInfo.minThreshold}% Threshold (Verified Score: {belowThresholdInfo.matchScore}%)
+                  </p>
+                  <p className="text-xs sm:text-sm text-amber-900 leading-relaxed">
+                    Protected Role handshakes require at least {belowThresholdInfo.minThreshold}% TrueFit™ alignment. Your personal identity remained completely private, 0 credits were used, and this one-time link was not burned.
+                  </p>
+                  <p className="text-xs sm:text-sm text-amber-900/90 leading-relaxed">
+                    If your profile is missing relevant skills, certifications, or experience for this role, update your verified Professional profile and re-check alignment here — or head back to your dashboard to explore stronger Protected Role matches.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3 pt-1">
+                    <Link
+                      href="/dashboard/profile"
+                      className="inline-flex items-center justify-center rounded-xl bg-amber-900 hover:bg-amber-950 px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition"
+                    >
+                      Update My Profile →
+                    </Link
+                    >
+                    <Link
+                      href="/dashboard"
+                      className="inline-flex items-center justify-center rounded-xl border border-amber-400 bg-white hover:bg-amber-100/60 px-4 py-2 text-xs sm:text-sm font-semibold text-amber-950 transition"
+                    >
+                      Back to Professional Dashboard
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {errorMsg && (
+                <div className="rounded-xl border border-rose-300 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+                  {errorMsg}
+                </div>
+              )}
+
+              {!profCtx.authenticated ? (
+                <div className="rounded-xl border border-indigo-200 bg-indigo-50/60 p-6 space-y-4">
+                  <h2 className="text-base sm:text-lg font-bold text-slate-900">
+                    Sign In or Verify Your Professional Account
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                    {isDmGate
+                      ? 'Sign in with your verified SpecialSauce Professional account (Professional $12/mo or Prestige $19/mo — your $5 verification fee is 100% credited toward Month 1) to check your 40%+ TrueFit™ alignment and submit your Protected Application.'
+                      : 'Sign in with your verified SpecialSauce Professional account (including $0/mo Explorer after your one-time $5 verification fee) and return right here to receive this Protected Role invitation.'}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Link
+                      href={`/login?next=${encodeURIComponent(returnPath)}`}
+                      className="inline-flex items-center justify-center rounded-xl bg-indigo-600 hover:bg-indigo-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition"
+                    >
+                      Professional Sign In →
+                    </Link>
+                    <Link
+                      href={`/signup/candidate?next=${encodeURIComponent(returnPath)}`}
+                      className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white hover:bg-slate-50 px-5 py-2.5 text-sm font-semibold text-slate-800 transition"
+                    >
+                      Create Verified Professional Account
+                    </Link>
+                  </div>
+                </div>
+              ) : profCtx.viewerRole === 'employer' ? (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-5 space-y-3">
+                  <p className="text-sm font-bold text-emerald-950">
+                    ✓ Link Preview Active (Zero Company or Role Details Exposed Publicly)
+                  </p>
+                  <p className="text-xs sm:text-sm text-emerald-900/90 leading-relaxed">
+                    You are viewing this link while signed in with an Employer account. Unverified visitors see zero company names, compensation bands, or role titles — only Real-Person ID-verified Professionals can preview and redeem this Protected Role.
+                  </p>
+                  <Link
+                    href="/dashboard/employer/shield"
+                    className="inline-flex items-center text-xs sm:text-sm font-semibold text-indigo-700 hover:underline"
+                  >
+                    ← Back to Employer Talent Shield
+                  </Link>
+                </div>
+              ) : !profCtx.isIdVerified ? (
+                <div className="rounded-xl border border-amber-300 bg-amber-50 p-5 space-y-3">
+                  <p className="text-sm font-bold text-amber-950">
+                    Complete Real-Person ID Verification First
+                  </p>
+                  <p className="text-xs sm:text-sm text-amber-900 leading-relaxed">
+                    Complete your one-time $5 Explorer Real-Person ID verification fee ($0/mo forever, and 100% credited toward Month 1 if you ever subscribe), then reopen this link to unlock the Protected Role.
+                  </p>
+                  <Link
+                    href="/dashboard/billing"
+                    className="inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 px-4 py-2 text-xs sm:text-sm font-semibold text-white transition"
+                  >
+                    Complete Real-Person ID Check →
+                  </Link>
+                </div>
+              ) : !profCtx.hasStructuredSkills ? (
+                <div className="rounded-xl border border-amber-300 bg-amber-50 p-5 space-y-3">
+                  <p className="text-sm font-bold text-amber-950">
+                    Add Your Anonymous Structured Skills First
+                  </p>
+                  <p className="text-xs sm:text-sm text-amber-900 leading-relaxed">
+                    Add your Structured Skills on My Profile so Special Sauce can verify your 40%+ TrueFit™ alignment without exposing your resume or identity.
+                  </p>
+                  <Link
+                    href="/dashboard/profile"
+                    className="inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 px-4 py-2 text-xs sm:text-sm font-semibold text-white transition"
+                  >
+                    Complete Structured Skills →
+                  </Link>
+                </div>
+              ) : isDmGate && !profCtx.canApplyOutbound ? (
+                <div className="rounded-xl border border-indigo-200 bg-indigo-50/70 p-5 space-y-3">
+                  <p className="text-sm font-bold text-slate-900">
+                    Outbound Protected Application Plan Required
+                  </p>
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                    This link is an Inbound Hiring-Manager DM Gate. Activate Professional ($12/mo — 15 Outbound Protected Applications/mo, with your $5 verification fee 100% credited toward Month 1) or Prestige ($19/mo — Unlimited) on Membership & Plan Settings, then reopen this link.
+                  </p>
+                  <Link
+                    href="/dashboard/billing"
+                    className="inline-flex items-center justify-center rounded-xl bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-xs sm:text-sm font-semibold text-white transition"
+                  >
+                    Upgrade Plan →
+                  </Link>
+                </div>
+              ) : (
+                <form onSubmit={handleRedeemProtectedRole} className="space-y-5">
+                  {preview && (
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 space-y-2.5">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-base font-bold text-slate-900">{preview.title}</p>
+                        <span className="rounded-full bg-white border border-slate-200 px-3 py-0.5 text-xs font-semibold text-slate-700">
+                          {String(preview.work_model || 'remote').toUpperCase()} • {previewPay}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500">
+                        3/3 Verified Employer (Company Name Unlocks After Stage 1 Handshake)
+                        {preview.industry_vertical ? ` • ${preview.industry_vertical}` : ''}
+                      </p>
+                      {preview.employer_pitch && (
+                        <div className="mt-2 rounded-lg border border-indigo-100 bg-white p-3 text-xs sm:text-sm text-slate-700">
+                          <strong className="text-slate-900">Hiring Team Note:</strong> {preview.employer_pitch}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {isDmGate && (
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wide text-slate-700 mb-1.5">
+                        Optional Stage 1 Cover Note (No Personal Contact Info — Max 600 Characters)
+                      </label>
+                      <textarea
+                        rows={3}
+                        maxLength={600}
+                        value={professionalNote}
+                        onChange={(e) => setProfessionalNote(e.target.value)}
+                        placeholder="Highlight relevant systems, outcomes, or why you reached out (keep personal email, phone, and links private until Stage 2)..."
+                        className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                    <p className="text-xs text-slate-500">
+                      Requires 40%+ TrueFit™ Alignment • Zero Personal Info Shared in Stage 1
+                    </p>
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="inline-flex items-center justify-center rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition cursor-pointer"
+                    >
+                      {submitting
+                        ? 'Verifying 40%+ TrueFit™...'
+                        : isDmGate
+                          ? 'Verify TrueFit™ & Submit Application →'
+                          : 'Verify TrueFit™ & Receive Invitation →'}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          )}
+        </main>
+
+        <PublicFooter />
+      </div>
+    )
+  }
   const isEmployerReady =
     Boolean(ctx?.isDomainVerified) &&
     Boolean(ctx?.hasEntityMeta) &&
@@ -119,7 +532,11 @@ export default function PublicInboundShieldAirlockPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
-      <PublicHeader />
+      {ctx?.authenticated ? (
+        <ShieldWorkspaceHeader viewerRole={ctx.viewerRole} />
+      ) : (
+        <PublicHeader />
+      )}
 
       <main className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-12 sm:py-16">
         {loading ? (
@@ -246,7 +663,7 @@ export default function PublicInboundShieldAirlockPage() {
                     Employer Sign In →
                   </Link>
                   <Link
-                    href="/signup/employer"
+                    href={`/signup/employer?next=${encodeURIComponent(returnPath)}`}
                     className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white hover:bg-slate-50 px-5 py-2.5 text-sm font-semibold text-slate-800 transition"
                   >
                     Create Verified Employer Account
