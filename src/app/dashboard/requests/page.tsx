@@ -77,23 +77,35 @@ export default function CandidateRequestsInboxPage() {
     Record<string, { type: 'success' | 'error'; text: string }>
   >({})
 
+  const pollInFlightRef = useRef(false)
+
   const fetchRequests = useCallback(
     async (silent = false) => {
+      if (silent) {
+        if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return
+        const navUntil = typeof window !== 'undefined' ? ((window as unknown as { __ssNavPendingUntil?: number }).__ssNavPendingUntil || 0) : 0
+        if (Date.now() < navUntil || pollInFlightRef.current) return
+      }
+      pollInFlightRef.current = true
       if (!silent) setIsLoading(true)
-      const res: any = await getCandidateConnectionRequests(
-        daysFilter,
-        appliedSearch
-      )
-      if (res?.data) {
-        setRequests(res.data)
+      try {
+        const res: any = await getCandidateConnectionRequests(
+          daysFilter,
+          appliedSearch
+        )
+        if (res?.data) {
+          setRequests(res.data)
+        }
+        if (typeof res?.hasActivePlan === 'boolean') {
+          setHasActivePlan(res.hasActivePlan)
+        }
+        if (typeof res?.isCandidateVerified === 'boolean') {
+          setIsCandidateVerified(res.isCandidateVerified)
+        }
+      } finally {
+        pollInFlightRef.current = false
+        if (!silent) setIsLoading(false)
       }
-      if (typeof res?.hasActivePlan === 'boolean') {
-        setHasActivePlan(res.hasActivePlan)
-      }
-      if (typeof res?.isCandidateVerified === 'boolean') {
-        setIsCandidateVerified(res.isCandidateVerified)
-      }
-      if (!silent) setIsLoading(false)
     },
     [daysFilter, appliedSearch]
   )
@@ -110,8 +122,17 @@ export default function CandidateRequestsInboxPage() {
     void fetchRequests(false)
     const intervalId = setInterval(() => {
       void fetchRequests(true)
-    }, 5000)
-    return () => clearInterval(intervalId)
+    }, 8000)
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchRequests(true)
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => {
+      clearInterval(intervalId)
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
   }, [fetchRequests])
 
   const handleSearchSubmit = (e: React.FormEvent) => {

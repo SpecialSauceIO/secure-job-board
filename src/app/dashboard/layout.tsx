@@ -33,26 +33,47 @@ export default async function DashboardLayout({
     redirect('/login')
   }
 
-  await claimInvitedOrganizationSeatIfAny(user.id, user.email)
-
-  let role: 'candidate' | 'employer' | null = null
-  let tierLabel = ''
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, identity_verified, is_verified')
-    .eq('id', user.id)
-    .single()
-
-  role = (profile?.role as 'candidate' | 'employer' | null) || null
-
-  if (role === 'employer') {
-    const { data: member } = await supabase
+  const [seatClaim, initialProfileRes, initialMemberRes] = await Promise.all([
+    claimInvitedOrganizationSeatIfAny(user.id, user.email),
+    supabase
+      .from('profiles')
+      .select('role, identity_verified, is_verified')
+      .eq('id', user.id)
+      .single(),
+    supabase
       .from('organization_members')
       .select('organization_id')
       .eq('user_id', user.id)
       .limit(1)
-      .maybeSingle()
+      .maybeSingle(),
+  ])
+
+  let profile = initialProfileRes.data
+  let member = initialMemberRes.data
+  if (seatClaim.claimed) {
+    const [refreshedProfile, refreshedMember] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('role, identity_verified, is_verified')
+        .eq('id', user.id)
+        .single(),
+      supabase
+        .from('organization_members')
+        .select('organization_id')
+        .eq('user_id', user.id)
+        .limit(1)
+        .maybeSingle(),
+    ])
+    profile = refreshedProfile.data
+    member = refreshedMember.data
+  }
+
+  const role: 'candidate' | 'employer' | null =
+    (profile?.role as 'candidate' | 'employer' | null) || null
+  let tierLabel = ''
+  const statusBannerPromise = getActiveSystemStatusBanner(role)
+
+  if (role === 'employer') {
 
     let orgData = null
     if (member?.organization_id) {
@@ -79,6 +100,8 @@ export default async function DashboardLayout({
     tierLabel = cInfo.tier === "prestige" || cInfo.tier === "pro" ? "★ Prestige Plan · Unlimited Apps" : cInfo.tier === "professional" || cInfo.tier === "trial" ? `★ Professional Plan · ${cInfo.freeAppsRemaining}/15 Apps` : cInfo.tier === "explorer" ? "★ Explorer Plan · Verified Vault" : "Unsubscribed · Select Plan"
   }
 
+  const initialStatusBanner = await statusBannerPromise
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Persistent Top Navigation Bar with Logo, Tagline, Security, Role Links & Proactive Incident Banner */}
@@ -86,7 +109,7 @@ export default async function DashboardLayout({
         role={role}
         userEmail={user.email || ''}
         tierLabel={tierLabel}
-        initialStatusBanner={await getActiveSystemStatusBanner(role)}
+        initialStatusBanner={initialStatusBanner}
         signOutAction={signOut}
       />
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { getCandidateApplications } from '@/app/dashboard/actions'
 import SecureMessageThread from '@/components/SecureMessageThread'
@@ -74,31 +74,52 @@ export default function CandidateApplicationsPage() {
     } catch {}
   }, [])
 
+  const pollInFlightRef = useRef(false)
+
   const fetchApplications = useCallback(
     async (showSpinner = true) => {
-      if (showSpinner) setIsLoading(true)
-      const res = await getCandidateApplications(
-        'all',
-        daysFilter,
-        appliedSearch
-      )
-      if (res?.data) {
-        setApplications(res.data)
+      if (!showSpinner) {
+        if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return
+        const navUntil = typeof window !== 'undefined' ? ((window as unknown as { __ssNavPendingUntil?: number }).__ssNavPendingUntil || 0) : 0
+        if (Date.now() < navUntil || pollInFlightRef.current) return
       }
-      if (showSpinner) setIsLoading(false)
+      pollInFlightRef.current = true
+      if (showSpinner) setIsLoading(true)
+      try {
+        const res = await getCandidateApplications(
+          'all',
+          daysFilter,
+          appliedSearch
+        )
+        if (res?.data) {
+          setApplications(res.data)
+        }
+      } finally {
+        pollInFlightRef.current = false
+        if (showSpinner) setIsLoading(false)
+      }
     },
     [daysFilter, appliedSearch]
   )
 
   useEffect(() => {
-    fetchApplications(true)
+    void fetchApplications(true)
   }, [fetchApplications])
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      fetchApplications(false)
-    }, 5000)
-    return () => clearInterval(intervalId)
+      void fetchApplications(false)
+    }, 8000)
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchApplications(false)
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => {
+      clearInterval(intervalId)
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
   }, [fetchApplications])
 
   const handleSearchSubmit = (e: React.FormEvent) => {

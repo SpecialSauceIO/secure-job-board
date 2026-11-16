@@ -28,8 +28,26 @@ export default function DashboardNav({
 }) {
   const pathname = usePathname()
   const router = useRouter()
+  const [optimisticPath, setOptimisticPath] = useState<string | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+
+  useEffect(() => {
+    setOptimisticPath(null)
+    if (typeof window !== 'undefined') {
+      ;(window as unknown as { __ssNavPendingUntil?: number }).__ssNavPendingUntil = 0
+    }
+  }, [pathname])
+
+  const markNavPending = (targetHref: string) => {
+    if (targetHref !== pathname) {
+      setOptimisticPath(targetHref)
+      if (typeof window !== 'undefined') {
+        ;(window as unknown as { __ssNavPendingUntil?: number }).__ssNavPendingUntil =
+          Date.now() + 2500
+      }
+    }
+  }
   const [colorTilesEnabled, setColorTilesEnabled] = useState(false)
   const [darkModeEnabled, setDarkModeEnabled] = useState(false)
   const [liveBanner, setLiveBanner] = useState<SystemStatusBanner | null>(
@@ -197,9 +215,10 @@ export default function DashboardNav({
   const billingHref =
     role === 'employer' ? '/dashboard/employer/billing' : '/dashboard/billing'
 
+  const effectivePath = optimisticPath || pathname
   const isActive = (href: string, exact?: boolean) => {
-    if (exact) return pathname === href
-    return pathname === href || pathname?.startsWith(`${href}/`)
+    if (exact) return effectivePath === href
+    return effectivePath === href || effectivePath?.startsWith(`${href}/`)
   }
 
   const activeNavItem =
@@ -591,6 +610,7 @@ export default function DashboardNav({
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={() => markNavPending(item.href)}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all ${
                     active
                       ? 'bg-slate-900 text-white shadow-2xs'
@@ -634,7 +654,10 @@ export default function DashboardNav({
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={() => setMobileNavOpen(false)}
+                      onClick={() => {
+                        setMobileNavOpen(false)
+                        markNavPending(item.href)
+                      }}
                       className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-colors ${
                         active
                           ? 'bg-indigo-600 text-white shadow-xs'

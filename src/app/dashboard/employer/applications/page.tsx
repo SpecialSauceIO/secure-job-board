@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { getEmployerInboundApplications } from '@/app/dashboard/actions'
 import { ApplicationRevealCard } from '@/components/ApplicationRevealCard'
@@ -55,8 +55,16 @@ export default function EmployerInboundApplicationsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [appliedSearch, setAppliedSearch] = useState('')
 
+  const pollInFlightRef = useRef(false)
+
   const fetchApplications = useCallback(
     async (showSpinner = true) => {
+      if (!showSpinner) {
+        if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return
+        const navUntil = typeof window !== 'undefined' ? ((window as unknown as { __ssNavPendingUntil?: number }).__ssNavPendingUntil || 0) : 0
+        if (Date.now() < navUntil || pollInFlightRef.current) return
+      }
+      pollInFlightRef.current = true
       if (showSpinner) setIsLoading(true)
       try {
         const result = await getEmployerInboundApplications(
@@ -70,6 +78,7 @@ export default function EmployerInboundApplicationsPage() {
       } catch (err) {
         console.error("Failed to fetch inbound applications:", err)
       } finally {
+        pollInFlightRef.current = false
         if (showSpinner) setIsLoading(false)
       }
     },
@@ -80,12 +89,21 @@ export default function EmployerInboundApplicationsPage() {
     fetchApplications(true)
   }, [fetchApplications])
 
-  // Silent 5-second background sync so new applications & Conversation Vault Releases appear live
+  // Visibility-aware background sync that yields during route transitions
   useEffect(() => {
     const intervalId = setInterval(() => {
-      fetchApplications(false)
-    }, 5000)
-    return () => clearInterval(intervalId)
+      void fetchApplications(false)
+    }, 8000)
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchApplications(false)
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => {
+      clearInterval(intervalId)
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
   }, [fetchApplications])
 
   const handleSearch = (e: React.FormEvent) => {

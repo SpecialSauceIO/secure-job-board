@@ -163,7 +163,31 @@ function mergeShieldRecordLists(lists: StoredShieldRecord[][]): StoredShieldReco
   )
 }
 
-async function loadShieldVault(): Promise<ShieldVaultFile> {
+const SHIELD_VAULT_CACHE_TTL_MS = 12_000
+let shieldVaultCache: { data: ShieldVaultFile; expiresAt: number } | null = null
+let shieldVaultInFlight: Promise<ShieldVaultFile> | null = null
+let employerShieldVaultCache: { data: ShieldVaultFile; expiresAt: number } | null = null
+let employerShieldVaultInFlight: Promise<ShieldVaultFile> | null = null
+
+async function loadShieldVault(forceFresh = false): Promise<ShieldVaultFile> {
+  if (!forceFresh && shieldVaultCache && Date.now() < shieldVaultCache.expiresAt) {
+    return shieldVaultCache.data
+  }
+  if (!forceFresh && shieldVaultInFlight) {
+    return shieldVaultInFlight
+  }
+  const run = loadShieldVaultUncached()
+  shieldVaultInFlight = run
+  try {
+    const data = await run
+    shieldVaultCache = { data, expiresAt: Date.now() + SHIELD_VAULT_CACHE_TTL_MS }
+    return data
+  } finally {
+    if (shieldVaultInFlight === run) shieldVaultInFlight = null
+  }
+}
+
+async function loadShieldVaultUncached(): Promise<ShieldVaultFile> {
   const client = getOpsServiceClient()
   const empty: ShieldVaultFile = {
     version: 1,
@@ -222,7 +246,7 @@ async function loadShieldVault(): Promise<ShieldVaultFile> {
 async function saveShieldVault(vault: ShieldVaultFile): Promise<boolean> {
   const client = getOpsServiceClient()
   if (!client) return false
-  const latest = await loadShieldVault()
+  const latest = await loadShieldVault(true)
   const mergedRecords = mergeShieldRecordLists([latest.records, vault.records])
   const nowIso = new Date().toISOString()
   const payload: ShieldVaultFile = {
@@ -245,6 +269,9 @@ async function saveShieldVault(vault: ShieldVaultFile): Promise<boolean> {
       upsert: true,
     }),
   ])
+  if (!snapRes.error || !baseRes.error) {
+    shieldVaultCache = { data: payload, expiresAt: Date.now() + SHIELD_VAULT_CACHE_TTL_MS }
+  }
 
   try {
     const { data: list } = await client.storage
@@ -553,7 +580,25 @@ function decryptEmployerPayload(blob: string): DecryptedEmployerShieldPayload | 
   }
 }
 
-async function loadEmployerShieldVault(): Promise<ShieldVaultFile> {
+async function loadEmployerShieldVault(forceFresh = false): Promise<ShieldVaultFile> {
+  if (!forceFresh && employerShieldVaultCache && Date.now() < employerShieldVaultCache.expiresAt) {
+    return employerShieldVaultCache.data
+  }
+  if (!forceFresh && employerShieldVaultInFlight) {
+    return employerShieldVaultInFlight
+  }
+  const run = loadEmployerShieldVaultUncached()
+  employerShieldVaultInFlight = run
+  try {
+    const data = await run
+    employerShieldVaultCache = { data, expiresAt: Date.now() + SHIELD_VAULT_CACHE_TTL_MS }
+    return data
+  } finally {
+    if (employerShieldVaultInFlight === run) employerShieldVaultInFlight = null
+  }
+}
+
+async function loadEmployerShieldVaultUncached(): Promise<ShieldVaultFile> {
   const client = getOpsServiceClient()
   const empty: ShieldVaultFile = {
     version: 1,
@@ -611,7 +656,7 @@ async function loadEmployerShieldVault(): Promise<ShieldVaultFile> {
 async function saveEmployerShieldVault(vault: ShieldVaultFile): Promise<boolean> {
   const client = getOpsServiceClient()
   if (!client) return false
-  const latest = await loadEmployerShieldVault()
+  const latest = await loadEmployerShieldVault(true)
   const mergedRecords = mergeShieldRecordLists([latest.records, vault.records])
   const nowIso = new Date().toISOString()
   const payload: ShieldVaultFile = {
@@ -633,6 +678,9 @@ async function saveEmployerShieldVault(vault: ShieldVaultFile): Promise<boolean>
     }),
   ])
 
+  if (!snapRes.error || !baseRes.error) {
+    employerShieldVaultCache = { data: payload, expiresAt: Date.now() + SHIELD_VAULT_CACHE_TTL_MS }
+  }
   return Boolean(!snapRes.error || !baseRes.error)
 }
 

@@ -229,12 +229,21 @@ function extractResumeStoragePath(rawUrlOrPath?: string | null): string | null {
   return null
 }
 
+const signedResumeUrlCache = new Map<string, { url: string; expiresAt: number }>()
+
 async function resolveSignedResumeUrl(
   rawUrlOrPath?: string | null,
   expiresInSeconds = 3600
 ): Promise<string | null> {
   const storagePath = extractResumeStoragePath(rawUrlOrPath)
   if (!storagePath) return rawUrlOrPath || null
+
+  const cacheKey = `${storagePath}:${expiresInSeconds}`
+  const cached = signedResumeUrlCache.get(cacheKey)
+  if (cached && Date.now() < cached.expiresAt) {
+    return cached.url
+  }
+  const cacheTtlMs = Math.max(30_000, Math.min(expiresInSeconds * 1000 - 120_000, 45 * 60 * 1000))
 
   const supabaseUrl = cleanEnvKey(process.env.NEXT_PUBLIC_SUPABASE_URL)
   const serviceRoleKey = cleanEnvKey(process.env.SUPABASE_SERVICE_ROLE_KEY)
@@ -249,6 +258,7 @@ async function resolveSignedResumeUrl(
         .createSignedUrl(storagePath, expiresInSeconds)
 
       if (!error && data?.signedUrl) {
+        signedResumeUrlCache.set(cacheKey, { url: data.signedUrl, expiresAt: Date.now() + cacheTtlMs })
         return data.signedUrl
       }
     } catch (err) {
@@ -263,6 +273,7 @@ async function resolveSignedResumeUrl(
       .createSignedUrl(storagePath, expiresInSeconds)
 
     if (!error && data?.signedUrl) {
+      signedResumeUrlCache.set(cacheKey, { url: data.signedUrl, expiresAt: Date.now() + cacheTtlMs })
       return data.signedUrl
     }
   } catch (err) {
@@ -6377,17 +6388,25 @@ export async function saveOrganizationProfile(formData: FormData) {
   }
 }
 
+const seatClaimNegativeCache = new Map<string, number>()
+
 export async function claimInvitedOrganizationSeatIfAny(
   _userId?: string | null,
   _userEmail?: string | null
 ): Promise<{ claimed: boolean; organizationId?: string }> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user || !user.id || !user.email) return { claimed: false }
-  const userId = user.id
-  const cleanEmail = user.email.trim().toLowerCase()
+  let userId = _userId ? String(_userId).trim() : ''
+  let cleanEmail = _userEmail ? String(_userEmail).trim().toLowerCase() : ''
+  if (!userId || !cleanEmail) {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user || !user.id || !user.email) return { claimed: false }
+    userId = user.id
+    cleanEmail = user.email.trim().toLowerCase()
+  }
+  const negUntil = seatClaimNegativeCache.get(cleanEmail) || 0
+  if (Date.now() < negUntil) return { claimed: false }
 
   const adminClient = getAdminSupabaseClient()
   if (!adminClient) return { claimed: false }
@@ -6398,7 +6417,10 @@ export async function claimInvitedOrganizationSeatIfAny(
       .select('id, description')
       .ilike('description', '%[SEATS:%')
 
-    if (!orgs || orgs.length === 0) return { claimed: false }
+    if (!orgs || orgs.length === 0) {
+      seatClaimNegativeCache.set(cleanEmail, Date.now() + 60_000)
+      return { claimed: false }
+    }
 
     for (const org of orgs) {
       const seats = parseStoredSeatsTag(org.description)

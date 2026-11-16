@@ -48,20 +48,32 @@ export default function EmployerSentPitchesPage() {
     } catch {}
   }, [])
 
+  const pollInFlightRef = useRef(false)
+
   const fetchPitches = useCallback(
     async (silent = false) => {
-      if (!silent) setIsLoading(true)
-      const res = await getEmployerPitches('all', daysFilter, appliedSearch)
-      if (res?.data) {
-        setPitches(res.data)
+      if (silent) {
+        if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return
+        const navUntil = typeof window !== 'undefined' ? ((window as unknown as { __ssNavPendingUntil?: number }).__ssNavPendingUntil || 0) : 0
+        if (Date.now() < navUntil || pollInFlightRef.current) return
       }
-      if (!silent) {
-        setIsLoading(false)
-        if (!hasInitialTopLockRef.current && typeof window !== 'undefined') {
-          hasInitialTopLockRef.current = true
-          requestAnimationFrame(() => {
-            window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
-          })
+      pollInFlightRef.current = true
+      if (!silent) setIsLoading(true)
+      try {
+        const res = await getEmployerPitches('all', daysFilter, appliedSearch)
+        if (res?.data) {
+          setPitches(res.data)
+        }
+      } finally {
+        pollInFlightRef.current = false
+        if (!silent) {
+          setIsLoading(false)
+          if (!hasInitialTopLockRef.current && typeof window !== 'undefined') {
+            hasInitialTopLockRef.current = true
+            requestAnimationFrame(() => {
+              window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
+            })
+          }
         }
       }
     },
@@ -72,7 +84,7 @@ export default function EmployerSentPitchesPage() {
     void fetchPitches(false)
     const intervalId = setInterval(() => {
       void fetchPitches(true)
-    }, 5000)
+    }, 8000)
     const handleFocusRefresh = () => {
       if (document.visibilityState === 'visible') {
         void fetchPitches(true)
