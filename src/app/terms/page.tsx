@@ -150,9 +150,12 @@ export default function TermsOfServicePage() {
             </section>
 
             <section>
-              <h2 className="text-xl">8. TrueFit Score™ Disclaimer</h2>
+              <h2 className="text-xl">8. TrueFit Score™ &amp; Protected 90-Day W-2 Trial-to-Hire Disclaimer</h2>
               <p className="text-slate-600 leading-relaxed mt-2">
                 TrueFit Score™ evaluations are decision-support tools designed to highlight skill alignment. Employers remain responsible for conducting their own interviews, reference checks, and hiring decisions.
+              </p>
+              <p className="text-slate-600 leading-relaxed mt-3">
+                When an Employer and a Professional agree to a Protected 90-Day W-2 Trial-to-Hire inside an unlocked Secure Message Thread, Special Sauce Solutions LLC transmits the agreed commercial summary to an independent, licensed US Employer of Record (EOR) partner. Special Sauce Solutions LLC is a technology platform and is not a staffing agency, joint employer, or legal employer of record; all W-2 payroll, Form I-9 verification, tax withholding, Workers&apos; Compensation coverage, and optional background or drug screenings are administered directly under separate agreements with the licensed EOR partner, with a $0 conversion fee from Special Sauce upon direct hire after 90 days.
               </p>
             </section>
 

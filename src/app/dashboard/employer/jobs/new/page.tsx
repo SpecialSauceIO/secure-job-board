@@ -359,6 +359,11 @@ export default function NewJobPage() {
                   Seasonal / Temporary
                 </option>
               </select>
+              {jobData.employment_type === 'Contract-to-Hire' && (
+                <p className="mt-2 rounded-lg bg-indigo-50 border border-indigo-200 px-3 py-2 text-xs text-indigo-950 font-medium leading-relaxed">
+                  🛡️ <strong className="font-bold">Protected 90-Day W-2 Trial-to-Hire Included:</strong> Once a Professional unlocks their Resume Vault in chat, you can propose a compliant 90-day W-2 trial (+28% statutory EOR burden vs. 55% staffing agency markups) with a <strong className="font-bold">$0 conversion fee</strong> at Day 90.
+                </p>
+              )}
             </div>
 
             <div>

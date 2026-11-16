@@ -2,13 +2,22 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import Link from 'next/link'
 import {
   sendApplicationMessage,
   releaseCandidateVaultToEmployer,
   getVaultReleasedResumeUrl,
   getApplicationThreadState,
+  proposeTrialToHireTerms,
+  respondToTrialToHireTerms,
+  withdrawTrialToHireTerms,
   ThreadMessage,
+  TrialToHireHandshake,
 } from '@/app/dashboard/messaging-actions'
+
+const US_STATES = [
+  'AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY',
+]
 
 // Synthesize a clean, pleasant 2-note harmonic chime using the browser's native Web Audio API
 function playIncomingMessageChime() {
@@ -59,6 +68,7 @@ export default function SecureMessageThread({
   candidateEmail: initialCandidateEmail,
   employerEmail: initialEmployerEmail,
   initialResumeUrl,
+  initialTrialToHire = null,
 }: {
   applicationId: string
   referenceId: string
@@ -72,6 +82,7 @@ export default function SecureMessageThread({
   candidateEmail?: string | null
   employerEmail?: string | null
   initialResumeUrl?: string | null
+  initialTrialToHire?: TrialToHireHandshake | null
 }) {
   const [messages, setMessages] = useState<ThreadMessage[]>(
     Array.isArray(initialMessages) ? initialMessages : []
@@ -98,6 +109,23 @@ export default function SecureMessageThread({
   )
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
+  const [trialToHire, setTrialToHire] = useState<TrialToHireHandshake | null>(
+    initialTrialToHire || null
+  )
+  const [jobEmploymentType, setJobEmploymentType] = useState<string | null>(null)
+  const [employerPlanActive, setEmployerPlanActive] = useState<boolean>(true)
+  const [showTrialDrawer, setShowTrialDrawer] = useState(false)
+  const [trialPayRate, setTrialPayRate] = useState('65')
+  const [trialWeeklyHours, setTrialWeeklyHours] = useState('40')
+  const [trialStartDate, setTrialStartDate] = useState(() => {
+    const d = new Date(Date.now() + 14 * 86400000)
+    return d.toISOString().slice(0, 10)
+  })
+  const [trialWorkState, setTrialWorkState] = useState('TX')
+  const [trialBgCheck, setTrialBgCheck] = useState(true)
+  const [trialDrugCheck, setTrialDrugCheck] = useState(false)
+  const [trialScopeNote, setTrialScopeNote] = useState('')
+  const [isSubmittingTrial, setIsSubmittingTrial] = useState(false)
 
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   const prevMsgCountRef = useRef<number>(messages.length)
@@ -124,6 +152,15 @@ export default function SecureMessageThread({
       setVaultReleased(true)
     }
   }, [initialVaultReleased, vaultReleased])
+
+  useEffect(() => {
+    if (
+      initialTrialToHire &&
+      (!trialToHire || initialTrialToHire.status !== trialToHire.status)
+    ) {
+      setTrialToHire(initialTrialToHire)
+    }
+  }, [initialTrialToHire, trialToHire])
 
   // Auto-scroll & chime when a new message from the OTHER party arrives
   useEffect(() => {
@@ -172,6 +209,9 @@ export default function SecureMessageThread({
         if (res.candidateFullName) setCandidateFullName(res.candidateFullName)
         if (res.candidateEmail) setCandidateEmail(res.candidateEmail)
         if (res.employerEmail) setEmployerEmail(res.employerEmail)
+        if (res.trialToHire !== undefined) setTrialToHire(res.trialToHire || null)
+        if (res.jobEmploymentType !== undefined) setJobEmploymentType(res.jobEmploymentType || null)
+        if (typeof res.employerPlanActive === 'boolean') setEmployerPlanActive(res.employerPlanActive)
       }
     } catch {
       // Ignore transient network hiccups during polling
@@ -284,6 +324,71 @@ export default function SecureMessageThread({
       setLiveResumeUrl(res.signedUrl)
       window.open(res.signedUrl, '_blank', 'noopener,noreferrer')
     }
+  }
+
+  const parsedPay = Math.max(0, Number(trialPayRate) || 0)
+  const parsedHrs = Math.min(60, Math.max(10, Math.round(Number(trialWeeklyHours) || 40)))
+  const computedBillRate = Math.round(parsedPay * 1.28 * 100) / 100
+  const agencyBillRate = Math.round(parsedPay * 1.55 * 100) / 100
+  const est90DaySavings = Math.max(0, Math.round((agencyBillRate - computedBillRate) * parsedHrs * 13))
+
+  const handleProposeTrial = async () => {
+    setIsSubmittingTrial(true)
+    setErrorMsg(null)
+    setSuccessMsg(null)
+    const res = await proposeTrialToHireTerms(applicationId, {
+      hourlyPayRate: parsedPay,
+      weeklyHours: parsedHrs,
+      targetStartDate: trialStartDate,
+      workState: trialWorkState,
+      requireBackgroundCheck: trialBgCheck,
+      requireDrugScreening: trialDrugCheck,
+      scopeNote: trialScopeNote,
+    })
+    if (res.error) {
+      setErrorMsg(res.error)
+    } else if (res.trialToHire) {
+      setTrialToHire(res.trialToHire)
+      setShowTrialDrawer(false)
+      setSuccessMsg('Protected 90-Day W-2 Trial-to-Hire offer sent to Professional.')
+      await syncLatestThreadState()
+      await broadcastInstantPing()
+    }
+    setIsSubmittingTrial(false)
+  }
+
+  const handleRespondTrial = async (decision: 'accept' | 'decline') => {
+    setIsSubmittingTrial(true)
+    setErrorMsg(null)
+    setSuccessMsg(null)
+    const res = await respondToTrialToHireTerms(applicationId, decision)
+    if (res.error) {
+      setErrorMsg(res.error)
+    } else if (res.trialToHire) {
+      setTrialToHire(res.trialToHire)
+      setSuccessMsg(
+        decision === 'accept'
+          ? '90-Day W-2 Trial-to-Hire accepted! Licensed US EOR onboarding has been dispatched.'
+          : 'Notified Employer that you would like to discuss or adjust trial terms in chat.'
+      )
+      await syncLatestThreadState()
+      await broadcastInstantPing()
+    }
+    setIsSubmittingTrial(false)
+  }
+
+  const handleWithdrawTrial = async () => {
+    setIsSubmittingTrial(true)
+    setErrorMsg(null)
+    const res = await withdrawTrialToHireTerms(applicationId)
+    if (res.error) {
+      setErrorMsg(res.error)
+    } else {
+      setShowTrialDrawer(true)
+      await syncLatestThreadState()
+      await broadcastInstantPing()
+    }
+    setIsSubmittingTrial(false)
   }
 
   return (
@@ -427,6 +532,242 @@ export default function SecureMessageThread({
               </span>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Protected 90-Day W-2 Trial-to-Hire Handshake (Stage 2 Vault Unlocked) */}
+      {vaultReleased && (viewerRole === 'employer' || Boolean(trialToHire && (trialToHire.status === 'proposed' || trialToHire.status === 'accepted_pending_eor'))) && (
+        <div className="px-4 py-3 bg-indigo-50/50 border-b border-indigo-200 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-extrabold uppercase tracking-wide">
+                🛡️ Protected 90-Day W-2 Trial-to-Hire
+              </span>
+              {jobEmploymentType === 'Contract-to-Hire' && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-bold">
+                  Role Default: Contract-to-Hire
+                </span>
+              )}
+              <span className="text-[11px] font-semibold text-slate-700">
+                Licensed US Employer of Record (W-2 payroll, I-9 &amp; Workers&apos; Comp) • $0 Day-90 conversion fee
+              </span>
+            </div>
+
+            {viewerRole === 'employer' && (!trialToHire || trialToHire.status === 'declined' || trialToHire.status === 'withdrawn') && (
+              employerPlanActive ? (
+                <button
+                  type="button"
+                  onClick={() => setShowTrialDrawer((prev) => !prev)}
+                  className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition-colors cursor-pointer"
+                >
+                  {showTrialDrawer ? 'Close W-2 Trial Builder' : '⚡ Optional: Propose 90-Day W-2 Trial'}
+                </button>
+              ) : (
+                <Link
+                  href="/dashboard/billing"
+                  className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold transition-colors"
+                >
+                  Activate Monthly Plan to Propose W-2 Trial →
+                </Link>
+              )
+            )}
+          </div>
+
+          {viewerRole === 'employer' && showTrialDrawer && employerPlanActive && (
+            <div className="p-3.5 rounded-xl bg-white border border-indigo-200 shadow-xs space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700">
+                    Professional W-2 Pay ($/hr)
+                  </label>
+                  <input
+                    type="number"
+                    min="15"
+                    max="500"
+                    step="0.5"
+                    value={trialPayRate}
+                    onChange={(e) => setTrialPayRate(e.target.value)}
+                    className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700">
+                    Est. Weekly Hours
+                  </label>
+                  <input
+                    type="number"
+                    min="10"
+                    max="60"
+                    value={trialWeeklyHours}
+                    onChange={(e) => setTrialWeeklyHours(e.target.value)}
+                    className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700">
+                    Target Start Date
+                  </label>
+                  <input
+                    type="date"
+                    value={trialStartDate}
+                    onChange={(e) => setTrialStartDate(e.target.value)}
+                    className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700">
+                    Work State (W-2)
+                  </label>
+                  <select
+                    value={trialWorkState}
+                    onChange={(e) => setTrialWorkState(e.target.value)}
+                    className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-900 cursor-pointer"
+                  >
+                    {US_STATES.map((st) => (
+                      <option key={st} value={st}>{st}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-700">
+                <label className="inline-flex items-center gap-1.5 font-semibold cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={trialBgCheck}
+                    onChange={(e) => setTrialBgCheck(e.target.checked)}
+                    className="rounded border-slate-300 text-indigo-600"
+                  />
+                  Include Standard Background Check
+                </label>
+                <label className="inline-flex items-center gap-1.5 font-semibold cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={trialDrugCheck}
+                    onChange={(e) => setTrialDrugCheck(e.target.checked)}
+                    className="rounded border-slate-300 text-indigo-600"
+                  />
+                  Include Drug Screening
+                </label>
+              </div>
+
+              <div>
+                <input
+                  type="text"
+                  maxLength={400}
+                  value={trialScopeNote}
+                  onChange={(e) => setTrialScopeNote(e.target.value)}
+                  placeholder="Optional 90-day trial milestones, schedule notes, or direct conversion target salary..."
+                  className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400"
+                />
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="space-y-0.5">
+                  <p className="font-extrabold text-slate-900">
+                    All-In Employer Rate (+28%): ${computedBillRate.toFixed(2)}/hr{' '}
+                    <span className="font-semibold text-slate-500">
+                      (Est. ${(computedBillRate * parsedHrs).toLocaleString('en-US', { maximumFractionDigits: 0 })}/wk)
+                    </span>
+                  </p>
+                  <p className="text-[11px] text-emerald-700 font-bold">
+                    Saves ~${est90DaySavings.toLocaleString('en-US')} over 90 days vs. 55% staffing agency markup (${agencyBillRate.toFixed(2)}/hr) + $0 buyout fee at Day 90
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  disabled={isSubmittingTrial || parsedPay < 15}
+                  onClick={handleProposeTrial}
+                  className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmittingTrial ? 'Sending Offer...' : 'Send 90-Day W-2 Trial Offer'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {trialToHire && trialToHire.status === 'proposed' && (
+            <div className="p-3.5 rounded-xl bg-white border-2 border-indigo-300 shadow-xs space-y-2.5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-xs font-extrabold text-indigo-950">
+                  📋 Pending 90-Day W-2 Trial-to-Hire Offer • ${trialToHire.hourly_pay_rate.toFixed(2)}/hr Gross W-2 ({trialToHire.weekly_hours} hrs/wk)
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">
+                  $0 Day-90 Direct Hire Conversion
+                </span>
+              </div>
+              <p className="text-xs text-slate-700">
+                <strong>Target Start:</strong> {trialToHire.target_start_date} • <strong>Work State:</strong> {trialToHire.work_state}
+                {viewerRole === 'employer' && (
+                  <span> • <strong>Your All-In Rate (+28%):</strong> ${trialToHire.employer_bill_rate.toFixed(2)}/hr</span>
+                )}
+                {(trialToHire.require_background_check || trialToHire.require_drug_screening) && (
+                  <span>
+                    {' '}• <strong>Screenings:</strong>{' '}
+                    {[
+                      trialToHire.require_background_check ? 'Background Check' : null,
+                      trialToHire.require_drug_screening ? 'Drug Screening' : null,
+                    ].filter(Boolean).join(' + ')}
+                  </span>
+                )}
+              </p>
+              {trialToHire.scope_note && (
+                <p className="text-xs text-slate-600 italic bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
+                  &ldquo;{trialToHire.scope_note}&rdquo;
+                </p>
+              )}
+              {viewerRole !== 'employer' ? (
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <button
+                    type="button"
+                    disabled={isSubmittingTrial}
+                    onClick={() => handleRespondTrial('accept')}
+                    className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {isSubmittingTrial ? 'Confirming...' : '✅ Accept W-2 Trial & Start Onboarding'}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isSubmittingTrial}
+                    onClick={() => handleRespondTrial('decline')}
+                    className="px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    Discuss / Adjust in Chat
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between gap-2 pt-1 text-[11px] text-slate-500">
+                  <span>Awaiting Professional confirmation in thread.</span>
+                  <button
+                    type="button"
+                    disabled={isSubmittingTrial}
+                    onClick={handleWithdrawTrial}
+                    className="text-indigo-700 hover:underline font-bold cursor-pointer"
+                  >
+                    Modify or Withdraw Offer
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {trialToHire && trialToHire.status === 'accepted_pending_eor' && (
+            <div className="p-3.5 rounded-xl bg-emerald-50 border-2 border-emerald-400 space-y-1.5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-xs font-extrabold text-emerald-950">
+                  ✅ 90-Day W-2 Trial-to-Hire Confirmed ({trialToHire.eor_packet_id || 'EOR Queued'})
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-white border border-emerald-300 text-emerald-800 text-[10px] font-extrabold">
+                  ${trialToHire.hourly_pay_rate.toFixed(2)}/hr W-2 • Start {trialToHire.target_start_date} ({trialToHire.work_state})
+                </span>
+              </div>
+              <p className="text-xs text-emerald-900 leading-relaxed">
+                {viewerRole === 'employer'
+                  ? `All-in Employer rate locked at $${trialToHire.employer_bill_rate.toFixed(2)}/hr (+28% statutory W-2 burden) with a $0 direct conversion fee after 90 days. Our licensed US Employer of Record partner has been dispatched to send your Client Service Agreement and W-2 onboarding links.`
+                  : `Your W-2 gross pay rate of $${trialToHire.hourly_pay_rate.toFixed(2)}/hr is confirmed with $0 conversion lock-in after 90 days. Watch your email for direct W-2, I-9, and direct-deposit onboarding from our licensed US Employer of Record partner.`}
+              </p>
+            </div>
+          )}
         </div>
       )}
 

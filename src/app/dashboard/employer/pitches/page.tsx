@@ -61,7 +61,18 @@ export default function EmployerSentPitchesPage() {
     const intervalId = setInterval(() => {
       void fetchPitches(true)
     }, 5000)
-    return () => clearInterval(intervalId)
+    const handleFocusRefresh = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchPitches(true)
+      }
+    }
+    window.addEventListener('focus', handleFocusRefresh)
+    document.addEventListener('visibilitychange', handleFocusRefresh)
+    return () => {
+      clearInterval(intervalId)
+      window.removeEventListener('focus', handleFocusRefresh)
+      document.removeEventListener('visibilitychange', handleFocusRefresh)
+    }
   }, [fetchPitches])
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -523,6 +534,7 @@ export default function EmployerSentPitchesPage() {
                       initialResumeUrl={
                         vaultReleased ? candidate.resume_url || null : null
                       }
+                      initialTrialToHire={pitch.match_data?.trial_to_hire || null}
                     />
                   )}
 

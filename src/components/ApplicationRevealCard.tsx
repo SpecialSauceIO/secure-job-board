@@ -565,6 +565,7 @@ export function ApplicationRevealCard({
             candidateEmail={vaultReleased ? unlockedEmail : null}
             employerEmail={app?.unlocked_employer_email || null}
             initialResumeUrl={vaultReleased ? unlockedResumeUrl : null}
+            initialTrialToHire={app?.match_data?.trial_to_hire || null}
           />
         )}
 

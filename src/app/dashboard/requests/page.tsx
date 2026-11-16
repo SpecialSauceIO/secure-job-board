@@ -801,6 +801,7 @@ export default function CandidateRequestsInboxPage() {
                       }
                       employerEmail={req.unlocked_employer_email || null}
                       candidateEmail={req.unlocked_candidate_email || null}
+                      initialTrialToHire={req.match_data?.trial_to_hire || null}
                     />
                   )}
 

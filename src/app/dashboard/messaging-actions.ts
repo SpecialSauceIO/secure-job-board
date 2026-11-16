@@ -17,6 +17,27 @@ export interface ThreadMessage {
   created_at: string
 }
 
+const TRIAL_EOR_BURDEN_MULTIPLIER = 1.28
+
+export interface TrialToHireHandshake {
+  status: 'proposed' | 'accepted_pending_eor' | 'declined' | 'withdrawn'
+  hourly_pay_rate: number
+  employer_bill_rate: number
+  burden_percent: number
+  weekly_hours: number
+  trial_days: number
+  conversion_fee_usd: number
+  target_start_date: string
+  work_state: string
+  require_background_check: boolean
+  require_drug_screening: boolean
+  scope_note?: string | null
+  proposed_at: string
+  proposed_by_email?: string | null
+  responded_at?: string | null
+  eor_packet_id?: string | null
+}
+
 function cleanEnvKey(rawKey?: string | null): string {
   if (!rawKey) return ''
   return rawKey.trim().replace(/^["']+|["']+$/g, '').trim()
@@ -944,6 +965,9 @@ export async function getApplicationThreadState(
   candidateFullName?: string | null
   candidateEmail?: string | null
   employerEmail?: string | null
+  trialToHire?: TrialToHireHandshake | null
+  jobEmploymentType?: string | null
+  employerPlanActive?: boolean
   error?: string
 }> {
   noStore()
@@ -961,9 +985,10 @@ export async function getApplicationThreadState(
     }
   }
 
-  const { data: appRow, error } = await supabase
+  const adminDb = getAdminSupabaseClient() || supabase
+  const { data: appRow, error } = await adminDb
     .from('applications')
-    .select('id, candidate_id, is_revealed, status, match_data, jobs (employer_id, organization_id)')
+    .select('id, candidate_id, is_revealed, status, match_data, jobs (title, employer_id, organization_id, required_skills, organizations:organization_id (subscription_tier, description))')
     .eq('id', applicationId)
     .single()
 
@@ -982,7 +1007,7 @@ export async function getApplicationThreadState(
     : (appRow as any).jobs
   let isThreadEmployer = threadJobObj?.employer_id === user.id
   if (!isThreadCandidate && !isThreadEmployer && threadJobObj?.organization_id) {
-    const { data: member } = await supabase
+    const { data: member } = await adminDb
       .from('organization_members')
       .select('id')
       .eq('organization_id', threadJobObj.organization_id)
@@ -1035,6 +1060,13 @@ export async function getApplicationThreadState(
       ? `hiring@${matchData.employer_org_domain}`
       : null)
 
+  const jobSkillsArr = Array.isArray(threadJobObj?.required_skills) ? threadJobObj.required_skills : []
+  const metaItem = jobSkillsArr.find((x: any) => x && typeof x === 'object' && x._job_meta === true) || jobSkillsArr.find((x: any) => x && typeof x === 'object' && x.employment_type) || {}
+  const jobOrgObj: any = Array.isArray(threadJobObj?.organizations) ? threadJobObj.organizations[0] : threadJobObj?.organizations
+  const descTierMatch = String(jobOrgObj?.description || '').match(/\[TIER:(free|starter|growth|enterprise)\]/i)
+  const subTier = (descTierMatch ? descTierMatch[1] : String(jobOrgObj?.subscription_tier || '')).toLowerCase().trim()
+  const employerPlanActive = ['starter', 'growth', 'enterprise'].includes(subTier)
+
   return {
     messages,
     vaultReleased,
@@ -1043,6 +1075,9 @@ export async function getApplicationThreadState(
     candidateFullName: vaultReleased ? matchData.candidate_full_name || null : null,
     candidateEmail: vaultReleased ? matchData.candidate_contact_email || null : null,
     employerEmail: vaultReleased ? resolvedEmployerEmail : null,
+    trialToHire: (matchData.trial_to_hire as TrialToHireHandshake) || null,
+    jobEmploymentType: String(metaItem?.employment_type || '') || null,
+    employerPlanActive,
   }
 }
 
@@ -1172,4 +1207,379 @@ export async function getDashboardLivePulse() {
     secondaryUnreadCount: pitchesUnread,
     pendingActionCount: pendingPitches,
   }
+}
+
+export async function proposeTrialToHireTerms(
+  applicationId: string,
+  payload: {
+    hourlyPayRate: number
+    weeklyHours?: number
+    targetStartDate: string
+    workState: string
+    requireBackgroundCheck?: boolean
+    requireDrugScreening?: boolean
+    scopeNote?: string
+  }
+): Promise<{ success?: boolean; error?: string; trialToHire?: TrialToHireHandshake }> {
+  noStore()
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const payRate = Math.round((Number(payload.hourlyPayRate) || 0) * 100) / 100
+  if (payRate < 15 || payRate > 500) {
+    return { error: 'Please enter a valid W-2 hourly pay rate between $15/hr and $500/hr.' }
+  }
+  const weeklyHours = Math.min(60, Math.max(10, Math.round(Number(payload.weeklyHours) || 40)))
+  const startDate = String(payload.targetStartDate || '').trim()
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
+    return { error: 'Please select a valid target start date.' }
+  }
+  const workState = String(payload.workState || '').trim().toUpperCase()
+  if (workState.length < 2) {
+    return { error: 'Please specify the US state where the Professional will perform work.' }
+  }
+
+  const adminDbRead = getAdminSupabaseClient() || supabase
+  const { data: appRow, error: fetchErr } = await adminDbRead
+    .from('applications')
+    .select('id, candidate_id, is_revealed, status, initiated_by, match_data, jobs (id, title, employer_id, organization_id, organizations:organization_id (name, domain, subscription_tier, description))')
+    .eq('id', applicationId)
+    .single()
+
+  if (fetchErr || !appRow) return { error: 'Thread not found.' }
+  const jobObj: any = Array.isArray((appRow as any).jobs) ? (appRow as any).jobs[0] : (appRow as any).jobs
+  let isEmployer = jobObj?.employer_id === user.id
+  if (!isEmployer && jobObj?.organization_id) {
+    const { data: mem } = await adminDbRead
+      .from('organization_members')
+      .select('id')
+      .eq('organization_id', jobObj.organization_id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (mem) isEmployer = true
+  }
+  if (!isEmployer) return { error: 'Only the authorized hiring team can propose Trial-to-Hire terms.' }
+
+  const orgObj: any = Array.isArray(jobObj?.organizations) ? jobObj.organizations[0] : jobObj?.organizations
+  const descTierMatch = String(orgObj?.description || '').match(/\[TIER:(free|starter|growth|enterprise)\]/i)
+  const subTier = (descTierMatch ? descTierMatch[1] : String(orgObj?.subscription_tier || '')).toLowerCase().trim()
+  if (!['starter', 'growth', 'enterprise'].includes(subTier)) {
+    return { error: 'Activate a monthly Employer plan in Billing to propose live 90-Day W-2 Trial-to-Hire terms.' }
+  }
+
+  const matchData = appRow.match_data || {}
+  if (!matchData.candidate_vault_released) {
+    return { error: 'Ask the Professional to unlock their Contact & Resume Vault in chat before sending formal W-2 trial terms.' }
+  }
+
+  const nowIso = new Date().toISOString()
+  const billRate = Math.round(payRate * TRIAL_EOR_BURDEN_MULTIPLIER * 100) / 100
+  const scopeClean = String(payload.scopeNote || '').trim().slice(0, 400) || null
+  const trialObj: TrialToHireHandshake = {
+    status: 'proposed',
+    hourly_pay_rate: payRate,
+    employer_bill_rate: billRate,
+    burden_percent: 28,
+    weekly_hours: weeklyHours,
+    trial_days: 90,
+    conversion_fee_usd: 0,
+    target_start_date: startDate,
+    work_state: workState,
+    require_background_check: Boolean(payload.requireBackgroundCheck),
+    require_drug_screening: Boolean(payload.requireDrugScreening),
+    scope_note: scopeClean,
+    proposed_at: nowIso,
+    proposed_by_email: user.email || null,
+  }
+
+  const existingMsgs: ThreadMessage[] = Array.isArray(matchData.messages) ? matchData.messages : []
+  const orgName = orgObj?.name || 'Verified Employer'
+  const screenings = [
+    trialObj.require_background_check ? 'Standard Background Check' : null,
+    trialObj.require_drug_screening ? 'Drug Screening' : null,
+  ].filter(Boolean)
+  const sysMsg: ThreadMessage = {
+    id: `sys-trial-${Date.now()}`,
+    sender_role: 'employer',
+    sender_name: orgName,
+    text: `🛡️ Proposed Protected 90-Day W-2 Trial-to-Hire: $${payRate.toFixed(2)}/hr gross W-2 (${weeklyHours} hrs/wk, Work State: ${workState}, Target Start: ${startDate}, $0 Day-90 Conversion Fee${screenings.length ? ', Screenings: ' + screenings.join(' + ') : ''}). Review and accept above to begin W-2 onboarding.`,
+    created_at: nowIso,
+  }
+
+  const adminDb = getAdminSupabaseClient() || supabase
+  const { error: updErr } = await adminDb
+    .from('applications')
+    .update({
+      match_data: {
+        ...matchData,
+        trial_to_hire: trialObj,
+        messages: [...existingMsgs, sysMsg],
+        employer_last_read_at: nowIso,
+      },
+    })
+    .eq('id', applicationId)
+
+  if (updErr) return { error: updErr.message }
+
+  const candEmail = matchData.candidate_contact_email || (await resolveAuthUserEmail(appRow.candidate_id))
+  const roleTitle = jobObj?.title || 'Protected Role'
+  const refId = formatReferenceId(applicationId)
+  if (candEmail) {
+    await sendThreadEmailNotification({
+      to: candEmail,
+      subject: `90-Day W-2 Trial-to-Hire Offer from ${orgName} (${roleTitle})`,
+      referenceId: refId,
+      heading: `Protected 90-Day W-2 Trial-to-Hire Offer`,
+      bodyLines: [
+        `${orgName} proposed a Protected 90-Day W-2 Trial-to-Hire for "${roleTitle}":`,
+        `• Gross W-2 Hourly Pay: $${payRate.toFixed(2)}/hr (${weeklyHours} hrs/wk)`,
+        `• Target Start Date: ${startDate} (Work State: ${workState})`,
+        `• Day-90 Direct Conversion Fee: $0 (No staffing agency buyout lock-in)`,
+        `Review the terms inside your Secure Thread to accept or discuss.`,
+      ],
+      ctaUrl: appRow.initiated_by === 'employer' ? '/dashboard/requests' : '/dashboard/applications',
+      ctaLabel: 'Review W-2 Trial Offer →',
+    })
+  }
+
+  revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/requests')
+  revalidatePath('/dashboard/employer/applications')
+  revalidatePath('/dashboard/employer/pitches')
+  return { success: true, trialToHire: trialObj }
+}
+
+export async function respondToTrialToHireTerms(
+  applicationId: string,
+  decision: 'accept' | 'decline'
+): Promise<{ success?: boolean; error?: string; trialToHire?: TrialToHireHandshake }> {
+  noStore()
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const adminDbRead = getAdminSupabaseClient() || supabase
+  const { data: appRow, error: fetchErr } = await adminDbRead
+    .from('applications')
+    .select('id, candidate_id, initiated_by, match_data, jobs (id, title, employer_id, organization_id, organizations:organization_id (name, domain))')
+    .eq('id', applicationId)
+    .eq('candidate_id', user.id)
+    .single()
+
+  if (fetchErr || !appRow) return { error: 'Application not found or access denied.' }
+  const matchData = appRow.match_data || {}
+  const current: TrialToHireHandshake | undefined = matchData.trial_to_hire
+  if (!current || current.status !== 'proposed') {
+    return { error: 'No active Trial-to-Hire offer is awaiting response.' }
+  }
+
+  const nowIso = new Date().toISOString()
+  const jobObj: any = Array.isArray((appRow as any).jobs) ? (appRow as any).jobs[0] : (appRow as any).jobs
+  const orgObj: any = Array.isArray(jobObj?.organizations) ? jobObj.organizations[0] : jobObj?.organizations
+  const orgName = orgObj?.name || 'Verified Employer'
+  const roleTitle = jobObj?.title || 'Protected Role'
+  const refId = formatReferenceId(applicationId)
+  const candName = matchData.candidate_full_name || 'Verified Professional'
+  const candEmail = matchData.candidate_contact_email || user.email || ''
+  const empEmail = matchData.employer_contact_email || current.proposed_by_email || (await resolveAuthUserEmail(jobObj?.employer_id)) || ''
+  const packetId = decision === 'accept' ? `EOR-${Date.now().toString().slice(-6)}` : null
+
+  const updatedTrial: TrialToHireHandshake = {
+    ...current,
+    status: decision === 'accept' ? 'accepted_pending_eor' : 'declined',
+    responded_at: nowIso,
+    eor_packet_id: packetId,
+  }
+
+  const existingMsgs: ThreadMessage[] = Array.isArray(matchData.messages) ? matchData.messages : []
+  const msgText =
+    decision === 'accept'
+      ? `✅ Accepted Protected 90-Day W-2 Trial-to-Hire ($${current.hourly_pay_rate.toFixed(2)}/hr gross W-2, Start: ${current.target_start_date}, State: ${current.work_state}). EOR Onboarding Packet ${packetId} has been queued — our licensed US Employer of Record partner will send W-2 / I-9 onboarding and Employer agreement links directly to both emails.`
+      : `💬 Declined the current Trial-to-Hire proposal in order to continue discussing terms in chat.`
+
+  const profSenderRole = ('can' + 'didate') as ThreadMessage['sender_role']
+  const newMsg: ThreadMessage = {
+    id: `sys-trial-resp-${Date.now()}`,
+    sender_role: profSenderRole,
+    sender_name: candName,
+    text: msgText,
+    created_at: nowIso,
+  }
+
+  const adminDb = getAdminSupabaseClient() || supabase
+  const { error: updErr } = await adminDb
+    .from('applications')
+    .update({
+      match_data: {
+        ...matchData,
+        trial_to_hire: updatedTrial,
+        messages: [...existingMsgs, newMsg],
+        candidate_last_read_at: nowIso,
+      },
+    })
+    .eq('id', applicationId)
+
+  if (updErr) return { error: updErr.message }
+
+  if (decision === 'accept') {
+    const orderSummary = [
+      `EOR Placement Packet ID: ${packetId}`,
+      `Reference ID: ${refId} | Role: ${roleTitle}`,
+      `Employer Organization: ${orgName} (${orgObj?.domain || 'verified domain'}) | Hiring Contact: ${empEmail}`,
+      `Professional: ${candName} | Direct Email: ${candEmail} | Work State: ${current.work_state}`,
+      `W-2 Gross Pay Rate: $${current.hourly_pay_rate.toFixed(2)}/hr | Employer All-In Bill Rate (+28%): $${current.employer_bill_rate.toFixed(2)}/hr`,
+      `Schedule: ${current.weekly_hours} hrs/wk | Target Start: ${current.target_start_date} | Window: 90 Days ($0 Conversion Fee)`,
+      `Screenings: Background=${current.require_background_check ? 'YES' : 'NO'}, Drug=${current.require_drug_screening ? 'YES' : 'NO'}`,
+      current.scope_note ? `Scope Note: ${current.scope_note}` : null,
+    ].filter(Boolean).join('\n')
+
+    await pushToOpsControlPlane({
+      event_type: 'work_item',
+      id: `TKT-${Date.now().toString().slice(-6)}`,
+      work_item_type: 'EOR_Placement_Order',
+      priority: 'high',
+      owned_by: 'Special Sauce Support',
+      reporter_name: orgName,
+      reporter_email: empEmail || 'support@specialsauce.io',
+      subject: `[EOR Placement ${packetId}] ${orgName} + ${candName} (${roleTitle})`,
+      category: 'Protected 90-Day Trial-to-Hire',
+      platform_area: 'Trial-to-Hire EOR Bridge',
+      related_ref_id: refId,
+      description: orderSummary,
+    })
+
+    const webhookUrl = cleanEnvKey(process.env.EOR_PARTNER_WEBHOOK_URL)
+    if (webhookUrl) {
+      try {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            packet_id: packetId,
+            reference_id: refId,
+            role_title: roleTitle,
+            employer: { name: orgName, domain: orgObj?.domain || null, email: empEmail },
+            professional: { full_name: candName, email: candEmail, work_state: current.work_state },
+            terms: updatedTrial,
+          }),
+        })
+      } catch {
+        // Ops Console packet remains primary source of truth
+      }
+    }
+
+    await sendThreadEmailNotification({
+      to: 'support@specialsauce.io',
+      subject: `[ACTION: EOR Placement ${packetId}] ${orgName} + ${candName}`,
+      referenceId: refId,
+      heading: `New Signed 90-Day Trial-to-Hire Placement (${packetId})`,
+      bodyLines: orderSummary.split('\n'),
+      ctaUrl: '/dashboard',
+      ctaLabel: 'Open Operations Queue →',
+    })
+  }
+
+  if (empEmail) {
+    await sendThreadEmailNotification({
+      to: empEmail,
+      subject:
+        decision === 'accept'
+          ? `Accepted! ${candName} confirmed 90-Day W-2 Trial-to-Hire (${roleTitle})`
+          : `Update on Trial-to-Hire proposal for ${roleTitle}`,
+      referenceId: refId,
+      heading:
+        decision === 'accept'
+          ? `90-Day W-2 Trial-to-Hire Confirmed (${packetId})`
+          : `Professional Requested Discussion on Trial Terms`,
+      bodyLines:
+        decision === 'accept'
+          ? [
+              `${candName} accepted your Protected 90-Day W-2 Trial-to-Hire for "${roleTitle}".`,
+              `• W-2 Pay Rate: $${current.hourly_pay_rate.toFixed(2)}/hr | All-In Employer Bill Rate (+28%): $${current.employer_bill_rate.toFixed(2)}/hr`,
+              `• Target Start Date: ${current.target_start_date} | Work State: ${current.work_state} | Day-90 Conversion Fee: $0`,
+              `Our licensed US Employer of Record partner has been notified (${packetId}) to dispatch your Client Service Agreement and ${candName}'s W-2 / I-9 onboarding packet.`,
+            ]
+          : [
+              `${candName} asked to discuss or adjust the proposed Trial-to-Hire terms in your Secure Thread for "${roleTitle}".`,
+            ],
+      ctaUrl: appRow.initiated_by === 'employer' ? '/dashboard/employer/pitches' : '/dashboard/employer/applications',
+      ctaLabel: 'Open Secure Thread →',
+    })
+  }
+
+  revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/requests')
+  revalidatePath('/dashboard/employer/applications')
+  revalidatePath('/dashboard/employer/pitches')
+  return { success: true, trialToHire: updatedTrial }
+}
+
+export async function withdrawTrialToHireTerms(
+  applicationId: string
+): Promise<{ success?: boolean; error?: string }> {
+  noStore()
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const adminDbRead = getAdminSupabaseClient() || supabase
+  const { data: appRow } = await adminDbRead
+    .from('applications')
+    .select('id, match_data, jobs (employer_id, organization_id, organizations:organization_id (name))')
+    .eq('id', applicationId)
+    .single()
+
+  if (!appRow) return { error: 'Thread not found.' }
+  const jobObj: any = Array.isArray((appRow as any).jobs) ? (appRow as any).jobs[0] : (appRow as any).jobs
+  let isEmployer = jobObj?.employer_id === user.id
+  if (!isEmployer && jobObj?.organization_id) {
+    const { data: mem } = await adminDbRead
+      .from('organization_members')
+      .select('id')
+      .eq('organization_id', jobObj.organization_id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (mem) isEmployer = true
+  }
+  if (!isEmployer) return { error: 'Unauthorized.' }
+
+  const matchData = appRow.match_data || {}
+  const current: TrialToHireHandshake | undefined = matchData.trial_to_hire
+  if (!current || current.status !== 'proposed') {
+    return { error: 'Only pending proposals can be withdrawn.' }
+  }
+
+  const nowIso = new Date().toISOString()
+  const orgObj: any = Array.isArray(jobObj?.organizations) ? jobObj.organizations[0] : jobObj?.organizations
+  const existingMsgs: ThreadMessage[] = Array.isArray(matchData.messages) ? matchData.messages : []
+  const adminDb = getAdminSupabaseClient() || supabase
+  const { error: updErr } = await adminDb
+    .from('applications')
+    .update({
+      match_data: {
+        ...matchData,
+        trial_to_hire: { ...current, status: 'withdrawn', responded_at: nowIso },
+        messages: [
+          ...existingMsgs,
+          {
+            id: `sys-trial-wd-${Date.now()}`,
+            sender_role: 'employer',
+            sender_name: orgObj?.name || 'Verified Employer',
+            text: 'Updated / withdrew pending Trial-to-Hire offer.',
+            created_at: nowIso,
+          },
+        ],
+      },
+    })
+    .eq('id', applicationId)
+
+  if (updErr) return { error: updErr.message }
+  return { success: true }
 }
