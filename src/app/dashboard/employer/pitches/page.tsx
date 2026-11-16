@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { getEmployerPitches } from '@/app/dashboard/actions'
 import SecureMessageThread from '@/components/SecureMessageThread'
@@ -35,9 +35,13 @@ export default function EmployerSentPitchesPage() {
   const [expandedRadarIds, setExpandedRadarIds] = useState<
     Record<string, boolean>
   >({})
+  const hasInitialTopLockRef = useRef(false)
 
   useEffect(() => {
     setIsMounted(true)
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
+    }
     try {
       const saved = Number(localStorage.getItem('ss_emp_pitches_per_page_v1'))
       if ([5, 10, 25, 50].includes(saved)) setItemsPerPage(saved)
@@ -51,7 +55,15 @@ export default function EmployerSentPitchesPage() {
       if (res?.data) {
         setPitches(res.data)
       }
-      if (!silent) setIsLoading(false)
+      if (!silent) {
+        setIsLoading(false)
+        if (!hasInitialTopLockRef.current && typeof window !== 'undefined') {
+          hasInitialTopLockRef.current = true
+          requestAnimationFrame(() => {
+            window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
+          })
+        }
+      }
     },
     [daysFilter, appliedSearch]
   )
@@ -129,7 +141,7 @@ export default function EmployerSentPitchesPage() {
   const paginatedPitches = filteredPitches.slice(startIndex, startIndex + itemsPerPage)
 
   return (
-    <div className="max-w-6xl mx-auto py-3 space-y-6">
+    <div className="max-w-6xl mx-auto py-3 space-y-6 [overflow-anchor:none]">
       {/* Header */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>

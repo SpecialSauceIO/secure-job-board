@@ -223,6 +223,8 @@ export async function saveMergedOpsVault(
   if (vault.monitor_meta) {
     delete vault.monitor_meta.vault_reset_epoch
   }
+  bannerVaultCache = null
+  bannerVaultInFlight = null
   const nowTs = Date.now()
   const newVersionPath = `${OPS_VAULT_DIR}/${OPS_VAULT_PREFIX}${nowTs}.json`
   const payloadBuffer = Buffer.from(JSON.stringify(vault, null, 2), "utf-8")
@@ -742,6 +744,30 @@ export interface SystemStatusBanner {
   source?: "manual" | "watchdog"
 }
 
+const BANNER_VAULT_TTL_MS = 20_000
+let bannerVaultCache: { expiresAt: number; vault: Awaited<ReturnType<typeof loadMergedOpsVault>> } | null = null
+let bannerVaultInFlight: Promise<Awaited<ReturnType<typeof loadMergedOpsVault>>> | null = null
+
+async function loadBannerOpsVaultCached(
+  client: NonNullable<ReturnType<typeof getOpsServiceClient>>
+) {
+  const now = Date.now()
+  if (bannerVaultCache && bannerVaultCache.expiresAt > now) {
+    return bannerVaultCache.vault
+  }
+  if (!bannerVaultInFlight) {
+    bannerVaultInFlight = loadMergedOpsVault(client)
+      .then((v) => {
+        bannerVaultCache = { expiresAt: Date.now() + BANNER_VAULT_TTL_MS, vault: v }
+        return v
+      })
+      .finally(() => {
+        bannerVaultInFlight = null
+      })
+  }
+  return bannerVaultInFlight
+}
+
 export async function getActiveSystemStatusBanner(
   viewerRole?: "candidate" | "employer" | null
 ): Promise<SystemStatusBanner | null> {
@@ -749,7 +775,7 @@ export async function getActiveSystemStatusBanner(
   if (!client) return null
 
   try {
-    const vault = await loadMergedOpsVault(client)
+    const vault = await loadBannerOpsVaultCached(client)
     const manualBanner = vault.monitor_meta?.system_status_banner as
       | SystemStatusBanner
       | undefined

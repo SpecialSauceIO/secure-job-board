@@ -130,6 +130,7 @@ export default function SecureMessageThread({
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   const prevMsgCountRef = useRef<number>(messages.length)
   const hasHydratedRef = useRef<boolean>(false)
+  const syncInFlightRef = useRef<boolean>(false)
   const soundEnabledRef = useRef<boolean>(soundEnabled)
   const channelRef = useRef<any>(null)
 
@@ -187,9 +188,10 @@ export default function SecureMessageThread({
     hasHydratedRef.current = true
   }, [messages, viewerRole])
 
-  // Direct, uncached server state pull
+  // Direct, uncached server state pull with in-flight deduplication
   const syncLatestThreadState = useCallback(async () => {
-    if (!applicationId) return
+    if (!applicationId || syncInFlightRef.current) return
+    syncInFlightRef.current = true
     try {
       const res = await getApplicationThreadState(applicationId, viewerRole)
       if (!res.error) {
@@ -215,6 +217,8 @@ export default function SecureMessageThread({
       }
     } catch {
       // Ignore transient network hiccups during polling
+    } finally {
+      syncInFlightRef.current = false
     }
   }, [applicationId, viewerRole])
 
@@ -247,8 +251,9 @@ export default function SecureMessageThread({
     channelRef.current = channel
 
     const intervalId = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return
       syncLatestThreadState()
-    }, 2500)
+    }, 8000)
 
     return () => {
       clearInterval(intervalId)

@@ -94,7 +94,7 @@ export default async function DashboardLayout({
       <main className="flex-1 px-4 py-6 sm:p-6 md:p-8">{children}</main>
 
       {/* Subtle Dashboard Footer */}
-      <footer className="border-t border-slate-300 bg-white py-5 px-4 sm:px-8 mt-auto">
+      <footer className="border-t border-slate-300 bg-white py-5 px-4 sm:px-8 mt-auto [overflow-anchor:none]">
           <div className="max-w-[1440px] mx-auto flex flex-col xl:grid xl:grid-cols-3 items-center gap-4 text-xs font-medium text-slate-500">
             <div className="text-xs font-medium text-slate-500 text-center xl:text-left xl:justify-self-start leading-tight space-y-1">
               <p className="whitespace-nowrap">5900 Balcones Dr #34619</p>
