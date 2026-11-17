@@ -198,6 +198,14 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Personal Inbound Shield Links</strong> for cold recruiter DMs • <Link href="/inbound-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> roles • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 &amp; EOR guide →</Link></span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
                       <span>Free TrueFit Score™ checks &amp; Weekly 1-Year Prestige Drawing entry</span>
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
@@ -394,6 +402,14 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee via our U.S. EOR partner) • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 &amp; EOR guide →</Link></span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
                       <span><strong className="text-white">10 Outbound Invitation Credits / mo</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
@@ -454,6 +470,14 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee via our U.S. EOR partner) • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 &amp; EOR guide →</Link></span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
                       <span><strong className="text-white">35 Outbound Invitation Credits / mo</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
@@ -511,6 +535,14 @@ export default function PricingMatrixPage() {
                     <li className="flex items-start gap-2.5 text-amber-300 font-bold">
                       <span className="shrink-0">★</span>
                       <span><strong className="text-white">$1,250/mo Locked for 12 Months</strong> ($1,999/mo Month 13+)</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee via our U.S. EOR partner) • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 &amp; EOR guide →</Link></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>

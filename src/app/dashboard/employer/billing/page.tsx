@@ -390,7 +390,7 @@ export default function EmployerBillingPage() {
                 Verify Your Company to Lock In Founding Partner Rates
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Complete your one-time $25 organization verification to enter $0/mo Practice Mode—your $25 deposit is credited directly toward Month 1 when you activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo).
+                Complete your one-time $25 organization verification to enter $0/mo Practice Mode—your $25 verification fee is credited directly toward Month 1 when you activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo).
               </p>
             </div>
 
@@ -470,10 +470,16 @@ export default function EmployerBillingPage() {
                 ★ <strong className="text-amber-800">$149/mo Locked for 12 Months</strong> ($299/mo Month 13+)
               </li>
               <li className="text-emerald-700 font-bold">
-                ✓ <strong>$25 Verification Deposit Credited</strong> toward Month 1
+                ✓ <strong>$25 Verification Fee Credited</strong> toward Month 1
               </li>
               <li>
                 ✓ <strong>Up to 5 Active Protected Roles</strong>
+              </li>
+              <li>
+                ✓ <strong>Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/dashboard/talent-shield" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
+              </li>
+              <li>
+                ✓ <strong>Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee via our U.S. EOR partner) • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">W-2 &amp; EOR guide →</Link>
               </li>
               <li>
                 ✓ <strong>10 Outbound Invitation Credits / mo</strong>
@@ -545,10 +551,16 @@ export default function EmployerBillingPage() {
                 ★ <strong className="text-amber-300">$499/mo Locked for 12 Months</strong> ($799/mo Month 13+)
               </li>
               <li className="text-emerald-300 font-bold">
-                ✓ <strong>$25 Verification Deposit Credited</strong> toward Month 1
+                ✓ <strong>$25 Verification Fee Credited</strong> toward Month 1
               </li>
               <li>
                 ✓ <strong>Up to 15 Active Protected Roles</strong>
+              </li>
+              <li>
+                ✓ <strong>Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/dashboard/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link>
+              </li>
+              <li>
+                ✓ <strong>Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee via our U.S. EOR partner) • <Link href="/dashboard/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 &amp; EOR guide →</Link>
               </li>
               <li>
                 ✓ <strong>35 Outbound Invitation Credits / mo</strong>
@@ -622,10 +634,16 @@ export default function EmployerBillingPage() {
                 ★ <strong className="text-amber-800">$1,250/mo Locked for 12 Months</strong> ($1,999/mo Month 13+)
               </li>
               <li className="text-emerald-700 font-bold">
-                ✓ <strong>$25 Verification Deposit Credited</strong> toward Month 1
+                ✓ <strong>$25 Verification Fee Credited</strong> toward Month 1
               </li>
               <li>
                 ✓ <strong>Unlimited Active Protected Roles</strong>
+              </li>
+              <li>
+                ✓ <strong>Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/dashboard/talent-shield" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
+              </li>
+              <li>
+                ✓ <strong>Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee via our U.S. EOR partner) • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">W-2 &amp; EOR guide →</Link>
               </li>
               <li>
                 ✓ <strong>120 Outbound Invitation Credits / mo</strong>

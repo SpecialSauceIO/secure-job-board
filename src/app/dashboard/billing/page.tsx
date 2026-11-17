@@ -456,6 +456,12 @@ export default function CandidateBillingPage() {
                 <li>
                   ✓ <strong>Unlimited Employer Invitations</strong> &amp; Private Chat
                 </li>
+                <li>
+                  ✓ <strong>Personal Inbound Shield Links</strong> for cold recruiter DMs • <Link href="/dashboard/inbound-shield" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
+                </li>
+                <li>
+                  ✓ <strong>Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> roles • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">W-2 &amp; EOR guide →</Link>
+                </li>
                 <li>✓ Free TrueFit Score™ checks &amp; Weekly Drawing entry</li>
                 <li className="text-emerald-700 font-bold">
                   ✓ <strong>$5 credited toward Month 1</strong> if you ever subscribe

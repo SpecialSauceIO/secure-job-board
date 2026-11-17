@@ -17,6 +17,7 @@ const STANDARD_PILLARS = [
     bullets: [
       "The Introduction (Private Chat): Reveals the verified company name and opens direct chat showing only your First Name + Last Initial.",
       "The Conversation (One-Click Release): Shares your full PDF resume and contact info only when you click Release Resume & Contact Vault.",
+      "Single-Use Verification Links: Personal Inbound Shield and Employer Talent Shield put a private verification gate on external DMs and sourcing—deactivating automatically after one verified Protected Role connection.",
     ],
   },
   {
@@ -39,6 +40,7 @@ const STANDARD_PILLARS = [
     bullets: [
       "30-Day Job Expiration: Every job listing closes automatically after 30 days unless actively renewed by the hiring team.",
       "Active Response Requirement: Employers must message the professionals they unlock before unlocking more profiles.",
+      "Direct Hire, W-2 Contract & Contract-to-Hire: Supports Direct Hire alongside W-2 Contract and Contract-to-Hire ($0 conversion fee across 90-day, 180-day, or custom timelines) roles administered via our U.S. Employer of Record (EOR) partner, complete with hardware return tracking.",
     ],
   },
   {

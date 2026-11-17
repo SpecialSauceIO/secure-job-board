@@ -178,7 +178,7 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
         step: 'Step 3',
         title: 'Publish Direct Hire or W-2 Contract-to-Hire Roles',
         description:
-          'Post Direct Hire, 90-Day W-2 Contract-to-Hire ($0 conversion fee), or flexible W-2 Contract roles with upfront pay bands while keeping your company name private until you connect.',
+          'Post Direct Hire, W-2 Contract, or Contract-to-Hire ($0 conversion fee via our U.S. EOR partner) roles with upfront pay bands while keeping your company name private until you connect.',
       },
       {
         step: 'Step 4',
@@ -469,9 +469,9 @@ export const SUPPORT_FAQS: FAQ[] = [
     target: '\u0063andidate',
     category: 'Applications & Roles',
     question:
-      'How do 90-Day W-2 Contract-to-Hire and W-2 Contract roles work for Professionals?',
+      'How do Direct Hire, W-2 Contract, and Contract-to-Hire roles work for Professionals?',
     answer:
-      'Alongside traditional Direct Hire roles, employers can offer 90-Day W-2 Contract-to-Hire, Fixed-Term W-2 (3–12 months), or Open-Ended W-2 Contract roles with upfront hourly or salary pay. You receive steady W-2 paycheck protection from day one, and on 90-Day Contract-to-Hire roles the employer pays a $0 conversion fee to bring you onto full-time staff—eliminating staffing agency buyout roadblocks.',
+      'Every Protected Role supports full-time Direct Hire onto the hiring company\u0027s payroll alongside optional W-2 Contract (3–12 months or open-ended) and Contract-to-Hire tracks with upfront pay bands. On W-2 tracks, our dedicated U.S. Employer of Record (EOR) partner serves as your legal W-2 employer—handling onboarding, scheduled W-2 paychecks, and employer payroll taxes from day one—and employers pay a $0 conversion fee across 90-day, 180-day, or custom timelines to bring you onto full-time staff.',
   },
   {
     id: 'e9',
@@ -487,8 +487,8 @@ export const SUPPORT_FAQS: FAQ[] = [
     target: 'employer',
     category: 'Job Listings',
     question:
-      'How do the 90-Day W-2 Contract-to-Hire ($0 conversion fee) and W-2 Contract Tracks work?',
+      'How do Direct Hire, W-2 Contract, and Contract-to-Hire ($0 conversion fee via our U.S. EOR partner) work for Employers?',
     answer:
-      'When creating a Protected Role, you can choose Direct Hire Only or select an optional W-2 EOR Engagement Track (+28% statutory W-2 employer burden): 90-Day W-2 Contract-to-Hire ($0 Day-90 conversion fee), Fixed-Term W-2 Contract (3–12 months, extendable anytime), or Open-Ended Ongoing W-2 Contract. Payroll, tax compliance, and optional hardware provisioning and return tracking are handled seamlessly—with zero staffing agency buyout fees when converting to full-time.',
+      'When creating a Protected Role, you can hire directly onto your internal payroll ($0 placement fee) or select a W-2 track (+28% statutory W-2 employer burden): Fixed-Term W-2 Contract (3–12 months, extendable anytime), Open-Ended W-2 Contract, or Contract-to-Hire ($0 conversion fee across 90-day, 180-day, or custom timelines). Our dedicated U.S. Employer of Record (EOR) partner serves as the legal W-2 employer—handling I-9/W-4 onboarding, W-2 payroll, multi-state tax compliance, and workers\u0027 compensation—alongside built-in hardware return tracking.',
   },
 ]

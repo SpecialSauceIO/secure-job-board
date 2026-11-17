@@ -642,7 +642,7 @@ export default function LandingPage() {
                   2. See Your Fit &amp; Get Discovered
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Browse roles with upfront pay ranges, check your TrueFit Score™ before applying, receive verified invitations, and gate cold recruiter messages with one-time Inbound Shield links.
+                  Browse Direct Hire, W-2 Contract, and Contract-to-Hire roles with upfront pay ranges, check your TrueFit Score™ before applying, receive verified invitations, and gate cold recruiter messages with one-time <Link href="/inbound-shield" className="text-indigo-600 underline hover:text-indigo-800 font-bold">Personal Inbound Shield</Link> links.
                 </p>
               </div>
 
@@ -789,7 +789,7 @@ export default function LandingPage() {
                   1. Post Direct or W-2 Contract Roles
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Set required skills, upfront pay, and hiring track—from Direct Hire to 90-Day W-2 Contract-to-Hire ($0 conversion fee) or flexible W-2 contracts—while keeping your company name private until you connect.
+                  Set required skills, upfront pay, and hiring track—Direct Hire, W-2 Contract, or Contract-to-Hire ($0 conversion fee via our U.S. EOR partner)—while keeping your company name private until you connect. <Link href="/w2-hiring" className="text-indigo-600 underline hover:text-indigo-800 font-bold">Explore Direct &amp; W-2 tracks →</Link>
                 </p>
               </div>
 
@@ -854,7 +854,7 @@ export default function LandingPage() {
                   2. Match by Skill &amp; Invite Directly
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Invite matched professionals from Talent Search with automatic credit refunds if declined—or share one-time Talent Shield links on LinkedIn, GitHub, and email to screen external leads without exposing your role to scrapers.
+                  Invite matched professionals from Talent Search with automatic credit refunds if declined—or share one-time <Link href="/talent-shield" className="text-indigo-600 underline hover:text-indigo-800 font-bold">Employer Talent Shield</Link> links on LinkedIn, GitHub, and email to screen external leads without exposing your role to scrapers.
                 </p>
               </div>
 
