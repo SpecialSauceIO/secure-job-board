@@ -135,53 +135,35 @@ export default function LandingPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400"></span>
                 </span>
-                The World's First Secured Workforce Ecosystem
+                Changing the Hiring Landscape. For Good.
               </div>
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
-                Changing the{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#38BDF8] to-[#0077D4]">
-                  Hiring Landscape.
-                </span>
+                Meet the World&apos;s First
                 <br />
-                For good.
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#38BDF8] to-[#0077D4]">
+                  Secured Workforce Ecosystem<span className="inline-block text-[0.28em] font-bold text-[#0077D4] relative -top-[1.5em] ml-[0.08em] tracking-normal">TM</span>.
+                </span>
               </h1>
-              <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Skip the resume black hole. Special Sauce connects verified professionals and verified employers based on real skills, upfront pay, and mutual interest.
-              </p>
+              <ul className="inline-flex flex-col items-start text-left space-y-2 text-sm sm:text-base md:text-lg text-slate-200 max-w-2xl">
+                <li className="flex items-start gap-2.5">
+                  <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
+                  <span>ID-verified employers and ID-verified professionals connect directly.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
+                  <span>Private profiles, upfront pay, and mutual fit before the first conversation.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
+                  <span className="font-bold text-white">No more job boards. No more recruiters. Ever.</span>
+                </li>
+              </ul>
             </div>
 
-            {/* SLIDE 1: No More Bots, Spam, Scams */}
+            {/* SLIDE 1: Privacy Handshake (Best Professional Slide) */}
             <div
               className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
                 currentSlide === 1
-                  ? 'opacity-100 translate-y-0 z-10'
-                  : 'opacity-0 pointer-events-none z-0'
-              }`}
-            >
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-500/15 border border-orange-400/30 text-orange-300 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs backdrop-blur-xs">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F97316]"></span>
-                </span>
-                Verified Professionals • Verified Employers
-              </div>
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
-                No More Bots.{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FB923C] to-[#EA580C]">
-                  No More Spam.
-                </span>
-                <br />
-                No More Scams.
-              </h2>
-              <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Every professional and employer is verified before connecting—so real people talk directly with real hiring teams.
-              </p>
-            </div>
-
-            {/* SLIDE 2: Privacy Handshake */}
-            <div
-              className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
-                currentSlide === 2
                   ? 'opacity-100 translate-y-0 z-10'
                   : 'opacity-0 pointer-events-none z-0'
               }`}
@@ -191,7 +173,7 @@ export default function LandingPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400"></span>
                 </span>
-                You Control Your Privacy
+                For Verified Professionals • You Control Your Privacy
               </div>
               <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
                 Start With{' '}
@@ -201,43 +183,32 @@ export default function LandingPage() {
                 <br />
                 Share Your Resume When Ready.
               </h2>
-              <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Chat first using only your first name and last initial. Share your full resume and contact details only when you want to move forward.
-              </p>
+              <ul className="inline-flex flex-col items-start text-left space-y-2 text-sm sm:text-base md:text-lg text-slate-200 max-w-2xl">
+                <li className="flex items-start gap-2.5">
+                  <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
+                  <span>Chat first using only your first name and last initial.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
+                  <span>Share your full resume and contact details only when ready.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
+                  <span>
+                    Filter outside messages with your{' '}
+                    <Link href="/inbound-shield" className="text-sky-300 underline decoration-sky-400/60 underline-offset-4 hover:text-white font-semibold transition-colors">
+                      Personal Inbound Shield
+                    </Link>
+                    .
+                  </span>
+                </li>
+              </ul>
             </div>
 
-            {/* SLIDE 3: Zero Ghost Jobs */}
+            {/* SLIDE 2: Employers */}
             <div
               className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
-                currentSlide === 3
-                  ? 'opacity-100 translate-y-0 z-10'
-                  : 'opacity-0 pointer-events-none z-0'
-              }`}
-            >
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-500/15 border border-orange-400/30 text-orange-300 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs backdrop-blur-xs">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F97316]"></span>
-                </span>
-                30-Day Fresh Listings • No Resume Harvesting
-              </div>
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
-                Zero{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FB923C] to-[#EA580C]">
-                  Ghost Jobs.
-                </span>
-                <br />
-                No resume harvesting.
-              </h2>
-              <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Every job listing expires after 30 days, and every role shows upfront pay—so you never waste time on dead listings.
-              </p>
-            </div>
-
-            {/* SLIDE 4: Employers */}
-            <div
-              className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
-                currentSlide === 4
+                currentSlide === 2
                   ? 'opacity-100 translate-y-0 z-10'
                   : 'opacity-0 pointer-events-none z-0'
               }`}
@@ -257,9 +228,116 @@ export default function LandingPage() {
                 <br />
                 Skip the resume pile.
               </h2>
-              <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Stop sorting through unqualified spam. Every applicant is a verified professional matched to your required skills, pay range, and work model.
-              </p>
+              <ul className="inline-flex flex-col items-start text-left space-y-2 text-sm sm:text-base md:text-lg text-slate-200 max-w-2xl">
+                <li className="flex items-start gap-2.5">
+                  <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
+                  <span>Every match is ID-verified and aligned to your skills, pay, and work model.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
+                  <span>
+                    Hire via{' '}
+                    <Link href="/w2-hiring" className="text-sky-300 underline decoration-sky-400/60 underline-offset-4 hover:text-white font-semibold transition-colors">
+                      Direct Hire, W-2 Contract, or $0-fee Contract-to-Hire
+                    </Link>
+                    .
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
+                  <span>
+                    Gate outside leads and messages with{' '}
+                    <Link href="/talent-shield" className="text-sky-300 underline decoration-sky-400/60 underline-offset-4 hover:text-white font-semibold transition-colors">
+                      Employer Talent Shield
+                    </Link>{' '}
+                    links.
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            {/* SLIDE 3: No More Bots, Spam, Scams */}
+            <div
+              className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
+                currentSlide === 3
+                  ? 'opacity-100 translate-y-0 z-10'
+                  : 'opacity-0 pointer-events-none z-0'
+              }`}
+            >
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-500/15 border border-orange-400/30 text-orange-300 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs backdrop-blur-xs">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F97316]"></span>
+                </span>
+                Verified Professionals • Verified Employers
+              </div>
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
+                No More Bots.{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FB923C] to-[#EA580C]">
+                  No More Spam.
+                </span>
+                <br />
+                No More Scams.
+              </h2>
+              <ul className="inline-flex flex-col items-start text-left space-y-2 text-sm sm:text-base md:text-lg text-slate-200 max-w-2xl">
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[#FB923C] font-extrabold leading-relaxed">•</span>
+                  <span>Every professional completes government-issued ID verification.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[#FB923C] font-extrabold leading-relaxed">•</span>
+                  <span>Every employer passes domain, business entity, and admin ID checks.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[#FB923C] font-extrabold leading-relaxed">•</span>
+                  <span>Real people talk directly with real hiring teams.</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* SLIDE 4: Zero Ghost Jobs */}
+            <div
+              className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
+                currentSlide === 4
+                  ? 'opacity-100 translate-y-0 z-10'
+                  : 'opacity-0 pointer-events-none z-0'
+              }`}
+            >
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-500/15 border border-orange-400/30 text-orange-300 text-[11px] font-extrabold uppercase tracking-wide mb-5 shadow-2xs backdrop-blur-xs">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F97316]"></span>
+                </span>
+                30-Day Fresh Listings • No Resume Harvesting
+              </div>
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
+                Zero{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FB923C] to-[#EA580C]">
+                  Ghost Jobs.
+                </span>
+                <br />
+                No resume harvesting.
+              </h2>
+              <ul className="inline-flex flex-col items-start text-left space-y-2 text-sm sm:text-base md:text-lg text-slate-200 max-w-2xl">
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[#FB923C] font-extrabold leading-relaxed">•</span>
+                  <span>Every active role expires after 30 days—zero stale listings.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[#FB923C] font-extrabold leading-relaxed">•</span>
+                  <span>Upfront salary or hourly pay required on every Protected Role.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[#FB923C] font-extrabold leading-relaxed">•</span>
+                  <span>
+                    Your information stays{' '}
+                    <Link href="/security" className="text-orange-300 underline decoration-orange-400/60 underline-offset-4 hover:text-white font-semibold transition-colors">
+                      secure
+                    </Link>{' '}
+                    and is never sold.
+                  </span>
+                </li>
+              </ul>
             </div>
 
             {/* SLIDE 5: Verify Once */}
@@ -275,7 +353,7 @@ export default function LandingPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F97316]"></span>
                 </span>
-                One-Time Verification • $0/Mo Explorer &amp; Practice Mode
+                For Professionals • $5 One-Time Verification • $0/Mo Forever
               </div>
               <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
                 See Your{' '}
@@ -285,9 +363,25 @@ export default function LandingPage() {
                 <br />
                 Verify Once. Explore for FREE.
               </h2>
-              <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Get verified once ($5 Professional Explorer Mode • $25 Employer Practice Mode) to check your fit, receive invitations, or preview matches at $0/mo. Upgrade only when ready to apply or hire.
-              </p>
+              <ul className="inline-flex flex-col items-start text-left space-y-2 text-sm sm:text-base md:text-lg text-slate-200 max-w-2xl">
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[#FB923C] font-extrabold leading-relaxed">•</span>
+                  <span>
+                    <Link href="/pricing" className="text-orange-300 underline decoration-orange-400/60 underline-offset-4 hover:text-white font-semibold transition-colors">
+                      One-time $5 ID check
+                    </Link>
+                    . 100% credited to Month 1 when you subscribe.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[#FB923C] font-extrabold leading-relaxed">•</span>
+                  <span>Check your TrueFit Score™ and receive inbound invitations at $0/mo.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-[#FB923C] font-extrabold leading-relaxed">•</span>
+                  <span>Upgrade only when you&apos;re ready to apply.</span>
+                </li>
+              </ul>
             </div>
           </div>
 
@@ -341,10 +435,10 @@ export default function LandingPage() {
               onClick={() => setCurrentSlide(1)}
               className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
                 currentSlide === 1
-                  ? 'bg-[#F97316] w-6'
+                  ? 'bg-[#38BDF8] w-6'
                   : 'bg-slate-700 hover:bg-slate-500'
               }`}
-              aria-label="View No Bots No Spam No Scams slide"
+              aria-label="View Privacy Handshake slide"
             />
             <button
               onClick={() => setCurrentSlide(2)}
@@ -353,7 +447,7 @@ export default function LandingPage() {
                   ? 'bg-[#38BDF8] w-6'
                   : 'bg-slate-700 hover:bg-slate-500'
               }`}
-              aria-label="View Privacy Handshake slide"
+              aria-label="View Employer True Fit slide"
             />
             <button
               onClick={() => setCurrentSlide(3)}
@@ -362,16 +456,16 @@ export default function LandingPage() {
                   ? 'bg-[#F97316] w-6'
                   : 'bg-slate-700 hover:bg-slate-500'
               }`}
-              aria-label="View Zero Ghost Jobs slide"
+              aria-label="View No Bots No Spam No Scams slide"
             />
             <button
               onClick={() => setCurrentSlide(4)}
               className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
                 currentSlide === 4
-                  ? 'bg-[#38BDF8] w-6'
+                  ? 'bg-[#F97316] w-6'
                   : 'bg-slate-700 hover:bg-slate-500'
               }`}
-              aria-label="View Employer True Fit slide"
+              aria-label="View Zero Ghost Jobs slide"
             />
             <button
               onClick={() => setCurrentSlide(5)}
