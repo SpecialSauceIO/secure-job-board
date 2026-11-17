@@ -104,6 +104,26 @@ export default function EmployerJobsTableClient({
     action: 'extend_90d' | 'convert_direct' | 'wrap_up_assignment' | 'mark_gear_returned' | 'request_gear_return' | 'reopen_assignment'
   } | null>(null)
   const [confirmIntentChecked, setConfirmIntentChecked] = useState(false)
+  const [pendingRoleDelete, setPendingRoleDelete] = useState<EnrichedEmployerJobRow | null>(null)
+  const [confirmRoleDeleteChecked, setConfirmRoleDeleteChecked] = useState(false)
+
+  const getRoleDeleteBlockReason = (job: EnrichedEmployerJobRow): string | null => {
+    if ((job.w2Engagements || []).some((e) => e.status === 'accepted_pending_eor')) {
+      return 'Wrap up or convert the active W-2 assignment before deleting this role.'
+    }
+    if ((job.w2Engagements || []).some((e) => e.equipmentReturnStatus === 'return_requested')) {
+      return 'Confirm hardware return before deleting this role.'
+    }
+    if (job.unactionedApplicantCount > 0) {
+      return 'Reply to or decline waiting applicants before deleting this role.'
+    }
+    return null
+  }
+
+  const openRoleDeleteConfirm = (job: EnrichedEmployerJobRow) => {
+    setConfirmRoleDeleteChecked(false)
+    setPendingRoleDelete(job)
+  }
 
   const openContractConfirm = (
     jobTitle: string,
@@ -646,6 +666,27 @@ export default function EmployerJobsTableClient({
                       )}
                     </form>
                   </div>
+                  <div className="pt-1 flex justify-end">
+                    {(() => {
+                      const blockReason = getRoleDeleteBlockReason(job)
+                      return blockReason ? (
+                        <span
+                          title={blockReason}
+                          className="px-2.5 py-1 text-[11px] font-bold text-slate-400 bg-slate-100 border border-slate-200 rounded-lg select-none cursor-not-allowed"
+                        >
+                          🔒 Delete Protected
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => openRoleDeleteConfirm(job)}
+                          className="px-2.5 py-1 text-[11px] font-bold text-rose-700 bg-white border border-rose-200 rounded-lg hover:bg-rose-50 hover:border-rose-300 transition-colors cursor-pointer"
+                        >
+                          Delete Role
+                        </button>
+                      )
+                    })()}
+                  </div>
                 </div>
               )
             })}
@@ -1066,6 +1107,26 @@ export default function EmployerJobsTableClient({
                               </>
                             )}
                           </form>
+                          {(() => {
+                            const blockReason = getRoleDeleteBlockReason(job)
+                            return blockReason ? (
+                              <span
+                                title={blockReason}
+                                className="px-2.5 py-1.5 text-xs font-bold text-slate-400 bg-slate-100 border border-slate-200 rounded-lg select-none cursor-not-allowed"
+                              >
+                                🔒 Delete
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => openRoleDeleteConfirm(job)}
+                                title="Permanently delete this role listing"
+                                className="px-2.5 py-1.5 text-xs font-bold text-rose-700 bg-white border border-rose-200 rounded-lg hover:bg-rose-50 hover:border-rose-300 transition-colors cursor-pointer"
+                              >
+                                Delete
+                              </button>
+                            )
+                          })()}
                         </div>
                       </td>
                     </tr>
@@ -1211,6 +1272,89 @@ export default function EmployerJobsTableClient({
                       : pendingContractConfirm.action === 'reopen_assignment'
                       ? 'Confirm Reopen W-2'
                       : 'Confirm Hardware Returned'}
+                  </SubmitButton>
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className="px-4 py-2 rounded-xl bg-slate-200 text-xs font-extrabold text-slate-400 cursor-not-allowed"
+                >
+                  Check Box Above to Confirm
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {pendingRoleDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white border-2 border-slate-300 shadow-2xl p-6 space-y-4">
+            <div className="space-y-1">
+              <span className="inline-flex items-center rounded-md bg-rose-50 border border-rose-200 px-2 py-0.5 text-[11px] font-extrabold text-rose-800">
+                Permanent Role Cleanup
+              </span>
+              <h3 className="text-lg font-extrabold text-slate-900">
+                Delete Role Listing?
+              </h3>
+              <p className="text-xs text-slate-600">
+                <strong className="text-slate-900">{pendingRoleDelete.title}</strong>
+                {pendingRoleDelete.applicantCount > 0
+                  ? ` · ${pendingRoleDelete.applicantCount} archived application record${pendingRoleDelete.applicantCount === 1 ? '' : 's'}`
+                  : ' · 0 inbound applications'}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-rose-200 bg-rose-50/60 p-3 text-xs text-slate-700 space-y-1.5">
+              <p>
+                Deleting this role permanently removes it from your Job Management table, automatically retires any open Employer Talent Shield links tied to it, and clears its archived application threads.
+              </p>
+              {pendingRoleDelete.is_active && (
+                <p className="font-semibold text-rose-900">
+                  Note: If you just want to pause new applications while keeping history, click Cancel and use Close instead.
+                </p>
+              )}
+            </div>
+
+            <label className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50 p-3 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={confirmRoleDeleteChecked}
+                onChange={(e) => setConfirmRoleDeleteChecked(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
+              />
+              <span className="text-xs font-semibold text-slate-800">
+                I confirm I want to permanently delete {pendingRoleDelete.title} and retire any linked invite tokens.
+              </span>
+            </label>
+
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setPendingRoleDelete(null)
+                  setConfirmRoleDeleteChecked(false)
+                }}
+                className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer">
+                Cancel
+              </button>
+              {confirmRoleDeleteChecked ? (
+                <form
+                  action={async (fd) => {
+                    await toggleOrRenewJobStatus(fd)
+                    setPendingRoleDelete(null)
+                    setConfirmRoleDeleteChecked(false)
+                  }}
+                >
+                  <input type="hidden" name="job_id" value={pendingRoleDelete.id} />
+                  <input type="hidden" name="action_type" value="delete" />
+                  <input type="hidden" name="current_status" value={pendingRoleDelete.is_active.toString()} />
+                  <SubmitButton
+                    pendingText="Deleting..."
+                    className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-extrabold text-white cursor-pointer"
+                  >
+                    Permanently Delete Role
                   </SubmitButton>
                 </form>
               ) : (

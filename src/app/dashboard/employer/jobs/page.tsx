@@ -7,6 +7,11 @@ import {
   checkEmployerSilentUnlockQuota,
   manageActiveW2Engagement,
 } from '@/app/dashboard/messaging-actions'
+import {
+  listEmployerTalentShieldLinks,
+  revokeEmployerTalentShieldLink,
+} from '@/lib/inbound-shield'
+import { getOpsServiceClient } from '@/lib/ops-bridge'
 import { normalizeIndustryVertical } from '@/constants/industries'
 import EmployerJobsTableClient, {
   EnrichedEmployerJobRow,
@@ -279,6 +284,81 @@ export default async function JobManagementPage() {
     const orgRecord: any = Array.isArray(memberRow.organizations)
       ? memberRow.organizations[0]
       : memberRow.organizations
+
+    if (actionType === 'delete') {
+      const { data: roleCheck } = await supabaseAction
+        .from('jobs')
+        .select('id, organization_id, applications (id, initiated_by, status, match_data)')
+        .eq('id', jobId)
+        .eq('organization_id', memberRow.organization_id)
+        .single()
+
+      if (!roleCheck) return
+
+      const roleApps = Array.isArray((roleCheck as any).applications)
+        ? (roleCheck as any).applications
+        : []
+
+      const hasBlockingW2OrGear = roleApps.some((a: any) => {
+        const t = a?.match_data?.trial_to_hire
+        if (!t) return false
+        return (
+          t.status === 'accepted_pending_eor' ||
+          t.equipment_return_status === 'return_requested'
+        )
+      })
+
+      const hasUnactionedInbound = roleApps.some((a: any) => {
+        if (a?.initiated_by === 'employer') return false
+        const st = String(a?.status || 'pending').toLowerCase()
+        if (st === 'rejected' || st === 'declined') return false
+        const md = a?.match_data || {}
+        const msgs = Array.isArray(md.messages) ? md.messages : []
+        const hasEmployerMsg =
+          Boolean(md.employer_messaged_at) ||
+          msgs.some((m: any) => m && m.sender_role === 'employer')
+        const hasCandidateReply =
+          Boolean(md.candidate_vault_released) ||
+          msgs.some((m: any) => m && m.sender_role === 'candidate')
+        if (md.employer_boilerplate_blast === true && !hasCandidateReply) return true
+        return !hasEmployerMsg
+      })
+
+      if (hasBlockingW2OrGear || hasUnactionedInbound) {
+        revalidatePath('/dashboard/employer/jobs')
+        return
+      }
+
+      try {
+        const shieldLinks = await listEmployerTalentShieldLinks(memberRow.organization_id)
+        for (const link of shieldLinks) {
+          if (link.job_id === jobId && link.status === 'active') {
+            await revokeEmployerTalentShieldLink({
+              organizationId: memberRow.organization_id,
+              linkId: link.id,
+            })
+          }
+        }
+      } catch {
+        // Non-fatal shield vault cleanup
+      }
+
+      const adminDb = getOpsServiceClient() || supabaseAction
+      if (roleApps.length > 0) {
+        await adminDb.from('applications').delete().eq('job_id', jobId)
+      }
+      await adminDb
+        .from('jobs')
+        .delete()
+        .eq('id', jobId)
+        .eq('organization_id', memberRow.organization_id)
+
+      revalidatePath('/dashboard/employer/jobs')
+      revalidatePath('/dashboard/employer/applications')
+      revalidatePath('/dashboard/jobs')
+      revalidatePath('/dashboard')
+      return
+    }
 
     if (actionType === 'close' || (actionType === 'toggle' && currentStatus)) {
       await supabaseAction
