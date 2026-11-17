@@ -444,6 +444,12 @@ export interface JobExtendedMeta {
   company_size: string
   work_auth: string
   hiring_timeline?: string
+  eor_contract_track?: string
+  eor_duration_months?: number
+  eor_bg_check?: boolean
+  eor_drug_check?: boolean
+  equipment_policy?: string
+  equipment_notes?: string
   renewed_at?: string | null
   days_remaining?: number
   is_expired?: boolean
@@ -519,6 +525,12 @@ function extractJobMeta(rawReqs: any, jobRow?: any): JobExtendedMeta {
     company_size: metaItem?.company_size || jobRow?.company_size || '',
     work_auth: metaItem?.work_auth || jobRow?.work_auth || 'US Authorized Only',
     hiring_timeline: metaItem?.hiring_timeline || jobRow?.hiring_timeline || 'Active Hiring (2–4 Weeks)',
+    eor_contract_track: (metaItem?.eor_contract_track && metaItem.eor_contract_track !== 'none') ? metaItem.eor_contract_track : (String(metaItem?.employment_type || jobRow?.employment_type || '') === 'Contract-to-Hire' ? 'trial_to_hire_90d' : String(metaItem?.employment_type || jobRow?.employment_type || '').startsWith('Contract (W-2 Fixed-Term') || String(metaItem?.employment_type || jobRow?.employment_type || '') === 'Seasonal / Temporary' ? 'fixed_term_w2' : String(metaItem?.employment_type || jobRow?.employment_type || '').startsWith('Contract (W-2 Open-Ended') ? 'open_ended_w2' : 'none'),
+    eor_duration_months: Number(metaItem?.eor_duration_months) || 6,
+    eor_bg_check: metaItem?.eor_bg_check !== undefined ? Boolean(metaItem.eor_bg_check) : true,
+    eor_drug_check: Boolean(metaItem?.eor_drug_check),
+    equipment_policy: metaItem?.equipment_policy || 'No Equipment Needed / Not Applicable',
+    equipment_notes: metaItem?.equipment_notes || '',
     renewed_at: metaItem?.renewed_at || null,
     days_remaining: daysRemaining,
     is_expired: Boolean(metaItem?.is_sandbox_benchmark) || String(jobRow?.title || "").startsWith("[CALIBRATION]") ? false : diffMs <= 0,
@@ -4266,7 +4278,10 @@ export async function parseJobAutoFill(formData: FormData) {
       5. "pay_type": Either "annual" or "hourly" (string).
       6. "salary_min": Minimum pay number if mentioned, or "" (number or string).
       7. "salary_max": Maximum pay number if mentioned, or "" (number or string).
-      8. "employment_type": One of "Full-Time (W-2)", "Contract (1099 / Corp-to-Corp)", "Contract-to-Hire", "Part-Time", or "Seasonal / Temporary".
+      8. "employment_type": One of "Full-Time (W-2)", "Contract-to-Hire", "Contract (W-2 Fixed-Term)", "Contract (W-2 Open-Ended)", "Contract (1099 / Corp-to-Corp)", "Part-Time", or "Seasonal / Temporary".
+      8b. "eor_duration_months": Integer 3, 6, 9, or 12 if a fixed-term contract length is stated, otherwise 6.
+      8c. "equipment_policy": One of "No Equipment Needed / Not Applicable", "Company-Shipped Hardware (Laptop / Security Key)", "Cloud VDI / BYOD (Virtual Desktop & Passkey Only)", or "Request EOR Managed Laptop Add-On".
+      8d. "equipment_notes": Short plain-text summary of any laptop, security key, badge, or tool provisioning mentioned (up to 160 chars), or "".
       9. "experience_level": One of "Entry / Junior (0–2 yrs)", "Mid-Level (3–5 yrs)", "Senior (5–8 yrs)", "Lead / Staff / Principal (8+ yrs)", or "Executive / Director".
       10. "industry": Must be one of these exact standardized verticals: ${JSON.stringify(STANDARD_INDUSTRY_VERTICALS)}.
       11. "education_req": Must be one of these exact education requirement options: ${JSON.stringify(JOB_EDUCATION_REQUIREMENTS)}.
@@ -4617,6 +4632,26 @@ function buildJobRequirementsWithMeta(
     prevMeta.hiring_timeline ||
     'Active Hiring (2–4 Weeks)'
   ).trim()
+  const eor_contract_track = formData.has('eor_contract_track')
+    ? ((formData.get('eor_contract_track') as string) || 'none').trim()
+    : prevMeta.eor_contract_track || 'none'
+  const eor_duration_months = formData.has('eor_duration_months')
+    ? Math.min(24, Math.max(1, Number(formData.get('eor_duration_months')) || 6))
+    : Number(prevMeta.eor_duration_months) || 6
+  const eor_bg_check = formData.has('eor_bg_check')
+    ? String(formData.get('eor_bg_check')) === 'true'
+    : prevMeta.eor_bg_check !== undefined
+    ? Boolean(prevMeta.eor_bg_check)
+    : true
+  const eor_drug_check = formData.has('eor_drug_check')
+    ? String(formData.get('eor_drug_check')) === 'true'
+    : Boolean(prevMeta.eor_drug_check)
+  const equipment_policy = formData.has('equipment_policy')
+    ? ((formData.get('equipment_policy') as string) || 'No Equipment Needed / Not Applicable').trim()
+    : prevMeta.equipment_policy || 'No Equipment Needed / Not Applicable'
+  const equipment_notes = formData.has('equipment_notes')
+    ? ((formData.get('equipment_notes') as string) || '').trim().slice(0, 240)
+    : prevMeta.equipment_notes || ''
 
   const metaObject = {
     ...prevMeta,
@@ -4633,6 +4668,12 @@ function buildJobRequirementsWithMeta(
     company_size,
     work_auth,
     hiring_timeline,
+    eor_contract_track,
+    eor_duration_months,
+    eor_bg_check,
+    eor_drug_check,
+    equipment_policy,
+    equipment_notes,
   }
 
   return [...visibleReqs, metaObject]

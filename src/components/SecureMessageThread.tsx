@@ -113,6 +113,10 @@ export default function SecureMessageThread({
     initialTrialToHire || null
   )
   const [jobEmploymentType, setJobEmploymentType] = useState<string | null>(null)
+  const [jobEorTrack, setJobEorTrack] = useState<string>('trial_to_hire_90d')
+  const [jobEorDurationMonths, setJobEorDurationMonths] = useState<number>(6)
+  const [jobEquipmentPolicy, setJobEquipmentPolicy] = useState<string>('No Equipment Needed / Not Applicable')
+  const roleDefaultsAppliedRef = useRef<boolean>(false)
   const [employerPlanActive, setEmployerPlanActive] = useState<boolean>(true)
   const [showTrialDrawer, setShowTrialDrawer] = useState(false)
   const [trialPayRate, setTrialPayRate] = useState('65')
@@ -126,6 +130,12 @@ export default function SecureMessageThread({
   const [trialDrugCheck, setTrialDrugCheck] = useState(false)
   const [trialScopeNote, setTrialScopeNote] = useState('')
   const [isSubmittingTrial, setIsSubmittingTrial] = useState(false)
+  const [pendingOfferConfirm, setPendingOfferConfirm] = useState<'propose' | 'accept' | 'decline' | 'withdraw' | null>(null)
+  const [offerIntentChecked, setOfferIntentChecked] = useState(false)
+  const openOfferConfirm = (action: 'propose' | 'accept' | 'decline' | 'withdraw') => {
+    setOfferIntentChecked(false)
+    setPendingOfferConfirm(action)
+  }
 
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   const prevMsgCountRef = useRef<number>(messages.length)
@@ -213,6 +223,14 @@ export default function SecureMessageThread({
         if (res.employerEmail) setEmployerEmail(res.employerEmail)
         if (res.trialToHire !== undefined) setTrialToHire(res.trialToHire || null)
         if (res.jobEmploymentType !== undefined) setJobEmploymentType(res.jobEmploymentType || null)
+        if (res.jobEorTrack) setJobEorTrack(res.jobEorTrack)
+        if (res.jobEorDurationMonths) setJobEorDurationMonths(res.jobEorDurationMonths)
+        if (res.jobEquipmentPolicy) setJobEquipmentPolicy(res.jobEquipmentPolicy)
+        if (!roleDefaultsAppliedRef.current && res.jobEorBgCheck !== undefined) {
+          roleDefaultsAppliedRef.current = true
+          setTrialBgCheck(Boolean(res.jobEorBgCheck))
+          setTrialDrugCheck(Boolean(res.jobEorDrugCheck))
+        }
         if (typeof res.employerPlanActive === 'boolean') setEmployerPlanActive(res.employerPlanActive)
       }
     } catch {
@@ -541,20 +559,25 @@ export default function SecureMessageThread({
       )}
 
       {/* Protected 90-Day W-2 Trial-to-Hire Handshake (Stage 2 Vault Unlocked) */}
-      {vaultReleased && (viewerRole === 'employer' || Boolean(trialToHire && (trialToHire.status === 'proposed' || trialToHire.status === 'accepted_pending_eor'))) && (
+      {vaultReleased && (viewerRole === 'employer' || Boolean(trialToHire && ['proposed', 'accepted_pending_eor', 'converted_direct', 'ended'].includes(trialToHire.status))) && (
         <div className="px-4 py-3 bg-indigo-50/50 border-b border-indigo-200 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-extrabold uppercase tracking-wide">
-                🛡️ Protected 90-Day W-2 Trial-to-Hire
+                🛡️{' '}
+                {(trialToHire?.contract_track || jobEorTrack) === 'fixed_term_w2'
+                  ? `Protected ${trialToHire?.duration_months || jobEorDurationMonths}-Month W-2 Contract`
+                  : (trialToHire?.contract_track || jobEorTrack) === 'open_ended_w2'
+                  ? 'Protected Open-Ended W-2 Contract'
+                  : 'Protected 90-Day W-2 Trial-to-Hire'}
               </span>
-              {jobEmploymentType === 'Contract-to-Hire' && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-bold">
-                  Role Default: Contract-to-Hire
+              {(trialToHire?.equipment_policy || jobEquipmentPolicy) !== 'No Equipment Needed / Not Applicable' && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white text-slate-800 border border-slate-300 text-[10px] font-bold">
+                  💻 {(trialToHire?.equipment_policy || jobEquipmentPolicy).replace(' (Laptop / Security Key)', '').replace(' (Virtual Desktop & Passkey Only)', '')}
                 </span>
               )}
               <span className="text-[11px] font-semibold text-slate-700">
-                Licensed US Employer of Record (W-2 payroll, I-9 &amp; Workers&apos; Comp) • $0 Day-90 conversion fee
+                Licensed US Employer of Record (W-2 payroll, I-9 &amp; Workers&apos; Comp) • $0 conversion fee
               </span>
             </div>
 
@@ -682,10 +705,10 @@ export default function SecureMessageThread({
                 <button
                   type="button"
                   disabled={isSubmittingTrial || parsedPay < 15}
-                  onClick={handleProposeTrial}
+                  onClick={() => openOfferConfirm('propose')}
                   className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
                 >
-                  {isSubmittingTrial ? 'Sending Offer...' : 'Send 90-Day W-2 Trial Offer'}
+                  {isSubmittingTrial ? 'Sending Offer...' : jobEorTrack === 'fixed_term_w2' ? `Send ${jobEorDurationMonths}-Month W-2 Contract Offer` : jobEorTrack === 'open_ended_w2' ? 'Send Open-Ended W-2 Contract Offer' : 'Send 90-Day W-2 Trial Offer'}
                 </button>
               </div>
             </div>
@@ -726,15 +749,15 @@ export default function SecureMessageThread({
                   <button
                     type="button"
                     disabled={isSubmittingTrial}
-                    onClick={() => handleRespondTrial('accept')}
+                    onClick={() => openOfferConfirm('accept')}
                     className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
                   >
-                    {isSubmittingTrial ? 'Confirming...' : '✅ Accept W-2 Trial & Start Onboarding'}
+                    {isSubmittingTrial ? 'Confirming...' : '✅ Accept W-2 Offer & Start Onboarding'}
                   </button>
                   <button
                     type="button"
                     disabled={isSubmittingTrial}
-                    onClick={() => handleRespondTrial('decline')}
+                    onClick={() => openOfferConfirm('decline')}
                     className="px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
                   >
                     Discuss / Adjust in Chat
@@ -746,7 +769,7 @@ export default function SecureMessageThread({
                   <button
                     type="button"
                     disabled={isSubmittingTrial}
-                    onClick={handleWithdrawTrial}
+                    onClick={() => openOfferConfirm('withdraw')}
                     className="text-indigo-700 hover:underline font-bold cursor-pointer"
                   >
                     Modify or Withdraw Offer
@@ -756,11 +779,15 @@ export default function SecureMessageThread({
             </div>
           )}
 
-          {trialToHire && trialToHire.status === 'accepted_pending_eor' && (
+          {trialToHire && ['accepted_pending_eor', 'converted_direct', 'ended'].includes(trialToHire.status) && (
             <div className="p-3.5 rounded-xl bg-emerald-50 border-2 border-emerald-400 space-y-1.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-xs font-extrabold text-emerald-950">
-                  ✅ 90-Day W-2 Trial-to-Hire Confirmed ({trialToHire.eor_packet_id || 'EOR Queued'})
+                  {trialToHire.status === 'converted_direct'
+                    ? '🎉 Converted to Direct W-2 Hire ($0 Conversion Fee)'
+                    : trialToHire.status === 'ended'
+                    ? `📋 W-2 Assignment Wrapped Up${trialToHire.equipment_return_status === 'return_requested' ? ' • Hardware Return Pending' : ''}`
+                    : `✅ Active W-2 Engagement Confirmed (${trialToHire.eor_packet_id || 'EOR Queued'})${trialToHire.extension_count ? ` • +${trialToHire.extension_count * 90}d Extended` : ''}`}
                 </span>
                 <span className="px-2 py-0.5 rounded-full bg-white border border-emerald-300 text-emerald-800 text-[10px] font-extrabold">
                   ${trialToHire.hourly_pay_rate.toFixed(2)}/hr W-2 • Start {trialToHire.target_start_date} ({trialToHire.work_state})
@@ -768,9 +795,17 @@ export default function SecureMessageThread({
               </div>
               <p className="text-xs text-emerald-900 leading-relaxed">
                 {viewerRole === 'employer'
-                  ? `All-in Employer rate locked at $${trialToHire.employer_bill_rate.toFixed(2)}/hr (+28% statutory W-2 burden) with a $0 direct conversion fee after 90 days. Our licensed US Employer of Record partner has been dispatched to send your Client Service Agreement and W-2 onboarding links.`
-                  : `Your W-2 gross pay rate of $${trialToHire.hourly_pay_rate.toFixed(2)}/hr is confirmed with $0 conversion lock-in after 90 days. Watch your email for direct W-2, I-9, and direct-deposit onboarding from our licensed US Employer of Record partner.`}
+                  ? `All-in Employer rate locked at $${trialToHire.employer_bill_rate.toFixed(2)}/hr (+28% statutory W-2 burden) with a $0 conversion fee.`
+                  : `Your W-2 gross pay rate of $${trialToHire.hourly_pay_rate.toFixed(2)}/hr is locked with $0 conversion fees through our licensed US Employer of Record partner.`}
               </p>
+              {viewerRole === 'employer' && (
+                <a
+                  href="/dashboard/employer/jobs"
+                  className="inline-flex items-center gap-1 text-[11px] font-extrabold text-indigo-700 hover:text-indigo-900 underline pt-0.5"
+                >
+                  Manage Contract Extensions, $0 Direct Conversion &amp; Equipment Return in Manage Roles →
+                </a>
+              )}
             </div>
           )}
         </div>
@@ -873,6 +908,120 @@ export default function SecureMessageThread({
           {isSending ? 'Sending...' : 'Send →'}
         </button>
       </form>
+
+      {pendingOfferConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white border-2 border-slate-300 shadow-2xl p-6 space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide ${
+                  pendingOfferConfirm === 'accept' || pendingOfferConfirm === 'propose'
+                    ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                    : 'bg-amber-100 text-amber-900 border border-amber-300'
+                }`}>
+                  Contract Action Safeguard
+                </span>
+                <h3 className="text-base font-black text-slate-900">
+                  {pendingOfferConfirm === 'propose'
+                    ? 'Confirm Sending W-2 Contract Offer'
+                    : pendingOfferConfirm === 'accept'
+                    ? 'Confirm Accepting W-2 Contract Offer'
+                    : pendingOfferConfirm === 'decline'
+                    ? 'Return Offer to Chat for Adjustment?'
+                    : 'Confirm Withdrawing Pending W-2 Offer'}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setPendingOfferConfirm(null)
+                  setOfferIntentChecked(false)
+                }}
+                className="text-slate-400 hover:text-slate-700 text-sm font-black cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="rounded-xl bg-slate-50 border border-slate-200 p-3.5 text-xs space-y-1">
+              {pendingOfferConfirm === 'propose' ? (
+                <>
+                  <p className="text-slate-700"><strong className="text-slate-900">W-2 Gross Pay:</strong> ${parsedPay.toFixed(2)}/hr ({parsedHrs} hrs/wk)</p>
+                  <p className="text-slate-700"><strong className="text-slate-900">All-In Employer Rate (+28%):</strong> ${computedBillRate.toFixed(2)}/hr</p>
+                  <p className="text-slate-700"><strong className="text-slate-900">Target Start &amp; State:</strong> {trialStartDate} ({trialWorkState})</p>
+                </>
+              ) : trialToHire ? (
+                <>
+                  <p className="text-slate-700"><strong className="text-slate-900">W-2 Gross Pay:</strong> ${trialToHire.hourly_pay_rate.toFixed(2)}/hr ({trialToHire.weekly_hours} hrs/wk)</p>
+                  {viewerRole === 'employer' && <p className="text-slate-700"><strong className="text-slate-900">All-In Employer Rate (+28%):</strong> ${trialToHire.employer_bill_rate.toFixed(2)}/hr</p>}
+                  <p className="text-slate-700"><strong className="text-slate-900">Target Start &amp; State:</strong> {trialToHire.target_start_date} ({trialToHire.work_state})</p>
+                </>
+              ) : null}
+            </div>
+
+            <label className="flex items-start gap-2.5 rounded-xl border-2 border-indigo-200 bg-indigo-50/50 p-3 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={offerIntentChecked}
+                onChange={(e) => setOfferIntentChecked(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+              />
+              <span className="text-xs font-bold text-slate-900 leading-snug">
+                {pendingOfferConfirm === 'propose'
+                  ? `I confirm I intend to send this formal W-2 offer at $${parsedPay.toFixed(2)}/hr W-2 ($${computedBillRate.toFixed(2)}/hr all-in employer rate).`
+                  : pendingOfferConfirm === 'accept'
+                  ? `I confirm I intend to accept this W-2 offer and initiate Employer of Record W-2 & I-9 onboarding.`
+                  : pendingOfferConfirm === 'decline'
+                  ? 'I confirm I want to pause this pending offer so we can adjust terms in chat.'
+                  : 'I confirm I intend to withdraw this pending W-2 offer.'}
+              </span>
+            </label>
+
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setPendingOfferConfirm(null)
+                  setOfferIntentChecked(false)
+                }}
+                className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={!offerIntentChecked || isSubmittingTrial}
+                onClick={async () => {
+                  const act = pendingOfferConfirm
+                  setPendingOfferConfirm(null)
+                  setOfferIntentChecked(false)
+                  if (act === 'propose') await handleProposeTrial()
+                  else if (act === 'accept') await handleRespondTrial('accept')
+                  else if (act === 'decline') await handleRespondTrial('decline')
+                  else if (act === 'withdraw') await handleWithdrawTrial()
+                }}
+                className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-colors ${
+                  !offerIntentChecked || isSubmittingTrial
+                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    : pendingOfferConfirm === 'accept' || pendingOfferConfirm === 'propose'
+                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer'
+                    : 'bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer'
+                }`}
+              >
+                {!offerIntentChecked
+                  ? 'Check Box Above to Confirm'
+                  : pendingOfferConfirm === 'propose'
+                  ? 'Confirm & Send W-2 Offer'
+                  : pendingOfferConfirm === 'accept'
+                  ? 'Confirm & Start W-2 Onboarding'
+                  : pendingOfferConfirm === 'decline'
+                  ? 'Confirm & Discuss in Chat'
+                  : 'Confirm & Withdraw Offer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

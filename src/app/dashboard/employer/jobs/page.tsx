@@ -3,10 +3,14 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import { resolveEmployerTierInfo } from '@/app/dashboard/actions'
-import { checkEmployerSilentUnlockQuota } from '@/app/dashboard/messaging-actions'
+import {
+  checkEmployerSilentUnlockQuota,
+  manageActiveW2Engagement,
+} from '@/app/dashboard/messaging-actions'
 import { normalizeIndustryVertical } from '@/constants/industries'
 import EmployerJobsTableClient, {
   EnrichedEmployerJobRow,
+  ActiveW2EngagementSummary,
 } from '@/components/EmployerJobsTableClient'
 
 export const dynamic = 'force-dynamic'
@@ -75,9 +79,10 @@ function enrichJobForManagementTable(job: any): EnrichedEmployerJobRow {
   const annualizedMaxPay = payType === 'hourly' ? rawMax * 2080 : rawMax
   const annualizedMinPay = payType === 'hourly' ? rawMin * 2080 : rawMin
 
-  const inboundApps = Array.isArray(job?.applications)
-    ? job.applications.filter((a: any) => a.initiated_by !== 'employer')
-    : []
+  const allRoleApps = Array.isArray(job?.applications) ? job.applications : []
+  const inboundApps = allRoleApps.filter(
+    (a: any) => a.initiated_by !== 'employer'
+  )
   const applicantCount = inboundApps.length
 
   const unactionedApplicantCount = inboundApps.filter((a: any) => {
@@ -118,6 +123,54 @@ function enrichJobForManagementTable(job: any): EnrichedEmployerJobRow {
     annualizedMinPay,
     location: metaItem.location || '',
     employmentType: metaItem.employment_type || 'Full-Time (W-2)',
+    eorContractTrack:
+      metaItem.eor_contract_track && metaItem.eor_contract_track !== 'none'
+        ? metaItem.eor_contract_track
+        : String(metaItem.employment_type || '') === 'Contract-to-Hire'
+        ? 'trial_to_hire_90d'
+        : String(metaItem.employment_type || '').startsWith('Contract (W-2 Fixed-Term') ||
+          String(metaItem.employment_type || '') === 'Seasonal / Temporary'
+        ? 'fixed_term_w2'
+        : String(metaItem.employment_type || '').startsWith('Contract (W-2 Open-Ended')
+        ? 'open_ended_w2'
+        : 'none',
+    eorDurationMonths: Number(metaItem.eor_duration_months) || 6,
+    equipmentPolicy: metaItem.equipment_policy || 'No Equipment Needed / Not Applicable',
+    equipmentNotes: metaItem.equipment_notes || '',
+    w2Engagements: allRoleApps
+      .filter((a: any) => {
+        const t = a?.match_data?.trial_to_hire
+        if (!t) return false
+        return (
+          t.status === 'proposed' ||
+          t.status === 'accepted_pending_eor' ||
+          t.status === 'converted_direct' ||
+          t.status === 'ended' ||
+          t.equipment_return_status === 'return_requested'
+        )
+      })
+      .map((a: any): ActiveW2EngagementSummary => {
+        const md = a?.match_data || {}
+        const t = md.trial_to_hire || {}
+        const rawTrialEquip = String(t.equipment_policy || '').trim()
+        const resolvedEquipPolicy =
+          rawTrialEquip && rawTrialEquip !== 'No Equipment Needed / Not Applicable'
+            ? rawTrialEquip
+            : String(metaItem.equipment_policy || rawTrialEquip || 'No Equipment Needed / Not Applicable')
+        return {
+          applicationId: String(a.id),
+          professionalLabel: String(md.candidate_full_name || `Verified Professional #${String(a.id).slice(0, 6).toUpperCase()}`),
+          status: String(t.status || 'proposed'),
+          contractTrack: String(t.contract_track || 'trial_to_hire_90d'),
+          durationMonths: t.duration_months ? Number(t.duration_months) : null,
+          extensionCount: Number(t.extension_count) || 0,
+          hourlyPayRate: Number(t.hourly_pay_rate) || 0,
+          employerBillRate: Number(t.employer_bill_rate) || 0,
+          targetStartDate: String(t.target_start_date || 'TBD'),
+          equipmentPolicy: resolvedEquipPolicy,
+          equipmentReturnStatus: String(t.equipment_return_status || 'not_applicable'),
+        }
+      }),
     industry: normalizedIndustry,
     applicantCount,
     unactionedApplicantCount,
@@ -591,6 +644,7 @@ export default async function JobManagementPage() {
               slotsFull={slotsFull}
               isPracticeMode={isPracticeMode}
               toggleOrRenewJobStatus={toggleOrRenewJobStatus}
+              manageActiveW2Engagement={manageActiveW2Engagement}
             />
           )}
         </section>

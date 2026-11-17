@@ -20,7 +20,14 @@ export interface ThreadMessage {
 const TRIAL_EOR_BURDEN_MULTIPLIER = 1.28
 
 export interface TrialToHireHandshake {
-  status: 'proposed' | 'accepted_pending_eor' | 'declined' | 'withdrawn'
+  status: 'proposed' | 'accepted_pending_eor' | 'converted_direct' | 'ended' | 'declined' | 'withdrawn'
+  contract_track?: 'trial_to_hire_90d' | 'fixed_term_w2' | 'open_ended_w2'
+  duration_months?: number | null
+  extension_count?: number
+  equipment_policy?: string | null
+  equipment_notes?: string | null
+  equipment_return_status?: 'not_applicable' | 'in_field' | 'return_requested' | 'returned'
+  lifecycle_updated_at?: string | null
   hourly_pay_rate: number
   employer_bill_rate: number
   burden_percent: number
@@ -967,6 +974,12 @@ export async function getApplicationThreadState(
   employerEmail?: string | null
   trialToHire?: TrialToHireHandshake | null
   jobEmploymentType?: string | null
+  jobEorTrack?: string | null
+  jobEorDurationMonths?: number | null
+  jobEquipmentPolicy?: string | null
+  jobEquipmentNotes?: string | null
+  jobEorBgCheck?: boolean
+  jobEorDrugCheck?: boolean
   employerPlanActive?: boolean
   error?: string
 }> {
@@ -988,7 +1001,7 @@ export async function getApplicationThreadState(
   const adminDb = getAdminSupabaseClient() || supabase
   const { data: appRow, error } = await adminDb
     .from('applications')
-    .select('id, candidate_id, is_revealed, status, match_data, jobs (title, employer_id, organization_id, required_skills, organizations:organization_id (subscription_tier, description))')
+    .select('id, candidate_id, is_revealed, status, match_data, jobs (title, employer_id, organization_id, structured_requirements, required_skills, organizations:organization_id (subscription_tier, description))')
     .eq('id', applicationId)
     .single()
 
@@ -1060,8 +1073,11 @@ export async function getApplicationThreadState(
       ? `hiring@${matchData.employer_org_domain}`
       : null)
 
+  const structArr = Array.isArray(threadJobObj?.structured_requirements) ? threadJobObj.structured_requirements : []
   const jobSkillsArr = Array.isArray(threadJobObj?.required_skills) ? threadJobObj.required_skills : []
-  const metaItem = jobSkillsArr.find((x: any) => x && typeof x === 'object' && x._job_meta === true) || jobSkillsArr.find((x: any) => x && typeof x === 'object' && x.employment_type) || {}
+  const metaItem = structArr.find((x: any) => x && typeof x === 'object' && x._ss_job_meta === true) || jobSkillsArr.find((x: any) => x && typeof x === 'object' && x._job_meta === true) || jobSkillsArr.find((x: any) => x && typeof x === 'object' && x.employment_type) || {}
+  const empTypeStr = String(metaItem?.employment_type || '')
+  const resolvedTrack = metaItem?.eor_contract_track && metaItem.eor_contract_track !== 'none' ? String(metaItem.eor_contract_track) : empTypeStr === 'Contract (W-2 Fixed-Term)' || empTypeStr === 'Seasonal / Temporary' ? 'fixed_term_w2' : empTypeStr === 'Contract (W-2 Open-Ended)' ? 'open_ended_w2' : 'trial_to_hire_90d'
   const jobOrgObj: any = Array.isArray(threadJobObj?.organizations) ? threadJobObj.organizations[0] : threadJobObj?.organizations
   const descTierMatch = String(jobOrgObj?.description || '').match(/\[TIER:(free|starter|growth|enterprise)\]/i)
   const subTier = (descTierMatch ? descTierMatch[1] : String(jobOrgObj?.subscription_tier || '')).toLowerCase().trim()
@@ -1076,7 +1092,13 @@ export async function getApplicationThreadState(
     candidateEmail: vaultReleased ? matchData.candidate_contact_email || null : null,
     employerEmail: vaultReleased ? resolvedEmployerEmail : null,
     trialToHire: (matchData.trial_to_hire as TrialToHireHandshake) || null,
-    jobEmploymentType: String(metaItem?.employment_type || '') || null,
+    jobEmploymentType: empTypeStr || null,
+    jobEorTrack: resolvedTrack,
+    jobEorDurationMonths: Number(metaItem?.eor_duration_months) || 6,
+    jobEquipmentPolicy: String(metaItem?.equipment_policy || 'No Equipment Needed / Not Applicable'),
+    jobEquipmentNotes: String(metaItem?.equipment_notes || ''),
+    jobEorBgCheck: metaItem?.eor_bg_check !== undefined ? Boolean(metaItem.eor_bg_check) : true,
+    jobEorDrugCheck: Boolean(metaItem?.eor_drug_check),
     employerPlanActive,
   }
 }
@@ -1216,6 +1238,10 @@ export async function proposeTrialToHireTerms(
     weeklyHours?: number
     targetStartDate: string
     workState: string
+    contractTrack?: 'trial_to_hire_90d' | 'fixed_term_w2' | 'open_ended_w2'
+    durationMonths?: number
+    equipmentPolicy?: string
+    equipmentNotes?: string
     requireBackgroundCheck?: boolean
     requireDrugScreening?: boolean
     scopeNote?: string
@@ -1245,7 +1271,7 @@ export async function proposeTrialToHireTerms(
   const adminDbRead = getAdminSupabaseClient() || supabase
   const { data: appRow, error: fetchErr } = await adminDbRead
     .from('applications')
-    .select('id, candidate_id, is_revealed, status, initiated_by, match_data, jobs (id, title, employer_id, organization_id, organizations:organization_id (name, domain, subscription_tier, description))')
+    .select('id, candidate_id, is_revealed, status, initiated_by, match_data, jobs (id, title, employer_id, organization_id, structured_requirements, required_skills, organizations:organization_id (name, domain, subscription_tier, description))')
     .eq('id', applicationId)
     .single()
 
@@ -1275,16 +1301,35 @@ export async function proposeTrialToHireTerms(
     return { error: 'Ask the Professional to unlock their Contact & Resume Vault in chat before sending formal W-2 trial terms.' }
   }
 
+  const structArr = Array.isArray(jobObj?.structured_requirements) ? jobObj.structured_requirements : []
+  const jobSkillsArr = Array.isArray(jobObj?.required_skills) ? jobObj.required_skills : []
+  const metaItem = structArr.find((x: any) => x && typeof x === 'object' && x._ss_job_meta === true) || jobSkillsArr.find((x: any) => x && typeof x === 'object' && x._job_meta === true) || {}
+  const empTypeStr = String(metaItem?.employment_type || '')
+  const defaultTrack: 'trial_to_hire_90d' | 'fixed_term_w2' | 'open_ended_w2' = metaItem?.eor_contract_track === 'fixed_term_w2' || empTypeStr === 'Contract (W-2 Fixed-Term)' || empTypeStr === 'Seasonal / Temporary' ? 'fixed_term_w2' : metaItem?.eor_contract_track === 'open_ended_w2' || empTypeStr === 'Contract (W-2 Open-Ended)' ? 'open_ended_w2' : 'trial_to_hire_90d'
+  const resolvedTrack = payload.contractTrack || defaultTrack
+  const resolvedMonths = resolvedTrack === 'fixed_term_w2' ? Math.min(24, Math.max(1, Number(payload.durationMonths || metaItem?.eor_duration_months) || 6)) : null
+  const resolvedDays = resolvedTrack === 'fixed_term_w2' && resolvedMonths ? resolvedMonths * 30 : resolvedTrack === 'open_ended_w2' ? 0 : 90
+  const resolvedEquipPolicy = String(payload.equipmentPolicy || metaItem?.equipment_policy || 'No Equipment Needed / Not Applicable')
+  const resolvedEquipNotes = String(payload.equipmentNotes ?? metaItem?.equipment_notes ?? '').trim().slice(0, 240) || null
+  const hasPhysicalGear = resolvedEquipPolicy.includes('Company-Shipped') || resolvedEquipPolicy.includes('EOR Managed Laptop')
+
   const nowIso = new Date().toISOString()
   const billRate = Math.round(payRate * TRIAL_EOR_BURDEN_MULTIPLIER * 100) / 100
   const scopeClean = String(payload.scopeNote || '').trim().slice(0, 400) || null
   const trialObj: TrialToHireHandshake = {
     status: 'proposed',
+    contract_track: resolvedTrack,
+    duration_months: resolvedMonths,
+    extension_count: 0,
+    equipment_policy: resolvedEquipPolicy,
+    equipment_notes: resolvedEquipNotes,
+    equipment_return_status: hasPhysicalGear ? 'in_field' : 'not_applicable',
+    lifecycle_updated_at: nowIso,
     hourly_pay_rate: payRate,
     employer_bill_rate: billRate,
     burden_percent: 28,
     weekly_hours: weeklyHours,
-    trial_days: 90,
+    trial_days: resolvedDays,
     conversion_fee_usd: 0,
     target_start_date: startDate,
     work_state: workState,
@@ -1295,6 +1340,7 @@ export async function proposeTrialToHireTerms(
     proposed_by_email: user.email || null,
   }
 
+  const trackLabel = resolvedTrack === 'fixed_term_w2' ? `${resolvedMonths}-Month Fixed-Term W-2 Contract` : resolvedTrack === 'open_ended_w2' ? 'Open-Ended W-2 Contract' : '90-Day W-2 Trial-to-Hire'
   const existingMsgs: ThreadMessage[] = Array.isArray(matchData.messages) ? matchData.messages : []
   const orgName = orgObj?.name || 'Verified Employer'
   const screenings = [
@@ -1305,7 +1351,7 @@ export async function proposeTrialToHireTerms(
     id: `sys-trial-${Date.now()}`,
     sender_role: 'employer',
     sender_name: orgName,
-    text: `🛡️ Proposed Protected 90-Day W-2 Trial-to-Hire: $${payRate.toFixed(2)}/hr gross W-2 (${weeklyHours} hrs/wk, Work State: ${workState}, Target Start: ${startDate}, $0 Day-90 Conversion Fee${screenings.length ? ', Screenings: ' + screenings.join(' + ') : ''}). Review and accept above to begin W-2 onboarding.`,
+    text: `🛡️ Proposed Protected ${trackLabel}: $${payRate.toFixed(2)}/hr gross W-2 (${weeklyHours} hrs/wk, Work State: ${workState}, Target Start: ${startDate}, $0 Conversion Fee, Equipment: ${resolvedEquipPolicy}${screenings.length ? ', Screenings: ' + screenings.join(' + ') : ''}). Review and accept above to begin W-2 onboarding.`,
     created_at: nowIso,
   }
 
@@ -1582,4 +1628,156 @@ export async function withdrawTrialToHireTerms(
 
   if (updErr) return { error: updErr.message }
   return { success: true }
+}
+
+export async function manageActiveW2Engagement(formData: FormData): Promise<void> {
+  noStore()
+  const applicationId = String(formData.get('application_id') || '').trim()
+  const lifecycleAction = String(formData.get('lifecycle_action') || '').trim()
+  if (!applicationId || !lifecycleAction) return
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return
+
+  const adminDb = getAdminSupabaseClient() || supabase
+  const { data: appRow } = await adminDb
+    .from('applications')
+    .select('id, candidate_id, initiated_by, match_data, jobs (id, title, employer_id, organization_id, organizations:organization_id (name))')
+    .eq('id', applicationId)
+    .single()
+
+  if (!appRow) return
+  const jobObj: any = Array.isArray((appRow as any).jobs) ? (appRow as any).jobs[0] : (appRow as any).jobs
+  let isEmployer = jobObj?.employer_id === user.id
+  if (!isEmployer && jobObj?.organization_id) {
+    const { data: mem } = await adminDb
+      .from('organization_members')
+      .select('id')
+      .eq('organization_id', jobObj.organization_id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (mem) isEmployer = true
+  }
+  if (!isEmployer) return
+
+  const matchData = appRow.match_data || {}
+  const current: TrialToHireHandshake | undefined = matchData.trial_to_hire
+  if (!current) return
+
+  const nowIso = new Date().toISOString()
+  const orgObj: any = Array.isArray(jobObj?.organizations) ? jobObj.organizations[0] : jobObj?.organizations
+  const orgName = orgObj?.name || 'Verified Employer'
+  const existingMsgs: ThreadMessage[] = Array.isArray(matchData.messages) ? matchData.messages : []
+  let nextTrial: TrialToHireHandshake = { ...current, lifecycle_updated_at: nowIso }
+  let noteText = ''
+
+  if (lifecycleAction === 'extend_90d' && current.status === 'accepted_pending_eor') {
+    const extCount = (Number(current.extension_count) || 0) + 1
+    const nextDays = (Number(current.trial_days) || 90) + 90
+    nextTrial = { ...nextTrial, extension_count: extCount, trial_days: nextDays }
+    noteText = `🔄 Extended active W-2 engagement by +90 days (Extension #${extCount}) via Manage Roles. EOR billing and statutory coverage continue seamlessly.`
+  } else if (lifecycleAction === 'convert_direct' && current.status === 'accepted_pending_eor') {
+    nextTrial = { ...nextTrial, status: 'converted_direct' }
+    noteText = `🎉 Initiated Direct W-2 Conversion ($0 conversion fee) via Manage Roles. EOR partner notified to coordinate payroll transition.`
+  } else if (
+    lifecycleAction === 'wrap_up_assignment' ||
+    lifecycleAction === 'request_gear_return' ||
+    lifecycleAction === 'reopen_assignment'
+  ) {
+    let jobEquipPolicy = ''
+    if (jobObj?.id) {
+      const { data: jobMetaRow } = await adminDb
+        .from('jobs')
+        .select('structured_requirements, required_skills')
+        .eq('id', jobObj.id)
+        .maybeSingle()
+      const sArr = Array.isArray(jobMetaRow?.structured_requirements) ? jobMetaRow.structured_requirements : []
+      const rArr = Array.isArray(jobMetaRow?.required_skills) ? jobMetaRow.required_skills : []
+      const jm =
+        sArr.find((x: any) => x && typeof x === 'object' && x._ss_job_meta === true) ||
+        rArr.find((x: any) => x && typeof x === 'object' && x._job_meta === true) ||
+        {}
+      jobEquipPolicy = String(jm?.equipment_policy || '').trim()
+    }
+    const rawCurrentEquip = String(current.equipment_policy || '').trim()
+    const effectiveEquipPolicy =
+      rawCurrentEquip && rawCurrentEquip !== 'No Equipment Needed / Not Applicable'
+        ? rawCurrentEquip
+        : jobEquipPolicy || rawCurrentEquip || 'No Equipment Needed / Not Applicable'
+    const policyHasGear =
+      effectiveEquipPolicy.includes('Company-Shipped') ||
+      effectiveEquipPolicy.includes('EOR Managed Laptop')
+
+    if (lifecycleAction === 'wrap_up_assignment' && (current.status === 'accepted_pending_eor' || current.status === 'converted_direct')) {
+      const needsGearReturn =
+        current.equipment_return_status === 'in_field' ||
+        current.equipment_return_status === 'return_requested' ||
+        (policyHasGear && current.equipment_return_status !== 'returned')
+      nextTrial = {
+        ...nextTrial,
+        status: 'ended',
+        equipment_policy: effectiveEquipPolicy,
+        equipment_return_status: needsGearReturn ? 'return_requested' : (current.equipment_return_status || 'not_applicable'),
+      }
+      noteText = needsGearReturn
+        ? `📋 Assignment wrap-up initiated via Manage Roles. IT Offboarding Reminder: Please coordinate prepaid return shipping for issued hardware (${effectiveEquipPolicy}) and revoke system access.`
+        : `📋 Assignment wrap-up initiated via Manage Roles. Final EOR timesheet and offboarding initiated.`
+    } else if (lifecycleAction === 'request_gear_return' && (current.status === 'ended' || current.status === 'accepted_pending_eor' || current.status === 'converted_direct')) {
+      const gearLabel = policyHasGear ? effectiveEquipPolicy : 'Assigned Company / EOR Hardware'
+      nextTrial = {
+        ...nextTrial,
+        equipment_policy: gearLabel,
+        equipment_return_status: 'return_requested',
+      }
+      noteText = `📦 Hardware return requested via Manage Roles (${gearLabel}). Please coordinate prepaid return shipping and confirm once received.`
+    } else if (lifecycleAction === 'reopen_assignment' && current.status === 'ended') {
+      const nextReturnStatus =
+        current.equipment_return_status === 'return_requested' || (policyHasGear && current.equipment_return_status !== 'returned')
+          ? 'in_field'
+          : (current.equipment_return_status || 'not_applicable')
+      nextTrial = {
+        ...nextTrial,
+        status: 'accepted_pending_eor',
+        equipment_policy: effectiveEquipPolicy,
+        equipment_return_status: nextReturnStatus,
+      }
+      noteText = `🔄 Reopened W-2 contract engagement via Manage Roles. Active EOR assignment controls restored.`
+    } else {
+      return
+    }
+  } else if (lifecycleAction === 'mark_gear_returned') {
+    nextTrial = { ...nextTrial, equipment_return_status: 'returned' }
+    noteText = `✅ Confirmed company/EOR hardware returned and IT offboarding completed.`
+  } else {
+    return
+  }
+
+  await adminDb
+    .from('applications')
+    .update({
+      match_data: {
+        ...matchData,
+        trial_to_hire: nextTrial,
+        messages: [
+          ...existingMsgs,
+          {
+            id: `sys-eor-${Date.now()}`,
+            sender_role: 'employer',
+            sender_name: orgName,
+            text: noteText,
+            created_at: nowIso,
+          },
+        ],
+      },
+    })
+    .eq('id', applicationId)
+
+  revalidatePath('/dashboard/employer/jobs')
+  revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/requests')
+  revalidatePath('/dashboard/employer/applications')
+  revalidatePath('/dashboard/employer/pitches')
 }

@@ -51,6 +51,12 @@ export default function EditJobPage() {
     company_size: 'Growth (50–250 Employees)',
     work_auth: 'US Authorized Only (No Sponsorship)',
     hiring_timeline: 'Active Hiring (2–4 Weeks)',
+    eor_contract_track: 'none',
+    eor_duration_months: '6',
+    eor_bg_check: true,
+    eor_drug_check: false,
+    equipment_policy: 'No Equipment Needed / Not Applicable',
+    equipment_notes: '',
     description: '',
     structured_requirements: [] as any[],
   })
@@ -175,6 +181,20 @@ export default function EditJobPage() {
         company_size: resolvedCompanySize,
         work_auth: metaItem.work_auth || 'US Authorized Only (No Sponsorship)',
         hiring_timeline: metaItem.hiring_timeline || 'Active Hiring (2–4 Weeks)',
+        eor_contract_track:
+          metaItem.eor_contract_track ||
+          (normalizedEmpType === 'Contract-to-Hire'
+            ? 'trial_to_hire_90d'
+            : normalizedEmpType === 'Contract (W-2 Fixed-Term)' || normalizedEmpType === 'Seasonal / Temporary'
+            ? 'fixed_term_w2'
+            : normalizedEmpType === 'Contract (W-2 Open-Ended)'
+            ? 'open_ended_w2'
+            : 'none'),
+        eor_duration_months: metaItem.eor_duration_months ? String(metaItem.eor_duration_months) : '6',
+        eor_bg_check: metaItem.eor_bg_check !== undefined ? Boolean(metaItem.eor_bg_check) : true,
+        eor_drug_check: Boolean(metaItem.eor_drug_check),
+        equipment_policy: metaItem.equipment_policy || 'No Equipment Needed / Not Applicable',
+        equipment_notes: metaItem.equipment_notes || '',
         description: job.description || '',
         structured_requirements: visibleReqs,
       })
@@ -202,7 +222,11 @@ export default function EditJobPage() {
       pay_type: data.pay_type === 'hourly' ? 'hourly' : data.pay_type === 'annual' ? 'annual' : prev.pay_type,
       salary_min: data.salary_min ? String(data.salary_min) : prev.salary_min,
       salary_max: data.salary_max ? String(data.salary_max) : prev.salary_max,
-      employment_type: matchOpt(data.employment_type, ['Full-Time (W-2)', 'Contract (1099 / Corp-to-Corp)', 'Contract-to-Hire', 'Part-Time', 'Seasonal / Temporary'], prev.employment_type),
+      employment_type: matchOpt(data.employment_type, ['Full-Time (W-2)', 'Contract-to-Hire', 'Contract (W-2 Fixed-Term)', 'Contract (W-2 Open-Ended)', 'Contract (1099 / Corp-to-Corp)', 'Part-Time', 'Seasonal / Temporary'], prev.employment_type),
+      eor_contract_track: data.employment_type === 'Contract-to-Hire' ? 'trial_to_hire_90d' : data.employment_type === 'Contract (W-2 Fixed-Term)' || data.employment_type === 'Seasonal / Temporary' ? 'fixed_term_w2' : data.employment_type === 'Contract (W-2 Open-Ended)' ? 'open_ended_w2' : prev.eor_contract_track,
+      eor_duration_months: data.eor_duration_months ? String(data.eor_duration_months) : prev.eor_duration_months,
+      equipment_policy: matchOpt(data.equipment_policy, ['No Equipment Needed / Not Applicable', 'Company-Shipped Hardware (Laptop / Security Key)', 'Cloud VDI / BYOD (Virtual Desktop & Passkey Only)', 'Request EOR Managed Laptop Add-On'], prev.equipment_policy),
+      equipment_notes: typeof data.equipment_notes === 'string' && data.equipment_notes.trim() ? data.equipment_notes.trim() : prev.equipment_notes,
       experience_level: matchOpt(data.experience_level, ['Entry / Junior (0–2 yrs)', 'Mid-Level (3–5 yrs)', 'Senior (5–8 yrs)', 'Lead / Staff / Principal (8+ yrs)', 'Executive / Director'], prev.experience_level),
       education_req: data.education_req
         ? normalizeJobEducationReq(data.education_req)
@@ -391,26 +415,32 @@ export default function EditJobPage() {
               <select
                 name="employment_type"
                 value={jobData.employment_type}
-                onChange={(e) =>
-                  setJobData({ ...jobData, employment_type: e.target.value })
-                }
+                onChange={(e) => {
+                  const nextType = e.target.value
+                  const autoTrack =
+                    nextType === 'Contract-to-Hire'
+                      ? 'trial_to_hire_90d'
+                      : nextType === 'Contract (W-2 Fixed-Term)' || nextType === 'Seasonal / Temporary'
+                      ? 'fixed_term_w2'
+                      : nextType === 'Contract (W-2 Open-Ended)'
+                      ? 'open_ended_w2'
+                      : 'none'
+                  setJobData({ ...jobData, employment_type: nextType, eor_contract_track: autoTrack })
+                }}
                 className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
               >
                 <option value="Full-Time (W-2)">Full-Time (W-2)</option>
+                <option value="Contract-to-Hire">Contract-to-Hire (90-Day W-2 Trial)</option>
+                <option value="Contract (W-2 Fixed-Term)">Contract (W-2 Fixed-Term)</option>
+                <option value="Contract (W-2 Open-Ended)">Contract (W-2 Open-Ended / Ongoing)</option>
                 <option value="Contract (1099 / Corp-to-Corp)">
                   Contract (1099 / Corp-to-Corp)
                 </option>
-                <option value="Contract-to-Hire">Contract-to-Hire</option>
                 <option value="Part-Time">Part-Time</option>
                 <option value="Seasonal / Temporary">
                   Seasonal / Temporary
                 </option>
               </select>
-              {jobData.employment_type === 'Contract-to-Hire' && (
-                <p className="mt-2 rounded-lg bg-indigo-50 border border-indigo-200 px-3 py-2 text-xs text-indigo-950 font-medium leading-relaxed">
-                  🛡️ <strong className="font-bold">Protected 90-Day W-2 Trial-to-Hire Included:</strong> Once a Professional unlocks their Resume Vault in chat, you can propose a compliant 90-day W-2 trial (+28% statutory EOR burden vs. 55% staffing agency markups) with a <strong className="font-bold">$0 conversion fee</strong> at Day 90.
-                </p>
-              )}
             </div>
 
             <div>
@@ -732,6 +762,126 @@ export default function EditJobPage() {
                 </option>
               </select>
             </div>
+          </div>
+
+          {/* ROLE-LEVEL W-2 CONTRACT & EQUIPMENT DEFAULTS */}
+          <div className="mt-6 rounded-xl border border-indigo-200 bg-indigo-50/60 p-4 sm:p-5 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h4 className="text-sm font-extrabold text-indigo-950">
+                  W-2 Contractor / Trial Routing &amp; Equipment Defaults
+                </h4>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Pre-configure your third-party Employer-of-Record (EOR) W-2 track and IT equipment policy for this role. You control extensions or assignment wrap-ups directly from Manage Roles.
+                </p>
+              </div>
+              <span className="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-indigo-700 border border-indigo-200">
+                +28% Statutory W-2 EOR · $0 Conversion Fee
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                  W-2 EOR Engagement Track
+                </label>
+                <select
+                  name="eor_contract_track"
+                  value={jobData.eor_contract_track}
+                  onChange={(e) => setJobData({ ...jobData, eor_contract_track: e.target.value })}
+                  className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-3 text-sm font-medium cursor-pointer"
+                >
+                  <option value="none">Direct Hire Only (No Third-Party EOR Routing)</option>
+                  <option value="trial_to_hire_90d">90-Day W-2 Trial-to-Hire ($0 Day-90 Conversion)</option>
+                  <option value="fixed_term_w2">Fixed-Term W-2 Contract (3–12 Months + Extend Anytime)</option>
+                  <option value="open_ended_w2">Open-Ended Ongoing W-2 Contract (Extend or End Anytime)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Equipment &amp; Access Provisioning
+                </label>
+                <select
+                  name="equipment_policy"
+                  value={jobData.equipment_policy}
+                  onChange={(e) => setJobData({ ...jobData, equipment_policy: e.target.value })}
+                  className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-3 text-sm font-medium cursor-pointer"
+                >
+                  <option value="No Equipment Needed / Not Applicable">No Equipment Needed / Not Applicable</option>
+                  <option value="Company-Shipped Hardware (Laptop / Security Key)">Company-Shipped Hardware (Laptop / Security Key)</option>
+                  <option value="Cloud VDI / BYOD (Virtual Desktop & Passkey Only)">Cloud VDI / BYOD (Virtual Desktop &amp; Passkey Only)</option>
+                  <option value="Request EOR Managed Laptop Add-On">Request EOR Managed Laptop Add-On</option>
+                </select>
+              </div>
+            </div>
+
+            {jobData.eor_contract_track === 'fixed_term_w2' && (
+              <div className="max-w-xs">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Initial Fixed-Term Length
+                </label>
+                <select
+                  name="eor_duration_months"
+                  value={jobData.eor_duration_months}
+                  onChange={(e) => setJobData({ ...jobData, eor_duration_months: e.target.value })}
+                  className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-3 text-sm font-medium cursor-pointer"
+                >
+                  <option value="3">3 Months (Extendable)</option>
+                  <option value="6">6 Months (Extendable)</option>
+                  <option value="9">9 Months (Extendable)</option>
+                  <option value="12">12 Months (Extendable)</option>
+                </select>
+              </div>
+            )}
+            {jobData.eor_contract_track !== 'fixed_term_w2' && (
+              <input type="hidden" name="eor_duration_months" value={jobData.eor_duration_months} />
+            )}
+
+            {jobData.equipment_policy !== 'No Equipment Needed / Not Applicable' && (
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Equipment / Access Instructions (Optional)
+                </label>
+                <input
+                  type="text"
+                  name="equipment_notes"
+                  maxLength={240}
+                  value={jobData.equipment_notes}
+                  onChange={(e) => setJobData({ ...jobData, equipment_notes: e.target.value })}
+                  placeholder="e.g., Company ships pre-configured MacBook Pro + YubiKey upon EOR onboarding; prepaid return box sent at offboarding."
+                  className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-3 text-sm"
+                />
+              </div>
+            )}
+            {jobData.equipment_policy === 'No Equipment Needed / Not Applicable' && (
+              <input type="hidden" name="equipment_notes" value="" />
+            )}
+
+            <input type="hidden" name="eor_bg_check" value={jobData.eor_bg_check ? 'true' : 'false'} />
+            <input type="hidden" name="eor_drug_check" value={jobData.eor_drug_check ? 'true' : 'false'} />
+            {jobData.eor_contract_track !== 'none' && (
+              <div className="flex flex-wrap items-center gap-5 pt-1 text-xs text-slate-700">
+                <label className="inline-flex items-center gap-2 font-semibold cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={jobData.eor_bg_check}
+                    onChange={(e) => setJobData({ ...jobData, eor_bg_check: e.target.checked })}
+                    className="rounded border-slate-300 text-indigo-600"
+                  />
+                  Include Standard EOR Background Check
+                </label>
+                <label className="inline-flex items-center gap-2 font-semibold cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={jobData.eor_drug_check}
+                    onChange={(e) => setJobData({ ...jobData, eor_drug_check: e.target.checked })}
+                    className="rounded border-slate-300 text-indigo-600"
+                  />
+                  Include Pre-Assignment Drug Screen
+                </label>
+              </div>
+            )}
           </div>
         </div>
 

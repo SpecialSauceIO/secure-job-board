@@ -18,11 +18,27 @@ type EmployerJobSortOption =
 
 const EMPLOYMENT_TYPES = [
   'Full-Time (W-2)',
-  'Contract (1099 / Corp-to-Corp)',
   'Contract-to-Hire',
+  'Contract (W-2 Fixed-Term)',
+  'Contract (W-2 Open-Ended)',
+  'Contract (1099 / Corp-to-Corp)',
   'Part-Time',
   'Seasonal / Temporary',
 ]
+
+export interface ActiveW2EngagementSummary {
+  applicationId: string
+  professionalLabel: string
+  status: string
+  contractTrack: string
+  durationMonths: number | null
+  extensionCount: number
+  hourlyPayRate: number
+  employerBillRate: number
+  targetStartDate: string
+  equipmentPolicy: string
+  equipmentReturnStatus: string
+}
 
 export interface EnrichedEmployerJobRow {
   id: string
@@ -50,6 +66,11 @@ export interface EnrichedEmployerJobRow {
   renewedAtIso: string | null
   skillsString: string
   isPracticeDraft?: boolean
+  eorContractTrack?: string
+  eorDurationMonths?: number
+  equipmentPolicy?: string
+  equipmentNotes?: string
+  w2Engagements?: ActiveW2EngagementSummary[]
 }
 
 export default function EmployerJobsTableClient({
@@ -59,6 +80,7 @@ export default function EmployerJobsTableClient({
   slotsFull,
   isPracticeMode = false,
   toggleOrRenewJobStatus,
+  manageActiveW2Engagement,
 }: {
   jobs: EnrichedEmployerJobRow[]
   activeJobsCount: number
@@ -66,6 +88,7 @@ export default function EmployerJobsTableClient({
   slotsFull: boolean
   isPracticeMode?: boolean
   toggleOrRenewJobStatus: (formData: FormData) => Promise<void>
+  manageActiveW2Engagement?: (formData: FormData) => Promise<void>
 }) {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'closed'>(
     'all'
@@ -75,6 +98,21 @@ export default function EmployerJobsTableClient({
     useState<string>('all')
   const [sortBy, setSortBy] = useState<EmployerJobSortOption>('closing_soon')
   const [searchQuery, setSearchQuery] = useState('')
+  const [pendingContractConfirm, setPendingContractConfirm] = useState<{
+    jobTitle: string
+    eng: ActiveW2EngagementSummary
+    action: 'extend_90d' | 'convert_direct' | 'wrap_up_assignment' | 'mark_gear_returned' | 'request_gear_return' | 'reopen_assignment'
+  } | null>(null)
+  const [confirmIntentChecked, setConfirmIntentChecked] = useState(false)
+
+  const openContractConfirm = (
+    jobTitle: string,
+    eng: ActiveW2EngagementSummary,
+    action: 'extend_90d' | 'convert_direct' | 'wrap_up_assignment' | 'mark_gear_returned' | 'request_gear_return' | 'reopen_assignment'
+  ) => {
+    setConfirmIntentChecked(false)
+    setPendingContractConfirm({ jobTitle, eng, action })
+  }
 
   const activeCount = useMemo(
     () => jobs.filter((j) => j.is_active).length,
@@ -397,6 +435,83 @@ export default function EmployerJobsTableClient({
                     {job.location && <span>• {job.location}</span>}
                   </div>
 
+                  {((job.eorContractTrack && job.eorContractTrack !== 'none') || (job.equipmentPolicy && job.equipmentPolicy !== 'No Equipment Needed / Not Applicable')) && (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {job.eorContractTrack && job.eorContractTrack !== 'none' && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[11px] font-bold text-indigo-800">
+                          🛡️{' '}
+                          {job.eorContractTrack === 'fixed_term_w2'
+                            ? `${job.eorDurationMonths || 6}-Mo Fixed-Term W-2 (+28% EOR)`
+                            : job.eorContractTrack === 'open_ended_w2'
+                            ? 'Open-Ended W-2 Contract (+28% EOR)'
+                            : '90-Day W-2 Trial ($0 Conversion)'}
+                        </span>
+                      )}
+                      {job.equipmentPolicy && job.equipmentPolicy !== 'No Equipment Needed / Not Applicable' && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 border border-slate-300 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                          💻 {job.equipmentPolicy.replace(' (Laptop / Security Key)', '').replace(' (Virtual Desktop & Passkey Only)', '')}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {job.eorContractTrack && job.eorContractTrack !== 'none' && (!job.w2Engagements || job.w2Engagements.length === 0) && (
+                    <div className="rounded-lg border border-indigo-200/80 bg-indigo-50/40 px-2.5 py-1.5 text-[11px] flex flex-wrap items-center justify-between gap-1.5">
+                      <span className="font-semibold text-slate-600">
+                        <strong className="text-indigo-900">W-2 Lifecycle Controls:</strong> Unlocks on active W-2 offer
+                      </span>
+                      <div className="flex flex-wrap items-center gap-1">
+                        <span className="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-bold text-slate-400">Extend +90d</span>
+                        <span className="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-bold text-slate-400">Convert ($0)</span>
+                        <span className="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-bold text-slate-400">Wrap Up</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {manageActiveW2Engagement && Array.isArray(job.w2Engagements) && job.w2Engagements.length > 0 && (
+                    <div className="space-y-2">
+                      {job.w2Engagements.map((eng) => (
+                        <div key={eng.applicationId} className="rounded-lg border border-indigo-200 bg-indigo-50/50 px-2.5 py-2 text-xs space-y-1.5">
+                          <div className="flex flex-wrap items-center justify-between gap-1.5">
+                            <span className="font-extrabold text-indigo-950">{eng.professionalLabel}</span>
+                            <span className="rounded bg-white border border-indigo-200 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700">
+                              {eng.status === 'proposed' ? 'Offer Pending Review' : eng.status === 'converted_direct' ? 'Converted Direct ($0 Fee)' : eng.status === 'ended' ? 'Assignment Wrapped Up' : `Active W-2${eng.extensionCount > 0 ? ` (+${eng.extensionCount * 90}d Ext)` : ''}`}
+                            </span>
+                          </div>
+                          {eng.status === 'accepted_pending_eor' && (
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <button type="button" onClick={() => openContractConfirm(job.title, eng, 'extend_90d')} className="px-2 py-1 rounded bg-white border border-indigo-300 text-[11px] font-bold text-indigo-700 hover:bg-indigo-100 cursor-pointer">Extend +90d</button>
+                              <button type="button" onClick={() => openContractConfirm(job.title, eng, 'convert_direct')} className="px-2 py-1 rounded bg-emerald-600 text-[11px] font-bold text-white hover:bg-emerald-700 cursor-pointer">Convert Direct ($0)</button>
+                              <button type="button" onClick={() => openContractConfirm(job.title, eng, 'wrap_up_assignment')} className="px-2 py-1 rounded bg-white border border-slate-300 text-[11px] font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-700 cursor-pointer">Wrap Up</button>
+                            </div>
+                          )}
+                          {(eng.status === 'converted_direct' || eng.status === 'ended' || eng.equipmentReturnStatus === 'return_requested' || eng.equipmentReturnStatus === 'returned') && (
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              {eng.equipmentReturnStatus === 'return_requested' && (
+                                <span className="rounded bg-amber-100 border border-amber-300 px-1.5 py-0.5 text-[10px] font-extrabold text-amber-900">📦 Hardware Return Pending</span>
+                              )}
+                              {eng.equipmentReturnStatus === 'returned' && (
+                                <span className="rounded bg-emerald-100 border border-emerald-300 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800">✓ Hardware Returned</span>
+                              )}
+                              {eng.status === 'converted_direct' && (
+                                <button type="button" onClick={() => openContractConfirm(job.title, eng, 'wrap_up_assignment')} className="px-2 py-1 rounded bg-white border border-slate-300 text-[11px] font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-700 cursor-pointer">Wrap Up</button>
+                              )}
+                              {eng.equipmentReturnStatus === 'return_requested' && (
+                                <button type="button" onClick={() => openContractConfirm(job.title, eng, 'mark_gear_returned')} className="px-2 py-1 rounded bg-amber-600 text-[11px] font-bold text-white hover:bg-amber-700 cursor-pointer">Confirm Gear Returned</button>
+                              )}
+                              {eng.status === 'ended' && eng.equipmentReturnStatus !== 'return_requested' && eng.equipmentReturnStatus !== 'returned' && (
+                                <button type="button" onClick={() => openContractConfirm(job.title, eng, 'request_gear_return')} className="px-2 py-1 rounded bg-amber-50 border border-amber-300 text-[11px] font-bold text-amber-900 hover:bg-amber-100 cursor-pointer">Request Gear Return</button>
+                              )}
+                              {eng.status === 'ended' && (
+                                <button type="button" onClick={() => openContractConfirm(job.title, eng, 'reopen_assignment')} className="px-2 py-1 rounded bg-white border border-indigo-300 text-[11px] font-bold text-indigo-700 hover:bg-indigo-100 cursor-pointer">Reopen W-2</button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200 text-xs">
                     <div className="flex flex-col gap-0.5">
                       {job.is_active ? (
@@ -616,6 +731,147 @@ export default function EmployerJobsTableClient({
                             </>
                           )}
                         </div>
+
+                        {((job.eorContractTrack && job.eorContractTrack !== 'none') || (job.equipmentPolicy && job.equipmentPolicy !== 'No Equipment Needed / Not Applicable')) && (
+                          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                            {job.eorContractTrack && job.eorContractTrack !== 'none' && (
+                              <span className="inline-flex items-center gap-1 rounded-md bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[11px] font-bold text-indigo-800">
+                                🛡️{' '}
+                                {job.eorContractTrack === 'fixed_term_w2'
+                                  ? `${job.eorDurationMonths || 6}-Mo Fixed-Term W-2 (+28% EOR)`
+                                  : job.eorContractTrack === 'open_ended_w2'
+                                  ? 'Open-Ended W-2 Contract (+28% EOR)'
+                                  : '90-Day W-2 Trial ($0 Conversion)'}
+                              </span>
+                            )}
+                            {job.equipmentPolicy && job.equipmentPolicy !== 'No Equipment Needed / Not Applicable' && (
+                              <span
+                                title={job.equipmentNotes || job.equipmentPolicy}
+                                className="inline-flex items-center gap-1 rounded-md bg-slate-100 border border-slate-300 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                                💻 {job.equipmentPolicy.replace(' (Laptop / Security Key)', '').replace(' (Virtual Desktop & Passkey Only)', '')}
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {job.eorContractTrack && job.eorContractTrack !== 'none' && (!job.w2Engagements || job.w2Engagements.length === 0) && (
+                          <div className="mt-2 rounded-lg border border-indigo-200/80 bg-indigo-50/40 px-3 py-1.5 text-[11px] flex flex-wrap items-center justify-between gap-2">
+                            <span className="font-semibold text-slate-600">
+                              <strong className="text-indigo-900">W-2 Lifecycle Controls Ready:</strong> Unlocks here once a W-2 offer is accepted.
+                            </span>
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span className="px-2 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-bold text-slate-400">Extend +90d</span>
+                              <span className="px-2 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-bold text-slate-400">Convert Direct ($0)</span>
+                              <span className="px-2 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-bold text-slate-400">Wrap Up &amp; Gear</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {manageActiveW2Engagement && Array.isArray(job.w2Engagements) && job.w2Engagements.length > 0 && (
+                          <div className="mt-2.5 space-y-2">
+                            {job.w2Engagements.map((eng) => (
+                              <div
+                                key={eng.applicationId}
+                                className="rounded-lg border border-indigo-200 bg-indigo-50/50 px-3 py-2 text-xs flex flex-wrap items-center justify-between gap-2"
+                              >
+                                <div className="space-y-0.5">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className="font-extrabold text-indigo-950">
+                                      {eng.professionalLabel}
+                                    </span>
+                                    <span className="rounded bg-white border border-indigo-200 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700">
+                                      {eng.status === 'proposed'
+                                        ? 'Offer Pending Review'
+                                        : eng.status === 'converted_direct'
+                                        ? 'Converted Direct ($0 Fee)'
+                                        : eng.status === 'ended'
+                                        ? 'Assignment Wrapped Up'
+                                        : `Active W-2${eng.extensionCount > 0 ? ` (+${eng.extensionCount * 90}d Ext)` : ''}`}
+                                    </span>
+                                    {eng.equipmentReturnStatus === 'return_requested' && (
+                                      <span className="rounded bg-amber-100 border border-amber-300 px-1.5 py-0.5 text-[10px] font-extrabold text-amber-900">
+                                        📦 Hardware Return Pending
+                                      </span>
+                                    )}
+                                    {eng.equipmentReturnStatus === 'returned' && (
+                                      <span className="rounded bg-emerald-100 border border-emerald-300 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800">
+                                        ✓ Hardware Returned
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-[11px] text-slate-600">
+                                    ${eng.hourlyPayRate.toFixed(2)}/hr W-2 (${eng.employerBillRate.toFixed(2)}/hr bill) · Start {eng.targetStartDate}
+                                  </p>
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  {eng.status === 'accepted_pending_eor' && (
+                                    <>
+                                      <button
+                                        type="button"
+                                        onClick={() => openContractConfirm(job.title, eng, 'extend_90d')}
+                                        className="px-2.5 py-1 rounded-md bg-white border border-indigo-300 text-[11px] font-bold text-indigo-700 hover:bg-indigo-100 cursor-pointer"
+                                      >
+                                        Extend +90d
+                                      </button
+                                      >
+                                      <button
+                                        type="button"
+                                        onClick={() => openContractConfirm(job.title, eng, 'convert_direct')}
+                                        className="px-2.5 py-1 rounded-md bg-emerald-600 text-[11px] font-bold text-white hover:bg-emerald-700 cursor-pointer"
+                                      >
+                                        Convert Direct ($0)
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => openContractConfirm(job.title, eng, 'wrap_up_assignment')}
+                                        className="px-2.5 py-1 rounded-md bg-white border border-slate-300 text-[11px] font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 cursor-pointer"
+                                      >
+                                        Wrap Up
+                                      </button>
+                                    </>
+                                  )}
+                                  {eng.status === 'converted_direct' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => openContractConfirm(job.title, eng, 'wrap_up_assignment')}
+                                      className="px-2.5 py-1 rounded-md bg-white border border-slate-300 text-[11px] font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 cursor-pointer"
+                                    >
+                                      Wrap Up
+                                    </button>
+                                  )}
+                                  {eng.equipmentReturnStatus === 'return_requested' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => openContractConfirm(job.title, eng, 'mark_gear_returned')}
+                                      className="px-2.5 py-1 rounded-md bg-amber-600 text-[11px] font-bold text-white hover:bg-amber-700 cursor-pointer"
+                                    >
+                                      Confirm Gear Returned
+                                    </button>
+                                  )}
+                                  {eng.status === 'ended' && eng.equipmentReturnStatus !== 'return_requested' && eng.equipmentReturnStatus !== 'returned' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => openContractConfirm(job.title, eng, 'request_gear_return')}
+                                      className="px-2.5 py-1 rounded-md bg-amber-50 border border-amber-300 text-[11px] font-bold text-amber-900 hover:bg-amber-100 cursor-pointer"
+                                    >
+                                      Request Gear Return
+                                    </button>
+                                  )}
+                                  {eng.status === 'ended' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => openContractConfirm(job.title, eng, 'reopen_assignment')}
+                                      className="px-2.5 py-1 rounded-md bg-white border border-indigo-300 text-[11px] font-bold text-indigo-700 hover:bg-indigo-100 cursor-pointer"
+                                    >
+                                      Reopen W-2
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </td>
 
                       <td className="py-4 px-6">
@@ -817,6 +1073,156 @@ export default function EmployerJobsTableClient({
                 })}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {pendingContractConfirm && manageActiveW2Engagement && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white border-2 border-slate-300 shadow-2xl p-6 space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide ${
+                  pendingContractConfirm.action === 'convert_direct'
+                    ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                    : pendingContractConfirm.action === 'wrap_up_assignment'
+                    ? 'bg-rose-100 text-rose-900 border border-rose-300'
+                    : pendingContractConfirm.action === 'mark_gear_returned' || pendingContractConfirm.action === 'request_gear_return'
+                    ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                    : 'bg-indigo-100 text-indigo-900 border border-indigo-300'
+              }`}>
+                Contract Action Safeguard
+              </span>
+              <h3 className="text-base font-black text-slate-900">
+                {pendingContractConfirm.action === 'extend_90d'
+                  ? 'Confirm +90-Day W-2 Contract Extension'
+                  : pendingContractConfirm.action === 'convert_direct'
+                  ? 'Confirm $0 Direct W-2 Hire Conversion'
+                  : pendingContractConfirm.action === 'wrap_up_assignment'
+                  ? 'Confirm W-2 Assignment Wrap-Up'
+                  : pendingContractConfirm.action === 'request_gear_return'
+                  ? 'Request Company / EOR Hardware Return'
+                  : pendingContractConfirm.action === 'reopen_assignment'
+                  ? 'Reopen Active W-2 Assignment'
+                  : 'Confirm Company / EOR Hardware Returned'}
+              </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setPendingContractConfirm(null)
+                  setConfirmIntentChecked(false)
+                }}
+                className="text-slate-400 hover:text-slate-700 text-sm font-black cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="rounded-xl bg-slate-50 border border-slate-200 p-3.5 text-xs space-y-1.5">
+              <p className="text-slate-700">
+                <strong className="text-slate-900">Role:</strong> {pendingContractConfirm.jobTitle}
+              </p>
+              <p className="text-slate-700">
+                <strong className="text-slate-900">Professional:</strong> {pendingContractConfirm.eng.professionalLabel}
+              </p>
+              <p className="text-slate-700">
+                <strong className="text-slate-900">Locked W-2 Rate:</strong> ${pendingContractConfirm.eng.hourlyPayRate.toFixed(2)}/hr W-2 (${pendingContractConfirm.eng.employerBillRate.toFixed(2)}/hr all-in bill)
+              </p>
+            </div>
+
+            <p className="text-xs text-slate-700 leading-relaxed">
+              {pendingContractConfirm.action === 'extend_90d'
+                ? 'This extends the active W-2 engagement by an additional 90 days through our US Employer of Record at the current hourly rate. Do not choose this option if you meant to convert this Professional to your direct W-2 payroll.'
+                : pendingContractConfirm.action === 'convert_direct'
+                ? 'This initiates a $0-fee direct W-2 hire transition onto your company payroll and notifies our Employer of Record partner to schedule final EOR timesheet closeout.'
+                : pendingContractConfirm.action === 'wrap_up_assignment'
+                ? 'This concludes the active W-2 contract assignment, notifies the Professional and Employer of Record partner, and opens IT hardware return tracking if equipment was issued.'
+                : pendingContractConfirm.action === 'request_gear_return'
+                ? 'This opens IT hardware return tracking for this assignment and posts an offboarding return reminder in the secure message thread.'
+                : pendingContractConfirm.action === 'reopen_assignment'
+                ? 'This restores this W-2 engagement to Active W-2 status and re-enables +90-day extension, $0 direct conversion, and wrap-up controls.'
+                : 'This records verified receipt of all company-shipped or EOR-managed hardware and closes open asset-return tracking for this assignment.'}
+            </p>
+
+            <label className="flex items-start gap-2.5 rounded-xl border-2 border-indigo-200 bg-indigo-50/50 p-3 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={confirmIntentChecked}
+                onChange={(e) => setConfirmIntentChecked(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+              />
+              <span className="text-xs font-bold text-slate-900 leading-snug">
+                {pendingContractConfirm.action === 'extend_90d'
+                  ? `I confirm I intend to extend ${pendingContractConfirm.eng.professionalLabel}'s W-2 contract by +90 days (not convert or end the assignment).`
+                  : pendingContractConfirm.action === 'convert_direct'
+                  ? `I confirm I intend to convert ${pendingContractConfirm.eng.professionalLabel} to a direct W-2 hire ($0 conversion fee).`
+                  : pendingContractConfirm.action === 'wrap_up_assignment'
+                  ? `I confirm I intend to wrap up and end ${pendingContractConfirm.eng.professionalLabel}'s active W-2 assignment.`
+                  : pendingContractConfirm.action === 'request_gear_return'
+                  ? `I confirm I want to open hardware return tracking for ${pendingContractConfirm.eng.professionalLabel}.`
+                  : pendingContractConfirm.action === 'reopen_assignment'
+                  ? `I confirm I want to reopen ${pendingContractConfirm.eng.professionalLabel}'s W-2 assignment and restore active controls.`
+                  : `I confirm all assigned hardware from ${pendingContractConfirm.eng.professionalLabel} has been returned and verified.`}
+              </span>
+            </label>
+
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setPendingContractConfirm(null)
+                  setConfirmIntentChecked(false)
+                }}
+                className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              {confirmIntentChecked ? (
+                <form
+                  action={async (fd) => {
+                    await manageActiveW2Engagement(fd)
+                    setPendingContractConfirm(null)
+                    setConfirmIntentChecked(false)
+                  }}
+                >
+                  <input type="hidden" name="application_id" value={pendingContractConfirm.eng.applicationId} />
+                  <input type="hidden" name="lifecycle_action" value={pendingContractConfirm.action} />
+                  <SubmitButton
+                    pendingText="Processing..."
+                    className={`px-4 py-2 rounded-xl text-xs font-extrabold text-white cursor-pointer ${
+                      pendingContractConfirm.action === 'convert_direct'
+                        ? 'bg-emerald-600 hover:bg-emerald-700'
+                        : pendingContractConfirm.action === 'wrap_up_assignment'
+                        ? 'bg-rose-600 hover:bg-rose-700'
+                        : pendingContractConfirm.action === 'mark_gear_returned' || pendingContractConfirm.action === 'request_gear_return'
+                        ? 'bg-amber-600 hover:bg-amber-700'
+                        : 'bg-indigo-600 hover:bg-indigo-700'
+                    }`}
+                  >
+                    {pendingContractConfirm.action === 'extend_90d'
+                      ? 'Confirm +90d Extension'
+                      : pendingContractConfirm.action === 'convert_direct'
+                      ? 'Confirm $0 Direct Conversion'
+                      : pendingContractConfirm.action === 'wrap_up_assignment'
+                      ? 'Confirm Assignment Wrap-Up'
+                      : pendingContractConfirm.action === 'request_gear_return'
+                      ? 'Request Gear Return'
+                      : pendingContractConfirm.action === 'reopen_assignment'
+                      ? 'Confirm Reopen W-2'
+                      : 'Confirm Hardware Returned'}
+                  </SubmitButton>
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className="px-4 py-2 rounded-xl bg-slate-200 text-xs font-extrabold text-slate-400 cursor-not-allowed"
+                >
+                  Check Box Above to Confirm
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
