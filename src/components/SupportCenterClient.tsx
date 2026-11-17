@@ -282,6 +282,8 @@ export default function SupportCenterClient({
     const matchesToken = (haystack: string, needle: string) => {
       if (!needle) return true
       const h = haystack.toLowerCase()
+      const hDehyphen = h.replace(/-/g, '')
+      const nDehyphen = needle.replace(/-/g, '')
       if (needle.length <= 3 || /^[a-z0-9+.#/-]+$/i.test(needle)) {
         const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
         const boundaryRe = new RegExp(
@@ -289,7 +291,12 @@ export default function SupportCenterClient({
           'i'
         )
         if (boundaryRe.test(h)) return true
-        return needle.length > 3 && h.includes(needle)
+        if (nDehyphen.length >= 2) {
+          const escDehyphen = nDehyphen.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+          const dehyphenRe = new RegExp(`(?:^|[^a-z0-9])${escDehyphen}(?:$|[^a-z0-9])`, 'i')
+          if (dehyphenRe.test(hDehyphen)) return true
+        }
+        return needle.length > 3 && (h.includes(needle) || (nDehyphen.length > 3 && hDehyphen.includes(nDehyphen)))
       }
       return h.includes(needle)
     }

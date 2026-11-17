@@ -642,7 +642,7 @@ export default function LandingPage() {
                   2. See Your Fit &amp; Get Discovered
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Browse roles with upfront pay ranges, check your TrueFit Score™ before applying, and receive direct invitations from verified employers.
+                  Browse roles with upfront pay ranges, check your TrueFit Score™ before applying, receive verified invitations, and gate cold recruiter messages with one-time Inbound Shield links.
                 </p>
               </div>
 
@@ -733,7 +733,7 @@ export default function LandingPage() {
                 <div
                   onClick={() =>
                     setActivePreview({
-                      title: '1. Post Roles in Seconds',
+                      title: '1. Post Direct or W-2 Contract Roles',
                       badge: 'Protected Roles & Upfront Pay',
                       mp4: '/media/loop-employer-roles.mp4',
                       webm: '/media/loop-employer-roles.webm',
@@ -786,10 +786,10 @@ export default function LandingPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-3">
-                  1. Post Roles in Seconds
+                  1. Post Direct or W-2 Contract Roles
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Set your required skills, pay range, and work model in seconds. Your company name stays private until you unlock an applicant or send an invitation.
+                  Set required skills, upfront pay, and hiring track—from Direct Hire to 90-Day W-2 Contract-to-Hire ($0 conversion fee) or flexible W-2 contracts—while keeping your company name private until you connect.
                 </p>
               </div>
 
@@ -854,7 +854,7 @@ export default function LandingPage() {
                   2. Match by Skill &amp; Invite Directly
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Every applicant already meets your core requirements. Search our talent directory to invite qualified professionals—and if an invitation is declined, your credit is automatically refunded.
+                  Invite matched professionals from Talent Search with automatic credit refunds if declined—or share one-time Talent Shield links on LinkedIn, GitHub, and email to screen external leads without exposing your role to scrapers.
                 </p>
               </div>
 

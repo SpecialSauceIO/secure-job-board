@@ -176,15 +176,15 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
       },
       {
         step: 'Step 3',
-        title: 'Publish Protected Roles with Upfront Pay',
+        title: 'Publish Direct Hire or W-2 Contract-to-Hire Roles',
         description:
-          'Post roles showing upfront salary or hourly pay ranges, location, and work model while keeping your company name private until you connect. Roles stay fresh with a 30-day window.',
+          'Post Direct Hire, 90-Day W-2 Contract-to-Hire ($0 conversion fee), or flexible W-2 Contract roles with upfront pay bands while keeping your company name private until you connect.',
       },
       {
         step: 'Step 4',
-        title: 'Free Inbound Applicants & Refund-Protected Invitations',
+        title: 'Free Inbound Unlocks, Talent Shield & Refund-Protected Invites',
         description:
-          'Unlocking professionals who apply to your roles is 100% free. Sending an invitation from Talent Search uses 1 credit—and if a professional declines, your credit is automatically refunded.',
+          'Unlocking inbound applicants is 100% free, one-time Talent Shield links screen external leads on LinkedIn or email with ID and 40%+ TrueFit™ checks, and declined outbound invitations auto-refund.',
       },
       {
         step: 'Step 5',
@@ -238,9 +238,9 @@ SPECIAL SAUCE — HIRING TEAM QUICK-START GUIDE
       },
       {
         step: 'Step 4',
-        title: 'Check Your Fit & Connect',
+        title: 'Check Your Fit, Inbound Shield & Connect',
         description:
-          'Browse active roles with upfront pay, check your TrueFit Score™ for free, and accept employer invitations at $0/mo—or upgrade to Professional ($12/mo) or Prestige ($19/mo) to apply outbound.',
+          'Check your TrueFit Score™ for free, accept employer invitations at $0/mo, and mint one-time Inbound Shield links to gate cold recruiter DMs—or upgrade to Professional ($12/mo) or Prestige ($19/mo) to apply outbound.',
       },
       {
         step: 'Step 5',
@@ -451,8 +451,44 @@ export const SUPPORT_FAQS: FAQ[] = [
     target: 'all',
     category: 'Membership Plans ($5 / $12 / $19)',
     question:
-      'How do I downgrade to Explorer ($0/mo) when hired or manage my billing?',
+      'How do I switch plans, downgrade to Explorer ($0/mo), or manage my Membership & Plan Settings?',
     answer:
-      'You can switch plans or downgrade back to Explorer ($0/mo forever) anytime from your Billing & Plans page. Downgrading to Explorer stops monthly billing while keeping your Verified Professional profile active in the passive talent pool for free inbound employer invitations.',
+      'You can switch plans or downgrade back to Explorer ($0/mo forever) anytime from your Membership & Plan Settings page. Downgrading to Explorer stops monthly charges while keeping your Verified Professional profile and one-time Inbound Shield links active.',
+  },
+  {
+    id: 'c11',
+    target: '\u0063andidate',
+    category: 'Verification & Privacy',
+    question:
+      'How does Personal Inbound Shield protect me from cold recruiter DMs?',
+    answer:
+      'Inbound Shield (included starting in Explorer at $0/mo) lets you mint single-use verification links to reply to cold recruiter messages on LinkedIn, email, or text without revealing your profile or employment status. Opening the link shows zero information about you; the recruiter must verify their company and real-person ID to send a Protected Role, and the link burns automatically once delivered to your Professional Invitations inbox.',
+  },
+  {
+    id: 'c12',
+    target: '\u0063andidate',
+    category: 'Applications & Roles',
+    question:
+      'How do 90-Day W-2 Contract-to-Hire and W-2 Contract roles work for Professionals?',
+    answer:
+      'Alongside traditional Direct Hire roles, employers can offer 90-Day W-2 Contract-to-Hire, Fixed-Term W-2 (3–12 months), or Open-Ended W-2 Contract roles with upfront hourly or salary pay. You receive steady W-2 paycheck protection from day one, and on 90-Day Contract-to-Hire roles the employer pays a $0 conversion fee to bring you onto full-time staff—eliminating staffing agency buyout roadblocks.',
+  },
+  {
+    id: 'e9',
+    target: 'employer',
+    category: 'Connecting with Professionals',
+    question:
+      'How does Employer Talent Shield work for external sourcing and inbound leads?',
+    answer:
+      'Talent Shield lets active Employer subscribers generate single-use Protected Role links to share on LinkedIn, GitHub, or email—or to gate cold inbound DMs sent to your team. Unverified visitors and scrapers never see your company name, pay band, or role details. Every redeemed link enforces Stripe Real-Person ID verification and a 40%+ TrueFit Score™ check before burning automatically.',
+  },
+  {
+    id: 'e10',
+    target: 'employer',
+    category: 'Job Listings',
+    question:
+      'How do the 90-Day W-2 Contract-to-Hire ($0 conversion fee) and W-2 Contract Tracks work?',
+    answer:
+      'When creating a Protected Role, you can choose Direct Hire Only or select an optional W-2 EOR Engagement Track (+28% statutory W-2 employer burden): 90-Day W-2 Contract-to-Hire ($0 Day-90 conversion fee), Fixed-Term W-2 Contract (3–12 months, extendable anytime), or Open-Ended Ongoing W-2 Contract. Payroll, tax compliance, and optional hardware provisioning and return tracking are handled seamlessly—with zero staffing agency buyout fees when converting to full-time.',
   },
 ]

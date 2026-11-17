@@ -249,12 +249,16 @@ export default function WorkflowsPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
+                        <span>Generate one-time <strong>Inbound Shield</strong> links to gate cold recruiter DMs on LinkedIn or other communications.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-400 font-bold">•</span>
                         <span>Upgrade to <strong>Professional ($12/mo)</strong> or <strong>Prestige ($19/mo)</strong> anytime to submit outbound applications.</span>
                       </li>
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Free Invitations &amp; Outbound Applications
+                    Unlocks: ✓ Free Invitations, Inbound Shield &amp; Outbound Applications
                   </div>
                 </div>
 
@@ -396,7 +400,11 @@ export default function WorkflowsPage() {
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Activate <strong>Starter ($149/mo)</strong>, <strong>Growth ($499/mo)</strong>, or <strong>Enterprise ($1,250/mo)</strong> when ready to hire.</span>
+                        <span>Publish <strong>Direct Hire</strong>, <strong>90-Day W-2 Contract-to-Hire ($0 conversion fee)</strong>, or flexible <strong>W-2 Contract</strong> roles on <strong>Starter ($149/mo)</strong>, <strong>Growth ($499/mo)</strong>, or <strong>Enterprise ($1,250/mo)</strong>.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-emerald-400 font-bold">•</span>
+                        <span>Share one-time <strong>Talent Shield</strong> links on LinkedIn, GitHub, or email to screen external leads with ID verification and 40%+ TrueFit™ checks.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
@@ -405,7 +413,7 @@ export default function WorkflowsPage() {
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Live Roles &amp; Refund-Protected Invitations
+                    Unlocks: ✓ Live Roles, Talent Shield &amp; Refund-Protected Invitations
                   </div>
                 </div>
 
@@ -422,6 +430,10 @@ export default function WorkflowsPage() {
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
                         <span>Chat directly with matched professionals and download their full PDF resume once released.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-emerald-400 font-bold">•</span>
+                        <span>Hire directly or launch a <strong>90-Day W-2 Contract-to-Hire</strong> ($0 conversion fee) or W-2 contract with built-in payroll and hardware return tracking.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>

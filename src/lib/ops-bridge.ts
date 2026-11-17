@@ -953,7 +953,9 @@ export async function getMergedPublicSupportFaqs<
       } as T
 
       if (existingIdx >= 0) {
-        merged[existingIdx] = formattedFaq
+        if (opsFaq.override_static) {
+          merged[existingIdx] = formattedFaq
+        }
       } else {
         merged.push(formattedFaq)
       }
