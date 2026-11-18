@@ -373,7 +373,7 @@ export default function SecureMessageThread({
     } else if (res.trialToHire) {
       setTrialToHire(res.trialToHire)
       setShowTrialDrawer(false)
-      setSuccessMsg('Protected 90-Day W-2 Trial-to-Hire offer sent to Professional.')
+      setSuccessMsg('Protected W-2 Contract-to-Hire offer sent to Professional.')
       await syncLatestThreadState()
       await broadcastInstantPing()
     }
@@ -391,8 +391,8 @@ export default function SecureMessageThread({
       setTrialToHire(res.trialToHire)
       setSuccessMsg(
         decision === 'accept'
-          ? '90-Day W-2 Trial-to-Hire accepted! Licensed US EOR onboarding has been dispatched.'
-          : 'Notified Employer that you would like to discuss or adjust trial terms in chat.'
+          ? 'W-2 Contract-to-Hire accepted! Licensed US EOR onboarding has been dispatched.'
+          : 'Notified Employer that you would like to discuss or adjust contract terms in chat.'
       )
       await syncLatestThreadState()
       await broadcastInstantPing()
@@ -569,7 +569,7 @@ export default function SecureMessageThread({
                   ? `Protected ${trialToHire?.duration_months || jobEorDurationMonths}-Month W-2 Contract`
                   : (trialToHire?.contract_track || jobEorTrack) === 'open_ended_w2'
                   ? 'Protected Open-Ended W-2 Contract'
-                  : 'Protected 90-Day W-2 Trial-to-Hire'}
+                  : 'Protected W-2 Contract-to-Hire'}
               </span>
               {(trialToHire?.equipment_policy || jobEquipmentPolicy) !== 'No Equipment Needed / Not Applicable' && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white text-slate-800 border border-slate-300 text-[10px] font-bold">
@@ -588,14 +588,14 @@ export default function SecureMessageThread({
                   onClick={() => setShowTrialDrawer((prev) => !prev)}
                   className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition-colors cursor-pointer"
                 >
-                  {showTrialDrawer ? 'Close W-2 Trial Builder' : '⚡ Optional: Propose 90-Day W-2 Trial'}
+                  {showTrialDrawer ? 'Close W-2 Offer Builder' : '⚡ Optional: Propose W-2 Contract-to-Hire'}
                 </button>
               ) : (
                 <Link
                   href="/dashboard/billing"
                   className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold transition-colors"
                 >
-                  Activate Monthly Plan to Propose W-2 Trial →
+                  Activate Monthly Plan to Propose W-2 Offer →
                 </Link>
               )
             )}
@@ -685,7 +685,7 @@ export default function SecureMessageThread({
                   maxLength={400}
                   value={trialScopeNote}
                   onChange={(e) => setTrialScopeNote(e.target.value)}
-                  placeholder="Optional 90-day trial milestones, schedule notes, or direct conversion target salary..."
+                  placeholder="Optional contract-to-hire milestones, schedule notes, or direct conversion target salary..."
                   className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400"
                 />
               </div>
@@ -708,7 +708,7 @@ export default function SecureMessageThread({
                   onClick={() => openOfferConfirm('propose')}
                   className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
                 >
-                  {isSubmittingTrial ? 'Sending Offer...' : jobEorTrack === 'fixed_term_w2' ? `Send ${jobEorDurationMonths}-Month W-2 Contract Offer` : jobEorTrack === 'open_ended_w2' ? 'Send Open-Ended W-2 Contract Offer' : 'Send 90-Day W-2 Trial Offer'}
+                  {isSubmittingTrial ? 'Sending Offer...' : jobEorTrack === 'fixed_term_w2' ? `Send ${jobEorDurationMonths}-Month W-2 Contract Offer` : jobEorTrack === 'open_ended_w2' ? 'Send Open-Ended W-2 Contract Offer' : 'Send W-2 Contract-to-Hire Offer'}
                 </button>
               </div>
             </div>
@@ -718,10 +718,10 @@ export default function SecureMessageThread({
             <div className="p-3.5 rounded-xl bg-white border-2 border-indigo-300 shadow-xs space-y-2.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-xs font-extrabold text-indigo-950">
-                  📋 Pending 90-Day W-2 Trial-to-Hire Offer • ${trialToHire.hourly_pay_rate.toFixed(2)}/hr Gross W-2 ({trialToHire.weekly_hours} hrs/wk)
+                  📋 Pending W-2 Contract-to-Hire Offer • ${trialToHire.hourly_pay_rate.toFixed(2)}/hr Gross W-2 ({trialToHire.weekly_hours} hrs/wk)
                 </span>
                 <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">
-                  $0 Day-90 Direct Hire Conversion
+                  $0 Direct Hire Conversion
                 </span>
               </div>
               <p className="text-xs text-slate-700">
