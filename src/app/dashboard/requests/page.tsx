@@ -123,14 +123,19 @@ export default function CandidateRequestsInboxPage() {
     const intervalId = setInterval(() => {
       void fetchRequests(true)
     }, 8000)
+    let visTimer: ReturnType<typeof setTimeout> | null = null
     const handleVisibility = () => {
+      if (visTimer) clearTimeout(visTimer)
       if (document.visibilityState === 'visible') {
-        void fetchRequests(true)
+        visTimer = setTimeout(() => {
+          void fetchRequests(true)
+        }, 450)
       }
     }
     document.addEventListener('visibilitychange', handleVisibility)
     return () => {
       clearInterval(intervalId)
+      if (visTimer) clearTimeout(visTimer)
       document.removeEventListener('visibilitychange', handleVisibility)
     }
   }, [fetchRequests])

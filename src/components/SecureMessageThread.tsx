@@ -129,13 +129,36 @@ export default function SecureMessageThread({
   const [trialBgCheck, setTrialBgCheck] = useState(true)
   const [trialDrugCheck, setTrialDrugCheck] = useState(false)
   const [trialScopeNote, setTrialScopeNote] = useState('')
+  const [trialWcCode, setTrialWcCode] = useState('8810')
+  const [empBillStreet1, setEmpBillStreet1] = useState('')
+  const [empBillCity, setEmpBillCity] = useState('')
+  const [empBillState, setEmpBillState] = useState('TX')
+  const [empBillZip, setEmpBillZip] = useState('')
+  const [profResStreet1, setProfResStreet1] = useState('')
+  const [profResStreet2, setProfResStreet2] = useState('')
+  const [profResCity, setProfResCity] = useState('')
+  const [profResState, setProfResState] = useState(initialTrialToHire?.work_state || 'TX')
+  const [profResZip, setProfResZip] = useState('')
+  const [profMobilePhone, setProfMobilePhone] = useState('')
   const [isSubmittingTrial, setIsSubmittingTrial] = useState(false)
   const [pendingOfferConfirm, setPendingOfferConfirm] = useState<'propose' | 'accept' | 'decline' | 'withdraw' | null>(null)
   const [offerIntentChecked, setOfferIntentChecked] = useState(false)
+  const pendingModalRef = useRef<boolean>(false)
   const openOfferConfirm = (action: 'propose' | 'accept' | 'decline' | 'withdraw') => {
+    pendingModalRef.current = true
+    if (typeof window !== 'undefined') {
+      ;(window as unknown as { __ssNavPendingUntil?: number }).__ssNavPendingUntil = Date.now() + 60000
+    }
     setOfferIntentChecked(false)
     setPendingOfferConfirm(action)
   }
+
+  useEffect(() => {
+    pendingModalRef.current = Boolean(pendingOfferConfirm)
+    if (!pendingOfferConfirm && typeof window !== 'undefined') {
+      ;(window as unknown as { __ssNavPendingUntil?: number }).__ssNavPendingUntil = 0
+    }
+  }, [pendingOfferConfirm])
 
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   const prevMsgCountRef = useRef<number>(messages.length)
@@ -200,7 +223,7 @@ export default function SecureMessageThread({
 
   // Direct, uncached server state pull with in-flight deduplication
   const syncLatestThreadState = useCallback(async () => {
-    if (!applicationId || syncInFlightRef.current) return
+    if (!applicationId || syncInFlightRef.current || pendingModalRef.current) return
     syncInFlightRef.current = true
     try {
       const res = await getApplicationThreadState(applicationId, viewerRole)
@@ -221,7 +244,10 @@ export default function SecureMessageThread({
         if (res.candidateFullName) setCandidateFullName(res.candidateFullName)
         if (res.candidateEmail) setCandidateEmail(res.candidateEmail)
         if (res.employerEmail) setEmployerEmail(res.employerEmail)
-        if (res.trialToHire !== undefined) setTrialToHire(res.trialToHire || null)
+        if (res.trialToHire !== undefined) {
+          const nextTrial = res.trialToHire || null
+          setTrialToHire((prev) => (JSON.stringify(prev) === JSON.stringify(nextTrial) ? prev : nextTrial))
+        }
         if (res.jobEmploymentType !== undefined) setJobEmploymentType(res.jobEmploymentType || null)
         if (res.jobEorTrack) setJobEorTrack(res.jobEorTrack)
         if (res.jobEorDurationMonths) setJobEorDurationMonths(res.jobEorDurationMonths)
@@ -367,6 +393,11 @@ export default function SecureMessageThread({
       requireBackgroundCheck: trialBgCheck,
       requireDrugScreening: trialDrugCheck,
       scopeNote: trialScopeNote,
+      wcCode: trialWcCode,
+      employerAddress:
+        empBillStreet1.trim() && empBillCity.trim() && empBillZip.trim()
+          ? { street1: empBillStreet1.trim(), city: empBillCity.trim(), state: empBillState || trialWorkState, postalcode: empBillZip.trim() }
+          : undefined,
     })
     if (res.error) {
       setErrorMsg(res.error)
@@ -384,7 +415,20 @@ export default function SecureMessageThread({
     setIsSubmittingTrial(true)
     setErrorMsg(null)
     setSuccessMsg(null)
-    const res = await respondToTrialToHireTerms(applicationId, decision)
+    const res = await respondToTrialToHireTerms(
+      applicationId,
+      decision,
+      decision === 'accept'
+        ? {
+            street1: profResStreet1,
+            street2: profResStreet2,
+            city: profResCity,
+            state: profResState || trialToHire?.work_state || 'TX',
+            postalcode: profResZip,
+            mobilePhone: profMobilePhone,
+          }
+        : undefined
+    )
     if (res.error) {
       setErrorMsg(res.error)
     } else if (res.trialToHire) {
@@ -679,6 +723,15 @@ export default function SecureMessageThread({
                 </label>
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                <input type="text" maxLength={120} value={empBillStreet1} onChange={(e) => setEmpBillStreet1(e.target.value)} placeholder="Company Billing Street (optional)" className="sm:col-span-2 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                <input type="text" maxLength={80} value={empBillCity} onChange={(e) => setEmpBillCity(e.target.value)} placeholder="City" className="block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                <div className="grid grid-cols-2 gap-1.5">
+                  <input type="text" maxLength={16} value={empBillZip} onChange={(e) => setEmpBillZip(e.target.value)} placeholder="ZIP" className="block w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                  <input type="text" maxLength={10} value={trialWcCode} onChange={(e) => setTrialWcCode(e.target.value)} title="Workers Comp Code (default 8810 Clerical/Tech)" placeholder="WC 8810" className="block w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                </div>
+              </div>
+
               <div>
                 <input
                   type="text"
@@ -718,7 +771,7 @@ export default function SecureMessageThread({
             <div className="p-3.5 rounded-xl bg-white border-2 border-indigo-300 shadow-xs space-y-2.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-xs font-extrabold text-indigo-950">
-                  📋 Pending W-2 Contract-to-Hire Offer • ${trialToHire.hourly_pay_rate.toFixed(2)}/hr Gross W-2 ({trialToHire.weekly_hours} hrs/wk)
+                  📋 Pending {trialToHire.contract_track === 'fixed_term_w2' ? `${trialToHire.duration_months || 6}-Month W-2 Contract` : trialToHire.contract_track === 'open_ended_w2' ? 'Open-Ended W-2 Contract' : 'W-2 Contract-to-Hire'} Offer • ${trialToHire.hourly_pay_rate.toFixed(2)}/hr Gross W-2 ({trialToHire.weekly_hours} hrs/wk)
                 </span>
                 <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">
                   $0 Direct Hire Conversion
@@ -798,6 +851,15 @@ export default function SecureMessageThread({
                   ? `All-in Employer rate locked at $${trialToHire.employer_bill_rate.toFixed(2)}/hr (+28% statutory W-2 burden) with a $0 conversion fee.`
                   : `Your W-2 gross pay rate of $${trialToHire.hourly_pay_rate.toFixed(2)}/hr is locked with $0 conversion fees through our licensed US Employer of Record partner.`}
               </p>
+              {trialToHire.boss_sync_status && (
+                <div className="flex flex-wrap items-center gap-2 pt-0.5 text-[11px]">
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full font-extrabold border ${trialToHire.boss_sync_status === 'synced' ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-amber-50 text-amber-900 border-amber-300'}`}>
+                    {trialToHire.boss_sync_status === 'synced'
+                      ? `BOSS EOR Placement #${trialToHire.boss_placement_id || 'Active'} Provisioned`
+                      : 'EOR Onboarding Packet Queued for Concierge Dispatch'}
+                  </span>
+                </div>
+              )}
               {viewerRole === 'employer' && (
                 <a
                   href="/dashboard/employer/jobs"
@@ -959,6 +1021,26 @@ export default function SecureMessageThread({
               ) : null}
             </div>
 
+            {pendingOfferConfirm === 'accept' && (
+              <div className="rounded-xl border border-slate-200 bg-white p-3 space-y-2">
+                <p className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wide">
+                  W-2 &amp; I-9 Residential Onboarding Address (Required by US EOR Partner)
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <input type="text" maxLength={120} value={profResStreet1} onChange={(e) => setProfResStreet1(e.target.value)} placeholder="Residential Street Address *" className="sm:col-span-2 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                  <input type="text" maxLength={80} value={profResStreet2} onChange={(e) => setProfResStreet2(e.target.value)} placeholder="Apt / Suite" className="block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <input type="text" maxLength={80} value={profResCity} onChange={(e) => setProfResCity(e.target.value)} placeholder="City *" className="col-span-2 sm:col-span-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                  <select value={profResState} onChange={(e) => setProfResState(e.target.value)} className="block w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs text-slate-900">
+                    {US_STATES.map((st) => (<option key={st} value={st}>{st}</option>))}
+                  </select>
+                  <input type="text" maxLength={16} value={profResZip} onChange={(e) => setProfResZip(e.target.value)} placeholder="ZIP *" className="block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                  <input type="tel" maxLength={24} value={profMobilePhone} onChange={(e) => setProfMobilePhone(e.target.value)} placeholder="Mobile (optional)" className="col-span-2 sm:col-span-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                </div>
+              </div>
+            )}
+
             <label className="flex items-start gap-2.5 rounded-xl border-2 border-indigo-200 bg-indigo-50/50 p-3 cursor-pointer select-none">
               <input
                 type="checkbox"
@@ -990,7 +1072,7 @@ export default function SecureMessageThread({
               </button>
               <button
                 type="button"
-                disabled={!offerIntentChecked || isSubmittingTrial}
+                disabled={!offerIntentChecked || isSubmittingTrial || (pendingOfferConfirm === 'accept' && (!profResStreet1.trim() || !profResCity.trim() || !profResZip.trim()))}
                 onClick={async () => {
                   const act = pendingOfferConfirm
                   setPendingOfferConfirm(null)
@@ -1001,7 +1083,7 @@ export default function SecureMessageThread({
                   else if (act === 'withdraw') await handleWithdrawTrial()
                 }}
                 className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-colors ${
-                  !offerIntentChecked || isSubmittingTrial
+                  !offerIntentChecked || isSubmittingTrial || (pendingOfferConfirm === 'accept' && (!profResStreet1.trim() || !profResCity.trim() || !profResZip.trim()))
                     ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
                     : pendingOfferConfirm === 'accept' || pendingOfferConfirm === 'propose'
                     ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer'

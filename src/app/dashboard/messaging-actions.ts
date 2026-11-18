@@ -5,6 +5,7 @@ import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js
 import { revalidatePath, unstable_noStore as noStore } from 'next/cache'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
 import { pushToOpsControlPlane } from '@/lib/ops-bridge'
+import { submitBossW2PlacementHandoff, type EorPostalAddress } from '@/lib/boss-eor'
 import { inspectStage1TextForContactLeakOrInjection, raiseSecurityAlertAndFlag, recordHandshakeTelemetry } from '@/lib/security-telemetry'
 
 const MAX_SILENT_UNLOCKS = 5
@@ -43,6 +44,21 @@ export interface TrialToHireHandshake {
   proposed_by_email?: string | null
   responded_at?: string | null
   eor_packet_id?: string | null
+  wc_code?: string | null
+  employer_address?: EorPostalAddress | null
+  professional_address?: EorPostalAddress | null
+  professional_phone?: string | null
+  boss_sync_status?: 'synced' | 'pending_rates' | 'manual_fallback' | null
+  boss_client_id?: number | null
+  boss_contact_id?: number | null
+  boss_associate_id?: number | null
+  boss_assignment_id?: number | null
+  boss_placement_id?: number | null
+  boss_associate_onboarded?: boolean
+  boss_associate_onboarded_date?: string | null
+  boss_placement_status_display?: string | null
+  boss_last_synced_at?: string | null
+  boss_sync_note?: string | null
 }
 
 function cleanEnvKey(rawKey?: string | null): string {
@@ -1001,7 +1017,7 @@ export async function getApplicationThreadState(
   const adminDb = getAdminSupabaseClient() || supabase
   const { data: appRow, error } = await adminDb
     .from('applications')
-    .select('id, candidate_id, is_revealed, status, match_data, jobs (title, employer_id, organization_id, structured_requirements, required_skills, organizations:organization_id (subscription_tier, description))')
+    .select('id, candidate_id, is_revealed, status, match_data, jobs (title, employer_id, organization_id, structured_requirements, organizations:organization_id (subscription_tier, description))')
     .eq('id', applicationId)
     .single()
 
@@ -1245,6 +1261,8 @@ export async function proposeTrialToHireTerms(
     requireBackgroundCheck?: boolean
     requireDrugScreening?: boolean
     scopeNote?: string
+    wcCode?: string
+    employerAddress?: EorPostalAddress
   }
 ): Promise<{ success?: boolean; error?: string; trialToHire?: TrialToHireHandshake }> {
   noStore()
@@ -1271,7 +1289,7 @@ export async function proposeTrialToHireTerms(
   const adminDbRead = getAdminSupabaseClient() || supabase
   const { data: appRow, error: fetchErr } = await adminDbRead
     .from('applications')
-    .select('id, candidate_id, is_revealed, status, initiated_by, match_data, jobs (id, title, employer_id, organization_id, structured_requirements, required_skills, organizations:organization_id (name, domain, subscription_tier, description))')
+    .select('id, candidate_id, is_revealed, status, initiated_by, match_data, jobs (id, title, employer_id, organization_id, structured_requirements, organizations:organization_id (name, domain, subscription_tier, description))')
     .eq('id', applicationId)
     .single()
 
@@ -1316,6 +1334,19 @@ export async function proposeTrialToHireTerms(
   const nowIso = new Date().toISOString()
   const billRate = Math.round(payRate * TRIAL_EOR_BURDEN_MULTIPLIER * 100) / 100
   const scopeClean = String(payload.scopeNote || '').trim().slice(0, 400) || null
+  const cleanWcCode = String(payload.wcCode || '8810').trim().slice(0, 16) || '8810'
+  const empAddrClean: EorPostalAddress | null =
+    payload.employerAddress?.street1?.trim() &&
+    payload.employerAddress?.city?.trim() &&
+    payload.employerAddress?.postalcode?.trim()
+      ? {
+          street1: payload.employerAddress.street1.trim().slice(0, 120),
+          street2: payload.employerAddress.street2?.trim().slice(0, 80) || null,
+          city: payload.employerAddress.city.trim().slice(0, 80),
+          state: String(payload.employerAddress.state || workState).trim().toUpperCase().slice(0, 2) || workState,
+          postalcode: payload.employerAddress.postalcode.trim().slice(0, 16),
+        }
+      : null
   const trialObj: TrialToHireHandshake = {
     status: 'proposed',
     contract_track: resolvedTrack,
@@ -1338,9 +1369,11 @@ export async function proposeTrialToHireTerms(
     scope_note: scopeClean,
     proposed_at: nowIso,
     proposed_by_email: user.email || null,
+    wc_code: cleanWcCode,
+    employer_address: empAddrClean,
   }
 
-  const trackLabel = resolvedTrack === 'fixed_term_w2' ? `${resolvedMonths}-Month Fixed-Term W-2 Contract` : resolvedTrack === 'open_ended_w2' ? 'Open-Ended W-2 Contract' : '90-Day W-2 Trial-to-Hire'
+  const trackLabel = resolvedTrack === 'fixed_term_w2' ? `${resolvedMonths}-Month Fixed-Term W-2 Contract` : resolvedTrack === 'open_ended_w2' ? 'Open-Ended W-2 Contract' : '90-Day W-2 Contract-to-Hire'
   const existingMsgs: ThreadMessage[] = Array.isArray(matchData.messages) ? matchData.messages : []
   const orgName = orgObj?.name || 'Verified Employer'
   const screenings = [
@@ -1376,18 +1409,18 @@ export async function proposeTrialToHireTerms(
   if (candEmail) {
     await sendThreadEmailNotification({
       to: candEmail,
-      subject: `90-Day W-2 Trial-to-Hire Offer from ${orgName} (${roleTitle})`,
+      subject: `${trackLabel} Offer from ${orgName} (${roleTitle})`,
       referenceId: refId,
-      heading: `Protected 90-Day W-2 Trial-to-Hire Offer`,
+      heading: `Protected ${trackLabel} Offer`,
       bodyLines: [
-        `${orgName} proposed a Protected 90-Day W-2 Trial-to-Hire for "${roleTitle}":`,
+        `${orgName} proposed a Protected ${trackLabel} for "${roleTitle}":`,
         `• Gross W-2 Hourly Pay: $${payRate.toFixed(2)}/hr (${weeklyHours} hrs/wk)`,
         `• Target Start Date: ${startDate} (Work State: ${workState})`,
-        `• Day-90 Direct Conversion Fee: $0 (No staffing agency buyout lock-in)`,
+        `• Direct W-2 Conversion Fee: $0 (No staffing agency buyout lock-in)`,
         `Review the terms inside your Secure Thread to accept or discuss.`,
       ],
       ctaUrl: appRow.initiated_by === 'employer' ? '/dashboard/requests' : '/dashboard/applications',
-      ctaLabel: 'Review W-2 Trial Offer →',
+      ctaLabel: 'Review W-2 Contract Offer →',
     })
   }
 
@@ -1400,7 +1433,15 @@ export async function proposeTrialToHireTerms(
 
 export async function respondToTrialToHireTerms(
   applicationId: string,
-  decision: 'accept' | 'decline'
+  decision: 'accept' | 'decline',
+  onboardingDetails?: {
+    street1?: string
+    street2?: string
+    city?: string
+    state?: string
+    postalcode?: string
+    mobilePhone?: string
+  }
 ): Promise<{ success?: boolean; error?: string; trialToHire?: TrialToHireHandshake }> {
   noStore()
   const supabase = await createClient()
@@ -1433,20 +1474,79 @@ export async function respondToTrialToHireTerms(
   const candName = matchData.candidate_full_name || 'Verified Professional'
   const candEmail = matchData.candidate_contact_email || user.email || ''
   const empEmail = matchData.employer_contact_email || current.proposed_by_email || (await resolveAuthUserEmail(jobObj?.employer_id)) || ''
+  let profAddress: EorPostalAddress | null = current.professional_address || null
+  const profPhoneClean = String(onboardingDetails?.mobilePhone || current.professional_phone || '').trim().slice(0, 32) || null
+  if (decision === 'accept') {
+    const st1 = String(onboardingDetails?.street1 || profAddress?.street1 || '').trim().slice(0, 120)
+    const st2 = String(onboardingDetails?.street2 || profAddress?.street2 || '').trim().slice(0, 80) || null
+    const city = String(onboardingDetails?.city || profAddress?.city || '').trim().slice(0, 80)
+    const stCode = String(onboardingDetails?.state || profAddress?.state || current.work_state || 'TX').trim().toUpperCase().slice(0, 2)
+    const zip = String(onboardingDetails?.postalcode || profAddress?.postalcode || '').trim().slice(0, 16)
+    if (!st1 || !city || !zip) {
+      return { error: 'Enter your residential street address, city, and ZIP code so W-2 & I-9 onboarding can be provisioned.' }
+    }
+    profAddress = { street1: st1, street2: st2, city, state: stCode, postalcode: zip }
+  }
+
   const packetId = decision === 'accept' ? `EOR-${Date.now().toString().slice(-6)}` : null
+  const bossResult =
+    decision === 'accept' && packetId && profAddress
+      ? await submitBossW2PlacementHandoff({
+          packetId,
+          referenceId: refId,
+          roleTitle,
+          contractTrack: current.contract_track || 'trial_to_hire_90d',
+          trialDays: current.trial_days,
+          targetStartDate: current.target_start_date,
+          hourlyPayRate: current.hourly_pay_rate,
+          employerBillRate: current.employer_bill_rate,
+          weeklyHours: current.weekly_hours,
+          wcCode: current.wc_code || '8810',
+          requireBackgroundCheck: current.require_background_check,
+          requireDrugScreening: current.require_drug_screening,
+          scopeNote: current.scope_note,
+          employer: {
+            orgId: jobObj?.organization_id || null,
+            name: orgName,
+            domain: orgObj?.domain || null,
+            contactEmail: empEmail || 'support@specialsauce.io',
+            address: current.employer_address || null,
+            cachedBossClientId: current.boss_client_id || null,
+          },
+          professional: {
+            fullName: candName,
+            email: candEmail,
+            mobilePhone: profPhoneClean,
+            workState: current.work_state,
+            address: profAddress,
+            cachedBossAssociateId: current.boss_associate_id || null,
+          },
+        })
+      : null
 
   const updatedTrial: TrialToHireHandshake = {
     ...current,
     status: decision === 'accept' ? 'accepted_pending_eor' : 'declined',
     responded_at: nowIso,
     eor_packet_id: packetId,
+    professional_address: profAddress,
+    professional_phone: profPhoneClean,
+    boss_sync_status: bossResult ? bossResult.syncStatus : current.boss_sync_status || null,
+    boss_client_id: bossResult?.clientId ?? current.boss_client_id ?? null,
+    boss_contact_id: bossResult?.contactId ?? current.boss_contact_id ?? null,
+    boss_associate_id: bossResult?.associateId ?? current.boss_associate_id ?? null,
+    boss_assignment_id: bossResult?.assignmentId ?? current.boss_assignment_id ?? null,
+    boss_placement_id: bossResult?.placementId ?? current.boss_placement_id ?? null,
+    boss_last_synced_at: bossResult ? nowIso : current.boss_last_synced_at || null,
+    boss_sync_note: bossResult ? bossResult.summaryNote : current.boss_sync_note || null,
   }
 
+  const acceptTrackLabel = current.contract_track === 'fixed_term_w2' ? `${current.duration_months || 6}-Month Fixed-Term W-2 Contract` : current.contract_track === 'open_ended_w2' ? 'Open-Ended W-2 Contract' : '90-Day W-2 Contract-to-Hire'
   const existingMsgs: ThreadMessage[] = Array.isArray(matchData.messages) ? matchData.messages : []
   const msgText =
     decision === 'accept'
-      ? `✅ Accepted Protected 90-Day W-2 Trial-to-Hire ($${current.hourly_pay_rate.toFixed(2)}/hr gross W-2, Start: ${current.target_start_date}, State: ${current.work_state}). EOR Onboarding Packet ${packetId} has been queued — our licensed US Employer of Record partner will send W-2 / I-9 onboarding and Employer agreement links directly to both emails.`
-      : `💬 Declined the current Trial-to-Hire proposal in order to continue discussing terms in chat.`
+      ? `✅ Accepted Protected ${acceptTrackLabel} ($${current.hourly_pay_rate.toFixed(2)}/hr gross W-2, Start: ${current.target_start_date}, State: ${current.work_state}). EOR Onboarding Packet ${packetId} has been queued — our licensed US Employer of Record partner will send W-2 / I-9 onboarding and Employer agreement links directly to both emails.`
+      : `💬 Declined the current W-2 contract proposal in order to continue discussing terms in chat.`
 
   const profSenderRole = ('can' + 'didate') as ThreadMessage['sender_role']
   const newMsg: ThreadMessage = {
@@ -1480,7 +1580,9 @@ export async function respondToTrialToHireTerms(
       `Professional: ${candName} | Direct Email: ${candEmail} | Work State: ${current.work_state}`,
       `W-2 Gross Pay Rate: $${current.hourly_pay_rate.toFixed(2)}/hr | Employer All-In Bill Rate (+28%): $${current.employer_bill_rate.toFixed(2)}/hr`,
       `Schedule: ${current.weekly_hours} hrs/wk | Target Start: ${current.target_start_date} | Window: 90 Days ($0 Conversion Fee)`,
-      `Screenings: Background=${current.require_background_check ? 'YES' : 'NO'}, Drug=${current.require_drug_screening ? 'YES' : 'NO'}`,
+      `Screenings: Background=${current.require_background_check ? 'YES' : 'NO'}, Drug=${current.require_drug_screening ? 'YES' : 'NO'} | WC Code: ${current.wc_code || '8810'}`,
+      profAddress ? `Onboarding Address: ${profAddress.street1}${profAddress.street2 ? ' ' + profAddress.street2 : ''}, ${profAddress.city}, ${profAddress.state} ${profAddress.postalcode}${profPhoneClean ? ' | Mobile: ' + profPhoneClean : ''}` : null,
+      bossResult ? `BOSS Partner API Sync: [${bossResult.syncStatus.toUpperCase()}] ${bossResult.summaryNote}${bossResult.errorDetail ? ' | Detail: ' + bossResult.errorDetail : ''}` : null,
       current.scope_note ? `Scope Note: ${current.scope_note}` : null,
     ].filter(Boolean).join('\n')
 
@@ -1493,8 +1595,8 @@ export async function respondToTrialToHireTerms(
       reporter_name: orgName,
       reporter_email: empEmail || 'support@specialsauce.io',
       subject: `[EOR Placement ${packetId}] ${orgName} + ${candName} (${roleTitle})`,
-      category: 'Protected 90-Day Trial-to-Hire',
-      platform_area: 'Trial-to-Hire EOR Bridge',
+      category: `Protected ${acceptTrackLabel}`,
+      platform_area: 'W-2 Contract-to-Hire EOR Bridge',
       related_ref_id: refId,
       description: orderSummary,
     })
@@ -1523,35 +1625,36 @@ export async function respondToTrialToHireTerms(
       to: 'support@specialsauce.io',
       subject: `[ACTION: EOR Placement ${packetId}] ${orgName} + ${candName}`,
       referenceId: refId,
-      heading: `New Signed 90-Day Trial-to-Hire Placement (${packetId})`,
+      heading: `New Signed ${acceptTrackLabel} Placement (${packetId})`,
       bodyLines: orderSummary.split('\n'),
       ctaUrl: '/dashboard',
       ctaLabel: 'Open Operations Queue →',
     })
   }
 
+  const empTrackLabel = current.contract_track === 'fixed_term_w2' ? `${current.duration_months || 6}-Month Fixed-Term W-2 Contract` : current.contract_track === 'open_ended_w2' ? 'Open-Ended W-2 Contract' : '90-Day W-2 Contract-to-Hire'
   if (empEmail) {
     await sendThreadEmailNotification({
       to: empEmail,
       subject:
         decision === 'accept'
-          ? `Accepted! ${candName} confirmed 90-Day W-2 Trial-to-Hire (${roleTitle})`
-          : `Update on Trial-to-Hire proposal for ${roleTitle}`,
+          ? `Accepted! ${candName} confirmed ${empTrackLabel} (${roleTitle})`
+          : `Update on W-2 Contract proposal for ${roleTitle}`,
       referenceId: refId,
       heading:
         decision === 'accept'
-          ? `90-Day W-2 Trial-to-Hire Confirmed (${packetId})`
-          : `Professional Requested Discussion on Trial Terms`,
+          ? `${empTrackLabel} Confirmed (${packetId})`
+          : `Professional Requested Discussion on W-2 Contract Terms`,
       bodyLines:
         decision === 'accept'
           ? [
-              `${candName} accepted your Protected 90-Day W-2 Trial-to-Hire for "${roleTitle}".`,
+              `${candName} accepted your Protected ${empTrackLabel} for "${roleTitle}".`,
               `• W-2 Pay Rate: $${current.hourly_pay_rate.toFixed(2)}/hr | All-In Employer Bill Rate (+28%): $${current.employer_bill_rate.toFixed(2)}/hr`,
-              `• Target Start Date: ${current.target_start_date} | Work State: ${current.work_state} | Day-90 Conversion Fee: $0`,
+              `• Target Start Date: ${current.target_start_date} | Work State: ${current.work_state} | Direct Conversion Fee: $0`,
               `Our licensed US Employer of Record partner has been notified (${packetId}) to dispatch your Client Service Agreement and ${candName}'s W-2 / I-9 onboarding packet.`,
             ]
           : [
-              `${candName} asked to discuss or adjust the proposed Trial-to-Hire terms in your Secure Thread for "${roleTitle}".`,
+              `${candName} asked to discuss or adjust the proposed W-2 contract terms in your Secure Thread for "${roleTitle}".`,
             ],
       ctaUrl: appRow.initiated_by === 'employer' ? '/dashboard/employer/pitches' : '/dashboard/employer/applications',
       ctaLabel: 'Open Secure Thread →',
@@ -1618,7 +1721,7 @@ export async function withdrawTrialToHireTerms(
             id: `sys-trial-wd-${Date.now()}`,
             sender_role: 'employer',
             sender_name: orgObj?.name || 'Verified Employer',
-            text: 'Updated / withdrew pending Trial-to-Hire offer.',
+            text: 'Updated / withdrew pending W-2 contract offer.',
             created_at: nowIso,
           },
         ],
@@ -1691,14 +1794,12 @@ export async function manageActiveW2Engagement(formData: FormData): Promise<void
     if (jobObj?.id) {
       const { data: jobMetaRow } = await adminDb
         .from('jobs')
-        .select('structured_requirements, required_skills')
+        .select('structured_requirements')
         .eq('id', jobObj.id)
         .maybeSingle()
       const sArr = Array.isArray(jobMetaRow?.structured_requirements) ? jobMetaRow.structured_requirements : []
-      const rArr = Array.isArray(jobMetaRow?.required_skills) ? jobMetaRow.required_skills : []
       const jm =
         sArr.find((x: any) => x && typeof x === 'object' && x._ss_job_meta === true) ||
-        rArr.find((x: any) => x && typeof x === 'object' && x._job_meta === true) ||
         {}
       jobEquipPolicy = String(jm?.equipment_policy || '').trim()
     }
