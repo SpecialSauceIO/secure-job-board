@@ -496,6 +496,61 @@ def cmd_verify_local(repo_dir):
     copy_clip(msg)
     print(msg)
 
+def cmd_upgrade_next(repo_dir, args):
+    br = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=str(repo_dir), capture_output=True, text=True).stdout.strip()
+    if br != "staging":
+        print("[BLOCKED] Must be on staging branch in " + repo_dir.name + " (currently on " + br + ").")
+        sys.exit(1)
+    target = args[0].strip() if args else subprocess.run(["npm", "view", "next", "version"], cwd=str(repo_dir), capture_output=True, text=True, check=True).stdout.strip()
+    if not target or "." not in target or not all(c.isalnum() or c in ".-" for c in target):
+        print("[ERROR] Invalid Next.js version resolved: " + target)
+        sys.exit(1)
+    pkg_p = repo_dir / "package.json"
+    lock_p = repo_dir / "package-lock.json"
+    orig_pkg = pkg_p.read_bytes()
+    orig_lock = lock_p.read_bytes() if lock_p.exists() else None
+    pkg = json.loads(orig_pkg.decode("utf-8"))
+    old_next = pkg.get("dependencies", {}).get("next", "")
+    old_eslint = pkg.get("devDependencies", {}).get("eslint-config-next", "")
+    if "dependencies" in pkg and "next" in pkg["dependencies"]:
+        pkg["dependencies"]["next"] = target
+    if "devDependencies" in pkg and "eslint-config-next" in pkg["devDependencies"]:
+        pkg["devDependencies"]["eslint-config-next"] = target
+    pkg_p.write_text(json.dumps(pkg, indent=2) + chr(10))
+    print("[1/3] Installing next@" + target + " + eslint-config-next@" + target + " in " + repo_dir.name + " (was " + old_next + " / " + old_eslint + ")...")
+    r_inst = subprocess.run(["npm", "install", "--no-audit", "--no-fund"], cwd=str(repo_dir), capture_output=True, text=True)
+    inst_p = repo_dir / "node_modules" / "next" / "package.json"
+    inst_next = json.loads(inst_p.read_text()).get("version", "") if inst_p.exists() else ""
+    if r_inst.returncode != 0 or inst_next != target:
+        pkg_p.write_bytes(orig_pkg)
+        if orig_lock is not None:
+            lock_p.write_bytes(orig_lock)
+        print("[AUTO-ROLLBACK] npm install failed: " + (r_inst.stderr or r_inst.stdout)[-1200:])
+        sys.exit(1)
+    print("[2/3] Running next build production verification (installed next=" + inst_next + ")...")
+    r_bld = subprocess.run(["npm", "run", "build"], cwd=str(repo_dir), capture_output=True, text=True)
+    if r_bld.returncode != 0:
+        pkg_p.write_bytes(orig_pkg)
+        if orig_lock is not None:
+            lock_p.write_bytes(orig_lock)
+        subprocess.run(["npm", "install", "--no-audit", "--no-fund"], cwd=str(repo_dir), capture_output=True, text=True)
+        print("[AUTO-ROLLBACK] next build failed: " + (r_bld.stdout[-1200:] + " " + r_bld.stderr[-1200:]))
+        sys.exit(1)
+    print("[3/3] Running npx tsc --noEmit...")
+    r_tsc = subprocess.run(["npx", "tsc", "--noEmit"], cwd=str(repo_dir), capture_output=True, text=True)
+    if r_tsc.returncode != 0:
+        pkg_p.write_bytes(orig_pkg)
+        if orig_lock is not None:
+            lock_p.write_bytes(orig_lock)
+        subprocess.run(["npm", "install", "--no-audit", "--no-fund"], cwd=str(repo_dir), capture_output=True, text=True)
+        print("[AUTO-ROLLBACK] tsc failed: " + (r_tsc.stdout + " " + r_tsc.stderr)[-1200:])
+        sys.exit(1)
+    dh = dirty_worktree_hashes(repo_dir)
+    (repo_dir / ".git" / ".ss_unverified_patch.json").write_text(json.dumps({"files": dh}, indent=2))
+    summary = "[NEXT UPGRADE READY] " + repo_dir.name + ": next " + old_next + " to " + inst_next + " | build=0 | tsc=0 | Modified: " + ", ".join(sorted(dh.keys()))
+    copy_clip(summary)
+    print(summary)
+
 def cmd_media_inspect(args):
     if not args:
         print("Usage: ss media-inspect <file_or_dir> [...]")
@@ -699,9 +754,11 @@ def main():
         cmd_doc_check(rest)
     elif cmd == "audit-copy":
         cmd_audit_copy(repo_dir, rest)
+    elif cmd == "upgrade-next":
+        cmd_upgrade_next(repo_dir, rest)
     else:
         print("Unknown ss command: " + cmd)
-        print("Allowed: clip | inspect | audit-copy | find | patch | verify-local | stage | prod | status | media-inspect | media-verify | doc-check")
+        print("Allowed: clip | inspect | audit-copy | find | patch | upgrade-next | verify-local | stage | prod | status | media-inspect | media-verify | doc-check")
         sys.exit(1)
 
 def cmd_clip(repo_dir):
