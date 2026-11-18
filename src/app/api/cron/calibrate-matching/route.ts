@@ -25,9 +25,7 @@ async function sendCalibrationAlertEmail(payload: {
   if (!resendKey) return { sent: false, reason: "Missing RESEND_API_KEY" }
 
   const fromEmail = (process.env.RESEND_FROM_EMAIL || "Special Sauce Ops <support@specialsauce.io>").trim()
-  const recipients = Array.from(
-    new Set(["support@specialsauce.io", "info@specialsauce.io", (process.env.RESEND_TEST_TO_EMAIL || "").trim()].filter(Boolean))
-  )
+  const recipients = ["support@specialsauce.io"]
 
   const rowsHtml = Object.entries(payload.results)
     .map(([tier, data]: [string, any]) => {
@@ -172,45 +170,64 @@ export async function GET(req: NextRequest) {
     let raw: any = {}
     let providerUsed = targetModel
 
-    try {
-      const chat = await groq.chat.completions.create({
-        model: targetModel,
-        temperature: 0.1,
-        max_tokens: 900,
-        response_format: { type: "json_object" },
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are the Special Sauce TrueFit Score™ v2.2 calibration evaluator across all 28 industry verticals. Evaluate the professional purely on transferable competencies, canonicalized certifications, domain alignment, tenure depth, and logistics. Return strictly JSON: {\"overall_score\": number, \"radar_data\": [{\"subject\": \"Core Competencies\", \"score\": number}, {\"subject\": \"Skill Tenure\", \"score\": number}, {\"subject\": \"Logistics & Pay\", \"score\": number}, {\"subject\": \"Industry & Creds\", \"score\": number}, {\"subject\": \"Execution & Comm.\", \"score\": number}], \"brief_analysis\": string}",
-          },
-          {
-            role: "user",
-            content:
-              "Professional Industry: " + (enrichedProf.industry_vertical || "Unspecified") +
-              " | Experience Years: " + (enrichedProf.experience_years ?? 0) +
-              " | Education: " + (enrichedProf.education_level || "Unspecified") +
-              " | Certifications: " + (enrichedProf.certifications || "None") +
-              " | Work Model Pref: " + (enrichedProf.preferred_work_model || "Any") +
-              " | Location: " + (enrichedProf.location || "US") +
-              " | Min Salary: " + (enrichedProf.min_salary_expectation ?? 0) +
-              " | Structured Skills: " + JSON.stringify(visibleSkills) +
-              " | Bio: " + (enrichedProf.bio || "") +
-              " || Job Title: " + enrichedJob.title +
-              " | Job Industry: " + (enrichedJob.industry || "Unspecified") +
-              " | Job Education Req: " + (enrichedJob.education_req || "Unspecified") +
-              " | Job Required Certs: " + (enrichedJob.required_certifications || "None") +
-              " | Job Work Model: " + (enrichedJob.work_model || "Any") +
-              " | Job Location: " + (enrichedJob.location || "US") +
-              " | Job Max Salary: " + (enrichedJob.salary_max ?? 0) +
-              " | Job Structured Reqs: " + JSON.stringify(visibleReqs),
-          },
-        ],
-      })
-      raw = JSON.parse(chat.choices[0]?.message?.content || "{}")
-    } catch (err: any) {
+    const calibMessages: Array<{ role: "system" | "user"; content: string }> = [
+      {
+        role: "system",
+        content:
+          "You are the Special Sauce TrueFit Score™ v2.2 calibration evaluator across all 28 industry verticals. Evaluate the professional purely on transferable competencies, canonicalized certifications, domain alignment, tenure depth, and logistics. Keep internal reasoning brief and output strictly valid JSON only: {\"overall_score\": number, \"radar_data\": [{\"subject\": \"Core Competencies\", \"score\": number}, {\"subject\": \"Skill Tenure\", \"score\": number}, {\"subject\": \"Logistics & Pay\", \"score\": number}, {\"subject\": \"Industry & Creds\", \"score\": number}, {\"subject\": \"Execution & Comm.\", \"score\": number}], \"brief_analysis\": string}",
+      },
+      {
+        role: "user",
+        content:
+          "Professional Industry: " + (enrichedProf.industry_vertical || "Unspecified") +
+          " | Experience Years: " + (enrichedProf.experience_years ?? 0) +
+          " | Education: " + (enrichedProf.education_level || "Unspecified") +
+          " | Certifications: " + (enrichedProf.certifications || "None") +
+          " | Work Model Pref: " + (enrichedProf.preferred_work_model || "Any") +
+          " | Location: " + (enrichedProf.location || "US") +
+          " | Min Salary: " + (enrichedProf.min_salary_expectation ?? 0) +
+          " | Structured Skills: " + JSON.stringify(visibleSkills) +
+          " | Bio: " + (enrichedProf.bio || "") +
+          " || Job Title: " + enrichedJob.title +
+          " | Job Industry: " + (enrichedJob.industry || "Unspecified") +
+          " | Job Education Req: " + (enrichedJob.education_req || "Unspecified") +
+          " | Job Required Certs: " + (enrichedJob.required_certifications || "None") +
+          " | Job Work Model: " + (enrichedJob.work_model || "Any") +
+          " | Job Location: " + (enrichedJob.location || "US") +
+          " | Job Max Salary: " + (enrichedJob.salary_max ?? 0) +
+          " | Job Structured Reqs: " + JSON.stringify(visibleReqs),
+      },
+    ]
+
+    const candidateModels = targetModel === "openai/gpt-oss-120b"
+      ? ["openai/gpt-oss-120b", "openai/gpt-oss-120b", "openai/gpt-oss-20b"]
+      : [targetModel, "openai/gpt-oss-120b"]
+
+    let lastLlmErr: any = null
+    let succeeded = false
+    for (const modelAttempt of candidateModels) {
+      try {
+        const chat = await (groq.chat.completions as any).create({
+          model: modelAttempt,
+          temperature: 0.1,
+          max_tokens: 2048,
+          reasoning_effort: "low",
+          response_format: { type: "json_object" },
+          messages: calibMessages,
+        })
+        const contentStr = (chat?.choices?.[0]?.message?.content || "").trim()
+        if (!contentStr) throw new Error("Empty JSON response from " + modelAttempt)
+        raw = JSON.parse(contentStr)
+        providerUsed = modelAttempt
+        succeeded = true
+        break
+      } catch (err: any) {
+        lastLlmErr = err
+      }
+    }
+    if (!succeeded) {
       providerUsed = "deterministic_fallback"
-      failures.push("LLM provider error on " + spec.tier + ": " + err.message)
+      failures.push("LLM provider error on " + spec.tier + ": " + (lastLlmErr?.message || "Unknown LLM failure"))
     }
 
     const ms = Date.now() - t0

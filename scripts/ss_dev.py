@@ -756,9 +756,11 @@ def main():
         cmd_audit_copy(repo_dir, rest)
     elif cmd == "upgrade-next":
         cmd_upgrade_next(repo_dir, rest)
+    elif cmd == "test-calibration":
+        cmd_test_calibration(repo_dir)
     else:
         print("Unknown ss command: " + cmd)
-        print("Allowed: clip | inspect | audit-copy | find | patch | upgrade-next | verify-local | stage | prod | status | media-inspect | media-verify | doc-check")
+        print("Allowed: clip | inspect | audit-copy | find | patch | upgrade-next | test-calibration | verify-local | stage | prod | status | media-inspect | media-verify | doc-check")
         sys.exit(1)
 
 def cmd_clip(repo_dir):
@@ -788,6 +790,48 @@ def cmd_clip(repo_dir):
         print(combined)
         copy_clip(combined)
     sys.exit(r.returncode)
+
+def cmd_test_calibration(repo_dir):
+    import urllib.request, urllib.error
+    secret = "ss_cron_459300fd7b17159ba22da7b8af2bf4026ea668ae7f7f019c"
+    for port in (3000, 3001, 3002):
+        url = "http://127.0.0.1:" + str(port) + "/api/cron/calibrate-matching?no_email=1&secret=" + secret
+        try:
+            req = urllib.request.Request(url, method="POST")
+            with urllib.request.urlopen(req, timeout=45) as resp:
+                body = json.loads(resp.read().decode("utf-8"))
+                out = "[CALIBRATION HTTP :" + str(port) + "] status=" + str(body.get("status")) + " | avg_ms=" + str(body.get("avg_latency_ms")) + " | failures=" + json.dumps(body.get("failures", [])) + " | tiers=" + json.dumps({k: (v.get("overall"), v.get("passed"), v.get("provider")) for k, v in (body.get("results") or {}).items()})
+                print(out)
+                copy_clip(out)
+                return
+        except urllib.error.URLError:
+            continue
+        except Exception as e:
+            print("[HTTP :" + str(port) + " ERROR] " + str(e))
+    env_map = {}
+    for env_name in (".env.local", ".env"):
+        ep = repo_dir / env_name
+        if ep.exists():
+            for ln in ep.read_text().splitlines():
+                if "=" in ln and not ln.strip().startswith("#"):
+                    k, v = ln.split("=", 1)
+                    env_map[k.strip()] = v.strip().strip("\"").strip("\u0027")
+    gkey = env_map.get("GROQ_API_KEY", "")
+    if not gkey:
+        msg = "[CALIBRATION ERROR] No local server listening on 3000-3002 and GROQ_API_KEY not found in .env.local"
+        print(msg)
+        copy_clip(msg)
+        sys.exit(1)
+    node_code = "const Groq = require(\u0027groq-sdk\u0027); (async () => { const g = new Groq({ apiKey: process.env.GROQ_API_KEY }); const t0 = Date.now(); const c = await g.chat.completions.create({ model: \u0027openai/gpt-oss-120b\u0027, temperature: 0.1, max_tokens: 2048, reasoning_effort: \u0027low\u0027, response_format: { type: \u0027json_object\u0027 }, messages: [{ role: \u0027system\u0027, content: \u0027You are the Special Sauce TrueFit Score v2.2 calibration evaluator. Keep internal reasoning brief and output strictly valid JSON only: {\"overall_score\": number, \"radar_data\": [{\"subject\": \"Core Competencies\", \"score\": number}, {\"subject\": \"Skill Tenure\", \"score\": number}, {\"subject\": \"Logistics & Pay\", \"score\": number}, {\"subject\": \"Industry & Creds\", \"score\": number}, {\"subject\": \"Execution & Comm.\", \"score\": number}], \"brief_analysis\": string}\u0027 }, { role: \u0027user\u0027, content: \u0027TIER_2_80 Senior AI Enablement & Knowledge Program Lead | 4 of 5 core requirements met | 8 yrs experience | US Remote\u0027 }] }); const txt = (c.choices[0]?.message?.content || \u0027\u0027).trim(); const parsed = JSON.parse(txt); console.log(JSON.stringify({ ok: true, ms: Date.now() - t0, overall_score: parsed.overall_score, finish: c.choices[0]?.finish_reason })); })().catch(e => { console.error(e.message); process.exit(1); });"
+    env = dict(os.environ, GROQ_API_KEY=gkey)
+    r = subprocess.run(["node", "-e", node_code], cwd=str(repo_dir), env=env, capture_output=True, text=True)
+    route_txt = (repo_dir / "src/app/api/cron/calibrate-matching/route.ts").read_text()
+    has_info = "info@specialsauce.io" in route_txt
+    out = "[CALIBRATION DIRECT VERIFY] rc=" + str(r.returncode) + " | info_email_present=" + str(has_info) + " | groq_tier2_json=" + (r.stdout.strip() or r.stderr.strip())
+    print(out)
+    copy_clip(out)
+    if r.returncode != 0 or has_info:
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
