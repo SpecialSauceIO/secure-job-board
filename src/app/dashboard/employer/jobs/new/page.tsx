@@ -112,6 +112,14 @@ export default function NewJobPage() {
             : prev.company_size,
           ...(hasOrgEor
             ? {
+                employment_type:
+                  orgEor.defaultContractTrack === 'trial_to_hire_90d'
+                    ? 'Contract-to-Hire'
+                    : orgEor.defaultContractTrack === 'fixed_term_w2'
+                    ? 'Contract (W-2 Fixed-Term)'
+                    : orgEor.defaultContractTrack === 'open_ended_w2'
+                    ? 'Contract (W-2 Open-Ended)'
+                    : 'Full-Time (W-2)',
                 eor_contract_track: orgEor.defaultContractTrack,
                 eor_duration_months: String(orgEor.defaultDurationMonths),
                 eor_bg_check: orgEor.defaultBgCheck,
@@ -364,42 +372,7 @@ export default function NewJobPage() {
             onChange={(loc) => setJobData((prev) => ({ ...prev, location: loc }))}
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-bold text-slate-700">
-                Employment Type
-              </label>
-              <select
-                name="employment_type"
-                value={jobData.employment_type}
-                onChange={(e) => {
-                  const nextType = e.target.value
-                  const autoTrack =
-                    nextType === 'Contract-to-Hire'
-                      ? 'trial_to_hire_90d'
-                      : nextType === 'Contract (W-2 Fixed-Term)' || nextType === 'Seasonal / Temporary'
-                      ? 'fixed_term_w2'
-                      : nextType === 'Contract (W-2 Open-Ended)'
-                      ? 'open_ended_w2'
-                      : 'none'
-                  setJobData({ ...jobData, employment_type: nextType, eor_contract_track: autoTrack })
-                }}
-                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium cursor-pointer"
-              >
-                <option value="Full-Time (W-2)">Full-Time (W-2)</option>
-                <option value="Contract-to-Hire">Contract-to-Hire (90-Day W-2 Trial)</option>
-                <option value="Contract (W-2 Fixed-Term)">Contract (W-2 Fixed-Term)</option>
-                <option value="Contract (W-2 Open-Ended)">Contract (W-2 Open-Ended / Ongoing)</option>
-                <option value="Contract (1099 / Corp-to-Corp)">
-                  Contract (1099 / Corp-to-Corp)
-                </option>
-                <option value="Part-Time">Part-Time</option>
-                <option value="Seasonal / Temporary">
-                  Seasonal / Temporary
-                </option>
-              </select>
-            </div>
-
+          <div className="max-w-md">
             <div>
               <label className="block text-sm font-bold text-slate-700">
                 Seniority / Experience Level
@@ -726,10 +699,10 @@ export default function NewJobPage() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h4 className="text-sm font-extrabold text-indigo-950">
-                  W-2 Contractor / Trial Routing &amp; Equipment Defaults
+                  Hiring Track, W-2 EOR Routing &amp; Equipment Defaults
                 </h4>
                 <p className="text-xs text-slate-600 mt-0.5">
-                  Pre-configure your third-party Employer-of-Record (EOR) W-2 track and IT equipment policy for this role. You control extensions or assignment wrap-ups directly from Manage Roles.
+                  Select the single hiring and employment track plus IT equipment policy for this role. You control extensions, direct conversions, or assignment wrap-ups directly from Manage Roles.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
@@ -747,21 +720,57 @@ export default function NewJobPage() {
               </div>
             </div>
 
+            <input type="hidden" name="employment_type" value={jobData.employment_type} />
+            <input type="hidden" name="eor_contract_track" value={jobData.eor_contract_track} />
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                  W-2 EOR Engagement Track
+                  Hiring &amp; Employment Track
                 </label>
                 <select
-                  name="eor_contract_track"
-                  value={jobData.eor_contract_track}
-                  onChange={(e) => setJobData({ ...jobData, eor_contract_track: e.target.value })}
+                  value={
+                    jobData.eor_contract_track === 'trial_to_hire_90d'
+                      ? 'eor_c2h'
+                      : jobData.eor_contract_track === 'fixed_term_w2'
+                      ? 'eor_fixed'
+                      : jobData.eor_contract_track === 'open_ended_w2'
+                      ? 'eor_open'
+                      : jobData.employment_type === 'Contract (1099 / Corp-to-Corp)'
+                      ? 'direct_1099'
+                      : jobData.employment_type === 'Part-Time'
+                      ? 'direct_part_time'
+                      : jobData.employment_type === 'Seasonal / Temporary'
+                      ? 'direct_seasonal'
+                      : 'direct_ft'
+                  }
+                  onChange={(e) => {
+                    const v = e.target.value
+                    if (v === 'eor_c2h') {
+                      setJobData({ ...jobData, employment_type: 'Contract-to-Hire', eor_contract_track: 'trial_to_hire_90d' })
+                    } else if (v === 'eor_fixed') {
+                      setJobData({ ...jobData, employment_type: 'Contract (W-2 Fixed-Term)', eor_contract_track: 'fixed_term_w2' })
+                    } else if (v === 'eor_open') {
+                      setJobData({ ...jobData, employment_type: 'Contract (W-2 Open-Ended)', eor_contract_track: 'open_ended_w2' })
+                    } else if (v === 'direct_1099') {
+                      setJobData({ ...jobData, employment_type: 'Contract (1099 / Corp-to-Corp)', eor_contract_track: 'none' })
+                    } else if (v === 'direct_part_time') {
+                      setJobData({ ...jobData, employment_type: 'Part-Time', eor_contract_track: 'none' })
+                    } else if (v === 'direct_seasonal') {
+                      setJobData({ ...jobData, employment_type: 'Seasonal / Temporary', eor_contract_track: 'none' })
+                    } else {
+                      setJobData({ ...jobData, employment_type: 'Full-Time (W-2)', eor_contract_track: 'none' })
+                    }
+                  }}
                   className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-3 text-sm font-medium cursor-pointer"
                 >
-                  <option value="none">Direct Hire Only (No Third-Party EOR Routing)</option>
-                  <option value="trial_to_hire_90d">W-2 Contract-to-Hire ($0 Conversion)</option>
-                  <option value="fixed_term_w2">Fixed-Term W-2 Contract (3–12 Months + Extend Anytime)</option>
-                  <option value="open_ended_w2">Open-Ended Ongoing W-2 Contract (Extend or End Anytime)</option>
+                  <option value="direct_ft">Direct Hire — Full-Time (W-2)</option>
+                  <option value="eor_c2h">W-2 Contract-to-Hire ($0 Conversion via EOR)</option>
+                  <option value="eor_fixed">Fixed-Term W-2 Contract (3–12 Months + Extend Anytime)</option>
+                  <option value="eor_open">Open-Ended Ongoing W-2 Contract (Extend or End Anytime)</option>
+                  <option value="direct_1099">Independent Contract (1099 / Corp-to-Corp)</option>
+                  <option value="direct_part_time">Direct Hire — Part-Time</option>
+                  <option value="direct_seasonal">Direct Hire — Seasonal / Temporary</option>
                 </select>
               </div>
 
