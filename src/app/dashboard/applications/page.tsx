@@ -547,7 +547,16 @@ export default function CandidateApplicationsPage() {
                       }
                       employerEmail={app.unlocked_employer_email || null}
                       candidateEmail={app.unlocked_candidate_email || null}
-                      initialTrialToHire={app.match_data?.trial_to_hire || null}
+                      initialTrialToHire={
+                        app.match_data?.trial_to_hire
+                          ? {
+                              ...app.match_data.trial_to_hire,
+                              employer_bill_rate: 0,
+                              po_number: null,
+                              invoice_cc_email: null,
+                            }
+                          : null
+                      }
                     />
                   )}
 

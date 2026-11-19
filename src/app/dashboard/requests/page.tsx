@@ -827,7 +827,16 @@ export default function CandidateRequestsInboxPage() {
                       }
                       employerEmail={req.unlocked_employer_email || null}
                       candidateEmail={req.unlocked_candidate_email || null}
-                      initialTrialToHire={req.match_data?.trial_to_hire || null}
+                      initialTrialToHire={
+                        req.match_data?.trial_to_hire
+                          ? {
+                              ...req.match_data.trial_to_hire,
+                              employer_bill_rate: 0,
+                              po_number: null,
+                              invoice_cc_email: null,
+                            }
+                          : null
+                      }
                     />
                   )}
 

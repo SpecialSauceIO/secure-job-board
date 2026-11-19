@@ -130,6 +130,17 @@ export default function SecureMessageThread({
   const [trialDrugCheck, setTrialDrugCheck] = useState(false)
   const [trialScopeNote, setTrialScopeNote] = useState('')
   const [trialWcCode, setTrialWcCode] = useState('8810')
+  const [legalEntityName, setLegalEntityName] = useState(initialTrialToHire?.legal_entity_name || employerName || '')
+  const [timecardApproverName, setTimecardApproverName] = useState(initialTrialToHire?.timecard_approver_name || '')
+  const [timecardApproverEmail, setTimecardApproverEmail] = useState(initialTrialToHire?.timecard_approver_email || initialEmployerEmail || '')
+  const [supervisorName, setSupervisorName] = useState(initialTrialToHire?.supervisor_name || '')
+  const [clientPoNumber, setClientPoNumber] = useState(initialTrialToHire?.po_number || '')
+  const [invoiceCcEmail, setInvoiceCcEmail] = useState(initialTrialToHire?.invoice_cc_email || '')
+  const [diffWorksite, setDiffWorksite] = useState(Boolean(initialTrialToHire?.worksite_address))
+  const [worksiteStreet1, setWorksiteStreet1] = useState(initialTrialToHire?.worksite_address?.street1 || '')
+  const [worksiteCity, setWorksiteCity] = useState(initialTrialToHire?.worksite_address?.city || '')
+  const [worksiteState, setWorksiteState] = useState(initialTrialToHire?.worksite_address?.state || initialTrialToHire?.work_state || 'TX')
+  const [worksiteZip, setWorksiteZip] = useState(initialTrialToHire?.worksite_address?.postalcode || '')
   const [empBillStreet1, setEmpBillStreet1] = useState('')
   const [empBillCity, setEmpBillCity] = useState('')
   const [empBillState, setEmpBillState] = useState('TX')
@@ -141,6 +152,7 @@ export default function SecureMessageThread({
   const [profResZip, setProfResZip] = useState('')
   const [profMobilePhone, setProfMobilePhone] = useState('')
   const [isSubmittingTrial, setIsSubmittingTrial] = useState(false)
+  const [showProfOfferModal, setShowProfOfferModal] = useState(false)
   const [pendingOfferConfirm, setPendingOfferConfirm] = useState<'propose' | 'accept' | 'decline' | 'withdraw' | null>(null)
   const [offerIntentChecked, setOfferIntentChecked] = useState(false)
   const pendingModalRef = useRef<boolean>(false)
@@ -154,11 +166,12 @@ export default function SecureMessageThread({
   }
 
   useEffect(() => {
-    pendingModalRef.current = Boolean(pendingOfferConfirm)
-    if (!pendingOfferConfirm && typeof window !== 'undefined') {
+    const anyModalOpen = Boolean(pendingOfferConfirm || showTrialDrawer || showProfOfferModal)
+    pendingModalRef.current = anyModalOpen
+    if (!anyModalOpen && typeof window !== 'undefined') {
       ;(window as unknown as { __ssNavPendingUntil?: number }).__ssNavPendingUntil = 0
     }
-  }, [pendingOfferConfirm])
+  }, [pendingOfferConfirm, showTrialDrawer, showProfOfferModal])
 
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   const prevMsgCountRef = useRef<number>(messages.length)
@@ -243,7 +256,10 @@ export default function SecureMessageThread({
         )
         if (res.candidateFullName) setCandidateFullName(res.candidateFullName)
         if (res.candidateEmail) setCandidateEmail(res.candidateEmail)
-        if (res.employerEmail) setEmployerEmail(res.employerEmail)
+        if (res.employerEmail) {
+          setEmployerEmail(res.employerEmail)
+          setTimecardApproverEmail((prev) => prev || res.orgTimecardApproverEmail || res.employerEmail || '')
+        }
         if (res.trialToHire !== undefined) {
           const nextTrial = res.trialToHire || null
           setTrialToHire((prev) => (JSON.stringify(prev) === JSON.stringify(nextTrial) ? prev : nextTrial))
@@ -256,6 +272,27 @@ export default function SecureMessageThread({
           roleDefaultsAppliedRef.current = true
           setTrialBgCheck(Boolean(res.jobEorBgCheck))
           setTrialDrugCheck(Boolean(res.jobEorDrugCheck))
+          if (!res.trialToHire) {
+            if (res.suggestedHourlyRate) setTrialPayRate(String(res.suggestedHourlyRate))
+            if (res.suggestedWeeklyHours) setTrialWeeklyHours(String(res.suggestedWeeklyHours))
+            if (res.suggestedWorkState) setTrialWorkState(res.suggestedWorkState)
+            if (res.orgLegalEntityName) setLegalEntityName(res.orgLegalEntityName)
+            if (res.orgTimecardApproverName) setTimecardApproverName((prev) => prev || res.orgTimecardApproverName || '')
+            if (res.orgTimecardApproverEmail) setTimecardApproverEmail(res.orgTimecardApproverEmail)
+            if (res.orgBillingApEmail) setInvoiceCcEmail((prev) => prev || res.orgBillingApEmail || '')
+            if (res.orgSupervisorName) setSupervisorName((prev) => prev || res.orgSupervisorName || '')
+            if (res.orgPoNumber) setClientPoNumber((prev) => prev || res.orgPoNumber || '')
+            if (res.orgWcCode) setTrialWcCode(res.orgWcCode)
+            if (res.orgBillingStreet1) setEmpBillStreet1((prev) => prev || res.orgBillingStreet1 || '')
+            if (res.orgBillingCity) setEmpBillCity((prev) => prev || res.orgBillingCity || '')
+            if (res.orgBillingState) setEmpBillState(res.orgBillingState)
+            if (res.orgBillingZip) setEmpBillZip((prev) => prev || res.orgBillingZip || '')
+            if (typeof res.orgDiffWorksite === 'boolean') setDiffWorksite(res.orgDiffWorksite)
+            if (res.orgWorksiteStreet1) setWorksiteStreet1((prev) => prev || res.orgWorksiteStreet1 || '')
+            if (res.orgWorksiteCity) setWorksiteCity((prev) => prev || res.orgWorksiteCity || '')
+            if (res.orgWorksiteState) setWorksiteState(res.orgWorksiteState)
+            if (res.orgWorksiteZip) setWorksiteZip((prev) => prev || res.orgWorksiteZip || '')
+          }
         }
         if (typeof res.employerPlanActive === 'boolean') setEmployerPlanActive(res.employerPlanActive)
       }
@@ -394,6 +431,16 @@ export default function SecureMessageThread({
       requireDrugScreening: trialDrugCheck,
       scopeNote: trialScopeNote,
       wcCode: trialWcCode,
+      legalEntityName: legalEntityName.trim(),
+      timecardApproverName: timecardApproverName.trim(),
+      timecardApproverEmail: timecardApproverEmail.trim(),
+      supervisorName: (supervisorName.trim() || timecardApproverName.trim()),
+      poNumber: clientPoNumber.trim() || undefined,
+      invoiceCcEmail: invoiceCcEmail.trim() || undefined,
+      worksiteAddress:
+        diffWorksite && worksiteStreet1.trim() && worksiteCity.trim() && worksiteZip.trim()
+          ? { street1: worksiteStreet1.trim(), city: worksiteCity.trim(), state: worksiteState || trialWorkState, postalcode: worksiteZip.trim() }
+          : undefined,
       employerAddress:
         empBillStreet1.trim() && empBillCity.trim() && empBillZip.trim()
           ? { street1: empBillStreet1.trim(), city: empBillCity.trim(), state: empBillState || trialWorkState, postalcode: empBillZip.trim() }
@@ -621,19 +668,33 @@ export default function SecureMessageThread({
                 </span>
               )}
               <span className="text-[11px] font-semibold text-slate-700">
-                Licensed US Employer of Record (W-2 payroll, I-9 &amp; Workers&apos; Comp) • $0 conversion fee
+                Licensed US Employer of Record (W-2 payroll, I-9 &amp; Workers&apos; Comp){viewerRole === 'employer' ? ' • $0 conversion fee' : ''}
               </span>
             </div>
 
             {viewerRole === 'employer' && (!trialToHire || trialToHire.status === 'declined' || trialToHire.status === 'withdrawn') && (
               employerPlanActive ? (
-                <button
-                  type="button"
-                  onClick={() => setShowTrialDrawer((prev) => !prev)}
-                  className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition-colors cursor-pointer"
-                >
-                  {showTrialDrawer ? 'Close W-2 Offer Builder' : '⚡ Optional: Propose W-2 Contract-to-Hire'}
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="hidden md:inline text-[11px] font-bold text-slate-600 bg-white/80 border border-indigo-100 rounded-md px-2 py-1">
+                    ${parsedPay.toFixed(2)}/hr W-2 (${computedBillRate.toFixed(2)}/hr all-in) • {parsedHrs} hrs/wk • {trialWorkState}
+                  </span>
+                  {parsedPay >= 15 && legalEntityName.trim().length >= 2 && timecardApproverName.trim().length >= 2 && timecardApproverEmail.trim().includes('@') && (
+                    <button
+                      type="button"
+                      onClick={() => openOfferConfirm('propose')}
+                      className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition-colors cursor-pointer"
+                    >
+                      ⚡ Review &amp; Send W-2 Offer
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowTrialDrawer(true)}
+                    className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition-colors cursor-pointer"
+                  >
+                    {legalEntityName.trim().length >= 2 && timecardApproverName.trim().length >= 2 && timecardApproverEmail.trim().includes('@') ? 'Edit Offer Details' : '⚡ Propose W-2 Offer'}
+                  </button>
+                </div>
               ) : (
                 <Link
                   href="/dashboard/billing"
@@ -645,137 +706,17 @@ export default function SecureMessageThread({
             )}
           </div>
 
-          {viewerRole === 'employer' && showTrialDrawer && employerPlanActive && (
-            <div className="p-3.5 rounded-xl bg-white border border-indigo-200 shadow-xs space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700">
-                    Professional W-2 Pay ($/hr)
-                  </label>
-                  <input
-                    type="number"
-                    min="15"
-                    max="500"
-                    step="0.5"
-                    value={trialPayRate}
-                    onChange={(e) => setTrialPayRate(e.target.value)}
-                    className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-900"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700">
-                    Est. Weekly Hours
-                  </label>
-                  <input
-                    type="number"
-                    min="10"
-                    max="60"
-                    value={trialWeeklyHours}
-                    onChange={(e) => setTrialWeeklyHours(e.target.value)}
-                    className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-900"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700">
-                    Target Start Date
-                  </label>
-                  <input
-                    type="date"
-                    value={trialStartDate}
-                    onChange={(e) => setTrialStartDate(e.target.value)}
-                    className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-900"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700">
-                    Work State (W-2)
-                  </label>
-                  <select
-                    value={trialWorkState}
-                    onChange={(e) => setTrialWorkState(e.target.value)}
-                    className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-900 cursor-pointer"
-                  >
-                    {US_STATES.map((st) => (
-                      <option key={st} value={st}>{st}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-700">
-                <label className="inline-flex items-center gap-1.5 font-semibold cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={trialBgCheck}
-                    onChange={(e) => setTrialBgCheck(e.target.checked)}
-                    className="rounded border-slate-300 text-indigo-600"
-                  />
-                  Include Standard Background Check
-                </label>
-                <label className="inline-flex items-center gap-1.5 font-semibold cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={trialDrugCheck}
-                    onChange={(e) => setTrialDrugCheck(e.target.checked)}
-                    className="rounded border-slate-300 text-indigo-600"
-                  />
-                  Include Drug Screening
-                </label>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
-                <input type="text" maxLength={120} value={empBillStreet1} onChange={(e) => setEmpBillStreet1(e.target.value)} placeholder="Company Billing Street (optional)" className="sm:col-span-2 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
-                <input type="text" maxLength={80} value={empBillCity} onChange={(e) => setEmpBillCity(e.target.value)} placeholder="City" className="block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
-                <div className="grid grid-cols-2 gap-1.5">
-                  <input type="text" maxLength={16} value={empBillZip} onChange={(e) => setEmpBillZip(e.target.value)} placeholder="ZIP" className="block w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
-                  <input type="text" maxLength={10} value={trialWcCode} onChange={(e) => setTrialWcCode(e.target.value)} title="Workers Comp Code (default 8810 Clerical/Tech)" placeholder="WC 8810" className="block w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
-                </div>
-              </div>
-
-              <div>
-                <input
-                  type="text"
-                  maxLength={400}
-                  value={trialScopeNote}
-                  onChange={(e) => setTrialScopeNote(e.target.value)}
-                  placeholder="Optional contract-to-hire milestones, schedule notes, or direct conversion target salary..."
-                  className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400"
-                />
-              </div>
-
-              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
-                <div className="space-y-0.5">
-                  <p className="font-extrabold text-slate-900">
-                    All-In Employer Rate (+28%): ${computedBillRate.toFixed(2)}/hr{' '}
-                    <span className="font-semibold text-slate-500">
-                      (Est. ${(computedBillRate * parsedHrs).toLocaleString('en-US', { maximumFractionDigits: 0 })}/wk)
-                    </span>
-                  </p>
-                  <p className="text-[11px] text-emerald-700 font-bold">
-                    Saves ~${est90DaySavings.toLocaleString('en-US')} over 90 days vs. 55% staffing agency markup (${agencyBillRate.toFixed(2)}/hr) + $0 buyout fee at Day 90
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  disabled={isSubmittingTrial || parsedPay < 15}
-                  onClick={() => openOfferConfirm('propose')}
-                  className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
-                >
-                  {isSubmittingTrial ? 'Sending Offer...' : jobEorTrack === 'fixed_term_w2' ? `Send ${jobEorDurationMonths}-Month W-2 Contract Offer` : jobEorTrack === 'open_ended_w2' ? 'Send Open-Ended W-2 Contract Offer' : 'Send W-2 Contract-to-Hire Offer'}
-                </button>
-              </div>
-            </div>
-          )}
-
           {trialToHire && trialToHire.status === 'proposed' && (
             <div className="p-3.5 rounded-xl bg-white border-2 border-indigo-300 shadow-xs space-y-2.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-xs font-extrabold text-indigo-950">
                   📋 Pending {trialToHire.contract_track === 'fixed_term_w2' ? `${trialToHire.duration_months || 6}-Month W-2 Contract` : trialToHire.contract_track === 'open_ended_w2' ? 'Open-Ended W-2 Contract' : 'W-2 Contract-to-Hire'} Offer • ${trialToHire.hourly_pay_rate.toFixed(2)}/hr Gross W-2 ({trialToHire.weekly_hours} hrs/wk)
                 </span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">
-                  $0 Direct Hire Conversion
-                </span>
+                {viewerRole === 'employer' && (
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">
+                    $0 Direct Hire Conversion
+                  </span>
+                )}
               </div>
               <p className="text-xs text-slate-700">
                 <strong>Target Start:</strong> {trialToHire.target_start_date} • <strong>Work State:</strong> {trialToHire.work_state}
@@ -798,35 +739,42 @@ export default function SecureMessageThread({
                 </p>
               )}
               {viewerRole !== 'employer' ? (
-                <div className="flex flex-wrap items-center gap-2 pt-1">
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                  <span className="text-[11px] font-semibold text-slate-600">
+                    Inspect hiring entity, supervisor, equipment, worksite, and W-2 terms to approve or request changes.
+                  </span>
                   <button
                     type="button"
                     disabled={isSubmittingTrial}
-                    onClick={() => openOfferConfirm('accept')}
-                    className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
+                    onClick={() => {
+                      setOfferIntentChecked(false)
+                      setShowProfOfferModal(true)
+                    }}
+                    className="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
                   >
-                    {isSubmittingTrial ? 'Confirming...' : '✅ Accept W-2 Offer & Start Onboarding'}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={isSubmittingTrial}
-                    onClick={() => openOfferConfirm('decline')}
-                    className="px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
-                  >
-                    Discuss / Adjust in Chat
+                    📋 Review Full W-2 Offer →
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center justify-between gap-2 pt-1 text-[11px] text-slate-500">
-                  <span>Awaiting Professional confirmation in thread.</span>
-                  <button
-                    type="button"
-                    disabled={isSubmittingTrial}
-                    onClick={() => openOfferConfirm('withdraw')}
-                    className="text-indigo-700 hover:underline font-bold cursor-pointer"
-                  >
-                    Modify or Withdraw Offer
-                  </button>
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-slate-500">
+                  <span>Awaiting Professional review &amp; approval.</span>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowProfOfferModal(true)}
+                      className="text-slate-700 hover:underline font-bold cursor-pointer"
+                    >
+                      Preview Offer Sheet
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isSubmittingTrial}
+                      onClick={() => openOfferConfirm('withdraw')}
+                      className="text-indigo-700 hover:underline font-bold cursor-pointer"
+                    >
+                      Modify or Withdraw Offer
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -837,7 +785,7 @@ export default function SecureMessageThread({
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-xs font-extrabold text-emerald-950">
                   {trialToHire.status === 'converted_direct'
-                    ? '🎉 Converted to Direct W-2 Hire ($0 Conversion Fee)'
+                    ? viewerRole === 'employer' ? '🎉 Converted to Direct W-2 Hire ($0 Conversion Fee)' : '🎉 Converted to Direct Full-Time W-2 Hire'
                     : trialToHire.status === 'ended'
                     ? `📋 W-2 Assignment Wrapped Up${trialToHire.equipment_return_status === 'return_requested' ? ' • Hardware Return Pending' : ''}`
                     : `✅ Active W-2 Engagement Confirmed (${trialToHire.eor_packet_id || 'EOR Queued'})${trialToHire.extension_count ? ` • +${trialToHire.extension_count * 90}d Extended` : ''}`}
@@ -849,7 +797,7 @@ export default function SecureMessageThread({
               <p className="text-xs text-emerald-900 leading-relaxed">
                 {viewerRole === 'employer'
                   ? `All-in Employer rate locked at $${trialToHire.employer_bill_rate.toFixed(2)}/hr (+28% statutory W-2 burden) with a $0 conversion fee.`
-                  : `Your W-2 gross pay rate of $${trialToHire.hourly_pay_rate.toFixed(2)}/hr is locked with $0 conversion fees through our licensed US Employer of Record partner.`}
+                  : `Your W-2 gross pay rate of $${trialToHire.hourly_pay_rate.toFixed(2)}/hr is locked with statutory W-2 payroll, direct deposit, and Workers' Comp protection through our licensed US Employer of Record partner.`}
               </p>
               {trialToHire.boss_sync_status && (
                 <div className="flex flex-wrap items-center gap-2 pt-0.5 text-[11px]">
@@ -860,14 +808,23 @@ export default function SecureMessageThread({
                   </span>
                 </div>
               )}
-              {viewerRole === 'employer' && (
-                <a
-                  href="/dashboard/employer/jobs"
-                  className="inline-flex items-center gap-1 text-[11px] font-extrabold text-indigo-700 hover:text-indigo-900 underline pt-0.5"
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+                <button
+                  type="button"
+                  onClick={() => setShowProfOfferModal(true)}
+                  className="text-[11px] font-extrabold text-emerald-900 hover:underline cursor-pointer"
                 >
-                  Manage Contract Extensions, $0 Direct Conversion &amp; Equipment Return in Manage Roles →
-                </a>
-              )}
+                  View Full W-2 Offer Sheet →
+                </button>
+                {viewerRole === 'employer' && (
+                  <a
+                    href="/dashboard/employer/jobs"
+                    className="inline-flex items-center gap-1 text-[11px] font-extrabold text-indigo-700 hover:text-indigo-900 underline"
+                  >
+                    Manage Contract Extensions, $0 Direct Conversion &amp; Equipment Return in Manage Roles →
+                  </a>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -1008,12 +965,14 @@ export default function SecureMessageThread({
             <div className="rounded-xl bg-slate-50 border border-slate-200 p-3.5 text-xs space-y-1">
               {pendingOfferConfirm === 'propose' ? (
                 <>
+                  <p className="text-slate-700"><strong className="text-slate-900">Legal Entity:</strong> {legalEntityName.trim()} • <strong className="text-slate-900">Approver:</strong> {timecardApproverName.trim()}</p>
                   <p className="text-slate-700"><strong className="text-slate-900">W-2 Gross Pay:</strong> ${parsedPay.toFixed(2)}/hr ({parsedHrs} hrs/wk)</p>
-                  <p className="text-slate-700"><strong className="text-slate-900">All-In Employer Rate (+28%):</strong> ${computedBillRate.toFixed(2)}/hr</p>
-                  <p className="text-slate-700"><strong className="text-slate-900">Target Start &amp; State:</strong> {trialStartDate} ({trialWorkState})</p>
+                  <p className="text-slate-700"><strong className="text-slate-900">All-In Employer Rate (+28%):</strong> ${computedBillRate.toFixed(2)}/hr{clientPoNumber.trim() ? ` • PO: ${clientPoNumber.trim()}` : ''}</p>
+                  <p className="text-slate-700"><strong className="text-slate-900">Target Start &amp; State:</strong> {trialStartDate} ({trialWorkState}) • Net 15 EOR Billing</p>
                 </>
               ) : trialToHire ? (
                 <>
+                  {trialToHire.legal_entity_name && <p className="text-slate-700"><strong className="text-slate-900">Employer Entity:</strong> {trialToHire.legal_entity_name}</p>}
                   <p className="text-slate-700"><strong className="text-slate-900">W-2 Gross Pay:</strong> ${trialToHire.hourly_pay_rate.toFixed(2)}/hr ({trialToHire.weekly_hours} hrs/wk)</p>
                   {viewerRole === 'employer' && <p className="text-slate-700"><strong className="text-slate-900">All-In Employer Rate (+28%):</strong> ${trialToHire.employer_bill_rate.toFixed(2)}/hr</p>}
                   <p className="text-slate-700"><strong className="text-slate-900">Target Start &amp; State:</strong> {trialToHire.target_start_date} ({trialToHire.work_state})</p>
@@ -1025,6 +984,9 @@ export default function SecureMessageThread({
               <div className="rounded-xl border border-slate-200 bg-white p-3 space-y-2">
                 <p className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wide">
                   W-2 &amp; I-9 Residential Onboarding Address (Required by US EOR Partner)
+                </p>
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  Our licensed US Employer of Record partner will email your secure onboarding link for federal/state W-4 tax withholding, Form I-9 work authorization, direct deposit setup, and weekly electronic timesheets.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <input type="text" maxLength={120} value={profResStreet1} onChange={(e) => setProfResStreet1(e.target.value)} placeholder="Residential Street Address *" className="sm:col-span-2 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
@@ -1101,6 +1063,416 @@ export default function SecureMessageThread({
                   : 'Confirm & Withdraw Offer'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {viewerRole === 'employer' && showTrialDrawer && employerPlanActive && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4" role="dialog" aria-modal="true">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white border border-slate-200 shadow-2xl p-5 space-y-4">
+            <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3">
+              <div>
+                <h4 className="text-sm font-extrabold text-slate-900">
+                  Protected W-2 Offer Details
+                </h4>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Pre-filled from your Company Profile and Protected Role settings. Update Company Profile defaults anytime in{' '}
+                  <Link href="/dashboard/employer/organization" className="text-indigo-600 font-bold hover:underline">
+                    Organization Settings
+                  </Link>.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowTrialDrawer(false)}
+                className="px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700">
+                  Professional W-2 Pay ($/hr)
+                </label>
+                <input
+                  type="number"
+                  min="15"
+                  max="500"
+                  step="0.5"
+                  value={trialPayRate}
+                  onChange={(e) => setTrialPayRate(e.target.value)}
+                  className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-900"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700">
+                  Est. Weekly Hours
+                </label>
+                <input
+                  type="number"
+                  min="10"
+                  max="60"
+                  value={trialWeeklyHours}
+                  onChange={(e) => setTrialWeeklyHours(e.target.value)}
+                  className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-900"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700">
+                  Target Start Date
+                </label>
+                <input
+                  type="date"
+                  value={trialStartDate}
+                  onChange={(e) => setTrialStartDate(e.target.value)}
+                  className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-900"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700">
+                  Work State (W-2)
+                </label>
+                <select
+                  value={trialWorkState}
+                  onChange={(e) => setTrialWorkState(e.target.value)}
+                  className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-900 cursor-pointer"
+                >
+                  {US_STATES.map((st) => (
+                    <option key={st} value={st}>{st}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-700">
+              <label className="inline-flex items-center gap-1.5 font-semibold cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={trialBgCheck}
+                  onChange={(e) => setTrialBgCheck(e.target.checked)}
+                  className="rounded border-slate-300 text-indigo-600"
+                />
+                Include Standard Background Check
+              </label>
+              <label className="inline-flex items-center gap-1.5 font-semibold cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={trialDrugCheck}
+                  onChange={(e) => setTrialDrugCheck(e.target.checked)}
+                  className="rounded border-slate-300 text-indigo-600"
+                />
+                Include Drug Screening
+              </label>
+            </div>
+
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 space-y-2.5">
+              <p className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wide">
+                Employer of Record Contract &amp; Company Billing
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <input type="text" maxLength={128} value={legalEntityName} onChange={(e) => setLegalEntityName(e.target.value)} placeholder="Exact Legal Entity Name (not DBA) *" className="block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                <input type="text" maxLength={100} value={timecardApproverName} onChange={(e) => setTimecardApproverName(e.target.value)} placeholder="Timecard Approver Full Name *" className="block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                <input type="email" maxLength={140} value={timecardApproverEmail} onChange={(e) => setTimecardApproverEmail(e.target.value)} placeholder="Timecard Approver Work Email *" className="block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <input type="text" maxLength={100} value={supervisorName} onChange={(e) => setSupervisorName(e.target.value)} placeholder="Day-to-Day Supervisor (if different)" className="block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                <input type="text" maxLength={64} value={clientPoNumber} onChange={(e) => setClientPoNumber(e.target.value)} placeholder="Internal PO Number (optional)" className="block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                <input type="email" maxLength={140} value={invoiceCcEmail} onChange={(e) => setInvoiceCcEmail(e.target.value)} placeholder="AP / Invoice CC Email (optional)" className="block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                <input type="text" maxLength={120} value={empBillStreet1} onChange={(e) => setEmpBillStreet1(e.target.value)} placeholder="Company Billing Street" className="sm:col-span-2 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                <input type="text" maxLength={80} value={empBillCity} onChange={(e) => setEmpBillCity(e.target.value)} placeholder="Billing City" className="block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                <div className="grid grid-cols-3 gap-1.5">
+                  <select value={empBillState} onChange={(e) => setEmpBillState(e.target.value)} className="block w-full rounded-lg border border-slate-300 bg-white px-1 py-1.5 text-xs text-slate-900">
+                    {US_STATES.map((st) => (<option key={st} value={st}>{st}</option>))}
+                  </select>
+                  <input type="text" maxLength={16} value={empBillZip} onChange={(e) => setEmpBillZip(e.target.value)} placeholder="ZIP" className="block w-full rounded-lg border border-slate-300 bg-white px-1.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                  <input type="text" maxLength={10} value={trialWcCode} onChange={(e) => setTrialWcCode(e.target.value)} title="Workers Comp Code (default 8810 Clerical/Tech)" placeholder="8810" className="block w-full rounded-lg border border-slate-300 bg-white px-1.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                </div>
+              </div>
+              <label className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-700 cursor-pointer pt-0.5">
+                <input type="checkbox" checked={diffWorksite} onChange={(e) => setDiffWorksite(e.target.checked)} className="rounded border-slate-300 text-indigo-600" />
+                On-site or hybrid worksite address differs from company billing address
+              </label>
+              {diffWorksite && (
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 pt-0.5">
+                  <input type="text" maxLength={120} value={worksiteStreet1} onChange={(e) => setWorksiteStreet1(e.target.value)} placeholder="Physical Worksite Street *" className="sm:col-span-2 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                  <input type="text" maxLength={80} value={worksiteCity} onChange={(e) => setWorksiteCity(e.target.value)} placeholder="Worksite City *" className="block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <select value={worksiteState} onChange={(e) => setWorksiteState(e.target.value)} className="block w-full rounded-lg border border-slate-300 bg-white px-1.5 py-1.5 text-xs text-slate-900">
+                      {US_STATES.map((st) => (<option key={st} value={st}>{st}</option>))}
+                    </select>
+                    <input type="text" maxLength={16} value={worksiteZip} onChange={(e) => setWorksiteZip(e.target.value)} placeholder="ZIP *" className="block w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <input
+                type="text"
+                maxLength={400}
+                value={trialScopeNote}
+                onChange={(e) => setTrialScopeNote(e.target.value)}
+                placeholder="Optional contract-to-hire milestones, schedule notes, or direct conversion target salary..."
+                className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400"
+              />
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="space-y-0.5">
+                <p className="font-extrabold text-slate-900">
+                  All-In Employer Rate (+28%): ${computedBillRate.toFixed(2)}/hr{' '}
+                  <span className="font-semibold text-slate-500">
+                    (Est. ${(computedBillRate * parsedHrs).toLocaleString('en-US', { maximumFractionDigits: 0 })}/wk)
+                  </span>
+                </p>
+                <p className="text-[11px] text-emerald-700 font-bold">
+                  Saves ~${est90DaySavings.toLocaleString('en-US')} over 90 days vs. 55% staffing agency markup (${agencyBillRate.toFixed(2)}/hr) + $0 buyout fee at Day 90
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowTrialDrawer(false)}
+                  className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                >
+                  Done
+                </button>
+                <button
+                  type="button"
+                  disabled={isSubmittingTrial || parsedPay < 15 || legalEntityName.trim().length < 2 || timecardApproverName.trim().length < 2 || !timecardApproverEmail.trim().includes('@')}
+                  title={legalEntityName.trim().length < 2 || timecardApproverName.trim().length < 2 || !timecardApproverEmail.trim().includes('@') ? 'Enter Exact Legal Entity Name and Timecard Approver Name/Email first' : undefined}
+                  onClick={() => {
+                    setShowTrialDrawer(false)
+                    openOfferConfirm('propose')
+                  }}
+                  className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmittingTrial ? 'Sending Offer...' : jobEorTrack === 'fixed_term_w2' ? `Review & Send ${jobEorDurationMonths}-Mo Offer` : jobEorTrack === 'open_ended_w2' ? 'Review & Send Open-Ended Offer' : 'Review & Send W-2 Offer'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showProfOfferModal && trialToHire && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/65 backdrop-blur-xs p-4" role="dialog" aria-modal="true">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white border border-slate-200 shadow-2xl p-5 space-y-4">
+            <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3">
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-extrabold uppercase tracking-wide">
+                    {trialToHire.contract_track === 'fixed_term_w2'
+                      ? `${trialToHire.duration_months || 6}-Month Fixed-Term W-2 Contract`
+                      : trialToHire.contract_track === 'open_ended_w2'
+                      ? 'Open-Ended W-2 Contract'
+                      : '90-Day W-2 Contract-to-Hire'}
+                  </span>
+                  {viewerRole === 'employer' && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">
+                      $0 Direct Hire Conversion Fee
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-base font-black text-slate-900">
+                  Protected W-2 Contract Offer Sheet
+                </h3>
+                <p className="text-xs text-slate-600">
+                  Review every compensation, supervision, worksite, equipment, and Employer of Record protection detail below.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowProfOfferModal(false)}
+                className="px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 rounded-xl bg-indigo-50/70 border border-indigo-200 p-3.5">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Gross W-2 Pay</p>
+                <p className="text-sm font-black text-slate-900 mt-0.5">${trialToHire.hourly_pay_rate.toFixed(2)}/hr</p>
+                <p className="text-[11px] font-semibold text-emerald-700">
+                  ~${(trialToHire.hourly_pay_rate * trialToHire.weekly_hours).toLocaleString('en-US', { maximumFractionDigits: 0 })}/wk gross
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Est. Weekly Hours</p>
+                <p className="text-sm font-black text-slate-900 mt-0.5">{trialToHire.weekly_hours} hrs/wk</p>
+                <p className="text-[11px] text-slate-600">Electronic weekly timecards</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Target Start Date</p>
+                <p className="text-sm font-black text-slate-900 mt-0.5">{trialToHire.target_start_date}</p>
+                <p className="text-[11px] text-slate-600">Pending W-4 &amp; I-9 completion</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">W-2 Work State</p>
+                <p className="text-sm font-black text-slate-900 mt-0.5">{trialToHire.work_state}</p>
+                <p className="text-[11px] text-slate-600">WC Class {trialToHire.wc_code || '8810'}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 space-y-2">
+                <p className="text-[11px] font-extrabold uppercase tracking-wide text-slate-800">
+                  Hiring Company &amp; Supervision
+                </p>
+                <div className="space-y-1 text-slate-700">
+                  <p><strong className="text-slate-900">Hiring Legal Entity:</strong> {trialToHire.legal_entity_name || employerName}</p>
+                  <p><strong className="text-slate-900">Day-to-Day Supervisor:</strong> {trialToHire.supervisor_name || trialToHire.timecard_approver_name || 'Assigned Hiring Lead'}</p>
+                  <p>
+                    <strong className="text-slate-900">Timecard Approver:</strong>{' '}
+                    {trialToHire.timecard_approver_name || 'Verified Hiring Manager'}
+                    {trialToHire.timecard_approver_email ? ` (${trialToHire.timecard_approver_email})` : ''}
+                  </p>
+                  {trialToHire.employer_address?.city && (
+                    <p>
+                      <strong className="text-slate-900">Company Location:</strong>{' '}
+                      {[trialToHire.employer_address.street1, trialToHire.employer_address.city, trialToHire.employer_address.state, trialToHire.employer_address.postalcode].filter(Boolean).join(', ')}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 space-y-2">
+                <p className="text-[11px] font-extrabold uppercase tracking-wide text-slate-800">
+                  Worksite, Equipment &amp; Screenings
+                </p>
+                <div className="space-y-1 text-slate-700">
+                  <p>
+                    <strong className="text-slate-900">Worksite Arrangement:</strong>{' '}
+                    {trialToHire.worksite_address?.street1
+                      ? `${trialToHire.worksite_address.street1}, ${trialToHire.worksite_address.city}, ${trialToHire.worksite_address.state} ${trialToHire.worksite_address.postalcode}`
+                      : `Remote / Standard Work State (${trialToHire.work_state})`}
+                  </p>
+                  <p>
+                    <strong className="text-slate-900">Equipment &amp; Access:</strong>{' '}
+                    {trialToHire.equipment_policy || jobEquipmentPolicy || 'Standard Role Setup'}
+                  </p>
+                  {trialToHire.equipment_notes && (
+                    <p>
+                      <strong className="text-slate-900">Equipment Notes:</strong>{' '}
+                      {trialToHire.equipment_notes}
+                    </p>
+                  )}
+                  <p>
+                    <strong className="text-slate-900">Pre-Hire Screenings:</strong>{' '}
+                    {[
+                      trialToHire.require_background_check ? 'Standard Background Check' : null,
+                      trialToHire.require_drug_screening ? 'Drug Screening' : null,
+                    ].filter(Boolean).join(' + ') || 'None Required'}
+                  </p>
+                  <p>
+                    <strong className="text-slate-900">W-2 EOR Protection:</strong>{' '}
+                    {viewerRole === 'employer'
+                      ? "Statutory W-2 payroll, direct deposit, Workers' Comp & $0 buyout conversion"
+                      : "Statutory W-2 payroll, direct deposit & Workers' Comp coverage"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs space-y-1">
+              <p className="text-[11px] font-extrabold uppercase tracking-wide text-slate-800">
+                {viewerRole === 'employer' ? 'Milestones, Schedule & Conversion Notes' : 'Milestones & Schedule Notes'}
+              </p>
+              <p className="text-slate-700 leading-relaxed">
+                {trialToHire.scope_note
+                  ? trialToHire.scope_note
+                  : viewerRole === 'employer'
+                  ? 'Standard full W-2 engagement terms apply with $0 direct conversion fee upon mutual agreement.'
+                  : 'Standard full W-2 engagement terms apply with mutual direct full-time transition eligibility.'}
+              </p>
+            </div>
+
+            {viewerRole !== 'employer' && trialToHire.status === 'proposed' ? (
+              <div className="space-y-3 pt-1 border-t border-slate-100">
+                <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 space-y-2">
+                  <p className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wide">
+                    Your W-2 &amp; I-9 Residential Onboarding Address (Required to Approve)
+                  </p>
+                  <p className="text-[11px] text-slate-600 leading-relaxed">
+                    Our licensed US Employer of Record partner uses this residential address solely to provision your federal/state W-4 tax withholding, Form I-9 verification, and direct deposit onboarding packet.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input type="text" maxLength={120} value={profResStreet1} onChange={(e) => setProfResStreet1(e.target.value)} placeholder="Residential Street Address *" className="sm:col-span-2 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                    <input type="text" maxLength={80} value={profResStreet2} onChange={(e) => setProfResStreet2(e.target.value)} placeholder="Apt / Suite" className="block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <input type="text" maxLength={80} value={profResCity} onChange={(e) => setProfResCity(e.target.value)} placeholder="City *" className="col-span-2 sm:col-span-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                    <select value={profResState} onChange={(e) => setProfResState(e.target.value)} className="block w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs text-slate-900">
+                      {US_STATES.map((st) => (<option key={st} value={st}>{st}</option>))}
+                    </select>
+                    <input type="text" maxLength={16} value={profResZip} onChange={(e) => setProfResZip(e.target.value)} placeholder="ZIP *" className="block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                    <input type="tel" maxLength={24} value={profMobilePhone} onChange={(e) => setProfMobilePhone(e.target.value)} placeholder="Mobile (optional)" className="col-span-2 sm:col-span-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
+                  </div>
+                </div>
+
+                <label className="flex items-start gap-2.5 rounded-xl border-2 border-indigo-200 bg-indigo-50/50 p-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={offerIntentChecked}
+                    onChange={(e) => setOfferIntentChecked(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  />
+                  <span className="text-xs font-bold text-slate-900 leading-snug">
+                    I have reviewed all W-2 contract details above and confirm I want to approve this offer at ${trialToHire.hourly_pay_rate.toFixed(2)}/hr gross W-2 and begin Employer of Record onboarding.
+                  </span>
+                </label>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                  <button
+                    type="button"
+                    disabled={isSubmittingTrial}
+                    onClick={() => {
+                      setShowProfOfferModal(false)
+                      openOfferConfirm('decline')
+                    }}
+                    className="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 cursor-pointer disabled:opacity-50">
+                    Discuss / Request Adjustment in Chat
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowProfOfferModal(false)}
+                      className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer">
+                      Close
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!offerIntentChecked || isSubmittingTrial || !profResStreet1.trim() || !profResCity.trim() || !profResZip.trim()}
+                      onClick={async () => {
+                        setShowProfOfferModal(false)
+                        setOfferIntentChecked(false)
+                        await handleRespondTrial('accept')
+                      }}
+                      className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-colors ${
+                        !offerIntentChecked || isSubmittingTrial || !profResStreet1.trim() || !profResCity.trim() || !profResZip.trim()
+                          ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                          : 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer'
+                      }`}>
+                      {isSubmittingTrial ? 'Confirming...' : '✅ Approve W-2 Offer & Start Onboarding'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex justify-end pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowProfOfferModal(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold cursor-pointer">
+                  Close Offer Sheet
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

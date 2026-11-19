@@ -6,6 +6,7 @@ import { revalidatePath, unstable_noStore as noStore } from 'next/cache'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
 import { pushToOpsControlPlane } from '@/lib/ops-bridge'
 import { submitBossW2PlacementHandoff, type EorPostalAddress } from '@/lib/boss-eor'
+import { parseEorConfigFromDescription } from '@/lib/eor-config'
 import { inspectStage1TextForContactLeakOrInjection, raiseSecurityAlertAndFlag, recordHandshakeTelemetry } from '@/lib/security-telemetry'
 
 const MAX_SILENT_UNLOCKS = 5
@@ -45,6 +46,13 @@ export interface TrialToHireHandshake {
   responded_at?: string | null
   eor_packet_id?: string | null
   wc_code?: string | null
+  legal_entity_name?: string | null
+  timecard_approver_name?: string | null
+  timecard_approver_email?: string | null
+  supervisor_name?: string | null
+  po_number?: string | null
+  invoice_cc_email?: string | null
+  worksite_address?: EorPostalAddress | null
   employer_address?: EorPostalAddress | null
   professional_address?: EorPostalAddress | null
   professional_phone?: string | null
@@ -996,6 +1004,25 @@ export async function getApplicationThreadState(
   jobEquipmentNotes?: string | null
   jobEorBgCheck?: boolean
   jobEorDrugCheck?: boolean
+  suggestedHourlyRate?: number
+  suggestedWeeklyHours?: number
+  suggestedWorkState?: string
+  orgLegalEntityName?: string
+  orgTimecardApproverName?: string
+  orgTimecardApproverEmail?: string
+  orgBillingApEmail?: string
+  orgSupervisorName?: string
+  orgPoNumber?: string
+  orgBillingStreet1?: string
+  orgBillingCity?: string
+  orgBillingState?: string
+  orgBillingZip?: string
+  orgWcCode?: string
+  orgDiffWorksite?: boolean
+  orgWorksiteStreet1?: string
+  orgWorksiteCity?: string
+  orgWorksiteState?: string
+  orgWorksiteZip?: string
   employerPlanActive?: boolean
   error?: string
 }> {
@@ -1017,7 +1044,7 @@ export async function getApplicationThreadState(
   const adminDb = getAdminSupabaseClient() || supabase
   const { data: appRow, error } = await adminDb
     .from('applications')
-    .select('id, candidate_id, is_revealed, status, match_data, jobs (title, employer_id, organization_id, structured_requirements, organizations:organization_id (subscription_tier, description))')
+    .select('id, candidate_id, is_revealed, status, match_data, jobs (title, employer_id, organization_id, salary_min, salary_max, location, structured_requirements, organizations:organization_id (name, subscription_tier, description))')
     .eq('id', applicationId)
     .single()
 
@@ -1093,11 +1120,22 @@ export async function getApplicationThreadState(
   const jobSkillsArr = Array.isArray(threadJobObj?.required_skills) ? threadJobObj.required_skills : []
   const metaItem = structArr.find((x: any) => x && typeof x === 'object' && x._ss_job_meta === true) || jobSkillsArr.find((x: any) => x && typeof x === 'object' && x._job_meta === true) || jobSkillsArr.find((x: any) => x && typeof x === 'object' && x.employment_type) || {}
   const empTypeStr = String(metaItem?.employment_type || '')
-  const resolvedTrack = metaItem?.eor_contract_track && metaItem.eor_contract_track !== 'none' ? String(metaItem.eor_contract_track) : empTypeStr === 'Contract (W-2 Fixed-Term)' || empTypeStr === 'Seasonal / Temporary' ? 'fixed_term_w2' : empTypeStr === 'Contract (W-2 Open-Ended)' ? 'open_ended_w2' : 'trial_to_hire_90d'
   const jobOrgObj: any = Array.isArray(threadJobObj?.organizations) ? threadJobObj.organizations[0] : threadJobObj?.organizations
+  const orgEorCfg = parseEorConfigFromDescription(jobOrgObj?.description)
+  const resolvedTrack = metaItem?.eor_contract_track && metaItem.eor_contract_track !== 'none' ? String(metaItem.eor_contract_track) : orgEorCfg.defaultContractTrack !== 'none' ? orgEorCfg.defaultContractTrack : empTypeStr === 'Contract (W-2 Fixed-Term)' || empTypeStr === 'Seasonal / Temporary' ? 'fixed_term_w2' : empTypeStr === 'Contract (W-2 Open-Ended)' ? 'open_ended_w2' : 'trial_to_hire_90d'
   const descTierMatch = String(jobOrgObj?.description || '').match(/\[TIER:(free|starter|growth|enterprise)\]/i)
   const subTier = (descTierMatch ? descTierMatch[1] : String(jobOrgObj?.subscription_tier || '')).toLowerCase().trim()
   const employerPlanActive = ['starter', 'growth', 'enterprise'].includes(subTier)
+  const rawSalMin = Number(threadJobObj?.salary_min) || 0
+  const rawSalMax = Number(threadJobObj?.salary_max) || 0
+  const isHourlyJob = metaItem?.pay_type === 'hourly' || (rawSalMax > 0 && rawSalMax <= 500)
+  const midComp = rawSalMin > 0 && rawSalMax > 0 ? (rawSalMin + rawSalMax) / 2 : rawSalMax || rawSalMin
+  const computedHourly = midComp > 0 ? (isHourlyJob ? midComp : midComp / 2080) : 65
+  const suggestedHourlyRate = Math.min(500, Math.max(15, Math.round(computedHourly * 2) / 2))
+  const suggestedWeeklyHours = empTypeStr.toLowerCase().includes('part-time') ? 20 : 40
+  const locStr = String(metaItem?.location || threadJobObj?.location || '')
+  const stMatch = locStr.match(/,\s*([A-Z]{2})\b/) || locStr.toUpperCase().match(/\b(AL|AK|AZ|AR|CA|CO|CT|DE|DC|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b/)
+  const suggestedWorkState = (stMatch ? stMatch[1].toUpperCase() : '') || orgEorCfg.worksiteState || orgEorCfg.billingState || 'TX'
 
   return {
     messages,
@@ -1107,14 +1145,42 @@ export async function getApplicationThreadState(
     candidateFullName: vaultReleased ? matchData.candidate_full_name || null : null,
     candidateEmail: vaultReleased ? matchData.candidate_contact_email || null : null,
     employerEmail: vaultReleased ? resolvedEmployerEmail : null,
-    trialToHire: (matchData.trial_to_hire as TrialToHireHandshake) || null,
+    trialToHire: matchData.trial_to_hire
+      ? isThreadEmployer
+        ? (matchData.trial_to_hire as TrialToHireHandshake)
+        : {
+            ...(matchData.trial_to_hire as TrialToHireHandshake),
+            employer_bill_rate: 0,
+            po_number: null,
+            invoice_cc_email: null,
+          }
+      : null,
     jobEmploymentType: empTypeStr || null,
     jobEorTrack: resolvedTrack,
-    jobEorDurationMonths: Number(metaItem?.eor_duration_months) || 6,
-    jobEquipmentPolicy: String(metaItem?.equipment_policy || 'No Equipment Needed / Not Applicable'),
-    jobEquipmentNotes: String(metaItem?.equipment_notes || ''),
-    jobEorBgCheck: metaItem?.eor_bg_check !== undefined ? Boolean(metaItem.eor_bg_check) : true,
-    jobEorDrugCheck: Boolean(metaItem?.eor_drug_check),
+    jobEorDurationMonths: Number(metaItem?.eor_duration_months) || orgEorCfg.defaultDurationMonths || 6,
+    jobEquipmentPolicy: String(metaItem?.equipment_policy || orgEorCfg.defaultEquipmentPolicy || 'No Equipment Needed / Not Applicable'),
+    jobEquipmentNotes: String(metaItem?.equipment_notes ?? orgEorCfg.defaultEquipmentNotes ?? ''),
+    jobEorBgCheck: metaItem?.eor_bg_check !== undefined ? Boolean(metaItem.eor_bg_check) : orgEorCfg.defaultBgCheck,
+    jobEorDrugCheck: metaItem?.eor_drug_check !== undefined ? Boolean(metaItem.eor_drug_check) : orgEorCfg.defaultDrugCheck,
+    suggestedHourlyRate,
+    suggestedWeeklyHours,
+    suggestedWorkState,
+    orgLegalEntityName: isThreadEmployer ? (orgEorCfg.legalEntityName || String(jobOrgObj?.name || '').trim()) : '',
+    orgTimecardApproverName: isThreadEmployer ? orgEorCfg.timecardApproverName : '',
+    orgTimecardApproverEmail: isThreadEmployer ? orgEorCfg.timecardApproverEmail : '',
+    orgBillingApEmail: isThreadEmployer ? orgEorCfg.billingApEmail : '',
+    orgSupervisorName: isThreadEmployer ? orgEorCfg.defaultSupervisorName : '',
+    orgPoNumber: isThreadEmployer ? orgEorCfg.defaultPoNumber : '',
+    orgBillingStreet1: isThreadEmployer ? orgEorCfg.billingStreet1 : '',
+    orgBillingCity: isThreadEmployer ? orgEorCfg.billingCity : '',
+    orgBillingState: isThreadEmployer ? orgEorCfg.billingState : '',
+    orgBillingZip: isThreadEmployer ? orgEorCfg.billingZip : '',
+    orgWcCode: isThreadEmployer ? (orgEorCfg.defaultWcCode || '8810') : '8810',
+    orgDiffWorksite: isThreadEmployer ? Boolean(orgEorCfg.diffWorksite) : false,
+    orgWorksiteStreet1: isThreadEmployer ? orgEorCfg.worksiteStreet1 : '',
+    orgWorksiteCity: isThreadEmployer ? orgEorCfg.worksiteCity : '',
+    orgWorksiteState: isThreadEmployer ? orgEorCfg.worksiteState : '',
+    orgWorksiteZip: isThreadEmployer ? orgEorCfg.worksiteZip : '',
     employerPlanActive,
   }
 }
@@ -1262,6 +1328,13 @@ export async function proposeTrialToHireTerms(
     requireDrugScreening?: boolean
     scopeNote?: string
     wcCode?: string
+    legalEntityName?: string
+    timecardApproverName?: string
+    timecardApproverEmail?: string
+    supervisorName?: string
+    poNumber?: string
+    invoiceCcEmail?: string
+    worksiteAddress?: EorPostalAddress
     employerAddress?: EorPostalAddress
   }
 ): Promise<{ success?: boolean; error?: string; trialToHire?: TrialToHireHandshake }> {
@@ -1333,8 +1406,44 @@ export async function proposeTrialToHireTerms(
 
   const nowIso = new Date().toISOString()
   const billRate = Math.round(payRate * TRIAL_EOR_BURDEN_MULTIPLIER * 100) / 100
+  const orgEorDefaults = parseEorConfigFromDescription(orgObj?.description)
+  const legalEntityClean = String(payload.legalEntityName || orgEorDefaults.legalEntityName || orgObj?.name || '').trim().slice(0, 128)
+  if (legalEntityClean.length < 2) {
+    return { error: 'Please enter your exact Legal Entity Name (not a DBA) for Employer of Record contract execution.' }
+  }
+  const approverNameClean = String(payload.timecardApproverName || orgEorDefaults.timecardApproverName || '').trim().slice(0, 100)
+  const approverEmailClean = String(payload.timecardApproverEmail || orgEorDefaults.timecardApproverEmail || user.email || '').trim().toLowerCase().slice(0, 140)
+  if (approverNameClean.length < 2 || !approverEmailClean.includes('@')) {
+    return { error: 'Please enter the Timecard Approver full name and work email.' }
+  }
+  const supervisorClean = String(payload.supervisorName || orgEorDefaults.defaultSupervisorName || approverNameClean).trim().slice(0, 100)
+  const poNumberClean = String(payload.poNumber || orgEorDefaults.defaultPoNumber || '').trim().slice(0, 64) || null
+  const invoiceCcClean = String(payload.invoiceCcEmail || orgEorDefaults.billingApEmail || '').trim().toLowerCase().slice(0, 140) || null
+  if (invoiceCcClean && !invoiceCcClean.includes('@')) {
+    return { error: 'Please enter a valid AP / Invoice CC email address or leave it blank.' }
+  }
+  const worksiteAddrClean: EorPostalAddress | null =
+    payload.worksiteAddress?.street1?.trim() &&
+    payload.worksiteAddress?.city?.trim() &&
+    payload.worksiteAddress?.postalcode?.trim()
+      ? {
+          street1: payload.worksiteAddress.street1.trim().slice(0, 120),
+          street2: payload.worksiteAddress.street2?.trim().slice(0, 80) || null,
+          city: payload.worksiteAddress.city.trim().slice(0, 80),
+          state: String(payload.worksiteAddress.state || workState).trim().toUpperCase().slice(0, 2) || workState,
+          postalcode: payload.worksiteAddress.postalcode.trim().slice(0, 16),
+        }
+      : orgEorDefaults.diffWorksite && orgEorDefaults.worksiteStreet1 && orgEorDefaults.worksiteCity && orgEorDefaults.worksiteZip
+      ? {
+          street1: orgEorDefaults.worksiteStreet1.slice(0, 120),
+          street2: null,
+          city: orgEorDefaults.worksiteCity.slice(0, 80),
+          state: orgEorDefaults.worksiteState || workState,
+          postalcode: orgEorDefaults.worksiteZip.slice(0, 16),
+        }
+      : null
   const scopeClean = String(payload.scopeNote || '').trim().slice(0, 400) || null
-  const cleanWcCode = String(payload.wcCode || '8810').trim().slice(0, 16) || '8810'
+  const cleanWcCode = String(payload.wcCode || orgEorDefaults.defaultWcCode || '8810').trim().slice(0, 16) || '8810'
   const empAddrClean: EorPostalAddress | null =
     payload.employerAddress?.street1?.trim() &&
     payload.employerAddress?.city?.trim() &&
@@ -1345,6 +1454,14 @@ export async function proposeTrialToHireTerms(
           city: payload.employerAddress.city.trim().slice(0, 80),
           state: String(payload.employerAddress.state || workState).trim().toUpperCase().slice(0, 2) || workState,
           postalcode: payload.employerAddress.postalcode.trim().slice(0, 16),
+        }
+      : orgEorDefaults.billingStreet1 && orgEorDefaults.billingCity && orgEorDefaults.billingZip
+      ? {
+          street1: orgEorDefaults.billingStreet1.slice(0, 120),
+          street2: null,
+          city: orgEorDefaults.billingCity.slice(0, 80),
+          state: orgEorDefaults.billingState || workState,
+          postalcode: orgEorDefaults.billingZip.slice(0, 16),
         }
       : null
   const trialObj: TrialToHireHandshake = {
@@ -1370,6 +1487,13 @@ export async function proposeTrialToHireTerms(
     proposed_at: nowIso,
     proposed_by_email: user.email || null,
     wc_code: cleanWcCode,
+    legal_entity_name: legalEntityClean,
+    timecard_approver_name: approverNameClean,
+    timecard_approver_email: approverEmailClean,
+    supervisor_name: supervisorClean,
+    po_number: poNumberClean,
+    invoice_cc_email: invoiceCcClean,
+    worksite_address: worksiteAddrClean,
     employer_address: empAddrClean,
   }
 
@@ -1384,7 +1508,7 @@ export async function proposeTrialToHireTerms(
     id: `sys-trial-${Date.now()}`,
     sender_role: 'employer',
     sender_name: orgName,
-    text: `🛡️ Proposed Protected ${trackLabel}: $${payRate.toFixed(2)}/hr gross W-2 (${weeklyHours} hrs/wk, Work State: ${workState}, Target Start: ${startDate}, $0 Conversion Fee, Equipment: ${resolvedEquipPolicy}${screenings.length ? ', Screenings: ' + screenings.join(' + ') : ''}). Review and accept above to begin W-2 onboarding.`,
+    text: `🛡️ Proposed Protected ${trackLabel}: $${payRate.toFixed(2)}/hr gross W-2 (${weeklyHours} hrs/wk, Work State: ${workState}, Target Start: ${startDate}, Equipment: ${resolvedEquipPolicy}${screenings.length ? ', Screenings: ' + screenings.join(' + ') : ''}). Click Review Full W-2 Offer above to inspect all contract details and approve.`,
     created_at: nowIso,
   }
 
@@ -1416,7 +1540,7 @@ export async function proposeTrialToHireTerms(
         `${orgName} proposed a Protected ${trackLabel} for "${roleTitle}":`,
         `• Gross W-2 Hourly Pay: $${payRate.toFixed(2)}/hr (${weeklyHours} hrs/wk)`,
         `• Target Start Date: ${startDate} (Work State: ${workState})`,
-        `• Direct W-2 Conversion Fee: $0 (No staffing agency buyout lock-in)`,
+        `• W-2 EOR Protection: Statutory payroll, direct deposit & Workers' Comp coverage`,
         `Review the terms inside your Secure Thread to accept or discuss.`,
       ],
       ctaUrl: appRow.initiated_by === 'employer' ? '/dashboard/requests' : '/dashboard/applications',
@@ -1502,14 +1626,22 @@ export async function respondToTrialToHireTerms(
           employerBillRate: current.employer_bill_rate,
           weeklyHours: current.weekly_hours,
           wcCode: current.wc_code || '8810',
+          poNumber: current.po_number || null,
+          worksiteAddress: current.worksite_address || null,
           requireBackgroundCheck: current.require_background_check,
           requireDrugScreening: current.require_drug_screening,
           scopeNote: current.scope_note,
           employer: {
             orgId: jobObj?.organization_id || null,
             name: orgName,
+            legalEntityName: current.legal_entity_name || orgName,
             domain: orgObj?.domain || null,
+            contactName: current.timecard_approver_name || null,
             contactEmail: empEmail || 'support@specialsauce.io',
+            timecardApproverName: current.timecard_approver_name || null,
+            timecardApproverEmail: current.timecard_approver_email || empEmail || null,
+            supervisorName: current.supervisor_name || current.timecard_approver_name || null,
+            invoiceCcEmail: current.invoice_cc_email || null,
             address: current.employer_address || null,
             cachedBossClientId: current.boss_client_id || null,
           },
@@ -1576,7 +1708,9 @@ export async function respondToTrialToHireTerms(
     const orderSummary = [
       `EOR Placement Packet ID: ${packetId}`,
       `Reference ID: ${refId} | Role: ${roleTitle}`,
-      `Employer Organization: ${orgName} (${orgObj?.domain || 'verified domain'}) | Hiring Contact: ${empEmail}`,
+      `Employer Legal Entity: ${current.legal_entity_name || orgName} (Org: ${orgName} / ${orgObj?.domain || 'verified domain'}) | Hiring Contact: ${empEmail}`,
+      `Timecard Approver: ${current.timecard_approver_name || 'Hiring Team'} (${current.timecard_approver_email || empEmail}) | Supervisor: ${current.supervisor_name || current.timecard_approver_name || 'Hiring Team'}${current.po_number ? ` | Client PO: ${current.po_number}` : ''}${current.invoice_cc_email ? ` | Invoice CC: ${current.invoice_cc_email}` : ''}`,
+      current.worksite_address ? `Physical Worksite: ${current.worksite_address.street1}${current.worksite_address.street2 ? ' ' + current.worksite_address.street2 : ''}, ${current.worksite_address.city}, ${current.worksite_address.state} ${current.worksite_address.postalcode}` : 'Physical Worksite: Remote / Same as Employer Billing Address',
       `Professional: ${candName} | Direct Email: ${candEmail} | Work State: ${current.work_state}`,
       `W-2 Gross Pay Rate: $${current.hourly_pay_rate.toFixed(2)}/hr | Employer All-In Bill Rate (+28%): $${current.employer_bill_rate.toFixed(2)}/hr`,
       `Schedule: ${current.weekly_hours} hrs/wk | Target Start: ${current.target_start_date} | Window: 90 Days ($0 Conversion Fee)`,
@@ -1784,7 +1918,7 @@ export async function manageActiveW2Engagement(formData: FormData): Promise<void
     noteText = `🔄 Extended active W-2 engagement by +90 days (Extension #${extCount}) via Manage Roles. EOR billing and statutory coverage continue seamlessly.`
   } else if (lifecycleAction === 'convert_direct' && current.status === 'accepted_pending_eor') {
     nextTrial = { ...nextTrial, status: 'converted_direct' }
-    noteText = `🎉 Initiated Direct W-2 Conversion ($0 conversion fee) via Manage Roles. EOR partner notified to coordinate payroll transition.`
+    noteText = `🎉 Initiated Direct Full-Time W-2 Transition via Manage Roles. EOR partner notified to coordinate payroll transition.`
   } else if (
     lifecycleAction === 'wrap_up_assignment' ||
     lifecycleAction === 'request_gear_return' ||

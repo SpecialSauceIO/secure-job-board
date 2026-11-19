@@ -12,6 +12,10 @@ import AiJobScanner from '@/components/AiJobScanner'
 import UsLocationSelector from '@/components/UsLocationSelector'
 import { createStructuredJob } from '@/app/dashboard/actions'
 import {
+  parseEorConfigFromDescription,
+  hasExplicitEorConfigTag,
+} from '@/lib/eor-config'
+import {
   STANDARD_INDUSTRY_VERTICALS,
   normalizeIndustryVertical,
 } from '@/constants/industries'
@@ -30,6 +34,7 @@ export default function NewJobPage() {
   const [isCheckingAccess, setIsCheckingAccess] = useState(true)
   const [isOrgVerified, setIsOrgVerified] = useState(false)
   const [isPracticeMode, setIsPracticeMode] = useState(false)
+  const [hasSavedOrgEorDefaults, setHasSavedOrgEorDefaults] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   const [jobData, setJobData] = useState({
@@ -93,6 +98,9 @@ export default function NewJobPage() {
         const rawDesc = orgObj?.description || ''
         const indMatch = rawDesc.match(/\[IND:([^\]]+)\]/i)
         const sizeMatch = rawDesc.match(/\[SIZE:([^\]]+)\]/i)
+        const hasOrgEor = hasExplicitEorConfigTag(rawDesc)
+        const orgEor = parseEorConfigFromDescription(rawDesc)
+        setHasSavedOrgEorDefaults(hasOrgEor)
 
         setJobData((prev) => ({
           ...prev,
@@ -102,6 +110,16 @@ export default function NewJobPage() {
           company_size: sizeMatch?.[1]
             ? sizeMatch[1].trim()
             : prev.company_size,
+          ...(hasOrgEor
+            ? {
+                eor_contract_track: orgEor.defaultContractTrack,
+                eor_duration_months: String(orgEor.defaultDurationMonths),
+                eor_bg_check: orgEor.defaultBgCheck,
+                eor_drug_check: orgEor.defaultDrugCheck,
+                equipment_policy: orgEor.defaultEquipmentPolicy,
+                equipment_notes: orgEor.defaultEquipmentNotes,
+              }
+            : {}),
         }))
       }
 
@@ -714,9 +732,19 @@ export default function NewJobPage() {
                   Pre-configure your third-party Employer-of-Record (EOR) W-2 track and IT equipment policy for this role. You control extensions or assignment wrap-ups directly from Manage Roles.
                 </p>
               </div>
-              <span className="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-indigo-700 border border-indigo-200">
-                +28% Statutory W-2 EOR · $0 Conversion Fee
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                {hasSavedOrgEorDefaults && (
+                  <Link
+                    href="/dashboard/employer/organization"
+                    className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-extrabold text-emerald-800 border border-emerald-300 hover:bg-emerald-100 transition-colors"
+                  >
+                    Inherited Organization Defaults · Edit
+                  </Link>
+                )}
+                <span className="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-indigo-700 border border-indigo-200">
+                  +28% Statutory W-2 EOR · $0 Conversion Fee
+                </span>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

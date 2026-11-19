@@ -962,6 +962,8 @@ export async function stripTierTag(description?: string | null): Promise<string>
     .replace(/\s*\[EIN:[^\]]*\]/gi, '')
     .replace(/\s*\[INC_STATE:[^\]]*\]/gi, '')
     .replace(/\s*\[RDAP:[^\]]*\]/gi, '')
+    .replace(/\s*\[ATS_CFG:[A-Za-z0-9+/=]+\]/gi, '')
+    .replace(/\s*\[EOR_CFG:[A-Za-z0-9+/=]+\]/gi, '')
     .trim()
 }
 
@@ -6344,6 +6346,8 @@ export async function saveOrganizationProfile(formData: FormData) {
     if (seatsMatch) existingSeatsTag = seatsMatch[0]
     const atsMatch = (currentOrg?.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i)
     if (atsMatch) existingAtsTag = atsMatch[0]
+    const eorMatch = (currentOrg?.description || '').match(/\[EOR_CFG:[A-Za-z0-9+/=]+\]/i)
+    if (eorMatch) existingAtsTag = `${existingAtsTag} ${eorMatch[0]}`.trim()
     const topupMatch = (currentOrg?.description || '').match(/\[TOPUP:\d+\]/i)
     if (topupMatch) existingAtsTag = `${existingAtsTag} ${topupMatch[0]}`.trim()
     const verifyFlags = (currentOrg?.description || '').match(/\[(VERIFY_PAID|CREDIT25_USED)\]/gi)
@@ -6503,9 +6507,10 @@ export async function claimInvitedOrganizationSeatIfAny(
           const cleanDesc = await stripTierTag(org.description)
           const topupTag = ((org.description || '').match(/\[TOPUP:\d+\]/i) || [''])[0]
           const atsTag = ((org.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
+          const eorTag = ((org.description || '').match(/\[EOR_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
           const csTags = ((org.description || '').match(/\[CS:[^\]]+\]/gi) || []).join(' ')
           const seatsTag = encodeStoredSeatsTag(seats)
-          const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${topupTag} ${seatsTag} ${atsTag} ${csTags}`.replace(/\s+/g, ' ').trim()
+          const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${topupTag} ${seatsTag} ${atsTag} ${eorTag} ${csTags}`.replace(/\s+/g, ' ').trim()
 
           await adminClient
             .from('organizations')
@@ -6686,9 +6691,10 @@ export async function inviteOrganizationSeat(formData: FormData) {
   const cleanDesc = await stripTierTag(org?.description)
   const topupTag = ((org?.description || '').match(/\[TOPUP:\d+\]/i) || [''])[0]
   const atsTag = ((org?.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
+  const eorTag = ((org?.description || '').match(/\[EOR_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
   const csTags = ((org?.description || '').match(/\[CS:[^\]]+\]/gi) || []).join(' ')
   const seatsTag = encodeStoredSeatsTag(updatedInvited)
-  const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${topupTag} ${seatsTag} ${atsTag} ${csTags}`.replace(/\s+/g, ' ').trim()
+  const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${topupTag} ${seatsTag} ${atsTag} ${eorTag} ${csTags}`.replace(/\s+/g, ' ').trim()
 
   const { error: updateErr } = await supabase
     .from('organizations')
@@ -6765,9 +6771,10 @@ export async function removeOrganizationSeat(
   const cleanDesc = await stripTierTag(org?.description)
   const topupTag = ((org?.description || '').match(/\[TOPUP:\d+\]/i) || [''])[0]
   const atsTag = ((org?.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
+  const eorTag = ((org?.description || '').match(/\[EOR_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
   const csTags = ((org?.description || '').match(/\[CS:[^\]]+\]/gi) || []).join(' ')
   const seatsTag = encodeStoredSeatsTag(updatedInvited)
-  const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${topupTag} ${seatsTag} ${atsTag} ${csTags}`.replace(/\s+/g, ' ').trim()
+  const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${topupTag} ${seatsTag} ${atsTag} ${eorTag} ${csTags}`.replace(/\s+/g, ' ').trim()
 
   const { error } = await supabase
     .from('organizations')
@@ -7098,10 +7105,12 @@ export async function activateSandboxEmployerTier(
   const existingSeatsTag = seatsMatch ? seatsMatch[0] : ''
   const atsMatch = rawDescStr.match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i)
   const existingAtsTag = atsMatch ? atsMatch[0] : ''
+  const eorMatch = rawDescStr.match(/\[EOR_CFG:[A-Za-z0-9+/=]+\]/i)
+  const existingEorTag = eorMatch ? eorMatch[0] : ''
   const verifyPaidTag = (targetTier === 'free' && Boolean(stripeSessionId)) || targetTier !== 'free' || /\[VERIFY_PAID\]/i.test(rawDescStr) ? '[VERIFY_PAID]' : ''
   const creditUsedTag = targetTier !== 'free' || /\[CREDIT25_USED\]/i.test(rawDescStr) ? '[CREDIT25_USED]' : ''
   const topupTag = preservedRollover > 0 ? `[TOPUP:${preservedRollover}]` : ''
-  const taggedDesc = `${cleanDesc} [TIER:${targetTier === 'free' && Boolean(stripeSessionId) ? 'explorer' : targetTier}] ${verifyPaidTag} ${creditUsedTag} ${topupTag} ${existingSeatsTag} ${existingAtsTag}`.replace(/\s+/g, ' ').trim()
+  const taggedDesc = `${cleanDesc} [TIER:${targetTier === 'free' && Boolean(stripeSessionId) ? 'explorer' : targetTier}] ${verifyPaidTag} ${creditUsedTag} ${topupTag} ${existingSeatsTag} ${existingAtsTag} ${existingEorTag}`.replace(/\s+/g, ' ').trim()
 
   try {
     const cookieStore = await cookies()
@@ -7272,8 +7281,10 @@ export async function purchaseEmployerCreditTopUp(
   const existingSeatsTag = seatsMatch ? seatsMatch[0] : ''
   const atsMatch = (orgObj.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i)
   const existingAtsTag = atsMatch ? atsMatch[0] : ''
+  const eorMatch = (orgObj.description || '').match(/\[EOR_CFG:[A-Za-z0-9+/=]+\]/i)
+  const existingEorTag = eorMatch ? eorMatch[0] : ''
   const csTag = stripeSessionId ? `[CS:${stripeSessionId.slice(-12)}]` : ''
-  const taggedDesc = `${cleanDesc} [TIER:${tierInfo.tier}] [TOPUP:${newRollover}] ${existingSeatsTag} ${existingAtsTag} ${csTag}`.replace(/\s+/g, ' ').trim()
+  const taggedDesc = `${cleanDesc} [TIER:${tierInfo.tier}] [TOPUP:${newRollover}] ${existingSeatsTag} ${existingAtsTag} ${existingEorTag} ${csTag}`.replace(/\s+/g, ' ').trim()
 
   const { error: updateErr } = await supabase
     .from('organizations')

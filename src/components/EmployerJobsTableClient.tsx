@@ -90,9 +90,9 @@ export default function EmployerJobsTableClient({
   toggleOrRenewJobStatus: (formData: FormData) => Promise<void>
   manageActiveW2Engagement?: (formData: FormData) => Promise<void>
 }) {
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'closed'>(
-    'all'
-  )
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'active' | 'placed' | 'closed'
+  >('all')
   const [industryFilter, setIndustryFilter] = useState<string>('all')
   const [employmentTypeFilter, setEmploymentTypeFilter] =
     useState<string>('all')
@@ -134,19 +134,34 @@ export default function EmployerJobsTableClient({
     setPendingContractConfirm({ jobTitle, eng, action })
   }
 
+  const isJobPlaced = (j: EnrichedEmployerJobRow) =>
+    Boolean(
+      j.w2Engagements?.some(
+        (e) => e.status === 'accepted_pending_eor' || e.status === 'converted_direct'
+      )
+    )
+  const isJobConvertedDirect = (j: EnrichedEmployerJobRow) =>
+    Boolean(j.w2Engagements?.some((e) => e.status === 'converted_direct'))
+
   const activeCount = useMemo(
-    () => jobs.filter((j) => j.is_active).length,
+    () => jobs.filter((j) => j.is_active && !isJobPlaced(j)).length,
+    [jobs]
+  )
+  const placedCount = useMemo(
+    () => jobs.filter((j) => isJobPlaced(j)).length,
     [jobs]
   )
   const closedCount = useMemo(
-    () => jobs.filter((j) => !j.is_active).length,
+    () => jobs.filter((j) => !j.is_active && !isJobPlaced(j)).length,
     [jobs]
   )
 
   const filteredAndSortedJobs = useMemo(() => {
     const filtered = jobs.filter((job) => {
-      if (statusFilter === 'active' && !job.is_active) return false
-      if (statusFilter === 'closed' && job.is_active) return false
+      const placed = isJobPlaced(job)
+      if (statusFilter === 'active' && (!job.is_active || placed)) return false
+      if (statusFilter === 'placed' && !placed) return false
+      if (statusFilter === 'closed' && (job.is_active || placed)) return false
 
       if (industryFilter !== 'all') {
         const normInd = job.industry
@@ -263,7 +278,19 @@ export default function EmployerJobsTableClient({
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-300'
               }`}
             >
-              Active ({activeCount})
+              Active Hiring ({activeCount})
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setStatusFilter('placed')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                statusFilter === 'placed'
+                  ? 'bg-indigo-700 text-white shadow-2xs'
+                  : 'bg-indigo-50/70 text-indigo-800 hover:bg-indigo-100 border border-indigo-200'
+              }`}
+            >
+              Filled / Placed ({placedCount})
             </button>
 
             <button
@@ -534,7 +561,12 @@ export default function EmployerJobsTableClient({
 
                   <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200 text-xs">
                     <div className="flex flex-col gap-0.5">
-                      {job.is_active ? (
+                      {isJobPlaced(job) ? (
+                        <span className="inline-flex items-center gap-1.5 font-extrabold text-indigo-700">
+                          <span className="w-2 h-2 rounded-full bg-indigo-600"></span>
+                          {isJobConvertedDirect(job) ? 'Filled • Direct Hire' : 'Active Placement'}
+                        </span>
+                      ) : job.is_active ? (
                         <span className="inline-flex items-center gap-1.5 font-extrabold text-emerald-700">
                           <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                           Active ({job.daysRemaining}d left)
@@ -917,7 +949,12 @@ export default function EmployerJobsTableClient({
 
                       <td className="py-4 px-6">
                         <div className="flex flex-col items-start gap-1">
-                          {job.is_active ? (
+                          {isJobPlaced(job) ? (
+                            <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-indigo-700">
+                              <span className="w-2 h-2 rounded-full bg-indigo-600"></span>
+                              {isJobConvertedDirect(job) ? 'Filled • Direct Hire' : 'Active Placement'}
+                            </span>
+                          ) : job.is_active ? (
                             <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-emerald-700">
                               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                               Active
@@ -939,7 +976,15 @@ export default function EmployerJobsTableClient({
                             </span>
                           )}
 
-                          {job.is_active ? (
+                          {isJobPlaced(job) ? (
+                            <span className="text-[11px] text-indigo-700 font-semibold">
+                              {isJobConvertedDirect(job)
+                                ? 'Converted to direct full-time W-2 hire'
+                                : job.is_active
+                                ? `Active W-2 engagement • Listing open (${job.daysRemaining}d left)`
+                                : 'Active W-2 contract engagement in progress'}
+                            </span>
+                          ) : job.is_active ? (
                             <span
                               className={`text-[11px] font-semibold ${
                                 isExpiringSoon
@@ -1196,9 +1241,9 @@ export default function EmployerJobsTableClient({
               {pendingContractConfirm.action === 'extend_90d'
                 ? 'This extends the active W-2 engagement by an additional 90 days through our US Employer of Record at the current hourly rate. Do not choose this option if you meant to convert this Professional to your direct W-2 payroll.'
                 : pendingContractConfirm.action === 'convert_direct'
-                ? 'This initiates a $0-fee direct W-2 hire transition onto your company payroll and notifies our Employer of Record partner to schedule final EOR timesheet closeout.'
+                ? 'This initiates a $0-fee direct W-2 hire transition onto your company payroll and notifies our Employer of Record partner to coordinate final weekly electronic timesheet approval and Net 15 closeout billing.'
                 : pendingContractConfirm.action === 'wrap_up_assignment'
-                ? 'This concludes the active W-2 contract assignment, notifies the Professional and Employer of Record partner, and opens IT hardware return tracking if equipment was issued.'
+                ? 'This concludes the active W-2 contract assignment, notifies the Professional and Employer of Record partner for final weekly electronic timesheet approval (Net 15 closeout), and opens IT hardware return tracking if equipment was issued.'
                 : pendingContractConfirm.action === 'request_gear_return'
                 ? 'This opens IT hardware return tracking for this assignment and posts an offboarding return reminder in the secure message thread.'
                 : pendingContractConfirm.action === 'reopen_assignment'

@@ -20,16 +20,23 @@ export interface BossPlacementHandoffInput {
   employerBillRate: number
   weeklyHours: number
   wcCode?: string | null
+  poNumber?: string | null
+  worksiteAddress?: EorPostalAddress | null
   requireBackgroundCheck: boolean
   requireDrugScreening: boolean
   scopeNote?: string | null
   employer: {
     orgId?: string | null
     name: string
+    legalEntityName?: string | null
     domain?: string | null
     contactName?: string | null
     contactEmail: string
     contactPhone?: string | null
+    timecardApproverName?: string | null
+    timecardApproverEmail?: string | null
+    supervisorName?: string | null
+    invoiceCcEmail?: string | null
     address?: EorPostalAddress | null
     cachedBossClientId?: number | null
   }
@@ -228,19 +235,24 @@ export async function submitBossW2PlacementHandoff(
   let associateId: number | null = input.professional.cachedBossAssociateId || null
   let usedExistingAssociate = false
 
+  const resolvedLegalName = (input.employer.legalEntityName || input.employer.name).trim()
+  const resolvedApproverEmail = (input.employer.timecardApproverEmail || input.employer.contactEmail).trim()
+
   if (!clientId) {
     const pickerRes = await bossRequest('/clients/?picker=1&page_size=200')
     if (pickerRes.ok && Array.isArray(pickerRes.data?.results)) {
-      const targetLower = input.employer.name.trim().toLowerCase()
-      const matched = pickerRes.data.results.find(
-        (row: any) => String(row?.name || '').trim().toLowerCase() === targetLower
-      )
+      const targetLower = resolvedLegalName.toLowerCase()
+      const fallbackLower = input.employer.name.trim().toLowerCase()
+      const matched = pickerRes.data.results.find((row: any) => {
+        const n = String(row?.name || '').trim().toLowerCase()
+        return n === targetLower || n === fallbackLower
+      })
       if (matched?.id) clientId = Number(matched.id)
     }
   }
 
   const empNameParts = splitPersonName(
-    input.employer.contactName || input.employer.name,
+    input.employer.timecardApproverName || input.employer.contactName || resolvedLegalName,
     'Hiring',
     'Manager'
   )
@@ -253,12 +265,17 @@ export async function submitBossW2PlacementHandoff(
       state: normalizeTwoLetterState(input.professional.workState),
       postalcode: '78731',
     }
+    const worksiteLine = input.worksiteAddress
+      ? `Physical Worksite: ${input.worksiteAddress.street1}, ${input.worksiteAddress.city}, ${normalizeTwoLetterState(input.worksiteAddress.state)} ${normalizePostalCode(input.worksiteAddress.postalcode)}`
+      : 'Physical Worksite: Remote / Same as Employer Billing Address'
     const orderPdfB64 = buildMinimalPlacementOrderPdfBase64([
       'SPECIALSAUCE.IO — W-2 EMPLOYER OF RECORD PLACEMENT ORDER',
-      `Packet ID: ${input.packetId} | Reference: ${input.referenceId}`,
+      `Packet ID: ${input.packetId} | Reference: ${input.referenceId}${input.poNumber ? ` | PO: ${input.poNumber}` : ''}`,
       `Executed Timestamp (UTC): ${new Date().toISOString()}`,
-      `Employer Client: ${input.employer.name} (${input.employer.domain || 'verified'})`,
-      `Hiring Contact: ${input.employer.contactEmail}`,
+      `Employer Legal Entity: ${resolvedLegalName} (${input.employer.domain || 'verified'})`,
+      `Timecard Approver: ${input.employer.timecardApproverName || 'Hiring Team'} (${resolvedApproverEmail})${input.employer.supervisorName ? ` | Supervisor: ${input.employer.supervisorName}` : ''}`,
+      ...(input.employer.invoiceCcEmail ? [`AP / Invoice CC: ${input.employer.invoiceCcEmail}`] : []),
+      worksiteLine,
       `Assigned Professional: ${input.professional.fullName} (${input.professional.email})`,
       `Role Title: ${input.roleTitle} | Work State: ${normalizeTwoLetterState(input.professional.workState)}`,
       `Gross W-2 Pay Rate: $${input.hourlyPayRate.toFixed(2)}/hr | Employer Bill Rate (+28%): $${input.employerBillRate.toFixed(2)}/hr`,
@@ -269,11 +286,17 @@ export async function submitBossW2PlacementHandoff(
     const createClientRes = await bossRequest('/clients/submit/', {
       method: 'POST',
       body: {
-        name: input.employer.name.slice(0, 128),
+        name: resolvedLegalName.slice(0, 128),
         website: input.employer.domain ? `https://${input.employer.domain}` : null,
         payment_terms: 15,
         description: `SpecialSauce.io Verified Employer (${input.referenceId})`,
-        partner_comments: `Packet ${input.packetId} — W-2 placement via SpecialSauce.io`,
+        partner_comments: [
+          `Packet ${input.packetId} — W-2 placement via SpecialSauce.io`,
+          input.employer.timecardApproverName ? `Timecard Approver: ${input.employer.timecardApproverName} (${resolvedApproverEmail})` : null,
+          input.employer.supervisorName ? `Supervisor: ${input.employer.supervisorName}` : null,
+          input.employer.invoiceCcEmail ? `Invoice CC: ${input.employer.invoiceCcEmail}` : null,
+          input.poNumber ? `Client PO: ${input.poNumber}` : null,
+        ].filter(Boolean).join(' | '),
         main_contact: {
           first_name: empNameParts.firstName,
           last_name: empNameParts.lastName,
@@ -420,8 +443,13 @@ export async function submitBossW2PlacementHandoff(
   const billOt = (Math.round(input.employerBillRate * 1.5 * 100) / 100).toFixed(2)
   const endDate = computeAssignmentEndDate(input.targetStartDate, input.contractTrack, input.trialDays)
   const cleanWcCode = String(input.wcCode || '8810').trim().slice(0, 16) || '8810'
+  const cleanPoNumber = String(input.poNumber || '').trim().slice(0, 64) || input.packetId
   const jobDescLines = [
     `SpecialSauce.io Protected W-2 Engagement (${input.packetId} / ${input.referenceId}).`,
+    `Legal Entity: ${resolvedLegalName} | Timecard Approver: ${input.employer.timecardApproverName || 'Hiring Team'} (${resolvedApproverEmail})${input.employer.supervisorName ? ` | Supervisor: ${input.employer.supervisorName}` : ''}`,
+    input.worksiteAddress
+      ? `Physical Worksite: ${input.worksiteAddress.street1}, ${input.worksiteAddress.city}, ${normalizeTwoLetterState(input.worksiteAddress.state)} ${normalizePostalCode(input.worksiteAddress.postalcode)}`
+      : null,
     input.scopeNote ? `Scope & Milestones: ${input.scopeNote}` : null,
     input.roleDescription ? input.roleDescription.slice(0, 600) : null,
   ]
@@ -442,7 +470,7 @@ export async function submitBossW2PlacementHandoff(
       bill_regular: billReg,
       bill_overtime: billOt,
       wc_code: cleanWcCode,
-      po_number: input.packetId,
+      po_number: cleanPoNumber,
       is_w2: true,
       pay_basis: 'hourly',
       ...(contactId ? { manager_contact_id: contactId, billing_contact_id: contactId } : {}),

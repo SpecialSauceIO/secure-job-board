@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Stripe from 'stripe'
 import EmployerOrganizationForm from '@/components/EmployerOrganizationForm'
 import EmployerTeamSeatsPanel from '@/components/EmployerTeamSeatsPanel'
+import EmployerEorDefaultsPanel from '@/components/EmployerEorDefaultsPanel'
 import EnterpriseAtsIntegrationPanel from '@/components/EnterpriseAtsIntegrationPanel'
 import {
   resolveEmployerTierInfo,
@@ -49,6 +50,7 @@ function extractOrgIndustryAndSize(rawDescription?: string | null): {
     .replace(/\s*\[INC_STATE:[^\]]*\]/gi, '')
     .replace(/\s*\[RDAP:[^\]]*\]/gi, '')
     .replace(/\s*\[ATS_CFG:[A-Za-z0-9+/=]+\]/gi, '')
+    .replace(/\s*\[EOR_CFG:[A-Za-z0-9+/=]+\]/gi, '')
     .replace(/\s*\[(VERIFY_PAID|CREDIT25_USED)\]/gi, '')
     .trim()
 
@@ -234,6 +236,8 @@ export default async function EmployerOrganizationPage({
             maxSeats={tierInfo.maxSeats}
             initialSeats={seats}
           />
+
+          <EmployerEorDefaultsPanel />
 
           <EnterpriseAtsIntegrationPanel />
         </>
