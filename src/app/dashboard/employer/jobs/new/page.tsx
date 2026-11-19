@@ -759,7 +759,7 @@ export default function NewJobPage() {
                   className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-3 text-sm font-medium cursor-pointer"
                 >
                   <option value="none">Direct Hire Only (No Third-Party EOR Routing)</option>
-                  <option value="trial_to_hire_90d">90-Day W-2 Trial-to-Hire ($0 Day-90 Conversion)</option>
+                  <option value="trial_to_hire_90d">W-2 Contract-to-Hire ($0 Conversion)</option>
                   <option value="fixed_term_w2">Fixed-Term W-2 Contract (3–12 Months + Extend Anytime)</option>
                   <option value="open_ended_w2">Open-Ended Ongoing W-2 Contract (Extend or End Anytime)</option>
                 </select>
@@ -783,10 +783,10 @@ export default function NewJobPage() {
               </div>
             </div>
 
-            {jobData.eor_contract_track === 'fixed_term_w2' && (
+            {(jobData.eor_contract_track === 'fixed_term_w2' || jobData.eor_contract_track === 'trial_to_hire_90d') && (
               <div className="max-w-xs">
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Initial Fixed-Term Length
+                  {jobData.eor_contract_track === 'trial_to_hire_90d' ? 'Target Ramp-Up Period' : 'Initial Fixed-Term Length'}
                 </label>
                 <select
                   name="eor_duration_months"
@@ -794,14 +794,16 @@ export default function NewJobPage() {
                   onChange={(e) => setJobData({ ...jobData, eor_duration_months: e.target.value })}
                   className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-3 text-sm font-medium cursor-pointer"
                 >
-                  <option value="3">3 Months (Extendable)</option>
-                  <option value="6">6 Months (Extendable)</option>
-                  <option value="9">9 Months (Extendable)</option>
-                  <option value="12">12 Months (Extendable)</option>
+                  <option value="1">1 Month / 30 Days ($0 Conversion)</option>
+                  <option value="2">2 Months / 60 Days ($0 Conversion)</option>
+                  <option value="3">3 Months / 90 Days ($0 Conversion)</option>
+                  <option value="6">6 Months / 180 Days ($0 Conversion)</option>
+                  <option value="9">9 Months ($0 Conversion)</option>
+                  <option value="12">12 Months ($0 Conversion)</option>
                 </select>
               </div>
             )}
-            {jobData.eor_contract_track !== 'fixed_term_w2' && (
+            {jobData.eor_contract_track !== 'fixed_term_w2' && jobData.eor_contract_track !== 'trial_to_hire_90d' && (
               <input type="hidden" name="eor_duration_months" value={jobData.eor_duration_months} />
             )}
 

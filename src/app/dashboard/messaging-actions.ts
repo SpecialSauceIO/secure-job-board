@@ -1384,12 +1384,12 @@ export async function proposeTrialToHireTerms(
   const descTierMatch = String(orgObj?.description || '').match(/\[TIER:(free|starter|growth|enterprise)\]/i)
   const subTier = (descTierMatch ? descTierMatch[1] : String(orgObj?.subscription_tier || '')).toLowerCase().trim()
   if (!['starter', 'growth', 'enterprise'].includes(subTier)) {
-    return { error: 'Activate a monthly Employer plan in Billing to propose live 90-Day W-2 Trial-to-Hire terms.' }
+    return { error: 'Activate a monthly Employer plan in Billing to propose live W-2 Contract-to-Hire terms.' }
   }
 
   const matchData = appRow.match_data || {}
   if (!matchData.candidate_vault_released) {
-    return { error: 'Ask the Professional to unlock their Contact & Resume Vault in chat before sending formal W-2 trial terms.' }
+    return { error: 'Ask the Professional to unlock their Contact & Resume Vault in chat before sending formal W-2 Contract-to-Hire terms.' }
   }
 
   const structArr = Array.isArray(jobObj?.structured_requirements) ? jobObj.structured_requirements : []
@@ -1398,8 +1398,8 @@ export async function proposeTrialToHireTerms(
   const empTypeStr = String(metaItem?.employment_type || '')
   const defaultTrack: 'trial_to_hire_90d' | 'fixed_term_w2' | 'open_ended_w2' = metaItem?.eor_contract_track === 'fixed_term_w2' || empTypeStr === 'Contract (W-2 Fixed-Term)' || empTypeStr === 'Seasonal / Temporary' ? 'fixed_term_w2' : metaItem?.eor_contract_track === 'open_ended_w2' || empTypeStr === 'Contract (W-2 Open-Ended)' ? 'open_ended_w2' : 'trial_to_hire_90d'
   const resolvedTrack = payload.contractTrack || defaultTrack
-  const resolvedMonths = resolvedTrack === 'fixed_term_w2' ? Math.min(24, Math.max(1, Number(payload.durationMonths || metaItem?.eor_duration_months) || 6)) : null
-  const resolvedDays = resolvedTrack === 'fixed_term_w2' && resolvedMonths ? resolvedMonths * 30 : resolvedTrack === 'open_ended_w2' ? 0 : 90
+  const resolvedMonths = resolvedTrack === 'fixed_term_w2' || resolvedTrack === 'trial_to_hire_90d' ? Math.min(24, Math.max(1, Number(payload.durationMonths || metaItem?.eor_duration_months) || (resolvedTrack === 'fixed_term_w2' ? 6 : 3))) : null
+  const resolvedDays = resolvedMonths ? resolvedMonths * 30 : 0
   const resolvedEquipPolicy = String(payload.equipmentPolicy || metaItem?.equipment_policy || 'No Equipment Needed / Not Applicable')
   const resolvedEquipNotes = String(payload.equipmentNotes ?? metaItem?.equipment_notes ?? '').trim().slice(0, 240) || null
   const hasPhysicalGear = resolvedEquipPolicy.includes('Company-Shipped') || resolvedEquipPolicy.includes('EOR Managed Laptop')
@@ -1497,7 +1497,7 @@ export async function proposeTrialToHireTerms(
     employer_address: empAddrClean,
   }
 
-  const trackLabel = resolvedTrack === 'fixed_term_w2' ? `${resolvedMonths}-Month Fixed-Term W-2 Contract` : resolvedTrack === 'open_ended_w2' ? 'Open-Ended W-2 Contract' : '90-Day W-2 Contract-to-Hire'
+  const trackLabel = resolvedTrack === 'fixed_term_w2' ? `${resolvedMonths}-Month Fixed-Term W-2 Contract` : resolvedTrack === 'open_ended_w2' ? 'Open-Ended W-2 Contract' : resolvedMonths ? `${resolvedMonths}-Month W-2 Contract-to-Hire` : 'W-2 Contract-to-Hire'
   const existingMsgs: ThreadMessage[] = Array.isArray(matchData.messages) ? matchData.messages : []
   const orgName = orgObj?.name || 'Verified Employer'
   const screenings = [
@@ -1673,7 +1673,7 @@ export async function respondToTrialToHireTerms(
     boss_sync_note: bossResult ? bossResult.summaryNote : current.boss_sync_note || null,
   }
 
-  const acceptTrackLabel = current.contract_track === 'fixed_term_w2' ? `${current.duration_months || 6}-Month Fixed-Term W-2 Contract` : current.contract_track === 'open_ended_w2' ? 'Open-Ended W-2 Contract' : '90-Day W-2 Contract-to-Hire'
+  const acceptTrackLabel = current.contract_track === 'fixed_term_w2' ? `${current.duration_months || 6}-Month Fixed-Term W-2 Contract` : current.contract_track === 'open_ended_w2' ? 'Open-Ended W-2 Contract' : current.duration_months ? `${current.duration_months}-Month W-2 Contract-to-Hire` : 'W-2 Contract-to-Hire'
   const existingMsgs: ThreadMessage[] = Array.isArray(matchData.messages) ? matchData.messages : []
   const msgText =
     decision === 'accept'
@@ -1766,7 +1766,7 @@ export async function respondToTrialToHireTerms(
     })
   }
 
-  const empTrackLabel = current.contract_track === 'fixed_term_w2' ? `${current.duration_months || 6}-Month Fixed-Term W-2 Contract` : current.contract_track === 'open_ended_w2' ? 'Open-Ended W-2 Contract' : '90-Day W-2 Contract-to-Hire'
+  const empTrackLabel = current.contract_track === 'fixed_term_w2' ? `${current.duration_months || 6}-Month Fixed-Term W-2 Contract` : current.contract_track === 'open_ended_w2' ? 'Open-Ended W-2 Contract' : current.duration_months ? `${current.duration_months}-Month W-2 Contract-to-Hire` : 'W-2 Contract-to-Hire'
   if (empEmail) {
     await sendThreadEmailNotification({
       to: empEmail,
@@ -1913,9 +1913,11 @@ export async function manageActiveW2Engagement(formData: FormData): Promise<void
 
   if (lifecycleAction === 'extend_90d' && current.status === 'accepted_pending_eor') {
     const extCount = (Number(current.extension_count) || 0) + 1
-    const nextDays = (Number(current.trial_days) || 90) + 90
+    const addMonths = Math.max(1, Number(current.duration_months) || 3)
+    const addDays = addMonths * 30
+    const nextDays = (Number(current.trial_days) || addDays) + addDays
     nextTrial = { ...nextTrial, extension_count: extCount, trial_days: nextDays }
-    noteText = `🔄 Extended active W-2 engagement by +90 days (Extension #${extCount}) via Manage Roles. EOR billing and statutory coverage continue seamlessly.`
+    noteText = `🔄 Extended active W-2 engagement by +${addMonths} ${addMonths === 1 ? 'month' : 'months'} (Extension #${extCount}) via Manage Roles. EOR billing and statutory coverage continue seamlessly.`
   } else if (lifecycleAction === 'convert_direct' && current.status === 'accepted_pending_eor') {
     nextTrial = { ...nextTrial, status: 'converted_direct' }
     noteText = `🎉 Initiated Direct Full-Time W-2 Transition via Manage Roles. EOR partner notified to coordinate payroll transition.`

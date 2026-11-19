@@ -491,7 +491,9 @@ export default function EmployerJobsTableClient({
                             ? `${job.eorDurationMonths || 6}-Mo Fixed-Term W-2 (+28% EOR)`
                             : job.eorContractTrack === 'open_ended_w2'
                             ? 'Open-Ended W-2 Contract (+28% EOR)'
-                            : '90-Day W-2 Trial ($0 Conversion)'}
+                            : job.eorDurationMonths
+                            ? `${job.eorDurationMonths}-Mo W-2 Contract-to-Hire ($0 Conversion)`
+                            : 'W-2 Contract-to-Hire ($0 Conversion)'}
                         </span>
                       )}
                       {job.equipmentPolicy && job.equipmentPolicy !== 'No Equipment Needed / Not Applicable' && (
@@ -508,7 +510,7 @@ export default function EmployerJobsTableClient({
                         <strong className="text-indigo-900">W-2 Lifecycle Controls:</strong> Unlocks on active W-2 offer
                       </span>
                       <div className="flex flex-wrap items-center gap-1">
-                        <span className="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-bold text-slate-400">Extend +90d</span>
+                        <span className="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-bold text-slate-400">Extend Term</span>
                         <span className="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-bold text-slate-400">Convert ($0)</span>
                         <span className="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-bold text-slate-400">Wrap Up</span>
                       </div>
@@ -522,12 +524,12 @@ export default function EmployerJobsTableClient({
                           <div className="flex flex-wrap items-center justify-between gap-1.5">
                             <span className="font-extrabold text-indigo-950">{eng.professionalLabel}</span>
                             <span className="rounded bg-white border border-indigo-200 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700">
-                              {eng.status === 'proposed' ? 'Offer Pending Review' : eng.status === 'converted_direct' ? 'Converted Direct ($0 Fee)' : eng.status === 'ended' ? 'Assignment Wrapped Up' : `Active W-2${eng.extensionCount > 0 ? ` (+${eng.extensionCount * 90}d Ext)` : ''}`}
+                              {eng.status === 'proposed' ? 'Offer Pending Review' : eng.status === 'converted_direct' ? 'Converted Direct ($0 Fee)' : eng.status === 'ended' ? 'Assignment Wrapped Up' : `Active W-2${eng.extensionCount > 0 ? ` (+${eng.extensionCount * Math.max(1, Number(eng.durationMonths) || 3)}mo Ext)` : ''}`}
                             </span>
                           </div>
                           {eng.status === 'accepted_pending_eor' && (
                             <div className="flex flex-wrap items-center gap-1.5">
-                              <button type="button" onClick={() => openContractConfirm(job.title, eng, 'extend_90d')} className="px-2 py-1 rounded bg-white border border-indigo-300 text-[11px] font-bold text-indigo-700 hover:bg-indigo-100 cursor-pointer">Extend +90d</button>
+                              <button type="button" onClick={() => openContractConfirm(job.title, eng, 'extend_90d')} className="px-2 py-1 rounded bg-white border border-indigo-300 text-[11px] font-bold text-indigo-700 hover:bg-indigo-100 cursor-pointer">Extend +{Math.max(1, Number(eng.durationMonths) || 3)}mo</button>
                               <button type="button" onClick={() => openContractConfirm(job.title, eng, 'convert_direct')} className="px-2 py-1 rounded bg-emerald-600 text-[11px] font-bold text-white hover:bg-emerald-700 cursor-pointer">Convert Direct ($0)</button>
                               <button type="button" onClick={() => openContractConfirm(job.title, eng, 'wrap_up_assignment')} className="px-2 py-1 rounded bg-white border border-slate-300 text-[11px] font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-700 cursor-pointer">Wrap Up</button>
                             </div>
@@ -814,7 +816,9 @@ export default function EmployerJobsTableClient({
                                   ? `${job.eorDurationMonths || 6}-Mo Fixed-Term W-2 (+28% EOR)`
                                   : job.eorContractTrack === 'open_ended_w2'
                                   ? 'Open-Ended W-2 Contract (+28% EOR)'
-                                  : '90-Day W-2 Trial ($0 Conversion)'}
+                                  : job.eorDurationMonths
+                                  ? `${job.eorDurationMonths}-Mo W-2 Contract-to-Hire ($0 Conversion)`
+                                  : 'W-2 Contract-to-Hire ($0 Conversion)'}
                               </span>
                             )}
                             {job.equipmentPolicy && job.equipmentPolicy !== 'No Equipment Needed / Not Applicable' && (
@@ -833,7 +837,7 @@ export default function EmployerJobsTableClient({
                               <strong className="text-indigo-900">W-2 Lifecycle Controls Ready:</strong> Unlocks here once a W-2 offer is accepted.
                             </span>
                             <div className="flex flex-wrap items-center gap-1.5">
-                              <span className="px-2 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-bold text-slate-400">Extend +90d</span>
+                              <span className="px-2 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-bold text-slate-400">Extend Term</span>
                               <span className="px-2 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-bold text-slate-400">Convert Direct ($0)</span>
                               <span className="px-2 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-bold text-slate-400">Wrap Up &amp; Gear</span>
                             </div>
@@ -859,7 +863,7 @@ export default function EmployerJobsTableClient({
                                         ? 'Converted Direct ($0 Fee)'
                                         : eng.status === 'ended'
                                         ? 'Assignment Wrapped Up'
-                                        : `Active W-2${eng.extensionCount > 0 ? ` (+${eng.extensionCount * 90}d Ext)` : ''}`}
+                                        : `Active W-2${eng.extensionCount > 0 ? ` (+${eng.extensionCount * Math.max(1, Number(eng.durationMonths) || 3)}mo Ext)` : ''}`}
                                     </span>
                                     {eng.equipmentReturnStatus === 'return_requested' && (
                                       <span className="rounded bg-amber-100 border border-amber-300 px-1.5 py-0.5 text-[10px] font-extrabold text-amber-900">
@@ -885,9 +889,8 @@ export default function EmployerJobsTableClient({
                                         onClick={() => openContractConfirm(job.title, eng, 'extend_90d')}
                                         className="px-2.5 py-1 rounded-md bg-white border border-indigo-300 text-[11px] font-bold text-indigo-700 hover:bg-indigo-100 cursor-pointer"
                                       >
-                                        Extend +90d
-                                      </button
-                                      >
+                                        Extend +{Math.max(1, Number(eng.durationMonths) || 3)}mo
+                                      </button>
                                       <button
                                         type="button"
                                         onClick={() => openContractConfirm(job.title, eng, 'convert_direct')}
@@ -1201,7 +1204,7 @@ export default function EmployerJobsTableClient({
               </span>
               <h3 className="text-base font-black text-slate-900">
                 {pendingContractConfirm.action === 'extend_90d'
-                  ? 'Confirm +90-Day W-2 Contract Extension'
+                  ? `Confirm +${Math.max(1, Number(pendingContractConfirm.eng.durationMonths) || 3)}-Month W-2 Contract Extension`
                   : pendingContractConfirm.action === 'convert_direct'
                   ? 'Confirm $0 Direct W-2 Hire Conversion'
                   : pendingContractConfirm.action === 'wrap_up_assignment'
@@ -1239,7 +1242,7 @@ export default function EmployerJobsTableClient({
 
             <p className="text-xs text-slate-700 leading-relaxed">
               {pendingContractConfirm.action === 'extend_90d'
-                ? 'This extends the active W-2 engagement by an additional 90 days through our US Employer of Record at the current hourly rate. Do not choose this option if you meant to convert this Professional to your direct W-2 payroll.'
+                ? `This extends the active W-2 engagement by an additional ${Math.max(1, Number(pendingContractConfirm.eng.durationMonths) || 3)} ${Math.max(1, Number(pendingContractConfirm.eng.durationMonths) || 3) === 1 ? 'month' : 'months'} through our US Employer of Record at the current hourly rate. Do not choose this option if you meant to convert this Professional to your direct W-2 payroll.`
                 : pendingContractConfirm.action === 'convert_direct'
                 ? 'This initiates a $0-fee direct W-2 hire transition onto your company payroll and notifies our Employer of Record partner to coordinate final weekly electronic timesheet approval and Net 15 closeout billing.'
                 : pendingContractConfirm.action === 'wrap_up_assignment'
@@ -1247,7 +1250,7 @@ export default function EmployerJobsTableClient({
                 : pendingContractConfirm.action === 'request_gear_return'
                 ? 'This opens IT hardware return tracking for this assignment and posts an offboarding return reminder in the secure message thread.'
                 : pendingContractConfirm.action === 'reopen_assignment'
-                ? 'This restores this W-2 engagement to Active W-2 status and re-enables +90-day extension, $0 direct conversion, and wrap-up controls.'
+                ? 'This restores this W-2 engagement to Active W-2 status and re-enables contract term extension, $0 direct conversion, and wrap-up controls.'
                 : 'This records verified receipt of all company-shipped or EOR-managed hardware and closes open asset-return tracking for this assignment.'}
             </p>
 
@@ -1260,7 +1263,7 @@ export default function EmployerJobsTableClient({
               />
               <span className="text-xs font-bold text-slate-900 leading-snug">
                 {pendingContractConfirm.action === 'extend_90d'
-                  ? `I confirm I intend to extend ${pendingContractConfirm.eng.professionalLabel}'s W-2 contract by +90 days (not convert or end the assignment).`
+                  ? `I confirm I intend to extend ${pendingContractConfirm.eng.professionalLabel}'s W-2 contract by +${Math.max(1, Number(pendingContractConfirm.eng.durationMonths) || 3)} ${Math.max(1, Number(pendingContractConfirm.eng.durationMonths) || 3) === 1 ? 'month' : 'months'} (not convert or end the assignment).`
                   : pendingContractConfirm.action === 'convert_direct'
                   ? `I confirm I intend to convert ${pendingContractConfirm.eng.professionalLabel} to a direct W-2 hire ($0 conversion fee).`
                   : pendingContractConfirm.action === 'wrap_up_assignment'
@@ -1307,7 +1310,7 @@ export default function EmployerJobsTableClient({
                     }`}
                   >
                     {pendingContractConfirm.action === 'extend_90d'
-                      ? 'Confirm +90d Extension'
+                      ? `Confirm +${Math.max(1, Number(pendingContractConfirm.eng.durationMonths) || 3)}mo Extension`
                       : pendingContractConfirm.action === 'convert_direct'
                       ? 'Confirm $0 Direct Conversion'
                       : pendingContractConfirm.action === 'wrap_up_assignment'

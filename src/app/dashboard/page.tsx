@@ -595,7 +595,7 @@ export default async function DashboardPage({
             </p>
           </Link>
 
-          {/* Card 2: Manage Active Roles */}
+          {/* Card 2: Manage Roles */}
           <Link
             href={
               hasOrg
@@ -640,7 +640,7 @@ export default async function DashboardPage({
                   a11yColorTiles ? 'text-blue-950' : 'text-slate-900'
                 }`}
               >
-                {isPracticeEmployer ? 'Role Drafts' : 'Active Roles'}
+                {isPracticeEmployer ? 'Role Drafts' : 'Manage Roles'}
               </h3>
               <p
                 className={`text-xs mt-1 ${

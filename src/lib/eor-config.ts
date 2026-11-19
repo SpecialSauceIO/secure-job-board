@@ -39,7 +39,7 @@ export const EOR_CONTRACT_TRACK_OPTIONS: ReadonlyArray<{
   },
   {
     value: 'trial_to_hire_90d',
-    label: '90-Day W-2 Trial-to-Hire ($0 Day-90 Conversion)',
+    label: 'W-2 Contract-to-Hire ($0 Conversion)',
   },
   {
     value: 'fixed_term_w2',

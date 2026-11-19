@@ -416,7 +416,8 @@ export default function SecureMessageThread({
   const parsedHrs = Math.min(60, Math.max(10, Math.round(Number(trialWeeklyHours) || 40)))
   const computedBillRate = Math.round(parsedPay * 1.28 * 100) / 100
   const agencyBillRate = Math.round(parsedPay * 1.55 * 100) / 100
-  const est90DaySavings = Math.max(0, Math.round((agencyBillRate - computedBillRate) * parsedHrs * 13))
+  const activeMonths = Math.max(1, Number(jobEorDurationMonths) || 3)
+  const estContractSavings = Math.max(0, Math.round((agencyBillRate - computedBillRate) * parsedHrs * Math.round(activeMonths * 4.33)))
 
   const handleProposeTrial = async () => {
     setIsSubmittingTrial(true)
@@ -427,6 +428,8 @@ export default function SecureMessageThread({
       weeklyHours: parsedHrs,
       targetStartDate: trialStartDate,
       workState: trialWorkState,
+      contractTrack: (jobEorTrack === 'fixed_term_w2' || jobEorTrack === 'open_ended_w2' ? jobEorTrack : 'trial_to_hire_90d'),
+      durationMonths: jobEorTrack === 'open_ended_w2' ? undefined : activeMonths,
       requireBackgroundCheck: trialBgCheck,
       requireDrugScreening: trialDrugCheck,
       scopeNote: trialScopeNote,
@@ -1146,6 +1149,42 @@ export default function SecureMessageThread({
               </div>
             </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700">
+                  W-2 Contract Track
+                </label>
+                <select
+                  value={jobEorTrack === 'fixed_term_w2' || jobEorTrack === 'open_ended_w2' ? jobEorTrack : 'trial_to_hire_90d'}
+                  onChange={(e) => setJobEorTrack(e.target.value)}
+                  className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-900 cursor-pointer"
+                >
+                  <option value="trial_to_hire_90d">W-2 Contract-to-Hire ($0 Conversion)</option>
+                  <option value="fixed_term_w2">Fixed-Term W-2 Contract</option>
+                  <option value="open_ended_w2">Open-Ended Ongoing W-2 Contract</option>
+                </select>
+              </div>
+              {jobEorTrack !== 'open_ended_w2' && (
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700">
+                    {jobEorTrack === 'fixed_term_w2' ? 'Initial Fixed-Term Length' : 'Target Ramp-Up Period'}
+                  </label>
+                  <select
+                    value={String(activeMonths)}
+                    onChange={(e) => setJobEorDurationMonths(Number(e.target.value) || 3)}
+                    className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-900 cursor-pointer"
+                  >
+                    <option value="1">1 Month / 30 Days ($0 Conversion)</option>
+                    <option value="2">2 Months / 60 Days ($0 Conversion)</option>
+                    <option value="3">3 Months / 90 Days ($0 Conversion)</option>
+                    <option value="6">6 Months / 180 Days ($0 Conversion)</option>
+                    <option value="9">9 Months ($0 Conversion)</option>
+                    <option value="12">12 Months ($0 Conversion)</option>
+                  </select>
+                </div>
+              )}
+            </div>
+
             <div className="flex flex-wrap items-center gap-4 text-xs text-slate-700">
               <label className="inline-flex items-center gap-1.5 font-semibold cursor-pointer">
                 <input
@@ -1230,7 +1269,9 @@ export default function SecureMessageThread({
                   </span>
                 </p>
                 <p className="text-[11px] text-emerald-700 font-bold">
-                  Saves ~${est90DaySavings.toLocaleString('en-US')} over 90 days vs. 55% staffing agency markup (${agencyBillRate.toFixed(2)}/hr) + $0 buyout fee at Day 90
+                  {jobEorTrack === 'open_ended_w2'
+                    ? `Saves ~$${Math.max(0, Math.round((agencyBillRate - computedBillRate) * parsedHrs * 13)).toLocaleString('en-US')} per quarter vs. 55% staffing agency markup ($${agencyBillRate.toFixed(2)}/hr) + $0 direct conversion fee anytime`
+                    : `Saves ~$${estContractSavings.toLocaleString('en-US')} over ${activeMonths} ${activeMonths === 1 ? 'month' : 'months'} vs. 55% staffing agency markup ($${agencyBillRate.toFixed(2)}/hr) + $0 direct conversion fee anytime`}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -1270,7 +1311,7 @@ export default function SecureMessageThread({
                       ? `${trialToHire.duration_months || 6}-Month Fixed-Term W-2 Contract`
                       : trialToHire.contract_track === 'open_ended_w2'
                       ? 'Open-Ended W-2 Contract'
-                      : '90-Day W-2 Contract-to-Hire'}
+                      : 'W-2 Contract-to-Hire'}
                   </span>
                   {viewerRole === 'employer' && (
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">

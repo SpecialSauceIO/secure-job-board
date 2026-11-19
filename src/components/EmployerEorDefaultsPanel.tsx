@@ -167,10 +167,10 @@ export default function EmployerEorDefaultsPanel() {
             </div>
           </div>
 
-          {config.defaultContractTrack === 'fixed_term_w2' && (
+          {(config.defaultContractTrack === 'fixed_term_w2' || config.defaultContractTrack === 'trial_to_hire_90d') && (
             <div className="max-w-xs">
               <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700">
-                Default Initial Fixed-Term Length
+                {config.defaultContractTrack === 'trial_to_hire_90d' ? 'Default Ramp-Up / Contract Period' : 'Default Initial Fixed-Term Length'}
               </label>
               <select
                 value={config.defaultDurationMonths}
@@ -182,10 +182,12 @@ export default function EmployerEorDefaultsPanel() {
                 }
                 className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-3 text-sm font-medium cursor-pointer"
               >
-                <option value={3}>3 Months (Extendable Anytime)</option>
-                <option value={6}>6 Months (Extendable Anytime)</option>
-                <option value={9}>9 Months (Extendable Anytime)</option>
-                <option value={12}>12 Months (Extendable Anytime)</option>
+                <option value={1}>1 Month / 30 Days ($0 Conversion or Extend Anytime)</option>
+                <option value={2}>2 Months / 60 Days ($0 Conversion or Extend Anytime)</option>
+                <option value={3}>3 Months / 90 Days ($0 Conversion or Extend Anytime)</option>
+                <option value={6}>6 Months / 180 Days ($0 Conversion or Extend Anytime)</option>
+                <option value={9}>9 Months ($0 Conversion or Extend Anytime)</option>
+                <option value={12}>12 Months ($0 Conversion or Extend Anytime)</option>
               </select>
             </div>
           )}
