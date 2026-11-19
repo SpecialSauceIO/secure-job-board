@@ -1,4 +1,5 @@
 import StructuredCertificationSelector from '@/components/StructuredCertificationSelector'
+import CandidatePreferencesForm from '@/components/CandidatePreferencesForm'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
@@ -267,7 +268,23 @@ export default async function ProfilePage() {
     profile?.identity_verified === true ||
       String(profile?.identity_verified) === 'true' ||
       profile?.is_verified === true ||
-      String(profile?.is_verified) === 'true'
+      String(profile?.is_verified) === 'true' ||
+      rawSkillsArray.some(
+        (s: any) =>
+          s &&
+          typeof s === 'object' &&
+          (s.verifiedExplorerPaid === true ||
+            ['explorer', 'professional', 'prestige', 'pro'].includes(
+              String(s.plan || '').toLowerCase()
+            ) ||
+            s._ss_meta?.verifiedExplorerPaid === true ||
+            ['explorer', 'professional', 'prestige', 'pro'].includes(
+              String(s._ss_meta?.plan || '').toLowerCase()
+            ))
+      ) ||
+      ['explorer', 'professional', 'prestige', 'pro'].includes(
+        String((profile as any)?.subscription_tier || '').toLowerCase()
+      )
   )
 
   const AiSection = (
@@ -363,22 +380,30 @@ export default async function ProfilePage() {
       </div>
 
       <div className="space-y-6 bg-slate-50 p-4 sm:p-6 border-2 border-slate-300 rounded-xl">
-        {/* Clean Pointer to Match Preferences & Dealbreakers */}
-        <div className="p-4 rounded-xl bg-white border border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-          <div>
-            <p className="text-xs font-extrabold text-slate-900">
-              Looking for Salary Minimums, Work Model, Employment Types, Target Location, or Availability?
-            </p>
+        {/* Match Preferences & Dealbreakers Section */}
+        <div id="preferences" className="p-4 sm:p-6 rounded-xl bg-white border-2 border-indigo-200 space-y-5 shadow-2xs scroll-mt-24">
+          <div className="border-b border-slate-200 pb-3">
+            <h3 className="text-base font-extrabold text-slate-900">
+              Match Preferences &amp; Dealbreakers
+            </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              This page only captures your professional credentials and capabilities. Configure your search logistics and pitch firewall rules in Match Preferences.
+              Set your compensation floor, accepted employment arrangements, work model, availability status, and target US location. Roles below your dealbreakers are blocked automatically.
             </p>
           </div>
-          <Link
-            href="/dashboard/preferences"
-            className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-extrabold border border-indigo-200 transition-colors"
-          >
-            Manage Dealbreakers &rarr;
-          </Link>
+          <CandidatePreferencesForm
+            embedded
+            isVerified={isProfileVerified}
+            initialMinSalary={
+              profile?.min_salary_expectation
+                ? String(profile.min_salary_expectation)
+                : ''
+            }
+            initialEmploymentTypes={currentEmploymentTypes}
+            employmentTypeOptions={CANDIDATE_EMPLOYMENT_TYPE_OPTIONS}
+            initialWorkModel={profile?.preferred_work_model || 'remote'}
+            initialAvailabilityWindow={currentAvailability}
+            initialLocation={profile?.location || ''}
+          />
         </div>
 
         {/* Row 1: Experience Years + Primary Industry Vertical */}
@@ -488,10 +513,10 @@ export default async function ProfilePage() {
 
       <div className="pt-2 flex justify-end">
         <SubmitButton
-          pendingText="Saving Profile..."
+          pendingText="Saving Profile & Preferences..."
           className="w-full sm:w-auto rounded-xl bg-indigo-600 px-8 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer"
         >
-          Save Profile Updates
+          Save Profile &amp; Preferences
         </SubmitButton>
       </div>
     </form>
@@ -521,10 +546,10 @@ export default async function ProfilePage() {
             Back to Professional Dashboard
           </Link>
           <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-            Anonymous Profile
+            My Profile &amp; Match Preferences
           </h1>
           <p className="text-slate-500 mt-2">
-            Manage your professional credentials, extracted skills, primary industry vertical, education, active certifications, language capabilities, and vaulted contact identity.
+            Manage your anonymous credentials, extracted skills, compensation floor, work model, availability dealbreakers, and vaulted contact identity in one place.
           </p>
         </header>
 

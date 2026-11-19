@@ -883,6 +883,15 @@ export default async function DashboardPage({
   const inboundEmployerPitches = candidateRecords.filter(
     (a) => a.initiated_by === 'employer'
   )
+  const placementHandshakes = candidateRecords
+    .map((a: any) => a?.match_data?.trial_to_hire)
+    .filter(Boolean)
+  const activePlacementsCount = placementHandshakes.filter(
+    (h: any) => h?.status === 'accepted_pending_eor' || h?.status === 'converted_direct'
+  ).length
+  const proposedPlacementsCount = placementHandshakes.filter(
+    (h: any) => h?.status === 'proposed'
+  ).length
 
   const applicationCount = outboundCandidateApps.length
   const unlockedOutboundAppsCount = outboundCandidateApps.filter(
@@ -1298,12 +1307,12 @@ export default async function DashboardPage({
             </h3>
             <p className="text-xs text-slate-500 mt-1">
               {hasProfileData
-                ? 'Profile built & ready for TrueFit™ matching'
-                : 'Upload your PDF resume to auto-fill skills'}
+                ? 'Skills, resume & match preferences ready'
+                : 'Upload your PDF resume & set preferences'}
             </p>
           </div>
           <p className="text-xs font-semibold text-slate-700 group-hover:text-slate-950 mt-5">
-            {hasProfileData ? 'Skills & resume →' : 'Upload resume →'}
+            {hasProfileData ? 'Profile & preferences →' : 'Upload resume →'}
           </p>
         </Link>
 
@@ -1471,9 +1480,9 @@ export default async function DashboardPage({
           </p>
         </Link>
 
-        {/* Card 4: Match Preferences */}
+        {/* Card 4: My Placements */}
         <Link
-          href="/dashboard/preferences"
+          href="/dashboard/placements"
           className={`group p-4 sm:p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
             a11yColorTiles
               ? 'bg-purple-100/75 hover:bg-purple-200/60 border-purple-400 hover:border-purple-500 shadow-xs'
@@ -1494,23 +1503,50 @@ export default async function DashboardPage({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="1.75"
-                  d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+                  d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                 />
               </svg>
+              <div className="flex items-center gap-1.5">
+                {proposedPlacementsCount > 0 ? (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-600 text-white text-[11px] font-bold shadow-xs">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-300 animate-pulse" />
+                    {proposedPlacementsCount} Offer
+                  </span>
+                ) : activePlacementsCount > 0 ? (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-indigo-600 text-white text-[11px] font-bold shadow-xs">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
+                    {activePlacementsCount} Active
+                  </span>
+                ) : (
+                  <span
+                    className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${
+                      a11yColorTiles
+                        ? 'text-purple-950 bg-white/90 border-purple-300 font-bold'
+                        : 'text-slate-800 bg-slate-100 border-slate-300 font-bold'
+                    }`}
+                  >
+                    {placementHandshakes.length} Total
+                  </span>
+                )}
+              </div>
             </div>
             <h3
               className={`text-lg font-bold ${
                 a11yColorTiles ? 'text-purple-950' : 'text-slate-900'
               }`}
             >
-              Match Preferences
+              My Placements
             </h3>
             <p
               className={`text-xs mt-1 ${
                 a11yColorTiles ? 'text-purple-900/80' : 'text-slate-500'
               }`}
             >
-              Set minimum pay, employment types &amp; work model
+              {proposedPlacementsCount > 0
+                ? 'Review & accept your protected W-2 offer'
+                : activePlacementsCount > 0
+                ? `${activePlacementsCount} active W-2 engagement${activePlacementsCount === 1 ? '' : 's'} & EOR payroll`
+                : 'W-2 Contract-to-Hire offers, onboarding & payroll'}
             </p>
           </div>
           <p
@@ -1520,7 +1556,7 @@ export default async function DashboardPage({
                 : 'text-slate-700 group-hover:text-slate-950'
             }`}
           >
-            Edit preferences →
+            View placements →
           </p>
         </Link>
       </section>

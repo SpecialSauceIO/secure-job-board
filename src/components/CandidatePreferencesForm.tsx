@@ -13,7 +13,8 @@ interface EmploymentTypeOption {
 }
 
 interface CandidatePreferencesFormProps {
-  action: (formData: FormData) => void | Promise<void>
+  action?: (formData: FormData) => void | Promise<void>
+  embedded?: boolean
   isVerified: boolean
   initialMinSalary: string
   initialEmploymentTypes: string[]
@@ -21,13 +22,14 @@ interface CandidatePreferencesFormProps {
   initialWorkModel: string
   initialAvailabilityWindow: string
   initialLocation: string
-  hiddenExperienceYears: string
-  hiddenBio: string
-  hiddenStructuredSkillsJson: string
+  hiddenExperienceYears?: string
+  hiddenBio?: string
+  hiddenStructuredSkillsJson?: string
 }
 
 export default function CandidatePreferencesForm({
   action,
+  embedded = false,
   isVerified,
   initialMinSalary,
   initialEmploymentTypes,
@@ -35,9 +37,9 @@ export default function CandidatePreferencesForm({
   initialWorkModel,
   initialAvailabilityWindow,
   initialLocation,
-  hiddenExperienceYears,
-  hiddenBio,
-  hiddenStructuredSkillsJson,
+  hiddenExperienceYears = '',
+  hiddenBio = '',
+  hiddenStructuredSkillsJson = '[]',
 }: CandidatePreferencesFormProps) {
   const [minSalary, setMinSalary] = useState(initialMinSalary)
   const [selectedEmpTypes, setSelectedEmpTypes] = useState<string[]>(
@@ -81,26 +83,14 @@ export default function CandidatePreferencesForm({
 
   const isPausedStatus = availabilityWindow.startsWith('Paused')
 
-  return (
-    <form
-      action={action}
-      className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6"
+  const fieldsBody = (
+    <div
+      className={
+        !isVerified
+          ? 'opacity-45 pointer-events-none select-none grayscale space-y-6'
+          : 'space-y-6'
+      }
     >
-      <input type="hidden" name="experience_years" value={hiddenExperienceYears} />
-      <input type="hidden" name="bio" value={hiddenBio} />
-      <input
-        type="hidden"
-        name="structured_skills"
-        value={hiddenStructuredSkillsJson}
-      />
-
-      <div
-        className={
-          !isVerified
-            ? 'opacity-45 pointer-events-none select-none grayscale space-y-6'
-            : 'space-y-6'
-        }
-      >
         {/* 1. MINIMUM SALARY EXPECTATION */}
         <div>
           <label className="block text-sm font-bold text-slate-700">
@@ -240,7 +230,7 @@ export default function CandidatePreferencesForm({
           />
         </div>
 
-        {/* Clean Pointer to Professional Profile */}
+      {!embedded && (
         <div className="p-4 rounded-xl bg-slate-50 border border-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <p className="text-xs font-extrabold text-slate-900">
@@ -257,8 +247,27 @@ export default function CandidatePreferencesForm({
             Edit My Profile &rarr;
           </Link>
         </div>
-      </div>
+      )}
+    </div>
+  )
 
+  if (embedded) {
+    return fieldsBody
+  }
+
+  return (
+    <form
+      action={action}
+      className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-slate-300 shadow-sm space-y-6"
+    >
+      <input type="hidden" name="experience_years" value={hiddenExperienceYears} />
+      <input type="hidden" name="bio" value={hiddenBio} />
+      <input
+        type="hidden"
+        name="structured_skills"
+        value={hiddenStructuredSkillsJson}
+      />
+      {fieldsBody}
       <div className="pt-4 flex justify-end">
         <SubmitButton
           disabled={!isVerified}

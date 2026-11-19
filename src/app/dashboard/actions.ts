@@ -2837,6 +2837,176 @@ export async function getCandidateApplications(
   return { data: processedData, error: null }
 }
 
+export async function getCandidatePlacements() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { data: [], error: 'Not authenticated' }
+
+  const db = getAdminSupabaseClient() || supabase
+
+  const { data: rawApps, error } = await db
+    .from('applications')
+    .select('*')
+    .eq('candidate_id', user.id)
+    .order('created_at', { ascending: false })
+
+  if (error) return { data: [], error: error.message }
+
+  const placementApps = (rawApps || []).filter((a: any) =>
+    Boolean(a?.match_data?.trial_to_hire)
+  )
+
+  if (placementApps.length === 0) {
+    return { data: [], error: null }
+  }
+
+  const jobIds = Array.from(
+    new Set(placementApps.map((a: any) => String(a.job_id || '')).filter(Boolean))
+  )
+  const jobsById: Record<string, any> = {}
+  if (jobIds.length > 0) {
+    const { data: allJobs } = await db.from('jobs').select('*')
+    const jobIdSet = new Set(jobIds)
+    const jobRows = (allJobs || []).filter(
+      (j: any) => jobIdSet.has(String(j.id || '')) || jobIdSet.has(String(j.uuid || ''))
+    )
+    const orgIds = Array.from(
+      new Set(jobRows.map((j: any) => j.organization_id).filter(Boolean))
+    )
+    const orgsById: Record<string, any> = {}
+    if (orgIds.length > 0) {
+      const { data: orgRows } = await db
+        .from('organizations')
+        .select('*')
+        .in('id', orgIds)
+      for (const o of orgRows || []) orgsById[o.id] = o
+    }
+    for (const j of jobRows) {
+      const enriched = {
+        ...j,
+        organizations: j.organization_id ? orgsById[j.organization_id] || null : null,
+      }
+      if (j.id) jobsById[String(j.id)] = enriched
+      if (j.uuid) jobsById[String(j.uuid)] = enriched
+    }
+  }
+
+  const statusRank: Record<string, number> = {
+    proposed: 0,
+    accepted_pending_eor: 1,
+    converted_direct: 2,
+    ended: 3,
+    declined: 4,
+    withdrawn: 5,
+  }
+
+  const items = placementApps.map((app: any) => {
+    const matchData = app.match_data || {}
+    const rawHandshake = matchData.trial_to_hire || {}
+    const safeHandshake = {
+      ...rawHandshake,
+      employer_bill_rate: 0,
+      po_number: null,
+      invoice_cc_email: null,
+    }
+    const rawJob = jobsById[String(app.job_id || '')] || null
+    const enrichedJob = rawJob ? enrichJobRecord(rawJob) : null
+    const rawOrg = enrichedJob
+      ? Array.isArray(enrichedJob.organizations)
+        ? enrichedJob.organizations[0]
+        : enrichedJob.organizations || {}
+      : {}
+
+    const isUnlocked = Boolean(
+      app.is_revealed ||
+        matchData.candidate_vault_released ||
+        rawHandshake.status === 'proposed' ||
+        rawHandshake.status === 'accepted_pending_eor' ||
+        rawHandshake.status === 'converted_direct'
+    )
+
+    const realOrgName =
+      rawOrg?.name ||
+      rawHandshake?.legal_entity_name ||
+      matchData?.employer_org_name ||
+      (matchData?.employer_contact_email
+        ? String(matchData.employer_contact_email).split('@')[1]
+        : null) ||
+      'Verified Employer'
+
+    const realOrgDomain =
+      rawOrg?.domain ||
+      matchData?.employer_org_domain ||
+      (matchData?.employer_contact_email
+        ? String(matchData.employer_contact_email).split('@')[1]
+        : null) ||
+      null
+
+    const fallbackEmployerEmail =
+      realOrgDomain && realOrgDomain !== 'hidden' ? `hiring@${realOrgDomain}` : null
+
+    const messages = Array.isArray(matchData.messages) ? matchData.messages : []
+    const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null
+    const lastReadIso = matchData.candidate_last_read_at
+    const isInboundMessage =
+      lastMsg?.sender_role === 'employer' || lastMsg?.sender_role === 'system'
+    const hasUnread = Boolean(
+      lastMsg &&
+        isInboundMessage &&
+        (!lastReadIso ||
+          new Date(lastMsg.created_at).getTime() > new Date(lastReadIso).getTime())
+    )
+
+    return {
+      id: app.id,
+      job_id: app.job_id,
+      status: app.status,
+      initiated_by: app.initiated_by === 'employer' ? 'employer' : 'outbound',
+      is_revealed: Boolean(app.is_revealed),
+      match_score: app.match_score,
+      created_at: app.created_at,
+      reference_id: formatReferenceId(app.id),
+      job_title: enrichedJob?.title || 'Protected W-2 Role',
+      job_location: enrichedJob?.location || enrichedJob?.job_meta?.location || safeHandshake.work_state || 'Remote / US',
+      job_work_model: enrichedJob?.work_model || enrichedJob?.job_meta?.work_model || null,
+      employer_name: isUnlocked ? realOrgName : 'Verified Employer',
+      employer_domain: isUnlocked ? realOrgDomain : null,
+      employer_email: isUnlocked ? matchData?.employer_contact_email || fallbackEmployerEmail : null,
+      professional_full_name: matchData?.candidate_full_name || null,
+      professional_email: matchData?.candidate_contact_email || user.email || null,
+      vault_released: Boolean(matchData?.candidate_vault_released),
+      messages,
+      has_unread: hasUnread,
+      placement: safeHandshake,
+    }
+  })
+
+  items.sort((a: any, b: any) => {
+    const rankA = statusRank[String(a.placement?.status || '')] ?? 99
+    const rankB = statusRank[String(b.placement?.status || '')] ?? 99
+    if (rankA !== rankB) return rankA - rankB
+    const tsA = new Date(
+      a.placement?.lifecycle_updated_at ||
+        a.placement?.responded_at ||
+        a.placement?.proposed_at ||
+        a.created_at ||
+        0
+    ).getTime()
+    const tsB = new Date(
+      b.placement?.lifecycle_updated_at ||
+        b.placement?.responded_at ||
+        b.placement?.proposed_at ||
+        a.created_at ||
+        0
+    ).getTime()
+    return tsB - tsA
+  })
+
+  return { data: items, error: null }
+}
+
 export async function getCandidateConnectionRequests(
   daysFilter?: number,
   searchQuery?: string

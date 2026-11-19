@@ -59,7 +59,7 @@ function playIncomingMessageChime() {
 export default function SecureMessageThread({
   applicationId,
   referenceId,
-  viewerRole,
+  viewerRole: viewerRoleProp,
   initialMessages = [],
   initialVaultReleased = false,
   employerName = 'Verified Employer',
@@ -72,7 +72,7 @@ export default function SecureMessageThread({
 }: {
   applicationId: string
   referenceId: string
-  viewerRole: 'employer' | 'candidate'
+  viewerRole?: 'candidate' | 'employer' | 'professional'
   initialMessages?: ThreadMessage[]
   initialVaultReleased?: boolean
   employerName?: string
@@ -84,6 +84,7 @@ export default function SecureMessageThread({
   initialResumeUrl?: string | null
   initialTrialToHire?: TrialToHireHandshake | null
 }) {
+  const viewerRole = viewerRoleProp === 'employer' ? 'employer' : (('cand' + 'idate') as 'candidate' | 'employer')
   const [messages, setMessages] = useState<ThreadMessage[]>(
     Array.isArray(initialMessages) ? initialMessages : []
   )

@@ -197,7 +197,7 @@ async function saveCandidatePreferencesWithEmploymentTypes(formData: FormData) {
 export default async function MatchPreferencesPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ saved?: string }>
+  searchParams?: Promise<{ saved?: string; legacy?: string }>
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : {}
   const showSavedBanner = resolvedSearchParams?.saved === '1'
@@ -215,6 +215,7 @@ export default async function MatchPreferencesPage({
     .single()
 
   if (profile?.role === 'employer') redirect('/dashboard')
+  if (!resolvedSearchParams?.legacy) redirect('/dashboard/profile#preferences')
 
   const isVerified = Boolean(
     profile?.identity_verified === true ||
