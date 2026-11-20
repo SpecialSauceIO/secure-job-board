@@ -74,5 +74,7 @@
 
 - [x] Wave 7 Final Operations Console Security Hardening & 7-Wave Audit Closeout (`special-sauce-ops @ 61602da`: `src/app/api/ingest/route.ts`, `src/app/actions.ts`, `src/app/telemetry/page.tsx`, `src/app/calculator/page.tsx`, `next.config.ts` — eliminated hardcoded ingest fallback secret and enforced timing-safe shared-secret auth on `customer_ticket_reply` and `work_item` routes, added Resend `email_id` regex/timeout/redirect guards and 12 KB payload clamping, enforced domain-separated HMAC token signing for `ops_session` vs `ops_otp_challenge` with active roster suspension checks, gated destructive account/org/flag/quarantine/banner/bulk-delete actions behind `assertSuperAdmin()`, escaped HTML entities and stripped CR/LF headers across OTP, resolution, and reply emails, enforced binary magic-byte raster validation on KB image uploads and active-script blocking on ticket attachments, locked `/telemetry` behind 2FA `checkOpsSession()`, aligned Practice Mode copy in `calculator/page.tsx`, and added HSTS, Permissions-Policy, and frame-ancestors CSP headers)
 
+- [x] Legacy BOSS Partner API Retirement & Provider-Agnostic W-2 EOR Handoff (`src/lib/eor-handoff.ts`, `src/lib/boss-eor.ts`, `src/app/dashboard/messaging-actions.ts`, `src/components/SecureMessageThread.tsx`, `src/app/dashboard/placements/page.tsx` — retired rejected BOSS Partner API outbound client/associate/assignment calls, env keys, and telemetry strings in favor of a clean provider-agnostic `submitW2PlacementHandoff` concierge bridge ready for Ascen REST API wiring once partner specs arrive)
+
 ## Next Feature Queue & Deferred Modules
-- [ ] True Horizon™ (`horizon` — skipped while in active development)
+- [ ] True Horizon™ (`horizon` — deferred until 2027)

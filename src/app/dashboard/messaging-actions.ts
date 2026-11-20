@@ -5,7 +5,7 @@ import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js
 import { revalidatePath, unstable_noStore as noStore } from 'next/cache'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
 import { pushToOpsControlPlane } from '@/lib/ops-bridge'
-import { submitBossW2PlacementHandoff, type EorPostalAddress } from '@/lib/boss-eor'
+import { submitW2PlacementHandoff, type EorPostalAddress } from '@/lib/eor-handoff'
 import { parseEorConfigFromDescription } from '@/lib/eor-config'
 import {
   clampRoleOpenings,
@@ -63,17 +63,17 @@ export interface TrialToHireHandshake {
   employer_address?: EorPostalAddress | null
   professional_address?: EorPostalAddress | null
   professional_phone?: string | null
-  boss_sync_status?: 'synced' | 'pending_rates' | 'manual_fallback' | null
-  boss_client_id?: number | null
-  boss_contact_id?: number | null
-  boss_associate_id?: number | null
-  boss_assignment_id?: number | null
-  boss_placement_id?: number | null
-  boss_associate_onboarded?: boolean
-  boss_associate_onboarded_date?: string | null
-  boss_placement_status_display?: string | null
-  boss_last_synced_at?: string | null
-  boss_sync_note?: string | null
+  eor_sync_status?: 'synced' | 'pending_rates' | 'manual_fallback' | null
+  eor_client_id?: string | number | null
+  eor_contact_id?: string | number | null
+  eor_associate_id?: string | number | null
+  eor_assignment_id?: string | number | null
+  eor_placement_id?: string | number | null
+  eor_associate_onboarded?: boolean
+  eor_associate_onboarded_date?: string | null
+  eor_placement_status_display?: string | null
+  eor_last_synced_at?: string | null
+  eor_sync_note?: string | null
 }
 
 function cleanEnvKey(rawKey?: string | null): string {
@@ -1649,9 +1649,9 @@ export async function respondToTrialToHireTerms(
   }
 
   const packetId = decision === 'accept' ? `W2-${Date.now().toString().slice(-6)}` : null
-  const bossResult =
+  const handoffResult =
     decision === 'accept' && packetId && profAddress
-      ? await submitBossW2PlacementHandoff({
+      ? await submitW2PlacementHandoff({
           packetId,
           referenceId: refId,
           roleTitle,
@@ -1679,7 +1679,7 @@ export async function respondToTrialToHireTerms(
             supervisorName: current.supervisor_name || current.timecard_approver_name || null,
             invoiceCcEmail: current.invoice_cc_email || null,
             address: current.employer_address || null,
-            cachedBossClientId: current.boss_client_id || null,
+            cachedPartnerClientId: current.eor_client_id ?? null,
           },
           professional: {
             fullName: candName,
@@ -1687,7 +1687,7 @@ export async function respondToTrialToHireTerms(
             mobilePhone: profPhoneClean,
             workState: current.work_state,
             address: profAddress,
-            cachedBossAssociateId: current.boss_associate_id || null,
+            cachedPartnerAssociateId: current.eor_associate_id ?? null,
           },
         })
       : null
@@ -1699,14 +1699,14 @@ export async function respondToTrialToHireTerms(
     eor_packet_id: packetId,
     professional_address: profAddress,
     professional_phone: profPhoneClean,
-    boss_sync_status: bossResult ? bossResult.syncStatus : current.boss_sync_status || null,
-    boss_client_id: bossResult?.clientId ?? current.boss_client_id ?? null,
-    boss_contact_id: bossResult?.contactId ?? current.boss_contact_id ?? null,
-    boss_associate_id: bossResult?.associateId ?? current.boss_associate_id ?? null,
-    boss_assignment_id: bossResult?.assignmentId ?? current.boss_assignment_id ?? null,
-    boss_placement_id: bossResult?.placementId ?? current.boss_placement_id ?? null,
-    boss_last_synced_at: bossResult ? nowIso : current.boss_last_synced_at || null,
-    boss_sync_note: bossResult ? bossResult.summaryNote : current.boss_sync_note || null,
+    eor_sync_status: handoffResult ? handoffResult.syncStatus : current.eor_sync_status || null,
+    eor_client_id: handoffResult?.clientId ?? current.eor_client_id ?? null,
+    eor_contact_id: handoffResult?.contactId ?? current.eor_contact_id ?? null,
+    eor_associate_id: handoffResult?.associateId ?? current.eor_associate_id ?? null,
+    eor_assignment_id: handoffResult?.assignmentId ?? current.eor_assignment_id ?? null,
+    eor_placement_id: handoffResult?.placementId ?? current.eor_placement_id ?? null,
+    eor_last_synced_at: handoffResult ? nowIso : current.eor_last_synced_at || null,
+    eor_sync_note: handoffResult ? handoffResult.summaryNote : current.eor_sync_note || null,
   }
 
   const acceptTrackLabel = current.contract_track === 'fixed_term_w2' ? `${current.duration_months || 6}-Month Fixed-Term W-2 Contract` : current.contract_track === 'open_ended_w2' ? 'Open-Ended W-2 Contract' : current.duration_months ? `${current.duration_months}-Month W-2 Contract-to-Hire` : 'W-2 Contract-to-Hire'
@@ -1752,7 +1752,7 @@ export async function respondToTrialToHireTerms(
       `Schedule: ${current.weekly_hours} hrs/wk | Target Start: ${current.target_start_date} | Window: 90 Days ($0 Conversion Fee)`,
       `Screenings: Background=${current.require_background_check ? 'YES' : 'NO'}, Drug=${current.require_drug_screening ? 'YES' : 'NO'} | WC Code: ${current.wc_code || '8810'}`,
       profAddress ? `Onboarding Address: ${profAddress.street1}${profAddress.street2 ? ' ' + profAddress.street2 : ''}, ${profAddress.city}, ${profAddress.state} ${profAddress.postalcode}${profPhoneClean ? ' | Mobile: ' + profPhoneClean : ''}` : null,
-      bossResult ? `BOSS Partner API Sync: [${bossResult.syncStatus.toUpperCase()}] ${bossResult.summaryNote}${bossResult.errorDetail ? ' | Detail: ' + bossResult.errorDetail : ''}` : null,
+      handoffResult ? `W-2 EOR Partner Sync: [${handoffResult.syncStatus.toUpperCase()}] ${handoffResult.summaryNote}${handoffResult.errorDetail ? ' | Detail: ' + handoffResult.errorDetail : ''}` : null,
       current.scope_note ? `Scope Note: ${current.scope_note}` : null,
     ].filter(Boolean).join('\n')
 

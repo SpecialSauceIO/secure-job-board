@@ -890,11 +890,11 @@ export default function SecureMessageThread({
                   ? `All-in Employer rate set at $${trialToHire.employer_bill_rate.toFixed(2)}/hr (includes statutory W-2 payroll taxes & Workers' Comp) with a $0 conversion fee.`
                   : `Your W-2 gross pay rate of $${trialToHire.hourly_pay_rate.toFixed(2)}/hr is confirmed with statutory W-2 payroll, direct deposit, and Workers' Comp coverage.`}
               </p>
-              {trialToHire.boss_sync_status && (
+              {Boolean(trialToHire.eor_sync_status || trialToHire.eor_packet_id) && (
                 <div className="flex flex-wrap items-center gap-2 pt-0.5 text-[11px]">
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full font-extrabold border ${trialToHire.boss_sync_status === 'synced' ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-amber-50 text-amber-900 border-amber-300'}`}>
-                    {trialToHire.boss_sync_status === 'synced'
-                      ? `W-2 Payroll Placement #${trialToHire.boss_placement_id || 'Active'} Provisioned`
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full font-extrabold border ${trialToHire.eor_sync_status === 'synced' ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-amber-50 text-amber-900 border-amber-300'}`}>
+                    {trialToHire.eor_sync_status === 'synced'
+                      ? `W-2 Payroll Placement #${trialToHire.eor_placement_id || 'Active'} Provisioned`
                       : 'W-2 Onboarding Packet Queued for Dispatch'}
                   </span>
                 </div>

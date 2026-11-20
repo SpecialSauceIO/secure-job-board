@@ -18,7 +18,7 @@ function formatTrackLabel(track?: string | null, durationMonths?: number | null)
   return 'W-2 Contract-to-Hire ($0 Conversion)'
 }
 
-function formatStatusMeta(status?: string | null, bossStatusDisplay?: string | null) {
+function formatStatusMeta(status?: string | null, partnerStatusDisplay?: string | null) {
   switch (status) {
     case 'proposed':
       return {
@@ -28,8 +28,8 @@ function formatStatusMeta(status?: string | null, bossStatusDisplay?: string | n
       }
     case 'accepted_pending_eor':
       return {
-        label: bossStatusDisplay
-          ? bossStatusDisplay.replace(/\bBOSS\s*/gi, '').replace(/\bEOR\b/g, 'W-2 Payroll')
+        label: partnerStatusDisplay
+          ? partnerStatusDisplay.replace(/\bEOR\b/g, 'W-2 Payroll').trim()
           : 'Active W-2 Payroll Onboarding',
         badgeClass: 'bg-indigo-600 text-white border-indigo-700',
         dotClass: 'bg-emerald-300',
@@ -279,7 +279,7 @@ export default function ProfessionalPlacementsPage() {
             const p = item.placement || {}
             const statusMeta = formatStatusMeta(
               p.status,
-              p.boss_placement_status_display
+              p.eor_placement_status_display
             )
             const trackLabel = formatTrackLabel(p.contract_track, p.duration_months)
             const payRate = Number(p.hourly_pay_rate || 0)
@@ -379,7 +379,7 @@ export default function ProfessionalPlacementsPage() {
                         Onboarding &amp; Equipment
                       </p>
                       <p className="text-xs font-extrabold text-slate-900 mt-0.5 line-clamp-2">
-                        {p.boss_associate_onboarded
+                        {p.eor_associate_onboarded
                           ? 'W-2 Payroll Onboarded'
                           : p.eor_packet_id
                           ? `Queued (${p.eor_packet_id})`
