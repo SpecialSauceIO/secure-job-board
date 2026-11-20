@@ -1,5 +1,6 @@
 import { CANDIDATE_SAAS_TIERS, EMPLOYER_VERIFICATION_PASS, EMPLOYER_SAAS_TIERS } from '@/app/api/billing/create-checkout-session/route'
 import { NextRequest, NextResponse } from 'next/server'
+import { timingSafeEqual } from 'node:crypto'
 import dns from 'node:dns/promises'
 import {
   getOpsServiceClient,
@@ -26,9 +27,59 @@ export interface HandshakeCheckResult {
   checked_at: string
 }
 
+function cleanOpsSecret(val?: string | null): string {
+  if (!val) return ''
+  return val.trim().replace(/^["']+|["']+$/g, '').trim()
+}
+
+function safeSecretEqual(a: string, b: string): boolean {
+  if (!a || !b) return false
+  const ba = Buffer.from(a, 'utf8')
+  const bb = Buffer.from(b, 'utf8')
+  return ba.length === bb.length && timingSafeEqual(ba, bb)
+}
+
+function isAuthorizedOpsHealthRequest(req: NextRequest): boolean {
+  const validSecrets = [
+    process.env.CRON_SECRET,
+    process.env.OPS_WEBHOOK_SECRET,
+    process.env.OPS_SYNC_SECRET,
+    process.env.OPS_INGEST_SECRET,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+  ]
+    .map((s) => cleanOpsSecret(s))
+    .filter(Boolean)
+
+  if (validSecrets.length === 0) return false
+
+  const authHeader = (req.headers.get('authorization') || '').trim()
+  const bearerToken = authHeader.replace(/^Bearer\s+/i, '').trim()
+  const opsHeader = (req.headers.get('x-ops-secret') || '').trim()
+  const querySecret = (req.nextUrl.searchParams.get('secret') || '').trim()
+
+  const candidates = [bearerToken, opsHeader, querySecret].filter(Boolean)
+  return candidates.some((cand) => validSecrets.some((sec) => safeSecretEqual(cand, sec)))
+}
+
 export async function GET(req: NextRequest) {
   const now = Date.now()
   const nowIso = new Date(now).toISOString()
+
+  if (!isAuthorizedOpsHealthRequest(req)) {
+    const activeBanner = await getActiveSystemStatusBanner(null)
+    const isOutage = activeBanner?.severity === 'outage'
+    return NextResponse.json({
+      ok: !isOutage,
+      status: isOutage
+        ? 'critical'
+        : activeBanner?.severity === 'degraded'
+          ? 'degraded'
+          : 'healthy',
+      checked_at: nowIso,
+      active_status_banner: activeBanner,
+    })
+  }
+
   const checks: HandshakeCheckResult[] = []
   const criticalIssues: Array<{ area: string; summary: string; detail: string }> = []
 
@@ -546,12 +597,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const authHeader = req.headers.get('authorization') || ''
-    const cronSecret = (process.env.CRON_SECRET || '').trim()
-    const serviceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim()
-    const token = authHeader.replace(/^Bearer\s+/i, '').trim()
-
-    if (!token || (token !== cronSecret && token !== serviceKey)) {
+    if (!isAuthorizedOpsHealthRequest(req)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

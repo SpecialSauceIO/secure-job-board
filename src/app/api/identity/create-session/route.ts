@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import { createClient } from '@/utils/supabase/server'
 import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 import { resolveCandidateTierInfo } from '@/app/dashboard/actions'
+import { resolveTrustedAppOrigin, sanitizeInternalReturnPath } from '@/lib/trusted-origin'
 import {
   checkAndRecordStripeIdentityCircuitBreaker,
   recordHandshakeTelemetry,
@@ -89,8 +90,8 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json().catch(() => ({}))
-    const customReturnPath = typeof body?.returnTo === 'string' && body.returnTo.startsWith('/') ? body.returnTo : null
-    const origin = req.headers.get('origin') || 'https://www.specialsauce.io'
+    const customReturnPath = sanitizeInternalReturnPath(body?.returnTo)
+    const origin = resolveTrustedAppOrigin(req)
 
     const verificationSession =
       await stripe.identity.verificationSessions.create({

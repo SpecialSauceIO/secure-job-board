@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { resolveTrustedAppOrigin } from '@/lib/trusted-origin'
 import Stripe from 'stripe'
 
 export async function POST(req: Request) {
@@ -33,7 +34,7 @@ export async function POST(req: Request) {
       apiVersion: '2026-09-30.endive' as any,
     })
 
-    const origin = req.headers.get('origin') || 'https://www.specialsauce.io'
+    const origin = resolveTrustedAppOrigin(req)
     let stripeCustomerId: string | null = null
 
     if (audience === 'employer') {

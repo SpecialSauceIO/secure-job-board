@@ -37,6 +37,8 @@ export async function GET(req: NextRequest) {
       process.env.CRON_SECRET,
       process.env.OPS_WEBHOOK_SECRET,
       process.env.OPS_SYNC_SECRET,
+      process.env.OPS_INGEST_SECRET,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
     ]
       .map((s) => cleanEnv(s))
       .filter(Boolean)
