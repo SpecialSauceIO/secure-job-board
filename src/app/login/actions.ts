@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { checkActionVelocityAndSpray, recordHandshakeTelemetry } from '@/lib/security-telemetry'
+import { resolveTrustedOriginCandidate } from '@/lib/trusted-origin'
 import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 
 export interface AccountHintItem {
@@ -22,8 +23,11 @@ function cleanEnvKey(rawKey?: string | null): string {
 function getEncryptionKey(): Buffer {
   const secret =
     cleanEnvKey(process.env.SUPABASE_SERVICE_ROLE_KEY) ||
-    cleanEnvKey(process.env.RESEND_API_KEY) ||
-    'special-sauce-default-secret-key-2026'
+    cleanEnvKey(process.env.STRIPE_SECRET_KEY) ||
+    cleanEnvKey(process.env.RESEND_API_KEY)
+  if (!secret) {
+    throw new Error('Missing server encryption secret in environment.')
+  }
   return crypto.createHash('sha256').update(secret).digest()
 }
 
@@ -194,10 +198,7 @@ export async function requestBrandedPasswordReset(
     cleanEnvKey(process.env.RESEND_FROM_EMAIL) ||
     'Special Sauce <support@specialsauce.io>'
 
-  const baseUrl =
-    (clientOrigin && clientOrigin.startsWith('http') ? clientOrigin : '') ||
-    cleanEnvKey(process.env.NEXT_PUBLIC_SITE_URL) ||
-    'https://specialsauce.io'
+  const baseUrl = resolveTrustedOriginCandidate(clientOrigin)
 
   if (!supabaseUrl || !serviceRoleKey) {
     return {

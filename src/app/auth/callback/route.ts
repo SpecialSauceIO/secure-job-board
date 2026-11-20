@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { cookies } from 'next/headers'
+import { resolveTrustedAppOrigin, sanitizeInternalReturnPath } from '@/lib/trusted-origin'
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
+  const { searchParams } = new URL(request.url)
+  const origin = resolveTrustedAppOrigin(request)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/dashboard'
+  const next = sanitizeInternalReturnPath(searchParams.get('next')) ?? '/dashboard'
 
   if (code) {
     const supabase = await createClient()
@@ -20,11 +22,12 @@ export async function GET(request: Request) {
       const pendingRole = cookieStore.get('pending_role')?.value
 
       if (user && pendingRole) {
-        await supabase
-          .from('profiles')
-          .update({ role: pendingRole })
-          .eq('id', user.id)
-
+        if (pendingRole === 'candidate' || pendingRole === 'employer') {
+          await supabase
+            .from('profiles')
+            .update({ role: pendingRole })
+            .eq('id', user.id)
+        }
         cookieStore.delete('pending_role')
       }
 

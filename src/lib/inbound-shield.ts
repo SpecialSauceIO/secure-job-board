@@ -55,8 +55,10 @@ function cleanSecret(val?: string | null): string {
 function getShieldKey(): Buffer {
   const raw =
     cleanSecret(process.env.SUPABASE_SERVICE_ROLE_KEY) ||
-    cleanSecret(process.env.STRIPE_SECRET_KEY) ||
-    "specialsauce-inbound-shield-fallback-key-2026"
+    cleanSecret(process.env.STRIPE_SECRET_KEY)
+  if (!raw) {
+    throw new Error("Missing Inbound Shield encryption secret in environment.")
+  }
   return crypto.createHash("sha256").update("ss_inbound_shield_v1:" + raw).digest()
 }
 

@@ -76,6 +76,14 @@ async function sendRealtimeOpsAlert(params: {
     timeStyle: 'medium',
   }) + ' CST'
 
+  const escapeHtml = (val?: string | null) =>
+    String(val ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+
   const rowsHtml = [
     ...params.details,
     { label: 'Timestamp', value: timestampCst },
@@ -83,8 +91,8 @@ async function sendRealtimeOpsAlert(params: {
     .map(
       (r) => `
       <tr>
-        <td style="padding:8px 12px;border-bottom:1px solid #1e293b;color:#94a3b8;font-size:13px;font-weight:600;width:160px;">${r.label}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #1e293b;color:#f8fafc;font-size:13px;font-family:monospace;">${r.value}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #1e293b;color:#94a3b8;font-size:13px;font-weight:600;width:160px;">${escapeHtml(r.label)}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #1e293b;color:#f8fafc;font-size:13px;font-family:monospace;">${escapeHtml(r.value)}</td>
       </tr>`
     )
     .join('')
@@ -92,9 +100,9 @@ async function sendRealtimeOpsAlert(params: {
   const html = `
     <div style="background-color:#090d16;color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:24px;border-radius:12px;max-width:600px;margin:0 auto;border:1px solid #1e293b;">
       <div style="display:inline-block;background-color:#10b98120;border:1px solid #10b98160;color:#34d399;font-size:11px;font-weight:700;letter-spacing:0.08em;padding:4px 10px;border-radius:999px;text-transform:uppercase;margin-bottom:12px;">
-        ${params.badge}
+        ${escapeHtml(params.badge)}
       </div>
-      <h2 style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">${params.headline}</h2>
+      <h2 style="margin:0 0 16px 0;font-size:18px;color:#ffffff;">${escapeHtml(params.headline)}</h2>
       <table style="width:100%;border-collapse:collapse;background-color:#0f172a;border-radius:8px;overflow:hidden;border:1px solid #1e293b;">
         <tbody>
           ${rowsHtml}
@@ -126,10 +134,21 @@ async function sendRealtimeOpsAlert(params: {
   }
 }
 
+const PROCESSED_STRIPE_EVENT_IDS = new Set<string>()
+const TOPUP_PACK_CREDITS: Record<string, number> = { boost: 10, surge: 25, scale: 75 }
+
 export async function POST(req: Request) {
+  const webhookSecret = (process.env.STRIPE_WEBHOOK_SECRET || '').trim()
+  const serviceRoleKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim()
+  if (!webhookSecret || !serviceRoleKey || serviceRoleKey === 'build_placeholder') {
+    return NextResponse.json({ error: 'Webhook configuration unavailable.' }, { status: 503 })
+  }
+
   const body = await req.text()
-  const sig = req.headers.get('stripe-signature') as string
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
+  const sig = req.headers.get('stripe-signature')
+  if (!sig) {
+    return NextResponse.json({ error: 'Missing stripe-signature header.' }, { status: 400 })
+  }
 
   let event: Stripe.Event
 
@@ -150,11 +169,27 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 })
   }
 
+  if (PROCESSED_STRIPE_EVENT_IDS.has(event.id)) {
+    return NextResponse.json({ received: true, duplicate: true })
+  }
+  if (PROCESSED_STRIPE_EVENT_IDS.size >= 500) {
+    const oldest = PROCESSED_STRIPE_EVENT_IDS.values().next().value
+    if (oldest) PROCESSED_STRIPE_EVENT_IDS.delete(oldest)
+  }
+  PROCESSED_STRIPE_EVENT_IDS.add(event.id)
+
   // ============================================================================
   // 1. CHECKOUT COMPLETED (Professional Plans, Employer Verification, Employer Plans, Top-Up Packs)
   // ============================================================================
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
+    if (
+      session.mode === 'payment' &&
+      session.payment_status !== 'paid' &&
+      session.payment_status !== 'no_payment_required'
+    ) {
+      return NextResponse.json({ received: true, ignored: 'unpaid_session' })
+    }
     const audience = session.metadata?.audience || ''
     const tierId = (session.metadata?.tierId || '').toLowerCase()
     const packId = (session.metadata?.packId || '').toLowerCase()
@@ -248,8 +283,16 @@ export async function POST(req: Request) {
     }
     // B) Employer Top-Up Credit Pack (boost +10 / surge +25 / scale +75)
     else if (audience === 'employer_topup' || packId) {
-      const creditsToAdd = Math.max(0, parseInt(session.metadata?.creditsToAdd || '0', 10) || 0)
-      if (organizationId && creditsToAdd > 0) {
+      const rawMetaCredits = Math.max(0, parseInt(session.metadata?.creditsToAdd || '0', 10) || 0)
+      const creditsToAdd = TOPUP_PACK_CREDITS[packId] ?? ([10, 25, 75].includes(rawMetaCredits) ? rawMetaCredits : 0)
+      let alreadyFulfilled = Boolean(session.metadata?.webhook_topup_fulfilled_at)
+      if (!alreadyFulfilled && session.id) {
+        try {
+          const freshSession = await stripe.checkout.sessions.retrieve(session.id)
+          if (freshSession?.metadata?.webhook_topup_fulfilled_at) alreadyFulfilled = true
+        } catch {}
+      }
+      if (organizationId && creditsToAdd > 0 && !alreadyFulfilled) {
         const { data: orgObj } = await supabaseAdmin
           .from('organizations')
           .select('*')
@@ -278,6 +321,16 @@ export async function POST(req: Request) {
                 : {}),
             })
             .eq('id', organizationId)
+          if (session.id) {
+            try {
+              await stripe.checkout.sessions.update(session.id, {
+                metadata: {
+                  ...(session.metadata || {}),
+                  webhook_topup_fulfilled_at: new Date().toISOString(),
+                },
+              })
+            } catch {}
+          }
         }
       }
     }

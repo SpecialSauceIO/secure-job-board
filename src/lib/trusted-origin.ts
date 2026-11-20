@@ -13,7 +13,7 @@ function normalizeOriginInput(raw?: string | null): string | null {
   }
 }
 
-export function resolveTrustedAppOrigin(req: Request): string {
+export function resolveTrustedOriginCandidate(rawCandidate?: string | null): string {
   const configuredOrigins = new Set<string>([
     CANONICAL_PROD_ORIGIN,
     'https://specialsauce.io',
@@ -30,7 +30,7 @@ export function resolveTrustedAppOrigin(req: Request): string {
     if (norm) configuredOrigins.add(norm)
   }
 
-  const reqOrigin = normalizeOriginInput(req.headers.get('origin')) || normalizeOriginInput(req.url)
+  const reqOrigin = normalizeOriginInput(rawCandidate)
   if (reqOrigin) {
     if (configuredOrigins.has(reqOrigin)) return reqOrigin
     try {
@@ -45,6 +45,10 @@ export function resolveTrustedAppOrigin(req: Request): string {
   }
 
   return CANONICAL_PROD_ORIGIN
+}
+
+export function resolveTrustedAppOrigin(req: Request): string {
+  return resolveTrustedOriginCandidate(req.headers.get('origin') || req.url)
 }
 
 export function sanitizeInternalReturnPath(rawPath?: unknown): string | null {
