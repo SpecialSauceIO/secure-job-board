@@ -71,6 +71,10 @@ export interface EnrichedEmployerJobRow {
   equipmentPolicy?: string
   equipmentNotes?: string
   w2Engagements?: ActiveW2EngagementSummary[]
+  openingsCount?: number
+  filledCount?: number
+  remainingOpenings?: number
+  activeSlotsUsed?: number
 }
 
 export default function EmployerJobsTableClient({
@@ -134,14 +138,31 @@ export default function EmployerJobsTableClient({
     setPendingContractConfirm({ jobTitle, eng, action })
   }
 
-  const isJobPlaced = (j: EnrichedEmployerJobRow) =>
+  const getSeatsTotal = (j: EnrichedEmployerJobRow) => Math.max(1, Number(j.openingsCount) || 1)
+  const getSeatsFilled = (j: EnrichedEmployerJobRow) => Math.max(0, Number(j.filledCount) || 0)
+  const getSeatsRemaining = (j: EnrichedEmployerJobRow) =>
+    j.remainingOpenings !== undefined
+      ? Math.max(0, Number(j.remainingOpenings))
+      : Math.max(0, getSeatsTotal(j) - getSeatsFilled(j))
+  const getReopenSlotsNeeded = (j: EnrichedEmployerJobRow) => Math.max(1, getSeatsRemaining(j))
+  const wouldExceedSlotsOnReopen = (j: EnrichedEmployerJobRow) =>
+    !isPracticeMode &&
+    maxActiveJobs > 0 &&
+    (slotsFull || activeJobsCount + getReopenSlotsNeeded(j) > maxActiveJobs)
+
+  const hasAnyPlacement = (j: EnrichedEmployerJobRow) =>
+    getSeatsFilled(j) > 0 ||
     Boolean(
       j.w2Engagements?.some(
         (e) => e.status === 'accepted_pending_eor' || e.status === 'converted_direct'
       )
     )
+  const isJobPlaced = (j: EnrichedEmployerJobRow) =>
+    hasAnyPlacement(j) && (!j.is_active || getSeatsRemaining(j) === 0)
   const isJobConvertedDirect = (j: EnrichedEmployerJobRow) =>
-    Boolean(j.w2Engagements?.some((e) => e.status === 'converted_direct'))
+    getSeatsRemaining(j) === 0 &&
+    (Boolean(j.w2Engagements?.some((e) => e.status === 'converted_direct')) ||
+      (getSeatsFilled(j) > 0 && !j.w2Engagements?.some((e) => e.status === 'accepted_pending_eor')))
 
   const activeCount = useMemo(
     () => jobs.filter((j) => j.is_active && !isJobPlaced(j)).length,
@@ -482,8 +503,13 @@ export default function EmployerJobsTableClient({
                     {job.location && <span>• {job.location}</span>}
                   </div>
 
-                  {((job.eorContractTrack && job.eorContractTrack !== 'none') || (job.equipmentPolicy && job.equipmentPolicy !== 'No Equipment Needed / Not Applicable')) && (
+                  {(getSeatsTotal(job) > 1 || getSeatsFilled(job) > 0 || (job.eorContractTrack && job.eorContractTrack !== 'none') || (job.equipmentPolicy && job.equipmentPolicy !== 'No Equipment Needed / Not Applicable')) && (
                     <div className="flex flex-wrap items-center gap-1.5">
+                      {(getSeatsTotal(job) > 1 || getSeatsFilled(job) > 0) && (
+                        <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-bold ${getSeatsRemaining(job) === 0 ? 'bg-indigo-50 border-indigo-200 text-indigo-800' : 'bg-emerald-50 border-emerald-200 text-emerald-800'}`}>
+                          👥 {getSeatsFilled(job)}/{getSeatsTotal(job)} Filled{getSeatsTotal(job) > 1 && getSeatsRemaining(job) > 0 ? ` • ${getSeatsRemaining(job)} Open` : ''}
+                        </span>
+                      )}
                       {job.eorContractTrack && job.eorContractTrack !== 'none' && (
                         <span className="inline-flex items-center gap-1 rounded-md bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[11px] font-bold text-indigo-800">
                           🛡️{' '}
@@ -680,12 +706,12 @@ export default function EmployerJobsTableClient({
                         >
                           Activate Plan to Publish →
                         </Link>
-                      ) : slotsFull ? (
+                      ) : wouldExceedSlotsOnReopen(job) ? (
                         <Link
                           href="/dashboard/employer/billing"
                           className="block w-full text-center px-3 py-2 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-300 rounded-xl"
                         >
-                          Slots Full · Upgrade
+                          {slotsFull ? 'Slots Full · Upgrade' : `Needs ${getReopenSlotsNeeded(job)} Slots (${activeJobsCount}/${maxActiveJobs}) · Upgrade`}
                         </Link>
                       ) : (
                         <>
@@ -807,8 +833,13 @@ export default function EmployerJobsTableClient({
                           )}
                         </div>
 
-                        {((job.eorContractTrack && job.eorContractTrack !== 'none') || (job.equipmentPolicy && job.equipmentPolicy !== 'No Equipment Needed / Not Applicable')) && (
+                        {(getSeatsTotal(job) > 1 || getSeatsFilled(job) > 0 || (job.eorContractTrack && job.eorContractTrack !== 'none') || (job.equipmentPolicy && job.equipmentPolicy !== 'No Equipment Needed / Not Applicable')) && (
                           <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                            {(getSeatsTotal(job) > 1 || getSeatsFilled(job) > 0) && (
+                              <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-bold ${getSeatsRemaining(job) === 0 ? 'bg-indigo-50 border-indigo-200 text-indigo-800' : 'bg-emerald-50 border-emerald-200 text-emerald-800'}`}>
+                                👥 {getSeatsFilled(job)}/{getSeatsTotal(job)} Filled{getSeatsTotal(job) > 1 && getSeatsRemaining(job) > 0 ? ` • ${getSeatsRemaining(job)} Open` : ''}
+                              </span>
+                            )}
                             {job.eorContractTrack && job.eorContractTrack !== 'none' && (
                               <span className="inline-flex items-center gap-1 rounded-md bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[11px] font-bold text-indigo-800">
                                 🛡️{' '}
@@ -1116,13 +1147,12 @@ export default function EmployerJobsTableClient({
                               >
                                 Activate Plan to Publish →
                               </Link>
-                            ) : slotsFull ? (
+                            ) : wouldExceedSlotsOnReopen(job) ? (
                               <Link
                                 href="/dashboard/employer/billing"
                                 className="px-3 py-1.5 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-300 rounded-lg hover:bg-amber-100 transition-colors"
                               >
-                                Slots Full ({activeJobsCount}/{maxActiveJobs}) ·
-                                Upgrade
+                                {slotsFull ? `Slots Full (${activeJobsCount}/${maxActiveJobs}) · Upgrade` : `Needs ${getReopenSlotsNeeded(job)} Slots (${activeJobsCount}/${maxActiveJobs}) · Upgrade`}
                               </Link>
                             ) : job.renewalCount >= job.maxRenewals ? (
                               <span

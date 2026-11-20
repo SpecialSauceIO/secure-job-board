@@ -40,6 +40,7 @@ export default function EditJobPage() {
     location: '',
     employment_type: 'Full-Time (W-2)',
     experience_level: 'Senior (5–8 yrs)',
+    openings_count: '1',
     education_req: "Bachelor's Degree OR Equivalent Practical Experience",
     required_certifications: '',
     required_languages: [{ ...DEFAULT_LANGUAGE_ENTRY }] as LanguageEntry[],
@@ -170,6 +171,7 @@ export default function EditJobPage() {
         location: metaItem.location || job.location || '',
         employment_type: normalizedEmpType,
         experience_level: metaItem.experience_level || 'Senior (5–8 yrs)',
+        openings_count: String(Math.min(25, Math.max(1, Math.floor(Number(metaItem.openings_count) || 1)))),
         education_req: normalizedEducationReq,
         required_certifications: metaItem.required_certifications || '',
         required_languages: normalizedLanguages,
@@ -407,7 +409,7 @@ export default function EditJobPage() {
             onChange={(loc) => setJobData((prev) => ({ ...prev, location: loc }))}
           />
 
-          <div className="max-w-md">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-bold text-slate-700">
                 Seniority / Experience Level
@@ -432,6 +434,27 @@ export default function EditJobPage() {
                   Executive / Director
                 </option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700">
+                Total Role Openings (Seats)
+              </label>
+              <input
+                type="number"
+                name="openings_count"
+                min={1}
+                max={25}
+                required
+                value={jobData.openings_count}
+                onChange={(e) =>
+                  setJobData({ ...jobData, openings_count: e.target.value })
+                }
+                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3.5 text-sm font-medium"
+              />
+              <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
+                Each unfilled seat counts toward your active role limit (up to 25 seats per listing) and steps down automatically as placements are recorded.
+              </p>
             </div>
           </div>
 

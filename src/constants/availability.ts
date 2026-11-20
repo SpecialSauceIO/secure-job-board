@@ -98,3 +98,98 @@ export function getAvailabilityBadgeClasses(status?: string | null): string {
   }
   return 'bg-indigo-50 text-indigo-700 border-indigo-300'
 }
+
+export const MAX_ROLE_OPENINGS = 25
+
+export interface RoleSeatSummary {
+  openingsCount: number
+  filledApplicationIds: string[]
+  filledCount: number
+  remainingOpenings: number
+  activeSlotsUsed: number
+  isAllSeatsFilled: boolean
+}
+
+export function clampRoleOpenings(raw: unknown, fallback = 1): number {
+  const parsed = Math.floor(Number(raw))
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return Math.min(MAX_ROLE_OPENINGS, Math.max(1, Math.floor(Number(fallback)) || 1))
+  }
+  return Math.min(MAX_ROLE_OPENINGS, parsed)
+}
+
+export function extractRoleMetaItem(
+  structuredRequirements: unknown,
+  fallbackMeta?: Record<string, any> | null
+): Record<string, any> {
+  if (Array.isArray(structuredRequirements)) {
+    const found = structuredRequirements.find(
+      (r: any) => r && typeof r === 'object' && r._ss_job_meta === true
+    )
+    if (found && typeof found === 'object') return found
+  }
+  if (fallbackMeta && typeof fallbackMeta === 'object') return fallbackMeta
+  return {}
+}
+
+export function isApplicationSeatPlaced(app: any): boolean {
+  const md = app?.match_data
+  if (!md || typeof md !== 'object') return false
+  if (md.direct_hire_placed === true) return true
+  const tStatus = String(md?.trial_to_hire?.status || '')
+  return tStatus === 'accepted_pending_eor' || tStatus === 'converted_direct'
+}
+
+export function resolveRoleSeatSummary(
+  job: any,
+  roleApplications?: any[]
+): RoleSeatSummary {
+  const meta = extractRoleMetaItem(job?.structured_requirements, job?.job_meta)
+  const openingsCount = clampRoleOpenings(
+    job?.openings_count ?? meta?.openings_count,
+    1
+  )
+  const idSet = new Set<string>()
+  if (Array.isArray(meta?.filled_application_ids)) {
+    for (const rawId of meta.filled_application_ids) {
+      const clean = String(rawId || '').trim()
+      if (clean) idSet.add(clean)
+    }
+  }
+  if (Array.isArray(roleApplications)) {
+    for (const app of roleApplications) {
+      if (isApplicationSeatPlaced(app)) {
+        const appId = String(app?.id || app?.uuid || '').trim()
+        if (appId) idSet.add(appId)
+      }
+    }
+  }
+  const filledApplicationIds = Array.from(idSet)
+  const filledCount = filledApplicationIds.length
+  const remainingOpenings = Math.max(0, openingsCount - filledCount)
+  const isActive = job?.is_active !== false
+  const activeSlotsUsed = isActive ? Math.max(1, remainingOpenings) : 0
+  return {
+    openingsCount,
+    filledApplicationIds,
+    filledCount,
+    remainingOpenings,
+    activeSlotsUsed,
+    isAllSeatsFilled: filledCount >= openingsCount,
+  }
+}
+
+export function sumActiveRoleSlots(
+  jobs: any[] | null | undefined,
+  applicationsByJobId?: Record<string, any[]>
+): number {
+  if (!Array.isArray(jobs)) return 0
+  let total = 0
+  for (const job of jobs) {
+    if (!job || job.is_active === false) continue
+    const key = String(job.id || job.uuid || '')
+    const apps = key && applicationsByJobId ? applicationsByJobId[key] : undefined
+    total += resolveRoleSeatSummary(job, apps).activeSlotsUsed
+  }
+  return total
+}

@@ -11,9 +11,11 @@ import {
   proposeTrialToHireTerms,
   respondToTrialToHireTerms,
   withdrawTrialToHireTerms,
+  recordDirectHirePlacement,
   ThreadMessage,
   TrialToHireHandshake,
 } from '@/app/dashboard/messaging-actions'
+import type { RoleSeatSummary } from '@/constants/availability'
 
 const US_STATES = [
   'AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY',
@@ -119,6 +121,9 @@ export default function SecureMessageThread({
   const [jobEquipmentPolicy, setJobEquipmentPolicy] = useState<string>('No Equipment Needed / Not Applicable')
   const roleDefaultsAppliedRef = useRef<boolean>(false)
   const [employerPlanActive, setEmployerPlanActive] = useState<boolean>(true)
+  const [directHirePlaced, setDirectHirePlaced] = useState<boolean>(false)
+  const [roleSeatSummary, setRoleSeatSummary] = useState<RoleSeatSummary | null>(null)
+  const [isUpdatingPlacement, setIsUpdatingPlacement] = useState<boolean>(false)
   const [showTrialDrawer, setShowTrialDrawer] = useState(false)
   const [trialPayRate, setTrialPayRate] = useState('65')
   const [trialWeeklyHours, setTrialWeeklyHours] = useState('40')
@@ -296,6 +301,8 @@ export default function SecureMessageThread({
           }
         }
         if (typeof res.employerPlanActive === 'boolean') setEmployerPlanActive(res.employerPlanActive)
+        if (typeof res.directHirePlaced === 'boolean') setDirectHirePlaced(res.directHirePlaced)
+        if (res.roleSeatSummary !== undefined) setRoleSeatSummary(res.roleSeatSummary || null)
       }
     } catch {
       // Ignore transient network hiccups during polling
@@ -509,6 +516,34 @@ export default function SecureMessageThread({
     setIsSubmittingTrial(false)
   }
 
+  const handleDirectHirePlacementToggle = async (nextPlaced: boolean) => {
+    setIsUpdatingPlacement(true)
+    setErrorMsg(null)
+    setSuccessMsg(null)
+    const res = await recordDirectHirePlacement(applicationId, nextPlaced)
+    if (res.error) {
+      setErrorMsg(res.error)
+    } else {
+      setDirectHirePlaced(Boolean(res.directHirePlaced))
+      if (res.roleSeatSummary !== undefined) {
+        setRoleSeatSummary(res.roleSeatSummary || null)
+      }
+      setSuccessMsg(
+        nextPlaced
+          ? 'Direct Hire placement recorded! Active role seat usage stepped down automatically.'
+          : 'Direct Hire placement status reversed and role seat count updated.'
+      )
+      await syncLatestThreadState()
+      await broadcastInstantPing()
+    }
+    setIsUpdatingPlacement(false)
+  }
+
+  const isW2SeatActive = Boolean(
+    trialToHire &&
+      ['accepted_pending_eor', 'converted_direct'].includes(trialToHire.status)
+  )
+
   return (
     <div
       className={`rounded-2xl border bg-white overflow-hidden transition-all ${
@@ -650,6 +685,58 @@ export default function SecureMessageThread({
               </span>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Role Seat Capacity & Direct Hire Placement Controls */}
+      {vaultReleased && (viewerRole === 'employer' || directHirePlaced) && (
+        <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-300 text-[11px] font-extrabold text-slate-800">
+              🪑{' '}
+              {roleSeatSummary
+                ? `${roleSeatSummary.filledCount} of ${roleSeatSummary.openingsCount} ${
+                    roleSeatSummary.openingsCount === 1 ? 'Seat' : 'Seats'
+                  } Filled (${roleSeatSummary.remainingOpenings} Open)`
+                : 'Role Seat Tracking Active'}
+            </span>
+            {directHirePlaced && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-100 border border-emerald-300 text-[11px] font-extrabold text-emerald-900">
+                ✓ Direct Hire Placement Recorded
+              </span>
+            )}
+            {viewerRole === 'employer' && !directHirePlaced && !isW2SeatActive && (
+              <span className="text-[11px] text-slate-600">
+                Hiring directly outside W-2 EOR? Mark this seat placed to step down active slot usage automatically.
+              </span>
+            )}
+          </div>
+          {viewerRole === 'employer' && !isW2SeatActive && (
+            <div className="flex items-center gap-2 shrink-0">
+              {directHirePlaced ? (
+                <button
+                  type="button"
+                  disabled={isUpdatingPlacement}
+                  onClick={() => handleDirectHirePlacementToggle(false)}
+                  className="px-2.5 py-1 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-[11px] font-bold text-slate-700 disabled:opacity-50 cursor-pointer"
+                >
+                  {isUpdatingPlacement ? 'Updating...' : 'Undo Placement'}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={
+                    isUpdatingPlacement ||
+                    Boolean(roleSeatSummary && roleSeatSummary.remainingOpenings <= 0)
+                  }
+                  onClick={() => handleDirectHirePlacementToggle(true)}
+                  className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-extrabold shadow-xs disabled:opacity-50 cursor-pointer"
+                >
+                  {isUpdatingPlacement ? 'Saving...' : '✓ Mark Direct Hire Placed'}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
 

@@ -14,6 +14,7 @@ import {
   calculateCandidateGamification,
   calculateEmployerGamification,
 } from '@/constants/gamification'
+import { sumActiveRoleSlots } from '@/constants/availability'
 import {
   claimInvitedOrganizationSeatIfAny,
   setRole,
@@ -375,9 +376,14 @@ export default async function DashboardPage({
         .eq('organization_id', member.organization_id)
 
       orgJobsList = fetchedOrgJobs || []
-      activeJobsCount = orgJobsList.filter(
-        (j: any) => j.is_active !== false
-      ).length
+      const appsByJobId: Record<string, any[]> = {}
+      for (const app of orgAppsList) {
+        const jid = String(app?.job_id || '')
+        if (!jid) continue
+        if (!appsByJobId[jid]) appsByJobId[jid] = []
+        appsByJobId[jid].push(app)
+      }
+      activeJobsCount = sumActiveRoleSlots(orgJobsList, appsByJobId)
       practiceDraftsCount = orgJobsList.filter((j: any) => {
         if (j.is_active !== false || !Array.isArray(j.structured_requirements)) return false
         const meta = j.structured_requirements.find((r: any) => r && r._ss_job_meta === true)

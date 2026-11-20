@@ -33,6 +33,9 @@ import {
 import {
   normalizeCandidateAvailability,
   isCandidatePaused,
+  clampRoleOpenings,
+  resolveRoleSeatSummary,
+  sumActiveRoleSlots,
 } from '@/constants/availability'
 import { isSeasonZeroFounder } from '@/constants/gamification'
 import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
@@ -4824,10 +4827,14 @@ function buildJobRequirementsWithMeta(
   const equipment_notes = formData.has('equipment_notes')
     ? ((formData.get('equipment_notes') as string) || '').trim().slice(0, 240)
     : prevMeta.equipment_notes || ''
+  const openings_count = formData.has('openings_count')
+    ? clampRoleOpenings(formData.get('openings_count'), prevMeta.openings_count || 1)
+    : clampRoleOpenings(prevMeta.openings_count, 1)
 
   const metaObject = {
     ...prevMeta,
     _ss_job_meta: true,
+    openings_count,
     pay_type,
     comp_perks,
     location,
@@ -4924,15 +4931,30 @@ export async function createStructuredJob(formData: FormData) {
       }
     }
   } else {
-    const { count: currentActiveJobs } = await supabase
+    const requestedOpenings = clampRoleOpenings(formData.get('openings_count'), 1)
+    const { data: activeOrgJobs } = await supabase
       .from('jobs')
-      .select('*', { count: 'exact', head: true })
+      .select('id, is_active, structured_requirements')
       .eq('organization_id', currentMember.organization_id)
       .eq('is_active', true)
-
-    if ((currentActiveJobs || 0) >= tierInfo.maxActiveJobs) {
+    const activeIds = (activeOrgJobs || []).map((j: any) => String(j.id)).filter(Boolean)
+    const appsByJob: Record<string, any[]> = {}
+    if (activeIds.length > 0) {
+      const adminDb = getAdminSupabaseClient() || supabase
+      const { data: activeApps } = await adminDb
+        .from('applications')
+        .select('id, job_id, match_data')
+        .in('job_id', activeIds)
+      for (const a of activeApps || []) {
+        const jid = String(a.job_id || '')
+        if (!appsByJob[jid]) appsByJob[jid] = []
+        appsByJob[jid].push(a)
+      }
+    }
+    const currentActiveSlots = sumActiveRoleSlots(activeOrgJobs, appsByJob)
+    if (currentActiveSlots + requestedOpenings > tierInfo.maxActiveJobs) {
       return {
-        error: `Active Role Limit Reached: Your ${tierInfo.label} allows up to ${tierInfo.maxActiveJobs} simultaneous active roles (currently ${currentActiveJobs}/${tierInfo.maxActiveJobs}). Please close an existing role or upgrade your plan in Membership & Plan Settings.`,
+        error: `Active Role Slot Limit Reached: Publishing ${requestedOpenings} ${requestedOpenings === 1 ? 'opening' : 'openings'} requires ${requestedOpenings} active role ${requestedOpenings === 1 ? 'slot' : 'slots'}, and your ${tierInfo.label} currently has ${Math.max(0, tierInfo.maxActiveJobs - currentActiveSlots)} of ${tierInfo.maxActiveJobs} slots available (${currentActiveSlots}/${tierInfo.maxActiveJobs} in use). Reduce the openings count, close an existing role, or upgrade in Membership & Plan Settings.`,
       }
     }
   }
@@ -5130,7 +5152,7 @@ export async function updateStructuredJob(formData: FormData) {
 
   const { data: existingJob } = await supabase
     .from('jobs')
-    .select('structured_requirements')
+    .select('id, is_active, structured_requirements')
     .eq('id', jobId)
     .eq('organization_id', currentMember.organization_id)
     .single()
@@ -5162,6 +5184,64 @@ export async function updateStructuredJob(formData: FormData) {
 
   const locationVal = ((formData.get('location') as string) || '').trim() || null
   const dbClient = getAdminSupabaseClient() || supabase
+
+  const { data: roleApps } = await dbClient
+    .from('applications')
+    .select('id, job_id, match_data')
+    .eq('job_id', jobId)
+  const prevSeatSummary = resolveRoleSeatSummary(existingJob, roleApps || [])
+  const nextSeatSummary = resolveRoleSeatSummary(
+    { id: jobId, is_active: existingJob?.is_active !== false, structured_requirements },
+    roleApps || []
+  )
+
+  if (nextSeatSummary.openingsCount < prevSeatSummary.filledCount) {
+    return {
+      error: `Openings Count Too Low: ${prevSeatSummary.filledCount} ${prevSeatSummary.filledCount === 1 ? 'opening has' : 'openings have'} already been filled on this role. Set total openings to at least ${prevSeatSummary.filledCount}.`,
+    }
+  }
+
+  if (
+    existingJob?.is_active !== false &&
+    nextSeatSummary.activeSlotsUsed > prevSeatSummary.activeSlotsUsed
+  ) {
+    const { data: orgObj } = await supabase
+      .from('organizations')
+      .select('*')
+      .eq('id', currentMember.organization_id)
+      .single()
+    const tierInfo = await resolveEmployerTierInfo(orgObj)
+    const { data: activeOrgJobs } = await supabase
+      .from('jobs')
+      .select('id, is_active, structured_requirements')
+      .eq('organization_id', currentMember.organization_id)
+      .eq('is_active', true)
+    const otherActiveJobs = (activeOrgJobs || []).filter((j: any) => String(j.id) !== String(jobId))
+    const otherIds = otherActiveJobs.map((j: any) => String(j.id)).filter(Boolean)
+    const otherAppsByJob: Record<string, any[]> = {}
+    if (otherIds.length > 0) {
+      const { data: otherApps } = await dbClient
+        .from('applications')
+        .select('id, job_id, match_data')
+        .in('job_id', otherIds)
+      for (const a of otherApps || []) {
+        const jid = String(a.job_id || '')
+        if (!otherAppsByJob[jid]) otherAppsByJob[jid] = []
+        otherAppsByJob[jid].push(a)
+      }
+    }
+    const otherSlotsUsed = sumActiveRoleSlots(otherActiveJobs, otherAppsByJob)
+    if (otherSlotsUsed + nextSeatSummary.activeSlotsUsed > tierInfo.maxActiveJobs) {
+      const totalCurrent = otherSlotsUsed + prevSeatSummary.activeSlotsUsed
+      return {
+        error: `Active Role Slot Limit Reached: Increasing this role to ${nextSeatSummary.openingsCount} openings requires ${nextSeatSummary.activeSlotsUsed} active slots, exceeding your ${tierInfo.label} limit (${totalCurrent}/${tierInfo.maxActiveJobs} currently in use). Reduce openings, close another role, or upgrade in Membership & Plan Settings.`,
+      }
+    }
+  }
+
+  const shouldAutoCloseFilledRole =
+    existingJob?.is_active !== false && nextSeatSummary.isAllSeatsFilled
+
   const { error } = await dbClient
     .from('jobs')
     .update({
@@ -5172,6 +5252,7 @@ export async function updateStructuredJob(formData: FormData) {
       salary_min,
       salary_max,
       structured_requirements,
+      ...(shouldAutoCloseFilledRole ? { is_active: false } : {}),
     })
     .eq('id', jobId)
     .eq('organization_id', currentMember.organization_id)
@@ -5185,6 +5266,7 @@ export async function updateStructuredJob(formData: FormData) {
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/jobs')
   revalidatePath('/dashboard/employer/jobs')
+  revalidatePath('/dashboard/employer/billing')
   revalidatePath(`/dashboard/employer/jobs/${jobId}/edit`)
   return { success: true }
 }

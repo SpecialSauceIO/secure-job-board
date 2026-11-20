@@ -13,6 +13,7 @@ import {
 } from '@/lib/inbound-shield'
 import { getOpsServiceClient } from '@/lib/ops-bridge'
 import { normalizeIndustryVertical } from '@/constants/industries'
+import { resolveRoleSeatSummary, sumActiveRoleSlots } from '@/constants/availability'
 import EmployerJobsTableClient, {
   EnrichedEmployerJobRow,
   ActiveW2EngagementSummary,
@@ -85,6 +86,10 @@ function enrichJobForManagementTable(job: any): EnrichedEmployerJobRow {
   const annualizedMinPay = payType === 'hourly' ? rawMin * 2080 : rawMin
 
   const allRoleApps = Array.isArray(job?.applications) ? job.applications : []
+  const seatSummary = resolveRoleSeatSummary(
+    { ...job, is_active: Boolean(job?.is_active && !isExpired) },
+    allRoleApps
+  )
   const inboundApps = allRoleApps.filter(
     (a: any) => a.initiated_by !== 'employer'
   )
@@ -187,6 +192,10 @@ function enrichJobForManagementTable(job: any): EnrichedEmployerJobRow {
     expiresAtIso: new Date(expiresMs).toISOString(),
     renewedAtIso: metaItem.renewed_at || null,
     isPracticeDraft: Boolean(metaItem.practice_draft === true && !job.is_active),
+    openingsCount: seatSummary.openingsCount,
+    filledCount: seatSummary.filledCount,
+    remainingOpenings: seatSummary.remainingOpenings,
+    activeSlotsUsed: seatSummary.activeSlotsUsed,
     skillsString: [
       ...visibleReqs.map((r: any) => r.skill || r.name || ''),
       metaItem.required_certifications || job?.required_certifications || '',
@@ -391,13 +400,28 @@ export default async function JobManagementPage() {
     if (!targetJob) return
 
     if (!targetJob.is_active) {
-      const { count: activeCount } = await supabaseAction
+      const { data: orgJobsForSlots } = await supabaseAction
         .from('jobs')
-        .select('*', { count: 'exact', head: true })
+        .select('id, is_active, structured_requirements, applications (id, status, match_data)')
         .eq('organization_id', memberRow.organization_id)
-        .eq('is_active', true)
 
-      if ((activeCount || 0) >= currentTier.maxActiveJobs) {
+      const appsByJob: Record<string, any[]> = {}
+      for (const jRow of orgJobsForSlots || []) {
+        appsByJob[String(jRow.id)] = Array.isArray((jRow as any).applications)
+          ? (jRow as any).applications
+          : []
+      }
+      const currentSlotsUsed = sumActiveRoleSlots(orgJobsForSlots || [], appsByJob)
+      const targetSeatSummary = resolveRoleSeatSummary(
+        { ...targetJob, is_active: true },
+        appsByJob[String(targetJob.id)] || []
+      )
+      const slotsNeeded = Math.max(1, targetSeatSummary.remainingOpenings)
+
+      if (
+        currentTier.maxActiveJobs > 0 &&
+        currentSlotsUsed + slotsNeeded > currentTier.maxActiveJobs
+      ) {
         revalidatePath('/dashboard/employer/jobs')
         return
       }
@@ -530,7 +554,9 @@ export default async function JobManagementPage() {
   const orgStatusNorm = String(orgObj?.subscription_status || '').toLowerCase()
   const isPracticeMode = !(orgStatusNorm === 'active' && ['starter', 'growth', 'enterprise'].includes(orgTierNorm))
   const practiceDraftCount = enrichedRows.filter((j) => j.isPracticeDraft).length
-  const activeJobsCount = enrichedRows.filter((j) => j.is_active).length
+  const activeJobsCount = enrichedRows
+    .filter((j) => j.is_active)
+    .reduce((sum, j) => sum + Math.max(1, Number(j.activeSlotsUsed) || 1), 0)
   const slotsFull = !isPracticeMode && tierInfo.maxActiveJobs > 0 && activeJobsCount >= tierInfo.maxActiveJobs
 
   return (

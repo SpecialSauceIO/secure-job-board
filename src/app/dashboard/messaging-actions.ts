@@ -7,6 +7,13 @@ import { autoSyncStage2VaultToEnterpriseAts } from '@/app/dashboard/ats-actions'
 import { pushToOpsControlPlane } from '@/lib/ops-bridge'
 import { submitBossW2PlacementHandoff, type EorPostalAddress } from '@/lib/boss-eor'
 import { parseEorConfigFromDescription } from '@/lib/eor-config'
+import {
+  clampRoleOpenings,
+  extractRoleMetaItem,
+  isApplicationSeatPlaced,
+  resolveRoleSeatSummary,
+  type RoleSeatSummary,
+} from '@/constants/availability'
 import { inspectStage1TextForContactLeakOrInjection, raiseSecurityAlertAndFlag, recordHandshakeTelemetry } from '@/lib/security-telemetry'
 
 const MAX_SILENT_UNLOCKS = 5
@@ -1024,6 +1031,8 @@ export async function getApplicationThreadState(
   orgWorksiteState?: string
   orgWorksiteZip?: string
   employerPlanActive?: boolean
+  directHirePlaced?: boolean
+  roleSeatSummary?: RoleSeatSummary | null
   error?: string
 }> {
   noStore()
@@ -1044,7 +1053,7 @@ export async function getApplicationThreadState(
   const adminDb = getAdminSupabaseClient() || supabase
   const { data: appRow, error } = await adminDb
     .from('applications')
-    .select('id, candidate_id, is_revealed, status, match_data, jobs (title, employer_id, organization_id, salary_min, salary_max, location, structured_requirements, organizations:organization_id (name, subscription_tier, description))')
+    .select('id, candidate_id, is_revealed, status, match_data, jobs (id, is_active, title, employer_id, organization_id, salary_min, salary_max, location, structured_requirements, organizations:organization_id (name, subscription_tier, description))')
     .eq('id', applicationId)
     .single()
 
@@ -1137,6 +1146,15 @@ export async function getApplicationThreadState(
   const stMatch = locStr.match(/,\s*([A-Z]{2})\b/) || locStr.toUpperCase().match(/\b(AL|AK|AZ|AR|CA|CO|CT|DE|DC|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b/)
   const suggestedWorkState = (stMatch ? stMatch[1].toUpperCase() : '') || orgEorCfg.worksiteState || orgEorCfg.billingState || 'TX'
 
+  let roleSeatSummary: RoleSeatSummary | null = null
+  if (threadJobObj?.id) {
+    const { data: roleApps } = await adminDb
+      .from('applications')
+      .select('id, job_id, match_data')
+      .eq('job_id', threadJobObj.id)
+    roleSeatSummary = resolveRoleSeatSummary(threadJobObj, roleApps || [])
+  }
+
   return {
     messages,
     vaultReleased,
@@ -1182,6 +1200,8 @@ export async function getApplicationThreadState(
     orgWorksiteState: isThreadEmployer ? orgEorCfg.worksiteState : '',
     orgWorksiteZip: isThreadEmployer ? orgEorCfg.worksiteZip : '',
     employerPlanActive,
+    directHirePlaced: Boolean(matchData.direct_hire_placed === true),
+    roleSeatSummary,
   }
 }
 
@@ -1795,11 +1815,188 @@ export async function respondToTrialToHireTerms(
     })
   }
 
+  if (decision === 'accept' && jobObj?.id) {
+    await syncJobRoleSeatFillState(adminDb, jobObj.id)
+  }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/employer/jobs')
+  revalidatePath('/dashboard/employer/billing')
   revalidatePath('/dashboard/applications')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
   revalidatePath('/dashboard/employer/pitches')
   return { success: true, trialToHire: updatedTrial }
+}
+
+async function syncJobRoleSeatFillState(
+  adminDb: any,
+  jobId: string | null | undefined
+): Promise<RoleSeatSummary | null> {
+  if (!jobId) return null
+  const { data: jobRow } = await adminDb
+    .from('jobs')
+    .select('id, is_active, structured_requirements')
+    .eq('id', jobId)
+    .maybeSingle()
+  if (!jobRow) return null
+
+  const { data: roleApps } = await adminDb
+    .from('applications')
+    .select('id, job_id, match_data')
+    .eq('job_id', jobId)
+
+  const placedIds = Array.from(
+    new Set(
+      (roleApps || [])
+        .filter((a: any) => isApplicationSeatPlaced(a))
+        .map((a: any) => String(a.id || '').trim())
+        .filter(Boolean)
+    )
+  )
+
+  const rawReqs = Array.isArray(jobRow.structured_requirements)
+    ? jobRow.structured_requirements
+    : []
+  const prevMeta = extractRoleMetaItem(rawReqs)
+  const openingsCount = clampRoleOpenings(prevMeta.openings_count, 1)
+  const visibleReqs = rawReqs.filter(
+    (r: any) => !(r && typeof r === 'object' && r._ss_job_meta === true)
+  )
+  const nextMeta = {
+    ...prevMeta,
+    _ss_job_meta: true,
+    openings_count: openingsCount,
+    filled_application_ids: placedIds,
+  }
+  const nextStructured = [...visibleReqs, nextMeta]
+  const allFilled = placedIds.length >= openingsCount
+  const nextIsActive = allFilled ? false : jobRow.is_active !== false
+
+  await adminDb
+    .from('jobs')
+    .update({
+      structured_requirements: nextStructured,
+      ...(allFilled && jobRow.is_active !== false ? { is_active: false } : {}),
+    })
+    .eq('id', jobId)
+
+  return resolveRoleSeatSummary(
+    { id: jobId, is_active: nextIsActive, structured_requirements: nextStructured },
+    roleApps || []
+  )
+}
+
+export async function recordDirectHirePlacement(
+  applicationId: string,
+  placed: boolean
+): Promise<{
+  success?: boolean
+  error?: string
+  directHirePlaced?: boolean
+  roleSeatSummary?: RoleSeatSummary | null
+}> {
+  noStore()
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const adminDb = getAdminSupabaseClient() || supabase
+  const { data: appRow } = await adminDb
+    .from('applications')
+    .select(
+      'id, initiated_by, match_data, jobs (id, is_active, title, employer_id, organization_id, structured_requirements, organizations:organization_id (name))'
+    )
+    .eq('id', applicationId)
+    .maybeSingle()
+
+  if (!appRow) return { error: 'Application thread not found.' }
+  const jobObj: any = Array.isArray((appRow as any).jobs)
+    ? (appRow as any).jobs[0]
+    : (appRow as any).jobs
+  const orgObj: any = Array.isArray(jobObj?.organizations)
+    ? jobObj.organizations[0]
+    : jobObj?.organizations
+
+  let isEmployer = jobObj?.employer_id === user.id
+  if (!isEmployer && jobObj?.organization_id) {
+    const { data: member } = await adminDb
+      .from('organization_members')
+      .select('id')
+      .eq('organization_id', jobObj.organization_id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (member) isEmployer = true
+  }
+  if (!isEmployer) return { error: 'Only the hiring team can update placement status.' }
+
+  const matchData = appRow.match_data || {}
+  if (matchData.candidate_vault_released !== true) {
+    return {
+      error:
+        'The Professional must unlock their Resume & Contact Vault before recording a Direct Hire placement.',
+    }
+  }
+
+  if (placed && !isApplicationSeatPlaced(appRow) && jobObj?.id) {
+    const { data: currentApps } = await adminDb
+      .from('applications')
+      .select('id, job_id, match_data')
+      .eq('job_id', jobObj.id)
+    const currentSummary = resolveRoleSeatSummary(jobObj, currentApps || [])
+    if (currentSummary.remainingOpenings <= 0) {
+      return {
+        error: `All ${currentSummary.openingsCount} ${currentSummary.openingsCount === 1 ? 'opening on this role is' : 'openings on this role are'} already filled. Edit the role to increase total openings first if you are hiring an additional Professional.`,
+      }
+    }
+  }
+
+  const nowIso = new Date().toISOString()
+  const orgName = orgObj?.name || 'Verified Employer'
+  const roleTitle = jobObj?.title || 'Protected Role'
+  const existingMsgs: ThreadMessage[] = Array.isArray(matchData.messages)
+    ? matchData.messages
+    : []
+  const noteText = placed
+    ? `🎉 Marked Direct Hire placement complete for "${roleTitle}". Role seat count updated automatically.`
+    : `🔄 Reversed Direct Hire placement status for "${roleTitle}". Role seat count recalculated.`
+
+  const { error: updErr } = await adminDb
+    .from('applications')
+    .update({
+      match_data: {
+        ...matchData,
+        direct_hire_placed: placed,
+        direct_hire_placed_at: placed ? nowIso : null,
+        messages: [
+          ...existingMsgs,
+          {
+            id: `sys-dh-${Date.now()}`,
+            sender_role: 'employer',
+            sender_name: orgName,
+            text: noteText,
+            created_at: nowIso,
+          },
+        ],
+      },
+    })
+    .eq('id', applicationId)
+
+  if (updErr) return { error: updErr.message }
+
+  const roleSeatSummary = await syncJobRoleSeatFillState(adminDb, jobObj?.id)
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/employer/jobs')
+  revalidatePath('/dashboard/employer/billing')
+  revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/requests')
+  revalidatePath('/dashboard/employer/applications')
+  revalidatePath('/dashboard/employer/pitches')
+
+  return { success: true, directHirePlaced: placed, roleSeatSummary }
 }
 
 export async function withdrawTrialToHireTerms(
