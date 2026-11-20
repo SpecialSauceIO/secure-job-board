@@ -6,7 +6,7 @@ export const metadata = {
   alternates: { canonical: "/w2-hiring" },
   title: "Direct Hire, W-2 Contract & Contract-to-Hire | Special Sauce",
   description:
-    "How Direct Hire, W-2 Contract, and Contract-to-Hire ($0 conversion fee via our U.S. EOR partner) work on Special Sauce.",
+    "How Direct Hire, W-2 Contract, and Contract-to-Hire ($0 conversion fee) work on Special Sauce.",
 }
 
 export default function W2HiringPublicPage() {

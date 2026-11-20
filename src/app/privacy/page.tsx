@@ -59,6 +59,9 @@ export default function PrivacyPolicyPage() {
                   We only receive a simple verification status confirmation. Identity verification is performed with your consent for fraud and bot prevention in compliance with applicable state and federal privacy laws (including the Texas Capture or Use of Biometric Identifier Act). Stripe retains and deletes verification data in accordance with the Stripe Privacy Policy and statutory retention limits.
                 </li>
                 <li>
+                  <strong className="text-slate-800">W-2 Onboarding &amp; Payroll Fulfillment Data:</strong> When an Employer and a Professional enter into a W-2 Contract or Contract-to-Hire engagement, agreed assignment terms and onboarding contact details are transmitted over encrypted connections to an independent, licensed U.S. Employer of Record solely to administer statutory Form I-9 and W-4 onboarding, payroll tax withholding, direct deposit, and Workers&apos; Compensation coverage. Special Sauce never stores Social Security numbers, tax withholding elections, or direct-deposit bank routing numbers on our servers.
+                </li>
+                <li>
                   <strong className="text-slate-800">In-Platform Messaging, Support Tickets &amp; Security Logs:</strong> Messages sent inside platform chat threads (<code className="text-xs font-mono bg-slate-100 px-1.5 py-0.5 rounded">SS-XXXXXXXX</code>), Help Center support requests or bug reports (including optional screenshot attachments), read timestamps, and velocity/security telemetry used to prevent spam, account takeovers, and unauthorized scraping.
                 </li>
               </ul>

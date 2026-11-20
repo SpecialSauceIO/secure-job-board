@@ -883,7 +883,7 @@ export default function LandingPage() {
                   1. Post Direct or W-2 Contract Roles
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Set required skills, upfront pay, and hiring track—Direct Hire, W-2 Contract, or Contract-to-Hire ($0 conversion fee via our U.S. EOR partner)—while keeping your company name private until you connect. <Link href="/w2-hiring" className="text-indigo-600 underline hover:text-indigo-800 font-bold">Explore Direct &amp; W-2 tracks →</Link>
+                  Set required skills, upfront pay, and hiring track—Direct Hire, W-2 Contract, or Contract-to-Hire ($0 conversion fee)—while keeping your company name private until you connect. <Link href="/w2-hiring" className="text-indigo-600 underline hover:text-indigo-800 font-bold">Explore Direct &amp; W-2 tracks →</Link>
                 </p>
               </div>
 

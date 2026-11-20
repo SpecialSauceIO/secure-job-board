@@ -6,7 +6,7 @@ import W2HiringGuideView from "@/components/W2HiringGuideView"
 export const metadata = {
   title: "Direct Hire, W-2 Contract & Contract-to-Hire | Special Sauce",
   description:
-    "How Direct Hire, W-2 Contract, and W-2 Contract-to-Hire ($0 conversion fee) work on Special Sauce via our U.S. Employer of Record (EOR) partner.",
+    "How Direct Hire, W-2 Contract, and W-2 Contract-to-Hire ($0 conversion fee) work on Special Sauce.",
 }
 
 export default async function DashboardW2HiringGuidePage() {

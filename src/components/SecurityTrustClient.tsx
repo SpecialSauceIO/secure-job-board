@@ -40,7 +40,7 @@ const STANDARD_PILLARS = [
     bullets: [
       "30-Day Job Expiration: Every job listing closes automatically after 30 days unless actively renewed by the hiring team.",
       "Active Response Requirement: Employers must message the professionals they unlock before unlocking more profiles.",
-      "Direct Hire, W-2 Contract & Contract-to-Hire: Supports Direct Hire alongside W-2 Contract and Contract-to-Hire ($0 conversion fee across 90-day, 180-day, or custom timelines) roles administered via our U.S. Employer of Record (EOR) partner, complete with hardware return tracking.",
+      "Direct Hire, W-2 Contract & Contract-to-Hire: Supports Direct Hire alongside W-2 Contract and Contract-to-Hire ($0 conversion fee across 90-day, 180-day, or custom timelines) roles with turnkey W-2 payroll, statutory tax compliance, and built-in hardware return tracking.",
     ],
   },
   {

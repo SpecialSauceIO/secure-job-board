@@ -479,7 +479,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/dashboard/talent-shield" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
               </li>
               <li>
-                ✓ <strong>Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee via our U.S. EOR partner) • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">W-2 &amp; EOR guide →</Link>
+                ✓ <strong>Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee) • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">W-2 Hiring guide →</Link>
               </li>
               <li>
                 ✓ <strong>10 Outbound Invitation Credits / mo</strong>
@@ -560,7 +560,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/dashboard/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link>
               </li>
               <li>
-                ✓ <strong>Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee via our U.S. EOR partner) • <Link href="/dashboard/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 &amp; EOR guide →</Link>
+                ✓ <strong>Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee) • <Link href="/dashboard/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 Hiring guide →</Link>
               </li>
               <li>
                 ✓ <strong>35 Outbound Invitation Credits / mo</strong>
@@ -643,7 +643,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/dashboard/talent-shield" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
               </li>
               <li>
-                ✓ <strong>Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee via our U.S. EOR partner) • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">W-2 &amp; EOR guide →</Link>
+                ✓ <strong>Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee) • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">W-2 Hiring guide →</Link>
               </li>
               <li>
                 ✓ <strong>120 Outbound Invitation Credits / mo</strong>

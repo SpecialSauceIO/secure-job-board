@@ -402,7 +402,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee via our U.S. EOR partner) • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 &amp; EOR guide →</Link></span>
+                      <span><strong className="text-white">Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee) • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 Hiring guide →</Link></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -470,7 +470,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee via our U.S. EOR partner) • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 &amp; EOR guide →</Link></span>
+                      <span><strong className="text-white">Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee) • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 Hiring guide →</Link></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -538,7 +538,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee via our U.S. EOR partner) • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 &amp; EOR guide →</Link></span>
+                      <span><strong className="text-white">Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee) • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 Hiring guide →</Link></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>

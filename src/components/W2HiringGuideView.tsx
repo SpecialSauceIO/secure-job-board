@@ -12,7 +12,7 @@ export default function W2HiringGuideView({
           Direct Hire • W-2 Contract • Contract-to-Hire
         </div>
         <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight text-white">
-          Three Hiring Tracks—Backed by Turnkey U.S. Employer of Record (EOR) Partner Payroll &amp; $0 Conversion Fees.
+          Three Hiring Tracks—Backed by Turnkey U.S. W-2 Payroll, Compliance &amp; $0 Conversion Fees.
         </h1>
         <p className="text-sm sm:text-lg text-slate-300 max-w-3xl leading-relaxed">
           Every Protected Role on Special Sauce supports traditional full-time Direct Hire alongside optional W-2 Contract and Contract-to-Hire tracks—giving Employers workforce flexibility across 90-day, 180-day, or custom conversion timelines with $0 buyout fees and giving Professionals real W-2 paycheck protection from day one.
@@ -29,13 +29,13 @@ export default function W2HiringGuideView({
 
       <section className="bg-indigo-950 text-white rounded-2xl border border-indigo-800 p-6 sm:p-8 space-y-3 shadow-sm">
         <p className="text-xs font-extrabold uppercase tracking-wider text-indigo-300">
-          Clear Operational Structure • Who Serves as the Employer of Record?
+          Clear Operational Structure • Turnkey W-2 Administration
         </p>
         <h2 className="text-xl sm:text-2xl font-extrabold">
-          Platform Verification by Special Sauce + Legal W-2 Payroll via Our U.S. EOR Partner
+          Platform Verification by Special Sauce + Licensed U.S. W-2 Payroll Infrastructure
         </h2>
         <p className="text-sm sm:text-base text-indigo-100 leading-relaxed">
-          Special Sauce Solutions LLC operates the secured workforce ecosystem—handling identity verification, TrueFit Score™ matching, the 2-Stage Privacy Vault, and lifecycle safeguards. When a hiring team selects a W-2 Contract or Contract-to-Hire track instead of Direct Hire, our dedicated U.S. Employer of Record (EOR) partner serves as the legal W-2 employer—managing I-9 and W-4 onboarding, scheduled W-2 paychecks, federal and state employer payroll taxes, workers' compensation, year-end W-2 filings, and consolidated employer billing.
+          Special Sauce Solutions LLC operates the secured workforce ecosystem—handling identity verification, TrueFit Score™ matching, the 2-Stage Privacy Vault, and lifecycle safeguards. When a hiring team selects a W-2 Contract or Contract-to-Hire track instead of Direct Hire, statutory I-9 and W-4 onboarding, scheduled W-2 paychecks, federal and state employer payroll taxes, workers' compensation, year-end W-2 filings, and consolidated employer billing are administered under licensed U.S. W-2 employer-of-record infrastructure.
         </p>
       </section>
 
@@ -51,14 +51,14 @@ export default function W2HiringGuideView({
           <p className="text-xs font-black uppercase tracking-wider text-indigo-700">Track 2 • W-2 Contract</p>
           <h3 className="text-lg font-extrabold text-slate-900">Fixed-Term (3–12 Mos) or Open-Ended W-2</h3>
           <p className="text-sm text-slate-600 leading-relaxed">
-            Staff project deliverables, seasonal volume, or headcount-capped teams without contractor misclassification risk. Our U.S. EOR partner handles W-2 payroll and multi-state tax compliance (+28% transparent statutory W-2 employer burden), extendable anytime.
+            Staff project deliverables, seasonal volume, or headcount-capped teams without contractor misclassification risk, complete with turnkey U.S. W-2 payroll and multi-state tax compliance, extendable anytime.
           </p>
         </div>
         <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-3 shadow-xs">
           <p className="text-xs font-black uppercase tracking-wider text-amber-700">Track 3 • Contract-to-Hire</p>
           <h3 className="text-lg font-extrabold text-slate-900">Flexible Live Alignment + $0 Conversion Fee</h3>
           <p className="text-sm text-slate-600 leading-relaxed">
-            Confirm real-world technical and team fit on paid W-2 work through our U.S. EOR partner across a 90-day, 180-day, or custom timeline, then transition the Professional onto your full-time internal staff for a $0 conversion fee—eliminating 20%–30% agency buyout penalties.
+            Confirm real-world technical and team fit on paid W-2 work across a 90-day, 180-day, or custom timeline, then transition the Professional onto your full-time internal staff for a $0 conversion fee—eliminating 20%–30% agency buyout penalties.
           </p>
         </div>
       </section>
@@ -68,7 +68,7 @@ export default function W2HiringGuideView({
           <p className="text-xs font-extrabold uppercase tracking-wider text-emerald-400">How Employers Benefit</p>
           <ul className="space-y-2.5 text-sm text-slate-200 leading-relaxed">
             <li>✓ <strong className="text-white">Zero Placement or Buyout Fees:</strong> Hire directly or convert W-2 contractors to full-time staff on your schedule with $0 conversion penalties.</li>
-            <li>✓ <strong className="text-white">Turnkey U.S. EOR Partner Administration:</strong> Offload W-2 onboarding, tax withholding, workers' comp, and compliance onto a dedicated EOR partner.</li>
+            <li>✓ <strong className="text-white">Turnkey U.S. W-2 Payroll Administration:</strong> Offload I-9 and W-4 onboarding, payroll tax withholding, workers' comp, and multi-state compliance.</li>
             <li>✓ <strong className="text-white">Built-In Hardware &amp; Lifecycle Safeguards:</strong> Track company-issued laptops and equipment with confirmation gates on contract wrap-up.</li>
           </ul>
         </div>
@@ -77,7 +77,7 @@ export default function W2HiringGuideView({
           <ul className="space-y-2.5 text-sm text-slate-200 leading-relaxed">
             <li>✓ <strong className="text-white">Upfront Pay Transparency:</strong> Every Direct Hire, W-2 Contract, and Contract-to-Hire role displays hourly or salary pay before you release your resume.</li>
             <li>✓ <strong className="text-white">Day-One W-2 Paycheck Protection:</strong> Receive legitimate W-2 paychecks and employer tax contributions instead of misclassified 1099 surprises.</li>
-            <li>✓ <strong className="text-white">Frictionless Path to Full-Time:</strong> Because employers pay $0 conversion fees via our U.S. EOR partner, agency buyout costs never block your full-time offer.</li>
+            <li>✓ <strong className="text-white">Frictionless Path to Full-Time:</strong> Because employers pay $0 conversion fees, agency buyout costs never block your full-time offer.</li>
           </ul>
         </div>
       </section>

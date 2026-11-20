@@ -178,7 +178,7 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
         step: 'Step 3',
         title: 'Publish Direct Hire or W-2 Contract-to-Hire Roles',
         description:
-          'Post Direct Hire, W-2 Contract, or Contract-to-Hire ($0 conversion fee via our U.S. EOR partner) roles with upfront pay bands while keeping your company name private until you connect.',
+          'Post Direct Hire, W-2 Contract, or Contract-to-Hire ($0 conversion fee) roles with upfront pay bands while keeping your company name private until you connect.',
       },
       {
         step: 'Step 4',
@@ -471,7 +471,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How do Direct Hire, W-2 Contract, and Contract-to-Hire roles work for Professionals?',
     answer:
-      'Every Protected Role supports full-time Direct Hire onto the hiring company\u0027s payroll alongside optional W-2 Contract (3–12 months or open-ended) and Contract-to-Hire tracks with upfront pay bands. On W-2 tracks, our dedicated U.S. Employer of Record (EOR) partner serves as your legal W-2 employer—handling onboarding, scheduled W-2 paychecks, and employer payroll taxes from day one—and employers pay a $0 conversion fee across 90-day, 180-day, or custom timelines to bring you onto full-time staff.',
+      'Every Protected Role supports full-time Direct Hire onto the hiring company\u0027s payroll alongside optional W-2 Contract (3–12 months or open-ended) and Contract-to-Hire tracks with upfront pay bands. On W-2 tracks, you receive compliant I-9 and W-4 onboarding, scheduled W-2 direct-deposit paychecks, and employer payroll tax contributions from day one—and employers pay a $0 conversion fee across 90-day, 180-day, or custom timelines to bring you onto full-time staff.',
   },
   {
     id: 'e9',
@@ -487,9 +487,9 @@ export const SUPPORT_FAQS: FAQ[] = [
     target: 'employer',
     category: 'Job Listings',
     question:
-      'How do Direct Hire, W-2 Contract, and Contract-to-Hire ($0 conversion fee via our U.S. EOR partner) work for Employers?',
+      'How do Direct Hire, W-2 Contract, and Contract-to-Hire ($0 conversion fee) work for Employers?',
     answer:
-      'When creating a Protected Role, you can hire directly onto your internal payroll ($0 placement fee) or select a W-2 track (+28% statutory W-2 employer burden): Fixed-Term W-2 Contract (3–12 months, extendable anytime), Open-Ended W-2 Contract, or Contract-to-Hire ($0 conversion fee across 90-day, 180-day, or custom timelines). Our dedicated U.S. Employer of Record (EOR) partner serves as the legal W-2 employer—handling I-9/W-4 onboarding, W-2 payroll, multi-state tax compliance, and workers\u0027 compensation—alongside built-in hardware return tracking.',
+      'When creating a Protected Role, you can hire directly onto your internal payroll ($0 placement fee) or select a turnkey W-2 track: Fixed-Term W-2 Contract (3–12 months, extendable anytime), Open-Ended W-2 Contract, or Contract-to-Hire ($0 conversion fee across 90-day, 180-day, or custom timelines), complete with digital I-9/W-4 onboarding, multi-state W-2 payroll compliance, workers\u0027 compensation coverage, and built-in hardware return tracking.',
   },
   {
     id: 'all2',
@@ -546,52 +546,52 @@ export const SUPPORT_FAQS: FAQ[] = [
   {
     id: 'all8',
     target: 'all',
-    category: 'W-2 & U.S. EOR Operations',
+    category: 'W-2 Payroll & Contract-to-Hire',
     question:
-      'Who is the legal employer on a W-2 Contract or Contract-to-Hire role, and how do Special Sauce, the U.S. EOR partner, and the Hiring Company divide responsibilities?',
+      'How are responsibilities divided on a W-2 Contract or Contract-to-Hire role?',
     answer:
-      'Responsibilities are cleanly separated across three parties: (1) Special Sauce operates the secured workforce ecosystem—handling identity and company verification, TrueFit Score™ matching, the 2-Stage Privacy Vault, and in-thread lifecycle safeguards; (2) our dedicated U.S. Employer of Record (EOR) partner serves as the legal W-2 employer on record—managing digital Form I-9 and W-4 onboarding, direct-deposit W-2 paychecks, federal/state/local payroll tax withholding, workers\u0027 compensation, unemployment insurance, statutory benefit administration, and year-end W-2 tax forms; and (3) the Hiring Company directs day-to-day work, project milestones, and timesheet approvals.',
+      'Responsibilities are cleanly separated: (1) Special Sauce operates the secured workforce ecosystem—handling identity and company verification, TrueFit Score™ matching, the 2-Stage Privacy Vault, and in-thread lifecycle safeguards; (2) licensed U.S. W-2 employer-of-record infrastructure administers legal W-2 employment—managing digital Form I-9 and W-4 onboarding, direct-deposit W-2 paychecks, federal/state/local payroll tax withholding, workers\u0027 compensation, unemployment insurance, statutory benefit administration, and year-end W-2 tax forms (disclosed directly on statutory onboarding documents); and (3) the Hiring Company directs day-to-day work, project milestones, and timesheet approvals.',
   },
   {
     id: 'c13',
     target: '\u0063andidate',
-    category: 'W-2 & U.S. EOR Operations',
+    category: 'W-2 Payroll & Contract-to-Hire',
     question:
       'What happens step-by-step after I accept a W-2 Contract or Contract-to-Hire offer?',
     answer:
-      'Once you release your Resume Vault in the private thread and accept the employer\u0027s W-2 proposal, our U.S. EOR partner sends you a secure digital onboarding packet. You complete your federal Form W-4, Form I-9 employment eligibility verification, direct deposit setup, and any role-specific background or drug screening disclosed upfront on the listing. As soon as onboarding clears, both you and the hiring team receive confirmation to begin work on your scheduled start date.',
+      'Once you release your Resume Vault in the private thread and accept the employer\u0027s W-2 proposal, you receive a secure digital W-2 onboarding packet. You complete your federal Form W-4, Form I-9 employment eligibility verification, direct deposit setup, and any role-specific background or drug screening disclosed upfront on the listing. As soon as onboarding clears, both you and the hiring team receive confirmation to begin work on your scheduled start date.',
   },
   {
     id: 'c14',
     target: '\u0063andidate',
-    category: 'W-2 & U.S. EOR Operations',
+    category: 'W-2 Payroll & Contract-to-Hire',
     question:
-      'How do timesheets, W-2 paychecks, taxes, and benefits work for Professionals on EOR roles?',
+      'How do timesheets, W-2 paychecks, taxes, and benefits work for Professionals on W-2 roles?',
     answer:
-      'You log your hours in the EOR portal, the hiring manager approves your timesheet, and our U.S. EOR partner pays you via scheduled W-2 direct deposit at the exact hourly rate agreed to in your offer. Unlike 1099 contracting, employer-side Social Security and Medicare (FICA) taxes, unemployment insurance, and workers\u0027 compensation are paid on your behalf, taxes are withheld automatically on every paycheck, eligible full-time W-2 contractors gain access to EOR statutory benefit options, and you receive a single W-2 at year-end.',
+      'You log your hours in the W-2 payroll portal, the hiring manager approves your timesheet, and you are paid via scheduled W-2 direct deposit at the exact hourly rate agreed to in your offer. Unlike 1099 contracting, employer-side Social Security and Medicare (FICA) taxes, unemployment insurance, and workers\u0027 compensation are paid on your behalf, taxes are withheld automatically on every paycheck, eligible full-time W-2 contractors gain access to statutory benefit options, and you receive a single W-2 at year-end.',
   },
   {
     id: 'c15',
     target: '\u0063andidate',
-    category: 'W-2 & U.S. EOR Operations',
+    category: 'W-2 Payroll & Contract-to-Hire',
     question:
       'How does converting from Contract-to-Hire to full-time internal staff work for Professionals?',
     answer:
-      'Traditional staffing agencies charge employers $20,000+ buyout fees that discourage companies from hiring contractors full-time. On Special Sauce, employers pay a $0 conversion fee across 90-day, 180-day, custom, or early timelines—so there are zero agency buyout blocks or restrictive non-compete lock-ins standing in your way. When you accept the company\u0027s direct full-time offer, the employer marks the engagement converted, EOR billing closes cleanly on your transition date, and you move onto the company\u0027s internal payroll and benefits.',
+      'Traditional staffing agencies charge employers $20,000+ buyout fees that discourage companies from hiring contractors full-time. On Special Sauce, employers pay a $0 conversion fee across 90-day, 180-day, custom, or early timelines—so there are zero agency buyout blocks or restrictive non-compete lock-ins standing in your way. When you accept the company\u0027s direct full-time offer, the employer marks the engagement converted, W-2 contract billing closes cleanly on your transition date, and you move onto the company\u0027s internal payroll and benefits.',
   },
   {
     id: 'e11',
     target: 'employer',
-    category: 'W-2 & U.S. EOR Operations',
+    category: 'W-2 Payroll & Contract-to-Hire',
     question:
-      'How does Employer EOR billing work, and what does the +28% statutory W-2 burden cover?',
+      'How does Employer W-2 billing work, and what does the statutory W-2 employer burden cover?',
     answer:
-      'Special Sauce charges $0 recruiting commissions or placement markups—your platform access is covered by your flat monthly membership. When you run a role through our U.S. EOR partner, you receive one consolidated invoice for approved hours worked at the Professional\u0027s hourly pay rate plus the transparent +28% statutory W-2 employer burden. That burden covers employer FICA taxes, federal and state unemployment insurance (FUTA/SUTA), workers\u0027 compensation coverage, digital I-9/W-4 onboarding, multi-state payroll compliance without registering new state tax entities, and W-2 issuance.',
+      'Special Sauce charges $0 recruiting commissions or placement markups—your platform access is covered by your flat monthly membership. On W-2 Contract and Contract-to-Hire tracks, you receive one consolidated invoice for approved hours worked at the Professional\u0027s hourly pay rate plus the transparent statutory W-2 employer burden disclosed before launch. That burden covers employer FICA taxes, federal and state unemployment insurance (FUTA/SUTA), workers\u0027 compensation coverage, digital I-9/W-4 onboarding, multi-state payroll compliance without registering new state tax entities, and W-2 issuance.',
   },
   {
     id: 'e12',
     target: 'employer',
-    category: 'W-2 & U.S. EOR Operations',
+    category: 'W-2 Payroll & Contract-to-Hire',
     question:
       'Can we convert a W-2 contractor to full-time early, extend a contract, or customize the conversion window?',
     answer:
@@ -600,16 +600,16 @@ export const SUPPORT_FAQS: FAQ[] = [
   {
     id: 'e13',
     target: 'employer',
-    category: 'W-2 & U.S. EOR Operations',
+    category: 'W-2 Payroll & Contract-to-Hire',
     question:
       'How do background checks, drug screening, and laptop/equipment policies work on W-2 roles?',
     answer:
-      'When creating or proposing a W-2 role, you can toggle background check and drug screening requirements so our U.S. EOR partner coordinates compliant screening during onboarding—and Professionals see those requirements upfront before applying. You also select one of four equipment policies: No Equipment Needed, Company-Shipped Hardware (Laptop / Security Key), Cloud VDI / BYOD (Virtual Desktop & Passkey Only), or Request EOR Managed Laptop Add-On.',
+      'When creating or proposing a W-2 role, you can toggle background check and drug screening requirements so compliant screening is coordinated during W-2 onboarding—and Professionals see those requirements upfront before applying. You also select one of four equipment policies: No Equipment Needed, Company-Shipped Hardware (Laptop / Security Key), Cloud VDI / BYOD (Virtual Desktop & Passkey Only), or Managed Laptop Add-On.',
   },
   {
     id: 'e14',
     target: 'employer',
-    category: 'W-2 & U.S. EOR Operations',
+    category: 'W-2 Payroll & Contract-to-Hire',
     question:
       'How do W-2 Lifecycle Safeguards and company hardware return controls work?',
     answer:
