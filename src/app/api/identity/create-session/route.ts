@@ -30,6 +30,9 @@ export async function POST(req: Request) {
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    if (!stripeKey) {
+      return NextResponse.json({ error: 'Stripe Identity is not configured' }, { status: 503 })
+    }
 
     const [{ data: profile }, tierInfo] = await Promise.all([
       supabase
@@ -120,6 +123,8 @@ export async function POST(req: Request) {
       path: '/',
       maxAge: 60 * 60 * 24,
       sameSite: 'lax',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
     })
 
     await recordHandshakeTelemetry({
@@ -152,27 +157,46 @@ export async function PUT() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ verified: false, error: "Unauthorized" }, { status: 401 })
+    if (!stripeKey) return NextResponse.json({ verified: false, error: "Stripe Identity is not configured" }, { status: 503 })
     const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
     const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
     const sbAdmin = sbUrl && sbKey ? createAdminClient(sbUrl, sbKey) : supabase
+    const matchesCurrentUser = (s: any) =>
+      Boolean(
+        s &&
+          (s.client_reference_id === user.id ||
+            s.metadata?.userId === user.id ||
+            s.metadata?.user_id === user.id)
+      )
     const cookieStore = await cookies()
     const vsCookie = cookieStore.get("stripe_vs_id")?.value
-    let verifiedSession: any = null
-    if (vsCookie) {
+    let matchedSession: any = null
+    if (vsCookie && /^vs_[A-Za-z0-9]+$/.test(vsCookie)) {
       const s = await stripe.identity.verificationSessions.retrieve(vsCookie).catch(() => null)
-      if (s && (s.status === "verified" || s.status === "processing")) verifiedSession = s
-    }
-    if (!verifiedSession) {
-      const list = await stripe.identity.verificationSessions.list({ limit: 15 })
-      verifiedSession = list.data.find((s) => (s.client_reference_id === user.id || s.metadata?.user_id === user.id) && (s.status === "verified" || s.status === "processing"))
-    }
-    if (verifiedSession) {
-      await sbAdmin.from("profiles").update({ identity_verified: true, is_verified: true, updated_at: new Date().toISOString() }).eq("id", user.id)
-      const { data: mem } = await sbAdmin.from("organization_members").select("organization_id").eq("user_id", user.id).limit(1).maybeSingle()
-      if (mem?.organization_id) {
-        await sbAdmin.from("organizations").update({ verification_status: "verified" }).eq("id", mem.organization_id)
+      if (matchesCurrentUser(s) && (s?.status === "verified" || s?.status === "processing")) {
+        matchedSession = s
       }
-      return NextResponse.json({ verified: true, status: verifiedSession.status })
+    }
+    if (!matchedSession) {
+      const list = await stripe.identity.verificationSessions.list({ limit: 15 })
+      matchedSession = list.data.find((s) => matchesCurrentUser(s) && (s.status === "verified" || s.status === "processing"))
+    }
+    if (matchedSession?.status === "verified") {
+      const { data: profRow } = await sbAdmin.from("profiles").select("role").eq("id", user.id).maybeSingle()
+      const isEmployerRole = profRow?.role === "employer"
+      await sbAdmin
+        .from("profiles")
+        .update({
+          identity_verified: true,
+          is_verified: true,
+          ...(isEmployerRole ? {} : { is_discoverable: true }),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", user.id)
+      return NextResponse.json({ verified: true, status: "verified" })
+    }
+    if (matchedSession?.status === "processing") {
+      return NextResponse.json({ verified: false, status: "processing" })
     }
     return NextResponse.json({ verified: false })
   } catch (err: any) {

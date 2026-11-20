@@ -73,13 +73,16 @@ export async function saveOrganizationEorSettings(formData: FormData) {
 
   const { data: member } = await supabase
     .from('organization_members')
-    .select('organization_id')
+    .select('organization_id, role')
     .eq('user_id', user.id)
     .limit(1)
     .maybeSingle()
 
   if (!member?.organization_id) {
     return { error: 'Save your company profile first before configuring W-2 & EOR defaults.' }
+  }
+  if (member.role === 'bpo_partner') {
+    return { error: 'Forbidden: External recruiting partner seats cannot modify organization legal or payroll settings.' }
   }
 
   const { data: org } = await supabase

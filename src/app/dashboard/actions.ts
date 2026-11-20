@@ -976,7 +976,7 @@ export async function stripTierTag(description?: string | null): Promise<string>
     .replace(/\s*\[EIN:[^\]]*\]/gi, '')
     .replace(/\s*\[INC_STATE:[^\]]*\]/gi, '')
     .replace(/\s*\[RDAP:[^\]]*\]/gi, '')
-    .replace(/\s*\[ATS_CFG:[A-Za-z0-9+/=]+\]/gi, '')
+    .replace(/\s*\[ATS_CFG:[^\]]+\]/gi, '')
     .replace(/\s*\[EOR_CFG:[A-Za-z0-9+/=]+\]/gi, '')
     .trim()
 }
@@ -1890,6 +1890,7 @@ export async function parseResumeAutoFill(formData: FormData) {
 
   const file = formData.get('resume') as File
   if (!file || (typeof file.size === "number" && file.size === 0)) return { ok: false, error: "Please choose a PDF resume file before scanning." }
+  if (typeof file.size === "number" && file.size > 10 * 1024 * 1024) return { ok: false, error: "Resume file must be 10 MB or smaller." }
 
   const lowerUserEmail = (user.email || "").toLowerCase()
   const isDemoOrLocalDev = lowerUserEmail.includes(".demo@") || lowerUserEmail.endsWith("@specialsauce.io") || process.env.NODE_ENV === "development"
@@ -1928,7 +1929,8 @@ export async function parseResumeAutoFill(formData: FormData) {
       currentProfile?.structured_skills
     )
 
-    const fileExt = file.name.split('.').pop() || 'pdf'
+    const rawExt = (file.name.split('.').pop() || 'pdf').toLowerCase().replace(/[^a-z0-9]/g, '')
+    const fileExt = ['pdf', 'doc', 'docx', 'txt', 'rtf'].includes(rawExt) ? rawExt : 'pdf'
     const fileName = `${user.id}-${Date.now()}.${fileExt}`
     const { error: uploadError } = await supabase.storage
       .from('resumes')
@@ -4439,7 +4441,24 @@ export async function parseJobAutoFill(formData: FormData) {
   if (!user) return { error: 'Not authenticated' }
 
   const file = formData.get('job_description') as File
-  if (!file) return { error: 'No file provided' }
+  if (!file || (typeof file.size === 'number' && file.size === 0)) return { error: 'No file provided' }
+  if (typeof file.size === 'number' && file.size > 10 * 1024 * 1024) return { error: 'Role document must be 10 MB or smaller.' }
+  const lowerJobActor = (user.email || '').toLowerCase()
+  const isJobParseDev = lowerJobActor.includes('.demo@') || lowerJobActor.endsWith('@specialsauce.io') || process.env.NODE_ENV === 'development'
+  if (!isJobParseDev) {
+    const jobParseVel = await checkActionVelocityAndSpray({
+      actorKey: `job_parse:${user.id}`,
+      actorEmail: user.email || 'unknown@employer',
+      actorRole: 'employer',
+      actionType: 'resume_parse',
+      maxAllowedInWindow: 20,
+      windowMinutes: 60,
+      platformArea: 'One-Click Role Generator',
+    })
+    if (!jobParseVel.allowed) {
+      return { error: 'Hourly role document scan limit reached. Please wait a few minutes and try again.' }
+    }
+  }
 
   try {
     let employerOrgName = ''
@@ -6617,7 +6636,7 @@ export async function saveOrganizationProfile(formData: FormData) {
     existingTierMarker = `[TIER:${tierInfo.tier}]`
     const seatsMatch = (currentOrg?.description || '').match(/\[SEATS:[^\]]+\]/i)
     if (seatsMatch) existingSeatsTag = seatsMatch[0]
-    const atsMatch = (currentOrg?.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i)
+    const atsMatch = (currentOrg?.description || '').match(/\[ATS_CFG:[^\]]+\]/i)
     if (atsMatch) existingAtsTag = atsMatch[0]
     const eorMatch = (currentOrg?.description || '').match(/\[EOR_CFG:[A-Za-z0-9+/=]+\]/i)
     if (eorMatch) existingAtsTag = `${existingAtsTag} ${eorMatch[0]}`.trim()
@@ -6712,16 +6731,20 @@ export async function claimInvitedOrganizationSeatIfAny(
   _userId?: string | null,
   _userEmail?: string | null
 ): Promise<{ claimed: boolean; organizationId?: string }> {
-  let userId = _userId ? String(_userId).trim() : ''
-  let cleanEmail = _userEmail ? String(_userEmail).trim().toLowerCase() : ''
-  if (!userId || !cleanEmail) {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user || !user.id || !user.email) return { claimed: false }
-    userId = user.id
-    cleanEmail = user.email.trim().toLowerCase()
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user || !user.id || !user.email || !user.email_confirmed_at) {
+    return { claimed: false }
+  }
+  if (_userId && String(_userId).trim() !== user.id) {
+    return { claimed: false }
+  }
+  const userId = user.id
+  const cleanEmail = user.email.trim().toLowerCase()
+  if (_userEmail && String(_userEmail).trim().toLowerCase() !== cleanEmail) {
+    return { claimed: false }
   }
   const negUntil = seatClaimNegativeCache.get(cleanEmail) || 0
   if (Date.now() < negUntil) return { claimed: false }
@@ -6751,6 +6774,17 @@ export async function claimInvitedOrganizationSeatIfAny(
         const memberRole =
           matchedSeat.role === 'bpo_partner' ? 'bpo_partner' : 'member'
 
+        const [{ data: existingProfile }, { data: otherOrgMem }] = await Promise.all([
+          adminClient.from('profiles').select('role, is_verified, identity_verified').eq('id', userId).maybeSingle(),
+          adminClient.from('organization_members').select('organization_id').eq('user_id', userId).neq('organization_id', org.id).limit(1).maybeSingle(),
+        ])
+        const isVerifiedCandAccount =
+          existingProfile?.role === 'candidate' &&
+          Boolean(existingProfile?.is_verified === true || existingProfile?.identity_verified === true)
+        if (isVerifiedCandAccount || otherOrgMem?.organization_id) {
+          continue
+        }
+
         // Ensure user is in organization_members
         const { data: existingMember } = await adminClient
           .from('organization_members')
@@ -6779,7 +6813,7 @@ export async function claimInvitedOrganizationSeatIfAny(
           const tierInfo = await resolveEmployerTierInfo(org)
           const cleanDesc = await stripTierTag(org.description)
           const topupTag = ((org.description || '').match(/\[TOPUP:\d+\]/i) || [''])[0]
-          const atsTag = ((org.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
+          const atsTag = ((org.description || '').match(/\[ATS_CFG:[^\]]+\]/i) || [''])[0]
           const eorTag = ((org.description || '').match(/\[EOR_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
           const csTags = ((org.description || '').match(/\[CS:[^\]]+\]/gi) || []).join(' ')
           const seatsTag = encodeStoredSeatsTag(seats)
@@ -6885,12 +6919,15 @@ export async function inviteOrganizationSeat(formData: FormData) {
 
   const { data: member } = await supabase
     .from('organization_members')
-    .select('organization_id')
+    .select('organization_id, role')
     .eq('user_id', user.id)
     .maybeSingle()
 
   if (!member?.organization_id) {
     return { error: 'Please save your Company Profile first.' }
+  }
+  if (member.role === 'bpo_partner') {
+    return { error: 'Forbidden: External recruiting partner seats cannot invite or manage organization seats.' }
   }
 
   const { data: org } = await supabase
@@ -6928,7 +6965,17 @@ export async function inviteOrganizationSeat(formData: FormData) {
         (u) => (u.email || '').trim().toLowerCase() === rawEmail
       )
 
-      if (matchedAuthUser?.id) {
+      if (matchedAuthUser?.id && matchedAuthUser.email_confirmed_at) {
+        const [{ data: targetProf }, { data: otherMem }] = await Promise.all([
+          adminClient.from('profiles').select('role, is_verified, identity_verified').eq('id', matchedAuthUser.id).maybeSingle(),
+          adminClient.from('organization_members').select('organization_id').eq('user_id', matchedAuthUser.id).neq('organization_id', member.organization_id).limit(1).maybeSingle(),
+        ])
+        if (otherMem?.organization_id) {
+          return { error: 'That email address is already linked to another organization on Special Sauce.' }
+        }
+        if (targetProf?.role === 'candidate' && (targetProf?.is_verified === true || targetProf?.identity_verified === true)) {
+          return { error: 'That email belongs to a verified Professional profile. Please invite their separate company work email instead.' }
+        }
         await adminClient
           .from('profiles')
           .update({ role: 'employer' })
@@ -6948,6 +6995,7 @@ export async function inviteOrganizationSeat(formData: FormData) {
             role: seatRole === 'bpo_partner' ? 'bpo_partner' : 'member',
           })
         }
+        seatStatus = 'active'
       }
     }
   } catch {}
@@ -6963,7 +7011,7 @@ export async function inviteOrganizationSeat(formData: FormData) {
   const updatedInvited = [...existingInvited, newSeat]
   const cleanDesc = await stripTierTag(org?.description)
   const topupTag = ((org?.description || '').match(/\[TOPUP:\d+\]/i) || [''])[0]
-  const atsTag = ((org?.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
+  const atsTag = ((org?.description || '').match(/\[ATS_CFG:[^\]]+\]/i) || [''])[0]
   const eorTag = ((org?.description || '').match(/\[EOR_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
   const csTags = ((org?.description || '').match(/\[CS:[^\]]+\]/gi) || []).join(' ')
   const seatsTag = encodeStoredSeatsTag(updatedInvited)
@@ -7020,11 +7068,14 @@ export async function removeOrganizationSeat(
 
   const { data: member } = await supabase
     .from('organization_members')
-    .select('organization_id')
+    .select('organization_id, role')
     .eq('user_id', user.id)
     .maybeSingle()
 
   if (!member?.organization_id) return { error: 'No organization found.' }
+  if (member.role === 'bpo_partner') {
+    return { error: 'Forbidden: External recruiting partner seats cannot remove organization seats.' }
+  }
 
   const { data: org } = await supabase
     .from('organizations')
@@ -7043,7 +7094,7 @@ export async function removeOrganizationSeat(
 
   const cleanDesc = await stripTierTag(org?.description)
   const topupTag = ((org?.description || '').match(/\[TOPUP:\d+\]/i) || [''])[0]
-  const atsTag = ((org?.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
+  const atsTag = ((org?.description || '').match(/\[ATS_CFG:[^\]]+\]/i) || [''])[0]
   const eorTag = ((org?.description || '').match(/\[EOR_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
   const csTags = ((org?.description || '').match(/\[CS:[^\]]+\]/gi) || []).join(' ')
   const seatsTag = encodeStoredSeatsTag(updatedInvited)
@@ -7382,7 +7433,7 @@ export async function activateSandboxEmployerTier(
   const cleanDesc = (await stripTierTag(rawDescStr)).replace(/\[(VERIFY_PAID|CREDIT25_USED)\]/gi, '').trim()
   const seatsMatch = rawDescStr.match(/\[SEATS:[^\]]+\]/i)
   const existingSeatsTag = seatsMatch ? seatsMatch[0] : ''
-  const atsMatch = rawDescStr.match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i)
+  const atsMatch = rawDescStr.match(/\[ATS_CFG:[^\]]+\]/i)
   const existingAtsTag = atsMatch ? atsMatch[0] : ''
   const eorMatch = rawDescStr.match(/\[EOR_CFG:[A-Za-z0-9+/=]+\]/i)
   const existingEorTag = eorMatch ? eorMatch[0] : ''
@@ -7562,7 +7613,7 @@ export async function purchaseEmployerCreditTopUp(
   const cleanDesc = await stripTierTag(orgObj.description)
   const seatsMatch = (orgObj.description || '').match(/\[SEATS:[^\]]+\]/i)
   const existingSeatsTag = seatsMatch ? seatsMatch[0] : ''
-  const atsMatch = (orgObj.description || '').match(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/i)
+  const atsMatch = (orgObj.description || '').match(/\[ATS_CFG:[^\]]+\]/i)
   const existingAtsTag = atsMatch ? atsMatch[0] : ''
   const eorMatch = (orgObj.description || '').match(/\[EOR_CFG:[A-Za-z0-9+/=]+\]/i)
   const existingEorTag = eorMatch ? eorMatch[0] : ''
