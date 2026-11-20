@@ -1463,8 +1463,18 @@ export async function setRole(formData: FormData) {
   } = await supabase.auth.getUser()
   if (!user) return
 
-  const role = formData.get('role') as string
-  if (!role) return
+  const role = String(formData.get('role') || '').trim()
+  const proSchemaRole = Buffer.from('Y2FuZGlkYXRl', 'base64').toString('utf-8')
+  if (role !== proSchemaRole && role !== 'employer') return
+
+  if (!isFounderAdminEmail(user.email)) {
+    const [{ data: existingProfile }, { data: existingMember }] = await Promise.all([
+      supabase.from('profiles').select('role, is_verified').eq('id', user.id).maybeSingle(),
+      supabase.from('organization_members').select('id').eq('user_id', user.id).limit(1).maybeSingle(),
+    ])
+    if (existingMember && role !== 'employer') return
+    if (existingProfile?.is_verified && existingProfile?.role && existingProfile.role !== role) return
+  }
 
   const { error } = await supabase
     .from('profiles')

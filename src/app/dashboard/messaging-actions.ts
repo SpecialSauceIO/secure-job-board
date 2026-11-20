@@ -406,6 +406,22 @@ export async function checkEmployerSilentUnlockQuota(organizationId: string): Pr
 }> {
   noStore()
   const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) {
+    return { allowed: false, silentCount: 0, error: 'Not authenticated' }
+  }
+  const { data: member } = await supabase
+    .from('organization_members')
+    .select('id')
+    .eq('organization_id', organizationId)
+    .eq('user_id', user.id)
+    .limit(1)
+    .maybeSingle()
+  if (!member) {
+    return { allowed: false, silentCount: 0, error: 'Forbidden' }
+  }
 
   const { data: jobs } = await supabase
     .from('jobs')

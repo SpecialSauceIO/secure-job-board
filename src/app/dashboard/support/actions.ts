@@ -65,6 +65,17 @@ export async function replyToSupportTicketAction(
       process.env.NEXT_PUBLIC_SITE_URL || 'https://specialsauce.io'
     ).replace(/\/+$/, '')
     const publicLogoUrl = `${mainAppUrl}/logo.png`
+    const escapeHtml = (val: string) =>
+      val
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+    const safeTicketId = String(ticketId || '').replace(/[\r\n]+/g, '').trim()
+    const escapedTicketId = escapeHtml(safeTicketId)
+    const encodedTicketId = encodeURIComponent(safeTicketId)
+    const escapedCleanText = escapeHtml(cleanText)
 
     const customerHtml = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 32px 28px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
@@ -75,22 +86,22 @@ export async function replyToSupportTicketAction(
               SPECIAL SAUCE™ SUPPORT CENTER
             </span>
             <span style="display: inline-block; padding: 4px 10px; background-color: #eef2ff; color: #4338ca; border-radius: 6px; font-size: 12px; font-weight: 700; font-family: monospace;">
-              Ref: ${ticketId}
+              Ref: ${escapedTicketId}
             </span>
           </div>
         </div>
         <h2 style="color: #0f172a; font-size: 19px; font-weight: 800; margin: 0 0 10px 0;">
-          We received your update on ticket ${ticketId}
+          We received your update on ticket ${escapedTicketId}
         </h2>
         <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 14px 0;">
           Your note has been added to your support ticket thread and our team has been notified. Here is a copy of what you submitted:
         </p>
-        <div style="padding: 16px; background-color: #f8fafc; border-left: 4px solid #4f46e5; border-radius: 8px; color: #1e293b; font-size: 14px; line-height: 1.6; margin: 16px 0; white-space: pre-wrap;">${cleanText}</div>
+        <div style="padding: 16px; background-color: #f8fafc; border-left: 4px solid #4f46e5; border-radius: 8px; color: #1e293b; font-size: 14px; line-height: 1.6; margin: 16px 0; white-space: pre-wrap;">${escapedCleanText}</div>
         <p style="color: #64748b; font-size: 13px; line-height: 1.6; margin: 16px 0 0 0;">
-          You can view the live status of your ticket anytime in your dashboard Support Center, or reply directly to this email (keeping <strong>[${ticketId}]</strong> in the subject line).
+          You can view the live status of your ticket anytime in your dashboard Support Center, or reply directly to this email (keeping <strong>[${escapedTicketId}]</strong> in the subject line).
         </p>
         <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
-          <a href="${mainAppUrl}/dashboard/support?tab=ticket&ticket=${ticketId}" style="display: inline-block; padding: 12px 20px; background-color: #0f172a; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; border-radius: 10px;">
+          <a href="${mainAppUrl}/dashboard/support?tab=ticket&ticket=${encodedTicketId}" style="display: inline-block; padding: 12px 20px; background-color: #0f172a; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; border-radius: 10px;">
             View Ticket in Support Center →
           </a>
         </div>
@@ -108,9 +119,9 @@ export async function replyToSupportTicketAction(
           from: user.email.toLowerCase().endsWith('@specialsauce.io') ? 'Special Sauce System <ops-alerts@specialsauce.io>' : 'Special Sauce Support <support@specialsauce.io>',
           to: [user.email],
           reply_to: 'support@specialsauce.io',
-          subject: `[${ticketId}] Update Confirmation: Your reply has been posted`,
+          subject: `[${safeTicketId}] Update Confirmation: Your reply has been posted`,
           html: customerHtml,
-          text: `We received your update on ticket ${ticketId}:\n\n${cleanText}`,
+          text: `We received your update on ticket ${safeTicketId}:\n\n${cleanText}`,
         }),
       })
     } catch {}

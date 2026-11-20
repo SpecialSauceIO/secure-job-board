@@ -1,6 +1,8 @@
 'use server'
 
 import crypto from 'crypto'
+import dns from 'dns/promises'
+import net from 'net'
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { resolveEmployerTierInfo } from '@/app/dashboard/actions'
@@ -14,13 +16,88 @@ export interface EnterpriseAtsConfig {
   autoPushStage2: boolean
 }
 
+function getAtsVaultKey(): Buffer | null {
+  const raw = String(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.STRIPE_SECRET_KEY || '').trim().replace(/^["\u0027]+|["\u0027]+$/g, '').trim()
+  if (!raw) return null
+  return crypto.createHash('sha256').update('ss_ats_cfg_v1:' + raw).digest()
+}
+
+function isBlockedIpAddress(ip: string): boolean {
+  const normalized = ip.trim().toLowerCase().replace(/^::ffff:/, '')
+  if (net.isIPv4(normalized)) {
+    const parts = normalized.split('.').map(Number)
+    const [a, b] = parts
+    if (a === 0 || a === 10 || a === 127) return true
+    if (a === 100 && b >= 64 && b <= 127) return true
+    if (a === 169 && b === 254) return true
+    if (a === 172 && b >= 16 && b <= 31) return true
+    if (a === 192 && b === 168) return true
+    if (a === 198 && (b === 18 || b === 19)) return true
+    if (a >= 224) return true
+    return false
+  }
+  if (net.isIPv6(ip)) {
+    const lower = ip.trim().toLowerCase()
+    if (lower === '::' || lower === '::1') return true
+    if (lower.startsWith('fc') || lower.startsWith('fd') || lower.startsWith('fe8') || lower.startsWith('fe9') || lower.startsWith('fea') || lower.startsWith('feb')) return true
+    return false
+  }
+  return true
+}
+
+async function validateSafeAtsWebhookUrl(rawUrl: string): Promise<{ ok: boolean; url?: string; error?: string }> {
+  const trimmed = String(rawUrl || '').trim()
+  if (!trimmed) return { ok: false, error: 'Webhook URL is empty.' }
+  let parsed: URL
+  try {
+    parsed = new URL(trimmed)
+  } catch {
+    return { ok: false, error: 'Webhook Endpoint URL must be a valid https:// URL.' }
+  }
+  if (parsed.protocol !== 'https:') {
+    return { ok: false, error: 'Webhook Endpoint URL must use https:// (unencrypted http:// is blocked).' }
+  }
+  if (parsed.username || parsed.password) {
+    return { ok: false, error: 'Webhook Endpoint URL cannot include embedded credentials.' }
+  }
+  const host = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, '')
+  if (!host || host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') || host.endsWith('.internal') || host === 'metadata.google.internal' || !host.includes('.')) {
+    return { ok: false, error: 'Webhook Endpoint URL must point to a public external domain.' }
+  }
+  if (net.isIP(host)) {
+    if (isBlockedIpAddress(host)) {
+      return { ok: false, error: 'Private, loopback, and metadata IP addresses are blocked for webhooks.' }
+    }
+    return { ok: true, url: parsed.toString() }
+  }
+  try {
+    const resolved = await dns.lookup(host, { all: true })
+    if (!resolved.length || resolved.some((entry) => isBlockedIpAddress(entry.address))) {
+      return { ok: false, error: 'Webhook Endpoint hostname resolves to a restricted or non-routable network address.' }
+    }
+  } catch {
+    return { ok: false, error: 'Unable to resolve Webhook Endpoint hostname via public DNS.' }
+  }
+  return { ok: true, url: parsed.toString() }
+}
+
 function parseAtsConfigFromDescription(desc?: string | null): EnterpriseAtsConfig {
   const raw = String(desc || '')
   const match = raw.match(/\[ATS_CFG:([A-Za-z0-9+/=]+)\]/i)
   if (match?.[1]) {
     try {
-      const decoded = Buffer.from(match[1], 'base64').toString('utf-8')
-      const parsed = JSON.parse(decoded)
+      const decodedBuf = Buffer.from(match[1], 'base64')
+      const decodedStr = decodedBuf.toString('utf-8')
+      let jsonStr = decodedStr
+      if (decodedStr.startsWith('v1:')) {
+        const key = getAtsVaultKey()
+        if (!key) throw new Error('Missing ATS vault key')
+        const [, ivHex, tagHex, ctHex] = decodedStr.split(':')
+        const decipher = crypto.createDecipheriv('aes-256-gcm', key, Buffer.from(ivHex, 'hex'))
+        decipher.setAuthTag(Buffer.from(tagHex, 'hex'))
+        jsonStr = Buffer.concat([decipher.update(Buffer.from(ctHex, 'hex')), decipher.final()]).toString('utf-8')
+      }
+      const parsed = JSON.parse(jsonStr)
       return {
         webhookUrl: parsed.webhookUrl || '',
         webhookSecret: parsed.webhookSecret || 'whsec_' + crypto.randomBytes(16).toString('hex'),
@@ -49,7 +126,16 @@ function embedAtsConfigInDescription(
   const cleaned = String(existingDesc || '')
     .replace(/\[ATS_CFG:[A-Za-z0-9+/=]+\]/gi, '')
     .trim()
-  const base64Cfg = Buffer.from(JSON.stringify(cfg), 'utf-8').toString('base64')
+  const key = getAtsVaultKey()
+  if (!key) {
+    throw new Error('Missing ATS encryption secret in environment.')
+  }
+  const iv = crypto.randomBytes(12)
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
+  const ciphertext = Buffer.concat([cipher.update(JSON.stringify(cfg), 'utf-8'), cipher.final()])
+  const tag = cipher.getAuthTag()
+  const envelope = `v1:${iv.toString('hex')}:${tag.toString('hex')}:${ciphertext.toString('hex')}`
+  const base64Cfg = Buffer.from(envelope, 'utf-8').toString('base64')
   return (cleaned + ' [ATS_CFG:' + base64Cfg + ']').trim()
 }
 
@@ -80,12 +166,22 @@ export async function getEnterpriseAtsSettings() {
   if (!org) return { error: 'Organization not found' }
 
   const tierInfo = await resolveEmployerTierInfo(org)
-  const config = parseAtsConfigFromDescription(org.description)
+  const isEnterprise = tierInfo.tier === 'enterprise'
+  const rawCfg = parseAtsConfigFromDescription(org.description)
+  const config: EnterpriseAtsConfig = isEnterprise
+    ? rawCfg
+    : {
+        webhookUrl: rawCfg.webhookUrl,
+        webhookSecret: '',
+        greenhouseApiKey: '',
+        greenhouseOnBehalfOf: rawCfg.greenhouseOnBehalfOf,
+        autoPushStage2: rawCfg.autoPushStage2,
+      }
 
   return {
     organizationId: org.id,
     organizationName: org.name || org.domain || 'Verified Employer',
-    isEnterprise: tierInfo.tier === 'enterprise',
+    isEnterprise,
     tierLabel: tierInfo.label,
     config,
   }
@@ -127,8 +223,18 @@ export async function saveEnterpriseAtsSettings(formData: FormData) {
   const existingCfg = parseAtsConfigFromDescription(org.description)
   const regenerateSecret = formData.get('regenerate_secret') === 'true'
 
+  const rawWebhookUrl = String(formData.get('webhook_url') || '').trim()
+  let validatedWebhookUrl = ''
+  if (rawWebhookUrl) {
+    const urlCheck = await validateSafeAtsWebhookUrl(rawWebhookUrl)
+    if (!urlCheck.ok || !urlCheck.url) {
+      return { error: urlCheck.error || 'Invalid Webhook Endpoint URL.' }
+    }
+    validatedWebhookUrl = urlCheck.url
+  }
+
   const updatedCfg: EnterpriseAtsConfig = {
-    webhookUrl: String(formData.get('webhook_url') || '').trim(),
+    webhookUrl: validatedWebhookUrl,
     webhookSecret: regenerateSecret
       ? 'whsec_' + crypto.randomBytes(16).toString('hex')
       : String(formData.get('webhook_secret') || existingCfg.webhookSecret).trim(),
@@ -213,9 +319,16 @@ export async function fireTestAtsWebhook() {
     .update(bodyString)
     .digest('hex')
 
+  const urlCheck = await validateSafeAtsWebhookUrl(webhookUrl)
+  if (!urlCheck.ok || !urlCheck.url) {
+    return { error: urlCheck.error || 'Blocked Webhook Endpoint URL.' }
+  }
+
   try {
-    const response = await fetch(webhookUrl, {
+    const response = await fetch(urlCheck.url, {
       method: 'POST',
+      redirect: 'error',
+      signal: AbortSignal.timeout(8000),
       headers: {
         'Content-Type': 'application/json',
         'X-SpecialSauce-Event': 'candidate.vault_released',
@@ -316,7 +429,7 @@ export async function autoSyncStage2VaultToEnterpriseAts(
     if (!isCandidateCaller && !isEmployerCaller) {
       return { skipped: true, reason: 'Unauthorized caller for ATS sync' }
     }
-    if (!app.match_data?.candidate_vault_released && !releasedVaultOverride) {
+    if (app.match_data?.candidate_vault_released !== true) {
       return { skipped: true, reason: 'Professional Conversation vault has not been released yet' }
     }
     const candObj: any = Array.isArray(app.profiles) ? app.profiles[0] : app.profiles
@@ -363,28 +476,24 @@ export async function autoSyncStage2VaultToEnterpriseAts(
       'SS-' + String(app.id).replace(/-/g, '').substring(0, 8).toUpperCase()
 
     const fullName =
-      releasedVaultOverride?.fullName ||
       matchData.candidate_full_name ||
       candObj?.full_name ||
       'Verified Professional'
 
     const candidateEmail =
-      releasedVaultOverride?.email ||
       matchData.candidate_email ||
+      matchData.candidate_contact_email ||
       candObj?.email ||
       ''
 
-    const candidatePhone =
-      releasedVaultOverride?.phone || matchData.candidate_phone || ''
+    const candidatePhone = matchData.candidate_phone || ''
 
     const resumePdfUrl =
-      releasedVaultOverride?.resumeUrl ||
       matchData.candidate_resume_url ||
       candObj?.resume_url ||
       ''
 
-    const linkedinUrl =
-      releasedVaultOverride?.linkedinUrl || matchData.candidate_linkedin || ''
+    const linkedinUrl = matchData.candidate_linkedin || ''
 
     const overallScore =
       app.match_score ?? matchData.overall_score ?? 85
@@ -434,8 +543,14 @@ export async function autoSyncStage2VaultToEnterpriseAts(
         .digest('hex')
 
       try {
-        const res = await fetch(atsConfig.webhookUrl, {
+        const urlCheck = await validateSafeAtsWebhookUrl(atsConfig.webhookUrl)
+        if (!urlCheck.ok || !urlCheck.url) {
+          throw new Error(urlCheck.error || 'Blocked Webhook Endpoint URL')
+        }
+        const res = await fetch(urlCheck.url, {
           method: 'POST',
+          redirect: 'error',
+          signal: AbortSignal.timeout(8000),
           headers: {
             'Content-Type': 'application/json',
             'X-SpecialSauce-Event': 'candidate.vault_released',
@@ -621,8 +736,9 @@ export async function exportEnterpriseCandidatesCsv() {
   ]
 
   const escapeCsv = (val: any) => {
-    const s = String(val ?? '').replace(/"/g, '""')
-    return '"' + s + '"'
+    const raw = String(val ?? '')
+    const safe = typeof val === 'number' ? raw : /^[=+\-@\t\r]/.test(raw) ? "'" + raw : raw
+    return '"' + safe.replace(/"/g, '""') + '"'
   }
 
   const csvLines = [headers.join(',')]
