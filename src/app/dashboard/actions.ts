@@ -8150,16 +8150,34 @@ export async function uploadEmployerOrganizationLogo(formData: FormData) {
     return { error: 'Logo file must be under 5 MB.' }
   }
 
-  const serviceClient = getOpsServiceClient() || supabase
-  const safeName = (fileObj.name || 'logo.png').replace(/[^a-zA-Z0-9._-]/g, '_')
-  const storagePath = `_org_brand_logos/${member.organization_id}/${Date.now()}_${safeName}`
   const buffer = Buffer.from(await fileObj.arrayBuffer())
+  let detectedMime = ''
+  let detectedExt = ''
+  if (buffer.length >= 8 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) {
+    detectedMime = 'image/png'
+    detectedExt = 'png'
+  } else if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+    detectedMime = 'image/jpeg'
+    detectedExt = 'jpg'
+  } else if (buffer.length >= 6 && buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x38) {
+    detectedMime = 'image/gif'
+    detectedExt = 'gif'
+  } else if (buffer.length >= 12 && buffer.subarray(0, 4).toString('ascii') === 'RIFF' && buffer.subarray(8, 12).toString('ascii') === 'WEBP') {
+    detectedMime = 'image/webp'
+    detectedExt = 'webp'
+  }
+  if (!detectedMime) {
+    return { error: 'Logo must be a valid PNG, JPG, WebP, or GIF image (SVG is not supported).' }
+  }
+
+  const serviceClient = getOpsServiceClient() || supabase
+  const storagePath = `_org_brand_logos/${member.organization_id}/${Date.now()}_logo.${detectedExt}`
 
   const { error: uploadErr } = await serviceClient.storage
     .from('resumes')
     .upload(storagePath, buffer, {
       upsert: true,
-      contentType: fileObj.type || 'image/png',
+      contentType: detectedMime,
     })
 
   if (uploadErr) {
@@ -8220,6 +8238,9 @@ export async function toggleSandboxEmployerAdminIdentity(targetVerified: boolean
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Unauthorized' }
+  if (!isFounderAdminEmail(user.email)) {
+    return { error: 'Forbidden: Identity verification override is restricted.' }
+  }
   const { error } = await supabase
     .from('profiles')
     .update({ identity_verified: targetVerified, is_verified: targetVerified })

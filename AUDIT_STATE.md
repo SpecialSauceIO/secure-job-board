@@ -1,7 +1,7 @@
 # SpecialSauce Audit & Parity State
 
 ## Locked Decisions & Parity Rules
-- 100% `ss` CLI for all repo ops (`ss status`, `ss find`, `ss audit-copy`, `ss inspect`, `ss patch --json`, `ss verify-local`, `ss stage`, `ss prod`) in `text` fences only.
+- 100% `ss` CLI for all repo ops (`ss status`, `ss find`, `ss audit-copy`, `ss audit-security`, `ss inspect`, `ss patch --json`, `ss verify-local`, `ss stage`, `ss prod`) in `text` fences only.
 - One Page / One Feature per chat (retire chat after `ss prod` or ~15 turns).
 - Plain English across customer-facing UI; zero 'Candidate', 'job marketplace', 'sandbox', 'double-blind', or 'cohort'; official positioning: "The World's First Secured Workforce Ecosystem".
 - TrueFit v2.2 deterministic cache (`tf_v2_2_`, `cand_v5_`, `emp_v5_`) & whole-word search (`it`, `aws`, `okr`).
@@ -67,6 +67,8 @@
 - [x] Wave 3 Auth Redirect, Password-Reset Origin, Crypto Key & Stripe Webhook Security Hardening (`src/lib/trusted-origin.ts`, `src/app/auth/callback/route.ts`, `src/app/login/actions.ts`, `src/app/signup/actions.ts`, `src/lib/inbound-shield.ts`, `src/app/api/webhooks/stripe/route.ts`, `next.config.ts` — enforced `resolveTrustedOriginCandidate`, `resolveTrustedAppOrigin`, `sanitizeInternalReturnPath`, and allowlisted role assignment across password-reset link generation and auth callbacks, eliminated hardcoded AES-256-GCM fallback keys across login, signup OTP, and Inbound Shield vaults, hardened Stripe webhooks with fail-closed secret checks, paid-session verification, top-up pack credit clamping + replay idempotency, and HTML-escaped Ops alerts, and added global HTTP security headers)
 
 - [x] Wave 4 Dashboard Server-Action, Enterprise ATS SSRF & AES-256-GCM Secret Vault Hardening (`src/app/dashboard/ats-actions.ts`, `src/app/dashboard/support/actions.ts`, `src/app/dashboard/actions.ts`, `src/app/dashboard/messaging-actions.ts` — upgraded `[ATS_CFG:...]` storage to AES-256-GCM encryption with legacy base64 read compatibility and non-Enterprise secret masking, enforced HTTPS + DNS/private-IP SSRF, `redirect: 'error'`, and 8s timeout guards on ATS webhooks, required database-persisted vault release without client override spoofing, neutralized CSV formula injection, HTML/CR-LF escaped support reply confirmation emails, locked `setRole` against post-verification or cross-org escalation, and enforced caller auth + org membership on `checkEmployerSilentUnlockQuota`)
+
+- [x] Wave 5 Server-Action Privilege, Raster Logo Upload, Status Banner & CLI Security Audit Hardening (`src/app/dashboard/actions.ts`, `src/app/dashboard/status-banner-actions.ts`, `src/lib/ops-bridge.ts`, `src/app/dashboard/bookmark-actions.ts`, `src/app/dashboard/feedback-actions.ts`, `src/app/dashboard/horizon/actions.ts`, `src/app/api/webhooks/stripe/route.ts`, `scripts/ss_dev.py` — gated Employer Admin identity verification override behind Founder Admin authorization, enforced binary magic-byte raster validation on Employer organization logo uploads blocking SVG/HTML payloads, required confirmed Founder email + allowlisted/clamped global status banner fields, bounded bookmark and Horizon skill writes against profile JSONB bloat, stripped CR/LF and internal env-var error leaks in feedback actions, enforced fail-closed `STRIPE_SECRET_KEY` checks on Stripe webhooks, removed hardcoded `CRON_SECRET` from `ss test-calibration`, and unlocked 6-target/260-line `ss inspect` plus `ss audit-security`)
 
 ## Next Feature Queue & Deferred Modules
 - [ ] True Horizon™ (`horizon` — skipped while in active development)

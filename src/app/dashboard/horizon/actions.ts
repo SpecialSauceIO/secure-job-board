@@ -66,8 +66,8 @@ export async function runTrueHorizonScanAction(): Promise<{
     subTier.includes('pro') ||
     subTier.includes('prestige') ||
     subTier.includes('active') ||
-    Boolean(user.email?.toLowerCase().includes('sbriley')) ||
-    Boolean(user.email?.toLowerCase().endsWith('@specialsauce.io'))
+    user.email?.toLowerCase().trim() === 'sbriley79.ph@gmail.com' ||
+    Boolean(user.email?.toLowerCase().trim().endsWith('@specialsauce.io') && !user.email?.toLowerCase().includes('.demo@'))
 
   const tierLabel = subTier.includes('prestige')
     ? 'Prestige ($19/mo)'
@@ -101,10 +101,12 @@ export async function addHorizonBridgeSkillToProfileAction(
     return { ok: false, message: 'Not authenticated' }
   }
 
-  const cleanSkill = String(skillName || '').trim()
-  if (!cleanSkill) {
-    return { ok: false, message: 'Skill name is required' }
+  const cleanSkill = String(skillName || '').replace(/[\r\n]+/g, ' ').trim().slice(0, 80)
+  if (!cleanSkill || cleanSkill.startsWith('__SS_')) {
+    return { ok: false, message: 'Valid skill name is required' }
   }
+  const safeLevel: 'Beginner' | 'Intermediate' | 'Expert' = level === 'Beginner' || level === 'Expert' ? level : 'Intermediate'
+  const safeYears = Math.min(40, Math.max(0, Math.round(Number(years) || 2)))
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -127,10 +129,14 @@ export async function addHorizonBridgeSkillToProfileAction(
     return { ok: true, message: `"${cleanSkill}" is already in your verified profile skills.` }
   }
 
+  const visibleCount = existingArray.filter((s: any) => s && !s._ss_candidate_prefs && !s._ss_pref_meta).length
+  if (visibleCount >= 150) {
+    return { ok: false, message: 'Profile skill limit reached (150 skills max).' }
+  }
   existingArray.push({
     skill: cleanSkill,
-    level,
-    years,
+    level: safeLevel,
+    years: safeYears,
   })
 
   const visibleSkillNames = existingArray

@@ -52,6 +52,10 @@ export async function toggleBookmarkItem(
   if (!user) {
     return { savedIds: [], isSaved: false, error: 'Not authenticated' }
   }
+  const trimmedItemId = String(itemId || '').trim().slice(0, 128)
+  if (!trimmedItemId) {
+    return { savedIds: [], isSaved: false, error: 'Invalid item ID' }
+  }
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -73,12 +77,12 @@ export async function toggleBookmarkItem(
     ? existingMeta[key].map(String)
     : []
 
-  const normalizedId = String(itemId)
+  const normalizedId = trimmedItemId
   const exists = currentList.includes(normalizedId)
 
   const updatedList = exists
     ? currentList.filter((id) => id !== normalizedId)
-    : [...currentList, normalizedId]
+    : [...currentList.slice(-499), normalizedId]
 
   const updatedMeta = {
     ...existingMeta,

@@ -862,16 +862,20 @@ export async function setManualSystemStatusBanner(params: {
       return { ok: true, banner: null }
     }
 
+    const allowedSeverities = new Set(["info", "degraded", "outage"])
+    const safeSeverity = allowedSeverities.has(String(params.severity || "")) ? (params.severity as "info" | "degraded" | "outage") : "degraded"
+    const rawRole = String(params.target_role || "all").trim()
+    const safeRole: SystemStatusBanner["target_role"] = rawRole === "employer" || rawRole === "all" ? rawRole : params.target_role || "all"
     const bannerObj: SystemStatusBanner = {
       active: true,
-      severity: params.severity || "degraded",
-      title: String(params.title || "Platform Service Advisory").trim(),
+      severity: safeSeverity,
+      title: String(params.title || "Platform Service Advisory").trim().slice(0, 140),
       message: String(
         params.message ||
           "We are currently investigating degraded performance in this area and working to restore normal operation."
-      ).trim(),
-      platform_area: String(params.platform_area || "General Platform").trim(),
-      target_role: params.target_role || "all",
+      ).trim().slice(0, 600),
+      platform_area: String(params.platform_area || "General Platform").trim().slice(0, 80),
+      target_role: safeRole,
       incident_ref: `ADV-${Date.now().toString().slice(-5)}`,
       updated_at: nowIso,
       source: "manual",

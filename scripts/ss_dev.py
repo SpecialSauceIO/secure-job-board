@@ -77,8 +77,8 @@ def copy_clip(text):
             lns = clean.splitlines()
             clean = "\n".join(lns[1:-1] if lns and lns[-1].strip() == bt else lns[1:]).strip()
         clean = clean.replace("\u00a0", " ")
-        if len(clean) > 3600:
-            clean = clean[:3600].rsplit("\n", 1)[0] + "\n[CLIPBOARD CAPPED AT 3600 CHARS — USE NARROWER LINE RANGE]"
+        if len(clean) > 28000:
+            clean = clean[:28000].rsplit("\n", 1)[0] + "\n[CLIPBOARD CAPPED AT 28000 CHARS — USE NARROWER LINE RANGE]"
         wrapped = "Proceed with ss output:\n\n" + bt + "text\n" + clean + "\n" + bt
         subprocess.run(["pbcopy"], input=wrapped, text=True, check=False)
     except Exception:
@@ -120,11 +120,11 @@ def cmd_inspect(repo_dir, args):
         sys.exit(1)
     receipt_path = repo_dir / ".git" / ".ss_inspect_receipt.json"
     receipt = load_json(receipt_path, {"files": {}})
-    if len(args) > 2:
-        print("[BLOCKED - TOO MANY TARGETS] Pass at most 2 file targets per `ss inspect` call to prevent clipboard truncation.")
+    if len(args) > 6:
+        print("[BLOCKED - TOO MANY TARGETS] Pass at most 6 file targets per `ss inspect` call.")
         sys.exit(1)
-    total_budget = 3400
-    per_budget = max(1200, total_budget // max(1, len(args)))
+    total_budget = 24000
+    per_budget = max(4000, total_budget // max(1, len(args)))
     sections = []
     now_ts = int(time.time())
 
@@ -150,8 +150,8 @@ def cmd_inspect(repo_dir, args):
             s_num = max(1, s_num)
             e_num = min(len(flines), e_num)
             range_clamped = False
-            if e_num - s_num + 1 > 80:
-                e_num = s_num + 79
+            if e_num - s_num + 1 > 260:
+                e_num = s_num + 259
                 range_clamped = True
             last_included = s_num - 1
             clipped = False
@@ -167,7 +167,7 @@ def cmd_inspect(repo_dir, args):
             if last_included >= s_num:
                 credited_ranges.append([s_num, last_included])
             if clipped or range_clamped:
-                body_lines.append("[RANGE CAPPED AT LINE " + str(last_included) + " (120L MAX) — USE NEEDLE SEARCH (`ss inspect " + rel + ":keyword`) INSTEAD OF DUMPING FULL FILES]")
+                body_lines.append("[RANGE CAPPED AT LINE " + str(last_included) + " (260L MAX PER TARGET)]")
         else:
             keys = [k.strip().lower() for k in sel.split(",") if k.strip()]
             seen_ln = set()
@@ -754,13 +754,15 @@ def main():
         cmd_doc_check(rest)
     elif cmd == "audit-copy":
         cmd_audit_copy(repo_dir, rest)
+    elif cmd == "audit-security":
+        cmd_audit_security(repo_dir, rest)
     elif cmd == "upgrade-next":
         cmd_upgrade_next(repo_dir, rest)
     elif cmd == "test-calibration":
         cmd_test_calibration(repo_dir)
     else:
         print("Unknown ss command: " + cmd)
-        print("Allowed: clip | inspect | audit-copy | find | patch | upgrade-next | test-calibration | verify-local | stage | prod | status | media-inspect | media-verify | doc-check")
+        print("Allowed: clip | inspect | audit-copy | audit-security | find | patch | upgrade-next | test-calibration | verify-local | stage | prod | status | media-inspect | media-verify | doc-check")
         sys.exit(1)
 
 def cmd_clip(repo_dir):
@@ -791,13 +793,77 @@ def cmd_clip(repo_dir):
         copy_clip(combined)
     sys.exit(r.returncode)
 
+def cmd_audit_security(repo_dir, args):
+    receipt_path = repo_dir / ".git" / ".ss_inspect_receipt.json"
+    receipt = load_json(receipt_path, {"files": {}})
+    now_ts = int(time.time())
+    prefixes = args if args else ["src/app/api", "src/app/auth", "src/app/login", "src/app/signup", "src/app/dashboard", "src/lib", "src/utils", "src/middleware.ts", "src/proxy.ts", "middleware.ts", "proxy.ts"]
+    cand_files = []
+    for pref in prefixes:
+        target = repo_dir / pref
+        if target.is_file():
+            cand_files.append(target)
+        elif target.is_dir():
+            for p in sorted(target.rglob("*")):
+                if p.is_file() and p.suffix in (".ts", ".tsx"):
+                    rel_s = str(p.relative_to(repo_dir))
+                    if "/lib/" in "/" + rel_s or "/utils/" in "/" + rel_s or rel_s.endswith(("route.ts", "actions.ts", "middleware.ts", "proxy.ts")) or "actions" in p.name:
+                        cand_files.append(p)
+    seen = set()
+    lines_out = ["=== SECURITY SURFACE AUDIT (" + repo_dir.name + ") ==="]
+    for p in cand_files:
+        rel = str(p.relative_to(repo_dir))
+        if rel in seen:
+            continue
+        seen.add(rel)
+        raw_bytes = p.read_bytes()
+        f_hash = sha256_bytes(raw_bytes)[:16]
+        txt = raw_bytes.decode("utf-8", errors="replace")
+        flines = txt.splitlines()
+        if len(flines) <= 260:
+            receipt["files"][rel] = {"sha16": f_hash, "ranges": [[1, max(1, len(flines))]], "updated_at": now_ts}
+        exports = [m.group(1) for m in re.finditer(r"export\s+(?:async\s+)?function\s+([A-Za-z0-9_]+)", txt)]
+        flags = []
+        if "use server" in txt:
+            flags.append("use-server")
+        if "getUser(" in txt:
+            flags.append("auth:getUser")
+        if "getSession(" in txt:
+            flags.append("WARN:getSession")
+        if "createAdminClient" in txt or "SUPABASE_SERVICE_ROLE_KEY" in txt:
+            flags.append("admin-client")
+        if "fetch(" in txt:
+            flags.append("fetch")
+        if "dangerouslySetInnerHTML" in txt:
+            flags.append("WARN:innerHTML")
+        if re.search(r"process\.env\.[A-Z0-9_]+\s*(?:\|\||\?\?)\s*[\x27\"]", txt):
+            flags.append("WARN:env-fallback")
+        if "timingSafeEqual" in txt:
+            flags.append("timingSafe")
+        lines_out.append(rel + " (" + str(len(flines)) + "L | sha:" + f_hash + ") [" + ", ".join(flags) + "] exports=" + (",".join(exports) if exports else "none"))
+    receipt_path.parent.mkdir(parents=True, exist_ok=True)
+    receipt_path.write_text(json.dumps(receipt, indent=2))
+    final_txt = "\n".join(lines_out)
+    print(final_txt)
+    copy_clip(final_txt)
+
 def cmd_test_calibration(repo_dir):
     import urllib.request, urllib.error
-    secret = "ss_cron_459300fd7b17159ba22da7b8af2bf4026ea668ae7f7f019c"
+    env_map = {}
+    for env_name in (".env.local", ".env"):
+        ep = repo_dir / env_name
+        if ep.exists():
+            for ln in ep.read_text().splitlines():
+                if "=" in ln and not ln.strip().startswith("#"):
+                    k, v = ln.split("=", 1)
+                    env_map[k.strip()] = v.strip().strip("\"").strip("\u0027")
+    secret = env_map.get("CRON_SECRET", os.environ.get("CRON_SECRET", ""))
     for port in (3000, 3001, 3002):
-        url = "http://127.0.0.1:" + str(port) + "/api/cron/calibrate-matching?no_email=1&secret=" + secret
+        if not secret:
+            break
+        url = "http://127.0.0.1:" + str(port) + "/api/cron/calibrate-matching?no_email=1"
         try:
-            req = urllib.request.Request(url, method="POST")
+            req = urllib.request.Request(url, method="POST", headers={"Authorization": "Bearer " + secret})
             with urllib.request.urlopen(req, timeout=45) as resp:
                 body = json.loads(resp.read().decode("utf-8"))
                 out = "[CALIBRATION HTTP :" + str(port) + "] status=" + str(body.get("status")) + " | avg_ms=" + str(body.get("avg_latency_ms")) + " | failures=" + json.dumps(body.get("failures", [])) + " | tiers=" + json.dumps({k: (v.get("overall"), v.get("passed"), v.get("provider")) for k, v in (body.get("results") or {}).items()})

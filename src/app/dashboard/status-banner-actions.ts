@@ -35,7 +35,7 @@ export async function updateSystemStatusBannerAction(payload: {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user || !isFounderEmail(user.email)) {
+  if (!user || !user.email_confirmed_at || !isFounderEmail(user.email)) {
     return {
       ok: false,
       banner: null,

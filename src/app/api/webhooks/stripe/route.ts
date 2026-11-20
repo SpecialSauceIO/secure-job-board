@@ -139,8 +139,9 @@ const TOPUP_PACK_CREDITS: Record<string, number> = { boost: 10, surge: 25, scale
 
 export async function POST(req: Request) {
   const webhookSecret = (process.env.STRIPE_WEBHOOK_SECRET || '').trim()
+  const stripeSecretKey = (process.env.STRIPE_SECRET_KEY || '').trim()
   const serviceRoleKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim()
-  if (!webhookSecret || !serviceRoleKey || serviceRoleKey === 'build_placeholder') {
+  if (!webhookSecret || !stripeSecretKey || stripeSecretKey === 'sk_test_build_placeholder' || !serviceRoleKey || serviceRoleKey === 'build_placeholder') {
     return NextResponse.json({ error: 'Webhook configuration unavailable.' }, { status: 503 })
   }
 
