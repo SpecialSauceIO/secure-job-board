@@ -80,19 +80,33 @@ async function sendCalibrationAlertEmail(payload: {
 }
 
 async function isAuthorizedFounderOrCron(req: NextRequest): Promise<boolean> {
-  const userAgent = (req.headers.get("user-agent") || "").toLowerCase()
-  if (userAgent.includes("vercel-cron") || req.headers.get("x-vercel-cron") === "1") return true
+  const { timingSafeEqual } = await import("crypto")
+  const safeEq = (a: string, b: string) => {
+    if (!a || !b) return false
+    const ba = Buffer.from(a, "utf8")
+    const bb = Buffer.from(b, "utf8")
+    return ba.length === bb.length && timingSafeEqual(ba, bb)
+  }
   const authHeader = (req.headers.get("authorization") || "").trim()
+  const bearerToken = authHeader.replace(/^Bearer\s+/i, "").trim()
+  const opsHeader = (req.headers.get("x-ops-secret") || "").trim()
   const querySecret = (req.nextUrl.searchParams.get("secret") || "").trim()
-  const cronSecret = (process.env.CRON_SECRET || "").trim()
-  const fallbackSecret = "ss_cron_459300fd7b17159ba22da7b8af2bf4026ea668ae7f7f019c"
-  if (cronSecret && (authHeader === "Bearer " + cronSecret || querySecret === cronSecret)) return true
-  if (authHeader === "Bearer " + fallbackSecret || querySecret === fallbackSecret) return true
+  const validSecrets = [process.env.CRON_SECRET, process.env.OPS_WEBHOOK_SECRET]
+    .map((s) => (s || "").trim().replace(/^["']+|["']+$/g, "").trim())
+    .filter(Boolean)
+  if (
+    validSecrets.some(
+      (sec) => safeEq(bearerToken, sec) || safeEq(opsHeader, sec) || safeEq(querySecret, sec)
+    )
+  ) {
+    return true
+  }
   try {
     const serverSb = await createServerSupabase()
     const { data: { user } } = await serverSb.auth.getUser()
-    const email = (user?.email || "").toLowerCase()
-    if (email.endsWith("@specialsauce.io") || email.includes("sbriley")) return true
+    const email = (user?.email || "").toLowerCase().trim()
+    if (email === "sbriley79.ph@gmail.com") return true
+    if (email.endsWith("@specialsauce.io") && !email.includes(".demo@")) return true
   } catch {}
   return false
 }

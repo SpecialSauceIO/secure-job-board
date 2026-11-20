@@ -140,6 +140,8 @@ async function verifyPaidStripeCheckoutSession(params: {
   sessionId?: string | null
   expectedUserId?: string
   expectedOrgId?: string
+  expectedTierId?: string
+  expectedPackId?: string
 }): Promise<{ verified: boolean; session?: Stripe.Checkout.Session; error?: string }> {
   const sid = (params.sessionId || '').trim()
   if (!sid || !sid.startsWith('cs_')) {
@@ -153,9 +155,8 @@ async function verifyPaidStripeCheckoutSession(params: {
     const stripe = new Stripe(stripeKey, { apiVersion: '2026-09-30.endive' as any })
     const session = await stripe.checkout.sessions.retrieve(sid)
     const isPaidOrComplete =
-      session.payment_status === 'paid' ||
-      session.payment_status === 'no_payment_required' ||
-      session.status === 'complete'
+      session.status === 'complete' &&
+      (session.payment_status === 'paid' || session.payment_status === 'no_payment_required')
     if (!isPaidOrComplete) {
       return { verified: false, error: 'Stripe Checkout session is not completed or paid.' }
     }
@@ -174,6 +175,12 @@ async function verifyPaidStripeCheckoutSession(params: {
       if (!orgMatch) {
         return { verified: false, error: 'Stripe session does not belong to your organization.' }
       }
+    }
+    if (params.expectedTierId && session.metadata?.tierId !== params.expectedTierId) {
+      return { verified: false, error: 'Stripe session tier does not match the requested plan.' }
+    }
+    if (params.expectedPackId && session.metadata?.packId !== params.expectedPackId) {
+      return { verified: false, error: 'Stripe session pack does not match the requested credit pack.' }
     }
     return { verified: true, session }
   } catch (err: any) {
@@ -691,14 +698,18 @@ export async function activateSandboxCandidateTier(
   if (!user) return { error: 'Unauthorized' }
 
   if (!isFounderAdminEmail(user.email)) {
-    const check = await verifyPaidStripeCheckoutSession({
-      sessionId: stripeSessionId,
-      expectedUserId: user.id,
-    })
+    const allowedPaidModes = ['explorer', 'professional', 'prestige']
+    const check = allowedPaidModes.includes(targetMode)
+      ? await verifyPaidStripeCheckoutSession({
+          sessionId: stripeSessionId,
+          expectedUserId: user.id,
+          expectedTierId: targetMode,
+        })
+      : { verified: false }
     if (!check.verified) {
       return {
         error:
-          'Security Block: Direct plan switching requires a verified Stripe Checkout session. Please subscribe via Stripe Checkout.',
+          'Security Block: Direct plan switching requires a verified Stripe Checkout session for the selected plan.',
       }
     }
   }
@@ -7287,6 +7298,25 @@ export async function activateSandboxEmployerTier(
     .maybeSingle()
 
   let orgId = member?.organization_id
+  if (!isFounderAdminEmail(user.email)) {
+    if (!orgId) {
+      return { error: 'Please set up your Company Profile first.' }
+    }
+    const allowedEmployerTiers = ['starter', 'growth', 'enterprise']
+    const check = allowedEmployerTiers.includes(targetTier)
+      ? await verifyPaidStripeCheckoutSession({
+          sessionId: stripeSessionId,
+          expectedOrgId: orgId,
+          expectedTierId: targetTier,
+        })
+      : { verified: false }
+    if (!check.verified) {
+      return {
+        error:
+          'Security Block: Employer subscription activation requires a verified Stripe Checkout session for the selected tier.',
+      }
+    }
+  }
   if (!orgId) {
     const fallbackName = user.user_metadata?.company_name || user.user_metadata?.full_name || (user.email ? user.email.split('@')[0] + ' Organization' : 'Verified Employer')
     const { data: newOrg } = await sbAdmin.from('organizations').insert({ name: fallbackName, verification_status: 'verified', subscription_status: 'verified_sandbox', subscription_tier: 'explorer' }).select('id').single()
@@ -7297,19 +7327,6 @@ export async function activateSandboxEmployerTier(
   }
   if (!orgId) {
     return { error: 'Please set up your Company Profile first.' }
-  }
-
-  if (!isFounderAdminEmail(user.email)) {
-    const check = await verifyPaidStripeCheckoutSession({
-      sessionId: stripeSessionId,
-      expectedOrgId: orgId,
-    })
-    if (!check.verified) {
-      return {
-        error:
-          'Security Block: Employer subscription activation requires a verified Stripe Checkout session.',
-      }
-    }
   }
 
   const { data: orgObj } = await sbAdmin
@@ -7468,14 +7485,18 @@ export async function purchaseEmployerCreditTopUp(
   if (!orgObj) return { error: 'Organization not found.' }
 
   if (!isFounderAdminEmail(user.email)) {
-    const check = await verifyPaidStripeCheckoutSession({
-      sessionId: stripeSessionId,
-      expectedOrgId: member.organization_id,
-    })
+    const allowedPacks = ['boost', 'surge', 'scale']
+    const check = allowedPacks.includes(packId)
+      ? await verifyPaidStripeCheckoutSession({
+          sessionId: stripeSessionId,
+          expectedOrgId: member.organization_id,
+          expectedPackId: packId,
+        })
+      : { verified: false }
     if (!check.verified) {
       return {
         error:
-          'Security Block: Top-Up credit purchases require a verified Stripe Checkout payment session.',
+          'Security Block: Top-Up credit purchases require a verified Stripe Checkout payment session for the selected pack.',
       }
     }
     // If webhook already applied this top-up session, return current balance without double-crediting

@@ -394,8 +394,9 @@ export async function appendUserTicketReply(params: {
     "https://ops.specialsauce.io/api/ingest"
   const ingestSecret =
     cleanEnv(process.env.OPS_INGEST_SECRET) ||
-    "ss_ops_webhook_secret_9948271625"
-  try {
+    cleanEnv(process.env.OPS_WEBHOOK_SECRET) ||
+    cleanEnv(process.env.CRON_SECRET)
+  if (ingestSecret) try {
     await fetch(ingestUrl, {
       method: "POST",
       headers: {
@@ -714,9 +715,10 @@ export async function pushToOpsControlPlane(payload: Record<string, any>): Promi
     "https://ops.specialsauce.io/api/ingest"
   const ingestSecret =
     cleanEnv(process.env.OPS_INGEST_SECRET) ||
-    "ss_ops_webhook_secret_9948271625"
+    cleanEnv(process.env.OPS_WEBHOOK_SECRET) ||
+    cleanEnv(process.env.CRON_SECRET)
 
-  if (ingestUrl) {
+  if (ingestUrl && ingestSecret) {
     try {
       await fetch(ingestUrl, {
         method: "POST",

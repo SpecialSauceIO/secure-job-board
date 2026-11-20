@@ -23,6 +23,13 @@ const DEMO_OR_INTERNAL_ORG_DOMAINS = new Set([
 
 export async function GET(req: NextRequest) {
   try {
+    const { timingSafeEqual } = await import("crypto")
+    const safeEq = (a: string, b: string) => {
+      if (!a || !b) return false
+      const ba = Buffer.from(a, "utf8")
+      const bb = Buffer.from(b, "utf8")
+      return ba.length === bb.length && timingSafeEqual(ba, bb)
+    }
     const authHeader = (req.headers.get("authorization") || "").trim()
     const opsHeader = (req.headers.get("x-ops-secret") || "").trim()
     const querySecret = (req.nextUrl.searchParams.get("secret") || "").trim()
@@ -30,22 +37,16 @@ export async function GET(req: NextRequest) {
       process.env.CRON_SECRET,
       process.env.OPS_WEBHOOK_SECRET,
       process.env.OPS_SYNC_SECRET,
-      "ss_cron_459300fd7b17159ba22da7b8af2bf4026ea668ae7f7f019c",
     ]
       .map((s) => cleanEnv(s))
       .filter(Boolean)
 
     const bearerToken = authHeader.replace(/^Bearer\s+/i, "").trim()
-    const userAgent = (req.headers.get("user-agent") || "").toLowerCase()
-    const isVercelCron =
-      userAgent.includes("vercel-cron") ||
-      req.headers.get("x-vercel-cron") === "1"
     const isAuthorized =
-      isVercelCron ||
-      (validSecrets.length > 0 &&
-        validSecrets.some(
-          (sec) => bearerToken === sec || opsHeader === sec || querySecret === sec
-        ))
+      validSecrets.length > 0 &&
+      validSecrets.some(
+        (sec) => safeEq(bearerToken, sec) || safeEq(opsHeader, sec) || safeEq(querySecret, sec)
+      )
 
     if (!isAuthorized) {
       return NextResponse.json({ error: "Unauthorized digest trigger" }, { status: 401 })

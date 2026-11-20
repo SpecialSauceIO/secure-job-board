@@ -49,33 +49,52 @@ function stripQuotedHistory(rawText: string): string {
 
 export async function POST(req: NextRequest) {
   try {
+    const { createHmac, timingSafeEqual } = await import("crypto")
+    const safeEq = (a: string, b: string) => {
+      if (!a || !b) return false
+      const ba = Buffer.from(a, "utf8")
+      const bb = Buffer.from(b, "utf8")
+      return ba.length === bb.length && timingSafeEqual(ba, bb)
+    }
+    const rawReqText = await req.text()
     const authHeader = (req.headers.get("authorization") || "").trim()
     const opsHeader = (req.headers.get("x-ops-secret") || "").trim()
     const querySecret = (req.nextUrl.searchParams.get("secret") || "").trim()
-    const svixId = req.headers.get("svix-id") || ""
     const validSecrets = [
       process.env.OPS_WEBHOOK_SECRET,
       process.env.CRON_SECRET,
       process.env.OPS_SYNC_SECRET,
-      "ss_cron_459300fd7b17159ba22da7b8af2bf4026ea668ae7f7f019c",
-      "ss_ops_webhook_secret_9948271625",
+      process.env.OPS_INGEST_SECRET,
     ]
-      .map((s) => (s || "").trim())
+      .map((s) => (s || "").trim().replace(/^["']+|["']+$/g, "").trim())
       .filter(Boolean)
     const bearerToken = authHeader.replace(/^Bearer\s+/i, "").trim()
     const hasSecretMatch =
       validSecrets.length > 0 &&
       validSecrets.some(
-        (sec) => bearerToken === sec || opsHeader === sec || querySecret === sec
+        (sec) => safeEq(bearerToken, sec) || safeEq(opsHeader, sec) || safeEq(querySecret, sec)
       )
-    if (!hasSecretMatch && !svixId) {
+    const resendWhSecret = (process.env.RESEND_WEBHOOK_SECRET || "").trim()
+    const svixId = (req.headers.get("svix-id") || "").trim()
+    const svixTs = (req.headers.get("svix-timestamp") || "").trim()
+    const svixSig = (req.headers.get("svix-signature") || "").trim()
+    let hasVerifiedSvix = false
+    if (resendWhSecret && svixId && svixTs && svixSig) {
+      const tsNum = Number(svixTs)
+      const keyBuf = Buffer.from(resendWhSecret.replace(/^whsec_/, ""), "base64")
+      if (Number.isFinite(tsNum) && Math.abs(Math.floor(Date.now() / 1000) - tsNum) <= 300 && keyBuf.length > 0) {
+        const expected = createHmac("sha256", keyBuf).update(`${svixId}.${svixTs}.${rawReqText}`, "utf8").digest("base64")
+        hasVerifiedSvix = svixSig.split(/\s+/).some((p) => p.startsWith("v1,") && safeEq(p.slice(3), expected))
+      }
+    }
+    if (!hasSecretMatch && !hasVerifiedSvix) {
       return NextResponse.json(
         { error: "Unauthorized webhook request" },
         { status: 401 }
       )
     }
 
-    const payload = await req.json()
+    const payload = JSON.parse(rawReqText)
     const client = getOpsServiceClient()
     if (!client) {
       return NextResponse.json(

@@ -60,5 +60,7 @@
 
 - [x] White-Label W-2 Payroll Wave 3 — Secure Thread Offer Drawer, Lifecycle Notifications & Outbound Emails (`src/components/SecureMessageThread.tsx`, `src/app/dashboard/messaging-actions.ts` — white-labeled live W-2 offer builder, Est. All-In Employer Bill Rate display, Professional W-4/I-9 acceptance disclosures, system thread & Manage Roles lifecycle notes, and Employer/Professional notification emails to unified Statutory W-2 Payroll terminology while preserving internal `EOR_Placement_Order` Ops Console & partner API handoff invariants)
 
+- [x] Wave 1 Webhook, Cron, Ops Ingest & Stripe Checkout Tier-Binding Security Hardening (`src/app/api/ops-inbound-email/route.ts`, `src/app/api/cron/calibrate-matching/route.ts`, `src/app/api/cron/daily-digest/route.ts`, `src/app/dashboard/actions.ts`, `src/lib/ops-bridge.ts`, `special-sauce-ops/src/app/api/ingest/route.ts` — enforced timing-safe secret comparison + cryptographic Svix HMAC signature verification on inbound email and Operations Console ingest routes, stripped hardcoded fallback secrets and spoofable `x-vercel-cron` / `user-agent` header bypasses across cron endpoints, gated Employer fallback organization creation strictly behind verified sessions, and bound `verifyPaidStripeCheckoutSession` to completed paid sessions matching exact `tierId` and `packId` metadata)
+
 ## Next Feature Queue & Deferred Modules
 - [ ] True Horizon™ (`horizon` — skipped while in active development)
