@@ -87,7 +87,7 @@ export default function EmployerEorDefaultsPanel() {
     setHasSavedDefaults(true)
     setFeedback({
       type: 'success',
-      text: 'Organization W-2 & EOR payroll defaults saved. New Protected Roles will inherit these defaults automatically.',
+      text: 'Organization W-2 payroll defaults saved. New Protected Roles will inherit these defaults automatically.',
     })
   }
 
@@ -97,7 +97,7 @@ export default function EmployerEorDefaultsPanel() {
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-              W-2 Contract &amp; EOR Payroll Defaults
+              W-2 Contract &amp; Payroll Defaults
             </h2>
             <span
               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border ${
@@ -117,7 +117,7 @@ export default function EmployerEorDefaultsPanel() {
 
       {isLoading ? (
         <div className="p-6 text-sm text-slate-500 font-medium">
-          Loading W-2 &amp; EOR defaults...
+          Loading W-2 payroll defaults...
         </div>
       ) : (
         <form onSubmit={handleSave} className="p-5 sm:p-6 space-y-5">
@@ -206,7 +206,7 @@ export default function EmployerEorDefaultsPanel() {
                 <strong className="font-extrabold text-slate-900 block">
                   Require Background Check by Default
                 </strong>
-                Completed by our U.S. Employer of Record partner prior to W-2 start date.
+                Completed through W-2 Payroll onboarding prior to start date.
               </span>
             </label>
 
@@ -250,7 +250,7 @@ export default function EmployerEorDefaultsPanel() {
                 Payroll &amp; Timecard Contacts (Used for W-2 Placement Dispatch)
               </h3>
               <p className="text-xs text-slate-600 mt-0.5">
-                Saved once so our U.S. Employer of Record partner knows who approves weekly hours and receives consolidated invoices when a Professional accepts W-2 terms.
+                Saved once so our W-2 Payroll team knows who approves weekly hours and receives consolidated invoices when a Professional accepts W-2 terms.
               </p>
             </div>
 
@@ -544,7 +544,7 @@ export default function EmployerEorDefaultsPanel() {
               disabled={isSaving}
               className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-5 py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-60 transition-colors cursor-pointer"
             >
-              {isSaving ? 'Saving W-2 Defaults...' : 'Save W-2 & EOR Defaults'}
+              {isSaving ? 'Saving W-2 Defaults...' : 'Save W-2 Payroll Defaults'}
             </button>
           </div>
         </form>

@@ -35,7 +35,7 @@ export const EOR_CONTRACT_TRACK_OPTIONS: ReadonlyArray<{
 }> = [
   {
     value: 'none',
-    label: 'Direct Hire Only (No Third-Party EOR Routing)',
+    label: 'Direct Hire Only (No W-2 Contract Routing)',
   },
   {
     value: 'trial_to_hire_90d',
@@ -55,7 +55,7 @@ export const EOR_EQUIPMENT_POLICY_OPTIONS: ReadonlyArray<string> = [
   'No Equipment Needed / Not Applicable',
   'Company-Shipped Hardware (Laptop / Security Key)',
   'Cloud VDI / BYOD (Virtual Desktop & Passkey Only)',
-  'Request EOR Managed Laptop Add-On',
+  'Request Managed Laptop Add-On',
 ]
 
 export const DEFAULT_ORG_EOR_CONFIG: OrganizationEorConfig = {
@@ -134,9 +134,13 @@ export function parseEorConfigFromDescription(
         ? (trackCandidate as EorContractTrack)
         : 'none'
       const dur = Math.min(24, Math.max(1, Number(parsed?.defaultDurationMonths) || 6))
-      const eqPolicy = String(
+      const rawEqPolicy = String(
         parsed?.defaultEquipmentPolicy || DEFAULT_ORG_EOR_CONFIG.defaultEquipmentPolicy
       ).trim()
+      const eqPolicy =
+        rawEqPolicy === 'Request EOR Managed Laptop Add-On'
+          ? 'Request Managed Laptop Add-On'
+          : rawEqPolicy
       return {
         defaultContractTrack,
         defaultDurationMonths: dur,

@@ -757,14 +757,14 @@ export default function EditJobPage() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h4 className="text-sm font-extrabold text-indigo-950">
-                  Hiring Track, W-2 EOR Routing &amp; Equipment Defaults
+                  Hiring Track, W-2 Payroll &amp; Equipment Defaults
                 </h4>
                 <p className="text-xs text-slate-600 mt-0.5">
                   Select the single hiring and employment track plus IT equipment policy for this role. You control extensions, direct conversions, or assignment wrap-ups directly from Manage Roles.
                 </p>
               </div>
               <span className="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-indigo-700 border border-indigo-200">
-                +28% Statutory W-2 EOR · $0 Conversion Fee
+                All-In W-2 Payroll · $0 Conversion Fee
               </span>
             </div>
 
@@ -813,7 +813,7 @@ export default function EditJobPage() {
                   className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-3 text-sm font-medium cursor-pointer"
                 >
                   <option value="direct_ft">Direct Hire — Full-Time (W-2)</option>
-                  <option value="eor_c2h">W-2 Contract-to-Hire ($0 Conversion via EOR)</option>
+                  <option value="eor_c2h">W-2 Contract-to-Hire ($0 Conversion)</option>
                   <option value="eor_fixed">Fixed-Term W-2 Contract (3–12 Months + Extend Anytime)</option>
                   <option value="eor_open">Open-Ended Ongoing W-2 Contract (Extend or End Anytime)</option>
                   <option value="direct_1099">Independent Contract (1099 / Corp-to-Corp)</option>
@@ -828,14 +828,14 @@ export default function EditJobPage() {
                 </label>
                 <select
                   name="equipment_policy"
-                  value={jobData.equipment_policy}
+                  value={jobData.equipment_policy === 'Request EOR Managed Laptop Add-On' ? 'Request Managed Laptop Add-On' : jobData.equipment_policy}
                   onChange={(e) => setJobData({ ...jobData, equipment_policy: e.target.value })}
                   className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-3 text-sm font-medium cursor-pointer"
                 >
                   <option value="No Equipment Needed / Not Applicable">No Equipment Needed / Not Applicable</option>
                   <option value="Company-Shipped Hardware (Laptop / Security Key)">Company-Shipped Hardware (Laptop / Security Key)</option>
                   <option value="Cloud VDI / BYOD (Virtual Desktop & Passkey Only)">Cloud VDI / BYOD (Virtual Desktop &amp; Passkey Only)</option>
-                  <option value="Request EOR Managed Laptop Add-On">Request EOR Managed Laptop Add-On</option>
+                  <option value="Request Managed Laptop Add-On">Request Managed Laptop Add-On</option>
                 </select>
               </div>
             </div>
@@ -875,7 +875,7 @@ export default function EditJobPage() {
                   maxLength={240}
                   value={jobData.equipment_notes}
                   onChange={(e) => setJobData({ ...jobData, equipment_notes: e.target.value })}
-                  placeholder="e.g., Company ships pre-configured MacBook Pro + YubiKey upon EOR onboarding; prepaid return box sent at offboarding."
+                  placeholder="e.g., Company ships pre-configured MacBook Pro + YubiKey upon W-2 onboarding; prepaid return box sent at offboarding."
                   className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-3 text-sm"
                 />
               </div>
@@ -895,7 +895,7 @@ export default function EditJobPage() {
                     onChange={(e) => setJobData({ ...jobData, eor_bg_check: e.target.checked })}
                     className="rounded border-slate-300 text-indigo-600"
                   />
-                  Include Standard EOR Background Check
+                  Include Standard W-2 Background Check
                 </label>
                 <label className="inline-flex items-center gap-2 font-semibold cursor-pointer">
                   <input

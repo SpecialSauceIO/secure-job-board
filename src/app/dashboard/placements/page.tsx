@@ -28,7 +28,9 @@ function formatStatusMeta(status?: string | null, bossStatusDisplay?: string | n
       }
     case 'accepted_pending_eor':
       return {
-        label: bossStatusDisplay || 'Active W-2 & EOR Onboarding',
+        label: bossStatusDisplay
+          ? bossStatusDisplay.replace(/\bBOSS\s*/gi, '').replace(/\bEOR\b/g, 'W-2 Payroll')
+          : 'Active W-2 Payroll Onboarding',
         badgeClass: 'bg-indigo-600 text-white border-indigo-700',
         dotClass: 'bg-emerald-300',
       }
@@ -139,13 +141,13 @@ export default function ProfessionalPlacementsPage() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-[11px] font-extrabold uppercase tracking-wider text-indigo-800 mb-2.5">
               <span className="h-2 w-2 rounded-full bg-indigo-600" />
-              Protected W-2 Placements &amp; EOR Payroll
+              Protected W-2 Placements &amp; Payroll
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               My Placements
             </h1>
             <p className="text-sm text-slate-600 mt-1 max-w-2xl">
-              Review protected W-2 Contract-to-Hire offers, track Employer of Record (EOR) onboarding packets, and manage active engagements with $0 direct-hire conversion friction.
+              Review protected W-2 Contract-to-Hire offers, track W-2 Payroll onboarding packets, and manage active engagements with $0 direct-hire conversion friction.
             </p>
           </div>
           <div className="flex items-center gap-2.5 shrink-0">
@@ -226,7 +228,7 @@ export default function ProfessionalPlacementsPage() {
       {loading ? (
         <div className="bg-white rounded-2xl border-2 border-slate-300 p-10 text-center">
           <p className="text-sm font-bold text-slate-600">
-            Loading your W-2 placements &amp; EOR onboarding packets...
+            Loading your W-2 placements &amp; onboarding packets...
           </p>
         </div>
       ) : filteredRecords.length === 0 ? (
@@ -253,7 +255,7 @@ export default function ProfessionalPlacementsPage() {
                 : 'No Placements Match This Filter'}
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-xl mx-auto">
-              When a Verified Employer extends a protected W-2 Contract-to-Hire or W-2 Contract offer inside your conversation thread, your pay rate, start date, and EOR onboarding packet appear right here.
+              When a Verified Employer extends a protected W-2 Contract-to-Hire or W-2 Contract offer inside your conversation thread, your pay rate, start date, and W-2 onboarding packet appear right here.
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
@@ -384,7 +386,7 @@ export default function ProfessionalPlacementsPage() {
                           : 'Awaiting Offer Acceptance'}
                       </p>
                       <p className="text-[11px] font-semibold text-slate-600 truncate">
-                        {p.equipment_policy || 'Standard Equipment Policy'}
+                        {(p.equipment_policy || 'Standard Equipment Policy').replace('Request EOR Managed Laptop Add-On', 'Request Managed Laptop Add-On')}
                       </p>
                     </div>
                   </div>

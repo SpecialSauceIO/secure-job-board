@@ -514,9 +514,9 @@ export default function EmployerJobsTableClient({
                         <span className="inline-flex items-center gap-1 rounded-md bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[11px] font-bold text-indigo-800">
                           🛡️{' '}
                           {job.eorContractTrack === 'fixed_term_w2'
-                            ? `${job.eorDurationMonths || 6}-Mo Fixed-Term W-2 (+28% EOR)`
+                            ? `${job.eorDurationMonths || 6}-Mo Fixed-Term W-2`
                             : job.eorContractTrack === 'open_ended_w2'
-                            ? 'Open-Ended W-2 Contract (+28% EOR)'
+                            ? 'Open-Ended W-2 Contract'
                             : job.eorDurationMonths
                             ? `${job.eorDurationMonths}-Mo W-2 Contract-to-Hire ($0 Conversion)`
                             : 'W-2 Contract-to-Hire ($0 Conversion)'}
@@ -524,7 +524,7 @@ export default function EmployerJobsTableClient({
                       )}
                       {job.equipmentPolicy && job.equipmentPolicy !== 'No Equipment Needed / Not Applicable' && (
                         <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 border border-slate-300 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-                          💻 {job.equipmentPolicy.replace(' (Laptop / Security Key)', '').replace(' (Virtual Desktop & Passkey Only)', '')}
+                          💻 {job.equipmentPolicy.replace(' (Laptop / Security Key)', '').replace(' (Virtual Desktop & Passkey Only)', '').replace('Request EOR Managed Laptop Add-On', 'Request Managed Laptop Add-On')}
                         </span>
                       )}
                     </div>
@@ -844,9 +844,9 @@ export default function EmployerJobsTableClient({
                               <span className="inline-flex items-center gap-1 rounded-md bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[11px] font-bold text-indigo-800">
                                 🛡️{' '}
                                 {job.eorContractTrack === 'fixed_term_w2'
-                                  ? `${job.eorDurationMonths || 6}-Mo Fixed-Term W-2 (+28% EOR)`
+                                  ? `${job.eorDurationMonths || 6}-Mo Fixed-Term W-2`
                                   : job.eorContractTrack === 'open_ended_w2'
-                                  ? 'Open-Ended W-2 Contract (+28% EOR)'
+                                  ? 'Open-Ended W-2 Contract'
                                   : job.eorDurationMonths
                                   ? `${job.eorDurationMonths}-Mo W-2 Contract-to-Hire ($0 Conversion)`
                                   : 'W-2 Contract-to-Hire ($0 Conversion)'}
@@ -856,7 +856,7 @@ export default function EmployerJobsTableClient({
                               <span
                                 title={job.equipmentNotes || job.equipmentPolicy}
                                 className="inline-flex items-center gap-1 rounded-md bg-slate-100 border border-slate-300 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-                                💻 {job.equipmentPolicy.replace(' (Laptop / Security Key)', '').replace(' (Virtual Desktop & Passkey Only)', '')}
+                                💻 {job.equipmentPolicy.replace(' (Laptop / Security Key)', '').replace(' (Virtual Desktop & Passkey Only)', '').replace('Request EOR Managed Laptop Add-On', 'Request Managed Laptop Add-On')}
                               </span>
                             )}
                           </div>
@@ -1240,10 +1240,10 @@ export default function EmployerJobsTableClient({
                   : pendingContractConfirm.action === 'wrap_up_assignment'
                   ? 'Confirm W-2 Assignment Wrap-Up'
                   : pendingContractConfirm.action === 'request_gear_return'
-                  ? 'Request Company / EOR Hardware Return'
+                  ? 'Request Assigned Hardware Return'
                   : pendingContractConfirm.action === 'reopen_assignment'
                   ? 'Reopen Active W-2 Assignment'
-                  : 'Confirm Company / EOR Hardware Returned'}
+                  : 'Confirm Assigned Hardware Returned'}
               </h3>
               </div>
               <button
@@ -1272,16 +1272,16 @@ export default function EmployerJobsTableClient({
 
             <p className="text-xs text-slate-700 leading-relaxed">
               {pendingContractConfirm.action === 'extend_90d'
-                ? `This extends the active W-2 engagement by an additional ${Math.max(1, Number(pendingContractConfirm.eng.durationMonths) || 3)} ${Math.max(1, Number(pendingContractConfirm.eng.durationMonths) || 3) === 1 ? 'month' : 'months'} through our US Employer of Record at the current hourly rate. Do not choose this option if you meant to convert this Professional to your direct W-2 payroll.`
+                ? `This extends the active W-2 engagement by an additional ${Math.max(1, Number(pendingContractConfirm.eng.durationMonths) || 3)} ${Math.max(1, Number(pendingContractConfirm.eng.durationMonths) || 3) === 1 ? 'month' : 'months'} through W-2 Payroll at the current hourly rate. Do not choose this option if you meant to convert this Professional to your direct W-2 payroll.`
                 : pendingContractConfirm.action === 'convert_direct'
-                ? 'This initiates a $0-fee direct W-2 hire transition onto your company payroll and notifies our Employer of Record partner to coordinate final weekly electronic timesheet approval and Net 15 closeout billing.'
+                ? 'This initiates a $0-fee direct W-2 hire transition onto your company payroll and notifies our W-2 Payroll team to coordinate final weekly electronic timesheet approval and closeout billing.'
                 : pendingContractConfirm.action === 'wrap_up_assignment'
-                ? 'This concludes the active W-2 contract assignment, notifies the Professional and Employer of Record partner for final weekly electronic timesheet approval (Net 15 closeout), and opens IT hardware return tracking if equipment was issued.'
+                ? 'This concludes the active W-2 contract assignment, notifies the Professional and W-2 Payroll team for final weekly electronic timesheet approval and closeout billing, and opens IT hardware return tracking if equipment was issued.'
                 : pendingContractConfirm.action === 'request_gear_return'
                 ? 'This opens IT hardware return tracking for this assignment and posts an offboarding return reminder in the secure message thread.'
                 : pendingContractConfirm.action === 'reopen_assignment'
                 ? 'This restores this W-2 engagement to Active W-2 status and re-enables contract term extension, $0 direct conversion, and wrap-up controls.'
-                : 'This records verified receipt of all company-shipped or EOR-managed hardware and closes open asset-return tracking for this assignment.'}
+                : 'This records verified receipt of all company-shipped or managed hardware and closes open asset-return tracking for this assignment.'}
             </p>
 
             <label className="flex items-start gap-2.5 rounded-xl border-2 border-indigo-200 bg-indigo-50/50 p-3 cursor-pointer select-none">
