@@ -1560,7 +1560,7 @@ export async function proposeTrialToHireTerms(
         `${orgName} proposed a Protected ${trackLabel} for "${roleTitle}":`,
         `• Gross W-2 Hourly Pay: $${payRate.toFixed(2)}/hr (${weeklyHours} hrs/wk)`,
         `• Target Start Date: ${startDate} (Work State: ${workState})`,
-        `• W-2 EOR Protection: Statutory payroll, direct deposit & Workers' Comp coverage`,
+        `• Statutory W-2 Coverage: Statutory payroll, direct deposit & Workers' Comp coverage`,
         `Review the terms inside your Secure Thread to accept or discuss.`,
       ],
       ctaUrl: appRow.initiated_by === 'employer' ? '/dashboard/requests' : '/dashboard/applications',
@@ -1632,7 +1632,7 @@ export async function respondToTrialToHireTerms(
     profAddress = { street1: st1, street2: st2, city, state: stCode, postalcode: zip }
   }
 
-  const packetId = decision === 'accept' ? `EOR-${Date.now().toString().slice(-6)}` : null
+  const packetId = decision === 'accept' ? `W2-${Date.now().toString().slice(-6)}` : null
   const bossResult =
     decision === 'accept' && packetId && profAddress
       ? await submitBossW2PlacementHandoff({
@@ -1697,7 +1697,7 @@ export async function respondToTrialToHireTerms(
   const existingMsgs: ThreadMessage[] = Array.isArray(matchData.messages) ? matchData.messages : []
   const msgText =
     decision === 'accept'
-      ? `✅ Accepted Protected ${acceptTrackLabel} ($${current.hourly_pay_rate.toFixed(2)}/hr gross W-2, Start: ${current.target_start_date}, State: ${current.work_state}). EOR Onboarding Packet ${packetId} has been queued — our licensed US Employer of Record partner will send W-2 / I-9 onboarding and Employer agreement links directly to both emails.`
+      ? `✅ Accepted Protected ${acceptTrackLabel} ($${current.hourly_pay_rate.toFixed(2)}/hr gross W-2, Start: ${current.target_start_date}, State: ${current.work_state}). W-2 Onboarding Packet ${packetId} has been queued — W-2 / I-9 onboarding and Employer payroll billing setup links will be sent directly to both emails.`
       : `💬 Declined the current W-2 contract proposal in order to continue discussing terms in chat.`
 
   const profSenderRole = ('can' + 'didate') as ThreadMessage['sender_role']
@@ -1803,9 +1803,9 @@ export async function respondToTrialToHireTerms(
         decision === 'accept'
           ? [
               `${candName} accepted your Protected ${empTrackLabel} for "${roleTitle}".`,
-              `• W-2 Pay Rate: $${current.hourly_pay_rate.toFixed(2)}/hr | All-In Employer Bill Rate (+28%): $${current.employer_bill_rate.toFixed(2)}/hr`,
+              `• W-2 Pay Rate: $${current.hourly_pay_rate.toFixed(2)}/hr | Est. All-In Employer Bill Rate: $${current.employer_bill_rate.toFixed(2)}/hr`,
               `• Target Start Date: ${current.target_start_date} | Work State: ${current.work_state} | Direct Conversion Fee: $0`,
-              `Our licensed US Employer of Record partner has been notified (${packetId}) to dispatch your Client Service Agreement and ${candName}'s W-2 / I-9 onboarding packet.`,
+              `Statutory W-2 payroll onboarding (${packetId}) has been initiated to dispatch your Client Service Agreement and ${candName}'s W-2 / I-9 onboarding packet.`,
             ]
           : [
               `${candName} asked to discuss or adjust the proposed W-2 contract terms in your Secure Thread for "${roleTitle}".`,
@@ -2114,10 +2114,10 @@ export async function manageActiveW2Engagement(formData: FormData): Promise<void
     const addDays = addMonths * 30
     const nextDays = (Number(current.trial_days) || addDays) + addDays
     nextTrial = { ...nextTrial, extension_count: extCount, trial_days: nextDays }
-    noteText = `🔄 Extended active W-2 engagement by +${addMonths} ${addMonths === 1 ? 'month' : 'months'} (Extension #${extCount}) via Manage Roles. EOR billing and statutory coverage continue seamlessly.`
+    noteText = `🔄 Extended active W-2 engagement by +${addMonths} ${addMonths === 1 ? 'month' : 'months'} (Extension #${extCount}) via Manage Roles. W-2 payroll billing and statutory coverage continue seamlessly.`
   } else if (lifecycleAction === 'convert_direct' && current.status === 'accepted_pending_eor') {
     nextTrial = { ...nextTrial, status: 'converted_direct' }
-    noteText = `🎉 Initiated Direct Full-Time W-2 Transition via Manage Roles. EOR partner notified to coordinate payroll transition.`
+    noteText = `🎉 Initiated Direct Full-Time W-2 Transition via Manage Roles. Statutory W-2 payroll team notified to coordinate direct transition.`
   } else if (
     lifecycleAction === 'wrap_up_assignment' ||
     lifecycleAction === 'request_gear_return' ||
@@ -2158,9 +2158,9 @@ export async function manageActiveW2Engagement(formData: FormData): Promise<void
       }
       noteText = needsGearReturn
         ? `📋 Assignment wrap-up initiated via Manage Roles. IT Offboarding Reminder: Please coordinate prepaid return shipping for issued hardware (${effectiveEquipPolicy}) and revoke system access.`
-        : `📋 Assignment wrap-up initiated via Manage Roles. Final EOR timesheet and offboarding initiated.`
+        : `📋 Assignment wrap-up initiated via Manage Roles. Final W-2 timesheet and offboarding initiated.`
     } else if (lifecycleAction === 'request_gear_return' && (current.status === 'ended' || current.status === 'accepted_pending_eor' || current.status === 'converted_direct')) {
-      const gearLabel = policyHasGear ? effectiveEquipPolicy : 'Assigned Company / EOR Hardware'
+      const gearLabel = policyHasGear ? effectiveEquipPolicy : 'Assigned Company Hardware'
       nextTrial = {
         ...nextTrial,
         equipment_policy: gearLabel,
@@ -2178,13 +2178,13 @@ export async function manageActiveW2Engagement(formData: FormData): Promise<void
         equipment_policy: effectiveEquipPolicy,
         equipment_return_status: nextReturnStatus,
       }
-      noteText = `🔄 Reopened W-2 contract engagement via Manage Roles. Active EOR assignment controls restored.`
+      noteText = `🔄 Reopened W-2 contract engagement via Manage Roles. Active W-2 assignment controls restored.`
     } else {
       return
     }
   } else if (lifecycleAction === 'mark_gear_returned') {
     nextTrial = { ...nextTrial, equipment_return_status: 'returned' }
-    noteText = `✅ Confirmed company/EOR hardware returned and IT offboarding completed.`
+    noteText = `✅ Confirmed company hardware returned and IT offboarding completed.`
   } else {
     return
   }

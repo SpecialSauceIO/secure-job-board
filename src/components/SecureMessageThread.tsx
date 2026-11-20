@@ -493,7 +493,7 @@ export default function SecureMessageThread({
       setTrialToHire(res.trialToHire)
       setSuccessMsg(
         decision === 'accept'
-          ? 'W-2 Contract-to-Hire accepted! Licensed US EOR onboarding has been dispatched.'
+          ? 'W-2 Contract-to-Hire accepted! Statutory W-2 & I-9 onboarding has been dispatched.'
           : 'Notified Employer that you would like to discuss or adjust contract terms in chat.'
       )
       await syncLatestThreadState()
@@ -759,7 +759,7 @@ export default function SecureMessageThread({
                 </span>
               )}
               <span className="text-[11px] font-semibold text-slate-700">
-                Licensed US Employer of Record (W-2 payroll, I-9 &amp; Workers&apos; Comp){viewerRole === 'employer' ? ' • $0 conversion fee' : ''}
+                Statutory US W-2 Payroll, I-9 &amp; Workers&apos; Comp{viewerRole === 'employer' ? ' • $0 conversion fee' : ''}
               </span>
             </div>
 
@@ -812,7 +812,7 @@ export default function SecureMessageThread({
               <p className="text-xs text-slate-700">
                 <strong>Target Start:</strong> {trialToHire.target_start_date} • <strong>Work State:</strong> {trialToHire.work_state}
                 {viewerRole === 'employer' && (
-                  <span> • <strong>Your All-In Rate (+28%):</strong> ${trialToHire.employer_bill_rate.toFixed(2)}/hr</span>
+                  <span> • <strong>Est. All-In Employer Rate:</strong> ${trialToHire.employer_bill_rate.toFixed(2)}/hr</span>
                 )}
                 {(trialToHire.require_background_check || trialToHire.require_drug_screening) && (
                   <span>
@@ -879,7 +879,7 @@ export default function SecureMessageThread({
                     ? viewerRole === 'employer' ? '🎉 Converted to Direct W-2 Hire ($0 Conversion Fee)' : '🎉 Converted to Direct Full-Time W-2 Hire'
                     : trialToHire.status === 'ended'
                     ? `📋 W-2 Assignment Wrapped Up${trialToHire.equipment_return_status === 'return_requested' ? ' • Hardware Return Pending' : ''}`
-                    : `✅ Active W-2 Engagement Confirmed (${trialToHire.eor_packet_id || 'EOR Queued'})${trialToHire.extension_count ? ` • +${trialToHire.extension_count * 90}d Extended` : ''}`}
+                    : `✅ Active W-2 Engagement Confirmed (${(trialToHire.eor_packet_id || 'W2 Queued').replace(/^EOR-/, 'W2-')})${trialToHire.extension_count ? ` • +${trialToHire.extension_count * 90}d Extended` : ''}`}
                 </span>
                 <span className="px-2 py-0.5 rounded-full bg-white border border-emerald-300 text-emerald-800 text-[10px] font-extrabold">
                   ${trialToHire.hourly_pay_rate.toFixed(2)}/hr W-2 • Start {trialToHire.target_start_date} ({trialToHire.work_state})
@@ -887,15 +887,15 @@ export default function SecureMessageThread({
               </div>
               <p className="text-xs text-emerald-900 leading-relaxed">
                 {viewerRole === 'employer'
-                  ? `All-in Employer rate locked at $${trialToHire.employer_bill_rate.toFixed(2)}/hr (+28% statutory W-2 burden) with a $0 conversion fee.`
-                  : `Your W-2 gross pay rate of $${trialToHire.hourly_pay_rate.toFixed(2)}/hr is locked with statutory W-2 payroll, direct deposit, and Workers' Comp protection through our licensed US Employer of Record partner.`}
+                  ? `All-in Employer rate set at $${trialToHire.employer_bill_rate.toFixed(2)}/hr (includes statutory W-2 payroll taxes & Workers' Comp) with a $0 conversion fee.`
+                  : `Your W-2 gross pay rate of $${trialToHire.hourly_pay_rate.toFixed(2)}/hr is confirmed with statutory W-2 payroll, direct deposit, and Workers' Comp coverage.`}
               </p>
               {trialToHire.boss_sync_status && (
                 <div className="flex flex-wrap items-center gap-2 pt-0.5 text-[11px]">
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full font-extrabold border ${trialToHire.boss_sync_status === 'synced' ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-amber-50 text-amber-900 border-amber-300'}`}>
                     {trialToHire.boss_sync_status === 'synced'
-                      ? `BOSS EOR Placement #${trialToHire.boss_placement_id || 'Active'} Provisioned`
-                      : 'EOR Onboarding Packet Queued for Concierge Dispatch'}
+                      ? `W-2 Payroll Placement #${trialToHire.boss_placement_id || 'Active'} Provisioned`
+                      : 'W-2 Onboarding Packet Queued for Dispatch'}
                   </span>
                 </div>
               )}
@@ -1058,14 +1058,14 @@ export default function SecureMessageThread({
                 <>
                   <p className="text-slate-700"><strong className="text-slate-900">Legal Entity:</strong> {legalEntityName.trim()} • <strong className="text-slate-900">Approver:</strong> {timecardApproverName.trim()}</p>
                   <p className="text-slate-700"><strong className="text-slate-900">W-2 Gross Pay:</strong> ${parsedPay.toFixed(2)}/hr ({parsedHrs} hrs/wk)</p>
-                  <p className="text-slate-700"><strong className="text-slate-900">All-In Employer Rate (+28%):</strong> ${computedBillRate.toFixed(2)}/hr{clientPoNumber.trim() ? ` • PO: ${clientPoNumber.trim()}` : ''}</p>
-                  <p className="text-slate-700"><strong className="text-slate-900">Target Start &amp; State:</strong> {trialStartDate} ({trialWorkState}) • Net 15 EOR Billing</p>
+                  <p className="text-slate-700"><strong className="text-slate-900">Est. All-In Employer Rate:</strong> ${computedBillRate.toFixed(2)}/hr{clientPoNumber.trim() ? ` • PO: ${clientPoNumber.trim()}` : ''}</p>
+                  <p className="text-slate-700"><strong className="text-slate-900">Target Start &amp; State:</strong> {trialStartDate} ({trialWorkState}) • Net 30 W-2 Payroll Billing</p>
                 </>
               ) : trialToHire ? (
                 <>
                   {trialToHire.legal_entity_name && <p className="text-slate-700"><strong className="text-slate-900">Employer Entity:</strong> {trialToHire.legal_entity_name}</p>}
                   <p className="text-slate-700"><strong className="text-slate-900">W-2 Gross Pay:</strong> ${trialToHire.hourly_pay_rate.toFixed(2)}/hr ({trialToHire.weekly_hours} hrs/wk)</p>
-                  {viewerRole === 'employer' && <p className="text-slate-700"><strong className="text-slate-900">All-In Employer Rate (+28%):</strong> ${trialToHire.employer_bill_rate.toFixed(2)}/hr</p>}
+                  {viewerRole === 'employer' && <p className="text-slate-700"><strong className="text-slate-900">Est. All-In Employer Rate:</strong> ${trialToHire.employer_bill_rate.toFixed(2)}/hr</p>}
                   <p className="text-slate-700"><strong className="text-slate-900">Target Start &amp; State:</strong> {trialToHire.target_start_date} ({trialToHire.work_state})</p>
                 </>
               ) : null}
@@ -1074,10 +1074,10 @@ export default function SecureMessageThread({
             {pendingOfferConfirm === 'accept' && (
               <div className="rounded-xl border border-slate-200 bg-white p-3 space-y-2">
                 <p className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wide">
-                  W-2 &amp; I-9 Residential Onboarding Address (Required by US EOR Partner)
+                  W-2 &amp; I-9 Residential Onboarding Address
                 </p>
                 <p className="text-[11px] text-slate-600 leading-relaxed">
-                  Our licensed US Employer of Record partner will email your secure onboarding link for federal/state W-4 tax withholding, Form I-9 work authorization, direct deposit setup, and weekly electronic timesheets.
+                  W-2 Payroll onboarding sends your secure link for federal/state W-4 tax withholding, Form I-9 work authorization, direct deposit setup, and weekly electronic timesheets.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <input type="text" maxLength={120} value={profResStreet1} onChange={(e) => setProfResStreet1(e.target.value)} placeholder="Residential Street Address *" className="sm:col-span-2 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
@@ -1105,7 +1105,7 @@ export default function SecureMessageThread({
                 {pendingOfferConfirm === 'propose'
                   ? `I confirm I intend to send this formal W-2 offer at $${parsedPay.toFixed(2)}/hr W-2 ($${computedBillRate.toFixed(2)}/hr all-in employer rate).`
                   : pendingOfferConfirm === 'accept'
-                  ? `I confirm I intend to accept this W-2 offer and initiate Employer of Record W-2 & I-9 onboarding.`
+                  ? `I confirm I intend to accept this W-2 offer and initiate statutory W-2 & I-9 onboarding.`
                   : pendingOfferConfirm === 'decline'
                   ? 'I confirm I want to pause this pending offer so we can adjust terms in chat.'
                   : 'I confirm I intend to withdraw this pending W-2 offer.'}
@@ -1296,7 +1296,7 @@ export default function SecureMessageThread({
 
             <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 space-y-2.5">
               <p className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wide">
-                Employer of Record Contract &amp; Company Billing
+                W-2 Contract &amp; Company Billing
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <input type="text" maxLength={128} value={legalEntityName} onChange={(e) => setLegalEntityName(e.target.value)} placeholder="Exact Legal Entity Name (not DBA) *" className="block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
@@ -1351,7 +1351,7 @@ export default function SecureMessageThread({
             <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
               <div className="space-y-0.5">
                 <p className="font-extrabold text-slate-900">
-                  All-In Employer Rate (+28%): ${computedBillRate.toFixed(2)}/hr{' '}
+                  Est. All-In Employer Rate: ${computedBillRate.toFixed(2)}/hr{' '}
                   <span className="font-semibold text-slate-500">
                     (Est. ${(computedBillRate * parsedHrs).toLocaleString('en-US', { maximumFractionDigits: 0 })}/wk)
                   </span>
@@ -1411,7 +1411,7 @@ export default function SecureMessageThread({
                   Protected W-2 Contract Offer Sheet
                 </h3>
                 <p className="text-xs text-slate-600">
-                  Review every compensation, supervision, worksite, equipment, and Employer of Record protection detail below.
+                  Review every compensation, supervision, worksite, equipment, and statutory W-2 payroll protection detail below.
                 </p>
               </div>
               <button
@@ -1499,7 +1499,7 @@ export default function SecureMessageThread({
                     ].filter(Boolean).join(' + ') || 'None Required'}
                   </p>
                   <p>
-                    <strong className="text-slate-900">W-2 EOR Protection:</strong>{' '}
+                    <strong className="text-slate-900">Statutory W-2 Coverage:</strong>{' '}
                     {viewerRole === 'employer'
                       ? "Statutory W-2 payroll, direct deposit, Workers' Comp & $0 buyout conversion"
                       : "Statutory W-2 payroll, direct deposit & Workers' Comp coverage"}
@@ -1528,7 +1528,7 @@ export default function SecureMessageThread({
                     Your W-2 &amp; I-9 Residential Onboarding Address (Required to Approve)
                   </p>
                   <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Our licensed US Employer of Record partner uses this residential address solely to provision your federal/state W-4 tax withholding, Form I-9 verification, and direct deposit onboarding packet.
+                    Statutory W-2 payroll onboarding uses this residential address solely to provision your federal/state W-4 tax withholding, Form I-9 verification, and direct deposit onboarding packet.
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <input type="text" maxLength={120} value={profResStreet1} onChange={(e) => setProfResStreet1(e.target.value)} placeholder="Residential Street Address *" className="sm:col-span-2 block w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 placeholder:text-slate-400" />
@@ -1552,7 +1552,7 @@ export default function SecureMessageThread({
                     className="mt-0.5 h-4 w-4 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                   />
                   <span className="text-xs font-bold text-slate-900 leading-snug">
-                    I have reviewed all W-2 contract details above and confirm I want to approve this offer at ${trialToHire.hourly_pay_rate.toFixed(2)}/hr gross W-2 and begin Employer of Record onboarding.
+                    I have reviewed all W-2 contract details above and confirm I want to approve this offer at ${trialToHire.hourly_pay_rate.toFixed(2)}/hr gross W-2 and begin statutory W-2 onboarding.
                   </span>
                 </label>
 
