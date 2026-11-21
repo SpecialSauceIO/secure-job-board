@@ -33,6 +33,13 @@ export function PublicFooter() {
               className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
             >
               Security &amp; Trust
+            </Link
+            >
+            <Link
+              href="/w2-hiring"
+              className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
+            >
+              Built-In W-2 Hiring
             </Link>
             <Link
               href="/faq"

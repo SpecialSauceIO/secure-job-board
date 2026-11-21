@@ -92,29 +92,56 @@ export default function ThemeToggle() {
     }
   }, [pathname, isDashboard])
 
-  if (!mounted || isDashboard || pathname === '/security') return null
+  if (!mounted || isDashboard) return null
+
+  const showSecurityPill = pathname !== '/security'
+  const showW2Pill = pathname !== '/w2-hiring'
+  if (!showSecurityPill && !showW2Pill) return null
 
   return (
-    <div className="fixed bottom-28 right-6 z-50 hidden sm:flex flex-col items-end">
-      <Link
-        href="/security"
-        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-900/95 backdrop-blur text-white border border-slate-700 shadow-lg hover:bg-indigo-600 hover:border-indigo-500 text-xs font-extrabold transition-all cursor-pointer group"
-      >
-        <span>🛡️ Security &amp; Trust</span>
-        <svg
-          className="w-3.5 h-3.5 text-emerald-400 group-hover:text-white transition-colors"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+    <div className="fixed bottom-24 right-6 z-50 hidden sm:flex flex-col items-end gap-2.5">
+      {showSecurityPill && (
+        <Link
+          href="/security"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-900/95 backdrop-blur text-white border border-slate-700 shadow-lg hover:bg-indigo-600 hover:border-indigo-500 text-xs font-extrabold transition-all cursor-pointer group"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2.5"
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
-      </Link>
+          <span>🛡️ Security &amp; Trust</span>
+          <svg
+            className="w-3.5 h-3.5 text-emerald-400 group-hover:text-white transition-colors"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2.5"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </Link>
+      )}
+      {showW2Pill && (
+        <Link
+          href="/w2-hiring"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-900/95 backdrop-blur text-white border border-slate-700 shadow-lg hover:bg-indigo-600 hover:border-indigo-500 text-xs font-extrabold transition-all cursor-pointer group"
+        >
+          <span>💼 Built-In W-2 Hiring</span>
+          <svg
+            className="w-3.5 h-3.5 text-amber-400 group-hover:text-white transition-colors"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2.5"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </Link>
+      )}
     </div>
   )
 }
