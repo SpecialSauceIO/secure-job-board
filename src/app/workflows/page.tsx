@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { PublicHeader } from '@/components/PublicHeader'
 import { PublicFooter } from '@/components/PublicFooter'
+import { HiringTracksFlowchart } from '@/components/W2HiringGuideView'
 
 export default function WorkflowsPage() {
   const [activeTab, setActiveTab] = useState<'candidate' | 'employer'>('candidate')
@@ -400,7 +401,7 @@ export default function WorkflowsPage() {
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Publish <strong>Direct Hire</strong>, <strong>90-Day W-2 Contract-to-Hire ($0 conversion fee)</strong>, or flexible <strong>W-2 Contract</strong> roles on <strong>Starter ($149/mo)</strong>, <strong>Growth ($499/mo)</strong>, or <strong>Enterprise ($1,250/mo)</strong>.</span>
+                        <span>Publish <strong>Full-Time Direct Hire</strong>, <strong>W-2 Contract-to-Hire ($0 conversion)</strong>, <strong>Limited W-2 Contract</strong>, or <strong>Indefinite W-2 Contract</strong> roles on <strong>Starter ($149/mo)</strong>, <strong>Growth ($499/mo)</strong>, or <strong>Enterprise ($1,250/mo)</strong>.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
@@ -433,7 +434,7 @@ export default function WorkflowsPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Hire directly or launch a <strong>90-Day W-2 Contract-to-Hire</strong> ($0 conversion fee) or W-2 contract with built-in payroll and hardware return tracking.</span>
+                        <span>Hire directly onto your payroll or launch <strong>built-in W-2 Employer of Record (EOR)</strong> digital onboarding, Net-30 billing, and hardware return tracking.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
@@ -442,10 +443,12 @@ export default function WorkflowsPage() {
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Full Resume Access, Team Seats &amp; HR Sync
+                    Unlocks: ✓ Direct Hire, Built-In W-2 EOR, Team Seats &amp; HR Sync
                   </div>
                 </div>
               </div>
+
+              <HiringTracksFlowchart isDashboard={false} showGuideLink={true} />
             </section>
           )}
 

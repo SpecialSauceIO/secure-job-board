@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { HiringTracksFlowchart } from '@/components/W2HiringGuideView'
 
 interface WorkflowStep {
   step: string
@@ -60,20 +61,20 @@ const CANDIDATE_WORKFLOW_STEPS: WorkflowStep[] = [
 
 const EMPLOYER_WORKFLOW_STEPS: WorkflowStep[] = [
   {
-    step: 'Step 1 • Sandbox Access',
-    title: '1. Unlock Your $0/Mo Sandbox ($25 Once)',
+    step: 'Step 1 • Practice Mode Access',
+    title: '1. Unlock Your $0/Mo Practice Mode ($25 Once)',
     bullets: [
-      'Complete the $25 Organization Verification Pass to access your $0/mo Sandbox.',
+      'Complete the $25 Employer Verification Pass to access your $0/mo Practice Mode.',
       'Draft roles and preview verified talent matches before starting a monthly plan.',
     ],
-    unlockBadge: 'Unlocks: ✓ $0/Mo Sandbox & Live Match Previews',
+    unlockBadge: 'Unlocks: ✓ $0/Mo Practice Mode & Live Match Previews',
   },
   {
     step: 'Step 2 • Domain Check',
     title: '2. Confirm Your Business Domain',
     bullets: [
       'Verify your company domain automatically using your work email.',
-      'Keeps free webmail and fake accounts out of the marketplace.',
+      'Keeps free webmail and fake accounts out of the Secured Workforce Ecosystem.',
     ],
     unlockBadge: 'Unlocks: ✓ Verified Business Domain Badge',
   },
@@ -96,13 +97,13 @@ const EMPLOYER_WORKFLOW_STEPS: WorkflowStep[] = [
     unlockBadge: 'Unlocks: ✓ Live Roles & Refund-Protected Invitations',
   },
   {
-    step: 'Step 5 • Chat & Hire',
-    title: '5. Direct Chat, Resume Download & Team Sync',
+    step: 'Step 5 • Chat & Hire (Direct or W-2 EOR)',
+    title: '5. Direct Hire or Built-In W-2 Employer of Record',
     bullets: [
-      'Chat directly with matched professionals and download their full PDF resume once released.',
+      'Hire directly onto your payroll or launch built-in W-2 EOR (Contract-to-Hire, Limited, or Indefinite W-2) with digital onboarding and Net-30 billing.',
       'Collaborate with your team seats, export via CSV, or auto-sync with Workday & Greenhouse (Enterprise).',
     ],
-    unlockBadge: 'Unlocks: ✓ Full Resume Access, Team Seats & HR Sync',
+    unlockBadge: 'Unlocks: ✓ Direct Hire, Built-In W-2 EOR & HR Sync',
   },
 ]
 
@@ -202,12 +203,12 @@ export default function PlatformWorkflowsView({
               >
                 {isCandidate
                   ? '$5 One-Time Verification • $0/Mo Explorer Mode'
-                  : '$25 One-Time Verification • $0/Mo Sandbox • Refund-Protected Invitations'}
+                  : '$25 One-Time Verification • $0/Mo Practice Mode • Built-In W-2 EOR'}
               </span>
               <h2 className="text-xl sm:text-2xl font-extrabold text-white mt-0.5">
                 {isCandidate
                   ? 'Professional Workflow: Private Profile to Direct Offers'
-                  : 'Employer Workflow: Verified Sandbox to Great Hires'}
+                  : 'Employer Workflow: Verified Practice Mode to Great Hires'}
               </h2>
             </div>
           </div>
@@ -271,6 +272,10 @@ export default function PlatformWorkflowsView({
             </div>
           ))}
         </div>
+
+        {!isCandidate && (
+          <HiringTracksFlowchart isDashboard={isDashboard} showGuideLink={true} />
+        )}
       </div>
 
       {/* Bottom Handshake Banner */}

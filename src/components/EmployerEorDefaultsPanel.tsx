@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import {
   OrganizationEorConfig,
   EorContractTrack,
@@ -97,7 +98,7 @@ export default function EmployerEorDefaultsPanel() {
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-              W-2 Contract &amp; Payroll Defaults
+              Built-In W-2 Employer of Record (EOR) &amp; Payroll Defaults
             </h2>
             <span
               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border ${
@@ -110,7 +111,7 @@ export default function EmployerEorDefaultsPanel() {
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-600 mt-1">
-            Configure your default W-2 contract track, screening rules, equipment policy, and payroll contacts once. Every new Protected Role inherits these defaults automatically, and you can override any role individually.
+            Configure your default W-2 Employer of Record track (Contract-to-Hire, Limited W-2, or Indefinite W-2), screening rules, equipment policy, and Net-30 billing contacts once. Every new Protected Role inherits these defaults automatically • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">View 4 Hiring Paths Flowchart →</Link>
           </p>
         </div>
       </div>

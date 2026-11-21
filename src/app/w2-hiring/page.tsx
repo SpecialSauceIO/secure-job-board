@@ -4,9 +4,9 @@ import W2HiringGuideView from "@/components/W2HiringGuideView"
 
 export const metadata = {
   alternates: { canonical: "/w2-hiring" },
-  title: "Direct Hire, W-2 Contract & Contract-to-Hire | Special Sauce",
+  title: "Built-In W-2 Employer of Record (EOR) & 4 Hiring Paths | Special Sauce",
   description:
-    "How Direct Hire, W-2 Contract, and Contract-to-Hire ($0 conversion fee) work on Special Sauce.",
+    "Visual guide to Full-Time Direct Hire, W-2 Contract-to-Hire ($0 conversion fee), Limited W-2 Contract, and Indefinite W-2 Contract with built-in U.S. Employer of Record services.",
 }
 
 export default function W2HiringPublicPage() {
@@ -14,7 +14,7 @@ export default function W2HiringPublicPage() {
     <div className="min-h-screen w-full overflow-x-clip bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900 flex flex-col justify-between">
       <PublicHeader />
       <main className="flex-1 py-10 sm:py-14 px-4 sm:px-6 md:px-12">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <W2HiringGuideView isDashboard={false} />
         </div>
       </main>

@@ -4,9 +4,9 @@ import { createClient } from "@/utils/supabase/server"
 import W2HiringGuideView from "@/components/W2HiringGuideView"
 
 export const metadata = {
-  title: "Direct Hire, W-2 Contract & Contract-to-Hire | Special Sauce",
+  title: "Built-In W-2 Employer of Record (EOR) & 4 Hiring Paths | Special Sauce",
   description:
-    "How Direct Hire, W-2 Contract, and W-2 Contract-to-Hire ($0 conversion fee) work on Special Sauce.",
+    "Visual guide to Full-Time Direct Hire, W-2 Contract-to-Hire ($0 conversion fee), Limited W-2 Contract, and Indefinite W-2 Contract with built-in U.S. Employer of Record services.",
 }
 
 export default async function DashboardW2HiringGuidePage() {
@@ -21,7 +21,7 @@ export default async function DashboardW2HiringGuidePage() {
 
   return (
     <div className="py-2">
-      <div className="max-w-5xl mx-auto py-3 space-y-5">
+      <div className="max-w-6xl mx-auto py-3 space-y-5">
         <div className="flex flex-wrap items-center gap-4">
           <Link
             href="/dashboard"

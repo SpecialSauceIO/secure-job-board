@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { PublicHeader } from "@/components/PublicHeader"
 import { PublicFooter } from "@/components/PublicFooter"
+import { HiringTracksFlowchart } from "@/components/W2HiringGuideView"
 
 export const metadata = {
   alternates: { canonical: "/pricing" },
@@ -402,7 +403,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee) • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 Hiring guide →</Link></span>
+                      <span><strong className="text-white">Built-In W-2 Employer of Record (EOR)</strong> • Direct Hire, Contract-to-Hire ($0 conversion), Limited &amp; Indefinite W-2 • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -470,7 +471,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee) • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 Hiring guide →</Link></span>
+                      <span><strong className="text-white">Built-In W-2 Employer of Record (-1% W-2 Markup)</strong> • $0 conversion &amp; Net-30 billing • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -538,7 +539,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee) • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 Hiring guide →</Link></span>
+                      <span><strong className="text-white">Built-In W-2 Employer of Record (-2% W-2 Markup)</strong> • Lowest volume W-2 rate &amp; $0 conversion • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -565,6 +566,10 @@ export default function PricingMatrixPage() {
                   Select Enterprise ($1,250/mo) →
                 </Link>
               </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-800">
+              <HiringTracksFlowchart isDashboard={false} showGuideLink={true} />
             </div>
 
             {/* ================================================================

@@ -6,7 +6,7 @@ import PlatformWorkflowsView from '@/components/PlatformWorkflowsView'
 export const metadata = {
   title: 'Platform Workflows | specialsauce.io',
   description:
-    'Side-by-side visual guide to Professional and Employer onboarding, verification, and marketplace workflows.',
+    'Side-by-side visual guide to Professional and Employer onboarding, verification, and Secured Workforce Ecosystem workflows.',
 }
 
 export default async function DashboardWorkflowsPage() {
@@ -55,7 +55,7 @@ export default async function DashboardWorkflowsPage() {
             Platform Workflows &amp; Verification Roadmap
           </h1>
           <p className="text-slate-600 dark:text-slate-300 mt-1">
-            Step-by-step visual guide showing how Professionals and Employers enroll, verify, and unlock full marketplace capabilities.
+            Step-by-step visual guide showing how Professionals and Employers enroll, verify, and hire across the Secured Workforce Ecosystem.
           </p>
         </header>
 

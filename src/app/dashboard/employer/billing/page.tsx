@@ -3,6 +3,7 @@ import { trackAdConversion } from '@/components/MarketingPixels'
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import { HiringTracksFlowchart } from '@/components/W2HiringGuideView'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import {
@@ -479,7 +480,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/dashboard/talent-shield" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
               </li>
               <li>
-                ✓ <strong>Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee) • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">W-2 Hiring guide →</Link>
+                ✓ <strong>Built-In W-2 Employer of Record (EOR)</strong> • Direct Hire, Contract-to-Hire ($0 conversion), Limited &amp; Indefinite W-2 • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">4 Hiring Paths →</Link>
               </li>
               <li>
                 ✓ <strong>10 Outbound Invitation Credits / mo</strong>
@@ -560,7 +561,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/dashboard/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link>
               </li>
               <li>
-                ✓ <strong>Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee) • <Link href="/dashboard/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">W-2 Hiring guide →</Link>
+                ✓ <strong>Built-In W-2 Employer of Record (-1% W-2 Markup)</strong> • $0 conversion &amp; Net-30 billing • <Link href="/dashboard/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link>
               </li>
               <li>
                 ✓ <strong>35 Outbound Invitation Credits / mo</strong>
@@ -643,7 +644,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/dashboard/talent-shield" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
               </li>
               <li>
-                ✓ <strong>Direct Hire, W-2 Contract &amp; Contract-to-Hire</strong> ($0 conversion fee) • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">W-2 Hiring guide →</Link>
+                ✓ <strong>Built-In W-2 Employer of Record (-2% W-2 Markup)</strong> • Lowest volume W-2 rate &amp; $0 conversion • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">4 Hiring Paths →</Link>
               </li>
               <li>
                 ✓ <strong>120 Outbound Invitation Credits / mo</strong>
@@ -676,6 +677,8 @@ export default function EmployerBillingPage() {
           </div>
         </div>
       </div>
+
+      <HiringTracksFlowchart isDashboard={true} showGuideLink={true} />
 
       {/* ====================================================================
           ON-DEMAND ROLLOVER CREDIT TOP-UP PACKS ($150 / $350 / $900)

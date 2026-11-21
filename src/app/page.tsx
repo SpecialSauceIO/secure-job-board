@@ -238,7 +238,7 @@ export default function LandingPage() {
                   <span>
                     Hire via{' '}
                     <Link href="/w2-hiring" className="text-sky-300 underline decoration-sky-400/60 underline-offset-4 hover:text-white font-semibold transition-colors">
-                      Direct Hire, W-2 Contract, or $0-fee Contract-to-Hire
+                      Direct Hire or Built-In W-2 EOR ($0-fee Contract-to-Hire)
                     </Link>
                     .
                   </span>
@@ -880,10 +880,10 @@ export default function LandingPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-3">
-                  1. Post Direct or W-2 Contract Roles
+                  1. Post Direct Hire or Built-In W-2 EOR Roles
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Set required skills, upfront pay, and hiring track—Direct Hire, W-2 Contract, or Contract-to-Hire ($0 conversion fee)—while keeping your company name private until you connect. <Link href="/w2-hiring" className="text-indigo-600 underline hover:text-indigo-800 font-bold">Explore Direct &amp; W-2 tracks →</Link>
+                  Set required skills, upfront pay, and 1 of 4 hiring paths—Full-Time Direct Hire, W-2 Contract-to-Hire ($0 conversion fee), Limited W-2 Contract, or Indefinite W-2 Contract—while keeping your company name private until you connect. <Link href="/w2-hiring" className="text-indigo-600 underline hover:text-indigo-800 font-bold">Explore 4 Hiring Paths &amp; W-2 EOR →</Link>
                 </p>
               </div>
 

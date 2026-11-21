@@ -487,9 +487,9 @@ export const SUPPORT_FAQS: FAQ[] = [
     target: 'employer',
     category: 'Job Listings',
     question:
-      'How do Direct Hire, W-2 Contract, and Contract-to-Hire ($0 conversion fee) work for Employers?',
+      'How do Full-Time Direct Hire and our 3 built-in W-2 Employer of Record paths work for Employers?',
     answer:
-      'When creating a Protected Role, you can hire directly onto your internal payroll ($0 placement fee) or select a turnkey W-2 track: Fixed-Term W-2 Contract (3–12 months, extendable anytime), Open-Ended W-2 Contract, or Contract-to-Hire ($0 conversion fee across 90-day, 180-day, or custom timelines), complete with digital I-9/W-4 onboarding, multi-state W-2 payroll compliance, workers\u0027 compensation coverage, and built-in hardware return tracking.',
+      'Every Protected Role supports 4 hiring methodologies: (1) Full-Time Direct Hire onto your internal company payroll ($0 placement commission), (2) W-2 Contract-to-Hire ($0 conversion fee across 1–12 month ramps), (3) Limited W-2 Contract (fixed-term project or seasonal coverage, extendable anytime), and (4) Indefinite W-2 Contract (open-ended ongoing assignment). All three W-2 tracks include built-in U.S. Employer of Record digital onboarding, statutory payroll taxes, Workers\u0027 Comp, 100% funded Net-30 consolidated billing, and tracked hardware return gates.',
   },
   {
     id: 'all2',
@@ -584,9 +584,9 @@ export const SUPPORT_FAQS: FAQ[] = [
     target: 'employer',
     category: 'W-2 Payroll & Contract-to-Hire',
     question:
-      'How does Employer W-2 billing work, and what does the statutory W-2 employer burden cover?',
+      'How does Commission-Free W-2 Employer of Record billing work, and why does our rate beat traditional agencies?',
     answer:
-      'Special Sauce charges $0 recruiting commissions or placement markups—your platform access is covered by your flat monthly membership. On W-2 Contract and Contract-to-Hire tracks, you receive one consolidated invoice for approved hours worked at the Professional\u0027s hourly pay rate plus the transparent statutory W-2 employer burden disclosed before launch. That burden covers employer FICA taxes, federal and state unemployment insurance (FUTA/SUTA), workers\u0027 compensation coverage, digital I-9/W-4 onboarding, multi-state payroll compliance without registering new state tax entities, and W-2 issuance.',
+      'Traditional staffing agencies charge 50%+ markups because roughly half of every bill funds headhunter commissions. Special Sauce saves you money by eliminating the need for recruiter middlemen. Our Secured Workforce Ecosystem puts you in complete control of qualifying your future workforce in a fraction of the time it takes you today—something impossible with unverified resume piles and agency gatekeepers. On W-2 Contract-to-Hire, Limited W-2, and Indefinite W-2 roles, you pay one consolidated Net-30 invoice covering the Professional\u0027s approved hourly pay, full statutory W-2 coverage (employer FICA, FUTA/SUTA, Workers\u0027 Comp, digital I-9/W-4 onboarding, and multi-state W-2 filings), 100% payroll funding, and a transparent, commission-free rate—with automatic 1% and 2% W-2 markup reductions on Growth and Enterprise.',
   },
   {
     id: 'e12',
