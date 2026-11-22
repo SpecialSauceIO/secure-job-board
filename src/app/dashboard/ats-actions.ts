@@ -2,6 +2,7 @@
 
 import crypto from 'crypto'
 import dns from 'dns/promises'
+import https from 'https'
 import net from 'net'
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
@@ -45,7 +46,16 @@ function isBlockedIpAddress(ip: string): boolean {
   return true
 }
 
-async function validateSafeAtsWebhookUrl(rawUrl: string): Promise<{ ok: boolean; url?: string; error?: string }> {
+interface ValidatedWebhookTarget {
+  ok: boolean
+  url?: string
+  hostname?: string
+  resolvedAddress?: string
+  resolvedFamily?: 4 | 6
+  error?: string
+}
+
+async function validateSafeAtsWebhookUrl(rawUrl: string): Promise<ValidatedWebhookTarget> {
   const trimmed = String(rawUrl || '').trim()
   if (!trimmed) return { ok: false, error: 'Webhook URL is empty.' }
   let parsed: URL
@@ -64,21 +74,91 @@ async function validateSafeAtsWebhookUrl(rawUrl: string): Promise<{ ok: boolean;
   if (!host || host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') || host.endsWith('.internal') || host === 'metadata.google.internal' || !host.includes('.')) {
     return { ok: false, error: 'Webhook Endpoint URL must point to a public external domain.' }
   }
-  if (net.isIP(host)) {
+  const ipVersion = net.isIP(host)
+  if (ipVersion) {
     if (isBlockedIpAddress(host)) {
       return { ok: false, error: 'Private, loopback, and metadata IP addresses are blocked for webhooks.' }
     }
-    return { ok: true, url: parsed.toString() }
+    return { ok: true, url: parsed.toString(), hostname: host, resolvedAddress: host, resolvedFamily: ipVersion === 6 ? 6 : 4 }
   }
   try {
     const resolved = await dns.lookup(host, { all: true })
     if (!resolved.length || resolved.some((entry) => isBlockedIpAddress(entry.address))) {
       return { ok: false, error: 'Webhook Endpoint hostname resolves to a restricted or non-routable network address.' }
     }
+    const primary = resolved[0]
+    return {
+      ok: true,
+      url: parsed.toString(),
+      hostname: host,
+      resolvedAddress: primary.address,
+      resolvedFamily: primary.family === 6 ? 6 : 4,
+    }
   } catch {
     return { ok: false, error: 'Unable to resolve Webhook Endpoint hostname via public DNS.' }
   }
-  return { ok: true, url: parsed.toString() }
+}
+
+function postWebhookWithPinnedDns(
+  target: ValidatedWebhookTarget,
+  headers: Record<string, string>,
+  bodyString: string,
+  timeoutMs = 8000
+): Promise<{ ok: boolean; status: number }> {
+  return new Promise((resolve, reject) => {
+    if (!target.url || !target.hostname || !target.resolvedAddress) {
+      reject(new Error(target.error || 'Invalid pinned webhook target.'))
+      return
+    }
+    const parsed = new URL(target.url)
+    const pinnedHost = target.hostname
+    const pinnedAddress = target.resolvedAddress
+    const pinnedFamily = target.resolvedFamily || 4
+    const payloadBuffer = Buffer.from(bodyString, 'utf-8')
+
+    const req = https.request(
+      {
+        protocol: 'https:',
+        hostname: pinnedHost,
+        port: parsed.port ? Number(parsed.port) : 443,
+        path: `${parsed.pathname}${parsed.search}`,
+        method: 'POST',
+        servername: pinnedHost,
+        headers: {
+          ...headers,
+          Host: parsed.host,
+          'Content-Length': String(payloadBuffer.byteLength),
+        },
+        lookup: (hostname, options, callback) => {
+          if (hostname.toLowerCase() !== pinnedHost) {
+            callback(new Error('Blocked unexpected hostname during pinned webhook request.'), '', 4)
+            return
+          }
+          if (typeof options === 'object' && options?.all) {
+            callback(null, [{ address: pinnedAddress, family: pinnedFamily }])
+            return
+          }
+          callback(null, pinnedAddress, pinnedFamily)
+        },
+      },
+      (res) => {
+        const status = res.statusCode || 0
+        res.resume()
+        if (status >= 300 && status < 400) {
+          reject(new Error('Webhook endpoint attempted an HTTP redirect, which is blocked.'))
+          return
+        }
+        resolve({ ok: status >= 200 && status < 300, status })
+      }
+    )
+
+    req.setTimeout(timeoutMs, () => {
+      req.destroy(new Error('Webhook request timed out.'))
+    })
+    req.on('error', (err) => reject(err))
+    req.write(payloadBuffer)
+    req.end()
+  })
 }
 
 function parseAtsConfigFromDescription(desc?: string | null): EnterpriseAtsConfig {
@@ -325,18 +405,17 @@ export async function fireTestAtsWebhook() {
   }
 
   try {
-    const response = await fetch(urlCheck.url, {
-      method: 'POST',
-      redirect: 'error',
-      signal: AbortSignal.timeout(8000),
-      headers: {
+    const response = await postWebhookWithPinnedDns(
+      urlCheck,
+      {
         'Content-Type': 'application/json',
         'X-SpecialSauce-Event': 'candidate.vault_released',
         'X-SpecialSauce-Signature': 'sha256=' + signature,
         'User-Agent': 'SpecialSauce-Enterprise-Webhook/1.0',
       },
-      body: bodyString,
-    })
+      bodyString,
+      8000
+    )
 
     return {
       success: response.ok,
@@ -547,18 +626,17 @@ export async function autoSyncStage2VaultToEnterpriseAts(
         if (!urlCheck.ok || !urlCheck.url) {
           throw new Error(urlCheck.error || 'Blocked Webhook Endpoint URL')
         }
-        const res = await fetch(urlCheck.url, {
-          method: 'POST',
-          redirect: 'error',
-          signal: AbortSignal.timeout(8000),
-          headers: {
+        const res = await postWebhookWithPinnedDns(
+          urlCheck,
+          {
             'Content-Type': 'application/json',
             'X-SpecialSauce-Event': 'candidate.vault_released',
             'X-SpecialSauce-Signature': 'sha256=' + signature,
             'User-Agent': 'SpecialSauce-Enterprise-Webhook/1.0',
           },
-          body: bodyString,
-        })
+          bodyString,
+          8000
+        )
         syncResults.push('webhook:' + res.status)
         await recordHandshakeTelemetry({
           handshakeId: 'enterprise_ats_webhook',

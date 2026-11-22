@@ -19,15 +19,7 @@ export async function GET(request: Request) {
       } = await supabase.auth.getUser()
 
       const cookieStore = await cookies()
-      const pendingRole = cookieStore.get('pending_role')?.value
-
-      if (user && pendingRole) {
-        if (pendingRole === 'candidate' || pendingRole === 'employer') {
-          await supabase
-            .from('profiles')
-            .update({ role: pendingRole })
-            .eq('id', user.id)
-        }
+      if (cookieStore.get('pending_role')) {
         cookieStore.delete('pending_role')
       }
 

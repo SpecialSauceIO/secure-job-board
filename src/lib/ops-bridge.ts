@@ -1,3 +1,4 @@
+import crypto from "crypto"
 import { createClient } from "@supabase/supabase-js"
 
 const OPS_BUCKET = "resumes"
@@ -8,6 +9,47 @@ const OPS_VAULT_PATH = "_isolated_ops_control_plane/ops_vault_v2.json"
 function cleanEnv(val?: string | null): string {
   if (!val) return ""
   return val.trim().replace(/^["']+|["']+$/g, "").trim()
+}
+
+function getOpsVaultEncryptionKey(): Buffer | null {
+  const secret = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY)
+  if (!secret) return null
+  return crypto.createHash("sha256").update(`specialsauce-ops-vault-v1:${secret}`).digest()
+}
+
+function parseOpsVaultJson(rawText: string): any {
+  const parsed = JSON.parse(rawText)
+  if (parsed && typeof parsed === "object" && parsed.__enc === "aes-256-gcm-v1") {
+    const key = getOpsVaultEncryptionKey()
+    if (!key) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY for Ops Vault decryption")
+    const decipher = crypto.createDecipheriv("aes-256-gcm", key, Buffer.from(String(parsed.iv || ""), "base64"))
+    decipher.setAuthTag(Buffer.from(String(parsed.tag || ""), "base64"))
+    const decrypted = Buffer.concat([
+      decipher.update(Buffer.from(String(parsed.ciphertext || ""), "base64")),
+      decipher.final(),
+    ]).toString("utf-8")
+    return JSON.parse(decrypted)
+  }
+  return parsed
+}
+
+function serializeOpsVaultBuffer(vault: unknown): Buffer {
+  const plaintext = JSON.stringify(vault, null, 2)
+  const key = getOpsVaultEncryptionKey()
+  if (!key) return Buffer.from(plaintext, "utf-8")
+  const iv = crypto.randomBytes(12)
+  const cipher = crypto.createCipheriv("aes-256-gcm", key, iv)
+  const ciphertext = Buffer.concat([cipher.update(plaintext, "utf-8"), cipher.final()])
+  const tag = cipher.getAuthTag()
+  return Buffer.from(
+    JSON.stringify({
+      __enc: "aes-256-gcm-v1",
+      iv: iv.toString("base64"),
+      tag: tag.toString("base64"),
+      ciphertext: ciphertext.toString("base64"),
+    }),
+    "utf-8"
+  )
 }
 
 export function getOpsServiceClient() {
@@ -102,7 +144,7 @@ export async function loadMergedOpsVault(
     for (const res of downloadResults) {
       if (res?.data && !res.error) {
         try {
-          const parsed = JSON.parse(await res.data.text())
+          const parsed = parseOpsVaultJson(await res.data.text())
           parsedPayloads.push(parsed)
           if (parsed?.monitor_meta && typeof parsed.monitor_meta === "object") {
             const epoch = Number(parsed.monitor_meta.vault_reset_epoch || 0)
@@ -188,7 +230,7 @@ export async function saveMergedOpsVault(
   try {
     const { data: currentData } = await client.storage.from(OPS_BUCKET).download(OPS_VAULT_PATH)
     if (currentData) {
-      const currentParsed = JSON.parse(await currentData.text())
+      const currentParsed = parseOpsVaultJson(await currentData.text())
       if (Array.isArray(currentParsed?.work_items) && currentParsed.work_items.length > 0) {
         const mergedMap = new Map<string, any>()
         for (const item of currentParsed.work_items) {
@@ -227,7 +269,7 @@ export async function saveMergedOpsVault(
   bannerVaultInFlight = null
   const nowTs = Date.now()
   const newVersionPath = `${OPS_VAULT_DIR}/${OPS_VAULT_PREFIX}${nowTs}.json`
-  const payloadBuffer = Buffer.from(JSON.stringify(vault, null, 2), "utf-8")
+  const payloadBuffer = serializeOpsVaultBuffer(vault)
 
   await Promise.all([
     client.storage.from(OPS_BUCKET).upload(newVersionPath, payloadBuffer, {

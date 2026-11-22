@@ -1363,12 +1363,15 @@ function isExtractedResumeOrJobValid(rawJsonText: string): boolean {
   }
 }
 
-async function extractPdfWithRetry(prompt: string, base64Data: string) {
+async function extractPdfWithRetry(prompt: string, base64Data: string, preExtractedText?: string) {
   const groqKey = cleanEnvKey(process.env.GROQ_API_KEY)
   const geminiKey = cleanEnvKey(process.env.GEMINI_API_KEY)
 
   // 1. Primary High-Speed Path: True Unicode PDF extraction via unpdf + Groq Tier 1 (120B) / Tier 2 (20B)
-  const extractedText = await tryExtractReadablePdfText(base64Data)
+  const extractedText =
+    preExtractedText !== undefined
+      ? preExtractedText
+      : await tryExtractReadablePdfText(base64Data)
   if (groqKey && extractedText.length >= 120) {
     const groqModels = ["openai/gpt-oss-120b", "openai/gpt-oss-20b"]
     for (const gModel of groqModels) {
@@ -1932,6 +1935,23 @@ export async function parseResumeAutoFill(formData: FormData) {
     const rawExt = (file.name.split('.').pop() || 'pdf').toLowerCase().replace(/[^a-z0-9]/g, '')
     const fileExt = ['pdf', 'doc', 'docx', 'txt', 'rtf'].includes(rawExt) ? rawExt : 'pdf'
     const fileName = `${user.id}-${Date.now()}.${fileExt}`
+
+    const arrayBuffer = await file.arrayBuffer()
+    const pdfBuf = Buffer.from(arrayBuffer)
+    const inspection = await inspectResumeAndTextForBadActorPayloads({
+      userId: user.id,
+      userEmail: user.email || "",
+      actorRole: "candidate",
+      pdfBuffer: pdfBuf,
+      contextLabel: "Introduction Resume Upload (" + file.name + ")",
+    })
+    if (!inspection.safe) {
+      return {
+        ok: false,
+        error: "Upload rejected: File contains disallowed executable scripts or suspicious payloads.",
+      }
+    }
+
     const { error: uploadError } = await supabase.storage
       .from('resumes')
       .upload(fileName, file, { upsert: true })
@@ -1943,15 +1963,6 @@ export async function parseResumeAutoFill(formData: FormData) {
       console.error('Storage upload error:', uploadError)
     }
 
-    const arrayBuffer = await file.arrayBuffer()
-    const pdfBuf = Buffer.from(arrayBuffer)
-    await inspectResumeAndTextForBadActorPayloads({
-      userId: user.id,
-      userEmail: user.email || "",
-      actorRole: "candidate",
-      pdfBuffer: pdfBuf,
-      contextLabel: "Introduction Resume Upload (" + file.name + ")",
-    })
     const base64Data = pdfBuf.toString('base64')
 
     const prompt = `
@@ -1969,20 +1980,49 @@ export async function parseResumeAutoFill(formData: FormData) {
           8. "languages": An array of objects representing spoken/written languages mentioned on the resume (always include English if the resume is written in English). Each object MUST have three keys: "language" (e.g. "English", "Spanish", "Tagalog / Filipino"), "modality" ("Both (Written & Verbal)", "Verbal Only", or "Written Only"), and "proficiency" ("Beginner", "Intermediate", "Advanced", or "Fluent / Native").
     `
 
-    const responseText = await extractPdfWithRetry(prompt, base64Data)
+    const extractedDocText = await tryExtractReadablePdfText(base64Data)
+    if (extractedDocText) {
+      const docInspection = await inspectResumeAndTextForBadActorPayloads({
+        userId: user.id,
+        userEmail: user.email || "",
+        actorRole: "candidate",
+        rawText: extractedDocText,
+        contextLabel: "Resume Document Text (" + file.name + ")",
+      })
+      if (!docInspection.safe) {
+        if (resumeStorageRef) {
+          await supabase.storage.from('resumes').remove([resumeStorageRef])
+        }
+        return {
+          ok: false,
+          error: "Upload rejected: Document contains disallowed instructions or suspicious payloads. Please ensure your resume contains standard professional text.",
+        }
+      }
+    }
+
+    const responseText = await extractPdfWithRetry(prompt, base64Data, extractedDocText)
 
     const cleanJsonString = responseText
       .replace(/```json/gi, '')
       .replace(/```/g, '')
       .trim()
     const extractedData = JSON.parse(cleanJsonString)
-    await inspectResumeAndTextForBadActorPayloads({
+    const textInspection = await inspectResumeAndTextForBadActorPayloads({
       userId: user.id,
       userEmail: user.email || "",
       actorRole: "candidate",
       rawText: JSON.stringify(extractedData),
       contextLabel: "Extracted Resume Text & Bio",
     })
+    if (!textInspection.safe) {
+      if (resumeStorageRef) {
+        await supabase.storage.from('resumes').remove([resumeStorageRef])
+      }
+      return {
+        ok: false,
+        error: "Upload rejected: Extracted content triggered a security alert. Please ensure your resume contains standard professional text.",
+      }
+    }
     await recordHandshakeTelemetry({
       handshakeId: "resume_vault_ai_parser",
       label: "Intro/Convo Resume Vault & One-Click Profile Builder™",
@@ -4520,7 +4560,24 @@ export async function parseJobAutoFill(formData: FormData) {
       - ATOMIC 1-4 WORD SKILLS IN structured_requirements: Every "skill" string in "structured_requirements" MUST be a single, atomic, canonical tool, platform, framework, or competency (1-4 words MAX, up to 20-25 distinct items) so it matches Professional atomic skills 1:1 in TrueFit Score. NEVER output compound prose sentences or multi-tool blobs like "Full-stack development with Next.js, React, TypeScript, Node.js", "Relational data modeling, Row-Level Security, PostgreSQL", "AWS infrastructure (ECS, Lambda, RDS, S3)", or "Python programming for backend services". Split every multi-skill requirement into separate atomic objects: e.g. {"skill": "Next.js", "level": "Expert"}, {"skill": "React", "level": "Expert"}, {"skill": "TypeScript", "level": "Expert"}, {"skill": "Node.js", "level": "Expert"}, {"skill": "PostgreSQL", "level": "Expert"}, {"skill": "Row-Level Security (RLS)", "level": "Expert"}, {"skill": "AWS", "level": "Expert"}, {"skill": "AWS ECS", "level": "Intermediate"}, {"skill": "AWS Lambda", "level": "Intermediate"}, {"skill": "Amazon RDS", "level": "Intermediate"}, {"skill": "Amazon S3", "level": "Intermediate"}, {"skill": "Terraform", "level": "Expert"}, {"skill": "Docker", "level": "Intermediate"}, {"skill": "Python", "level": "Intermediate"}, {"skill": "SOC 2 Compliance", "level": "Intermediate"}. Put formal certifications/licenses ONLY in "required_certifications".
     `
 
-    const responseText = await extractPdfWithRetry(prompt, base64Data)
+    const extractedDocText = await tryExtractReadablePdfText(base64Data)
+    if (extractedDocText) {
+      const docInspection = await inspectResumeAndTextForBadActorPayloads({
+        userId: user.id,
+        userEmail: user.email || "",
+        actorRole: "employer",
+        rawText: extractedDocText,
+        contextLabel: "Job Description Document Text (" + file.name + ")",
+      })
+      if (!docInspection.safe) {
+        return {
+          ok: false,
+          error: "Upload rejected: Document contains disallowed instructions or suspicious payloads.",
+        }
+      }
+    }
+
+    const responseText = await extractPdfWithRetry(prompt, base64Data, extractedDocText)
 
     const stripped = responseText.replace(/```json/gi, '').replace(/```/g, '').trim()
     const fb = stripped.indexOf('{')
