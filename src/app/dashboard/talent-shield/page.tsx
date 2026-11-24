@@ -4,9 +4,9 @@ import { createClient } from "@/utils/supabase/server"
 import TalentShieldGuideView from "@/components/TalentShieldGuideView"
 
 export const metadata = {
-  title: "Employer Talent Shield Guide | Special Sauce",
+  title: "Verified Hiring Bridge Guide | Special Sauce",
   description:
-    "How to vet external talent leads and inbound cold messages using single-use Employer Talent Shield verification links.",
+    "How to vet external talent leads and inbound messages using single-use Verified Hiring Bridge links.",
 }
 
 export default async function DashboardTalentShieldGuidePage() {
@@ -34,7 +34,7 @@ export default async function DashboardTalentShieldGuidePage() {
             href="/dashboard/employer/shield"
             className="text-emerald-600 dark:text-emerald-400 font-bold text-sm inline-flex items-center gap-1 hover:text-emerald-700 dark:hover:text-emerald-300"
           >
-            Open Employer Talent Shield →
+            Open Verified Hiring Bridge →
           </Link>
         </div>
         <TalentShieldGuideView isDashboard={true} />

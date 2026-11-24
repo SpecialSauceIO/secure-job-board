@@ -197,7 +197,7 @@ export default function DashboardNav({
     { href: '/dashboard/employer/jobs', label: 'Manage Roles' },
     { href: '/dashboard/employer/applications', label: 'Inbound Applications' },
     { href: '/dashboard/employer/pitches', label: 'Sent Invitations' },
-    { href: '/dashboard/employer/shield', label: 'Talent Shield' },
+    { href: '/dashboard/employer/shield', label: 'Hiring Bridge' },
     { href: '/dashboard/employer/organization', label: 'Manage Company' },
     { href: '/dashboard/support', label: 'Support' },
   ]

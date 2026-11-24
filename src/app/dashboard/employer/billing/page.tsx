@@ -477,7 +477,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Up to 5 Active Protected Roles</strong>
               </li>
               <li>
-                ✓ <strong>Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/dashboard/talent-shield" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
+                ✓ <strong>Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/dashboard/talent-shield" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
               </li>
               <li>
                 ✓ <strong>Built-In W-2 Employer of Record (EOR)</strong> • Direct Hire, Contract-to-Hire ($0 conversion), Limited &amp; Indefinite W-2 • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">4 Hiring Paths →</Link>
@@ -558,7 +558,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Up to 15 Active Protected Roles</strong>
               </li>
               <li>
-                ✓ <strong>Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/dashboard/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link>
+                ✓ <strong>Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/dashboard/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link>
               </li>
               <li>
                 ✓ <strong>Built-In W-2 Employer of Record (-1% W-2 Markup)</strong> • $0 conversion &amp; Net-30 billing • <Link href="/dashboard/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link>
@@ -641,7 +641,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Unlimited Active Protected Roles</strong>
               </li>
               <li>
-                ✓ <strong>Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/dashboard/talent-shield" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
+                ✓ <strong>Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/dashboard/talent-shield" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
               </li>
               <li>
                 ✓ <strong>Built-In W-2 Employer of Record (-2% W-2 Markup)</strong> • Lowest volume W-2 rate &amp; $0 conversion • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">4 Hiring Paths →</Link>

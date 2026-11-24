@@ -405,7 +405,7 @@ export default function WorkflowsPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Share one-time <strong>Talent Shield</strong> links on LinkedIn, GitHub, or email to screen external leads with ID verification and 40%+ TrueFit™ checks.</span>
+                        <span>Share one-time <strong>Verified Hiring Bridge</strong> links on LinkedIn, GitHub, or email to screen external leads with ID verification and 40%+ TrueFit™ checks.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
@@ -414,7 +414,7 @@ export default function WorkflowsPage() {
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Live Roles, Talent Shield &amp; Refund-Protected Invitations
+                    Unlocks: ✓ Live Roles, Verified Hiring Bridge &amp; Refund-Protected Invitations
                   </div>
                 </div>
 

@@ -416,7 +416,7 @@ export function ApplicationRevealCard({
           <div className="flex flex-wrap items-center gap-2">
             {Boolean(app?.via_talent_shield || app?.match_data?.via_talent_shield) && (
               <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 font-bold border border-emerald-300">
-                🛡️ Talent Shield
+                🛡️ Verified Hiring Bridge
               </span>
             )}
             {matchScore !== null && (

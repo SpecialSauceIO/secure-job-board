@@ -385,7 +385,7 @@ export default function EmployerSentPitchesPage() {
                     <div className="flex flex-wrap items-center gap-2.5">
                       {Boolean(pitch?.via_talent_shield || pitch?.match_data?.via_talent_shield) && (
                         <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 font-bold border border-emerald-300">
-                          🛡️ Talent Shield
+                          🛡️ Verified Hiring Bridge
                         </span>
                       )}
                       {matchScore !== null && (

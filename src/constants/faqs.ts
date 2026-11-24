@@ -182,9 +182,9 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
       },
       {
         step: 'Step 4',
-        title: 'Free Inbound Unlocks, Talent Shield & Refund-Protected Invites',
+        title: 'Free Inbound Unlocks, Verified Hiring Bridge & Refund-Protected Invites',
         description:
-          'Unlocking inbound applicants is 100% free, one-time Talent Shield links screen external leads on LinkedIn or email with ID and 40%+ TrueFit™ checks, and declined outbound invitations auto-refund.',
+          'Unlocking inbound applicants is 100% free, one-time Verified Hiring Bridge links screen external leads on LinkedIn or email with ID and 40%+ TrueFit™ checks, and declined outbound invitations auto-refund.',
       },
       {
         step: 'Step 5',
@@ -478,9 +478,9 @@ export const SUPPORT_FAQS: FAQ[] = [
     target: 'employer',
     category: 'Connecting with Professionals',
     question:
-      'How does Employer Talent Shield work for external sourcing and inbound leads?',
+      'How does Verified Hiring Bridge work for external sourcing and inbound leads?',
     answer:
-      'Talent Shield lets active Employer subscribers generate single-use Protected Role links to share on LinkedIn, GitHub, or email—or to gate cold inbound DMs sent to your team. Unverified visitors and scrapers never see your company name, pay band, or role details. Every redeemed link enforces Stripe Real-Person ID verification and a 40%+ TrueFit Score™ check before burning automatically.',
+      'Verified Hiring Bridge lets active Employer subscribers generate single-use Protected Role links to share on LinkedIn, GitHub, careers pages, or email—or to gate cold inbound messages sent to your team. Unverified visitors and scrapers never see your company name, pay band, or role details. Every redeemed link enforces Stripe Real-Person ID verification and a 40%+ TrueFit Score™ check before burning automatically.',
   },
   {
     id: 'e10',
@@ -638,9 +638,9 @@ export const SUPPORT_FAQS: FAQ[] = [
     target: 'employer',
     category: 'Connecting with Professionals',
     question:
-      'Do Employer Talent Shield links cost Invitation Credits upfront, and what happens if someone scores below 40% TrueFit™?',
+      'Do Verified Hiring Bridge links cost Invitation Credits upfront, and what happens if someone scores below 40% TrueFit™?',
     answer:
-      'Generating and sharing single-use Talent Shield links for external sourcing or inbound DM gating uses zero Invitation Credits upfront. Unverified visitors and scrapers never see your company name or pay band. If a verified Professional checks the link and scores below 40% TrueFit™, alignment protection blocks submission anonymously without burning your link, and you can retire unused links anytime.',
+      'Generating and sharing single-use Verified Hiring Bridge links for external sourcing or inbound message gating uses zero Invitation Credits upfront. Unverified visitors and scrapers never see your company name or pay band. If a verified Professional checks the link and scores below 40% TrueFit™, alignment protection blocks submission anonymously without burning your link, and you can retire unused links anytime.',
   },
   {
     id: 'e16',
@@ -649,6 +649,6 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'When can we permanently delete a role listing, and why are some roles locked from deletion?',
     answer:
-      'From "Manage Roles," you can permanently delete draft or closed listings via the checkbox-gated "Delete Role" modal, which automatically retires any open Employer Talent Shield links tied to that role. To protect compliance and active Professionals, deletion is automatically locked whenever a role has an active W-2 engagement, unreturned company hardware, or inbound applicants still waiting for a response.',
+      'From "Manage Roles," you can permanently delete draft or closed listings via the checkbox-gated "Delete Role" modal, which automatically retires any open Verified Hiring Bridge links tied to that role. To protect compliance and active Professionals, deletion is automatically locked whenever a role has an active W-2 engagement, unreturned company hardware, or inbound applicants still waiting for a response.',
   },
 ]

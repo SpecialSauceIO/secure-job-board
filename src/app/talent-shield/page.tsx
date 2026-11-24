@@ -4,9 +4,9 @@ import TalentShieldGuideView from "@/components/TalentShieldGuideView"
 
 export const metadata = {
   alternates: { canonical: "/talent-shield" },
-  title: "Employer Talent Shield | Special Sauce",
+  title: "Verified Hiring Bridge | Special Sauce",
   description:
-    "How verified Employers use single-use Talent Shield verification links to vet external LinkedIn, GitHub, and cold DM leads with Stripe ID and 40%+ TrueFit checks.",
+    "How verified Employers use single-use Verified Hiring Bridge links to vet external LinkedIn, GitHub, careers page, and inbound leads with Stripe ID and 40%+ TrueFit checks.",
 }
 
 export default function TalentShieldPublicPage() {

@@ -234,7 +234,7 @@ export default function LandingPage() {
                   <span>
                     Funnel applicants from LinkedIn or your careers page through{' '}
                     <Link href="/talent-shield" className="text-sky-300 underline decoration-sky-400/60 underline-offset-4 hover:text-white font-semibold transition-colors">
-                      Employer Talent Shield
+                      Verified Hiring Bridge
                     </Link>{' '}
                     links—only ID-verified humans reach your inbox.
                   </span>
@@ -948,7 +948,7 @@ export default function LandingPage() {
                   2. Match by Skill &amp; Invite Directly
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Invite matched professionals from Talent Search with automatic credit refunds if declined—or share one-time <Link href="/talent-shield" className="text-indigo-600 underline hover:text-indigo-800 font-bold">Employer Talent Shield</Link> links on LinkedIn, GitHub, and email to screen external leads without exposing your role to scrapers.
+                  Invite matched professionals from Talent Search with automatic credit refunds if declined—or share one-time <Link href="/talent-shield" className="text-indigo-600 underline hover:text-indigo-800 font-bold">Verified Hiring Bridge</Link> links on LinkedIn, GitHub, and email to screen external leads without exposing your role to scrapers.
                 </p>
               </div>
 

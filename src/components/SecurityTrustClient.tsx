@@ -17,7 +17,7 @@ const STANDARD_PILLARS = [
     bullets: [
       "The Introduction (Private Chat): Reveals the verified company name and opens direct chat showing only your First Name + Last Initial.",
       "The Conversation (One-Click Release): Shares your full PDF resume and contact info only when you click Release Resume & Contact Vault.",
-      "Single-Use Verification Links: Personal Inbound Shield and Employer Talent Shield put a private verification gate on external DMs and sourcing—deactivating automatically after one verified Protected Role connection.",
+      "Single-Use Verification Links: Personal Inbound Shield and Verified Hiring Bridge put a private verification gate on external messages and sourcing—deactivating automatically after one verified Protected Role connection.",
     ],
   },
   {

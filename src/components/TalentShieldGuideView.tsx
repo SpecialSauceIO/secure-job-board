@@ -9,17 +9,17 @@ export default function TalentShieldGuideView({
     <div className="space-y-10">
       <section className="bg-slate-900 text-white rounded-2xl border border-slate-800 p-6 sm:p-10 space-y-5 shadow-lg">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-xs font-extrabold uppercase tracking-wider w-fit">
-          Employer Talent Shield • Included on Starter, Growth &amp; Enterprise
+          Verified Hiring Bridge • Included on Starter, Growth &amp; Enterprise
         </div>
         <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight text-white">
           Vet External Leads and Cold DMs Before Revealing Your Company or Pay Band.
         </h1>
         <p className="text-sm sm:text-lg text-slate-300 max-w-3xl leading-relaxed">
-          Hiring teams routinely discover promising talent on LinkedIn or GitHub—and executives get flooded with unsolicited DMs asking for interviews. Employer Talent Shield lets you generate single-use Protected Role verification links that enforce Stripe real-person ID verification and a 40%+ TrueFit Score™ qualification check before opening a conversation.
+          Hiring teams routinely discover promising talent on LinkedIn or GitHub—and executives get flooded with unsolicited DMs asking for interviews. Verified Hiring Bridge lets you generate single-use Protected Role verification links that enforce Stripe real-person ID verification and a 40%+ TrueFit Score™ qualification check before opening a conversation.
         </p>
         <div className="flex flex-wrap gap-3 pt-2">
           <Link href={isDashboard ? "/dashboard/employer/shield" : "/signup/employer"} className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm transition-colors">
-            {isDashboard ? "Open Talent Shield Workspace →" : "Verify Organization ($25 Credited Toward Month 1) →"}
+            {isDashboard ? "Open Verified Hiring Bridge →" : "Verify Organization ($25 Credited Toward Month 1) →"}
           </Link>
           <Link href={isDashboard ? "/dashboard/employer/billing" : "/pricing"} className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-sm transition-colors">
             {isDashboard ? "Back to Membership & Plan Settings" : "Compare Employer Memberships"}

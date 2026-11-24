@@ -399,7 +399,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
+                      <span><strong className="text-white">Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -467,7 +467,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
+                      <span><strong className="text-white">Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -535,7 +535,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Talent Shield Links</strong> for external sourcing &amp; cold DMs • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
+                      <span><strong className="text-white">Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>

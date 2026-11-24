@@ -39,7 +39,7 @@ function ShieldWorkspaceHeader({ viewerRole }: { viewerRole?: string | null }) {
   const isEmployer = viewerRole === 'employer'
   const dashboardHref = isEmployer ? '/dashboard/employer' : '/dashboard'
   const secondaryHref = isEmployer ? '/dashboard/employer/shield' : '/dashboard/profile'
-  const secondaryLabel = isEmployer ? 'Talent Shield' : 'My Profile'
+  const secondaryLabel = isEmployer ? 'Hiring Bridge' : 'My Profile'
   const primaryLabel = isEmployer ? 'Employer Workspace →' : 'Professional Dashboard →'
 
   return (
@@ -261,7 +261,7 @@ export default function PublicInboundShieldAirlockPage() {
           {loading ? (
             <div className="rounded-2xl border border-slate-200 bg-white p-8 sm:p-10 shadow-sm text-center space-y-3">
               <p className="text-sm font-semibold text-slate-600">
-                Checking one-time Talent Shield Protected Role link...
+                Checking one-time Verified Hiring Bridge link...
               </p>
             </div>
           ) : profRedeemSuccess ? (
@@ -305,7 +305,7 @@ export default function PublicInboundShieldAirlockPage() {
                 This one-time Protected Role link is no longer active.
               </h1>
               <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                SpecialSauce.io Talent Shield links are single-use and time-limited. Once redeemed, expired, or retired by the verified Employer, the link closes permanently and exposes zero company or role details.
+                SpecialSauce.io Verified Hiring Bridge links are single-use and time-limited. Once redeemed, expired, or retired by the verified Employer, the link closes permanently and exposes zero company or role details.
               </p>
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <Link
@@ -326,7 +326,7 @@ export default function PublicInboundShieldAirlockPage() {
             <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-10 shadow-sm space-y-6">
               <div className="space-y-3">
                 <span className="inline-flex items-center gap-2 rounded-full bg-indigo-50 border border-indigo-200 px-3 py-1 text-xs font-semibold text-indigo-800">
-                  🛡️ SpecialSauce.io Talent Shield •{' '}
+                  🛡️ SpecialSauce.io Verified Hiring Bridge •{' '}
                   {isDmGate ? 'Verified Hiring-Manager Gate' : 'Verified Protected Role Invitation'}
                 </span>
                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
@@ -411,7 +411,7 @@ export default function PublicInboundShieldAirlockPage() {
                     href="/dashboard/employer/shield"
                     className="inline-flex items-center text-xs sm:text-sm font-semibold text-indigo-700 hover:underline"
                   >
-                    ← Back to Employer Talent Shield
+                    ← Back to Verified Hiring Bridge
                   </Link>
                 </div>
               ) : !profCtx.isIdVerified ? (

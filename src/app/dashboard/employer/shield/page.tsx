@@ -95,7 +95,7 @@ export default function EmployerTalentShieldPage() {
     setMinting(false)
 
     if (res.error || !res.token || !res.record) {
-      setErrorMsg(res.error || 'Could not create Talent Shield link.')
+      setErrorMsg(res.error || 'Could not create Verified Hiring Bridge link.')
       return
     }
 
@@ -180,7 +180,7 @@ export default function EmployerTalentShieldPage() {
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
           <span className="inline-flex items-center gap-2 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 px-3 py-1 text-xs font-semibold text-indigo-800 dark:text-indigo-300">
-            🛡️ Employer Talent Shield • One-Time Protected Role Links
+            🛡️ Verified Hiring Bridge • One-Time Protected Role Links
           </span>
           <Link
             href="/dashboard/support?tab=security"
@@ -191,7 +191,7 @@ export default function EmployerTalentShieldPage() {
         </div>
 
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-          Employer Talent Shield
+          Verified Hiring Bridge
         </h1>
         <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
           Issue zero-correlation, single-use Protected Role links for external sourcing on LinkedIn, GitHub, or email — or gate cold inbound DMs sent to your hiring managers. Neither your company name nor role details are exposed publicly before a Real-Person ID-verified Professional signs in.
@@ -240,7 +240,7 @@ export default function EmployerTalentShieldPage() {
               Complete 3/3 Organization & Admin ID Verification First
             </p>
             <p className="mt-1 text-xs sm:text-sm text-amber-800 dark:text-amber-300">
-              Verify your corporate domain, Federal EIN / State of Incorporation, and Admin Real-Person ID on Company Profile before issuing Talent Shield Protected Role links.
+              Verify your corporate domain, Federal EIN / State of Incorporation, and Admin Real-Person ID on Company Profile before issuing Verified Hiring Bridge links.
             </p>
           </div>
           <Link
@@ -278,7 +278,7 @@ export default function EmployerTalentShieldPage() {
               Publish an Active Protected Role First
             </p>
             <p className="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
-              Talent Shield links attach to a live published Protected Role so Special Sauce can run verified 40%+ TrueFit™ scoring.
+              Verified Hiring Bridge links attach to a live published Protected Role so Special Sauce can run verified 40%+ TrueFit™ scoring.
             </p>
           </div>
           <Link
