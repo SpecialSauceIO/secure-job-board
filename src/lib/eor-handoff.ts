@@ -1,3 +1,5 @@
+import { getAscenServiceClient } from '@/lib/ascen-eor'
+
 export interface EorPostalAddress {
   street1: string
   street2?: string | null
@@ -105,6 +107,43 @@ export function buildMinimalPlacementOrderPdfBase64(lines: string[]): string {
 export async function submitW2PlacementHandoff(
   input: EorPlacementHandoffInput
 ): Promise<EorPlacementHandoffResult> {
+  try {
+    const supabase = getAscenServiceClient()
+    if (supabase) {
+      const nowIso = new Date().toISOString()
+      await supabase.from('eor_placements').upsert(
+        {
+          packet_id: input.packetId,
+          reference_id: input.referenceId,
+          organization_id: input.employer.orgId || null,
+          provider: 'ascen',
+          ascen_company_id: input.employer.cachedPartnerClientId
+            ? String(input.employer.cachedPartnerClientId)
+            : null,
+          ascen_worker_id: input.professional.cachedPartnerAssociateId
+            ? String(input.professional.cachedPartnerAssociateId)
+            : null,
+          contract_track: input.contractTrack,
+          eor_status: 'pending_sync',
+          hourly_pay_rate: input.hourlyPayRate,
+          employer_bill_rate: input.employerBillRate,
+          weekly_hours: input.weeklyHours,
+          target_start_date: input.targetStartDate || null,
+          metadata: {
+            roleTitle: input.roleTitle,
+            employerName: input.employer.legalEntityName || input.employer.name,
+            professionalEmail: input.professional.email,
+            workState: input.professional.workState,
+          },
+          updated_at: nowIso,
+        },
+        { onConflict: 'packet_id' }
+      )
+    }
+  } catch (err) {
+    console.warn('eor_placements upsert skipped:', err)
+  }
+
   return {
     syncStatus: 'manual_fallback',
     clientId: input.employer.cachedPartnerClientId ?? null,
