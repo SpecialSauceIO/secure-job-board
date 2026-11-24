@@ -5,6 +5,8 @@
 - One Page / One Feature per chat (retire chat after `ss prod` or ~15 turns).
 - Plain English across customer-facing UI; zero 'Candidate', 'job marketplace', 'sandbox', 'double-blind', or 'cohort'; official positioning: "The World's First Secured Workforce Ecosystem".
 - TrueFit v2.2 deterministic cache (`tf_v2_2_`, `cand_v5_`, `emp_v5_`) & whole-word search (`it`, `aws`, `okr`).
+- Employer-First Flywheel & Verified Hiring Bridge (renaming Employer Talent Shield): Position SpecialSauce.io as the Employer's complete hiring home (replacing bot-filled job boards, broken ATS filters, and recruiting firm markups) with Verified Hiring Bridge links (`ss_inv_`) as the bridge into Protected Roles. 100% of external marketing targets Employers; Employers hydrate the ecosystem organically.
+- Employer-Sponsored Verification (Zero Pay-to-Play Risk): Applicants entering via a Verified Hiring Bridge link verify for $0 (Employer-sponsored) to eliminate state job-application-fee legal risk; direct public Professional sign-ups retain the $5 One-Time Verification Fee as an anti-abuse firewall. Hard-capped monthly Sponsored Verification allowances by plan (Starter: 25/mo, Growth: 75/mo, Enterprise: 200/mo; already-verified Professionals always unlimited & $0) with optional one-time rollover Bridge Packs (Bridge Pack 25 / $50, Bridge Pack 50 / $95, Bridge Pack 150 / $270) and zero surprise metered overages.
 
 ## Completed & Live on Production (`origin/main`)
 - [x] Resume Auto-Fill & Profile Editor (skill years, <=4y GenAI cap, cert cross-filter, 16-pill preview)
