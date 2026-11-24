@@ -160,10 +160,10 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            {/* SLIDE 1: Privacy Handshake (Best Professional Slide) */}
+            {/* SLIDE 2: Privacy Handshake (Best Professional Slide) */}
             <div
               className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
-                currentSlide === 1
+                currentSlide === 2
                   ? 'opacity-100 translate-y-0 z-10'
                   : 'opacity-0 pointer-events-none z-0'
               }`}
@@ -205,10 +205,10 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            {/* SLIDE 2: Employers */}
+            {/* SLIDE 1: Employers */}
             <div
               className={`[grid-area:stack] bg-transparent flex flex-col items-center transition-all duration-700 ${
-                currentSlide === 2
+                currentSlide === 1
                   ? 'opacity-100 translate-y-0 z-10'
                   : 'opacity-0 pointer-events-none z-0'
               }`}
@@ -438,7 +438,7 @@ export default function LandingPage() {
                   ? 'bg-[#38BDF8] w-6'
                   : 'bg-slate-700 hover:bg-slate-500'
               }`}
-              aria-label="View Privacy Handshake slide"
+              aria-label="View Employer True Fit slide"
             />
             <button
               onClick={() => setCurrentSlide(2)}
@@ -447,7 +447,7 @@ export default function LandingPage() {
                   ? 'bg-[#38BDF8] w-6'
                   : 'bg-slate-700 hover:bg-slate-500'
               }`}
-              aria-label="View Employer True Fit slide"
+              aria-label="View Privacy Handshake slide"
             />
             <button
               onClick={() => setCurrentSlide(3)}
