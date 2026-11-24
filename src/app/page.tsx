@@ -221,36 +221,36 @@ export default function LandingPage() {
                 For Hiring Managers &amp; Recruiting Teams
               </div>
               <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.1] max-w-4xl mb-4 drop-shadow-xs">
+                Stop Applicant Spam.
+                <br />
                 Hire for{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#38BDF8] to-[#0077D4]">
                   True Fit.
                 </span>
-                <br />
-                Skip the resume pile.
               </h2>
               <ul className="inline-flex flex-col items-start text-left space-y-2 text-sm sm:text-base md:text-lg text-slate-200 max-w-2xl">
                 <li className="flex items-start gap-2.5">
                   <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
-                  <span>Every match is ID-verified and aligned to your skills, pay, and work model.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
                   <span>
-                    Hire via{' '}
-                    <Link href="/w2-hiring" className="text-sky-300 underline decoration-sky-400/60 underline-offset-4 hover:text-white font-semibold transition-colors">
-                      Built-In W-2 Hiring ($0-fee Contract-to-Hire)
-                    </Link>
-                    .
+                    Funnel applicants from LinkedIn or your careers page through{' '}
+                    <Link href="/talent-shield" className="text-sky-300 underline decoration-sky-400/60 underline-offset-4 hover:text-white font-semibold transition-colors">
+                      Employer Talent Shield
+                    </Link>{' '}
+                    links—only ID-verified humans reach your inbox.
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
+                  <span>Replace broken ATS keyword filters with real skill, pay, and work-model matching so great talent never gets thrown away.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
                   <span>
-                    Gate outside leads and messages with{' '}
-                    <Link href="/talent-shield" className="text-sky-300 underline decoration-sky-400/60 underline-offset-4 hover:text-white font-semibold transition-colors">
-                      Employer Talent Shield
-                    </Link>{' '}
-                    links.
+                    Unlimited inbound applicants included with every plan (zero per-applicant fees), plus direct hire or{' '}
+                    <Link href="/w2-hiring" className="text-sky-300 underline decoration-sky-400/60 underline-offset-4 hover:text-white font-semibold transition-colors">
+                      Built-In W-2 Hiring ($0-fee Contract-to-Hire)
+                    </Link>
+                    .
                   </span>
                 </li>
               </ul>
@@ -388,10 +388,10 @@ export default function LandingPage() {
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row gap-3.5 w-full sm:w-auto relative z-20">
             <Link
-              href="/signup/candidate"
+              href="/signup/employer"
               className="px-7 py-3.5 bg-[#0077D4] text-white text-sm sm:text-base font-bold rounded-xl hover:bg-[#1DA1F2] hover:-translate-y-0.5 transition-all shadow-lg shadow-sky-950/50 flex items-center justify-center gap-2"
             >
-              I&apos;m a Professional
+              I&apos;m an Employer
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -407,10 +407,10 @@ export default function LandingPage() {
               </svg>
             </Link>
             <Link
-              href="/signup/employer"
+              href="/signup/candidate"
               className="px-7 py-3.5 bg-slate-900/90 text-white text-sm sm:text-base font-bold rounded-xl border-2 border-slate-700 hover:border-slate-500 hover:bg-slate-800 hover:-translate-y-0.5 transition-all shadow-xs flex items-center justify-center gap-2 backdrop-blur-xs"
             >
-              I&apos;m an Employer
+              I&apos;m a Professional
             </Link>
             <Link
               href="/pricing"

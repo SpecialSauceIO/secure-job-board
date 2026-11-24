@@ -74,9 +74,9 @@ export default function EmployerSignupPage({ searchParams }: { searchParams: Pro
           </div>
           {step === 'credentials' && (
             <div className="mb-6 p-4 rounded-xl bg-slate-50 border-2 border-slate-300/80 space-y-2 text-xs text-slate-600">
-              <div className="flex items-start gap-2"><span className="text-emerald-600 font-black mt-0.5">✓</span><span><strong className="text-slate-900">Verified, Matched Talent:</strong> Every applicant is ID-verified and matched to your required skills.</span></div>
-              <div className="flex items-start gap-2"><span className="text-emerald-600 font-black mt-0.5">✓</span><span><strong className="text-slate-900">Free Inbound &amp; Protected Invites:</strong> Inbound applicants are 100% free. Declined invitations are automatically refunded.</span></div>
-              <div className="flex items-start gap-2"><span className="text-emerald-600 font-black mt-0.5">✓</span><span><strong className="text-slate-900">Team Collaboration:</strong> Invite hiring managers or recruiting partners to collaborate.</span></div>
+              <div className="flex items-start gap-2"><span className="text-emerald-600 font-black mt-0.5">✓</span><span><strong className="text-slate-900">Stop Bot Floods &amp; Spam:</strong> Drop your Employer Talent Shield link on LinkedIn or your careers page so only ID-verified humans can apply.</span></div>
+              <div className="flex items-start gap-2"><span className="text-emerald-600 font-black mt-0.5">✓</span><span><strong className="text-slate-900">No More Broken ATS Filters:</strong> Every applicant is matched on real skills, pay, and work model—no great people lost to bad keyword settings.</span></div>
+              <div className="flex items-start gap-2"><span className="text-emerald-600 font-black mt-0.5">✓</span><span><strong className="text-slate-900">Unlimited Inbound &amp; W-2 Hiring:</strong> Every monthly plan includes unlimited inbound applicants with zero per-applicant fees, plus direct hire or W-2 Contract-to-Hire ($0 Conversion).</span></div>
             </div>
           )}
           {errorMsg && <div className="mb-6 p-4 bg-rose-50 border border-rose-300 text-rose-600 text-sm font-bold rounded-lg text-center">{errorMsg}</div>}

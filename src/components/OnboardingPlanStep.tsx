@@ -62,7 +62,7 @@ export default function OnboardingPlanStep({
         </h2>
         <p className="mt-2 text-sm text-slate-300 max-w-2xl mx-auto">
           {role === 'employer'
-            ? 'Every employer completes a one-time corporate & Stripe identity verification before entering the workspace. Start with the $25 Verification Pass or activate a monthly hiring plan.'
+            ? 'Complete your one-time company & Stripe ID check to publish Protected Roles, share Employer Talent Shield links on LinkedIn or your careers page, and stop applicant spam immediately. Start with the $25 Verification Pass (100% credited toward Month 1) or activate a monthly plan.'
             : 'Every professional completes a one-time Stripe identity check to keep our talent pool 100% real people. Start in Explorer for a $5 one-time fee ($0/mo forever) or activate a monthly plan to apply outbound.'}
         </p>
         {userEmail && (
@@ -207,7 +207,7 @@ export default function OnboardingPlanStep({
               <ul className="mt-4 space-y-2 text-xs text-slate-300">
                 <li>✓ Up to 5 Active Protected Roles</li>
                 <li>✓ 10 Outbound Invitation Credits/mo</li>
-                <li>✓ Unlimited Free Inbound Applicants</li>
+                <li>✓ Employer Talent Shield Links &amp; Unlimited Inbound Applicants</li>
               </ul>
             </div>
             <button
