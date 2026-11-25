@@ -35,8 +35,7 @@ export default function EmployerTalentShieldPage() {
   const [links, setLinks] = useState<EnrichedEmployerShieldLink[]>([])
 
   const [selectedJobId, setSelectedJobId] = useState('')
-  const [mode, setMode] = useState<EmployerTalentShieldMode>('outbound_sourcing')
-  const [employerPitch, setEmployerPitch] = useState('')
+  const mode: EmployerTalentShieldMode = 'inbound_dm_gate'
   const [privateMemo, setPrivateMemo] = useState('')
   const [ttlDays, setTtlDays] = useState<number>(14)
 
@@ -45,7 +44,6 @@ export default function EmployerTalentShieldPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [freshLinkId, setFreshLinkId] = useState<string | null>(null)
   const [freshLinkUrl, setFreshLinkUrl] = useState<string | null>(null)
-  const [freshLinkMode, setFreshLinkMode] = useState<EmployerTalentShieldMode>('outbound_sourcing')
   const [freshLinkMemo, setFreshLinkMemo] = useState('')
   const [freshRoleTitle, setFreshRoleTitle] = useState('')
   const [copiedMode, setCopiedMode] = useState<'url' | 'dm' | null>(null)
@@ -88,7 +86,7 @@ export default function EmployerTalentShieldPage() {
     const res = await createEmployerTalentShieldLinkAction({
       jobId: selectedJobId,
       mode,
-      employerPitch: mode === 'outbound_sourcing' ? employerPitch : '',
+      employerPitch: '',
       privateMemo,
       ttlDays,
     })
@@ -103,11 +101,9 @@ export default function EmployerTalentShieldPage() {
       typeof window !== 'undefined' ? window.location.origin : 'https://www.specialsauce.io'
     setFreshLinkId(res.record.id)
     setFreshLinkUrl(`${origin}/shield/${res.token}`)
-    setFreshLinkMode(res.record.mode)
     setFreshLinkMemo(res.record.private_memo || '')
     setFreshRoleTitle(res.record.job_title || 'Protected Role')
     setPrivateMemo('')
-    setEmployerPitch('')
     setLinks((prev) => [res.record!, ...prev])
     await loadWorkspace()
   }
@@ -136,11 +132,8 @@ export default function EmployerTalentShieldPage() {
     await loadWorkspace()
   }
 
-  const buildReadyToSendDm = (url: string, linkMode: EmployerTalentShieldMode) => {
-    if (linkMode === 'inbound_dm_gate') {
-      return `Thanks for reaching out about our open team! To keep hiring fair, spam-free, and private on both sides, we review applicants through SpecialSauce.io (The World's First Secured Workforce Ecosystem). You can verify and check your TrueFit™ alignment through this one-time Protected Role link: ${url}`
-    }
-    return `Hi! Your background stood out to our hiring team, and we would love to share a Protected Role invitation with you through SpecialSauce.io (The World's First Secured Workforce Ecosystem). Your identity and contact info stay completely private until you review the role and choose to unlock Stage 2: ${url}`
+  const buildReadyToSendMessage = (url: string) => {
+    return `Apply directly through our Verified Hiring Bridge on SpecialSauce.io (The World's First Secured Workforce Ecosystem). Complete a quick Real-Person ID check ($0 cost to you) and check your TrueFit Score™ alignment here: ${url}`
   }
 
   const copyText = async (text: string, which: 'url' | 'dm') => {
@@ -172,21 +165,20 @@ export default function EmployerTalentShieldPage() {
   const canMint =
     isFullyVerified3of3 &&
     hasActivePaidPlan &&
-    activeJobs.length > 0 &&
-    (mode === 'inbound_dm_gate' || credits >= 1)
+    activeJobs.length > 0
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
           <span className="inline-flex items-center gap-2 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 px-3 py-1 text-xs font-semibold text-indigo-800 dark:text-indigo-300">
-            🛡️ Verified Hiring Bridge • One-Time Protected Role Links
+            🛡️ Verified Hiring Bridge • Included on Starter, Growth &amp; Enterprise
           </span>
           <Link
-            href="/dashboard/support?tab=security"
+            href="/dashboard/employer/talent-shield"
             className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
           >
-            How our 2-Stage Privacy Handshake works →
+            How Verified Hiring Bridge works →
           </Link>
         </div>
 
@@ -194,26 +186,26 @@ export default function EmployerTalentShieldPage() {
           Verified Hiring Bridge
         </h1>
         <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
-          Issue zero-correlation, single-use Protected Role links for external sourcing on LinkedIn, GitHub, or email — or gate cold inbound DMs sent to your hiring managers. Neither your company name nor role details are exposed publicly before a Real-Person ID-verified Professional signs in.
+          Drop a Verified Hiring Bridge link on your careers page, LinkedIn post, or external listing—or send it directly to a standout person. Every applicant completes a quick Real-Person ID check at $0 cost (covered by your plan) and clears your 40%+ TrueFit Score™ before reaching your Inbound Applications.
         </p>
 
         <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-3.5">
-            <p className="font-semibold text-slate-900 dark:text-white">1. Zero Public Role Leakage</p>
+            <p className="font-semibold text-slate-900 dark:text-white">1. Share One Link Anywhere</p>
             <p className="mt-1 text-slate-600 dark:text-slate-400">
-              Scrapers and unverified visitors never see your company name, compensation band, or Protected Role title.
+              Post on your careers page, LinkedIn, or any external job listing—or send directly to someone you want to invite.
             </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-3.5">
-            <p className="font-semibold text-slate-900 dark:text-white">2. 40%+ TrueFit™ Gate</p>
+            <p className="font-semibold text-slate-900 dark:text-white">2. Stop Bots ($0 to Applicants)</p>
             <p className="mt-1 text-slate-600 dark:text-slate-400">
-              Every redeemed link enforces Stripe Real-Person ID verification and a 40%+ TrueFit Score™ alignment check.
+              Applicants verify their real identity through Stripe at $0 cost to them, covered by your monthly sponsored allowance.
             </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-3.5">
-            <p className="font-semibold text-slate-900 dark:text-white">3. Encrypted Team Context</p>
+            <p className="font-semibold text-slate-900 dark:text-white">3. 40%+ TrueFit™ Gate</p>
             <p className="mt-1 text-slate-600 dark:text-slate-400">
-              Your private sourcing note stays AES-256 encrypted for your hiring team only and is never shown to Professionals.
+              Qualified, ID-verified applicants land directly in Inbound Applications with zero per-applicant fees and 0 outbound credits used.
             </p>
           </div>
         </div>
@@ -256,7 +248,7 @@ export default function EmployerTalentShieldPage() {
         <div className="rounded-2xl border border-indigo-300 dark:border-indigo-700 bg-indigo-50 dark:bg-indigo-950/40 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <p className="text-sm font-bold text-indigo-900 dark:text-indigo-200">
-              Activate an Employer Plan to Issue Live Talent Shield Links
+              Activate an Employer Plan to Issue Verified Hiring Bridge Links
             </p>
             <p className="mt-1 text-xs sm:text-sm text-indigo-800 dark:text-indigo-300">
               Activate Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) — your $25 verification fee is 100% credited toward Month 1.
@@ -302,57 +294,11 @@ export default function EmployerTalentShieldPage() {
       >
         <div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            Generate a One-Time Protected Role Link
+            Generate a Verified Hiring Bridge Link
           </h2>
           <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            Each link uses an unguessable ss_inv_ token and burns automatically once redeemed. Active limit: up to 50 unused links per organization.
+            Attach a shareable ss_inv_ link to any active Protected Role. Uses 0 Employer outbound credits—verified applicants land directly in Inbound Applications.
           </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => setMode('outbound_sourcing')}
-            className={`text-left rounded-xl border p-4 transition ${
-              mode === 'outbound_sourcing'
-                ? 'border-indigo-500 bg-indigo-50/70 dark:bg-indigo-950/40 ring-1 ring-indigo-500'
-                : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-            }`}
-          >
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-sm font-bold text-slate-900 dark:text-white">
-                Outbound Sourcing Invitation
-              </span>
-              <span className="rounded-full bg-indigo-100 dark:bg-indigo-900/60 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-800 dark:text-indigo-200">
-                1 Credit on 40%+ Delivery
-              </span>
-            </div>
-            <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Invite passive talent you found on LinkedIn, GitHub, or referrals. Any verified Explorer ($0/mo), Professional, or Prestige member can accept. Covered by your Accepted-Only Guarantee.
-            </p>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setMode('inbound_dm_gate')}
-            className={`text-left rounded-xl border p-4 transition ${
-              mode === 'inbound_dm_gate'
-                ? 'border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/40 ring-1 ring-emerald-500'
-                : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-            }`}
-          >
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-sm font-bold text-slate-900 dark:text-white">
-                Inbound Hiring-Manager DM Gate
-              </span>
-              <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/60 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800 dark:text-emerald-200">
-                0 Employer Credits
-              </span>
-            </div>
-            <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Reply to cold LinkedIn DMs or inbound emails asking for a role. Applicant completes Real-Person ID check and submits an Outbound Protected Application into Inbound Applications.
-            </p>
-          </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -408,34 +354,16 @@ export default function EmployerTalentShieldPage() {
           />
         </div>
 
-        {mode === 'outbound_sourcing' && (
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 dark:text-slate-300 mb-1.5">
-              Stage 1 Invitation Pitch (Optional — Shown Only After Verified Sign-In)
-            </label>
-            <textarea
-              rows={2}
-              maxLength={600}
-              value={employerPitch}
-              onChange={(e) => setEmployerPitch(e.target.value)}
-              placeholder="Share why this role fits their background (do not include personal emails, phone numbers, or external URLs in Stage 1)..."
-              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-        )}
-
         <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            {mode === 'outbound_sourcing'
-              ? '1 Outbound Credit is deducted only when a verified Professional clears 40%+ TrueFit™ and receives your invitation.'
-              : '0 Employer credits used. Verified Professionals submit an Outbound Protected Application directly to your Inbound Applications queue.'}
+            0 Employer outbound credits used. Applicants complete Real-Person ID verification ($0 to them) and 40%+ TrueFit™ before entering Inbound Applications.
           </p>
           <button
             type="submit"
             disabled={minting || !canMint}
             className="inline-flex items-center justify-center rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition"
           >
-            {minting ? 'Generating Link...' : 'Generate One-Time Link'}
+            {minting ? 'Generating Link...' : 'Generate Bridge Link'}
           </button>
         </div>
       </form>
@@ -445,15 +373,15 @@ export default function EmployerTalentShieldPage() {
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
-                ✅ One-Time Protected Role Link Ready ({freshRoleTitle})
+                ✅ Verified Hiring Bridge Link Ready ({freshRoleTitle})
               </p>
               <p className="text-xs text-emerald-800 dark:text-emerald-300 mt-0.5">
-                Copy this URL or ready-to-send DM now — for zero-correlation security, raw tokens are never stored in plain text once you leave this page.
+                Copy this link or ready-to-send message now—raw tokens are not stored in plain text once you leave this page.
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0 whitespace-nowrap">
               <span className="rounded-full bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 px-3 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
-                {freshLinkMode === 'inbound_dm_gate' ? 'Inbound DM Gate (0 Credits)' : 'Outbound Sourcing'}
+                0 Outbound Credits
               </span>
               <button
                 type="button"
@@ -485,14 +413,14 @@ export default function EmployerTalentShieldPage() {
               onClick={() => copyText(freshLinkUrl, 'url')}
               className="inline-flex items-center justify-center rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition"
             >
-              {copiedMode === 'url' ? 'Copied Link!' : 'Copy One-Time Link'}
+              {copiedMode === 'url' ? 'Copied Link!' : 'Copy Bridge Link'}
             </button>
             <button
               type="button"
-              onClick={() => copyText(buildReadyToSendDm(freshLinkUrl, freshLinkMode), 'dm')}
+              onClick={() => copyText(buildReadyToSendMessage(freshLinkUrl), 'dm')}
               className="inline-flex items-center justify-center rounded-xl border border-emerald-600 dark:border-emerald-500 bg-white dark:bg-slate-900 hover:bg-emerald-50 dark:hover:bg-slate-800 px-4 py-2 text-xs sm:text-sm font-semibold text-emerald-800 dark:text-emerald-200 transition"
             >
-              {copiedMode === 'dm' ? 'Copied Ready-to-Send DM!' : 'Copy Ready-to-Send DM'}
+              {copiedMode === 'dm' ? 'Copied Ready-to-Send Message!' : 'Copy Ready-to-Send Message'}
             </button>
           </div>
         </div>
@@ -501,7 +429,7 @@ export default function EmployerTalentShieldPage() {
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            Issued Talent Shield Links
+            Issued Verified Hiring Bridge Links
           </h2>
           <div className="flex flex-wrap gap-1.5">
             {(
@@ -530,11 +458,11 @@ export default function EmployerTalentShieldPage() {
 
         {loading ? (
           <p className="text-sm text-slate-500 dark:text-slate-400 py-6 text-center">
-            Loading Talent Shield ledger...
+            Loading Verified Hiring Bridge ledger...
           </p>
         ) : filteredLinks.length === 0 ? (
           <p className="text-sm text-slate-500 dark:text-slate-400 py-6 text-center">
-            No Talent Shield links in this filter yet.
+            No Verified Hiring Bridge links in this filter yet.
           </p>
         ) : (
           <div className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -559,9 +487,7 @@ export default function EmployerTalentShieldPage() {
                         {item.status === 'revoked' ? 'retired' : item.status}
                       </span>
                       <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300">
-                        {item.mode === 'inbound_dm_gate'
-                          ? 'Inbound DM Gate (0 Credits)'
-                          : 'Outbound Sourcing'}
+                        Verified Hiring Bridge
                       </span>
                       <span className="text-sm font-semibold text-slate-900 dark:text-white">
                         {item.job_title || 'Protected Role'}
