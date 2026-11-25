@@ -5,6 +5,8 @@ import { createClient } from '@/utils/supabase/server'
 import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 import { resolveCandidateTierInfo } from '@/app/dashboard/actions'
 import { resolveTrustedAppOrigin, sanitizeInternalReturnPath } from '@/lib/trusted-origin'
+import { resolveActiveEmployerTalentShieldTarget } from '@/lib/inbound-shield'
+import { getEmployerSponsoredVerificationBalance } from '@/lib/sponsored-verification'
 import {
   checkAndRecordStripeIdentityCircuitBreaker,
   recordHandshakeTelemetry,
@@ -81,6 +83,37 @@ export async function POST(req: Request) {
     const isVerified =
       profile?.identity_verified === true
 
+    const body = await req.json().catch(() => ({}))
+    const bridgeToken = typeof body?.bridgeToken === 'string' ? body.bridgeToken.trim() : ''
+    let sponsoredByOrgId = ''
+
+    if (!isEmployer && !isVerified && bridgeToken.startsWith('ss_inv_')) {
+      const target = await resolveActiveEmployerTalentShieldTarget(bridgeToken)
+      if (!target.active || !target.organizationId) {
+        return NextResponse.json(
+          { error: 'This Verified Hiring Bridge link is no longer active.' },
+          { status: 403 }
+        )
+      }
+      const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+      const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+      const sbAdmin = sbUrl && sbKey ? createSupabaseAdminClient(sbUrl, sbKey) : supabase
+      const { data: orgObj } = await sbAdmin
+        .from('organizations')
+        .select('id, subscription_tier, subscription_status, sponsored_verifications_monthly_allowance, sponsored_verifications_monthly_remaining, sponsored_verifications_rollover_balance')
+        .eq('id', target.organizationId)
+        .maybeSingle()
+      const bal = getEmployerSponsoredVerificationBalance(orgObj)
+      if (bal.totalAvailable <= 0) {
+        return NextResponse.json(
+          { error: 'This Employer has reached their monthly Sponsored Verification allowance. They can add a rollover Bridge Pack in Billing & Plans, or you can verify directly with the $5 Explorer Verification Pass.' },
+          { status: 403 }
+        )
+      }
+      sponsoredByOrgId = target.organizationId
+      effectiveTier = 'bridge_sponsored'
+    }
+
     const guard = await checkAndRecordStripeIdentityCircuitBreaker({
       userId: user.id,
       userEmail: profile?.contact_email || profile?.email || user.email || '',
@@ -92,7 +125,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: guard.reason }, { status: 403 })
     }
 
-    const body = await req.json().catch(() => ({}))
     const customReturnPath = sanitizeInternalReturnPath(body?.returnTo)
     const origin = resolveTrustedAppOrigin(req)
 
@@ -103,7 +135,8 @@ export async function POST(req: Request) {
         metadata: {
           userId: user.id,
           user_id: user.id,
-          tier: tierInfo.tier,
+          tier: sponsoredByOrgId ? 'bridge_sponsored' : tierInfo.tier,
+          ...(sponsoredByOrgId ? { sponsoredByOrgId } : {}),
         },
         provided_details: {
           email: profile?.contact_email || profile?.email || user.email || undefined,

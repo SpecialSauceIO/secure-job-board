@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createClient } from '@/utils/supabase/server'
 import { resolveTrustedAppOrigin } from '@/lib/trusted-origin'
+import { EMPLOYER_BRIDGE_PACKS } from '@/lib/sponsored-verification'
 import Stripe from 'stripe'
 
 export const CANDIDATE_SAAS_TIERS: Record<
@@ -516,6 +517,60 @@ export async function POST(req: Request) {
         ...(EMPLOYER_VERIFICATION_PASS.priceCents > 0 ? { invoice_creation: { enabled: true } } : {}),
         success_url: body?.fromOnboarding ? `${origin}/onboarding?billing=verify_success&session_id={CHECKOUT_SESSION_ID}` : `${origin}/dashboard/employer/billing?billing=verify_success&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: body?.fromOnboarding ? `${origin}/onboarding?billing=cancelled` : `${origin}/dashboard/employer/billing?billing=cancelled`,
+      })
+
+      return NextResponse.json({ url: checkoutSession.url })
+    }
+
+    // 1B. EMPLOYER ROLLOVER BRIDGE PACKS (25/$50, 50/$95, 150/$270)
+    const bridgePack = EMPLOYER_BRIDGE_PACKS[rawKey]
+    if (bridgePack) {
+      const autoOrgId = await ensureEmployerOrganizationId(supabase, user)
+      const member = autoOrgId ? { organization_id: autoOrgId } : null
+
+      if (!member?.organization_id) {
+        return NextResponse.json(
+          { error: 'Please set up your Company Profile before purchasing a Bridge Pack.' },
+          { status: 400 }
+        )
+      }
+
+      const envPriceId = (process.env[bridgePack.envVar] || '').trim()
+      const catalogPriceId = envPriceId.startsWith('price_') ? envPriceId : ''
+
+      const checkoutSession = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        customer_email: user.email,
+        client_reference_id: member.organization_id,
+        metadata: {
+          audience: 'employer_bridge_pack',
+          organizationId: member.organization_id,
+          userId: user.id,
+          packId: bridgePack.id,
+          creditsToAdd: String(bridgePack.credits),
+        },
+        line_items: [
+          catalogPriceId
+            ? { price: catalogPriceId, quantity: 1 }
+            : {
+                price_data: {
+                  currency: 'usd',
+                  unit_amount: bridgePack.priceCents,
+                  product_data: {
+                    tax_code: 'txcd_10103001',
+                    name: bridgePack.name,
+                    description: bridgePack.description,
+                  },
+                },
+                quantity: 1,
+              },
+        ],
+        allow_promotion_codes: true,
+        billing_address_collection: 'auto',
+        tax_id_collection: { enabled: true },
+        invoice_creation: { enabled: true },
+        success_url: `${origin}/dashboard/employer/billing?billing=bridge_pack_success&pack=${bridgePack.id}&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/dashboard/employer/billing?billing=cancelled`,
       })
 
       return NextResponse.json({ url: checkoutSession.url })

@@ -232,23 +232,23 @@ export default function LandingPage() {
                 <li className="flex items-start gap-2.5">
                   <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
                   <span>
-                    Funnel applicants from LinkedIn or your careers page through{' '}
+                    Screen out bots and spam with{' '}
                     <Link href="/talent-shield" className="text-sky-300 underline decoration-sky-400/60 underline-offset-4 hover:text-white font-semibold transition-colors">
                       Verified Hiring Bridge
                     </Link>{' '}
-                    links—only ID-verified humans reach your inbox.
+                    links.
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
-                  <span>Replace broken ATS keyword filters with real skill, pay, and work-model matching so great talent never gets thrown away.</span>
+                  <span>Match on real skills, pay, and work model—not ATS keywords.</span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
                   <span>
-                    Unlimited inbound applicants included with every plan (zero per-applicant fees), plus direct hire or{' '}
+                    Unlimited inbound applicants—direct or{' '}
                     <Link href="/w2-hiring" className="text-sky-300 underline decoration-sky-400/60 underline-offset-4 hover:text-white font-semibold transition-colors">
-                      Built-In W-2 Hiring ($0-fee Contract-to-Hire)
+                      Built-In W-2 Hiring
                     </Link>
                     .
                   </span>

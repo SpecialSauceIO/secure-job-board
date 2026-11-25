@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { recordHandshakeTelemetry, raiseSecurityAlertAndFlag } from '@/lib/security-telemetry'
+import {
+  BRIDGE_PACK_CREDITS_MAP,
+  addEmployerBridgePackCredits,
+  consumeEmployerSponsoredVerification,
+  getSponsoredVerificationAllowanceForTier,
+} from '@/lib/sponsored-verification'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_build_placeholder', {
   apiVersion: '2026-09-30.endive' as any,
@@ -282,6 +288,31 @@ export async function POST(req: Request) {
           .eq('id', organizationId)
       }
     }
+    // B0) Employer Rollover Bridge Pack (bridge_25 / bridge_50 / bridge_150)
+    else if (audience === 'employer_bridge_pack' || Boolean(BRIDGE_PACK_CREDITS_MAP[packId])) {
+      const rawMetaCredits = Math.max(0, parseInt(session.metadata?.creditsToAdd || '0', 10) || 0)
+      const creditsToAdd = BRIDGE_PACK_CREDITS_MAP[packId] ?? ([25, 50, 150].includes(rawMetaCredits) ? rawMetaCredits : 0)
+      let alreadyFulfilled = Boolean(session.metadata?.webhook_bridge_pack_fulfilled_at)
+      if (!alreadyFulfilled && session.id) {
+        try {
+          const freshSession = await stripe.checkout.sessions.retrieve(session.id)
+          if (freshSession?.metadata?.webhook_bridge_pack_fulfilled_at) alreadyFulfilled = true
+        } catch {}
+      }
+      if (organizationId && creditsToAdd > 0 && !alreadyFulfilled) {
+        const res = await addEmployerBridgePackCredits(supabaseAdmin, organizationId, creditsToAdd)
+        if (res.ok && session.id) {
+          try {
+            await stripe.checkout.sessions.update(session.id, {
+              metadata: {
+                ...(session.metadata || {}),
+                webhook_bridge_pack_fulfilled_at: new Date().toISOString(),
+              },
+            })
+          } catch {}
+        }
+      }
+    }
     // B) Employer Top-Up Credit Pack (boost +10 / surge +25 / scale +75)
     else if (audience === 'employer_topup' || packId) {
       const rawMetaCredits = Math.max(0, parseInt(session.metadata?.creditsToAdd || '0', 10) || 0)
@@ -354,13 +385,17 @@ export async function POST(req: Request) {
       const topupTag = preservedRollover > 0 ? `[TOPUP:${preservedRollover}]` : ''
       const taggedDesc = `${cleanDesc} [TIER:${targetTier}] [VERIFY_PAID] [CREDIT25_USED] ${topupTag}`.replace(/\s+/g, ' ').trim()
 
+      const sponsoredAllowance = getSponsoredVerificationAllowanceForTier(targetTier)
       const { error } = await supabaseAdmin
         .from('organizations')
         .update({
           ...(orgObj?.verification_status === 'verified' ? { verification_status: 'verified' } : {}),
-            subscription_status: 'active',
+          subscription_status: 'active',
           subscription_tier: targetTier,
           connection_credits: newTotalCredits,
+          sponsored_verifications_monthly_allowance: sponsoredAllowance,
+          sponsored_verifications_monthly_remaining: sponsoredAllowance,
+          sponsored_verifications_reset_at: new Date().toISOString(),
           description: taggedDesc,
           stripe_customer_id: session.customer as string,
           stripe_subscription_id: session.subscription as string,
@@ -447,12 +482,16 @@ export async function POST(req: Request) {
           .replace(/\s+/g, ' ')
           .trim()
 
+        const renewedSponsoredAllowance = getSponsoredVerificationAllowanceForTier(activeTier)
         await supabaseAdmin
           .from('organizations')
           .update({
             verification_status: 'verified',
             subscription_status: 'active',
             connection_credits: renewedTotal,
+            sponsored_verifications_monthly_allowance: renewedSponsoredAllowance,
+            sponsored_verifications_monthly_remaining: renewedSponsoredAllowance,
+            sponsored_verifications_reset_at: new Date().toISOString(),
             description: taggedDesc,
           })
           .eq('id', orgObj.id)
@@ -534,6 +573,8 @@ export async function POST(req: Request) {
           subscription_status: 'verified_sandbox',
           subscription_tier: 'explorer',
           connection_credits: preservedRollover,
+          sponsored_verifications_monthly_allowance: 0,
+          sponsored_verifications_monthly_remaining: 0,
           description: taggedDesc,
         })
         .eq('id', orgObj.id)
@@ -583,10 +624,28 @@ export async function POST(req: Request) {
     if (userId) {
       const { data: existingProfile } = await supabaseAdmin
         .from('profiles')
-        .select('role')
+        .select('role, structured_skills')
         .eq('id', userId)
         .maybeSingle()
       const isEmployerRole = existingProfile?.role === 'employer'
+      const sponsoredByOrgId = String(session.metadata?.sponsoredByOrgId || '').trim()
+      if (!isEmployerRole && sponsoredByOrgId) {
+        await consumeEmployerSponsoredVerification(supabaseAdmin, sponsoredByOrgId)
+        const rawSkills = Array.isArray((existingProfile as any)?.structured_skills) ? (existingProfile as any).structured_skills : []
+        const existingMeta = rawSkills.find((item: any) => item && typeof item === 'object' && item._ss_meta) || {}
+        const filtered = rawSkills.filter((item: any) => !(item && typeof item === 'object' && item._ss_meta))
+        const sponsoredMeta = {
+          ...existingMeta,
+          _ss_meta: true,
+          plan: existingMeta.plan || 'explorer',
+          verifiedExplorerPaid: true,
+          sponsoredByOrgId,
+        }
+        await supabaseAdmin
+          .from('profiles')
+          .update({ structured_skills: [...filtered, sponsoredMeta] })
+          .eq('id', userId)
+      }
         if (isEmployerRole) {
           const { data: memRow } = await supabaseAdmin.from('organization_members').select('organization_id').eq('user_id', userId).limit(1).maybeSingle()
           if (memRow?.organization_id) {

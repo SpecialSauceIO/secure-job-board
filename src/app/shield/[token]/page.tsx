@@ -235,6 +235,34 @@ export default function PublicInboundShieldAirlockPage() {
 
   const returnPath = `/shield/${encodeURIComponent(token)}`
 
+  const handleLaunchSponsoredIdentity = async () => {
+    setErrorMsg(null)
+    setSubmitting(true)
+    try {
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.setItem('ss_shield_return_to', returnPath)
+      }
+      const res = await fetch('/api/identity/create-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bridgeToken: token,
+          returnTo: '/onboarding?identity=complete',
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && data?.url) {
+        window.location.href = data.url
+        return
+      }
+      setErrorMsg(data?.error || 'Unable to launch Employer-Sponsored ID Verification. Please try again.')
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Network error launching Employer-Sponsored ID Verification.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   if (isEmployerInviteToken) {
     const preview = profCtx?.protectedRolePreview
     const previewPay = preview
@@ -381,8 +409,8 @@ export default function PublicInboundShieldAirlockPage() {
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
                     {isDmGate
-                      ? 'Sign in with your verified SpecialSauce Professional account (Professional $12/mo or Prestige $19/mo — your $5 verification fee is 100% credited toward Month 1) to check your 40%+ TrueFit™ alignment and submit your Protected Application.'
-                      : 'Sign in with your verified SpecialSauce Professional account (including $0/mo Explorer after your one-time $5 verification fee) and return right here to receive this Protected Role invitation.'}
+                      ? 'Sign in or create your SpecialSauce Professional account to verify your identity for $0 (Employer-sponsored via this Verified Hiring Bridge link), check your 40%+ TrueFit™ alignment, and submit your Protected Application.'
+                      : 'Sign in or create your SpecialSauce Professional account to verify your identity for $0 (Employer-sponsored via this Verified Hiring Bridge link) and return right here to receive this Protected Role invitation.'}
                   </p>
                   <div className="flex flex-wrap items-center gap-3">
                     <Link
@@ -415,20 +443,39 @@ export default function PublicInboundShieldAirlockPage() {
                   </Link>
                 </div>
               ) : !profCtx.isIdVerified ? (
-                <div className="rounded-xl border border-amber-300 bg-amber-50 p-5 space-y-3">
-                  <p className="text-sm font-bold text-amber-950">
-                    Complete Real-Person ID Verification First
-                  </p>
-                  <p className="text-xs sm:text-sm text-amber-900 leading-relaxed">
-                    Complete your one-time $5 Explorer Real-Person ID verification fee ($0/mo forever, and 100% credited toward Month 1 if you ever subscribe), then reopen this link to unlock the Protected Role.
-                  </p>
-                  <Link
-                    href="/dashboard/billing"
-                    className="inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 px-4 py-2 text-xs sm:text-sm font-semibold text-white transition"
-                  >
-                    Complete Real-Person ID Check →
-                  </Link>
-                </div>
+                (profCtx as any).employerSponsoredAvailable ? (
+                  <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-5 space-y-3">
+                    <p className="text-sm font-bold text-emerald-950">
+                      ✓ Employer-Sponsored Real-Person ID Verification ($0 Due)
+                    </p>
+                    <p className="text-xs sm:text-sm text-emerald-900 leading-relaxed">
+                      This verified Employer is sponsoring your one-time government ID check so you can verify for $0 and return straight here to unlock the Protected Role. Your personal info stays private until you both choose to unlock Stage 2.
+                    </p>
+                    <button
+                      type="button"
+                      disabled={submitting}
+                      onClick={handleLaunchSponsoredIdentity}
+                      className="inline-flex items-center justify-center rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 px-4 py-2 text-xs sm:text-sm font-semibold text-white transition cursor-pointer"
+                    >
+                      {submitting ? 'Launching $0 Stripe Identity...' : 'Verify Real-Person ID for $0 →'}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-amber-300 bg-amber-50 p-5 space-y-3">
+                    <p className="text-sm font-bold text-amber-950">
+                      Complete Real-Person ID Verification First
+                    </p>
+                    <p className="text-xs sm:text-sm text-amber-900 leading-relaxed">
+                      This Employer has used their monthly Sponsored Verification allowance. You can still verify directly with the one-time $5 Explorer Verification Pass ($0/mo forever, and 100% credited toward Month 1 if you ever subscribe), then reopen this link.
+                    </p>
+                    <Link
+                      href="/dashboard/billing"
+                      className="inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 px-4 py-2 text-xs sm:text-sm font-semibold text-white transition"
+                    >
+                      Complete Real-Person ID Check →
+                    </Link>
+                  </div>
+                )
               ) : !profCtx.hasStructuredSkills ? (
                 <div className="rounded-xl border border-amber-300 bg-amber-50 p-5 space-y-3">
                   <p className="text-sm font-bold text-amber-950">

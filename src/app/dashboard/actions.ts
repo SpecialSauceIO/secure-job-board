@@ -9072,12 +9072,26 @@ export async function getTalentShieldProfessionalContextAction(rawToken: string)
     filterVisibleSkills(profile.structured_skills).length > 0
 
   if (!isIdVerified) {
+    let employerSponsoredAvailable = false
+    try {
+      const resolvedSponsor = await resolveActiveEmployerTalentShieldTarget(rawToken)
+      if (resolvedSponsor.active && resolvedSponsor.organizationId) {
+        const { data: sponsorOrg } = await db
+          .from('organizations')
+          .select('subscription_tier, subscription_status, sponsored_verifications_monthly_allowance, sponsored_verifications_monthly_remaining, sponsored_verifications_rollover_balance')
+          .eq('id', resolvedSponsor.organizationId)
+          .maybeSingle()
+        const { getEmployerSponsoredVerificationBalance } = await import('@/lib/sponsored-verification')
+        employerSponsoredAvailable = getEmployerSponsoredVerificationBalance(sponsorOrg).totalAvailable > 0
+      }
+    } catch {}
     return {
       active: true,
       mode: pub.mode,
       authenticated: true,
       viewerRole: 'professional',
       isIdVerified: false,
+      employerSponsoredAvailable,
       hasStructuredSkills,
       canApplyOutbound: candidateTier.canApply,
       tierLabel: candidateTier.tier,
@@ -9172,7 +9186,7 @@ export async function redeemEmployerTalentShieldLinkAction(params: {
   if (!isProfVerified) {
     return {
       error:
-        'Complete your one-time $5 Explorer Real-Person ID check on your dashboard before unlocking this Protected Role.',
+        'Complete your Real-Person ID verification ($0 Employer-Sponsored via this Verified Hiring Bridge link) before unlocking this Protected Role.',
     }
   }
 
