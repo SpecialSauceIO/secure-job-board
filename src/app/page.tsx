@@ -477,6 +477,31 @@ export default function LandingPage() {
               aria-label="View Explorer Mode slide"
             />
           </div>
+
+          {/* Scroll Down Indicator */}
+          <button
+            type="button"
+            onClick={scrollToHowItWorks}
+            aria-label="Explore how it works"
+            className="group mt-7 inline-flex flex-col items-center gap-1 text-slate-400 hover:text-sky-300 transition-colors cursor-pointer relative z-20"
+          >
+            <span className="text-[11px] font-bold uppercase tracking-[0.16em]">
+              Explore How It Works
+            </span>
+            <svg
+              className="w-5 h-5 animate-bounce text-sky-400 group-hover:text-sky-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2.5"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
         </div>
       </section>
 
@@ -563,31 +588,6 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-
-          <button
-            type="button"
-            onClick={scrollToHowItWorks}
-            className="mt-10 inline-flex flex-col items-center gap-1.5 text-slate-400 hover:text-sky-400 transition-colors group cursor-pointer z-20"
-          >
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
-              Explore How It Works
-            </span>
-            <span className="w-6 h-6 rounded-full border border-slate-700 bg-slate-900 shadow-2xs flex items-center justify-center group-hover:border-sky-400 transition-all">
-              <svg
-                className="w-3 h-3 animate-bounce text-slate-400 group-hover:text-sky-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2.5"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </span>
-          </button>
         </div>
       </section>
 
