@@ -399,19 +399,11 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
+                      <span><strong className="text-white">Verified Hiring Bridge • 25 Sponsored Verifications / mo</strong> (already-verified Pros unlimited &amp; $0) • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Built-In W-2 Employer of Record (EOR)</strong> • Direct Hire, Contract-to-Hire ($0 conversion), Limited &amp; Indefinite W-2 • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link></span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">10 Outbound Invitation Credits / mo</strong></span>
-                    </li>
-                    <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
-                      <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">Accepted-Only Guarantee</strong> (Declined invites auto-refund)</span>
+                      <span><strong className="text-white">Built-In W-2 Employer of Record (EOR)</strong> • Direct Hire, Contract-to-Hire ($0 conversion fee), Limited &amp; Indefinite W-2 • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -467,19 +459,11 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
+                      <span><strong className="text-white">Verified Hiring Bridge • 75 Sponsored Verifications / mo</strong> (already-verified Pros unlimited &amp; $0) • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Built-In W-2 Employer of Record (-1% W-2 Markup)</strong> • $0 conversion &amp; Net-30 billing • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link></span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">35 Outbound Invitation Credits / mo</strong></span>
-                    </li>
-                    <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
-                      <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">Accepted-Only Guarantee</strong> (Declined invites auto-refund)</span>
+                      <span><strong className="text-white">Built-In W-2 Employer of Record (-1% W-2 Markup)</strong> • $0 conversion fee &amp; Net-30 billing • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -535,19 +519,11 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
+                      <span><strong className="text-white">Verified Hiring Bridge • 200 Sponsored Verifications / mo</strong> (already-verified Pros unlimited &amp; $0) • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Built-In W-2 Employer of Record (-2% W-2 Markup)</strong> • Lowest volume W-2 rate &amp; $0 conversion • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link></span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">120 Outbound Invitation Credits / mo</strong></span>
-                    </li>
-                    <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
-                      <span className="shrink-0">🛡️</span>
-                      <span><strong className="text-white">Accepted-Only Guarantee</strong> (Declined invites auto-refund)</span>
+                      <span><strong className="text-white">Built-In W-2 Employer of Record (-2% W-2 Markup)</strong> • Lowest volume W-2 rate &amp; $0 conversion fee • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link></span>
                     </li>
                     <li className="flex items-start gap-2.5 text-indigo-300 font-bold">
                       <span className="shrink-0">⚡</span>
@@ -573,54 +549,54 @@ export default function PricingMatrixPage() {
             </div>
 
             {/* ================================================================
-                ON-DEMAND ROLLOVER CREDIT TOP-UP PACKS ($150 / $350 / $900)
+                OPTIONAL ROLLOVER BRIDGE PACKS ($50 / $95 / $270)
                ================================================================ */}
             <div className="pt-6 border-t border-slate-800 space-y-6">
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-slate-900 text-white p-6 sm:p-8 rounded-2xl border border-slate-700">
                 <div className="space-y-2 max-w-3xl">
                   <div className="inline-flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider">
-                    <span>⚡ Rollover Invitation Credit Packs • Active Subscribers</span>
+                    <span>🛡️ Optional Rollover Bridge Packs • Active Subscribers</span>
                   </div>
                   <h3 className="text-2xl font-black text-white tracking-tight">
-                    Need Extra Outbound Reach During a Hiring Push?
+                    Need Extra Sponsored Verifications During a Hiring Push?
                   </h3>
                   <p className="text-base text-slate-100 leading-relaxed">
-                    Add invitation credits anytime. Your monthly plan credits are used first, and top-up credits <strong className="text-emerald-300">roll over and never expire</strong> while your plan is active.
+                    Your monthly sponsored verification allowance is used first (and already-verified Professionals are always unlimited and $0). Add one-time rollover Bridge Packs on your own terms—<strong className="text-emerald-300">never surprise metered charges</strong>.
                   </p>
                 </div>
                 <div className="shrink-0 flex flex-col gap-2 text-xs sm:text-sm font-extrabold text-slate-100 bg-slate-950 px-5 py-4 rounded-xl border border-slate-700">
                   <span className="flex items-center gap-2 text-emerald-300">
-                    ✓ Monthly Plan Credits Used First
+                    ✓ Monthly Allowance Used First
                   </span>
                   <span className="flex items-center gap-2 text-amber-300">
-                    ✓ Top-Up Credits Never Expire
+                    ✓ Rollover Packs Never Expire
                   </span>
                   <span className="flex items-center gap-2 text-sky-300">
-                    🛡️ Declined Invitations Auto-Refunded
+                    🛡️ Already-Verified Pros Always $0
                   </span>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Pack 1: Boost Pack ($150) */}
+                {/* Pack 1: Bridge Pack 25 ($50) */}
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-700 shadow-md flex flex-col justify-between space-y-4">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-extrabold uppercase tracking-wider text-amber-300">
-                        ⚡ Boost Pack
+                        🛡️ Bridge Pack 25
                       </span>
                       <span className="px-3 py-1 rounded-full bg-slate-800 text-slate-100 text-xs font-extrabold border border-slate-600">
-                        $15 / invite
+                        $2.00 / check
                       </span>
                     </div>
                     <div className="flex items-baseline justify-between pt-1">
                       <h4 className="text-xl sm:text-2xl font-black text-white">
-                        +10 Invitation Credits
+                        +25 Verifications
                       </h4>
-                      <span className="text-3xl font-black text-white">$150</span>
+                      <span className="text-3xl font-black text-white">$50</span>
                     </div>
                     <p className="text-base text-slate-100 leading-relaxed">
-                      Quick top-up to round out an interview slate.
+                      Quick rollover top-up for an active LinkedIn or careers page post.
                     </p>
                   </div>
                   <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-300">
@@ -629,25 +605,25 @@ export default function PricingMatrixPage() {
                   </div>
                 </div>
 
-                {/* Pack 2: Surge Pack ($350) */}
+                {/* Pack 2: Bridge Pack 50 ($95) */}
                 <div className="bg-slate-900 rounded-2xl p-6 border-2 border-indigo-500 shadow-md flex flex-col justify-between space-y-4 relative overflow-hidden">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-300">
-                        🚀 Surge Pack • Most Popular
+                        🚀 Bridge Pack 50 • Most Popular
                       </span>
                       <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-200 text-xs font-extrabold border border-indigo-400/40">
-                        $14 / invite
+                        $1.90 / check
                       </span>
                     </div>
                     <div className="flex items-baseline justify-between pt-1">
                       <h4 className="text-xl sm:text-2xl font-black text-white">
-                        +25 Invitation Credits
+                        +50 Verifications
                       </h4>
-                      <span className="text-3xl font-black text-white">$350</span>
+                      <span className="text-3xl font-black text-white">$95</span>
                     </div>
                     <p className="text-base text-slate-100 leading-relaxed">
-                      Built for teams actively sourcing across multiple open roles.
+                      Built for growing teams screening external applicants across multiple roles.
                     </p>
                   </div>
                   <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs sm:text-sm font-bold text-indigo-300">
@@ -656,25 +632,25 @@ export default function PricingMatrixPage() {
                   </div>
                 </div>
 
-                {/* Pack 3: Scale Pack ($900) */}
+                {/* Pack 3: Bridge Pack 150 ($270) */}
                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-700 shadow-md flex flex-col justify-between space-y-4">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-300">
-                        🏢 Scale Pack • Best Value
+                        🏢 Bridge Pack 150 • Best Value
                       </span>
                       <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 text-xs font-extrabold border border-emerald-400/40">
-                        $12 / invite
+                        $1.80 / check
                       </span>
                     </div>
                     <div className="flex items-baseline justify-between pt-1">
                       <h4 className="text-xl sm:text-2xl font-black text-white">
-                        +75 Invitation Credits
+                        +150 Verifications
                       </h4>
-                      <span className="text-3xl font-black text-white">$900</span>
+                      <span className="text-3xl font-black text-white">$270</span>
                     </div>
                     <p className="text-base text-slate-100 leading-relaxed">
-                      Best per-invite value for multi-department hiring sprints.
+                      Best per-verification value for high-volume hiring sprints.
                     </p>
                   </div>
                   <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-300">
