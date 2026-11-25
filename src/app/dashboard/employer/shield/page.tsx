@@ -37,6 +37,8 @@ export default function EmployerTalentShieldPage() {
   const [selectedJobId, setSelectedJobId] = useState('')
   const mode: EmployerTalentShieldMode = 'inbound_dm_gate'
   const [privateMemo, setPrivateMemo] = useState('')
+  const [minYearsExperience, setMinYearsExperience] = useState('')
+  const [minYearsField, setMinYearsField] = useState('')
   const [ttlDays, setTtlDays] = useState<number>(14)
 
   const [minting, setMinting] = useState(false)
@@ -83,11 +85,14 @@ export default function EmployerTalentShieldPage() {
       return
     }
     setMinting(true)
+    const parsedMinYears = minYearsExperience.trim() ? Number(minYearsExperience) : null
     const res = await createEmployerTalentShieldLinkAction({
       jobId: selectedJobId,
       mode,
       employerPitch: '',
       privateMemo,
+      minYearsExperience: parsedMinYears && Number.isFinite(parsedMinYears) && parsedMinYears > 0 ? Math.min(40, Math.round(parsedMinYears)) : null,
+      minYearsField: minYearsField.trim(),
       ttlDays,
     })
     setMinting(false)
@@ -104,6 +109,8 @@ export default function EmployerTalentShieldPage() {
     setFreshLinkMemo(res.record.private_memo || '')
     setFreshRoleTitle(res.record.job_title || 'Protected Role')
     setPrivateMemo('')
+    setMinYearsExperience('')
+    setMinYearsField('')
     setLinks((prev) => [res.record!, ...prev])
     await loadWorkspace()
   }
@@ -337,6 +344,46 @@ export default function EmployerTalentShieldPage() {
               <option value={14}>14 Days (Recommended)</option>
               <option value={30}>30 Days</option>
             </select>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-4 space-y-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-800 dark:text-slate-200">
+              Sponsored Verification Deal-Breaker Gate (Automatic)
+            </p>
+            <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-400">
+              Unverified applicants must confirm your role's Work Model, Pay Range, and optional Minimum Years below before using a $0 Employer-Sponsored ID check.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Minimum Years (Optional)
+              </label>
+              <input
+                type="number"
+                min={0}
+                max={40}
+                value={minYearsExperience}
+                onChange={(e) => setMinYearsExperience(e.target.value)}
+                placeholder="e.g., 5"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Primary Field / Experience Area (Optional — Defaults to Role Field)
+              </label>
+              <input
+                type="text"
+                maxLength={80}
+                value={minYearsField}
+                onChange={(e) => setMinYearsField(e.target.value)}
+                placeholder="e.g., Technical Support, Cloud Security, Enterprise Sales"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
           </div>
         </div>
 

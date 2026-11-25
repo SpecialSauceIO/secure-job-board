@@ -508,6 +508,8 @@ interface DecryptedEmployerShieldPayload {
   mode: EmployerTalentShieldMode
   employer_pitch: string
   private_memo: string
+  min_years_experience?: number | null
+  min_years_field?: string
 }
 
 export interface EmployerTalentShieldLinkView {
@@ -516,6 +518,8 @@ export interface EmployerTalentShieldLinkView {
   mode: EmployerTalentShieldMode
   employer_pitch: string
   private_memo: string
+  min_years_experience?: number | null
+  min_years_field?: string
   created_by_user_id: string
   created_at: string
   expires_at: string
@@ -576,6 +580,11 @@ function decryptEmployerPayload(blob: string): DecryptedEmployerShieldPayload | 
       mode,
       employer_pitch: typeof parsed.employer_pitch === "string" ? parsed.employer_pitch : "",
       private_memo: typeof parsed.private_memo === "string" ? parsed.private_memo : "",
+      min_years_experience:
+        typeof parsed.min_years_experience === "number" && parsed.min_years_experience > 0
+          ? Math.min(40, Math.round(parsed.min_years_experience))
+          : null,
+      min_years_field: typeof parsed.min_years_field === "string" ? parsed.min_years_field : "",
     }
   } catch {
     return null
@@ -711,6 +720,8 @@ export async function listEmployerTalentShieldLinks(
       mode: dec.mode,
       employer_pitch: dec.employer_pitch,
       private_memo: dec.private_memo,
+      min_years_experience: dec.min_years_experience ?? null,
+      min_years_field: dec.min_years_field || "",
       created_by_user_id: dec.created_by_user_id,
       created_at: rec.created_at,
       expires_at: rec.expires_at,
@@ -739,6 +750,8 @@ export async function mintEmployerTalentShieldLink(params: {
   mode: EmployerTalentShieldMode
   employerPitch?: string
   privateMemo?: string
+  minYearsExperience?: number | null
+  minYearsField?: string
   ttlDays?: number
 }): Promise<{ token?: string; record?: EmployerTalentShieldLinkView; error?: string }> {
   const organizationId = String(params.organizationId || "").trim()
@@ -760,6 +773,13 @@ export async function mintEmployerTalentShieldLink(params: {
     .replace(/[<>]/g, "")
     .trim()
     .slice(0, 140)
+
+  const rawYears = Number(params.minYearsExperience || 0)
+  const cleanMinYears = Number.isFinite(rawYears) && rawYears > 0 ? Math.min(40, Math.round(rawYears)) : null
+  const cleanMinYearsField = String(params.minYearsField || "")
+    .replace(/[<>]/g, "")
+    .trim()
+    .slice(0, 80)
 
   const ttlDaysRaw = Number(params.ttlDays || 14)
   const ttlDays = ttlDaysRaw === 7 || ttlDaysRaw === 14 || ttlDaysRaw === 30 ? ttlDaysRaw : 14
@@ -795,6 +815,8 @@ export async function mintEmployerTalentShieldLink(params: {
       mode,
       employer_pitch: cleanPitch,
       private_memo: cleanMemo,
+      min_years_experience: cleanMinYears,
+      min_years_field: cleanMinYearsField,
     }),
     created_at: createdIso,
     expires_at: expiresIso,
@@ -818,6 +840,8 @@ export async function mintEmployerTalentShieldLink(params: {
       mode,
       employer_pitch: cleanPitch,
       private_memo: cleanMemo,
+      min_years_experience: cleanMinYears,
+      min_years_field: cleanMinYearsField,
       created_by_user_id: createdByUserId,
       created_at: createdIso,
       expires_at: expiresIso,
@@ -889,6 +913,8 @@ export async function resolveActiveEmployerTalentShieldTarget(rawToken: string):
   mode?: EmployerTalentShieldMode
   employerPitch?: string
   privateMemo?: string
+  minYearsExperience?: number | null
+  minYearsField?: string
 }> {
   if (!isWellFormedEmployerTalentShieldToken(rawToken)) return { active: false }
   const vault = await loadEmployerShieldVault()
@@ -909,6 +935,8 @@ export async function resolveActiveEmployerTalentShieldTarget(rawToken: string):
     mode: dec.mode,
     employerPitch: dec.employer_pitch,
     privateMemo: dec.private_memo,
+    minYearsExperience: dec.min_years_experience ?? null,
+    minYearsField: dec.min_years_field || "",
   }
 }
 

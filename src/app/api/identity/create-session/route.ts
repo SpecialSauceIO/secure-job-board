@@ -95,6 +95,21 @@ export async function POST(req: Request) {
           { status: 403 }
         )
       }
+      if (body?.gateConfirmed !== true) {
+        return NextResponse.json(
+          { error: 'Please confirm the role work model, pay range, and experience requirements before starting Employer-Sponsored ID Verification.' },
+          { status: 403 }
+        )
+      }
+      if (typeof target.minYearsExperience === 'number' && target.minYearsExperience > 0) {
+        const enteredYears = Number(body?.yearsExperience)
+        if (!Number.isFinite(enteredYears) || enteredYears < target.minYearsExperience) {
+          return NextResponse.json(
+            { error: `This role requires at least ${target.minYearsExperience} years of experience for Employer-Sponsored ID Verification. You can still verify on your own with the one-time $5 Explorer Verification Pass.` },
+            { status: 403 }
+          )
+        }
+      }
       const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
       const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
       const sbAdmin = sbUrl && sbKey ? createSupabaseAdminClient(sbUrl, sbKey) : supabase

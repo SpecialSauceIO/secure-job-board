@@ -8881,6 +8881,8 @@ export async function createEmployerTalentShieldLinkAction(params: {
   mode: EmployerTalentShieldMode
   employerPitch?: string
   privateMemo?: string
+  minYearsExperience?: number | null
+  minYearsField?: string
   ttlDays?: number
 }) {
   const supabase = await createClient()
@@ -8989,6 +8991,8 @@ export async function createEmployerTalentShieldLinkAction(params: {
     mode,
     employerPitch: cleanPitch,
     privateMemo: params.privateMemo,
+    minYearsExperience: params.minYearsExperience,
+    minYearsField: params.minYearsField || String(job.industry_vertical || job.title || ''),
     ttlDays: params.ttlDays,
   })
   if (minted.error || !minted.token || !minted.record) {
@@ -9073,6 +9077,14 @@ export async function getTalentShieldProfessionalContextAction(rawToken: string)
 
   if (!isIdVerified) {
     let employerSponsoredAvailable = false
+    let sponsorshipGate: {
+      minYearsExperience: number | null
+      minYearsField: string
+      workModel: string
+      salaryMin: number | null
+      salaryMax: number | null
+      payType: string
+    } | null = null
     try {
       const resolvedSponsor = await resolveActiveEmployerTalentShieldTarget(rawToken)
       if (resolvedSponsor.active && resolvedSponsor.organizationId) {
@@ -9083,6 +9095,25 @@ export async function getTalentShieldProfessionalContextAction(rawToken: string)
           .maybeSingle()
         const { getEmployerSponsoredVerificationBalance } = await import('@/lib/sponsored-verification')
         employerSponsoredAvailable = getEmployerSponsoredVerificationBalance(sponsorOrg).totalAvailable > 0
+        if (resolvedSponsor.jobId) {
+          const { data: gateRawJob } = await db
+            .from('jobs')
+            .select('id, title, salary_min, salary_max, work_model, structured_requirements')
+            .eq('id', resolvedSponsor.jobId)
+            .eq('organization_id', resolvedSponsor.organizationId)
+            .maybeSingle()
+          if (gateRawJob) {
+            const gateJob = enrichJobRecord(gateRawJob)
+            sponsorshipGate = {
+              minYearsExperience: resolvedSponsor.minYearsExperience ?? null,
+              minYearsField: resolvedSponsor.minYearsField || String(gateJob.industry_vertical || 'this field'),
+              workModel: String(gateJob.work_model || 'remote'),
+              salaryMin: gateJob.salary_min ?? null,
+              salaryMax: gateJob.salary_max ?? null,
+              payType: String(gateJob.job_meta?.pay_type || 'annual'),
+            }
+          }
+        }
       }
     } catch {}
     return {
@@ -9092,6 +9123,7 @@ export async function getTalentShieldProfessionalContextAction(rawToken: string)
       viewerRole: 'professional',
       isIdVerified: false,
       employerSponsoredAvailable,
+      sponsorshipGate,
       hasStructuredSkills,
       canApplyOutbound: candidateTier.canApply,
       tierLabel: candidateTier.tier,

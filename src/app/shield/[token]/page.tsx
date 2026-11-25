@@ -109,6 +109,15 @@ interface TalentShieldProfessionalState {
   authenticated?: boolean
   viewerRole?: string | null
   isIdVerified?: boolean
+  employerSponsoredAvailable?: boolean
+  sponsorshipGate?: {
+    minYearsExperience: number | null
+    minYearsField: string
+    workModel: string
+    salaryMin: number | null
+    salaryMax: number | null
+    payType: string
+  } | null
   hasStructuredSkills?: boolean
   canApplyOutbound?: boolean
   tierLabel?: string
@@ -134,6 +143,9 @@ export default function PublicInboundShieldAirlockPage() {
   const [selectedJobId, setSelectedJobId] = useState('')
   const [employerPitch, setEmployerPitch] = useState('')
   const [professionalNote, setProfessionalNote] = useState('')
+  const [gateYearsInput, setGateYearsInput] = useState('')
+  const [gateWorkModelOk, setGateWorkModelOk] = useState<'yes' | 'no' | null>(null)
+  const [gatePayRangeOk, setGatePayRangeOk] = useState<'yes' | 'no' | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [belowThresholdInfo, setBelowThresholdInfo] = useState<{
@@ -248,6 +260,8 @@ export default function PublicInboundShieldAirlockPage() {
         body: JSON.stringify({
           bridgeToken: token,
           returnTo: '/onboarding?identity=complete',
+          gateConfirmed: true,
+          yearsExperience: gateYearsInput.trim() === '' ? null : Number(gateYearsInput),
         }),
       })
       const data = await res.json().catch(() => ({}))
@@ -443,23 +457,151 @@ export default function PublicInboundShieldAirlockPage() {
                   </Link>
                 </div>
               ) : !profCtx.isIdVerified ? (
-                (profCtx as any).employerSponsoredAvailable ? (
-                  <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-5 space-y-3">
-                    <p className="text-sm font-bold text-emerald-950">
-                      ✓ Employer-Sponsored Real-Person ID Verification ($0 Due)
-                    </p>
-                    <p className="text-xs sm:text-sm text-emerald-900 leading-relaxed">
-                      This verified Employer is sponsoring your one-time government ID check so you can verify for $0 and return straight here to unlock the Protected Role. Your personal info stays private until you both choose to unlock Stage 2.
-                    </p>
-                    <button
-                      type="button"
-                      disabled={submitting}
-                      onClick={handleLaunchSponsoredIdentity}
-                      className="inline-flex items-center justify-center rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 px-4 py-2 text-xs sm:text-sm font-semibold text-white transition cursor-pointer"
-                    >
-                      {submitting ? 'Launching $0 Stripe Identity...' : 'Verify Real-Person ID for $0 →'}
-                    </button>
-                  </div>
+                profCtx.employerSponsoredAvailable ? (
+                  (() => {
+                    const gate = profCtx.sponsorshipGate
+                    const requiresYears = Boolean(gate?.minYearsExperience && gate.minYearsExperience > 0)
+                    const parsedYears = gateYearsInput.trim() === '' ? null : Number(gateYearsInput)
+                    const yearsValidNum = parsedYears !== null && Number.isFinite(parsedYears) && parsedYears >= 0
+                    const yearsPassed = !requiresYears || (yearsValidNum && (parsedYears as number) >= Number(gate?.minYearsExperience || 0))
+                    const gateFailed =
+                      (requiresYears && yearsValidNum && !yearsPassed) ||
+                      gateWorkModelOk === 'no' ||
+                      gatePayRangeOk === 'no'
+                    const gatePassed =
+                      (!requiresYears || (yearsValidNum && yearsPassed)) &&
+                      gateWorkModelOk === 'yes' &&
+                      gatePayRangeOk === 'yes'
+                    const gateWorkModelLabel = String(gate?.workModel || 'remote').replace(/_/g, '-')
+                    const gatePaySummary = gate
+                      ? formatRolePaySummary({
+                          id: 'gate',
+                          title: 'Role',
+                          work_model: gate.workModel,
+                          salary_min: gate.salaryMin,
+                          salary_max: gate.salaryMax,
+                          pay_type: gate.payType,
+                        })
+                      : 'Listed inside role'
+                    return (
+                      <div className="rounded-xl border border-emerald-300 bg-emerald-50/80 p-5 sm:p-6 space-y-5">
+                        <div className="space-y-1.5">
+                          <p className="text-sm font-bold text-emerald-950">
+                            ✓ Employer-Sponsored Real-Person ID Verification ($0 Due)
+                          </p>
+                          <p className="text-xs sm:text-sm text-emerald-900 leading-relaxed">
+                            Confirm these quick role requirements first. If you meet them, this Employer covers your one-time government ID check at $0 cost so you can enter their pipeline directly.
+                          </p>
+                        </div>
+
+                        <div className="space-y-4 rounded-xl border border-emerald-200 bg-white p-4">
+                          {requiresYears && (
+                            <div className="space-y-1.5">
+                              <label className="block text-xs sm:text-sm font-semibold text-slate-900">
+                                1. How many years of experience do you have in {gate?.minYearsField || 'this field'}?
+                              </label>
+                              <p className="text-xs text-slate-500">
+                                Enter a whole number (role requires at least {gate?.minYearsExperience} years for Employer sponsorship).
+                              </p>
+                              <input
+                                type="number"
+                                min={0}
+                                max={50}
+                                value={gateYearsInput}
+                                onChange={(e) => setGateYearsInput(e.target.value)}
+                                placeholder="Enter years of experience"
+                                className="w-full sm:w-56 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                              />
+                            </div>
+                          )}
+
+                          <div className="space-y-2">
+                            <p className="text-xs sm:text-sm font-semibold text-slate-900">
+                              {requiresYears ? '2.' : '1.'} This role is <span className="uppercase">{gateWorkModelLabel}</span>. Are you comfortable with this work model?
+                            </p>
+                            <div className="flex gap-2.5">
+                              <button
+                                type="button"
+                                onClick={() => setGateWorkModelOk('yes')}
+                                className={`rounded-lg px-4 py-1.5 text-xs sm:text-sm font-semibold border transition cursor-pointer ${
+                                  gateWorkModelOk === 'yes'
+                                    ? 'bg-emerald-600 text-white border-emerald-600'
+                                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                                }`}
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setGateWorkModelOk('no')}
+                                className={`rounded-lg px-4 py-1.5 text-xs sm:text-sm font-semibold border transition cursor-pointer ${
+                                  gateWorkModelOk === 'no'
+                                    ? 'bg-amber-600 text-white border-amber-600'
+                                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                                }`}
+                              >
+                                No
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <p className="text-xs sm:text-sm font-semibold text-slate-900">
+                              {requiresYears ? '3.' : '2.'} The pay range for this role is {gatePaySummary}. Are you comfortable with this pay range?
+                            </p>
+                            <div className="flex gap-2.5">
+                              <button
+                                type="button"
+                                onClick={() => setGatePayRangeOk('yes')}
+                                className={`rounded-lg px-4 py-1.5 text-xs sm:text-sm font-semibold border transition cursor-pointer ${
+                                  gatePayRangeOk === 'yes'
+                                    ? 'bg-emerald-600 text-white border-emerald-600'
+                                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                                }`}
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setGatePayRangeOk('no')}
+                                className={`rounded-lg px-4 py-1.5 text-xs sm:text-sm font-semibold border transition cursor-pointer ${
+                                  gatePayRangeOk === 'no'
+                                    ? 'bg-amber-600 text-white border-amber-600'
+                                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                                }`}
+                              >
+                                No
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {gateFailed ? (
+                          <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 space-y-2.5">
+                            <p className="text-sm font-bold text-amber-950">
+                              Not Eligible for Employer-Sponsored Verification on This Role
+                            </p>
+                            <p className="text-xs sm:text-sm text-amber-900 leading-relaxed">
+                              Because this role's requirements do not match your answers, this Employer's $0 sponsorship does not apply. You can still join SpecialSauce.io on your own with the one-time $5 Explorer Verification Pass ($0/mo forever, and 100% credited toward Month 1 if you ever subscribe) to access all verified Employers and Protected Roles.
+                            </p>
+                            <Link
+                              href="/dashboard/billing"
+                              className="inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 px-4 py-2 text-xs sm:text-sm font-semibold text-white transition">
+                              Verify on Your Own ($5 One-Time) →
+                            </Link>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled={submitting || !gatePassed}
+                            onClick={handleLaunchSponsoredIdentity}
+                            className="inline-flex items-center justify-center rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white transition cursor-pointer">
+                            {submitting ? 'Launching $0 Stripe Identity...' : 'Verify Real-Person ID for $0 →'}
+                          </button>
+                        )}
+                      </div>
+                    )
+                  })()
                 ) : (
                   <div className="rounded-xl border border-amber-300 bg-amber-50 p-5 space-y-3">
                     <p className="text-sm font-bold text-amber-950">

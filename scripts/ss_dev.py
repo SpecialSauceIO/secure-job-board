@@ -79,7 +79,8 @@ def copy_clip(text):
         clean = clean.replace("\u00a0", " ")
         if len(clean) > 28000:
             clean = clean[:28000].rsplit("\n", 1)[0] + "\n[CLIPBOARD CAPPED AT 28000 CHARS — USE NARROWER LINE RANGE]"
-        wrapped = "Proceed with ss output:\n\n" + bt + "text\n" + clean + "\n" + bt
+        rules_hdr = "[RULES: specialsauce-dev-ops + dependency-guard required | 1-3 file patch cap | re-inspect after SHA change]\n"
+        wrapped = "Proceed with ss output:\n\n" + bt + "text\n" + rules_hdr + clean + "\n" + bt
         subprocess.run(["pbcopy"], input=wrapped, text=True, check=False)
     except Exception:
         pass
@@ -760,9 +761,11 @@ def main():
         cmd_upgrade_next(repo_dir, rest)
     elif cmd == "test-calibration":
         cmd_test_calibration(repo_dir)
+    elif cmd == "handoff":
+        cmd_handoff(repo_dir, rest)
     else:
         print("Unknown ss command: " + cmd)
-        print("Allowed: clip | inspect | audit-copy | audit-security | find | patch | upgrade-next | test-calibration | verify-local | stage | prod | status | media-inspect | media-verify | doc-check")
+        print("Allowed: clip | inspect | audit-copy | audit-security | find | patch | handoff | upgrade-next | test-calibration | verify-local | stage | prod | status | media-inspect | media-verify | doc-check")
         sys.exit(1)
 
 def cmd_clip(repo_dir):
@@ -898,6 +901,24 @@ def cmd_test_calibration(repo_dir):
     copy_clip(out)
     if r.returncode != 0 or has_info:
         sys.exit(1)
+
+def cmd_handoff(repo_dir, args):
+    task = " ".join(args).strip()
+    if not task:
+        audit_p = repo_dir / "AUDIT_STATE.md"
+        if audit_p.exists():
+            for ln in audit_p.read_text().splitlines():
+                if ln.strip().startswith("- [ ]"):
+                    task = ln.strip()[5:].strip()
+                    break
+    if not task:
+        task = "Continue active feature on staging"
+    prompt = "Expand specialsauce-dev-ops and specialsauce-dependency-guard first.\nTask: " + task + " — run `ss status` to verify branch/AUDIT_STATE before inspecting."
+    try:
+        subprocess.run(["pbcopy"], input=prompt, text=True, check=False)
+    except Exception:
+        pass
+    print("[HANDOFF COPIED TO CLIPBOARD]\n" + prompt)
 
 if __name__ == "__main__":
     main()
