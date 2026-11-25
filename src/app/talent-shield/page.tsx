@@ -6,7 +6,7 @@ export const metadata = {
   alternates: { canonical: "/talent-shield" },
   title: "Verified Hiring Bridge | Special Sauce",
   description:
-    "How verified Employers use single-use Verified Hiring Bridge links to vet external LinkedIn, GitHub, careers page, and inbound leads with Stripe ID and 40%+ TrueFit checks.",
+    "Stop applicant spam on LinkedIn and your careers page. Verified Hiring Bridge brings only ID-verified humans ($0 to applicants) who clear your 40%+ TrueFit Score™ into your pipeline.",
 }
 
 export default function TalentShieldPublicPage() {
