@@ -544,10 +544,6 @@ export default function PricingMatrixPage() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-800">
-              <HiringTracksFlowchart isDashboard={false} showGuideLink={true} />
-            </div>
-
             {/* ================================================================
                 OPTIONAL ROLLOVER BRIDGE PACKS ($50 / $95 / $270)
                ================================================================ */}
@@ -659,6 +655,10 @@ export default function PricingMatrixPage() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="pt-6 border-t border-slate-800">
+              <HiringTracksFlowchart isDashboard={false} showGuideLink={true} />
             </div>
           </div>
         </main>
