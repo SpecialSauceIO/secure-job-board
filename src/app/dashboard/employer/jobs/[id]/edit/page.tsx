@@ -58,9 +58,12 @@ export default function EditJobPage() {
     eor_drug_check: false,
     equipment_policy: 'No Equipment Needed / Not Applicable',
     equipment_notes: '',
+    bridge_min_years: '',
+    bridge_min_years_field: '',
     description: '',
     structured_requirements: [] as any[],
   })
+  const [liveSkills, setLiveSkills] = useState<string[]>([])
 
   useEffect(() => {
     const fetchJob = async () => {
@@ -197,6 +200,8 @@ export default function EditJobPage() {
         eor_drug_check: Boolean(metaItem.eor_drug_check),
         equipment_policy: metaItem.equipment_policy || 'No Equipment Needed / Not Applicable',
         equipment_notes: metaItem.equipment_notes || '',
+        bridge_min_years: metaItem.bridge_min_years ? String(metaItem.bridge_min_years) : '',
+        bridge_min_years_field: metaItem.bridge_min_years_field || '',
         description: job.description || '',
         structured_requirements: visibleReqs,
       })
@@ -248,6 +253,22 @@ export default function EditJobPage() {
       description: data.description || prev.description,
       structured_requirements:
         data.structured_requirements || prev.structured_requirements,
+      bridge_min_years: (() => {
+        const yrs = Array.isArray(data.structured_requirements)
+          ? data.structured_requirements
+              .map((r: any) => Number(r?.years ?? r?.min_years ?? 0))
+              .filter((n: number) => Number.isFinite(n) && n > 0)
+          : []
+        if (yrs.length > 0) return String(Math.min(40, Math.max(...yrs)))
+        const exp = String(data.experience_level || '').toLowerCase()
+        if (exp.includes('executive') || exp.includes('director')) return '10'
+        if (exp.includes('lead') || exp.includes('staff') || exp.includes('principal')) return '8'
+        if (exp.includes('senior')) return '5'
+        if (exp.includes('mid')) return '3'
+        if (exp.includes('entry') || exp.includes('junior')) return '1'
+        return prev.bridge_min_years
+      })(),
+      bridge_min_years_field: data.title ? String(data.title).slice(0, 80) : prev.bridge_min_years_field,
       comp_perks: matchOpt(data.comp_perks, ['Base Salary Only', '+ Annual Bonus', '+ Equity / Stock Options', '+ Bonus & Equity', '+ Commission / OTE'], prev.comp_perks),
       hiring_timeline: matchOpt(data.hiring_timeline, ['Immediate / Urgent (1–2 Weeks)', 'Active Hiring (2–4 Weeks)', 'Standard Pipeline (30+ Days)', 'Flexible Start for Right Fit'], prev.hiring_timeline),
       company_size: matchOpt(data.company_size, ['Seed / Startup (1–50 Employees)', 'Growth (50–250 Employees)', 'Mid-Market (250–1,000 Employees)', 'Enterprise (1,000+ Employees)'], prev.company_size),
@@ -919,7 +940,53 @@ export default function EditJobPage() {
 
           <StructuredRequirementEditor
             initialRequirements={jobData.structured_requirements}
+            onSkillsChange={setLiveSkills}
           />
+
+          <div className="rounded-xl border border-slate-300 bg-white p-4 space-y-3">
+            <div>
+              <p className="text-xs font-extrabold uppercase tracking-wide text-slate-800">
+                Verified Hiring Bridge Deal-Breaker Gate (Optional)
+              </p>
+              <p className="mt-0.5 text-xs text-slate-500">
+                Unverified applicants arriving via a Verified Hiring Bridge link must confirm your Work Model, Pay Range, and this optional minimum experience before using a $0 Employer-Sponsored ID check.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Minimum Years (Optional)
+                </label>
+                <input
+                  type="number"
+                  name="bridge_min_years"
+                  min={0}
+                  max={40}
+                  value={jobData.bridge_min_years}
+                  onChange={(e) => setJobData({ ...jobData, bridge_min_years: e.target.value })}
+                  placeholder="e.g., 5"
+                  className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 py-2 px-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Experience Area / Role Label (Optional — Defaults to Role Title)
+                </label>
+                <input
+                  type="text"
+                  name="bridge_min_years_field"
+                  maxLength={80}
+                  value={jobData.bridge_min_years_field}
+                  onChange={(e) => setJobData({ ...jobData, bridge_min_years_field: e.target.value })}
+                  placeholder={jobData.title ? `Default: ${jobData.title}` : 'Leave blank to use Role Title automatically'}
+                  className="block w-full rounded-lg border border-slate-300 bg-white text-slate-900 py-2 px-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+                <p className="mt-1 text-[11px] text-slate-500">
+                  Your top core skills from the matrix above are automatically displayed on the applicant gate.
+                </p>
+              </div>
+            </div>
+          </div>
 
           <div className="pt-4">
             <label className="block text-sm font-bold text-slate-700">

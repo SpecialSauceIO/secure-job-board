@@ -113,6 +113,7 @@ interface TalentShieldProfessionalState {
   sponsorshipGate?: {
     minYearsExperience: number | null
     minYearsField: string
+    topSkills?: string[]
     workModel: string
     salaryMin: number | null
     salaryMax: number | null
@@ -171,7 +172,8 @@ export default function PublicInboundShieldAirlockPage() {
       return
     }
     if (token.startsWith('ss_inv_')) {
-      const res = await getTalentShieldProfessionalContextAction(token)
+      const previewGate = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('preview_gate') === '1'
+      const res = await getTalentShieldProfessionalContextAction(token, previewGate)
       setProfCtx(res as TalentShieldProfessionalState)
       setLoading(false)
       return
@@ -495,10 +497,28 @@ export default function PublicInboundShieldAirlockPage() {
                         </div>
 
                         <div className="space-y-4 rounded-xl border border-emerald-200 bg-white p-4">
+                          {Array.isArray(gate?.topSkills) && gate.topSkills.length > 0 && (
+                            <div className="space-y-1.5 pb-2 border-b border-slate-100">
+                              <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">
+                                Key Core Skills for This Role
+                              </p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {gate.topSkills.map((sk) => (
+                                  <span
+                                    key={sk}
+                                    className="inline-flex items-center rounded-md bg-slate-100 border border-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-800"
+                                  >
+                                    {sk}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
                           {requiresYears && (
                             <div className="space-y-1.5">
                               <label className="block text-xs sm:text-sm font-semibold text-slate-900">
-                                1. How many years of experience do you have in {gate?.minYearsField || 'this field'}?
+                                1. How many years of relevant experience do you have in {gate?.minYearsField || 'this role'}?
                               </label>
                               <p className="text-xs text-slate-500">
                                 Enter a whole number (role requires at least {gate?.minYearsExperience} years for Employer sponsorship).

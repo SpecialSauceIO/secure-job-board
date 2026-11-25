@@ -18,8 +18,10 @@ const DEFAULT_THREE_ROWS: RequirementRow[] = [
 
 export function StructuredRequirementEditor({
   initialRequirements = [],
+  onSkillsChange,
 }: {
   initialRequirements?: any[]
+  onSkillsChange?: (skills: string[]) => void
 }) {
   const [requirements, setRequirements] = useState<RequirementRow[]>(DEFAULT_THREE_ROWS)
 
@@ -84,6 +86,13 @@ export function StructuredRequirementEditor({
 
   const cleanRequirements = requirements.filter((r) => r.skill.trim() !== '')
   const filledCount = cleanRequirements.length
+
+  useEffect(() => {
+    if (onSkillsChange) {
+      const names = Array.from(new Set(requirements.map((r) => r.skill.trim()).filter(Boolean)))
+      onSkillsChange(names)
+    }
+  }, [requirements, onSkillsChange])
   const meetsMinimum = filledCount >= MIN_REQUIRED_SKILLS
 
   return (

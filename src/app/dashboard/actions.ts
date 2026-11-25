@@ -444,6 +444,8 @@ function extractCandidatePrefMeta(rawSkills: any): {
 export interface JobExtendedMeta {
   pay_type: 'annual' | 'hourly'
   comp_perks: string
+  bridge_min_years?: number | null
+  bridge_min_years_field?: string
   location: string
   employment_type: string
   experience_level: string
@@ -541,6 +543,8 @@ function extractJobMeta(rawReqs: any, jobRow?: any): JobExtendedMeta {
     eor_drug_check: Boolean(metaItem?.eor_drug_check),
     equipment_policy: metaItem?.equipment_policy || 'No Equipment Needed / Not Applicable',
     equipment_notes: metaItem?.equipment_notes || '',
+    bridge_min_years: Number.isFinite(Number(metaItem?.bridge_min_years)) && Number(metaItem?.bridge_min_years) > 0 ? Math.min(40, Math.round(Number(metaItem?.bridge_min_years))) : null,
+    bridge_min_years_field: typeof metaItem?.bridge_min_years_field === 'string' ? metaItem.bridge_min_years_field.trim() : '',
     renewed_at: metaItem?.renewed_at || null,
     days_remaining: daysRemaining,
     is_expired: Boolean(metaItem?.is_sandbox_benchmark) || String(jobRow?.title || "").startsWith("[CALIBRATION]") ? false : diffMs <= 0,
@@ -4927,6 +4931,16 @@ function buildJobRequirementsWithMeta(
   const openings_count = formData.has('openings_count')
     ? clampRoleOpenings(formData.get('openings_count'), prevMeta.openings_count || 1)
     : clampRoleOpenings(prevMeta.openings_count, 1)
+  const rawBridgeMinYears = formData.has('bridge_min_years')
+    ? Number(formData.get('bridge_min_years') || 0)
+    : Number(prevMeta.bridge_min_years || 0)
+  const bridge_min_years =
+    Number.isFinite(rawBridgeMinYears) && rawBridgeMinYears > 0
+      ? Math.min(40, Math.round(rawBridgeMinYears))
+      : null
+  const bridge_min_years_field = formData.has('bridge_min_years_field')
+    ? String(formData.get('bridge_min_years_field') || '').trim().slice(0, 80)
+    : String(prevMeta.bridge_min_years_field || '').trim().slice(0, 80)
 
   const metaObject = {
     ...prevMeta,
@@ -4950,6 +4964,8 @@ function buildJobRequirementsWithMeta(
     eor_drug_check,
     equipment_policy,
     equipment_notes,
+    bridge_min_years,
+    bridge_min_years_field,
   }
 
   return [...visibleReqs, metaObject]
@@ -8991,8 +9007,14 @@ export async function createEmployerTalentShieldLinkAction(params: {
     mode,
     employerPitch: cleanPitch,
     privateMemo: params.privateMemo,
-    minYearsExperience: params.minYearsExperience,
-    minYearsField: params.minYearsField || String(job.industry_vertical || job.title || ''),
+    minYearsExperience:
+      typeof job.job_meta?.bridge_min_years === 'number' && job.job_meta.bridge_min_years > 0
+        ? job.job_meta.bridge_min_years
+        : params.minYearsExperience ?? null,
+    minYearsField:
+      String(job.job_meta?.bridge_min_years_field || '').trim() ||
+      params.minYearsField ||
+      String(job.industry_vertical || job.title || ''),
     ttlDays: params.ttlDays,
   })
   if (minted.error || !minted.token || !minted.record) {
@@ -9032,7 +9054,7 @@ export async function revokeEmployerTalentShieldLinkAction(linkId: string) {
   return { ok: true }
 }
 
-export async function getTalentShieldProfessionalContextAction(rawToken: string) {
+export async function getTalentShieldProfessionalContextAction(rawToken: string, previewUnverified?: boolean) {
   const pub = await inspectPublicEmployerTalentShieldToken(rawToken)
   if (!pub.active || !pub.mode) {
     return { active: false }
@@ -9064,7 +9086,8 @@ export async function getTalentShieldProfessionalContextAction(rawToken: string)
     }
   }
 
-  const isIdVerified = Boolean(
+  const isDevPreviewGate = process.env.NODE_ENV !== 'production' && previewUnverified === true
+  const isIdVerified = !isDevPreviewGate && Boolean(
     profile?.identity_verified === true ||
       String(profile?.identity_verified) === 'true' ||
       profile?.is_verified === true ||
@@ -9080,6 +9103,7 @@ export async function getTalentShieldProfessionalContextAction(rawToken: string)
     let sponsorshipGate: {
       minYearsExperience: number | null
       minYearsField: string
+      topSkills: string[]
       workModel: string
       salaryMin: number | null
       salaryMax: number | null
@@ -9104,9 +9128,47 @@ export async function getTalentShieldProfessionalContextAction(rawToken: string)
             .maybeSingle()
           if (gateRawJob) {
             const gateJob = enrichJobRecord(gateRawJob)
+            const roleMinYears = (() => {
+              if (typeof gateJob.job_meta?.bridge_min_years === 'number' && gateJob.job_meta.bridge_min_years > 0) {
+                return gateJob.job_meta.bridge_min_years
+              }
+              if (typeof resolvedSponsor.minYearsExperience === 'number' && resolvedSponsor.minYearsExperience > 0) {
+                return resolvedSponsor.minYearsExperience
+              }
+              const skillYears = Array.isArray(gateRawJob.structured_requirements)
+                ? gateRawJob.structured_requirements
+                    .filter((r: any) => r && !r._ss_job_meta)
+                    .map((r: any) => Number(r?.years ?? r?.min_years ?? 0))
+                    .filter((n: number) => Number.isFinite(n) && n > 0)
+                : []
+              if (skillYears.length > 0) return Math.min(40, Math.max(...skillYears))
+              const exp = String(gateJob.job_meta?.experience_level || '').toLowerCase()
+              if (exp.includes('executive') || exp.includes('director')) return 10
+              if (exp.includes('lead') || exp.includes('staff') || exp.includes('principal')) return 8
+              if (exp.includes('senior')) return 5
+              if (exp.includes('mid')) return 3
+              if (exp.includes('entry') || exp.includes('junior')) return 1
+              return null
+            })()
+            const roleMinYearsField =
+              String(gateJob.job_meta?.bridge_min_years_field || '').trim() ||
+              resolvedSponsor.minYearsField ||
+              String(gateJob.title || gateJob.industry_vertical || 'this role')
+            const topSkills = Array.isArray(gateRawJob.structured_requirements)
+              ? Array.from(
+                  new Set(
+                    gateRawJob.structured_requirements
+                      .filter((r: any) => r && !r._ss_job_meta && (r.skill || r.name))
+                      .sort((a: any, b: any) => (Number(b?.years || 0) - Number(a?.years || 0)))
+                      .map((r: any) => String(r.skill || r.name || '').trim())
+                      .filter(Boolean)
+                  )
+                ).slice(0, 6)
+              : []
             sponsorshipGate = {
-              minYearsExperience: resolvedSponsor.minYearsExperience ?? null,
-              minYearsField: resolvedSponsor.minYearsField || String(gateJob.industry_vertical || 'this field'),
+              minYearsExperience: roleMinYears,
+              minYearsField: roleMinYearsField,
+              topSkills,
               workModel: String(gateJob.work_model || 'remote'),
               salaryMin: gateJob.salary_min ?? null,
               salaryMax: gateJob.salary_max ?? null,

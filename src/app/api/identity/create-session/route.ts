@@ -101,18 +101,35 @@ export async function POST(req: Request) {
           { status: 403 }
         )
       }
-      if (typeof target.minYearsExperience === 'number' && target.minYearsExperience > 0) {
+      const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+      const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+      const sbAdmin = sbUrl && sbKey ? createSupabaseAdminClient(sbUrl, sbKey) : supabase
+      let requiredMinYears =
+        typeof target.minYearsExperience === 'number' && target.minYearsExperience > 0
+          ? target.minYearsExperience
+          : 0
+      if (target.jobId) {
+        const { data: gateJobRow } = await sbAdmin
+          .from('jobs')
+          .select('structured_requirements')
+          .eq('id', target.jobId)
+          .maybeSingle()
+        const gateMeta = Array.isArray(gateJobRow?.structured_requirements)
+          ? gateJobRow.structured_requirements.find((r: any) => r && r._ss_job_meta === true)
+          : null
+        if (typeof gateMeta?.bridge_min_years === 'number' && gateMeta.bridge_min_years > 0) {
+          requiredMinYears = gateMeta.bridge_min_years
+        }
+      }
+      if (requiredMinYears > 0) {
         const enteredYears = Number(body?.yearsExperience)
-        if (!Number.isFinite(enteredYears) || enteredYears < target.minYearsExperience) {
+        if (!Number.isFinite(enteredYears) || enteredYears < requiredMinYears) {
           return NextResponse.json(
-            { error: `This role requires at least ${target.minYearsExperience} years of experience for Employer-Sponsored ID Verification. You can still verify on your own with the one-time $5 Explorer Verification Pass.` },
+            { error: `This role requires at least ${requiredMinYears} years of experience for Employer-Sponsored ID Verification. You can still verify on your own with the one-time $5 Explorer Verification Pass.` },
             { status: 403 }
           )
         }
       }
-      const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-      const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-      const sbAdmin = sbUrl && sbKey ? createSupabaseAdminClient(sbUrl, sbKey) : supabase
       const { data: orgObj } = await sbAdmin
         .from('organizations')
         .select('id, subscription_tier, subscription_status, sponsored_verifications_monthly_allowance, sponsored_verifications_monthly_remaining, sponsored_verifications_rollover_balance')
