@@ -596,9 +596,9 @@ export default function LandingPage() {
         id="how-it-works"
         className="scroll-mt-20 py-20 px-4 sm:px-6 md:px-12 bg-white border-t border-slate-300"
       >
-        <div className="max-w-7xl mx-auto">
-          {/* TRACK 1: PROFESSIONALS */}
-          <div className="mb-24">
+        <div className="max-w-7xl mx-auto flex flex-col">
+          {/* TRACK 2: PROFESSIONALS (rendered below Employers) */}
+          <div className="order-2">
             <div className="text-center mb-12">
               <span className="inline-block px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-xs font-extrabold uppercase tracking-wider mb-3">
                 Privacy, Transparency &amp; Fair Pay
@@ -809,8 +809,8 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* TRACK 2: EMPLOYERS */}
-          <div>
+          {/* TRACK 1: EMPLOYERS (rendered above Professionals) */}
+          <div className="order-1 mb-24">
             <div className="text-center mb-12">
               <span className="inline-block px-3 py-1 rounded-full bg-indigo-50 border border-indigo-300 text-indigo-700 text-xs font-extrabold uppercase tracking-wider mb-3">
                 Built for Businesses Across All 28 Industries
