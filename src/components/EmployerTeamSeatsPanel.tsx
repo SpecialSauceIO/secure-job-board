@@ -157,10 +157,10 @@ export default function EmployerTeamSeatsPanel({
             </h3>
             <p className="text-xs text-indigo-800/90 leading-relaxed">
               {tier === 'free'
-                ? 'Practice Mode includes 1 admin seat. Activate Starter ($149/mo Locked 12 Mos — $299/mo Month 13+) for 2 Team or Recruiter Seats, '
-                : 'Your Starter Plan includes 2 seats. Upgrade to '}
-              <strong>Growth ($499/mo Locked 12 Mos — $799/mo Month 13+)</strong> for <strong>up to 5 Team & Recruiter Seats</strong>, or{' '}
-              <strong>Enterprise ($1,250/mo Locked 12 Mos — $1,999/mo Month 13+)</strong> for <strong>Unlimited Team & Recruiter Seats + HR Software Auto-Sync</strong>.
+                ? 'Practice Mode includes 1 admin seat. Activate Starter ($299/mo) for 2 Team or Recruiter Seats, '
+                : 'Your Starter Membership includes 2 seats. Upgrade to '}
+              <strong>Growth ($599/mo)</strong> for <strong>up to 5 Team & Recruiter Seats</strong>, or{' '}
+              <strong>Enterprise ($999/mo)</strong> for <strong>Unlimited Team & Recruiter Seats + HR Software Auto-Sync</strong>.
             </p>
           </div>
           <Link

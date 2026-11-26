@@ -29,10 +29,10 @@ export default function TalentShieldGuideView({
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-3 shadow-xs">
-          <p className="text-xs font-black uppercase tracking-wider text-indigo-600">Predictable Sponsored Verification</p>
-          <h2 className="text-xl font-extrabold text-slate-900">Hard-Capped Allowances. Zero Surprise Bills.</h2>
+          <p className="text-xs font-black uppercase tracking-wider text-indigo-600">Included Active Roles &amp; $199 Overflow Slots</p>
+          <h2 className="text-xl font-extrabold text-slate-900">2, 5, or 15 Active Roles Included. Zero Surprise Bills.</h2>
           <p className="text-sm text-slate-600 leading-relaxed">
-            Every plan includes a clear monthly allowance for new bridge applicants: Starter (25/mo), Growth (75/mo), and Enterprise (200/mo). Already-verified Professionals are always unlimited and $0. Need extra volume? Add optional rollover Bridge Packs (25/$50, 50/$95, or 150/$270) on your own terms—never surprise metered charges.
+            Starter includes 2 concurrent Active Protected Roles (up to 25 sponsored Bridge verifications/role), Growth includes 5 (up to 50/role), and Enterprise includes 15 (up to 100/role)—and closing a filled role frees its slot immediately. Need another concurrent role? Add a flat $199 Extra Protected Role Slot anytime while already-verified Ecosystem Professionals always apply unlimited at $0.
           </p>
         </div>
         <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-3 shadow-xs">
@@ -61,9 +61,9 @@ export default function TalentShieldGuideView({
             </p>
           </div>
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 space-y-2">
-            <h3 className="text-base font-extrabold text-slate-900">2. Stop Bots at the Door ($0 to Applicants)</h3>
+            <h3 className="text-base font-extrabold text-slate-900">2. Pre-Gate Fit &amp; Stop Bots ($0 to Applicants)</h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              Applicants complete a quick real-person ID check through Stripe at $0 cost to them. Automated bots, spam scripts, and fake profiles never get through.
+              External applicants confirm pay, location, and minimum experience alignment first, then complete a quick Stripe ID check at $0 cost to them—preserving your sponsored allowance exclusively for aligned humans.
             </p>
           </div>
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 space-y-2">

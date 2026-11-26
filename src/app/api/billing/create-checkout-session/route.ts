@@ -3,7 +3,14 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createClient } from '@/utils/supabase/server'
 import { resolveTrustedAppOrigin } from '@/lib/trusted-origin'
-import { EMPLOYER_BRIDGE_PACKS } from '@/lib/sponsored-verification'
+import {
+  EXTRA_PROTECTED_ROLE_SLOT,
+  INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER,
+  PROTECTED_ROLE_PASSES,
+  ProtectedRolePassId,
+} from '@/lib/sponsored-verification'
+
+export { EXTRA_PROTECTED_ROLE_SLOT }
 import Stripe from 'stripe'
 
 export const CANDIDATE_SAAS_TIERS: Record<
@@ -109,48 +116,48 @@ export const EMPLOYER_SAAS_TIERS: Record<
 > = {
   starter: {
     id: 'starter',
-    name: 'Starter Plan ($149/mo Founding Rate — 5 Active Roles & 10 Invitation Credits)',
-    priceCents: 14900,
+    name: 'Starter Ecosystem Membership ($299/mo — Includes 2 Active Protected Roles)',
+    priceCents: 29900,
     retailPriceCents: 29900,
-    foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_STARTER_FOUNDING',
-    retailEnvVar: 'STRIPE_PRICE_EMPLOYER_STARTER_RETAIL',
-    defaultFoundingPriceId: 'price_1UYCkyLAill3LX5XYaFupN5s',
+    foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_STARTER_299',
+    retailEnvVar: 'STRIPE_PRICE_EMPLOYER_STARTER_299',
+    defaultFoundingPriceId: 'price_1UYCl0LAill3LX5XNQu4NTLo',
     defaultRetailPriceId: 'price_1UYCl0LAill3LX5XNQu4NTLo',
-    maxActiveJobs: 5,
+    maxActiveJobs: INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER.starter,
     monthlyCredits: 10,
     maxSeats: 2,
     description:
-      'Locked at $149/mo for your first 12 months ($299/mo Month 13+). Up to 5 active roles, 10 monthly Invitation Credits, and 2 team seats.',
+      '$299/mo Ecosystem Membership. Includes up to 2 concurrent Active Protected Roles ($199 Extra Protected Role Slot add-on for overflow), 10 monthly Accepted-Only Invitation Credits, Built-In W-2 Hiring hub, and 2 team seats.',
   },
   growth: {
     id: 'growth',
-    name: 'Growth Plan ($499/mo Founding Rate — 15 Active Roles & 35 Invitation Credits)',
-    priceCents: 49900,
-    retailPriceCents: 79900,
-    foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_GROWTH_FOUNDING',
-    retailEnvVar: 'STRIPE_PRICE_EMPLOYER_GROWTH_RETAIL',
-    defaultFoundingPriceId: 'price_1UYCkzLAill3LX5XNVTDyNnN',
-    defaultRetailPriceId: 'price_1UYCl0LAill3LX5XalxQ4Uu6',
-    maxActiveJobs: 15,
+    name: 'Growth Ecosystem Membership ($599/mo — Includes 5 Active Protected Roles)',
+    priceCents: 59900,
+    retailPriceCents: 59900,
+    foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_GROWTH_599',
+    retailEnvVar: 'STRIPE_PRICE_EMPLOYER_GROWTH_599',
+    defaultFoundingPriceId: '',
+    defaultRetailPriceId: '',
+    maxActiveJobs: INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER.growth,
     monthlyCredits: 35,
     maxSeats: 5,
     description:
-      'Locked at $499/mo for your first 12 months ($799/mo Month 13+). Up to 15 active roles, 35 monthly Invitation Credits, and 5 team seats.',
+      '$599/mo Ecosystem Membership. Includes up to 5 concurrent Active Protected Roles ($199 Extra Protected Role Slot add-on for overflow), 35 monthly Accepted-Only Invitation Credits, -1% Built-In W-2 markup reduction, and 5 team seats.',
   },
   enterprise: {
     id: 'enterprise',
-    name: 'Enterprise Plan ($1,250/mo Founding Rate — Unlimited Roles, 120 Credits & HR Sync)',
-    priceCents: 125000,
-    retailPriceCents: 199900,
-    foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_ENTERPRISE_FOUNDING',
-    retailEnvVar: 'STRIPE_PRICE_EMPLOYER_ENTERPRISE_RETAIL',
-    defaultFoundingPriceId: 'price_1UYCkzLAill3LX5XWOgUs4m2',
-    defaultRetailPriceId: 'price_1UYCl1LAill3LX5XkgUpeLDP',
-    maxActiveJobs: 999,
+    name: 'Enterprise Ecosystem Membership ($999/mo — Includes 15 Active Protected Roles & HR Sync)',
+    priceCents: 99900,
+    retailPriceCents: 99900,
+    foundingEnvVar: 'STRIPE_PRICE_EMPLOYER_ENTERPRISE_999',
+    retailEnvVar: 'STRIPE_PRICE_EMPLOYER_ENTERPRISE_999',
+    defaultFoundingPriceId: '',
+    defaultRetailPriceId: '',
+    maxActiveJobs: INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER.enterprise,
     monthlyCredits: 120,
     maxSeats: 999,
     description:
-      'Locked at $1,250/mo for your first 12 months ($1,999/mo Month 13+). Unlimited active roles, 120 monthly Invitation Credits, unlimited seats, and Workday/Greenhouse sync.',
+      '$999/mo Ecosystem Membership. Includes up to 15 concurrent Active Protected Roles ($199 Extra Protected Role Slot add-on for overflow), 120 monthly Accepted-Only Invitation Credits, -2% Built-In W-2 markup reduction, unlimited seats, and Workday/Greenhouse sync.',
   },
 }
 
@@ -522,32 +529,65 @@ export async function POST(req: Request) {
       return NextResponse.json({ url: checkoutSession.url })
     }
 
-    // 1B. EMPLOYER ROLLOVER BRIDGE PACKS (25/$50, 50/$95, 150/$270)
-    const bridgePack = EMPLOYER_BRIDGE_PACKS[rawKey]
-    if (bridgePack) {
+    // 1B. EMPLOYER EXTRA PROTECTED ROLE SLOT ($199 FLAT OVERFLOW ADD-ON; LEGACY KEYS ROUTED TO $199)
+    const isExtraRoleSlotRequest =
+      ['extra_role_slot', 'extra_protected_role_slot', 'role_slot_199'].includes(rawKey) ||
+      Boolean(PROTECTED_ROLE_PASSES[rawKey as ProtectedRolePassId])
+    if (isExtraRoleSlotRequest) {
       const autoOrgId = await ensureEmployerOrganizationId(supabase, user)
       const member = autoOrgId ? { organization_id: autoOrgId } : null
 
       if (!member?.organization_id) {
         return NextResponse.json(
-          { error: 'Please set up your Company Profile before purchasing a Bridge Pack.' },
+          { error: 'Please set up your Company Profile before purchasing an Extra Protected Role Slot.' },
           { status: 400 }
         )
       }
 
-      const envPriceId = (process.env[bridgePack.envVar] || '').trim()
+      const { data: orgCheck } = await sbAdmin
+        .from('organizations')
+        .select('subscription_status, subscription_tier')
+        .eq('id', member.organization_id)
+        .maybeSingle()
+      const activeSubTier = String(orgCheck?.subscription_tier || '').toLowerCase()
+      const isActiveSub =
+        String(orgCheck?.subscription_status || '').toLowerCase() === 'active' &&
+        ['starter', 'growth', 'enterprise'].includes(activeSubTier)
+      if (!isActiveSub) {
+        return NextResponse.json(
+          { error: 'Active Ecosystem Membership Required: Activate Starter ($299/mo — 2 Active Roles), Growth ($599/mo — 5 Active Roles), or Enterprise ($999/mo — 15 Active Roles) before adding an Extra Protected Role Slot.' },
+          { status: 400 }
+        )
+      }
+
+      const envPriceId = (
+        process.env[EXTRA_PROTECTED_ROLE_SLOT.envVar] ||
+        process.env[EXTRA_PROTECTED_ROLE_SLOT.legacyEnvVar] ||
+        ''
+      ).trim()
       const catalogPriceId = envPriceId.startsWith('price_') ? envPriceId : ''
+      const returnToJobs = body?.returnTo === 'new_job'
+        ? `${origin}/dashboard/employer/jobs/new?billing=role_pass_success&pass=${EXTRA_PROTECTED_ROLE_SLOT.id}&session_id={CHECKOUT_SESSION_ID}`
+        : body?.returnTo === 'manage_jobs'
+        ? `${origin}/dashboard/employer/jobs?billing=role_pass_success&pass=${EXTRA_PROTECTED_ROLE_SLOT.id}&session_id={CHECKOUT_SESSION_ID}`
+        : `${origin}/dashboard/employer/billing?billing=role_pass_success&pass=${EXTRA_PROTECTED_ROLE_SLOT.id}&session_id={CHECKOUT_SESSION_ID}`
+      const cancelPath = body?.returnTo === 'new_job'
+        ? `${origin}/dashboard/employer/jobs/new?billing=cancelled`
+        : body?.returnTo === 'manage_jobs'
+        ? `${origin}/dashboard/employer/jobs?billing=cancelled`
+        : `${origin}/dashboard/employer/billing?billing=cancelled`
 
       const checkoutSession = await stripe.checkout.sessions.create({
         mode: 'payment',
         customer_email: user.email,
         client_reference_id: member.organization_id,
         metadata: {
-          audience: 'employer_bridge_pack',
+          audience: 'employer_extra_role_slot',
           organizationId: member.organization_id,
           userId: user.id,
-          packId: bridgePack.id,
-          creditsToAdd: String(bridgePack.credits),
+          packId: EXTRA_PROTECTED_ROLE_SLOT.id,
+          rolePassId: EXTRA_PROTECTED_ROLE_SLOT.id,
+          sponsoredCap: String(EXTRA_PROTECTED_ROLE_SLOT.cap),
         },
         line_items: [
           catalogPriceId
@@ -555,11 +595,11 @@ export async function POST(req: Request) {
             : {
                 price_data: {
                   currency: 'usd',
-                  unit_amount: bridgePack.priceCents,
+                  unit_amount: EXTRA_PROTECTED_ROLE_SLOT.priceCents,
                   product_data: {
                     tax_code: 'txcd_10103001',
-                    name: bridgePack.name,
-                    description: bridgePack.description,
+                    name: EXTRA_PROTECTED_ROLE_SLOT.name,
+                    description: EXTRA_PROTECTED_ROLE_SLOT.description,
                   },
                 },
                 quantity: 1,
@@ -569,8 +609,8 @@ export async function POST(req: Request) {
         billing_address_collection: 'auto',
         tax_id_collection: { enabled: true },
         invoice_creation: { enabled: true },
-        success_url: `${origin}/dashboard/employer/billing?billing=bridge_pack_success&pack=${bridgePack.id}&session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${origin}/dashboard/employer/billing?billing=cancelled`,
+        success_url: returnToJobs,
+        cancel_url: cancelPath,
       })
 
       return NextResponse.json({ url: checkoutSession.url })

@@ -1,4 +1,4 @@
-import { CANDIDATE_SAAS_TIERS, EMPLOYER_VERIFICATION_PASS, EMPLOYER_SAAS_TIERS } from '@/app/api/billing/create-checkout-session/route'
+import { CANDIDATE_SAAS_TIERS, EMPLOYER_VERIFICATION_PASS, EMPLOYER_SAAS_TIERS, EXTRA_PROTECTED_ROLE_SLOT } from '@/app/api/billing/create-checkout-session/route'
 import { NextRequest, NextResponse } from 'next/server'
 import { timingSafeEqual } from 'node:crypto'
 import dns from 'node:dns/promises'
@@ -397,8 +397,9 @@ export async function GET(req: NextRequest) {
   }
 
   const empPassOk = EMPLOYER_VERIFICATION_PASS?.priceCents === 2500 && Boolean(EMPLOYER_VERIFICATION_PASS?.defaultPriceId)
-  const empTiersOk = EMPLOYER_SAAS_TIERS?.starter?.priceCents === 14900 && EMPLOYER_SAAS_TIERS?.growth?.priceCents === 49900 && EMPLOYER_SAAS_TIERS?.enterprise?.priceCents === 125000
-  const wfEmpContractOk = empPassOk && empTiersOk && dbHealthy && stripeHealthy && (orgsCount === 0 || orgsList.length > 0)
+  const empTiersOk = EMPLOYER_SAAS_TIERS?.starter?.priceCents === 29900 && EMPLOYER_SAAS_TIERS?.growth?.priceCents === 59900 && EMPLOYER_SAAS_TIERS?.enterprise?.priceCents === 99900
+  const empRoleCapsOk = EMPLOYER_SAAS_TIERS?.starter?.maxActiveJobs === 2 && EMPLOYER_SAAS_TIERS?.growth?.maxActiveJobs === 5 && EMPLOYER_SAAS_TIERS?.enterprise?.maxActiveJobs === 15 && EXTRA_PROTECTED_ROLE_SLOT?.priceCents === 19900
+  const wfEmpContractOk = empPassOk && empTiersOk && empRoleCapsOk && dbHealthy && stripeHealthy && (orgsCount === 0 || orgsList.length > 0)
   const wfEmpStatus = !wfEmpContractOk ? "critical" : (orphanedEmployers > 0 || empSplitBrain > 0) ? "degraded" : "healthy"
   const wf2Latency = Math.max(2, Date.now() - wf2T0)
 
@@ -410,10 +411,10 @@ export async function GET(req: NextRequest) {
     status: wfEmpStatus,
     latency_ms: wf2Latency,
     detail: !wfEmpContractOk
-      ? `CONTRACT DRIFT: EmployerPass=${EMPLOYER_VERIFICATION_PASS?.priceCents}c (exp 2500c), Starter=${EMPLOYER_SAAS_TIERS?.starter?.priceCents}c (exp 14900c)`
+      ? `CONTRACT DRIFT: EmployerPass=${EMPLOYER_VERIFICATION_PASS?.priceCents}c (exp 2500c), Starter=${EMPLOYER_SAAS_TIERS?.starter?.priceCents}c/${EMPLOYER_SAAS_TIERS?.starter?.maxActiveJobs}r, ExtraSlot=${EXTRA_PROTECTED_ROLE_SLOT?.priceCents}c (exp 19900c)`
       : (orphanedEmployers > 0 || empSplitBrain > 0)
         ? `ORG INTEGRITY WARNING: ${orphanedEmployers} orphaned employer(s) without org link, ${empSplitBrain} profile/org verification mismatch(es) across ${empProfiles.length} employers.`
-        : `STEP 1 [PASS] Employer Pass $25.00 ($0/mo Sandbox) | STEP 2 [PASS] ${verifiedEmpProfiles.length}/${empProfiles.length} verified employer(s) & ${orgsList.length} org(s) audited (0 orphaned employers, 0 verification mismatches) | STEP 3 [PASS] Starter $149 / Growth $499 / Enterprise $1,250 locked`,
+        : `STEP 1 [PASS] Employer Pass $25.00 ($0/mo Practice Mode) | STEP 2 [PASS] ${verifiedEmpProfiles.length}/${empProfiles.length} verified employer(s) & ${orgsList.length} org(s) audited (0 orphaned employers, 0 verification mismatches) | STEP 3 [PASS] Starter $299 (2 Roles) / Growth $599 (5 Roles) / Enterprise $999 (15 Roles) + Extra Role Slot $199 locked`,
     checked_at: nowIso,
   })
 

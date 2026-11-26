@@ -76,7 +76,7 @@ export default function EmployerSignupPage({ searchParams }: { searchParams: Pro
             <div className="mb-6 p-4 rounded-xl bg-slate-50 border-2 border-slate-300/80 space-y-2 text-xs text-slate-600">
               <div className="flex items-start gap-2"><span className="text-emerald-600 font-black mt-0.5">✓</span><span><strong className="text-slate-900">Stop Bot Floods &amp; Spam:</strong> Drop your Verified Hiring Bridge link on LinkedIn or your careers page so only ID-verified humans can apply.</span></div>
               <div className="flex items-start gap-2"><span className="text-emerald-600 font-black mt-0.5">✓</span><span><strong className="text-slate-900">No More Broken ATS Filters:</strong> Every applicant is matched on real skills, pay, and work model—no great people lost to bad keyword settings.</span></div>
-              <div className="flex items-start gap-2"><span className="text-emerald-600 font-black mt-0.5">✓</span><span><strong className="text-slate-900">Unlimited Inbound &amp; W-2 Hiring:</strong> Every monthly plan includes unlimited inbound applicants with zero per-applicant fees, plus direct hire or W-2 Contract-to-Hire ($0 Conversion).</span></div>
+              <div className="flex items-start gap-2"><span className="text-emerald-600 font-black mt-0.5">✓</span><span><strong className="text-slate-900">2, 5, or 15 Active Roles &amp; W-2 Hiring:</strong> Base Memberships include concurrent Active Protected Roles (+$199 Extra Role Slots anytime), unlimited verified Ecosystem applicants ($0), and Built-In W-2 Contract-to-Hire ($0 Conversion).</span></div>
             </div>
           )}
           {errorMsg && <div className="mb-6 p-4 bg-rose-50 border border-rose-300 text-rose-600 text-sm font-bold rounded-lg text-center">{errorMsg}</div>}
@@ -100,7 +100,7 @@ export default function EmployerSignupPage({ searchParams }: { searchParams: Pro
               </div>
               <div className="pt-2">
                 <button type="submit" disabled={Boolean(emailError) || isSubmitting} className={`w-full flex justify-center items-center rounded-xl px-4 py-3 text-sm font-extrabold text-white shadow-sm transition-all ${emailError || isSubmitting ? 'bg-slate-300 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700 cursor-pointer'}`}>
-                  {isSubmitting ? 'Sending 6-Digit Verification Code...' : selectedPlan === 'enterprise' ? 'Create Account & Select Enterprise ($1,250/mo) →' : selectedPlan === 'growth' ? 'Create Account & Select Growth ($499/mo) →' : selectedPlan === 'starter' ? 'Create Account & Select Starter ($149/mo) →' : 'Create Employer Account ($25 Once) →'}
+                  {isSubmitting ? 'Sending 6-Digit Verification Code...' : selectedPlan === 'enterprise' ? 'Create Account & Select Enterprise ($999/mo) →' : selectedPlan === 'growth' ? 'Create Account & Select Growth ($599/mo) →' : selectedPlan === 'starter' ? 'Create Account & Select Starter ($299/mo) →' : 'Create Employer Account ($25 Once) →'}
                 </button>
               </div>
               <p className="text-[11px] text-center text-slate-400 leading-relaxed">By signing up, you agree to our <Link href="/terms" className="underline hover:text-slate-600">Terms of Service</Link> and <Link href="/privacy" className="underline hover:text-slate-600">Privacy Policy</Link>.</p>

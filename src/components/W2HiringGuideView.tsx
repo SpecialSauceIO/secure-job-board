@@ -228,17 +228,17 @@ export function HiringTracksFlowchart({
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
             <div className="rounded-xl bg-slate-900 border border-slate-800 p-3.5 space-y-1">
-              <span className="text-xs font-extrabold text-slate-300 block">Starter ($149/mo)</span>
+              <span className="text-xs font-extrabold text-slate-300 block">Starter ($299/mo)</span>
               <p className="text-xs sm:text-sm font-black text-white">Preferred W-2 Rate</p>
               <p className="text-xs text-slate-300">$0 conversion fee</p>
             </div>
             <div className="rounded-xl bg-slate-900 border border-indigo-500/50 p-3.5 space-y-1">
-              <span className="text-xs font-extrabold text-indigo-300 block">Growth ($499/mo)</span>
+              <span className="text-xs font-extrabold text-indigo-300 block">Growth ($599/mo)</span>
               <p className="text-xs sm:text-sm font-black text-amber-300">-1% W-2 Markup</p>
               <p className="text-xs text-slate-300">Automatic rate reduction</p>
             </div>
             <div className="rounded-xl bg-slate-900 border border-emerald-500/50 p-3.5 space-y-1">
-              <span className="text-xs font-extrabold text-emerald-300 block">Enterprise ($1,250/mo)</span>
+              <span className="text-xs font-extrabold text-emerald-300 block">Enterprise ($999/mo)</span>
               <p className="text-xs sm:text-sm font-black text-emerald-300">-2% W-2 Markup</p>
               <p className="text-xs text-slate-300">Lowest volume W-2 rate</p>
             </div>

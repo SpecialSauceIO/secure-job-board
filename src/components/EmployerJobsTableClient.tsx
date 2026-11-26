@@ -1,8 +1,15 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { SubmitButton } from '@/components/SubmitButton'
+import { purchaseEmployerRolePass } from '@/app/dashboard/actions'
+import {
+  EXTRA_PROTECTED_ROLE_SLOT,
+  ProtectedRolePassId,
+  RolePassInventory,
+} from '@/lib/sponsored-verification'
 import {
   STANDARD_INDUSTRY_VERTICALS,
   normalizeIndustryVertical,
@@ -75,6 +82,9 @@ export interface EnrichedEmployerJobRow {
   filledCount?: number
   remainingOpenings?: number
   activeSlotsUsed?: number
+  sponsoredCap?: number
+  sponsoredUsed?: number
+  rolePassTier?: string
 }
 
 export default function EmployerJobsTableClient({
@@ -83,6 +93,7 @@ export default function EmployerJobsTableClient({
   maxActiveJobs,
   slotsFull,
   isPracticeMode = false,
+  rolePasses,
   toggleOrRenewJobStatus,
   manageActiveW2Engagement,
 }: {
@@ -91,9 +102,11 @@ export default function EmployerJobsTableClient({
   maxActiveJobs: number
   slotsFull: boolean
   isPracticeMode?: boolean
+  rolePasses?: RolePassInventory
   toggleOrRenewJobStatus: (formData: FormData) => Promise<void>
   manageActiveW2Engagement?: (formData: FormData) => Promise<void>
 }) {
+  const router = useRouter()
   const [statusFilter, setStatusFilter] = useState<
     'all' | 'active' | 'placed' | 'closed'
   >('all')
@@ -110,6 +123,76 @@ export default function EmployerJobsTableClient({
   const [confirmIntentChecked, setConfirmIntentChecked] = useState(false)
   const [pendingRoleDelete, setPendingRoleDelete] = useState<EnrichedEmployerJobRow | null>(null)
   const [confirmRoleDeleteChecked, setConfirmRoleDeleteChecked] = useState(false)
+  const [pendingDraftPublish, setPendingDraftPublish] = useState<EnrichedEmployerJobRow | null>(null)
+  const [buyingPassId, setBuyingPassId] = useState<string | null>(null)
+  const [passNotice, setPassNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
+  const effectivePasses: RolePassInventory = rolePasses || {
+    extraRoleSlots: 0,
+    role_25: 0,
+    role_50: 0,
+    role_100: 0,
+    totalPasses: 0,
+    firstRoleGranted: false,
+  }
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const billingStatus = params.get('billing')
+    const passParam = params.get('pass') as ProtectedRolePassId | 'extra_role_slot' | null
+    const sessionIdParam = params.get('session_id')
+    if (
+      billingStatus === 'role_pass_success' &&
+      sessionIdParam &&
+      passParam &&
+      ['extra_role_slot', 'role_25', 'role_50', 'role_100'].includes(passParam)
+    ) {
+      window.history.replaceState({}, '', '/dashboard/employer/jobs')
+      purchaseEmployerRolePass(passParam, sessionIdParam).then((res) => {
+        if (res?.error) {
+          setPassNotice({ type: 'error', text: res.error })
+        } else {
+          setPassNotice({
+            type: 'success',
+            text: res?.message || `✓ Added 1 ${EXTRA_PROTECTED_ROLE_SLOT.shortLabel} to your overflow bank.`,
+          })
+          router.refresh()
+        }
+      })
+    } else if (billingStatus === 'cancelled') {
+      window.history.replaceState({}, '', '/dashboard/employer/jobs')
+    }
+  }, [router])
+
+  const openDraftPublishModal = (job: EnrichedEmployerJobRow) => {
+    setPendingDraftPublish(job)
+  }
+
+  const handleBuyExtraSlotFromJobs = async () => {
+    setBuyingPassId(EXTRA_PROTECTED_ROLE_SLOT.id)
+    setPassNotice(null)
+    try {
+      const res = await fetch('/api/billing/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ packId: EXTRA_PROTECTED_ROLE_SLOT.id, returnTo: 'manage_jobs' }),
+      })
+      const data = await res.json()
+      if (!res.ok || data?.error) {
+        setPassNotice({ type: 'error', text: data?.error || 'Could not start Extra Protected Role Slot checkout.' })
+        setBuyingPassId(null)
+        return
+      }
+      if (data?.url) {
+        window.location.href = data.url
+        return
+      }
+    } catch (err: any) {
+      setPassNotice({ type: 'error', text: err?.message || 'Network error launching checkout.' })
+    }
+    setBuyingPassId(null)
+  }
 
   const getRoleDeleteBlockReason = (job: EnrichedEmployerJobRow): string | null => {
     if ((job.w2Engagements || []).some((e) => e.status === 'accepted_pending_eor')) {
@@ -144,11 +227,9 @@ export default function EmployerJobsTableClient({
     j.remainingOpenings !== undefined
       ? Math.max(0, Number(j.remainingOpenings))
       : Math.max(0, getSeatsTotal(j) - getSeatsFilled(j))
-  const getReopenSlotsNeeded = (j: EnrichedEmployerJobRow) => Math.max(1, getSeatsRemaining(j))
-  const wouldExceedSlotsOnReopen = (j: EnrichedEmployerJobRow) =>
-    !isPracticeMode &&
-    maxActiveJobs > 0 &&
-    (slotsFull || activeJobsCount + getReopenSlotsNeeded(j) > maxActiveJobs)
+  const remainingPlanSlots = Math.max(0, maxActiveJobs - activeJobsCount)
+  const totalAvailableCapacity = remainingPlanSlots + effectivePasses.totalPasses
+  void slotsFull
 
   const hasAnyPlacement = (j: EnrichedEmployerJobRow) =>
     getSeatsFilled(j) > 0 ||
@@ -274,6 +355,44 @@ export default function EmployerJobsTableClient({
 
   return (
     <div className="space-y-5">
+      {passNotice && (
+        <div
+          className={`p-4 rounded-2xl text-xs font-extrabold border ${
+            passNotice.type === 'error'
+              ? 'bg-rose-50 text-rose-800 border-rose-300'
+              : 'bg-emerald-50 text-emerald-900 border-emerald-300'
+          }`}
+        >
+          {passNotice.text}
+        </div>
+      )}
+
+      {!isPracticeMode && (
+        <div className="bg-slate-900 text-white px-4 py-3.5 rounded-2xl border border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-extrabold text-emerald-400 uppercase tracking-wider">
+              🛡️ Active Protected Role Capacity:
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 font-bold text-slate-200">
+              Plan Slots: {Math.min(activeJobsCount, maxActiveJobs)} / {maxActiveJobs} Active
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 font-bold text-indigo-300">
+              Extra Role Slots Banked: {effectivePasses.totalPasses}
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              disabled={buyingPassId !== null}
+              onClick={handleBuyExtraSlotFromJobs}
+              className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-[11px] transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {buyingPassId ? 'Opening Checkout...' : '+ Add Extra Role Slot ($199)'}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Toolbar */}
       <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-300 shadow-sm space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -503,8 +622,19 @@ export default function EmployerJobsTableClient({
                     {job.location && <span>• {job.location}</span>}
                   </div>
 
-                  {(getSeatsTotal(job) > 1 || getSeatsFilled(job) > 0 || (job.eorContractTrack && job.eorContractTrack !== 'none') || (job.equipmentPolicy && job.equipmentPolicy !== 'No Equipment Needed / Not Applicable')) && (
+                  {(!job.isPracticeDraft || getSeatsTotal(job) > 1 || getSeatsFilled(job) > 0 || (job.eorContractTrack && job.eorContractTrack !== 'none') || (job.equipmentPolicy && job.equipmentPolicy !== 'No Equipment Needed / Not Applicable')) && (
                     <div className="flex flex-wrap items-center gap-1.5">
+                      {!job.isPracticeDraft && (
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-bold ${
+                            (job.sponsoredUsed ?? 0) >= (job.sponsoredCap ?? 25)
+                              ? 'bg-amber-50 border-amber-300 text-amber-900'
+                              : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                          }`}
+                        >
+                          🎟️ Sponsored Bridge IDs: {job.sponsoredUsed ?? 0}/{job.sponsoredCap ?? 25} • Ecosystem Pros: Unlimited ($0)
+                        </span>
+                      )}
                       {(getSeatsTotal(job) > 1 || getSeatsFilled(job) > 0) && (
                         <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-bold ${getSeatsRemaining(job) === 0 ? 'bg-indigo-50 border-indigo-200 text-indigo-800' : 'bg-emerald-50 border-emerald-200 text-emerald-800'}`}>
                           👥 {getSeatsFilled(job)}/{getSeatsTotal(job)} Filled{getSeatsTotal(job) > 1 && getSeatsRemaining(job) > 0 ? ` • ${getSeatsRemaining(job)} Open` : ''}
@@ -706,21 +836,22 @@ export default function EmployerJobsTableClient({
                         >
                           Activate Plan to Publish →
                         </Link>
-                      ) : wouldExceedSlotsOnReopen(job) ? (
-                        <Link
-                          href="/dashboard/employer/billing"
-                          className="block w-full text-center px-3 py-2 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-300 rounded-xl"
+                      ) : job.isPracticeDraft ? (
+                        <button
+                          type="button"
+                          onClick={() => openDraftPublishModal(job)}
+                          className="w-full px-3 py-2 text-xs font-extrabold text-white bg-slate-900 rounded-xl hover:bg-indigo-600 cursor-pointer"
                         >
-                          {slotsFull ? 'Slots Full · Upgrade' : `Needs ${getReopenSlotsNeeded(job)} Slots (${activeJobsCount}/${maxActiveJobs}) · Upgrade`}
-                        </Link>
+                          Publish Live (30d) →
+                        </button>
                       ) : (
                         <>
                           <input type="hidden" name="action_type" value="renew" />
                           <SubmitButton
-                            pendingText={job.isPracticeDraft ? 'Publishing...' : 'Renewing...'}
+                            pendingText="Renewing..."
                             className="w-full px-3 py-2 text-xs font-extrabold text-white bg-slate-900 rounded-xl hover:bg-indigo-600 cursor-pointer"
                           >
-                            {job.isPracticeDraft ? 'Publish Live (30d)' : '↻ Reopen (+30d)'}
+                            ↻ Reopen (+30d)
                           </SubmitButton>
                         </>
                       )}
@@ -833,8 +964,19 @@ export default function EmployerJobsTableClient({
                           )}
                         </div>
 
-                        {(getSeatsTotal(job) > 1 || getSeatsFilled(job) > 0 || (job.eorContractTrack && job.eorContractTrack !== 'none') || (job.equipmentPolicy && job.equipmentPolicy !== 'No Equipment Needed / Not Applicable')) && (
+                        {(!job.isPracticeDraft || getSeatsTotal(job) > 1 || getSeatsFilled(job) > 0 || (job.eorContractTrack && job.eorContractTrack !== 'none') || (job.equipmentPolicy && job.equipmentPolicy !== 'No Equipment Needed / Not Applicable')) && (
                           <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                            {!job.isPracticeDraft && (
+                              <span
+                                className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-bold ${
+                                  (job.sponsoredUsed ?? 0) >= (job.sponsoredCap ?? 25)
+                                    ? 'bg-amber-50 border-amber-300 text-amber-900'
+                                    : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                                }`}
+                              >
+                                🎟️ Sponsored Bridge IDs: {job.sponsoredUsed ?? 0}/{job.sponsoredCap ?? 25} • Ecosystem Pros: Unlimited ($0)
+                              </span>
+                            )}
                             {(getSeatsTotal(job) > 1 || getSeatsFilled(job) > 0) && (
                               <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-bold ${getSeatsRemaining(job) === 0 ? 'bg-indigo-50 border-indigo-200 text-indigo-800' : 'bg-emerald-50 border-emerald-200 text-emerald-800'}`}>
                                 👥 {getSeatsFilled(job)}/{getSeatsTotal(job)} Filled{getSeatsTotal(job) > 1 && getSeatsRemaining(job) > 0 ? ` • ${getSeatsRemaining(job)} Open` : ''}
@@ -1032,7 +1174,7 @@ export default function EmployerJobsTableClient({
                             </span>
                           ) : job.isPracticeDraft ? (
                             <span className="text-[11px] text-indigo-600 font-semibold">
-                              {isPracticeMode ? 'Activate monthly plan to publish live' : 'Ready to publish live for 30 days'}
+                              {isPracticeMode ? 'Activate Base Membership to publish live' : 'Select a Protected Role Pass to publish live'}
                             </span>
                           ) : (
                             <span className="text-[11px] text-slate-400 font-medium">
@@ -1147,13 +1289,14 @@ export default function EmployerJobsTableClient({
                               >
                                 Activate Plan to Publish →
                               </Link>
-                            ) : wouldExceedSlotsOnReopen(job) ? (
-                              <Link
-                                href="/dashboard/employer/billing"
-                                className="px-3 py-1.5 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-300 rounded-lg hover:bg-amber-100 transition-colors"
+                            ) : job.isPracticeDraft ? (
+                              <button
+                                type="button"
+                                onClick={() => openDraftPublishModal(job)}
+                                className="px-3 py-1.5 text-xs font-extrabold text-white bg-slate-900 rounded-lg hover:bg-indigo-600 transition-colors cursor-pointer"
                               >
-                                {slotsFull ? `Slots Full (${activeJobsCount}/${maxActiveJobs}) · Upgrade` : `Needs ${getReopenSlotsNeeded(job)} Slots (${activeJobsCount}/${maxActiveJobs}) · Upgrade`}
-                              </Link>
+                                Publish Live (30d) →
+                              </button>
                             ) : job.renewalCount >= job.maxRenewals ? (
                               <span
                                 title="This role has already used its maximum 2 renewals (90 days total)."
@@ -1169,6 +1312,16 @@ export default function EmployerJobsTableClient({
                               >
                                 ⚡ Reply to {job.unactionedApplicantCount} Applicant{job.unactionedApplicantCount === 1 ? '' : 's'} to Reopen
                               </Link>
+                            ) : Math.max(1, getSeatsRemaining(job)) > totalAvailableCapacity ? (
+                              <button
+                                type="button"
+                                disabled={buyingPassId !== null}
+                                onClick={handleBuyExtraSlotFromJobs}
+                                title="All included plan slots are active. Add a $199 Extra Protected Role Slot or close another active role to reopen."
+                                className="px-3 py-1.5 text-xs font-extrabold text-indigo-800 bg-indigo-50 border border-indigo-300 rounded-lg hover:bg-indigo-100 transition-colors cursor-pointer disabled:opacity-50"
+                              >
+                                {buyingPassId ? 'Opening...' : '+ Add Extra Slot ($199) to Reopen'}
+                              </button>
                             ) : (
                               <>
                                 <input
@@ -1448,6 +1601,101 @@ export default function EmployerJobsTableClient({
           </div>
         </div>
       )}
+
+      {pendingDraftPublish && (() => {
+        const neededDraftSlots = Math.max(1, getSeatsRemaining(pendingDraftPublish))
+        const overflowNeeded = Math.max(0, neededDraftSlots - remainingPlanSlots)
+        const shortfall = Math.max(0, overflowNeeded - effectivePasses.totalPasses)
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4">
+            <div className="w-full max-w-lg rounded-2xl bg-white border-2 border-slate-300 shadow-2xl p-6 space-y-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-indigo-100 text-indigo-900 border border-indigo-300">
+                    Publish Protected Role Draft
+                  </span>
+                  <h3 className="text-base font-black text-slate-900">
+                    Publish {pendingDraftPublish.title} Live (30 Days)
+                  </h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Verified Ecosystem Professionals apply unlimited at $0, and external Verified Hiring Bridge applicants verify free up to your role's sponsored cap.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPendingDraftPublish(null)}
+                  className="text-slate-400 hover:text-slate-700 text-sm font-black cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {overflowNeeded === 0 ? (
+                <div className="rounded-xl border border-emerald-300 bg-emerald-50/80 p-3.5 text-xs text-emerald-950 font-semibold leading-relaxed">
+                  ✓ <strong>Covered by Your Plan ($0 Extra):</strong> Uses {neededDraftSlots} of your {remainingPlanSlots} open included plan {remainingPlanSlots === 1 ? 'slot' : 'slots'}.
+                </div>
+              ) : shortfall === 0 ? (
+                <div className="rounded-xl border border-indigo-300 bg-indigo-50/80 p-3.5 text-xs text-indigo-950 font-semibold leading-relaxed">
+                  ★ <strong>Uses {overflowNeeded} Banked Extra Protected Role {overflowNeeded === 1 ? 'Slot' : 'Slots'}:</strong> You currently have {effectivePasses.totalPasses} banked overflow {effectivePasses.totalPasses === 1 ? 'slot' : 'slots'} available.
+                </div>
+              ) : (
+                <div className="rounded-xl border border-amber-300 bg-amber-50 p-3.5 space-y-2.5">
+                  <p className="text-xs font-extrabold text-amber-950">
+                    All {maxActiveJobs} Included Plan Slots Are Currently Active
+                  </p>
+                  <p className="text-xs text-amber-900 leading-relaxed">
+                    Close an active role to free a plan slot, or add {shortfall === 1 ? '1 Extra Protected Role Slot ($199)' : `${shortfall} Extra Protected Role Slots ($199 each)`} below to publish this draft immediately.
+                  </p>
+                  <button
+                    type="button"
+                    disabled={buyingPassId !== null}
+                    onClick={handleBuyExtraSlotFromJobs}
+                    className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold cursor-pointer disabled:opacity-50"
+                  >
+                    {buyingPassId ? 'Opening Checkout...' : '+ Add Extra Role Slot ($199) →'}
+                  </button>
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setPendingDraftPublish(null)}
+                  className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                {shortfall === 0 ? (
+                  <form
+                    action={async (fd) => {
+                      await toggleOrRenewJobStatus(fd)
+                      setPendingDraftPublish(null)
+                    }}
+                  >
+                    <input type="hidden" name="job_id" value={pendingDraftPublish.id} />
+                    <input type="hidden" name="action_type" value="renew" />
+                    <input type="hidden" name="current_status" value="false" />
+                    <SubmitButton
+                      pendingText="Publishing..."
+                      className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-xs font-extrabold text-white cursor-pointer"
+                    >
+                      Publish Live for 30 Days →
+                    </SubmitButton>
+                  </form>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="px-4 py-2 rounded-xl bg-slate-200 text-xs font-extrabold text-slate-400 cursor-not-allowed"
+                  >
+                    Add Extra Role Slot ($199) Above
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }

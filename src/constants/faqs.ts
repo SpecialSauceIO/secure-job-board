@@ -37,7 +37,7 @@ export const SECURITY_ARCHITECTURE_DATA = {
     {
       title: 'Payment Cards & Plan Billing (Handled by Stripe)',
       detail:
-        'All payments for Professional plans ($5 one-time Explorer, $12/mo Professional, $19/mo Prestige) and Employer plans ($25 Employer Verification Pass, $149 / $499 / $1,250 monthly plans, and $150 / $350 / $900 credit packs) are processed securely by Stripe Checkout.',
+        'All payments for Professional plans ($5 one-time Explorer, $12/mo Professional, $19/mo Prestige) and Employer plans ($25 Employer Verification Pass, $299 / $599 / $999 Base Memberships with 2 / 5 / 15 Active Protected Roles included, $199 Extra Protected Role Slots, and $150 / $350 / $900 credit packs) are processed securely by Stripe Checkout.',
     },
   ],
   platformStoredItems: [
@@ -103,7 +103,7 @@ export const TECHNICAL_SECURITY_ARCHITECTURE_DATA = {
     {
       title: "Payment Cards, ACH & Billing Details (PCI-DSS Level 1)",
       detail:
-        "All Employer subscription payments ($149 / $499 / $1,250 Founding Partner Rates locked for 12 months; $299 / $799 / $1,999 Retail), Rollover Invitation Credit Top-Up Packs ($150 / $350 / $900), Employer Organization Verification ($25 one-time), and Professional Explorer ($5 one-time \u00b7 $0/mo forever), Professional ($12/mo), or Prestige ($19/mo) plans are tokenized directly inside Stripe Checkout.",
+        "All Employer Base Membership payments ($299 Starter / $599 Growth / $999 Enterprise with 2 / 5 / 15 Active Protected Roles included), Extra Protected Role Slots ($199 flat add-on), Rollover Invitation Credit Top-Up Packs ($150 / $350 / $900), Employer Organization Verification ($25 one-time), and Professional Explorer ($5 one-time \u00b7 $0/mo forever), Professional ($12/mo), or Prestige ($19/mo) plans are tokenized directly inside Stripe Checkout.",
     },
   ],
   platformStoredItems: [
@@ -140,7 +140,7 @@ SPECIAL SAUCE \u2014 TECHNICAL SECURITY, CRYPTOGRAPHY & STRIPE COMPLIANCE BRIEF
 
 2. ISOLATED INSIDE STRIPE (PCI-DSS LEVEL 1 & SOC 2 TYPE II):
 - Biometric Identity Verification (Stripe Identity): Government IDs and live selfie checks for Professionals and Employer Account Admins are captured over TLS 1.3 and encrypted (AES-256) directly inside Stripe\u2019s isolated vault. Special Sauce stores only a boolean identity_verified flag.
-- Subscription & Billing Data (Stripe Checkout): All payment methods for Starter, Growth & Enterprise ($149/$499/$1,250 Founding Partner Rates; $299/$799/$1,999 Retail), Rollover Top-Up Packs ($150/$350/$900), Employer Verification ($25 one-time), and Explorer ($5 one-time \u00b7 $0/mo forever), Professional ($12/mo) & Prestige ($19/mo) plans are tokenized and vaulted exclusively by Stripe.
+- Subscription & Billing Data (Stripe Checkout): All payment methods for Starter, Growth & Enterprise Base Memberships ($299/$599/$999 with 2/5/15 Active Protected Roles), Extra Protected Role Slots ($199), Rollover Top-Up Packs ($150/$350/$900), Employer Verification ($25 one-time), and Explorer ($5 one-time \u00b7 $0/mo forever), Professional ($12/mo) & Prestige ($19/mo) plans are tokenized and vaulted exclusively by Stripe.
 
 3. 3-PILLAR EMPLOYER ANTI-HARVESTING GATE:
 - Pillar 1 (Domain & 90-Day RDAP Age Check): Work-email or DNS TXT verification paired with live DNS MX validation and automated IANA/RDAP lookup blocking domains registered <90 days ago.
@@ -159,7 +159,7 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
     id: 'employer',
     title: 'Employer & Hiring Team Guide',
     subtitle:
-      'How Special Sauce works for Hiring Managers, Talent Acquisition Teams, and Recruiting Partners.',
+      'How Special Sauce works for Employers, Hiring Managers, and Internal Hiring Teams.',
     badge: 'Hiring Team Guide',
     steps: [
       {
@@ -178,7 +178,7 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
         step: 'Step 3',
         title: 'Publish Direct Hire or W-2 Contract-to-Hire Roles',
         description:
-          'Post Direct Hire, W-2 Contract, or Contract-to-Hire ($0 conversion fee) roles with upfront pay bands while keeping your company name private until you connect.',
+          'Publish up to 2, 5, or 15 concurrent Active Protected Roles included in your Base Membership (+$199 Extra Protected Role Slots anytime) across Direct Hire, W-2 Contract, or Contract-to-Hire ($0 conversion fee) with upfront pay bands and verified brand trust.',
       },
       {
         step: 'Step 4',
@@ -204,10 +204,11 @@ SPECIAL SAUCE — HIRING TEAM QUICK-START GUIDE
 - Step 4 (Connect): Inbound applicants are 100% free to unlock. Outbound invitations use 1 credit and are auto-refunded if declined.
 - Step 5 (Hire): Chat directly in The Introduction, then receive the full PDF resume and contact details when released by the professional.
 
-2. EMPLOYER PLANS (12-MONTH FOUNDING PARTNER RATE LOCK):
-- Starter ($149/mo Locked 12 Mos · $299/mo Month 13+): Up to 5 Active Roles | 10 Invitation Credits/mo | 2 Team Seats
-- Growth ($499/mo Locked 12 Mos · $799/mo Month 13+): Up to 15 Active Roles | 35 Invitation Credits/mo | Up to 5 Team Seats
-- Enterprise ($1,250/mo Locked 12 Mos · $1,999/mo Month 13+): Unlimited Active Roles | 120 Invitation Credits/mo | Unlimited Seats + Workday/Greenhouse Sync
+2. EMPLOYER BASE MEMBERSHIPS + EXTRA PROTECTED ROLE SLOTS:
+- Starter ($299/mo): 2 Active Protected Roles (up to 25 sponsored Bridge checks/role) | 10 Invitation Credits/mo | 2 Team Seats
+- Growth ($599/mo): 5 Active Protected Roles (up to 50 sponsored Bridge checks/role) | 35 Invitation Credits/mo | -1% W-2 Markup | Up to 5 Team Seats
+- Enterprise ($999/mo): 15 Active Protected Roles (up to 100 sponsored Bridge checks/role) | 120 Invitation Credits/mo | -2% W-2 Markup | Unlimited Seats + Workday/Greenhouse Sync
+- Extra Protected Role Slot ($199 flat add-on): Adds +1 concurrent Active Protected Role (up to 25 pre-gated Bridge checks) whenever all plan slots are active. Verified Ecosystem Professionals always apply unlimited at $0.
 - Rollover Credit Top-Up Packs: Boost (+10 Credits for $150), Surge (+25 Credits for $350), Scale (+75 Credits for $900). Never expire while active.
 ====================================================================`,
   },
@@ -386,16 +387,16 @@ export const SUPPORT_FAQS: FAQ[] = [
   {
     id: 'e4',
     target: 'employer',
-    category: 'Plans, Credits & Rate Lock',
+    category: 'Plans, Role Slots & Credits',
     question:
-      'How do Founding Partner rates, rollover credits, and credit refunds work?',
+      'How do Employer Base Memberships, included Active Protected Roles, $199 Extra Role Slots, and credit refunds work?',
     answer:
-      'Founding Partners lock in discounted monthly rates for their first 12 months: Starter ($149/mo for 5 roles & 10 credits), Growth ($499/mo for 15 roles & 35 credits), and Enterprise ($1,250/mo for unlimited roles, 120 credits & HR sync). Monthly plan credits are used first, and optional Top-Up Packs (+10 for $150, +25 for $350, +75 for $900) roll over and never expire while your plan is active. If a professional declines an outbound invitation, your credit is automatically refunded.',
+      'Base Ecosystem Memberships include reusable concurrent Active Protected Roles—closing or pausing a filled role frees its plan slot right away: Starter ($299/mo: 2 Active Roles with up to 25 sponsored Bridge verifications/role, 2 seats, 10 credits/mo), Growth ($599/mo: 5 Active Roles with up to 50/role, 5 seats, 35 credits/mo, -1% W-2 markup), and Enterprise ($999/mo: 15 Active Roles with up to 100/role, unlimited seats, 120 credits/mo, -2% W-2 markup, HR sync). Whenever all included slots are active at once, add a flat $199 Extra Protected Role Slot (+1 concurrent role with up to 25 pre-gated Bridge verifications) without changing your monthly tier—while already-verified Ecosystem Professionals always apply unlimited at $0. Optional Top-Up Credit Packs (+10/$150, +25/$350, +75/$900) never expire while active, and declined outbound invitations auto-refund.',
   },
   {
     id: 'e5',
     target: 'employer',
-    category: 'Plans, Credits & Rate Lock',
+    category: 'Plans, Role Slots & Credits',
     question:
       'Does unlocking an inbound applicant cost an Invitation Credit?',
     answer:
@@ -480,7 +481,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How does Verified Hiring Bridge work for external sourcing and inbound leads?',
     answer:
-      'Verified Hiring Bridge lets active Employer subscribers generate single-use Protected Role links to share on LinkedIn, GitHub, careers pages, or email—or to gate cold inbound messages sent to your team. Unverified visitors and scrapers never see your company name, pay band, or role details. Every redeemed link enforces Stripe Real-Person ID verification and a 40%+ TrueFit Score™ check before burning automatically.',
+      'Verified Hiring Bridge lets active Employer members generate Protected Role links to share on LinkedIn, GitHub, careers pages, or email—displaying your verified company brand while gating bots and spam. External applicants first confirm pay, location, and minimum experience alignment, then complete a $0 Employer-Sponsored Stripe ID check (up to your role\u0027s 25, 50, or 100 sponsored allowance) and clear your 40%+ TrueFit Score™ floor before reaching your inbox, while already-verified Ecosystem Professionals apply unlimited at $0 without using your sponsored allowance.',
   },
   {
     id: 'e10',

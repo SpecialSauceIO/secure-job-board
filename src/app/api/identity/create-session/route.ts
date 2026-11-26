@@ -6,7 +6,7 @@ import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js
 import { resolveCandidateTierInfo } from '@/app/dashboard/actions'
 import { resolveTrustedAppOrigin, sanitizeInternalReturnPath } from '@/lib/trusted-origin'
 import { resolveActiveEmployerTalentShieldTarget } from '@/lib/inbound-shield'
-import { getEmployerSponsoredVerificationBalance } from '@/lib/sponsored-verification'
+import { getEmployerSponsoredVerificationBalance, getJobSponsoredVerificationStatus } from '@/lib/sponsored-verification'
 import {
   checkAndRecordStripeIdentityCircuitBreaker,
   recordHandshakeTelemetry,
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
         return NextResponse.json(
           {
             error:
-              '1-Time Admin Stripe Identity Verification unlocks automatically as soon as you complete your $25 One-Time Organization Verification Pass (or activate a Founding Partner plan) on Billing & Plans.',
+              '1-Time Admin Stripe Identity Verification unlocks automatically as soon as you complete your $25 One-Time Organization Verification Pass (or activate a monthly Ecosystem Membership) in Membership & Plan Settings.',
           },
           { status: 403 }
         )
@@ -86,6 +86,7 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => ({}))
     const bridgeToken = typeof body?.bridgeToken === 'string' ? body.bridgeToken.trim() : ''
     let sponsoredByOrgId = ''
+    let sponsoredJobId = ''
 
     if (!isEmployer && !isVerified && bridgeToken.startsWith('ss_inv_')) {
       const target = await resolveActiveEmployerTalentShieldTarget(bridgeToken)
@@ -108,12 +109,14 @@ export async function POST(req: Request) {
         typeof target.minYearsExperience === 'number' && target.minYearsExperience > 0
           ? target.minYearsExperience
           : 0
+      let gateJobRow: any = null
       if (target.jobId) {
-        const { data: gateJobRow } = await sbAdmin
+        const { data: fetchedGateJob } = await sbAdmin
           .from('jobs')
-          .select('structured_requirements')
+          .select('id, is_active, structured_requirements')
           .eq('id', target.jobId)
           .maybeSingle()
+        gateJobRow = fetchedGateJob
         const gateMeta = Array.isArray(gateJobRow?.structured_requirements)
           ? gateJobRow.structured_requirements.find((r: any) => r && r._ss_job_meta === true)
           : null
@@ -135,14 +138,20 @@ export async function POST(req: Request) {
         .select('id, subscription_tier, subscription_status, sponsored_verifications_monthly_allowance, sponsored_verifications_monthly_remaining, sponsored_verifications_rollover_balance')
         .eq('id', target.organizationId)
         .maybeSingle()
-      const bal = getEmployerSponsoredVerificationBalance(orgObj)
-      if (bal.totalAvailable <= 0) {
+      const isSponsorActive =
+        String(orgObj?.subscription_status || '').toLowerCase() === 'active' &&
+        ['starter', 'growth', 'enterprise'].includes(String(orgObj?.subscription_tier || '').toLowerCase())
+      const jobCapAvailable = target.jobId
+        ? Boolean(gateJobRow?.is_active !== false && getJobSponsoredVerificationStatus(gateJobRow).remaining > 0)
+        : getEmployerSponsoredVerificationBalance(orgObj).totalAvailable > 0
+      if (!isSponsorActive || !jobCapAvailable) {
         return NextResponse.json(
-          { error: 'This Employer has reached their monthly Sponsored Verification allowance. They can add a rollover Bridge Pack in Billing & Plans, or you can verify directly with the $5 Explorer Verification Pass.' },
+          { error: 'This Protected Role has reached its Employer-Sponsored ID Verification cap. You can still verify directly with the one-time $5 Explorer Verification Pass ($0/mo forever) and apply with zero cap limits.' },
           { status: 403 }
         )
       }
       sponsoredByOrgId = target.organizationId
+      sponsoredJobId = target.jobId || ''
       effectiveTier = 'bridge_sponsored'
     }
 
@@ -169,6 +178,7 @@ export async function POST(req: Request) {
           user_id: user.id,
           tier: sponsoredByOrgId ? 'bridge_sponsored' : tierInfo.tier,
           ...(sponsoredByOrgId ? { sponsoredByOrgId } : {}),
+          ...(sponsoredJobId ? { sponsoredJobId } : {}),
         },
         provided_details: {
           email: profile?.contact_email || profile?.email || user.email || undefined,

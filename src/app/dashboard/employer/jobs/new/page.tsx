@@ -10,7 +10,20 @@ import { StructuredRequirementEditor } from '@/components/StructuredRequirementE
 import { StructuredLanguageEditor } from '@/components/StructuredLanguageEditor'
 import AiJobScanner from '@/components/AiJobScanner'
 import UsLocationSelector from '@/components/UsLocationSelector'
-import { createStructuredJob } from '@/app/dashboard/actions'
+import {
+  createStructuredJob,
+  purchaseEmployerRolePass,
+  resolveEmployerTierInfo,
+} from '@/app/dashboard/actions'
+import {
+  EXTRA_PROTECTED_ROLE_SLOT,
+  ProtectedRolePassId,
+  RolePassInventory,
+} from '@/lib/sponsored-verification'
+import {
+  clampRoleOpenings,
+  sumActiveRoleSlots,
+} from '@/constants/availability'
 import {
   parseEorConfigFromDescription,
   hasExplicitEorConfigTag,
@@ -36,6 +49,18 @@ export default function NewJobPage() {
   const [isPracticeMode, setIsPracticeMode] = useState(false)
   const [hasSavedOrgEorDefaults, setHasSavedOrgEorDefaults] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [billingNotice, setBillingNotice] = useState<string | null>(null)
+  const [buyingPassId, setBuyingPassId] = useState<string | null>(null)
+  const [maxActiveJobs, setMaxActiveJobs] = useState<number>(0)
+  const [activeSlotsUsed, setActiveSlotsUsed] = useState<number>(0)
+  const [rolePasses, setRolePasses] = useState<RolePassInventory>({
+    extraRoleSlots: 0,
+    role_25: 0,
+    role_50: 0,
+    role_100: 0,
+    totalPasses: 0,
+    firstRoleGranted: false,
+  })
 
   const [jobData, setJobData] = useState({
     title: '',
@@ -95,8 +120,38 @@ export default function NewJobPage() {
 
         const tierNorm = String(orgObj?.subscription_tier || '').toLowerCase()
         const statusNorm = String(orgObj?.subscription_status || '').toLowerCase()
-        const hasPaidActivePlan = statusNorm === 'active' && ['starter', 'growth', 'enterprise'].includes(tierNorm)
+        const resolvedTier = await resolveEmployerTierInfo(orgObj)
+        const hasPaidActivePlan = resolvedTier.tier !== 'free' && resolvedTier.maxActiveJobs > 0
         setIsPracticeMode(!hasPaidActivePlan)
+        setMaxActiveJobs(resolvedTier.maxActiveJobs)
+        setRolePasses(resolvedTier.rolePasses)
+
+        const { data: orgJobs } = await supabase
+          .from('jobs')
+          .select('id, created_at, is_active, structured_requirements')
+          .eq('organization_id', member.organization_id)
+          .eq('is_active', true)
+        const liveJobs = (orgJobs || []).filter((rj: any) => {
+          const reqs = Array.isArray(rj?.structured_requirements) ? rj.structured_requirements : []
+          const meta = reqs.find((r: any) => r && r._ss_job_meta === true)
+          if (meta?.practice_draft === true) return false
+          if (meta?.expires_at && new Date(meta.expires_at).getTime() <= Date.now()) return false
+          return true
+        })
+        const appsByJob: Record<string, any[]> = {}
+        const liveIds = liveJobs.map((j: any) => String(j.id)).filter(Boolean)
+        if (liveIds.length > 0) {
+          const { data: liveApps } = await supabase
+            .from('applications')
+            .select('id, job_id, match_data')
+            .in('job_id', liveIds)
+          for (const a of liveApps || []) {
+            const jid = String(a.job_id || '')
+            if (!appsByJob[jid]) appsByJob[jid] = []
+            appsByJob[jid].push(a)
+          }
+        }
+        setActiveSlotsUsed(sumActiveRoleSlots(liveJobs, appsByJob))
         setIsOrgVerified(Boolean(orgObj?.verification_status === 'verified' || (orgObj as any)?.domain_verified === true || ['active', 'verified_sandbox'].includes(statusNorm) || ['explorer', 'starter', 'growth', 'enterprise'].includes(tierNorm)))
 
         const rawDesc = orgObj?.description || ''
@@ -140,6 +195,81 @@ export default function NewJobPage() {
 
     checkDomainVerification()
   }, [router])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      const savedDraft = window.sessionStorage.getItem('ss_new_job_draft_v1')
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft)
+        if (parsed && typeof parsed === 'object') {
+          setJobData((prev) => ({ ...prev, ...parsed }))
+          if (Array.isArray(parsed.structured_requirements)) {
+            const restoredSkills = parsed.structured_requirements
+              .map((r: any) => String(r?.skill || r?.name || '').trim())
+              .filter(Boolean)
+            if (restoredSkills.length > 0) setLiveSkills(restoredSkills)
+          }
+        }
+        window.sessionStorage.removeItem('ss_new_job_draft_v1')
+      }
+    } catch {
+      // Ignore storage parse errors
+    }
+    const params = new URLSearchParams(window.location.search)
+    const billingStatus = params.get('billing')
+    const passParam = params.get('pass') as ProtectedRolePassId | 'extra_role_slot' | null
+    const sessionIdParam = params.get('session_id')
+    if (
+      billingStatus === 'role_pass_success' &&
+      sessionIdParam &&
+      passParam &&
+      ['extra_role_slot', 'role_25', 'role_50', 'role_100'].includes(passParam)
+    ) {
+      window.history.replaceState({}, '', '/dashboard/employer/jobs/new')
+      purchaseEmployerRolePass(passParam, sessionIdParam).then((res) => {
+        if (res?.error) {
+          setSubmitError(res.error)
+        } else {
+          if (res?.rolePasses) setRolePasses(res.rolePasses)
+          setBillingNotice(
+            res?.message ||
+              `✓ ${EXTRA_PROTECTED_ROLE_SLOT.shortLabel} added—your role is ready to publish below.`
+          )
+        }
+      })
+    } else if (billingStatus === 'cancelled') {
+      window.history.replaceState({}, '', '/dashboard/employer/jobs/new')
+    }
+  }, [])
+
+  const handleBuyExtraSlotInline = async () => {
+    setBuyingPassId(EXTRA_PROTECTED_ROLE_SLOT.id)
+    setSubmitError(null)
+    try {
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.setItem('ss_new_job_draft_v1', JSON.stringify(jobData))
+      }
+      const res = await fetch('/api/billing/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ packId: EXTRA_PROTECTED_ROLE_SLOT.id, returnTo: 'new_job' }),
+      })
+      const data = await res.json()
+      if (!res.ok || data?.error) {
+        setSubmitError(data?.error || 'Could not start Extra Protected Role Slot checkout.')
+        setBuyingPassId(null)
+        return
+      }
+      if (data?.url) {
+        window.location.href = data.url
+        return
+      }
+    } catch (err: any) {
+      setSubmitError(err?.message || 'Network error launching Extra Protected Role Slot checkout.')
+    }
+    setBuyingPassId(null)
+  }
 
   const handleAiData = (data: any) => {
     const matchOpt = (val: any, opts: string[], fb: string) => { if (typeof val === "string" && val.trim().length > 0) { const norm = (s: string) => s.trim().toLowerCase().replace(/[\u2010-\u2015-]/g, "-"); const t = norm(val); if (opts.length === 0) return val.trim(); return opts.find((o) => norm(o) === t) || opts.find((o) => norm(o).includes(t) || t.includes(norm(o))) || fb; } return fb; };
@@ -322,12 +452,12 @@ export default function NewJobPage() {
           {isPracticeMode ? 'Draft a Protected Role (Practice Mode)' : 'Post a New Protected Role'}
         </h2>
         <p className="text-sm text-slate-500 mt-1">
-          Professionals will see your compensation band, US metro location, education/certification/language alignment, and standardized industry vertical, while your company name and domain remain hidden until unlock.
+          Verified Professionals see your verified company brand, compensation band, US metro location, and skill/certification alignment, while every applicant's identity stays protected behind our 2-Stage Privacy Handshake.
         </p>
         {isPracticeMode && (
           <div className="mt-4 p-4 rounded-xl bg-amber-50 border border-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <p className="text-xs font-semibold text-amber-950">
-              <strong>Practice Mode Active ($0/mo):</strong> You can save up to 5 inactive Protected Role drafts right now. When you are ready to publish roles live to Verified Professionals, activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo).
+              <strong>Practice Mode Active ($0/mo):</strong> Save up to 5 inactive Protected Role drafts right now. When you are ready to publish live, activate Starter ($299/mo · 2 Active Roles), Growth ($599/mo · 5 Active Roles), or Enterprise ($999/mo · 15 Active Roles) in Membership &amp; Plan Settings.
             </p>
             <Link
               href="/dashboard/employer/billing"
@@ -338,6 +468,12 @@ export default function NewJobPage() {
           </div>
         )}
       </div>
+
+      {billingNotice && (
+        <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-sm font-bold">
+          {billingNotice}
+        </div>
+      )}
 
       {submitError && (
         <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-300 text-rose-700 text-sm font-bold">
@@ -975,7 +1111,7 @@ export default function NewJobPage() {
               Job Description Overview
             </label>
             <p className="text-xs text-slate-500 mb-2 mt-1">
-              Describe day-to-day responsibilities and team culture. Avoid using your company name so the role remains protected until unlock.
+              Describe day-to-day responsibilities, impact, and team culture in plain language.
             </p>
             <textarea
               name="description"
@@ -991,13 +1127,88 @@ export default function NewJobPage() {
           </div>
         </div>
 
+        {!isPracticeMode && (() => {
+          const requestedOpenings = clampRoleOpenings(jobData.openings_count, 1)
+          const remainingIncludedSlots = Math.max(0, maxActiveJobs - activeSlotsUsed)
+          const overflowSlotsNeeded = Math.max(0, requestedOpenings - remainingIncludedSlots)
+          const shortfallSlots = Math.max(0, overflowSlotsNeeded - rolePasses.totalPasses)
+          return (
+            <div className="space-y-4 rounded-xl bg-slate-50 p-4 sm:p-6 border-2 border-slate-300">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-300 pb-3">
+                <div>
+                  <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">
+                    5. Active Protected Role Capacity &amp; Sponsored Bridge Access
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-0.5">
+                    Already-verified Ecosystem Professionals always apply unlimited at $0; external Verified Hiring Bridge applicants verify free up to your role's sponsored cap (pre-gated before Stripe ID).
+                  </p>
+                </div>
+                <span className="shrink-0 px-3 py-1 rounded-full bg-white border border-slate-300 text-xs font-extrabold text-slate-800">
+                  {Math.min(activeSlotsUsed, maxActiveJobs)} / {maxActiveJobs} Plan Slots Active{rolePasses.totalPasses > 0 ? ` · +${rolePasses.totalPasses} Extra Banked` : ''}
+                </span>
+              </div>
+
+              {overflowSlotsNeeded === 0 ? (
+                <div className="rounded-xl border border-emerald-300 bg-emerald-50/80 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <p className="text-xs font-semibold text-emerald-950 leading-relaxed">
+                    ✓ <strong>Included in Your Plan ($0 Extra):</strong> Publishing this role uses {requestedOpenings} of your {remainingIncludedSlots} open included plan {remainingIncludedSlots === 1 ? 'slot' : 'slots'}. Closing or pausing a filled role frees its slot right away.
+                  </p>
+                </div>
+              ) : shortfallSlots === 0 ? (
+                <div className="rounded-xl border border-indigo-300 bg-indigo-50/80 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <p className="text-xs font-semibold text-indigo-950 leading-relaxed">
+                    ★ <strong>Overflow Covered by Banked Extra Slot:</strong> Publishing this role applies {overflowSlotsNeeded} banked Extra Protected Role {overflowSlotsNeeded === 1 ? 'Slot' : 'Slots'} ({rolePasses.totalPasses} available in balance).
+                  </p>
+                  <button
+                    type="button"
+                    disabled={buyingPassId !== null}
+                    onClick={handleBuyExtraSlotInline}
+                    className="shrink-0 px-3.5 py-2 rounded-lg border border-indigo-300 bg-white hover:bg-indigo-100 text-indigo-900 text-xs font-extrabold cursor-pointer disabled:opacity-50"
+                  >
+                    {buyingPassId ? 'Opening Checkout...' : '+ Add Another Slot ($199)'}
+                  </button>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <p className="text-xs font-extrabold text-amber-950">
+                      All {maxActiveJobs} Included Active Role Slots Are Currently in Use
+                    </p>
+                    <p className="text-xs text-amber-900 leading-relaxed">
+                      Close or pause an active role to free a plan slot, upgrade your plan in <Link href="/dashboard/employer/billing" className="underline font-bold">Membership &amp; Plan Settings</Link>, or add {shortfallSlots === 1 ? 'a flat $199 Extra Protected Role Slot' : `${shortfallSlots} Extra Protected Role Slots ($199 each)`} right here—your role fields on this page are saved automatically during checkout.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={buyingPassId !== null}
+                    onClick={handleBuyExtraSlotInline}
+                    className="shrink-0 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold shadow-xs cursor-pointer disabled:opacity-50"
+                  >
+                    {buyingPassId ? 'Opening Checkout...' : '+ Add Extra Role Slot ($199) →'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )
+        })()}
+
         <div className="pt-2 flex justify-end">
-          <SubmitButton
-            pendingText={isPracticeMode ? 'Saving Draft...' : 'Publishing...'}
-            className="w-full sm:w-auto rounded-xl bg-indigo-600 px-8 py-3.5 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer"
-          >
-            {isPracticeMode ? 'Save Practice Mode Draft' : 'Publish Protected Job Post'}
-          </SubmitButton>
+          {!isPracticeMode && Math.max(0, clampRoleOpenings(jobData.openings_count, 1) - Math.max(0, maxActiveJobs - activeSlotsUsed)) > rolePasses.totalPasses ? (
+            <button
+              type="button"
+              disabled
+              className="w-full sm:w-auto rounded-xl bg-slate-300 px-8 py-3.5 text-sm font-extrabold text-slate-600 cursor-not-allowed"
+            >
+              Add an Extra Protected Role Slot ($199) Above to Publish
+            </button>
+          ) : (
+            <SubmitButton
+              pendingText={isPracticeMode ? 'Saving Draft...' : 'Publishing...'}
+              className="w-full sm:w-auto rounded-xl bg-indigo-600 px-8 py-3.5 text-sm font-extrabold text-white shadow-sm hover:bg-indigo-700 transition-colors cursor-pointer"
+            >
+              {isPracticeMode ? 'Save Practice Mode Draft' : 'Publish Protected Role'}
+            </SubmitButton>
+          )}
         </div>
       </form>
     </div>

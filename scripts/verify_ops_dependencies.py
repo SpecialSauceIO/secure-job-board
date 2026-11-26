@@ -133,18 +133,28 @@ required_prices = [
     ("professional:", "priceCents: 1200"),
     ("prestige:", "priceCents: 1900"),
     ("EMPLOYER_VERIFICATION_PASS", "priceCents: 2500"),
-    ("starter:", "priceCents: 14900"),
-    ("growth:", "priceCents: 49900"),
-    ("enterprise:", "priceCents: 125000"),
+    ("starter:", "priceCents: 29900"),
+    ("growth:", "priceCents: 59900"),
+    ("enterprise:", "priceCents: 99900"),
+]
+role_pass_txt = (job_repo / "src/lib/sponsored-verification.ts").read_text()
+required_role_passes = [
+    ("INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER", "starter: 2"),
+    ("INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER", "growth: 5"),
+    ("INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER", "enterprise: 15"),
+    ("EXTRA_PROTECTED_ROLE_SLOT", "priceCents: 19900"),
 ]
 tab8_ok = all(
     checkout_txt.find(t_key) != -1 and p_str in checkout_txt[checkout_txt.find(t_key):checkout_txt.find(t_key)+400]
     for t_key, p_str in required_prices
+) and all(
+    role_pass_txt.find(r_key) != -1 and r_str in role_pass_txt[role_pass_txt.find(r_key):role_pass_txt.find(r_key)+400]
+    for r_key, r_str in required_role_passes
 )
 check(
     tab8_ok,
-    "Tab 8: All Professional ($5/$12/$19) & Employer ($25/$149/$499/$1250) tiers locked at 100% production pricing",
-    "Production pricing drift detected in create-checkout-session/route.ts",
+    "Tab 8: All Professional ($5/$12/$19), Employer ($25/$299/$599/$999), Included Active Roles (2/5/15) & Extra Role Slot ($199) locked",
+    "Production pricing drift detected in create-checkout-session/route.ts or sponsored-verification.ts",
 )
 
 # Tab 9: Next.js Turbopack "use client" Directive First-Line Guard

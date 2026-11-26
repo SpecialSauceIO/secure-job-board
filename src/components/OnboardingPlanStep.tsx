@@ -62,7 +62,7 @@ export default function OnboardingPlanStep({
         </h2>
         <p className="mt-2 text-sm text-slate-300 max-w-2xl mx-auto">
           {role === 'employer'
-            ? 'Complete your one-time company & Stripe ID check to publish Protected Roles, share Employer Talent Shield links on LinkedIn or your careers page, and stop applicant spam immediately. Start with the $25 Verification Pass (100% credited toward Month 1) or activate a monthly plan.'
+            ? 'Complete your one-time company & Stripe ID check to publish Protected Roles, share Verified Hiring Bridge links on LinkedIn or your careers page, and stop applicant spam immediately. Start with the $25 Verification Pass (100% credited toward Month 1) or activate a Base Membership with 2, 5, or 15 Active Protected Roles included.'
             : 'Every professional completes a one-time Stripe identity check to keep our talent pool 100% real people. Start in Explorer for a $5 one-time fee ($0/mo forever) or activate a monthly plan to apply outbound.'}
         </p>
         {userEmail && (
@@ -198,16 +198,16 @@ export default function OnboardingPlanStep({
           </div>
           <div className="flex flex-col justify-between rounded-xl border border-slate-700 bg-slate-900/80 p-5">
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-indigo-400">12-Mo Founding Rate</div>
+              <div className="text-xs font-bold uppercase tracking-wider text-indigo-400">Base Membership</div>
               <h3 className="mt-1 text-lg font-extrabold text-white">Starter</h3>
               <div className="mt-2 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-white">$149</span>
+                <span className="text-2xl font-black text-white">$299</span>
                 <span className="text-xs text-slate-400">/ mo</span>
               </div>
               <ul className="mt-4 space-y-2 text-xs text-slate-300">
-                <li>✓ Up to 5 Active Protected Roles</li>
-                <li>✓ 10 Outbound Invitation Credits/mo</li>
-                <li>✓ Employer Talent Shield Links &amp; Unlimited Inbound Applicants</li>
+                <li className="text-indigo-300 font-semibold">★ 2 Active Protected Roles Included</li>
+                <li>✓ +$199 Extra Protected Role Slots Anytime &amp; 2 Seats</li>
+                <li>✓ 10 Outbound Invites/mo &amp; Verified Hiring Bridge</li>
               </ul>
             </div>
             <button
@@ -216,7 +216,7 @@ export default function OnboardingPlanStep({
               onClick={() => startStripeCheckout('starter')}
               className="mt-6 w-full rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 px-3 py-3 text-xs font-bold text-white transition"
             >
-              {loadingPlan === 'starter' ? 'Opening Stripe...' : 'Start Starter ($149/mo) →'}
+              {loadingPlan === 'starter' ? 'Opening Stripe...' : 'Start Starter ($299/mo) →'}
             </button>
           </div>
           <div className="flex flex-col justify-between rounded-xl border-2 border-indigo-500 bg-slate-900/95 p-5">
@@ -224,13 +224,13 @@ export default function OnboardingPlanStep({
               <div className="text-xs font-bold uppercase tracking-wider text-indigo-300">Most Popular</div>
               <h3 className="mt-1 text-lg font-extrabold text-white">Growth</h3>
               <div className="mt-2 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-white">$499</span>
+                <span className="text-2xl font-black text-white">$599</span>
                 <span className="text-xs text-slate-400">/ mo</span>
               </div>
               <ul className="mt-4 space-y-2 text-xs text-slate-300">
-                <li>✓ Up to 15 Active Protected Roles</li>
-                <li>✓ 35 Outbound Invitation Credits/mo</li>
-                <li>✓ Up to 5 Team &amp; Recruiter Seats</li>
+                <li className="text-amber-300 font-semibold">★ 5 Active Protected Roles Included</li>
+                <li>✓ +$199 Extra Protected Role Slots Anytime &amp; 5 Seats</li>
+                <li>✓ 35 Outbound Invites/mo &amp; -1% W-2 Markup</li>
               </ul>
             </div>
             <button
@@ -239,21 +239,21 @@ export default function OnboardingPlanStep({
               onClick={() => startStripeCheckout('growth')}
               className="mt-6 w-full rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 px-3 py-3 text-xs font-bold text-white transition"
             >
-              {loadingPlan === 'growth' ? 'Opening Stripe...' : 'Start Growth ($499/mo) →'}
+              {loadingPlan === 'growth' ? 'Opening Stripe...' : 'Start Growth ($599/mo) →'}
             </button>
           </div>
           <div className="flex flex-col justify-between rounded-xl border border-amber-500/60 bg-slate-900/80 p-5">
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-amber-400">Scale &amp; ATS Sync</div>
+              <div className="text-xs font-bold uppercase tracking-wider text-amber-400">Scale &amp; HR Sync</div>
               <h3 className="mt-1 text-lg font-extrabold text-white">Enterprise</h3>
               <div className="mt-2 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-white">$1,250</span>
+                <span className="text-2xl font-black text-white">$999</span>
                 <span className="text-xs text-slate-400">/ mo</span>
               </div>
               <ul className="mt-4 space-y-2 text-xs text-slate-300">
-                <li>✓ Unlimited Active Protected Roles</li>
-                <li>✓ 120 Outbound Invitation Credits/mo</li>
-                <li>✓ Unlimited Seats &amp; ATS Sync</li>
+                <li className="text-amber-300 font-semibold">★ 15 Active Protected Roles Included</li>
+                <li>✓ +$199 Extra Role Slots, Unlimited Seats &amp; HR Sync</li>
+                <li>✓ 120 Outbound Invites/mo &amp; -2% W-2 Markup</li>
               </ul>
             </div>
             <button
@@ -262,7 +262,7 @@ export default function OnboardingPlanStep({
               onClick={() => startStripeCheckout('enterprise')}
               className="mt-6 w-full rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 px-3 py-3 text-xs font-bold text-slate-950 transition"
             >
-              {loadingPlan === 'enterprise' ? 'Opening Stripe...' : 'Start Enterprise ($1,250/mo) →'}
+              {loadingPlan === 'enterprise' ? 'Opening Stripe...' : 'Start Enterprise ($999/mo) →'}
             </button>
           </div>
         </div>

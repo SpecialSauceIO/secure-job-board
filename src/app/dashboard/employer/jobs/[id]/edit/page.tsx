@@ -350,8 +350,8 @@ export default function EditJobPage() {
             <p className="text-xs font-semibold text-amber-950">
               <strong>{isPracticeMode ? 'Practice Mode Active ($0/mo):' : 'Saved Practice Draft:'}</strong>{' '}
               {isPracticeMode
-                ? 'Changes save directly to your inactive Practice Mode draft. When you are ready to publish roles live to Verified Professionals, activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo).'
-                : 'This role is currently an inactive Practice Mode draft. Save any updates here, then publish it live from Manage Roles whenever a role slot is open.'}
+                ? 'Changes save directly to your inactive Practice Mode draft. When you are ready to publish roles live to Verified Professionals, activate Starter ($299/mo · 2 Active Roles), Growth ($599/mo · 5 Active Roles), or Enterprise ($999/mo · 15 Active Roles).'
+                : 'This role is currently an inactive Practice Mode draft. Save any updates here, then publish it live from Manage Roles using an open plan slot or Extra Protected Role Slot.'}
             </p>
             {isPracticeMode && (
               <Link

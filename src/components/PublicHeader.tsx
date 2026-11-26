@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -11,17 +11,52 @@ export function PublicHeader({
 }) {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [openDropdown, setOpenDropdown] = useState<'employers' | 'professionals' | null>(null)
+  const navRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     setMobileMenuOpen(false)
+    setOpenDropdown(null)
   }, [pathname])
 
-  const publicLinks = [
+  useEffect(() => {
+    const handlePointerDown = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setOpenDropdown(null)
+      }
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpenDropdown(null)
+        setMobileMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [])
+
+  const topLinks = [
     { href: '/', label: 'Home', exact: true },
     { href: '/about', label: 'About' },
-    { href: '/workflows', label: 'How It Works' },
-    { href: '/pricing', label: 'Pricing & Perks' },
     { href: '/security', label: 'Security & Trust' },
+  ]
+
+  const employerLinks = [
+    { href: '/workflows?tab=employer', label: 'How It Works', sub: '5-step employer hiring guide' },
+    { href: '/pricing#employers', label: 'Plans & Pricing', sub: '$299–$999/mo • Roles included' },
+    { href: '/talent-shield', label: 'Verified Hiring Bridge', sub: 'Filter external links & leads' },
+    { href: '/w2-hiring', label: 'Built-In W-2 Hiring', sub: 'Direct hire & $0 conversion EOR' },
+    { href: '/signup/employer', label: 'Verify Organization ($25)', sub: 'Start $0/mo Practice Mode', cta: true },
+  ]
+
+  const professionalLinks = [
+    { href: '/workflows?tab=professional', label: 'How It Works', sub: '5-step privacy-first guide' },
+    { href: '/pricing#professionals', label: 'Plans & Perks', sub: '$0/mo Explorer to Prestige' },
+    { href: '/signup/candidate', label: 'Start Explorer ($5)', sub: 'Verify once • $0/mo forever', cta: true },
   ]
 
   const isActive = (href: string, exact?: boolean) => {
@@ -29,8 +64,18 @@ export function PublicHeader({
     return pathname === href || pathname?.startsWith(`${href}/`)
   }
 
+  const isEmployerActive =
+    pathname === '/talent-shield' ||
+    pathname === '/w2-hiring' ||
+    pathname === '/signup/employer'
+
+  const isProfessionalActive =
+    pathname === '/signup/candidate' ||
+    pathname === '/signup/professional'
+
   return (
     <nav
+      ref={navRef}
       className={`${
         fixed ? 'fixed top-0 left-0 right-0' : 'sticky top-0'
       } z-40 bg-white/90 backdrop-blur-md border-b border-slate-300`}
@@ -83,26 +128,138 @@ export function PublicHeader({
           >
             About
           </Link>
-          <Link
-            href="/workflows"
-            className={`text-sm font-bold transition-colors whitespace-nowrap ${
-              pathname === '/workflows'
-                ? 'text-indigo-600'
-                : 'text-slate-600 hover:text-indigo-600'
-            }`}
+
+          {/* Employers Dropdown */}
+          <div
+            className="relative"
+            onMouseEnter={() => setOpenDropdown('employers')}
+            onMouseLeave={() => setOpenDropdown((prev) => (prev === 'employers' ? null : prev))}
           >
-            How It Works
-          </Link>
-          <Link
-            href="/pricing"
-            className={`text-sm font-bold transition-colors whitespace-nowrap ${
-              pathname === '/pricing'
-                ? 'text-indigo-600'
-                : 'text-slate-600 hover:text-indigo-600'
-            }`}
+            <button
+              type="button"
+              onClick={() => setOpenDropdown((prev) => (prev === 'employers' ? null : 'employers'))}
+              aria-expanded={openDropdown === 'employers'}
+              aria-haspopup="menu"
+              className={`inline-flex items-center gap-1 text-sm font-bold transition-colors whitespace-nowrap cursor-pointer py-2 ${
+                openDropdown === 'employers' || isEmployerActive
+                  ? 'text-emerald-700'
+                  : 'text-slate-600 hover:text-emerald-700'
+              }`}
+            >
+              <span>Employers</span>
+              <svg
+                className={`w-3.5 h-3.5 transition-transform duration-150 ${
+                  openDropdown === 'employers' ? 'rotate-180' : ''
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {openDropdown === 'employers' && (
+              <div role="menu" className="absolute right-0 top-full pt-2 w-72 z-50">
+                <div className="rounded-xl border border-slate-700/90 bg-[#0b1220] py-1.5 shadow-2xl overflow-hidden">
+                  {employerLinks.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      role="menuitem"
+                      onClick={() => setOpenDropdown(null)}
+                      className={
+                        item.cta
+                          ? 'mt-1 border-t border-slate-800 flex items-center justify-between px-4 py-3 hover:bg-slate-800/80 transition-colors'
+                          : 'flex flex-col px-4 py-2.5 hover:bg-slate-800/80 transition-colors'
+                      }
+                    >
+                      {item.cta ? (
+                        <>
+                          <div>
+                            <div className="text-sm font-extrabold text-emerald-400">{item.label}</div>
+                            <div className="text-xs font-medium text-slate-400">{item.sub}</div>
+                          </div>
+                          <span className="text-sm font-black text-emerald-400">→</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-sm font-bold text-white">{item.label}</span>
+                          <span className="text-xs font-medium text-slate-400">{item.sub}</span>
+                        </>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Professionals Dropdown */}
+          <div
+            className="relative"
+            onMouseEnter={() => setOpenDropdown('professionals')}
+            onMouseLeave={() => setOpenDropdown((prev) => (prev === 'professionals' ? null : prev))}
           >
-            Pricing &amp; Perks
-          </Link>
+            <button
+              type="button"
+              onClick={() => setOpenDropdown((prev) => (prev === 'professionals' ? null : 'professionals'))}
+              aria-expanded={openDropdown === 'professionals'}
+              aria-haspopup="menu"
+              className={`inline-flex items-center gap-1 text-sm font-bold transition-colors whitespace-nowrap cursor-pointer py-2 ${
+                openDropdown === 'professionals' || isProfessionalActive
+                  ? 'text-indigo-600'
+                  : 'text-slate-600 hover:text-indigo-600'
+              }`}
+            >
+              <span>Professionals</span>
+              <svg
+                className={`w-3.5 h-3.5 transition-transform duration-150 ${
+                  openDropdown === 'professionals' ? 'rotate-180' : ''
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {openDropdown === 'professionals' && (
+              <div role="menu" className="absolute right-0 top-full pt-2 w-72 z-50">
+                <div className="rounded-xl border border-slate-700/90 bg-[#0b1220] py-1.5 shadow-2xl overflow-hidden">
+                  {professionalLinks.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      role="menuitem"
+                      onClick={() => setOpenDropdown(null)}
+                      className={
+                        item.cta
+                          ? 'mt-1 border-t border-slate-800 flex items-center justify-between px-4 py-3 hover:bg-slate-800/80 transition-colors'
+                          : 'flex flex-col px-4 py-2.5 hover:bg-slate-800/80 transition-colors'
+                      }
+                    >
+                      {item.cta ? (
+                        <>
+                          <div>
+                            <div className="text-sm font-extrabold text-sky-400">{item.label}</div>
+                            <div className="text-xs font-medium text-slate-400">{item.sub}</div>
+                          </div>
+                          <span className="text-sm font-black text-sky-400">→</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-sm font-bold text-white">{item.label}</span>
+                          <span className="text-xs font-medium text-slate-400">{item.sub}</span>
+                        </>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
           <Link
             href="/login"
             className="inline-flex items-center px-4 py-2 rounded-xl border-2 border-slate-300 bg-slate-50 hover:bg-slate-100 hover:border-indigo-400 text-slate-800 hover:text-indigo-600 text-sm font-bold transition-all shadow-2xs whitespace-nowrap"
@@ -135,56 +292,77 @@ export function PublicHeader({
 
       {/* COLLAPSIBLE MOBILE NAVIGATION DRAWER (< md) */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-300 bg-white px-5 pt-3.5 pb-5 space-y-3.5 shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="md:hidden max-h-[calc(100vh-5rem)] overflow-y-auto border-t border-slate-800 bg-[#0b1220] px-5 pt-4 pb-6 space-y-4 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-150">
           {/* Primary Sign In Action inside Hamburger Menu */}
           <Link
             href="/login"
             onClick={() => setMobileMenuOpen(false)}
-            className="w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 border-indigo-500 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-black shadow-xs transition-colors"
+            className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-black shadow-xs transition-colors"
           >
             <span>Sign In to Your Account</span>
             <span>→</span>
           </Link>
 
-          <div className="grid grid-cols-1 gap-1.5">
-            {publicLinks.map((item) => {
+          <div className="border-t border-slate-800 pt-2">
+            {topLinks.map((item) => {
               const active = isActive(item.href, item.exact)
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-extrabold transition-colors ${
+                  className={`flex items-center justify-between px-2 py-2.5 text-sm font-bold transition-colors ${
                     active
-                      ? 'bg-slate-900 text-white shadow-xs'
-                      : 'bg-slate-50 text-slate-800 hover:bg-slate-100 border border-slate-200'
+                      ? 'text-white bg-slate-800/70 rounded-lg'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/60 rounded-lg'
                   }`}
                 >
                   <span>{item.label}</span>
-                  <span className="text-xs opacity-75">→</span>
+                  <span className="text-xs text-slate-500">→</span>
                 </Link>
               )
             })}
           </div>
 
-          <div className="pt-2 border-t border-slate-200 grid grid-cols-2 gap-2.5">
-            <Link
-              href="/signup/candidate"
-              onClick={() => setMobileMenuOpen(false)}
-              className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold text-center shadow-xs transition-colors"
-            >
-              I&apos;m a Professional →
-            </Link>
-            <Link
-              href="/signup/employer"
-              onClick={() => setMobileMenuOpen(false)}
-              className="py-2.5 px-3 rounded-xl border-2 border-slate-300 bg-white hover:bg-slate-50 text-slate-900 text-xs font-extrabold text-center transition-colors"
-            >
-              I&apos;m an Employer
-            </Link>
+          {/* Grouped Employers Section */}
+          <div className="border-t border-slate-800 pt-3">
+            <div className="px-2 pb-1.5 text-[11px] font-black uppercase tracking-wider text-emerald-400">
+              Employers
+            </div>
+            {employerLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-between px-2 py-2.5 rounded-lg hover:bg-slate-800/70 text-sm transition-colors ${
+                  item.cta ? 'font-extrabold text-emerald-400' : 'font-semibold text-slate-200 hover:text-white'
+                }`}
+              >
+                <span>{item.label}</span>
+                <span className={item.cta ? 'text-xs text-emerald-400' : 'text-xs text-slate-500'}>→</span>
+              </Link>
+            ))}
           </div>
 
-
+          {/* Grouped Professionals Section */}
+          <div className="border-t border-slate-800 pt-3">
+            <div className="px-2 pb-1.5 text-[11px] font-black uppercase tracking-wider text-sky-400">
+              Professionals
+            </div>
+            {professionalLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-between px-2 py-2.5 rounded-lg hover:bg-slate-800/70 text-sm transition-colors ${
+                  item.cta ? 'font-extrabold text-sky-400' : 'font-semibold text-slate-200 hover:text-white'
+                }`}
+              >
+                <span>{item.label}</span>
+                <span className={item.cta ? 'text-xs text-sky-400' : 'text-xs text-slate-500'}>→</span>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
     </nav>

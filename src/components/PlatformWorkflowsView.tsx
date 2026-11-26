@@ -91,8 +91,8 @@ const EMPLOYER_WORKFLOW_STEPS: WorkflowStep[] = [
     step: 'Step 4 • Post & Invite',
     title: '4. Publish Roles & Invite Talent',
     bullets: [
-      'Activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo) when ready to hire.',
-      'Inbound applicants are 100% free to unlock, and declined outbound invitations are automatically refunded.',
+      "Activate Starter ($299/mo • 2 Active Roles), Growth ($599/mo • 5 Active Roles), or Enterprise ($999/mo • 15 Active Roles) when ready—plus flat $199 Extra Protected Role Slots anytime.",
+      "Verified Ecosystem Professionals apply unlimited at $0, external Bridge applicants verify free up to each role's pre-gated allowance, and declined invitations auto-refund.",
     ],
     unlockBadge: 'Unlocks: ✓ Live Roles & Refund-Protected Invitations',
   },

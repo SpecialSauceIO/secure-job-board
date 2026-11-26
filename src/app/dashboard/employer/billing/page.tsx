@@ -9,8 +9,13 @@ import { createClient } from '@/utils/supabase/client'
 import {
   activateSandboxEmployerTier,
   purchaseEmployerCreditTopUp,
+  purchaseEmployerRolePass,
   resolveEmployerTierInfo,
 } from '@/app/dashboard/actions'
+import type {
+  ProtectedRolePassId,
+  RolePassInventory,
+} from '@/lib/sponsored-verification'
 
 export default function EmployerBillingPage() {
   const router = useRouter()
@@ -35,12 +40,20 @@ export default function EmployerBillingPage() {
   const [isOrgVerified, setIsOrgVerified] = useState(false)
   const [activeTier, setActiveTier] = useState<string>('starter')
   const [tierLabel, setTierLabel] = useState<string>('Starter Tier')
-  const [maxActiveJobs, setMaxActiveJobs] = useState<number>(5)
+  const [maxActiveJobs, setMaxActiveJobs] = useState<number>(2)
   const [maxSeats, setMaxSeats] = useState<number>(2)
   const [activeJobsCount, setActiveJobsCount] = useState<number>(0)
   const [credits, setCredits] = useState<number>(0)
   const [planCredits, setPlanCredits] = useState<number>(0)
   const [rolloverCredits, setRolloverCredits] = useState<number>(0)
+  const [rolePasses, setRolePasses] = useState<RolePassInventory>({
+    extraRoleSlots: 0,
+    role_25: 0,
+    role_50: 0,
+    role_100: 0,
+    totalPasses: 0,
+    firstRoleGranted: false,
+  })
 
   const [feedback, setFeedback] = useState<{
     type: 'success' | 'error'
@@ -84,6 +97,7 @@ export default function EmployerBillingPage() {
         setMaxSeats(resolved.maxSeats)
         setPlanCredits(resolved.planCreditsRemaining)
         setRolloverCredits(resolved.rolloverCreditsRemaining)
+        setRolePasses(resolved.rolePasses)
       }
 
       const { data: orgJobs } = await supabase
@@ -110,6 +124,7 @@ export default function EmployerBillingPage() {
     const billingStatus = params.get('billing')
     const tierParam = params.get('tier') as 'starter' | 'growth' | 'enterprise' | null
     const packParam = params.get('pack') as 'boost' | 'surge' | 'scale' | null
+    const passParam = params.get('pass') as ProtectedRolePassId | 'extra_role_slot' | null
     const sessionIdParam = params.get('session_id')
     const selectParam = params.get('select') as 'starter' | 'growth' | 'enterprise' | null
 
@@ -119,16 +134,36 @@ export default function EmployerBillingPage() {
         if (res?.error) {
           setFeedback({ type: 'error', text: res.error })
         } else {
-          const tierPriceMap = { starter: 149, growth: 499, enterprise: 1250 }
+          const tierPriceMap = { starter: 299, growth: 599, enterprise: 999 }
           trackAdConversion('Purchase', {
-            value: tierPriceMap[tierParam] || 149,
+            value: tierPriceMap[tierParam] || 299,
             currency: 'USD',
             plan: `employer_${tierParam}`,
             role: 'employer',
           })
           setFeedback({
             type: 'success',
-            text: res?.message || `Subscription Confirmed: Activated ${tierParam.toUpperCase()} plan.`,
+            text: res?.message || `Subscription Confirmed: Activated ${tierParam.toUpperCase()} Base Membership.`,
+          })
+        }
+        loadBillingState()
+      })
+    } else if (billingStatus === 'role_pass_success' && sessionIdParam && passParam && ['extra_role_slot', 'role_25', 'role_50', 'role_100'].includes(passParam)) {
+      window.history.replaceState({}, '', '/dashboard/employer/billing')
+      purchaseEmployerRolePass(passParam, sessionIdParam).then((res) => {
+        if (res?.error) {
+          setFeedback({ type: 'error', text: res.error })
+        } else {
+          const passPriceMap: Record<string, number> = { extra_role_slot: 199, role_25: 199, role_50: 349, role_100: 599 }
+          trackAdConversion('Purchase', {
+            value: passPriceMap[passParam] || 199,
+            currency: 'USD',
+            plan: `employer_${passParam}`,
+            role: 'employer',
+          })
+          setFeedback({
+            type: 'success',
+            text: res?.message || 'Payment Confirmed: Added 1 Extra Protected Role Slot ($199) to your account.',
           })
         }
         loadBillingState()
@@ -136,10 +171,14 @@ export default function EmployerBillingPage() {
     } else if (billingStatus === 'topup_success' && sessionIdParam && packParam && ['boost', 'surge', 'scale'].includes(packParam)) {
       window.history.replaceState({}, '', '/dashboard/employer/billing')
       purchaseEmployerCreditTopUp(packParam, sessionIdParam).then((res) => {
-        setFeedback({
-          type: 'success',
-          text: res?.message || 'Payment Confirmed: Added rollover invitation credits to your account.',
-        })
+        if (res?.error) {
+          setFeedback({ type: 'error', text: res.error })
+        } else {
+          setFeedback({
+            type: 'success',
+            text: res?.message || 'Payment Confirmed: Added rollover invitation credits to your account.',
+          })
+        }
         loadBillingState()
       })
     } else if (billingStatus === 'cancelled') {
@@ -151,21 +190,30 @@ export default function EmployerBillingPage() {
     } else if (selectParam && ['starter', 'growth', 'enterprise'].includes(selectParam)) {
       window.history.replaceState({}, '', '/dashboard/employer/billing')
       const planNames: Record<string, string> = {
-        starter: 'Starter ($149/mo Founding Rate)',
-        growth: 'Growth ($499/mo Founding Rate)',
-        enterprise: 'Enterprise ($1,250/mo Founding Rate)',
+        starter: 'Starter ($299/mo Base Membership)',
+        growth: 'Growth ($599/mo Base Membership)',
+        enterprise: 'Enterprise ($999/mo Base Membership)',
       }
       setFeedback({
         type: 'success',
-        text: `Welcome to Special Sauce: Select ${planNames[selectParam]} below when you are ready to activate your plan.`,
+        text: `Welcome to Special Sauce: Select ${planNames[selectParam]} below when you are ready to activate your Base Membership.`,
       })
     }
   }, [loadBillingState])
 
   const handleStripeEmployerCheckout = async (
-    targetId: 'starter' | 'growth' | 'enterprise' | 'boost' | 'surge' | 'scale',
+    targetId:
+      | 'starter'
+      | 'growth'
+      | 'enterprise'
+      | 'boost'
+      | 'surge'
+      | 'scale'
+      | 'extra_role_slot'
+      | ProtectedRolePassId,
     isTopUp = false
   ) => {
+    const isRolePass = targetId === 'extra_role_slot' || targetId === 'role_25' || targetId === 'role_50' || targetId === 'role_100'
     setIsProcessing(true)
     setProcessingTarget(isTopUp ? `topup_${targetId}` : targetId)
     setFeedback(null)
@@ -174,7 +222,11 @@ export default function EmployerBillingPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(
-          isTopUp ? { packId: `topup_${targetId}` } : { tierId: targetId }
+          isRolePass
+            ? { packId: targetId }
+            : isTopUp
+            ? { packId: `topup_${targetId}` }
+            : { tierId: targetId }
         ),
       })
       const data = await response.json()
@@ -284,7 +336,7 @@ export default function EmployerBillingPage() {
             Membership &amp; Plan Settings
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Inbound applicants are always 100% free to unlock, and declined outbound invitations are automatically refunded.
+            Base Memberships include 2, 5, or 15 Active Protected Roles (+$199 Extra Protected Role Slots anytime), unlimited $0 applications from verified Ecosystem Professionals, sponsored external Bridge verifications, and auto-refunded declined invites.
           </p>
         </div>
 
@@ -326,7 +378,7 @@ export default function EmployerBillingPage() {
             <div className="space-y-2 max-w-2xl">
               <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
                 <span className="text-amber-300">
-                  ★ Founding Partner Rate Lock
+                  ★ Permanent Base Ecosystem Membership
                 </span>
                 <span className="text-slate-600">•</span>
                 <span className="text-emerald-400">
@@ -339,21 +391,37 @@ export default function EmployerBillingPage() {
               </h2>
 
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Monthly plan credits are used first, and top-up credits roll over and never expire while your plan is active.
+                {maxActiveJobs < 1
+                  ? 'Draft roles in $0/mo Practice Mode and activate Starter (2 Active Roles), Growth (5 Active Roles), or Enterprise (15 Active Roles) whenever you are ready to publish.'
+                  : `Your plan includes ${maxActiveJobs} Active Protected Roles at a time, plus flat $199 Extra Protected Role Slots whenever you open additional concurrent roles. Monthly outbound credits are used first, and rollover credits never expire while active.`}
               </p>
             </div>
 
             {/* Live Account Balances */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 shrink-0 bg-slate-800/90 border border-slate-700 rounded-2xl p-4 text-center">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 shrink-0 bg-slate-800/90 border border-slate-700 rounded-2xl p-4 text-center">
               <div className="px-2">
                 <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
                   Active Roles
                 </span>
                 <span className="text-lg font-black text-white mt-0.5 block">
-                  {maxActiveJobs >= 500 ? `${activeJobsCount} Active` : `${activeJobsCount} / ${maxActiveJobs}`}
+                  {maxActiveJobs < 1 ? '0 / 0' : `${activeJobsCount} / ${maxActiveJobs + rolePasses.totalPasses}`}
+                </span>
+                <span className="block text-[10px] font-bold text-slate-400">
+                  {maxActiveJobs < 1 ? 'Practice Mode' : `${maxActiveJobs} Plan + ${rolePasses.totalPasses} Extra`}
                 </span>
               </div>
               <div className="px-2 sm:border-l border-slate-700">
+                <span className="block text-[10px] font-extrabold uppercase tracking-wider text-indigo-300">
+                  Extra Role Slots
+                </span>
+                <span className="text-lg font-black text-indigo-300 mt-0.5 block">
+                  {rolePasses.totalPasses}
+                </span>
+                <span className="block text-[10px] font-bold text-slate-400">
+                  +$199 Overflow Bank
+                </span>
+              </div>
+              <div className="px-2 border-t sm:border-t-0 sm:border-l border-slate-700 pt-2 sm:pt-0">
                 <span className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
                   Plan Credits
                 </span>
@@ -369,9 +437,9 @@ export default function EmployerBillingPage() {
                   {rolloverCredits}
                 </span>
               </div>
-              <div className="px-2 border-t sm:border-t-0 sm:border-l border-slate-700 pt-2 sm:pt-0">
+              <div className="col-span-2 sm:col-span-1 px-2 border-t sm:border-t-0 sm:border-l border-slate-700 pt-2 sm:pt-0">
                 <span className="block text-[10px] font-extrabold uppercase tracking-wider text-emerald-300">
-                  Total Available
+                  Total Invites
                 </span>
                 <span className="text-lg font-black text-emerald-400 mt-0.5 block">
                   {credits}
@@ -385,13 +453,13 @@ export default function EmployerBillingPage() {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-2 max-w-3xl">
               <div className="text-xs font-extrabold uppercase tracking-wider text-amber-300">
-                ★ 12-Month Founding Partner Rate Lock
+                ★ Verified Employer Ecosystem Membership
               </div>
               <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-                Verify Your Company to Lock In Founding Partner Rates
+                Verify Your Company to Unlock Protected Hiring
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Complete your one-time $25 organization verification to enter $0/mo Practice Mode—your $25 verification fee is credited directly toward Month 1 when you activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo).
+                Complete your one-time $25 organization verification to enter $0/mo Practice Mode—your $25 verification fee is credited directly toward Month 1 when you activate Starter ($299/mo · 2 Active Roles), Growth ($599/mo · 5 Active Roles), or Enterprise ($999/mo · 15 Active Roles).
               </p>
             </div>
 
@@ -440,8 +508,8 @@ export default function EmployerBillingPage() {
         >
           <div className="space-y-4">
             <div className="flex items-center justify-between text-xs font-extrabold">
-              <span className="text-amber-700">
-                ★ 12-Month Rate Lock
+              <span className="text-indigo-700">
+                ★ Base Ecosystem Membership
               </span>
               {activeTier === 'starter' && (
                 <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-300">
@@ -455,26 +523,25 @@ export default function EmployerBillingPage() {
                 Starter
               </h3>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-base font-bold text-slate-400 line-through">$299</span>
-                <span className="text-3xl font-black text-slate-900">$149</span>
-                <span className="text-xs font-bold text-amber-700">
-                  / mo (Locked 12 Mos)
+                <span className="text-3xl font-black text-slate-900">$299</span>
+                <span className="text-xs font-bold text-slate-600">
+                  / mo
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                For small teams filling 1 to 5 active roles at a time.
+                Complete hiring home for lean teams with up to 2 Active Protected Roles included.
               </p>
             </div>
 
             <ul className="space-y-2.5 pt-4 border-t border-slate-300 text-xs text-slate-700 font-medium">
-              <li>
-                ★ <strong className="text-amber-800">$149/mo Locked for 12 Months</strong> ($299/mo Month 13+)
+              <li className="text-indigo-900 font-bold">
+                ★ <strong>2 Active Protected Roles Included</strong> (up to 25 sponsored Bridge verifications/role)
               </li>
               <li className="text-emerald-700 font-bold">
                 ✓ <strong>$25 Verification Fee Credited</strong> toward Month 1
               </li>
               <li>
-                ✓ <strong>Up to 5 Active Protected Roles</strong>
+                ✓ <strong>+$199 Extra Protected Role Slots</strong> anytime you need more concurrent roles
               </li>
               <li>
                 ✓ <strong>Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/dashboard/talent-shield" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
@@ -489,7 +556,7 @@ export default function EmployerBillingPage() {
                 🛡️ <strong>Accepted-Only Guarantee</strong> (Declined invites auto-refund)
               </li>
               <li>
-                ✓ <strong>Unlimited Free Inbound Applicants</strong>
+                ✓ <strong>Unlimited Verified Ecosystem Applicants ($0)</strong>
               </li>
               <li>
                 ✓ <strong>2 Team Seats</strong> &amp; Founding Partner Badge
@@ -508,7 +575,7 @@ export default function EmployerBillingPage() {
                 ? 'Activating Starter...'
                 : activeTier === 'starter'
                 ? '✓ Starter Plan Active (Refresh Credits) →'
-                : 'Activate Starter ($149/mo) →'}
+                : 'Activate Starter ($299/mo) →'}
             </button>
           </div>
         </div>
@@ -524,7 +591,7 @@ export default function EmployerBillingPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between text-xs font-extrabold">
               <span className="text-indigo-300">
-                ★ Most Popular • 12-Month Rate Lock
+                ★ Most Popular • Base Ecosystem Membership
               </span>
               {activeTier === 'growth' && (
                 <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
@@ -536,26 +603,25 @@ export default function EmployerBillingPage() {
             <div>
               <h3 className="text-xl font-black text-white">Growth</h3>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-base font-bold text-slate-400 line-through">$799</span>
-                <span className="text-3xl font-black text-white">$499</span>
+                <span className="text-3xl font-black text-white">$599</span>
                 <span className="text-xs font-bold text-amber-300">
-                  / mo (Locked 12 Mos)
+                  / mo
                 </span>
               </div>
               <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                For growing companies hiring across multiple departments.
+                For growing companies hiring across departments with up to 5 Active Protected Roles included.
               </p>
             </div>
 
             <ul className="space-y-2.5 pt-4 border-t border-slate-800 text-xs text-slate-200 font-medium">
-              <li>
-                ★ <strong className="text-amber-300">$499/mo Locked for 12 Months</strong> ($799/mo Month 13+)
+              <li className="text-amber-300 font-bold">
+                ★ <strong>5 Active Protected Roles Included</strong> (up to 50 sponsored Bridge verifications/role)
               </li>
               <li className="text-emerald-300 font-bold">
                 ✓ <strong>$25 Verification Fee Credited</strong> toward Month 1
               </li>
               <li>
-                ✓ <strong>Up to 15 Active Protected Roles</strong>
+                ✓ <strong>+$199 Extra Protected Role Slots</strong> anytime you need more concurrent roles
               </li>
               <li>
                 ✓ <strong>Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/dashboard/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link>
@@ -570,7 +636,7 @@ export default function EmployerBillingPage() {
                 🛡️ <strong>Accepted-Only Guarantee</strong> (Declined invites auto-refund)
               </li>
               <li>
-                ✓ <strong>Unlimited Free Inbound Applicants</strong>
+                ✓ <strong>Unlimited Verified Ecosystem Applicants ($0)</strong>
               </li>
               <li>
                 ✓ <strong>Up to 5 Team &amp; Recruiter Seats</strong> + Founding Partner Badge
@@ -589,7 +655,7 @@ export default function EmployerBillingPage() {
                 ? 'Activating Growth...'
                 : activeTier === 'growth'
                 ? '✓ Growth Plan Active (Refresh Credits) →'
-                : 'Activate Growth ($499/mo) →'}
+                : 'Activate Growth ($599/mo) →'}
             </button>
           </div>
         </div>
@@ -605,7 +671,7 @@ export default function EmployerBillingPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between text-xs font-extrabold">
               <span className="text-emerald-700">
-                ★ Unlimited &amp; HR Auto-Sync
+                ★ Scale, -2% W-2 &amp; HR Auto-Sync
               </span>
               {activeTier === 'enterprise' && (
                 <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-300">
@@ -619,26 +685,25 @@ export default function EmployerBillingPage() {
                 Enterprise
               </h3>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-base font-bold text-slate-400 line-through">$1,999</span>
-                <span className="text-3xl font-black text-slate-900">$1,250</span>
-                <span className="text-xs font-bold text-amber-700">
-                  / mo (Locked 12 Mos)
+                <span className="text-3xl font-black text-slate-900">$999</span>
+                <span className="text-xs font-bold text-slate-600">
+                  / mo
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                For high-volume hiring teams with automated HR software sync.
+                For multi-team hiring with HR software sync and up to 15 Active Protected Roles included.
               </p>
             </div>
 
             <ul className="space-y-2.5 pt-4 border-t border-slate-300 text-xs text-slate-700 font-medium">
-              <li>
-                ★ <strong className="text-amber-800">$1,250/mo Locked for 12 Months</strong> ($1,999/mo Month 13+)
+              <li className="text-indigo-900 font-bold">
+                ★ <strong>15 Active Protected Roles Included</strong> (up to 100 sponsored Bridge verifications/role)
               </li>
               <li className="text-emerald-700 font-bold">
                 ✓ <strong>$25 Verification Fee Credited</strong> toward Month 1
               </li>
               <li>
-                ✓ <strong>Unlimited Active Protected Roles</strong>
+                ✓ <strong>+$199 Extra Protected Role Slots</strong> anytime you need more concurrent roles
               </li>
               <li>
                 ✓ <strong>Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/dashboard/talent-shield" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
@@ -672,11 +737,88 @@ export default function EmployerBillingPage() {
                 ? 'Activating Enterprise...'
                 : activeTier === 'enterprise'
                 ? '✓ Enterprise Plan Active (Refresh Credits) →'
-                : 'Activate Enterprise ($1,250/mo) →'}
+                : 'Activate Enterprise ($999/mo) →'}
             </button>
           </div>
         </div>
       </div>
+
+      {/* ====================================================================
+          EXTRA PROTECTED ROLE SLOT ($199 FLAT OVERFLOW ADD-ON)
+         ==================================================================== */}
+      <section className="rounded-2xl bg-white border-2 border-slate-300 p-4 sm:p-8 shadow-xs space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-200">
+          <div className="space-y-1 max-w-3xl">
+            <div className="inline-flex items-center gap-2 text-emerald-700 text-xs font-extrabold uppercase tracking-wider">
+              <span>🛡️ Overflow Role Capacity Add-On</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Need Another Concurrent Role? Add an Extra Protected Role Slot ($199)
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Starter includes 2 Active Protected Roles, Growth includes 5, and Enterprise includes 15—and closing or pausing a filled role frees its plan slot right away. Whenever all of your included plan slots are active at once, add a flat $199 Extra Protected Role Slot without changing your monthly tier.
+            </p>
+          </div>
+
+          <div className="shrink-0 bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-xs font-bold text-slate-700 space-y-1.5">
+            <div className="flex items-center justify-between gap-6">
+              <span className="text-slate-500">Included Plan Slots:</span>
+              <span className="font-black text-slate-900">{maxActiveJobs < 1 ? '0 (Practice Mode)' : `${Math.min(activeJobsCount, maxActiveJobs)} / ${maxActiveJobs} Active`}</span>
+            </div>
+            <div className="flex items-center justify-between gap-6">
+              <span className="text-indigo-700">Extra Role Slots Banked:</span>
+              <span className="font-black text-indigo-700">{rolePasses.totalPasses}</span>
+            </div>
+            {(maxActiveJobs > activeJobsCount || rolePasses.totalPasses > 0) && (
+              <div className="pt-1.5 border-t border-slate-200 text-right">
+                <Link href="/dashboard/employer/jobs/new" className="text-indigo-700 hover:text-indigo-900 font-extrabold underline">
+                  Post a Protected Role →
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {activeTier === 'free' && (
+          <div className="p-4 rounded-xl bg-amber-50 border border-amber-300 text-amber-950 text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <span>
+              🔒 <strong>Active Base Membership Required:</strong> Activate Starter ($299/mo · 2 Active Roles), Growth ($599/mo · 5 Active Roles), or Enterprise ($999/mo · 15 Active Roles) above first.
+            </span>
+          </div>
+        )}
+
+        <div className="rounded-2xl border-2 border-indigo-500 bg-slate-50/70 p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-xs">
+          <div className="space-y-2.5 max-w-2xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-700">
+                ★ Extra Protected Role Slot
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-extrabold">
+                {rolePasses.totalPasses} Banked
+              </span>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+              $199 Flat Add-On • +1 Extra Protected Role Slot
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Publishes 1 additional concurrent Protected Role beyond your included plan capacity, including up to 25 Employer-Sponsored external ID verifications via Verified Hiring Bridge (pre-gated before Stripe ID) plus unlimited $0 applications from already-verified Special Sauce Professionals.
+            </p>
+          </div>
+
+          <div className="shrink-0 w-full lg:w-auto">
+            <button
+              type="button"
+              disabled={isProcessing || activeTier === 'free'}
+              onClick={() => handleStripeEmployerCheckout('extra_role_slot')}
+              className="w-full lg:w-auto py-3.5 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold transition-colors shadow-sm disabled:opacity-40 cursor-pointer"
+            >
+              {processingTarget === 'extra_role_slot'
+                ? 'Opening Checkout...'
+                : 'Add Extra Protected Role Slot ($199) →'}
+            </button>
+          </div>
+        </div>
+      </section>
 
       <HiringTracksFlowchart isDashboard={true} showGuideLink={true} />
 
@@ -856,7 +998,7 @@ export default function EmployerBillingPage() {
               🧪 QA Controls (Local Only)
             </span>
             <p className="text-xs text-slate-600 mt-0.5">
-              Switch between Employer plans to test role limits, seats, and rollover credits.
+              Switch between Employer plans to test included active role limits, $199 extra role slots, seats, and rollover credits.
             </p>
           </div>
         </div>
@@ -885,7 +1027,7 @@ export default function EmployerBillingPage() {
                 : 'bg-white border-slate-300 text-slate-700 hover:bg-amber-50'
             }`}
           >
-            2. Starter ($149/mo)
+            2. Starter ($299/mo)
           </button>
 
           <button
@@ -898,7 +1040,7 @@ export default function EmployerBillingPage() {
                 : 'bg-white border-slate-300 text-slate-700 hover:bg-indigo-50'
             }`}
           >
-            3. Growth ($499/mo)
+            3. Growth ($599/mo)
           </button>
 
           <button
@@ -911,7 +1053,7 @@ export default function EmployerBillingPage() {
                 : 'bg-white border-slate-300 text-slate-900 hover:bg-slate-200'
             }`}
           >
-            4. Enterprise ($1,250/mo)
+            4. Enterprise ($999/mo)
           </button>
         </div>
       </div>

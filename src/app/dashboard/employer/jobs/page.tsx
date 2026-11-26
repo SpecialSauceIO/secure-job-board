@@ -12,8 +12,16 @@ import {
   revokeEmployerTalentShieldLink,
 } from '@/lib/inbound-shield'
 import { getOpsServiceClient } from '@/lib/ops-bridge'
+import {
+  EXTRA_PROTECTED_ROLE_SLOT,
+  consumeOverflowRoleSlot,
+  parseRolePassInventory,
+} from '@/lib/sponsored-verification'
 import { normalizeIndustryVertical } from '@/constants/industries'
-import { resolveRoleSeatSummary, sumActiveRoleSlots } from '@/constants/availability'
+import {
+  resolveRoleSeatSummary,
+  sumActiveRoleSlots,
+} from '@/constants/availability'
 import EmployerJobsTableClient, {
   EnrichedEmployerJobRow,
   ActiveW2EngagementSummary,
@@ -192,6 +200,9 @@ function enrichJobForManagementTable(job: any): EnrichedEmployerJobRow {
     expiresAtIso: new Date(expiresMs).toISOString(),
     renewedAtIso: metaItem.renewed_at || null,
     isPracticeDraft: Boolean(metaItem.practice_draft === true && !job.is_active),
+    sponsoredCap: [25, 50, 100].includes(Number(metaItem.sponsored_cap)) ? Number(metaItem.sponsored_cap) : 25,
+    sponsoredUsed: Math.max(0, Math.floor(Number(metaItem.sponsored_used) || 0)),
+    rolePassTier: typeof metaItem.role_pass_tier === 'string' ? metaItem.role_pass_tier : 'role_25',
     openingsCount: seatSummary.openingsCount,
     filledCount: seatSummary.filledCount,
     remainingOpenings: seatSummary.remainingOpenings,
@@ -390,6 +401,10 @@ export default async function JobManagementPage() {
       return
     }
     const currentTier = await resolveEmployerTierInfo(orgRecord)
+    if (currentTier.tier === 'free' || currentTier.maxActiveJobs < 1) {
+      revalidatePath('/dashboard/employer/jobs')
+      return
+    }
     const { data: targetJob } = await supabaseAction
       .from('jobs')
       .select('*')
@@ -398,34 +413,6 @@ export default async function JobManagementPage() {
       .single()
 
     if (!targetJob) return
-
-    if (!targetJob.is_active) {
-      const { data: orgJobsForSlots } = await supabaseAction
-        .from('jobs')
-        .select('id, is_active, structured_requirements, applications (id, status, match_data)')
-        .eq('organization_id', memberRow.organization_id)
-
-      const appsByJob: Record<string, any[]> = {}
-      for (const jRow of orgJobsForSlots || []) {
-        appsByJob[String(jRow.id)] = Array.isArray((jRow as any).applications)
-          ? (jRow as any).applications
-          : []
-      }
-      const currentSlotsUsed = sumActiveRoleSlots(orgJobsForSlots || [], appsByJob)
-      const targetSeatSummary = resolveRoleSeatSummary(
-        { ...targetJob, is_active: true },
-        appsByJob[String(targetJob.id)] || []
-      )
-      const slotsNeeded = Math.max(1, targetSeatSummary.remainingOpenings)
-
-      if (
-        currentTier.maxActiveJobs > 0 &&
-        currentSlotsUsed + slotsNeeded > currentTier.maxActiveJobs
-      ) {
-        revalidatePath('/dashboard/employer/jobs')
-        return
-      }
-    }
 
     // Check Renewal Guardrails: (1) Days 25-30 Window, (2) Max 2 Renewals, (3) Active Professional Engagement
     const rawReqs = Array.isArray(targetJob.structured_requirements)
@@ -528,12 +515,85 @@ export default async function JobManagementPage() {
 
     const nowIso = new Date().toISOString()
     const isInitialDraftPublish = Boolean(existingMeta.practice_draft === true && !targetJob.is_active)
+    const isReactivatingInactiveRole = !targetJob.is_active || isCurrentlyExpired
+    let overflowSlotsToConsume = 0
+    let assignedSponsoredCap = [25, 50, 100].includes(Number(existingMeta.sponsored_cap))
+      ? Number(existingMeta.sponsored_cap)
+      : actionTierNorm === 'enterprise'
+      ? 100
+      : actionTierNorm === 'growth'
+      ? 50
+      : 25
+    let assignedSlotTag =
+      typeof existingMeta.role_pass_tier === 'string' && existingMeta.role_pass_tier
+        ? existingMeta.role_pass_tier
+        : 'included_tier_slot'
+
+    if (isReactivatingInactiveRole) {
+      const adminDb = getOpsServiceClient() || supabaseAction
+      const { data: otherActiveJobs } = await adminDb
+        .from('jobs')
+        .select('id, created_at, is_active, structured_requirements')
+        .eq('organization_id', memberRow.organization_id)
+        .eq('is_active', true)
+        .neq('id', jobId)
+      const liveOtherJobs = (otherActiveJobs || []).filter((rj: any) => {
+        const reqs = Array.isArray(rj?.structured_requirements) ? rj.structured_requirements : []
+        const meta = reqs.find((r: any) => r && r._ss_job_meta === true)
+        if (meta?.practice_draft === true) return false
+        const baseTs = meta?.renewed_at || rj?.created_at || nowIso
+        if (new Date(baseTs).getTime() + JOB_EXPIRATION_DAYS * 86400000 <= Date.now()) return false
+        return true
+      })
+      const appsByOtherJob: Record<string, any[]> = {}
+      const otherIds = liveOtherJobs.map((j: any) => String(j.id)).filter(Boolean)
+      if (otherIds.length > 0) {
+        const { data: otherApps } = await adminDb
+          .from('applications')
+          .select('id, job_id, match_data')
+          .in('job_id', otherIds)
+        for (const a of otherApps || []) {
+          const jid = String(a.job_id || '')
+          if (!appsByOtherJob[jid]) appsByOtherJob[jid] = []
+          appsByOtherJob[jid].push(a)
+        }
+      }
+      const currentActiveSlots = sumActiveRoleSlots(liveOtherJobs, appsByOtherJob)
+      const targetSeatSummary = resolveRoleSeatSummary(
+        { ...targetJob, is_active: true },
+        jobApps || []
+      )
+      const neededSlots = Math.max(1, targetSeatSummary.remainingOpenings)
+      const remainingIncluded = Math.max(0, currentTier.maxActiveJobs - currentActiveSlots)
+      overflowSlotsToConsume = Math.max(0, neededSlots - remainingIncluded)
+      if (overflowSlotsToConsume > 0) {
+        const inv = parseRolePassInventory(orgRecord?.description)
+        if (inv.totalPasses < overflowSlotsToConsume) {
+          revalidatePath('/dashboard/employer/jobs')
+          return
+        }
+        assignedSlotTag = EXTRA_PROTECTED_ROLE_SLOT.id
+        if (isInitialDraftPublish) {
+          assignedSponsoredCap = EXTRA_PROTECTED_ROLE_SLOT.cap
+        }
+      }
+    }
+
     const updatedMeta = {
       ...existingMeta,
       _ss_job_meta: true,
       practice_draft: false,
       renewed_at: nowIso,
       renewal_count: isInitialDraftPublish ? currentRenewalCount : currentRenewalCount + 1,
+      ...(isInitialDraftPublish
+        ? {
+            sponsored_cap: assignedSponsoredCap,
+            sponsored_used: 0,
+            role_pass_tier: assignedSlotTag,
+          }
+        : overflowSlotsToConsume > 0
+        ? { role_pass_tier: assignedSlotTag }
+        : {}),
     }
 
     await supabaseAction
@@ -545,7 +605,23 @@ export default async function JobManagementPage() {
       .eq('id', jobId)
       .eq('organization_id', memberRow.organization_id)
 
+    if (overflowSlotsToConsume > 0) {
+      const adminDb = getOpsServiceClient() || supabaseAction
+      let nextDesc = String(orgRecord?.description || '')
+      for (let i = 0; i < overflowSlotsToConsume; i++) {
+        const consumedRes = consumeOverflowRoleSlot(nextDesc)
+        if (consumedRes.consumed) {
+          nextDesc = consumedRes.nextDescription
+        }
+      }
+      await adminDb
+        .from('organizations')
+        .update({ description: nextDesc })
+        .eq('id', memberRow.organization_id)
+    }
+
     revalidatePath('/dashboard/employer/jobs')
+    revalidatePath('/dashboard/employer/billing')
     revalidatePath('/dashboard/jobs')
     revalidatePath('/dashboard')
   }
@@ -556,8 +632,10 @@ export default async function JobManagementPage() {
   const practiceDraftCount = enrichedRows.filter((j) => j.isPracticeDraft).length
   const activeJobsCount = enrichedRows
     .filter((j) => j.is_active)
-    .reduce((sum, j) => sum + Math.max(1, Number(j.activeSlotsUsed) || 1), 0)
-  const slotsFull = !isPracticeMode && tierInfo.maxActiveJobs > 0 && activeJobsCount >= tierInfo.maxActiveJobs
+    .reduce((sum, j) => sum + Math.max(0, Number(j.activeSlotsUsed ?? 1)), 0)
+  const slotsFull =
+    !isPracticeMode &&
+    activeJobsCount >= tierInfo.maxActiveJobs + tierInfo.rolePasses.totalPasses
 
   return (
     <div className="py-2">
@@ -593,8 +671,7 @@ export default async function JobManagementPage() {
                 </>
               ) : (
                 <>
-                  Manage your active listings ({activeJobsCount}/
-                  {tierInfo.maxActiveJobs} slots used). To prevent passive resume harvesting, all roles automatically close after{' '}
+                  Manage your Protected Roles (<strong>{Math.min(activeJobsCount, tierInfo.maxActiveJobs)} / {tierInfo.maxActiveJobs} included plan slots active</strong>{tierInfo.rolePasses.totalPasses > 0 ? <> • <strong>+{tierInfo.rolePasses.totalPasses} Extra Slot{tierInfo.rolePasses.totalPasses === 1 ? '' : 's'} banked</strong></> : null}). Add flat $199 Extra Protected Role Slots anytime; listings auto-close after{' '}
                   <strong>{JOB_EXPIRATION_DAYS} days</strong> unless manually renewed.
                 </>
               )}
@@ -638,7 +715,7 @@ export default async function JobManagementPage() {
               <span className="font-extrabold block text-sm mb-0.5">
                 Practice Mode Active ($0/mo)
               </span>
-              You can build and refine protected role drafts right now without using renewal credits. Activate a monthly plan whenever you are ready to publish your drafts live for 30 days and receive verified applications.
+              Build and refine up to 5 Protected Role drafts right now at $0/mo. Activate Starter ($299/mo · 2 Active Roles), Growth ($599/mo · 5 Active Roles), or Enterprise ($999/mo · 15 Active Roles) whenever you are ready to publish live.
             </div>
             <Link
               href="/dashboard/employer/billing"
@@ -749,6 +826,7 @@ export default async function JobManagementPage() {
               maxActiveJobs={tierInfo.maxActiveJobs}
               slotsFull={slotsFull}
               isPracticeMode={isPracticeMode}
+              rolePasses={tierInfo.rolePasses}
               toggleOrRenewJobStatus={toggleOrRenewJobStatus}
               manageActiveW2Engagement={manageActiveW2Engagement}
             />

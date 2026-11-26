@@ -199,7 +199,7 @@ export default function EmployerTalentShieldPage() {
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-3.5">
             <p className="font-semibold text-slate-900 dark:text-white">2. Stop Bots ($0 to Applicants)</p>
             <p className="mt-1 text-slate-600 dark:text-slate-400">
-              Applicants verify their real identity through Stripe at $0 cost to them, covered by your monthly sponsored allowance.
+              External applicants verify their real identity via Stripe for $0 up to your role's sponsored cap, while Ecosystem Professionals apply unlimited at $0.
             </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-3.5">
@@ -248,10 +248,10 @@ export default function EmployerTalentShieldPage() {
         <div className="rounded-2xl border border-indigo-300 dark:border-indigo-700 bg-indigo-50 dark:bg-indigo-950/40 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <p className="text-sm font-bold text-indigo-900 dark:text-indigo-200">
-              Activate an Employer Plan to Issue Verified Hiring Bridge Links
+              Activate a Base Membership to Issue Verified Hiring Bridge Links
             </p>
             <p className="mt-1 text-xs sm:text-sm text-indigo-800 dark:text-indigo-300">
-              Activate Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) — your $25 verification fee is 100% credited toward Month 1.
+              Activate Starter ($299/mo · 2 Active Roles), Growth ($599/mo · 5 Active Roles), or Enterprise ($999/mo · 15 Active Roles) — your $25 verification fee is credited toward Month 1.
             </p>
           </div>
           <Link

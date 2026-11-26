@@ -58,6 +58,18 @@ import {
   type EmployerTalentShieldMode,
 } from '@/lib/inbound-shield'
 import { inspectResumeAndTextForBadActorPayloads, inspectStage1TextForContactLeakOrInjection, checkActionVelocityAndSpray, raiseSecurityAlertAndFlag, recordHandshakeTelemetry } from '@/lib/security-telemetry'
+import {
+  EXTRA_PROTECTED_ROLE_SLOT,
+  INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER,
+  PROTECTED_ROLE_PASSES,
+  ProtectedRolePassId,
+  RolePassInventory,
+  consumeOverflowRoleSlot,
+  formatRolePassInventoryTags,
+  getJobSponsoredVerificationStatus,
+  parseRolePassInventory,
+  stripRolePassInventoryTags,
+} from '@/lib/sponsored-verification'
 
 const MIN_MATCH_THRESHOLD = 40
 const CANDIDATE_TRIAL_MAX_APPS = 15
@@ -446,6 +458,9 @@ export interface JobExtendedMeta {
   comp_perks: string
   bridge_min_years?: number | null
   bridge_min_years_field?: string
+  sponsored_cap?: number
+  sponsored_used?: number
+  role_pass_tier?: string
   location: string
   employment_type: string
   experience_level: string
@@ -545,6 +560,9 @@ function extractJobMeta(rawReqs: any, jobRow?: any): JobExtendedMeta {
     equipment_notes: metaItem?.equipment_notes || '',
     bridge_min_years: Number.isFinite(Number(metaItem?.bridge_min_years)) && Number(metaItem?.bridge_min_years) > 0 ? Math.min(40, Math.round(Number(metaItem?.bridge_min_years))) : null,
     bridge_min_years_field: typeof metaItem?.bridge_min_years_field === 'string' ? metaItem.bridge_min_years_field.trim() : '',
+    sponsored_cap: [25, 50, 100].includes(Number(metaItem?.sponsored_cap)) ? Number(metaItem.sponsored_cap) : 25,
+    sponsored_used: Math.max(0, Math.floor(Number(metaItem?.sponsored_used) || 0)),
+    role_pass_tier: typeof metaItem?.role_pass_tier === 'string' ? metaItem.role_pass_tier : 'role_25',
     renewed_at: metaItem?.renewed_at || null,
     days_remaining: daysRemaining,
     is_expired: Boolean(metaItem?.is_sandbox_benchmark) || String(jobRow?.title || "").startsWith("[CALIBRATION]") ? false : diffMs <= 0,
@@ -850,14 +868,17 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   planCreditsRemaining: number
   rolloverCreditsRemaining: number
   totalCreditsRemaining: number
+  rolePasses: RolePassInventory
 }> {
   const totalCredits = Math.max(0, org?.connection_credits || 0)
   const storedRollover = Math.min(totalCredits, parseRolloverCreditsTag(org?.description))
   const computedPlanCredits = Math.max(0, totalCredits - storedRollover)
+  const rolePasses = parseRolePassInventory(org?.description)
   const bucketFields = {
     planCreditsRemaining: computedPlanCredits,
     rolloverCreditsRemaining: storedRollover,
     totalCreditsRemaining: totalCredits,
+    rolePasses,
   }
   const descMatch = (org?.description || '').match(
     /\[TIER:(free|starter|growth|enterprise)\]/i
@@ -883,8 +904,8 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   if (explicitTier === 'enterprise') {
     return {
       tier: 'enterprise',
-      label: 'Enterprise Tier ($1,250/mo Founding · $1,999 Retail)',
-      maxActiveJobs: 999,
+      label: 'Enterprise Ecosystem Membership ($999/mo)',
+      maxActiveJobs: INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER.enterprise,
       monthlyCredits: 120,
       maxSeats: 999,
       ...bucketFields,
@@ -893,8 +914,8 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   if (explicitTier === 'growth') {
     return {
       tier: 'growth',
-      label: 'Growth Tier ($499/mo Founding · $799 Retail)',
-      maxActiveJobs: 15,
+      label: 'Growth Ecosystem Membership ($599/mo)',
+      maxActiveJobs: INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER.growth,
       monthlyCredits: 35,
       maxSeats: 5,
       ...bucketFields,
@@ -903,8 +924,8 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   if (explicitTier === 'starter') {
     return {
       tier: 'starter',
-      label: 'Starter Tier ($149/mo Founding · $299 Retail)',
-      maxActiveJobs: 5,
+      label: 'Starter Ecosystem Membership ($299/mo)',
+      maxActiveJobs: INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER.starter,
       monthlyCredits: 10,
       maxSeats: 2,
       ...bucketFields,
@@ -929,8 +950,8 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   if (totalCapacity >= 50) {
     return {
       tier: 'enterprise',
-      label: 'Enterprise Tier ($1,250/mo Founding · $1,999 Retail)',
-      maxActiveJobs: 999,
+      label: 'Enterprise Ecosystem Membership ($999/mo)',
+      maxActiveJobs: INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER.enterprise,
       monthlyCredits: 120,
       maxSeats: 999,
       ...bucketFields,
@@ -939,8 +960,8 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   if (totalCapacity >= 20) {
     return {
       tier: 'growth',
-      label: 'Growth Tier ($499/mo Founding · $799 Retail)',
-      maxActiveJobs: 15,
+      label: 'Growth Ecosystem Membership ($599/mo)',
+      maxActiveJobs: INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER.growth,
       monthlyCredits: 35,
       maxSeats: 5,
       ...bucketFields,
@@ -949,8 +970,8 @@ export async function resolveEmployerTierInfo(org: any): Promise<{
   if (credits > 0 || sent > 0) {
     return {
       tier: 'starter',
-      label: 'Starter Tier ($149/mo Founding · $299 Retail)',
-      maxActiveJobs: 5,
+      label: 'Starter Ecosystem Membership ($299/mo)',
+      maxActiveJobs: INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER.starter,
       monthlyCredits: 10,
       maxSeats: 2,
       ...bucketFields,
@@ -972,10 +993,23 @@ function parseRolloverCreditsTag(description?: string | null): number {
   return match ? Math.max(0, parseInt(match[1], 10) || 0) : 0
 }
 
+function extractPreservedRolePassTags(description?: string | null): string {
+  const raw = String(description || '')
+  const inv = parseRolePassInventory(raw)
+  const passTags = formatRolePassInventoryTags(inv)
+  const rpMarkers = (raw.match(/\[RP_CS:[^\]]+\]/gi) || []).slice(-8).join(' ')
+  return `${passTags} ${rpMarkers}`.replace(/\s+/g, ' ').trim()
+}
+
 export async function stripTierTag(description?: string | null): Promise<string> {
   return (description || '')
     .replace(/\s*\[TIER:[a-z]+\]/gi, '')
     .replace(/\s*\[TOPUP:\d+\]/gi, '')
+    .replace(/\s*\[EXTRA_ROLE_SLOTS:[^\]]*\]/gi, '')
+    .replace(/\s*\[ROLE_PASSES:[^\]]*\]/gi, '')
+    .replace(/\s*\[FIRST_ROLE_GRANTED\]/gi, '')
+    .replace(/\s*\[RP_CS:[^\]]*\]/gi, '')
+    .replace(/\s*\[ERS_CS:[^\]]*\]/gi, '')
     .replace(/\s*\[SEATS:[^\]]*\]/gi, '')
     .replace(/\s*\[EIN:[^\]]*\]/gi, '')
     .replace(/\s*\[INC_STATE:[^\]]*\]/gi, '')
@@ -5032,6 +5066,9 @@ export async function createStructuredJob(formData: FormData) {
   const tierInfo = await resolveEmployerTierInfo(orgObj)
   const isPracticeModeDraft = tierInfo.tier === 'free' || tierInfo.maxActiveJobs < 1
 
+  let overflowSlotsToConsume = 0
+  let assignedSponsoredCap: number = EXTRA_PROTECTED_ROLE_SLOT.cap
+  let assignedRoleSlotTag = 'included_tier_slot'
   if (isPracticeModeDraft) {
     const { count: existingDraftCount } = await supabase
       .from('jobs')
@@ -5040,34 +5077,58 @@ export async function createStructuredJob(formData: FormData) {
     if ((existingDraftCount || 0) >= 5) {
       return {
         error:
-          'Practice Mode Draft Limit Reached: Practice Mode supports up to 5 saved role drafts. Activate Starter ($149/mo), Growth ($499/mo), or Enterprise ($1,250/mo) in Membership & Plan Settings to publish live Protected Roles.',
+          'Practice Mode Draft Limit Reached: Practice Mode supports up to 5 saved role drafts. Activate Starter ($299/mo — 2 Active Protected Roles), Growth ($599/mo — 5 Active Protected Roles), or Enterprise ($999/mo — 15 Active Protected Roles) in Membership & Plan Settings to publish live Protected Roles.',
       }
     }
   } else {
-    const requestedOpenings = clampRoleOpenings(formData.get('openings_count'), 1)
-    const { data: activeOrgJobs } = await supabase
+    const slotCheckDb = getAdminSupabaseClient() || supabase
+    const { data: rawActiveJobs } = await slotCheckDb
       .from('jobs')
-      .select('id, is_active, structured_requirements')
+      .select('id, created_at, is_active, structured_requirements')
       .eq('organization_id', currentMember.organization_id)
       .eq('is_active', true)
-    const activeIds = (activeOrgJobs || []).map((j: any) => String(j.id)).filter(Boolean)
-    const appsByJob: Record<string, any[]> = {}
-    if (activeIds.length > 0) {
-      const adminDb = getAdminSupabaseClient() || supabase
-      const { data: activeApps } = await adminDb
-        .from('applications')
-        .select('id, job_id, match_data')
-        .in('job_id', activeIds)
-      for (const a of activeApps || []) {
-        const jid = String(a.job_id || '')
-        if (!appsByJob[jid]) appsByJob[jid] = []
-        appsByJob[jid].push(a)
+    const expiredActiveIds: string[] = []
+    const liveActiveJobs: any[] = []
+    for (const rj of rawActiveJobs || []) {
+      const enriched = enrichJobRecord(rj)
+      if (enriched.is_expired) {
+        expiredActiveIds.push(String(rj.id))
+      } else if (enriched.job_meta?.practice_draft !== true) {
+        liveActiveJobs.push(rj)
       }
     }
-    const currentActiveSlots = sumActiveRoleSlots(activeOrgJobs, appsByJob)
-    if (currentActiveSlots + requestedOpenings > tierInfo.maxActiveJobs) {
-      return {
-        error: `Active Role Slot Limit Reached: Publishing ${requestedOpenings} ${requestedOpenings === 1 ? 'opening' : 'openings'} requires ${requestedOpenings} active role ${requestedOpenings === 1 ? 'slot' : 'slots'}, and your ${tierInfo.label} currently has ${Math.max(0, tierInfo.maxActiveJobs - currentActiveSlots)} of ${tierInfo.maxActiveJobs} slots available (${currentActiveSlots}/${tierInfo.maxActiveJobs} in use). Reduce the openings count, close an existing role, or upgrade in Membership & Plan Settings.`,
+    if (expiredActiveIds.length > 0) {
+      await slotCheckDb.from('jobs').update({ is_active: false }).in('id', expiredActiveIds)
+    }
+    const activeAppsByJob: Record<string, any[]> = {}
+    const liveIds = liveActiveJobs.map((j: any) => String(j.id)).filter(Boolean)
+    if (liveIds.length > 0) {
+      const { data: liveApps } = await slotCheckDb
+        .from('applications')
+        .select('id, job_id, match_data')
+        .in('job_id', liveIds)
+      for (const a of liveApps || []) {
+        const jid = String(a.job_id || '')
+        if (!activeAppsByJob[jid]) activeAppsByJob[jid] = []
+        activeAppsByJob[jid].push(a)
+      }
+    }
+    const currentActiveSlotsUsed = sumActiveRoleSlots(liveActiveJobs, activeAppsByJob)
+    const requestedOpenings = clampRoleOpenings(formData.get('openings_count'), 1)
+    const remainingIncludedSlots = Math.max(0, tierInfo.maxActiveJobs - currentActiveSlotsUsed)
+    overflowSlotsToConsume = Math.max(0, requestedOpenings - remainingIncludedSlots)
+    if (overflowSlotsToConsume > 0) {
+      const inv = tierInfo.rolePasses
+      if (inv.totalPasses < overflowSlotsToConsume) {
+        return {
+          error: `Active Protected Role Limit Reached (${Math.min(currentActiveSlotsUsed, tierInfo.maxActiveJobs)}/${tierInfo.maxActiveJobs} Included Active Roles in Use): Your ${tierInfo.label} includes up to ${tierInfo.maxActiveJobs} concurrent Active Protected Roles. Close an active role, upgrade your plan, or add ${overflowSlotsToConsume === 1 ? 'an Extra Protected Role Slot ($199 flat add-on)' : `${overflowSlotsToConsume} Extra Protected Role Slots ($199 each)`} to publish this role.`,
+        }
+      }
+      assignedRoleSlotTag = 'extra_role_slot'
+      if ((inv.extraRoleSlots || 0) === 0 && inv.role_50 > 0 && inv.role_25 === 0) {
+        assignedSponsoredCap = 50
+      } else if ((inv.extraRoleSlots || 0) === 0 && inv.role_100 > 0 && inv.role_25 === 0 && inv.role_50 === 0) {
+        assignedSponsoredCap = 100
       }
     }
   }
@@ -5218,6 +5279,17 @@ export async function createStructuredJob(formData: FormData) {
         ? { ...item, practice_draft: true }
         : item
     )
+  } else {
+    structured_requirements = structured_requirements.map((item: any) =>
+      item && typeof item === 'object' && item._ss_job_meta === true
+        ? {
+            ...item,
+            sponsored_cap: assignedSponsoredCap,
+            sponsored_used: 0,
+            role_pass_tier: assignedRoleSlotTag,
+          }
+        : item
+    )
   }
 
   const { error } = await supabase.from('jobs').insert({
@@ -5235,6 +5307,19 @@ export async function createStructuredJob(formData: FormData) {
   if (error) {
     console.error('Insert Job Error:', error)
     return { error: 'Failed to create job' }
+  }
+
+  if (!isPracticeModeDraft && overflowSlotsToConsume > 0) {
+    const adminDb = getAdminSupabaseClient() || supabase
+    let nextDesc = String(orgObj?.description || '')
+    for (let i = 0; i < overflowSlotsToConsume; i++) {
+      const step = consumeOverflowRoleSlot(nextDesc)
+      if (step.consumed) nextDesc = step.nextDescription
+    }
+    await adminDb
+      .from('organizations')
+      .update({ description: nextDesc })
+      .eq('id', currentMember.organization_id)
   }
 
   revalidatePath('/dashboard')
@@ -5344,11 +5429,25 @@ export async function updateStructuredJob(formData: FormData) {
       }
     }
     const otherSlotsUsed = sumActiveRoleSlots(otherActiveJobs, otherAppsByJob)
-    if (otherSlotsUsed + nextSeatSummary.activeSlotsUsed > tierInfo.maxActiveJobs) {
-      const totalCurrent = otherSlotsUsed + prevSeatSummary.activeSlotsUsed
-      return {
-        error: `Active Role Slot Limit Reached: Increasing this role to ${nextSeatSummary.openingsCount} openings requires ${nextSeatSummary.activeSlotsUsed} active slots, exceeding your ${tierInfo.label} limit (${totalCurrent}/${tierInfo.maxActiveJobs} currently in use). Reduce openings, close another role, or upgrade in Membership & Plan Settings.`,
+    const totalCurrent = otherSlotsUsed + prevSeatSummary.activeSlotsUsed
+    const deltaSlots = nextSeatSummary.activeSlotsUsed - prevSeatSummary.activeSlotsUsed
+    const remainingIncluded = Math.max(0, tierInfo.maxActiveJobs - totalCurrent)
+    const overflowSlotsNeeded = Math.max(0, deltaSlots - remainingIncluded)
+    if (overflowSlotsNeeded > 0) {
+      if (tierInfo.rolePasses.totalPasses < overflowSlotsNeeded) {
+        return {
+          error: `Active Protected Role Limit Reached: Increasing this role to ${nextSeatSummary.openingsCount} openings requires ${overflowSlotsNeeded} Extra Protected Role Slot${overflowSlotsNeeded === 1 ? '' : 's'} ($199 flat add-on) beyond your ${tierInfo.label} allowance (${Math.min(totalCurrent, tierInfo.maxActiveJobs)}/${tierInfo.maxActiveJobs} included active slots in use). Reduce openings, close another role, upgrade your plan, or add an Extra Protected Role Slot in Membership & Plan Settings.`,
+        }
       }
+      let updatedOrgDesc = String(orgObj?.description || '')
+      for (let i = 0; i < overflowSlotsNeeded; i++) {
+        const step = consumeOverflowRoleSlot(updatedOrgDesc)
+        if (step.consumed) updatedOrgDesc = step.nextDescription
+      }
+      await dbClient
+        .from('organizations')
+        .update({ description: updatedOrgDesc })
+        .eq('id', currentMember.organization_id)
     }
   }
 
@@ -5718,7 +5817,7 @@ export async function sendConnectionRequest(
   if (tierInfo.tier === 'free' || credits < 1) {
     return {
       error:
-        'Subscription / Invitation Credits Required: Subscribe to Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) on your Billing page to send outbound professional invitations.',
+        'Base Membership / Invitation Credits Required: Activate Starter ($299/mo), Growth ($599/mo), or Enterprise ($999/mo) in Membership & Plan Settings to send outbound Professional invitations.',
     }
   }
 
@@ -6717,6 +6816,8 @@ export async function saveOrganizationProfile(formData: FormData) {
     if (topupMatch) existingAtsTag = `${existingAtsTag} ${topupMatch[0]}`.trim()
     const verifyFlags = (currentOrg?.description || '').match(/\[(VERIFY_PAID|CREDIT25_USED)\]/gi)
     if (verifyFlags?.length) existingAtsTag = `${existingAtsTag} ${Array.from(new Set(verifyFlags.map((f: string) => f.toUpperCase()))).join(' ')}`.trim()
+    const rolePassTags = extractPreservedRolePassTags(currentOrg?.description)
+    if (rolePassTags) existingAtsTag = `${existingAtsTag} ${rolePassTags}`.trim()
   }
 
   let autoVerified = false
@@ -6889,8 +6990,9 @@ export async function claimInvitedOrganizationSeatIfAny(
           const atsTag = ((org.description || '').match(/\[ATS_CFG:[^\]]+\]/i) || [''])[0]
           const eorTag = ((org.description || '').match(/\[EOR_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
           const csTags = ((org.description || '').match(/\[CS:[^\]]+\]/gi) || []).join(' ')
+          const rolePassTags = extractPreservedRolePassTags(org.description)
           const seatsTag = encodeStoredSeatsTag(seats)
-          const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${topupTag} ${seatsTag} ${atsTag} ${eorTag} ${csTags}`.replace(/\s+/g, ' ').trim()
+          const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${topupTag} ${rolePassTags} ${seatsTag} ${atsTag} ${eorTag} ${csTags}`.replace(/\s+/g, ' ').trim()
 
           await adminClient
             .from('organizations')
@@ -7084,11 +7186,12 @@ export async function inviteOrganizationSeat(formData: FormData) {
   const updatedInvited = [...existingInvited, newSeat]
   const cleanDesc = await stripTierTag(org?.description)
   const topupTag = ((org?.description || '').match(/\[TOPUP:\d+\]/i) || [''])[0]
+  const rolePassTags = extractPreservedRolePassTags(org?.description)
   const atsTag = ((org?.description || '').match(/\[ATS_CFG:[^\]]+\]/i) || [''])[0]
   const eorTag = ((org?.description || '').match(/\[EOR_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
   const csTags = ((org?.description || '').match(/\[CS:[^\]]+\]/gi) || []).join(' ')
   const seatsTag = encodeStoredSeatsTag(updatedInvited)
-  const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${topupTag} ${seatsTag} ${atsTag} ${eorTag} ${csTags}`.replace(/\s+/g, ' ').trim()
+  const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${topupTag} ${rolePassTags} ${seatsTag} ${atsTag} ${eorTag} ${csTags}`.replace(/\s+/g, ' ').trim()
 
   const { error: updateErr } = await supabase
     .from('organizations')
@@ -7167,11 +7270,12 @@ export async function removeOrganizationSeat(
 
   const cleanDesc = await stripTierTag(org?.description)
   const topupTag = ((org?.description || '').match(/\[TOPUP:\d+\]/i) || [''])[0]
+  const rolePassTags = extractPreservedRolePassTags(org?.description)
   const atsTag = ((org?.description || '').match(/\[ATS_CFG:[^\]]+\]/i) || [''])[0]
   const eorTag = ((org?.description || '').match(/\[EOR_CFG:[A-Za-z0-9+/=]+\]/i) || [''])[0]
   const csTags = ((org?.description || '').match(/\[CS:[^\]]+\]/gi) || []).join(' ')
   const seatsTag = encodeStoredSeatsTag(updatedInvited)
-  const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${topupTag} ${seatsTag} ${atsTag} ${eorTag} ${csTags}`.replace(/\s+/g, ' ').trim()
+  const newDescription = `${cleanDesc} [TIER:${tierInfo.tier}] ${topupTag} ${rolePassTags} ${seatsTag} ${atsTag} ${eorTag} ${csTags}`.replace(/\s+/g, ' ').trim()
 
   const { error } = await supabase
     .from('organizations')
@@ -7477,20 +7581,20 @@ export async function activateSandboxEmployerTier(
       maxSeats: 1,
     },
     starter: {
-      label: 'Starter Tier ($149/mo Founding · $299 Retail)',
-      maxActiveJobs: 5,
+      label: 'Starter Ecosystem Membership ($299/mo)',
+      maxActiveJobs: INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER.starter,
       credits: 10,
       maxSeats: 2,
     },
     growth: {
-      label: 'Growth Tier ($499/mo Founding · $799 Retail)',
-      maxActiveJobs: 15,
+      label: 'Growth Ecosystem Membership ($599/mo)',
+      maxActiveJobs: INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER.growth,
       credits: 35,
       maxSeats: 5,
     },
     enterprise: {
-      label: 'Enterprise Tier ($1,250/mo Founding · $1,999 Retail)',
-      maxActiveJobs: 999,
+      label: 'Enterprise Ecosystem Membership ($999/mo)',
+      maxActiveJobs: INCLUDED_ACTIVE_PROTECTED_ROLES_BY_TIER.enterprise,
       credits: 120,
       maxSeats: 999,
     },
@@ -7513,7 +7617,20 @@ export async function activateSandboxEmployerTier(
   const verifyPaidTag = (targetTier === 'free' && Boolean(stripeSessionId)) || targetTier !== 'free' || /\[VERIFY_PAID\]/i.test(rawDescStr) ? '[VERIFY_PAID]' : ''
   const creditUsedTag = targetTier !== 'free' || /\[CREDIT25_USED\]/i.test(rawDescStr) ? '[CREDIT25_USED]' : ''
   const topupTag = preservedRollover > 0 ? `[TOPUP:${preservedRollover}]` : ''
-  const taggedDesc = `${cleanDesc} [TIER:${targetTier === 'free' && Boolean(stripeSessionId) ? 'explorer' : targetTier}] ${verifyPaidTag} ${creditUsedTag} ${topupTag} ${existingSeatsTag} ${existingAtsTag} ${existingEorTag}`.replace(/\s+/g, ' ').trim()
+  const inv = parseRolePassInventory(rawDescStr)
+  const rolePassTags =
+    targetTier === 'free' && !stripeSessionId
+      ? ''
+      : targetTier === 'free'
+      ? extractPreservedRolePassTags(rawDescStr)
+      : `${formatRolePassInventoryTags({
+          extraRoleSlots: inv.extraRoleSlots,
+          role_25: inv.role_25,
+          role_50: inv.role_50,
+          role_100: inv.role_100,
+          firstRoleGranted: true,
+        })} ${(rawDescStr.match(/\[RP_CS:[^\]]+\]/gi) || []).slice(-8).join(' ')}`.trim()
+  const taggedDesc = `${cleanDesc} [TIER:${targetTier === 'free' && Boolean(stripeSessionId) ? 'explorer' : targetTier}] ${verifyPaidTag} ${creditUsedTag} ${topupTag} ${rolePassTags} ${existingSeatsTag} ${existingAtsTag} ${existingEorTag}`.replace(/\s+/g, ' ').trim()
 
   try {
     const cookieStore = await cookies()
@@ -7536,7 +7653,8 @@ export async function activateSandboxEmployerTier(
   await sbAdmin
     .from('organizations')
     .update({
-      subscription_tier: targetTier,
+      subscription_tier: targetTier === 'free' && Boolean(stripeSessionId) ? 'explorer' : targetTier,
+      subscription_status: targetTier !== 'free' ? 'active' : Boolean(stripeSessionId) ? 'verified_sandbox' : 'inactive',
       ...((targetTier !== 'free' || Boolean(stripeSessionId) || isQaOverride) ? { verification_status: 'verified' } : {}),
     })
     .eq('id', orgId)
@@ -7556,15 +7674,15 @@ export async function activateSandboxEmployerTier(
     const billingRef = `SS-SUB${Date.now().toString().slice(-5)}`
     await sendPlatformNotification({
       to: user.email,
-      subject: `Subscription Activated: ${chosen.label} (${chosen.maxActiveJobs >= 500 ? 'Unlimited' : chosen.maxActiveJobs} Roles / ${chosen.credits} Monthly Plan Credits)`,
+      subject: `Membership Activated: ${chosen.label} (${chosen.maxActiveJobs} Active Protected Roles + ${chosen.credits} Monthly Invitations)`,
       referenceId: billingRef,
       heading: `${chosen.label} Activated!`,
       bodyLines: [
-        `Your organization (${orgObj?.name || 'Verified Employer'}) is now subscribed to ${chosen.label}.`,
-        `Monthly Plan Bucket reset to ${chosen.credits} Invitation Credits (used first) + ${preservedRollover} Non-Expiring Rollover Credits preserved.`,
+        `Your organization (${orgObj?.name || 'Verified Employer'}) is now active on ${chosen.label}.`,
+        `Includes up to ${chosen.maxActiveJobs} concurrent Active Protected Roles ($199 Extra Protected Role Slot add-on for overflow) and ${chosen.credits} monthly Accepted-Only Invitation Credits.`,
       ],
       ctaUrl: '/dashboard/employer/billing',
-      ctaLabel: 'View Two-Bucket Credit Ledger →',
+      ctaLabel: 'View Membership & Plan Settings →',
     })
   }
 
@@ -7584,8 +7702,8 @@ export async function activateSandboxEmployerTier(
     rolloverCredits: preservedRollover,
     message:
       targetTier === 'free'
-        ? 'Organization reset to No Active Plan (Unsubscribed — 0 Active Role Slots, 0 Invitation Credits, 1 Seat).'
-        : `✓ Activated ${chosen.label}! Monthly Plan Allowance set to ${chosen.credits} Invitation Credits${preservedRollover > 0 ? ` + ${preservedRollover} Rollover Top-Up Credits preserved (${newCredits} total)` : ''}.`,
+        ? 'Organization reset to No Active Plan (Unsubscribed — Practice Mode).'
+        : `✓ Activated ${chosen.label}! Includes up to ${chosen.maxActiveJobs} concurrent Active Protected Roles + ${chosen.credits} monthly Accepted-Only Invitation Credits.`,
   }
 }
 
@@ -7648,7 +7766,7 @@ export async function purchaseEmployerCreditTopUp(
   if (tierInfo.tier === 'free') {
     return {
       error:
-        'Active Subscription Required: Top-Up Invitation Credit packs are exclusively available to organizations on an active Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) plan.',
+        'Active Membership Required: Top-Up Invitation Credit packs are available to organizations on an active Starter ($299/mo), Growth ($599/mo), or Enterprise ($999/mo) plan.',
     }
   }
 
@@ -7690,8 +7808,9 @@ export async function purchaseEmployerCreditTopUp(
   const existingAtsTag = atsMatch ? atsMatch[0] : ''
   const eorMatch = (orgObj.description || '').match(/\[EOR_CFG:[A-Za-z0-9+/=]+\]/i)
   const existingEorTag = eorMatch ? eorMatch[0] : ''
+  const rolePassTags = extractPreservedRolePassTags(orgObj.description)
   const csTag = stripeSessionId ? `[CS:${stripeSessionId.slice(-12)}]` : ''
-  const taggedDesc = `${cleanDesc} [TIER:${tierInfo.tier}] [TOPUP:${newRollover}] ${existingSeatsTag} ${existingAtsTag} ${existingEorTag} ${csTag}`.replace(/\s+/g, ' ').trim()
+  const taggedDesc = `${cleanDesc} [TIER:${tierInfo.tier}] [TOPUP:${newRollover}] ${rolePassTags} ${existingSeatsTag} ${existingAtsTag} ${existingEorTag} ${csTag}`.replace(/\s+/g, ' ').trim()
 
   const { error: updateErr } = await supabase
     .from('organizations')
@@ -8020,6 +8139,120 @@ export async function submitSupportTicket(formData: FormData) {
 // ------------------------------------------------------------------
 // LEGACY COMPATIBILITY EXPORT FOR /dashboard/post-job/page.tsx
 // ------------------------------------------------------------------
+
+export async function purchaseEmployerRolePass(
+  passId: ProtectedRolePassId | 'extra_role_slot' | string = 'extra_role_slot',
+  stripeSessionId?: string
+) {
+  const supabase = await createClient()
+  const sbAdmin = getAdminSupabaseClient() || supabase
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const normalizedKey = String(passId || 'extra_role_slot').toLowerCase().trim()
+  const legacyPassDef = PROTECTED_ROLE_PASSES[normalizedKey as ProtectedRolePassId]
+  const isExtraSlot = normalizedKey === 'extra_role_slot' || Boolean(legacyPassDef)
+  if (!isExtraSlot) {
+    return { error: 'Invalid Extra Protected Role Slot selection.' }
+  }
+
+  const { data: member } = await sbAdmin
+    .from('organization_members')
+    .select('organization_id')
+    .eq('user_id', user.id)
+    .limit(1)
+    .maybeSingle()
+  if (!member?.organization_id) {
+    return { error: 'Please set up your Company Profile first.' }
+  }
+
+  const { data: orgObj } = await sbAdmin
+    .from('organizations')
+    .select('*')
+    .eq('id', member.organization_id)
+    .single()
+  if (!orgObj) return { error: 'Organization not found.' }
+
+  if (!isFounderAdminEmail(user.email)) {
+    const primaryCheck = await verifyPaidStripeCheckoutSession({
+      sessionId: stripeSessionId,
+      expectedOrgId: member.organization_id,
+      expectedPackId: EXTRA_PROTECTED_ROLE_SLOT.id,
+    })
+    const fallbackCheck = primaryCheck.verified
+      ? primaryCheck
+      : await verifyPaidStripeCheckoutSession({
+          sessionId: stripeSessionId,
+          expectedOrgId: member.organization_id,
+          expectedPackId: normalizedKey,
+        })
+    if (!fallbackCheck.verified) {
+      return {
+        error:
+          'Security Block: Extra Protected Role Slot activation requires a verified Stripe Checkout payment session.',
+      }
+    }
+  }
+
+  const tierInfo = await resolveEmployerTierInfo(orgObj)
+  if (tierInfo.tier === 'free') {
+    return {
+      error:
+        'Active Ecosystem Membership Required: Activate Starter ($299/mo — 2 Active Roles), Growth ($599/mo — 5 Active Roles), or Enterprise ($999/mo — 15 Active Roles) before adding an Extra Protected Role Slot.',
+    }
+  }
+
+  const csMarker = stripeSessionId ? `[RP_CS:${stripeSessionId.slice(-12)}]` : ''
+  if (csMarker && String(orgObj.description || '').includes(csMarker)) {
+    const currentInv = parseRolePassInventory(orgObj.description)
+    return {
+      success: true,
+      passId: EXTRA_PROTECTED_ROLE_SLOT.id,
+      rolePasses: currentInv,
+      message: `✓ Stripe Payment Confirmed: Your ${EXTRA_PROTECTED_ROLE_SLOT.shortLabel} is ready to publish.`,
+    }
+  }
+
+  const inv = parseRolePassInventory(orgObj.description)
+  const nextInv = {
+    extraRoleSlots: inv.extraRoleSlots + 1,
+    role_25: inv.role_25,
+    role_50: inv.role_50,
+    role_100: inv.role_100,
+    firstRoleGranted: inv.firstRoleGranted,
+  }
+  const preservedRpMarkers = (String(orgObj.description || '').match(/\[RP_CS:[^\]]+\]/gi) || []).slice(-8).join(' ')
+  const baseDesc = stripRolePassInventoryTags(orgObj.description)
+  const passTags = formatRolePassInventoryTags(nextInv)
+  const nextDesc = `${baseDesc} ${passTags} ${preservedRpMarkers} ${csMarker}`.replace(/\s+/g, ' ').trim()
+
+  const { error: updateErr } = await sbAdmin
+    .from('organizations')
+    .update({ description: nextDesc })
+    .eq('id', member.organization_id)
+  if (updateErr) return { error: updateErr.message }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/employer/jobs')
+  revalidatePath('/dashboard/employer/jobs/new')
+  revalidatePath('/dashboard/employer/billing')
+
+  return {
+    success: true,
+    passId: EXTRA_PROTECTED_ROLE_SLOT.id,
+    rolePasses: {
+      ...nextInv,
+      totalPasses: nextInv.extraRoleSlots + nextInv.role_25 + nextInv.role_50 + nextInv.role_100,
+    },
+    message: `✓ Added 1 ${EXTRA_PROTECTED_ROLE_SLOT.shortLabel} (up to ${EXTRA_PROTECTED_ROLE_SLOT.cap} Employer-Sponsored external verifications + unlimited verified Ecosystem Professionals at $0).`,
+  }
+}
+
+export async function purchaseExtraProtectedRoleSlot(stripeSessionId?: string) {
+  return purchaseEmployerRolePass(EXTRA_PROTECTED_ROLE_SLOT.id, stripeSessionId)
+}
 
 export async function createJob(formData: FormData) {
   await createStructuredJob(formData)
@@ -8618,7 +8851,7 @@ export async function submitEmployerAirlockInvitationAction(params: {
   const credits = Number(orgObj?.connection_credits || 0)
   const totalSent = Number(orgObj?.total_requests_sent || 0)
   if (tierInfo.tier === 'free' || credits < 1) {
-    return { error: 'Active Employer Plan Required: Activate Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) — your $25 verification fee is 100% credited toward Month 1 — to send Protected Role invitations.' }
+    return { error: 'Active Base Membership Required: Activate Starter ($299/mo), Growth ($599/mo), or Enterprise ($999/mo) — your $25 verification fee is 100% credited toward Month 1 — to send Protected Role invitations.' }
   }
 
   const { data: rawJob } = await db
@@ -8952,7 +9185,7 @@ export async function createEmployerTalentShieldLinkAction(params: {
   if (tierInfo.tier === 'free') {
     return {
       error:
-        'Active Employer Plan Required: Activate Starter ($149/mo Founding), Growth ($499/mo Founding), or Enterprise ($1,250/mo Founding) — your $25 verification fee is 100% credited toward Month 1 — to issue Talent Shield Protected Role links.',
+        'Active Base Membership Required: Activate Starter ($299/mo), Growth ($599/mo), or Enterprise ($999/mo) — your $25 verification fee is 100% credited toward Month 1 — to issue Verified Hiring Bridge Protected Role links.',
     }
   }
 
@@ -9117,16 +9350,21 @@ export async function getTalentShieldProfessionalContextAction(rawToken: string,
           .select('subscription_tier, subscription_status, sponsored_verifications_monthly_allowance, sponsored_verifications_monthly_remaining, sponsored_verifications_rollover_balance')
           .eq('id', resolvedSponsor.organizationId)
           .maybeSingle()
-        const { getEmployerSponsoredVerificationBalance } = await import('@/lib/sponsored-verification')
-        employerSponsoredAvailable = getEmployerSponsoredVerificationBalance(sponsorOrg).totalAvailable > 0
+        const isSponsorActive =
+          String(sponsorOrg?.subscription_status || '').toLowerCase() === 'active' &&
+          ['starter', 'growth', 'enterprise'].includes(String(sponsorOrg?.subscription_tier || '').toLowerCase())
         if (resolvedSponsor.jobId) {
           const { data: gateRawJob } = await db
             .from('jobs')
-            .select('id, title, salary_min, salary_max, work_model, structured_requirements')
+            .select('id, is_active, title, salary_min, salary_max, work_model, structured_requirements')
             .eq('id', resolvedSponsor.jobId)
             .eq('organization_id', resolvedSponsor.organizationId)
             .maybeSingle()
           if (gateRawJob) {
+            employerSponsoredAvailable =
+              isSponsorActive &&
+              gateRawJob.is_active !== false &&
+              getJobSponsoredVerificationStatus(gateRawJob).remaining > 0
             const gateJob = enrichJobRecord(gateRawJob)
             const roleMinYears = (() => {
               if (typeof gateJob.job_meta?.bridge_min_years === 'number' && gateJob.job_meta.bridge_min_years > 0) {

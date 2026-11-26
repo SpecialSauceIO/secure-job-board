@@ -415,19 +415,18 @@ export default async function DashboardPage({
     })
 
     const isPracticeEmployer = isOrgVerified && tierInfo.maxActiveJobs === 0
-    const canPostNewJob =
-      isOrgVerified &&
-      tierInfo.maxActiveJobs > 0 &&
-      activeJobsCount < tierInfo.maxActiveJobs
+    const canPostNewJob = isOrgVerified && tierInfo.maxActiveJobs > 0
     const canDraftPracticeJob = isPracticeEmployer && practiceDraftsCount < 5
 
     const companyDisplayName =
       orgData?.name || orgData?.domain || 'Set Up Your Company'
+    const totalRoleSlotCapacity =
+      Math.max(activeJobsCount, tierInfo.maxActiveJobs) + tierInfo.rolePasses.totalPasses
     const rolesBadgeText = isPracticeEmployer
       ? `${practiceDraftsCount} / 5 Drafts`
       : tierInfo.maxActiveJobs >= 500 || tierInfo.maxActiveJobs === 0
         ? `${activeJobsCount} Active`
-        : `${activeJobsCount} / ${tierInfo.maxActiveJobs}`
+        : `${activeJobsCount} / ${totalRoleSlotCapacity}`
 
     return (
       <div className="max-w-6xl mx-auto py-3 space-y-6">
@@ -541,9 +540,7 @@ export default async function DashboardPage({
               >
                 {isPracticeEmployer
                   ? 'Practice Drafts Full (5/5) · Activate Plan →'
-                  : tierInfo.tier === 'free'
-                    ? 'Select Plan to Post Roles →'
-                    : `Role Slots Full (${activeJobsCount}/${tierInfo.maxActiveJobs}) · Upgrade →`}
+                  : 'Select Plan to Post Roles →'}
               </Link>
             )}
           </div>
@@ -655,12 +652,7 @@ export default async function DashboardPage({
               >
                 {isPracticeEmployer
                   ? `${Math.max(0, 5 - practiceDraftsCount)} Practice Mode draft slots remaining`
-                  : tierInfo.maxActiveJobs >= 500
-                    ? 'Unlimited active role slots'
-                    : `${Math.max(
-                        0,
-                        tierInfo.maxActiveJobs - activeJobsCount
-                      )} role slots remaining`}
+                  : `${Math.max(0, tierInfo.maxActiveJobs - activeJobsCount)} of ${tierInfo.maxActiveJobs} plan slots open${tierInfo.rolePasses.totalPasses > 0 ? ` · +${tierInfo.rolePasses.totalPasses} Extra Slot${tierInfo.rolePasses.totalPasses === 1 ? '' : 's'} banked` : ' · +$199 Extra Slots anytime'}`}
               </p>
             </div>
             <p

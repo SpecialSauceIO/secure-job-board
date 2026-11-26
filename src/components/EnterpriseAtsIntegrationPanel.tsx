@@ -138,7 +138,7 @@ export default function EnterpriseAtsIntegrationPanel() {
           <div className="space-y-2.5 max-w-2xl">
             <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
               <span className="text-amber-300">
-                🔒 Enterprise Plan Feature ($1,250/mo Founding Rate)
+                🔒 Enterprise Membership Feature ($999/mo)
               </span>
               <span className="text-slate-600">•</span>
               <span className="text-slate-300">
@@ -151,7 +151,7 @@ export default function EnterpriseAtsIntegrationPanel() {
             </h3>
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Upgrade to <strong className="text-white">Enterprise ($1,250/mo Locked 12 Mos)</strong> to automatically sync released PDF resumes and TrueFit Score™ summaries to <strong className="text-white">Greenhouse</strong> and <strong className="text-white">Workday</strong>, export professional lists via CSV, and unlock <strong className="text-emerald-300">unlimited active roles, 120 monthly invitation credits, and unlimited team seats</strong>.
+              Upgrade to <strong className="text-white">Enterprise ($999/mo — 15 Active Protected Roles Included)</strong> to automatically sync released PDF resumes and TrueFit Score™ summaries to <strong className="text-white">Greenhouse</strong> and <strong className="text-white">Workday</strong>, export professional lists via CSV, and unlock <strong className="text-emerald-300">-2% W-2 markup, 120 monthly invitation credits, and unlimited team seats</strong>.
             </p>
           </div>
 

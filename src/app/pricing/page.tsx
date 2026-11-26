@@ -7,7 +7,7 @@ export const metadata = {
   alternates: { canonical: "/pricing" },
   title: "Pricing & Plans",
   description:
-    "Verify once ($5 Professional Explorer Mode / $25 Employer Verification Pass with $0/mo Practice Mode), or activate Professional ($12 or $19/mo) and Employer plans ($149, $499, or $1,250/mo) when ready.",
+    "Verify once ($25 Employer Verification Pass with $0/mo Practice Mode / $5 Professional Explorer Mode), or activate Employer Base Memberships ($299, $599, or $999/mo with 2, 5, or 15 Active Protected Roles included) and Professional plans ($12 or $19/mo) when ready.",
 }
 
 export default function PricingMatrixPage() {
@@ -83,48 +83,68 @@ export default function PricingMatrixPage() {
               </span>
             </h1>
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Complete a one-time verification to enter <strong className="text-emerald-400">$0/mo Explorer Mode</strong> (Professionals) or <strong className="text-emerald-400">$0/mo Practice Mode</strong> (Employers). Check your fit, preview matches, and upgrade only when ready to apply or hire.
+              Complete a one-time verification to enter <strong className="text-emerald-400">$0/mo Practice Mode</strong> (Employers) or <strong className="text-emerald-400">$0/mo Explorer Mode</strong> (Professionals). Preview matches, check your fit, and upgrade only when ready to hire or apply.
             </p>
 
             {/* Split-Screen Onboarding Callout */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-3 text-left">
-              <div className="p-4 sm:p-5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-indigo-500/40 shadow-lg space-y-2.5">
-                <div className="text-xs font-extrabold uppercase tracking-wider text-indigo-300">
-                  For Professionals ($5 One-Time Verification)
+              <div className="p-4 sm:p-5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-emerald-500/40 shadow-lg flex flex-col justify-between space-y-3">
+                <div className="space-y-2.5">
+                  <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-300">
+                    For Employers ($25 One-Time Verification)
+                  </div>
+                  <ul className="space-y-1.5 text-xs sm:text-sm text-slate-200 leading-relaxed">
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-400 font-bold shrink-0">•</span>
+                      <span><strong className="text-white">$25 once</strong> for business domain, EIN, and admin ID verification.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-400 font-bold shrink-0">•</span>
+                      <span><strong className="text-emerald-300">$0/mo Practice Mode</strong> to draft roles and preview verified talent matches.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-400 font-bold shrink-0">•</span>
+                      <span>Your $25 deposit is <strong className="text-amber-300">credited toward Month 1</strong> when you activate your Starter, Growth, or Enterprise membership.</span>
+                    </li>
+                  </ul>
                 </div>
-                <ul className="space-y-1.5 text-xs sm:text-sm text-slate-200 leading-relaxed">
-                  <li className="flex items-start gap-2">
-                    <span className="text-indigo-400 font-bold shrink-0">•</span>
-                    <span><strong className="text-white">$5 once</strong> for lifetime Stripe ID verification.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-emerald-400 font-bold shrink-0">•</span>
-                    <span><strong className="text-emerald-300">$0/mo forever</strong> to receive employer invitations and enter our Weekly 1-Year Prestige Drawing.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 font-bold shrink-0">•</span>
-                    <span>Your $5 ID check is <strong className="text-amber-300">credited toward Month 1</strong> when you activate your Professional or Prestige membership.</span>
-                  </li>
-                </ul>
+                <div className="pt-2.5 border-t border-slate-800/80">
+                  <a
+                    href="#employers"
+                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-emerald-300 hover:text-emerald-200 transition-colors"
+                  >
+                    View Employer Plans ($299–$999/mo) ↓
+                  </a>
+                </div>
               </div>
-              <div className="p-4 sm:p-5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-emerald-500/40 shadow-lg space-y-2.5">
-                <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-300">
-                  For Employers ($25 One-Time Verification)
+              <div className="p-4 sm:p-5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-indigo-500/40 shadow-lg flex flex-col justify-between space-y-3">
+                <div className="space-y-2.5">
+                  <div className="text-xs font-extrabold uppercase tracking-wider text-indigo-300">
+                    For Professionals ($5 One-Time Verification)
+                  </div>
+                  <ul className="space-y-1.5 text-xs sm:text-sm text-slate-200 leading-relaxed">
+                    <li className="flex items-start gap-2">
+                      <span className="text-indigo-400 font-bold shrink-0">•</span>
+                      <span><strong className="text-white">$5 once</strong> for lifetime Stripe ID verification.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-400 font-bold shrink-0">•</span>
+                      <span><strong className="text-emerald-300">$0/mo forever</strong> to receive employer invitations and enter our Weekly 1-Year Prestige Drawing.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-400 font-bold shrink-0">•</span>
+                      <span>Your $5 ID check is <strong className="text-amber-300">credited toward Month 1</strong> when you activate your Professional or Prestige membership.</span>
+                    </li>
+                  </ul>
                 </div>
-                <ul className="space-y-1.5 text-xs sm:text-sm text-slate-200 leading-relaxed">
-                  <li className="flex items-start gap-2">
-                    <span className="text-emerald-400 font-bold shrink-0">•</span>
-                    <span><strong className="text-white">$25 once</strong> for business domain, EIN, and admin ID verification.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-emerald-400 font-bold shrink-0">•</span>
-                    <span><strong className="text-emerald-300">$0/mo Practice Mode</strong> to draft roles and preview verified talent matches.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 font-bold shrink-0">•</span>
-                    <span>Your $25 deposit is <strong className="text-amber-300">credited toward Month 1</strong> when you activate your Starter, Growth, or Enterprise membership.</span>
-                  </li>
-                </ul>
+                <div className="pt-2.5 border-t border-slate-800/80">
+                  <a
+                    href="#professionals"
+                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-indigo-300 hover:text-indigo-200 transition-colors"
+                  >
+                    View Professional Plans ($0–$19/mo) ↓
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -133,9 +153,282 @@ export default function PricingMatrixPage() {
         {/* Main 3x3 Matrix Container */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 pb-20 sm:pb-24 space-y-14 sm:space-y-20">
           {/* ================================================================
-              SECTION 1: PROFESSIONAL PLANS
+              SECTION 1: EMPLOYER PLANS
              ================================================================ */}
-          <div className="rounded-3xl border-2 border-indigo-500/50 bg-slate-950 p-5 sm:p-8 md:p-10 shadow-xl space-y-8 relative overflow-hidden">
+          <div id="employers" className="scroll-mt-28 rounded-3xl border-2 border-emerald-500/50 bg-slate-950 p-5 sm:p-8 md:p-10 shadow-xl space-y-8 relative overflow-hidden">
+            <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border border-slate-700 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider">
+                  <span>★ Employer Base Memberships • 2, 5, or 15 Active Protected Roles Included</span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                  Verify Your Organization for $25 • Preview Matches Free
+                </h2>
+                <p className="text-sm sm:text-base text-slate-200 max-w-3xl leading-relaxed">
+                  Already-verified Ecosystem Professionals apply unlimited at $0, external Verified Hiring Bridge applicants verify free up to each role's pre-gated sponsored allowance, and declined outbound invitations auto-refund.
+                </p>
+              </div>
+              <div className="shrink-0">
+                <Link
+                  href="/signup/employer"
+                  className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm sm:text-base font-extrabold transition-colors shadow-md"
+                >
+                  Verify Organization ($25) →
+                </Link>
+              </div>
+            </div>
+
+            {/* 3 Employer Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Starter ($299) */}
+              <div className="bg-slate-900 p-6 sm:p-8 rounded-2xl border-2 border-slate-700 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-bl-xl">
+                  ★ 2 Active Roles Included
+                </div>
+                <div className="space-y-5 pt-2">
+                  <div>
+                    <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-indigo-400">
+                      Base Membership
+                    </span>
+                    <h3 className="text-2xl sm:text-3xl font-black text-white mt-1">
+                      Starter
+                    </h3>
+                    <div className="mt-3 flex flex-wrap items-baseline gap-2">
+                      <span className="text-4xl font-black text-white">$299</span>
+                      <span className="text-xs sm:text-sm font-bold text-slate-300">/ month</span>
+                    </div>
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
+                      ✓ $25 ID Check Credited Toward Month 1
+                    </div>
+                  </div>
+                  <p className="text-base text-slate-100 leading-relaxed">
+                    Complete hiring home for lean teams with up to 2 Active Protected Roles included.
+                  </p>
+                  <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
+                    <li className="flex items-start gap-2.5 text-amber-300 font-bold">
+                      <span className="shrink-0">★</span>
+                      <span><strong className="text-white">2 Active Protected Roles Included</strong> (up to 25 sponsored Bridge verifications/role)</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">+$199 Extra Protected Role Slots</strong> anytime you need more concurrent roles</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">10 Outbound Invitation Credits / mo</strong> (Accepted-Only Guarantee)</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Verified Hiring Bridge</strong> links (Ecosystem Pros always unlimited &amp; $0) • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Built-In W-2 Employer of Record (EOR)</strong> • Direct Hire, Contract-to-Hire ($0 conversion fee), Limited &amp; Indefinite W-2 • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link></span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">2 Team Seats</strong> &amp; Founding Partner Badge</span>
+                    </li>
+                  </ul>
+                </div>
+                <Link
+                  href="/signup/employer?plan=starter"
+                  className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
+                >
+                  Select Starter ($299/mo) →
+                </Link>
+              </div>
+
+              {/* Growth ($599) */}
+              <div className="bg-slate-900 text-white p-6 sm:p-8 rounded-2xl border-2 border-indigo-500 shadow-lg flex flex-col justify-between space-y-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 bg-indigo-500 text-white text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-bl-xl">
+                  ★ Most Popular • 5 Active Roles
+                </div>
+                <div className="space-y-5 pt-2">
+                  <div>
+                    <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-indigo-300">
+                      Growing Companies
+                    </span>
+                    <h3 className="text-2xl sm:text-3xl font-black text-white mt-1">
+                      Growth
+                    </h3>
+                    <div className="mt-3 flex flex-wrap items-baseline gap-2">
+                      <span className="text-4xl font-black text-white">$599</span>
+                      <span className="text-xs sm:text-sm font-bold text-slate-300">/ month</span>
+                    </div>
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
+                      ✓ $25 ID Check Credited Toward Month 1
+                    </div>
+                  </div>
+                  <p className="text-base text-slate-100 leading-relaxed">
+                    For growing teams hiring across departments with up to 5 Active Protected Roles included.
+                  </p>
+                  <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
+                    <li className="flex items-start gap-2.5 text-amber-300 font-bold">
+                      <span className="shrink-0">★</span>
+                      <span><strong className="text-white">5 Active Protected Roles Included</strong> (up to 50 sponsored Bridge verifications/role)</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">+$199 Extra Protected Role Slots</strong> anytime you need more concurrent roles</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">35 Outbound Invitation Credits / mo</strong> (Accepted-Only Guarantee)</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Verified Hiring Bridge</strong> links (Ecosystem Pros always unlimited &amp; $0) • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Built-In W-2 Employer of Record (-1% W-2 Markup)</strong> • $0 conversion fee &amp; Net-30 billing • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link></span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Up to 5 Team &amp; Recruiter Seats</strong> + Founding Partner Badge</span>
+                    </li>
+                  </ul>
+                </div>
+                <Link
+                  href="/signup/employer?plan=growth"
+                  className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
+                >
+                  Select Growth ($599/mo) →
+                </Link>
+              </div>
+
+              {/* Enterprise ($999) */}
+              <div className="bg-slate-900 p-6 sm:p-8 rounded-2xl border-2 border-emerald-500/80 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 bg-emerald-500 text-slate-950 text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-bl-xl">
+                  ★ 15 Active Roles + HR Sync
+                </div>
+                <div className="space-y-5 pt-2">
+                  <div>
+                    <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400">
+                      High-Volume &amp; Enterprise
+                    </span>
+                    <h3 className="text-2xl sm:text-3xl font-black text-white mt-1">
+                      Enterprise
+                    </h3>
+                    <div className="mt-3 flex flex-wrap items-baseline gap-2">
+                      <span className="text-4xl font-black text-white">$999</span>
+                      <span className="text-xs sm:text-sm font-bold text-slate-300">/ month</span>
+                    </div>
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
+                      ✓ $25 ID Check Credited Toward Month 1
+                    </div>
+                  </div>
+                  <p className="text-base text-slate-100 leading-relaxed">
+                    For multi-team hiring with HR software sync and up to 15 Active Protected Roles included.
+                  </p>
+                  <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
+                    <li className="flex items-start gap-2.5 text-amber-300 font-bold">
+                      <span className="shrink-0">★</span>
+                      <span><strong className="text-white">15 Active Protected Roles Included</strong> (up to 100 sponsored Bridge verifications/role)</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">+$199 Extra Protected Role Slots</strong> anytime you need more concurrent roles</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">120 Outbound Invitation Credits / mo</strong> (Accepted-Only Guarantee)</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Verified Hiring Bridge</strong> links (Ecosystem Pros always unlimited &amp; $0) • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Built-In W-2 Employer of Record (-2% W-2 Markup)</strong> • Lowest volume W-2 rate &amp; $0 conversion fee • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link></span>
+                    </li>
+                    <li className="flex items-start gap-2.5 text-indigo-300 font-bold">
+                      <span className="shrink-0">⚡</span>
+                      <span><strong className="text-white">Workday &amp; Greenhouse Auto-Sync</strong> + CSV Export</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span><strong className="text-white">Unlimited Team &amp; Recruiter Seats</strong></span>
+                    </li>
+                  </ul>
+                </div>
+                <Link
+                  href="/signup/employer?plan=enterprise"
+                  className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
+                >
+                  Select Enterprise ($999/mo) →
+                </Link>
+              </div>
+            </div>
+
+            {/* ================================================================
+                EXTRA PROTECTED ROLE SLOT ($199 FLAT OVERFLOW ADD-ON)
+               ================================================================ */}
+            <div className="pt-6 border-t border-slate-800 space-y-6">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-slate-900 text-white p-6 sm:p-8 rounded-2xl border border-slate-700">
+                <div className="space-y-2 max-w-3xl">
+                  <div className="inline-flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider">
+                    <span>🛡️ Overflow Role Capacity Add-On • Active Members</span>
+                  </div>
+                  <h3 className="text-2xl font-black text-white tracking-tight">
+                    2, 5, or 15 Active Roles Included • Add Extra Role Slots Anytime for $199
+                  </h3>
+                  <p className="text-base text-slate-100 leading-relaxed">
+                    Starter includes 2 concurrent Active Protected Roles, Growth includes 5, and Enterprise includes 15—and closing or pausing a filled role frees its plan slot right away. Whenever all of your included slots are active at once, add a flat <strong className="text-white">$199 Extra Protected Role Slot</strong> without changing your monthly tier—<strong className="text-emerald-300">zero surprise metered bills</strong>.
+                  </p>
+                </div>
+                <div className="shrink-0 flex flex-col gap-2 text-xs sm:text-sm font-extrabold text-slate-100 bg-slate-950 px-5 py-4 rounded-xl border border-slate-700">
+                  <span className="flex items-center gap-2 text-emerald-300">
+                    ✓ Reusable Plan Slots (Close to Free)
+                  </span>
+                  <span className="flex items-center gap-2 text-amber-300">
+                    ✓ Flat $199 Extra Role Slot Anytime
+                  </span>
+                  <span className="flex items-center gap-2 text-sky-300">
+                    🛡️ Ecosystem Pros Always Unlimited &amp; $0
+                  </span>
+                </div>
+              </div>
+
+              <div className="bg-slate-900 rounded-2xl p-6 sm:p-8 border-2 border-indigo-500 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div className="space-y-2.5 max-w-3xl">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-300">
+                      ★ Extra Protected Role Slot
+                    </span>
+                    <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-200 text-xs font-extrabold border border-indigo-400/40">
+                      Starter • Growth • Enterprise
+                    </span>
+                  </div>
+                  <h4 className="text-xl sm:text-2xl font-black text-white">
+                    $199 Flat Add-On • +1 Concurrent Active Protected Role
+                  </h4>
+                  <p className="text-sm sm:text-base text-slate-200 leading-relaxed">
+                    Publishes 1 additional concurrent Protected Role beyond your included 2, 5, or 15 plan slots, including up to 25 Employer-Sponsored external ID verifications via Verified Hiring Bridge (pre-gated on pay, location, and minimum experience before Stripe ID) plus unlimited $0 applications from already-verified Special Sauce Professionals.
+                  </p>
+                </div>
+                <div className="shrink-0 flex flex-col items-start lg:items-end gap-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-black text-white">$199</span>
+                    <span className="text-xs sm:text-sm font-bold text-slate-300">flat add-on</span>
+                  </div>
+                  <span className="text-xs font-bold text-emerald-300">
+                    ✓ No monthly tier jump • Zero overages
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-slate-800">
+              <HiringTracksFlowchart isDashboard={false} showGuideLink={true} />
+            </div>
+          </div>
+
+          {/* ================================================================
+              SECTION 2: PROFESSIONAL PLANS
+             ================================================================ */}
+          <div id="professionals" className="scroll-mt-28 rounded-3xl border-2 border-indigo-500/50 bg-slate-950 p-5 sm:p-8 md:p-10 shadow-xl space-y-8 relative overflow-hidden">
             <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border border-slate-700 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider">
@@ -332,333 +625,6 @@ export default function PricingMatrixPage() {
                   Select Prestige ($19/mo) →
                 </Link>
               </div>
-            </div>
-          </div>
-
-          {/* ================================================================
-              SECTION 2: EMPLOYER PLANS
-             ================================================================ */}
-          <div className="rounded-3xl border-2 border-emerald-500/50 bg-slate-950 p-5 sm:p-8 md:p-10 shadow-xl space-y-8 relative overflow-hidden">
-            <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border border-slate-700 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider">
-                  <span>★ Employer Plans • 12-Month Founding Partner Rate Lock</span>
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  Verify Your Organization for $25 • Preview Matches Free
-                </h2>
-                <p className="text-sm sm:text-base text-slate-200 max-w-3xl leading-relaxed">
-                  Inbound applicants are always 100% free to unlock, and declined outbound invitations are automatically refunded.
-                </p>
-              </div>
-              <div className="shrink-0">
-                <Link
-                  href="/signup/employer"
-                  className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm sm:text-base font-extrabold transition-colors shadow-md"
-                >
-                  Verify Organization ($25) →
-                </Link>
-              </div>
-            </div>
-
-            {/* 3 Employer Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Starter ($149) */}
-              <div className="bg-slate-900 p-6 sm:p-8 rounded-2xl border-2 border-slate-700 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 bg-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-bl-xl">
-                  ★ 12-Mo Founding Rate (-50%)
-                </div>
-                <div className="space-y-5 pt-2">
-                  <div>
-                    <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-indigo-400">
-                      Small Teams
-                    </span>
-                    <h3 className="text-2xl sm:text-3xl font-black text-white mt-1">
-                      Starter
-                    </h3>
-                    <div className="mt-3 flex flex-wrap items-baseline gap-2">
-                      <span className="text-lg font-bold text-slate-400 line-through">$299</span>
-                      <span className="text-4xl font-black text-white">$149</span>
-                      <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
-                    </div>
-                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ $25 ID Check Credited Toward Month 1
-                    </div>
-                  </div>
-                  <p className="text-base text-slate-100 leading-relaxed">
-                    For small teams filling 1 to 5 active roles at a time.
-                  </p>
-                  <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Up to 5 Active Protected Roles</strong></span>
-                    </li>
-                    <li className="flex items-start gap-2.5 text-amber-300 font-bold">
-                      <span className="shrink-0">★</span>
-                      <span><strong className="text-white">$149/mo Locked for 12 Months</strong> ($299/mo Month 13+)</span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Verified Hiring Bridge • 25 Sponsored Verifications / mo</strong> (already-verified Pros unlimited &amp; $0) • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Built-In W-2 Employer of Record (EOR)</strong> • Direct Hire, Contract-to-Hire ($0 conversion fee), Limited &amp; Indefinite W-2 • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link></span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlimited Free Inbound Applicants</strong></span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">2 Team Seats</strong> &amp; Founding Partner Badge</span>
-                    </li>
-                  </ul>
-                </div>
-                <Link
-                  href="/signup/employer?plan=starter"
-                  className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
-                >
-                  Select Starter ($149/mo) →
-                </Link>
-              </div>
-
-              {/* Growth ($499) */}
-              <div className="bg-slate-900 text-white p-6 sm:p-8 rounded-2xl border-2 border-indigo-500 shadow-lg flex flex-col justify-between space-y-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 bg-indigo-500 text-white text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-bl-xl">
-                  ★ Most Popular • 12-Mo Lock
-                </div>
-                <div className="space-y-5 pt-2">
-                  <div>
-                    <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-indigo-300">
-                      Growing Companies
-                    </span>
-                    <h3 className="text-2xl sm:text-3xl font-black text-white mt-1">
-                      Growth
-                    </h3>
-                    <div className="mt-3 flex flex-wrap items-baseline gap-2">
-                      <span className="text-lg font-bold text-slate-400 line-through">$799</span>
-                      <span className="text-4xl font-black text-white">$499</span>
-                      <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
-                    </div>
-                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ $25 ID Check Credited Toward Month 1
-                    </div>
-                  </div>
-                  <p className="text-base text-slate-100 leading-relaxed">
-                    For growing teams hiring across multiple departments.
-                  </p>
-                  <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Up to 15 Active Protected Roles</strong></span>
-                    </li>
-                    <li className="flex items-start gap-2.5 text-amber-300 font-bold">
-                      <span className="shrink-0">★</span>
-                      <span><strong className="text-white">$499/mo Locked for 12 Months</strong> ($799/mo Month 13+)</span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Verified Hiring Bridge • 75 Sponsored Verifications / mo</strong> (already-verified Pros unlimited &amp; $0) • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Built-In W-2 Employer of Record (-1% W-2 Markup)</strong> • $0 conversion fee &amp; Net-30 billing • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link></span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlimited Free Inbound Applicants</strong></span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Up to 5 Team &amp; Recruiter Seats</strong> + Founding Partner Badge</span>
-                    </li>
-                  </ul>
-                </div>
-                <Link
-                  href="/signup/employer?plan=growth"
-                  className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
-                >
-                  Select Growth ($499/mo) →
-                </Link>
-              </div>
-
-              {/* Enterprise ($1,250) */}
-              <div className="bg-slate-900 p-6 sm:p-8 rounded-2xl border-2 border-emerald-500/80 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 bg-emerald-500 text-slate-950 text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-bl-xl">
-                  ★ Unlimited &amp; HR Sync
-                </div>
-                <div className="space-y-5 pt-2">
-                  <div>
-                    <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400">
-                      High-Volume &amp; Enterprise
-                    </span>
-                    <h3 className="text-2xl sm:text-3xl font-black text-white mt-1">
-                      Enterprise
-                    </h3>
-                    <div className="mt-3 flex flex-wrap items-baseline gap-2">
-                      <span className="text-lg font-bold text-slate-400 line-through">$1,999</span>
-                      <span className="text-4xl font-black text-white">$1,250</span>
-                      <span className="text-xs sm:text-sm font-bold text-amber-300">/ mo (Locked 12 Mos)</span>
-                    </div>
-                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">
-                      ✓ $25 ID Check Credited Toward Month 1
-                    </div>
-                  </div>
-                  <p className="text-base text-slate-100 leading-relaxed">
-                    For high-volume hiring teams with automated HR software sync.
-                  </p>
-                  <ul className="space-y-3 pt-4 border-t border-slate-800 text-sm sm:text-base text-slate-100">
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlimited Active Protected Roles</strong></span>
-                    </li>
-                    <li className="flex items-start gap-2.5 text-amber-300 font-bold">
-                      <span className="shrink-0">★</span>
-                      <span><strong className="text-white">$1,250/mo Locked for 12 Months</strong> ($1,999/mo Month 13+)</span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Verified Hiring Bridge • 200 Sponsored Verifications / mo</strong> (already-verified Pros unlimited &amp; $0) • <Link href="/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Built-In W-2 Employer of Record (-2% W-2 Markup)</strong> • Lowest volume W-2 rate &amp; $0 conversion fee • <Link href="/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link></span>
-                    </li>
-                    <li className="flex items-start gap-2.5 text-indigo-300 font-bold">
-                      <span className="shrink-0">⚡</span>
-                      <span><strong className="text-white">Workday &amp; Greenhouse Auto-Sync</strong> + CSV Export</span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlimited Team &amp; Recruiter Seats</strong></span>
-                    </li>
-                  </ul>
-                </div>
-                <Link
-                  href="/signup/employer?plan=enterprise"
-                  className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm sm:text-base rounded-xl text-center transition-colors shadow-md"
-                >
-                  Select Enterprise ($1,250/mo) →
-                </Link>
-              </div>
-            </div>
-
-            {/* ================================================================
-                OPTIONAL ROLLOVER BRIDGE PACKS ($50 / $95 / $270)
-               ================================================================ */}
-            <div className="pt-6 border-t border-slate-800 space-y-6">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-slate-900 text-white p-6 sm:p-8 rounded-2xl border border-slate-700">
-                <div className="space-y-2 max-w-3xl">
-                  <div className="inline-flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider">
-                    <span>🛡️ Optional Rollover Bridge Packs • Active Subscribers</span>
-                  </div>
-                  <h3 className="text-2xl font-black text-white tracking-tight">
-                    Need Extra Sponsored Verifications During a Hiring Push?
-                  </h3>
-                  <p className="text-base text-slate-100 leading-relaxed">
-                    Your monthly sponsored verification allowance is used first (and already-verified Professionals are always unlimited and $0). Add one-time rollover Bridge Packs on your own terms—<strong className="text-emerald-300">never surprise metered charges</strong>.
-                  </p>
-                </div>
-                <div className="shrink-0 flex flex-col gap-2 text-xs sm:text-sm font-extrabold text-slate-100 bg-slate-950 px-5 py-4 rounded-xl border border-slate-700">
-                  <span className="flex items-center gap-2 text-emerald-300">
-                    ✓ Monthly Allowance Used First
-                  </span>
-                  <span className="flex items-center gap-2 text-amber-300">
-                    ✓ Rollover Packs Never Expire
-                  </span>
-                  <span className="flex items-center gap-2 text-sky-300">
-                    🛡️ Already-Verified Pros Always $0
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Pack 1: Bridge Pack 25 ($50) */}
-                <div className="bg-slate-900 rounded-2xl p-6 border border-slate-700 shadow-md flex flex-col justify-between space-y-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-extrabold uppercase tracking-wider text-amber-300">
-                        🛡️ Bridge Pack 25
-                      </span>
-                      <span className="px-3 py-1 rounded-full bg-slate-800 text-slate-100 text-xs font-extrabold border border-slate-600">
-                        $2.00 / check
-                      </span>
-                    </div>
-                    <div className="flex items-baseline justify-between pt-1">
-                      <h4 className="text-xl sm:text-2xl font-black text-white">
-                        +25 Verifications
-                      </h4>
-                      <span className="text-3xl font-black text-white">$50</span>
-                    </div>
-                    <p className="text-base text-slate-100 leading-relaxed">
-                      Quick rollover top-up for an active LinkedIn or careers page post.
-                    </p>
-                  </div>
-                  <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-300">
-                    <span>✓ Never expires</span>
-                    <span className="text-slate-300">One-time pack</span>
-                  </div>
-                </div>
-
-                {/* Pack 2: Bridge Pack 50 ($95) */}
-                <div className="bg-slate-900 rounded-2xl p-6 border-2 border-indigo-500 shadow-md flex flex-col justify-between space-y-4 relative overflow-hidden">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-300">
-                        🚀 Bridge Pack 50 • Most Popular
-                      </span>
-                      <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-200 text-xs font-extrabold border border-indigo-400/40">
-                        $1.90 / check
-                      </span>
-                    </div>
-                    <div className="flex items-baseline justify-between pt-1">
-                      <h4 className="text-xl sm:text-2xl font-black text-white">
-                        +50 Verifications
-                      </h4>
-                      <span className="text-3xl font-black text-white">$95</span>
-                    </div>
-                    <p className="text-base text-slate-100 leading-relaxed">
-                      Built for growing teams screening external applicants across multiple roles.
-                    </p>
-                  </div>
-                  <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs sm:text-sm font-bold text-indigo-300">
-                    <span>✓ Never expires</span>
-                    <span>Most Popular</span>
-                  </div>
-                </div>
-
-                {/* Pack 3: Bridge Pack 150 ($270) */}
-                <div className="bg-slate-900 rounded-2xl p-6 border border-slate-700 shadow-md flex flex-col justify-between space-y-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-300">
-                        🏢 Bridge Pack 150 • Best Value
-                      </span>
-                      <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 text-xs font-extrabold border border-emerald-400/40">
-                        $1.80 / check
-                      </span>
-                    </div>
-                    <div className="flex items-baseline justify-between pt-1">
-                      <h4 className="text-xl sm:text-2xl font-black text-white">
-                        +150 Verifications
-                      </h4>
-                      <span className="text-3xl font-black text-white">$270</span>
-                    </div>
-                    <p className="text-base text-slate-100 leading-relaxed">
-                      Best per-verification value for high-volume hiring sprints.
-                    </p>
-                  </div>
-                  <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-300">
-                    <span>✓ Never expires</span>
-                    <span>Best Value</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-slate-800">
-              <HiringTracksFlowchart isDashboard={false} showGuideLink={true} />
             </div>
           </div>
         </main>

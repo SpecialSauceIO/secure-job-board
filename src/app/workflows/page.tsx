@@ -1,16 +1,45 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { PublicHeader } from '@/components/PublicHeader'
 import { PublicFooter } from '@/components/PublicFooter'
 import { HiringTracksFlowchart } from '@/components/W2HiringGuideView'
 
+function WorkflowsTabQuerySync({
+  onSelectTab,
+}: {
+  onSelectTab: (tab: 'employer' | 'professional') => void
+}) {
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')?.toLowerCase()
+    if (tabParam === 'professional' || tabParam === 'professionals') {
+      onSelectTab('professional')
+    } else if (tabParam === 'employer' || tabParam === 'employers') {
+      onSelectTab('employer')
+    }
+  }, [searchParams, onSelectTab])
+
+  return null
+}
+
 export default function WorkflowsPage() {
-  const [activeTab, setActiveTab] = useState<'candidate' | 'employer'>('candidate')
+  const router = useRouter()
+  const [activeTab, setActiveTab] = useState<'employer' | 'professional'>('employer')
+
+  const handleSelectTab = (nextTab: 'employer' | 'professional') => {
+    setActiveTab(nextTab)
+    router.replace(`/workflows?tab=${nextTab}`, { scroll: false })
+  }
 
   return (
     <div className="min-h-screen w-full overflow-x-clip bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900 flex flex-col justify-between">
+      <Suspense fallback={null}>
+        <WorkflowsTabQuerySync onSelectTab={setActiveTab} />
+      </Suspense>
       <PublicHeader />
       <div className="flex-1">
 
@@ -76,8 +105,8 @@ export default function WorkflowsPage() {
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight drop-shadow-xs">
               How Special Sauce Works{' '}
-              <span className={activeTab === 'candidate' ? 'text-sky-400' : 'text-emerald-400'}>
-                {activeTab === 'candidate' ? 'for Professionals' : 'for Employers'}
+              <span className={activeTab === 'professional' ? 'text-sky-400' : 'text-emerald-400'}>
+                {activeTab === 'professional' ? 'for Professionals' : 'for Employers'}
               </span>
             </h1>
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
@@ -91,7 +120,7 @@ export default function WorkflowsPage() {
                 🛡️ Security &amp; Privacy →
               </Link>
               <Link
-                href="/pricing"
+                href={activeTab === 'employer' ? '/pricing#employers' : '/pricing#professionals'}
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-400/40 text-xs sm:text-sm font-extrabold transition-all backdrop-blur-md"
               >
                 ★ View Plans &amp; Pricing
@@ -105,22 +134,7 @@ export default function WorkflowsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <button
               type="button"
-              onClick={() => setActiveTab('candidate')}
-              className={`p-4 sm:p-5 rounded-2xl border-2 font-extrabold text-sm sm:text-base flex items-center justify-center gap-3 transition-all cursor-pointer ${
-                activeTab === 'candidate'
-                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-md'
-                  : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
-              }`}
-            >
-              <span className="w-7 h-7 rounded-lg bg-black/20 flex items-center justify-center text-xs font-black">
-                P
-              </span>
-              <span>Professional Workflow (5 Steps)</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('employer')}
+              onClick={() => handleSelectTab('employer')}
               className={`p-4 sm:p-5 rounded-2xl border-2 font-extrabold text-sm sm:text-base flex items-center justify-center gap-3 transition-all cursor-pointer ${
                 activeTab === 'employer'
                   ? 'bg-emerald-600 text-white border-emerald-500 shadow-md'
@@ -132,9 +146,24 @@ export default function WorkflowsPage() {
               </span>
               <span>Employer Workflow (5 Steps)</span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => handleSelectTab('professional')}
+              className={`p-4 sm:p-5 rounded-2xl border-2 font-extrabold text-sm sm:text-base flex items-center justify-center gap-3 transition-all cursor-pointer ${
+                activeTab === 'professional'
+                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-md'
+                  : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
+              }`}
+            >
+              <span className="w-7 h-7 rounded-lg bg-black/20 flex items-center justify-center text-xs font-black">
+                P
+              </span>
+              <span>Professional Workflow (5 Steps)</span>
+            </button>
           </div>
 
-          {activeTab === 'candidate' ? (
+          {activeTab === 'professional' ? (
             <section className="rounded-3xl border-2 border-indigo-500/60 bg-slate-950 p-6 sm:p-10 shadow-xl space-y-8">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
                 <div className="flex items-center gap-3.5">
@@ -401,7 +430,7 @@ export default function WorkflowsPage() {
                     <ul className="space-y-2.5 text-sm text-slate-200">
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Publish <strong>Full-Time Direct Hire</strong>, <strong>W-2 Contract-to-Hire ($0 conversion)</strong>, <strong>Limited W-2 Contract</strong>, or <strong>Indefinite W-2 Contract</strong> roles on <strong>Starter ($149/mo)</strong>, <strong>Growth ($499/mo)</strong>, or <strong>Enterprise ($1,250/mo)</strong>.</span>
+                        <span>Publish <strong>Full-Time Direct Hire</strong>, <strong>W-2 Contract-to-Hire ($0 conversion)</strong>, <strong>Limited W-2 Contract</strong>, or <strong>Indefinite W-2 Contract</strong> roles on <strong>Starter ($299/mo · 2 Active Roles)</strong>, <strong>Growth ($599/mo · 5 Active Roles)</strong>, or <strong>Enterprise ($999/mo · 15 Active Roles)</strong>, plus flat <strong>$199 Extra Protected Role Slots</strong> anytime you need more concurrent roles.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>

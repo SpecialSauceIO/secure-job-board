@@ -3,10 +3,14 @@ import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { recordHandshakeTelemetry, raiseSecurityAlertAndFlag } from '@/lib/security-telemetry'
 import {
-  BRIDGE_PACK_CREDITS_MAP,
-  addEmployerBridgePackCredits,
+  INITIAL_INCLUDED_ROLE_PASS_BY_TIER,
+  PROTECTED_ROLE_PASSES,
+  ProtectedRolePassId,
   consumeEmployerSponsoredVerification,
-  getSponsoredVerificationAllowanceForTier,
+  consumeJobSponsoredVerification,
+  formatRolePassInventoryTags,
+  parseRolePassInventory,
+  stripRolePassInventoryTags,
 } from '@/lib/sponsored-verification'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_build_placeholder', {
@@ -288,28 +292,64 @@ export async function POST(req: Request) {
           .eq('id', organizationId)
       }
     }
-    // B0) Employer Rollover Bridge Pack (bridge_25 / bridge_50 / bridge_150)
-    else if (audience === 'employer_bridge_pack' || Boolean(BRIDGE_PACK_CREDITS_MAP[packId])) {
-      const rawMetaCredits = Math.max(0, parseInt(session.metadata?.creditsToAdd || '0', 10) || 0)
-      const creditsToAdd = BRIDGE_PACK_CREDITS_MAP[packId] ?? ([25, 50, 150].includes(rawMetaCredits) ? rawMetaCredits : 0)
-      let alreadyFulfilled = Boolean(session.metadata?.webhook_bridge_pack_fulfilled_at)
+    // B0) Employer Extra Protected Role Slot ($199 Flat Add-On) & Legacy Role Passes
+    else if (
+      audience === 'employer_extra_role_slot' ||
+      audience === 'employer_role_pass' ||
+      packId === 'extra_role_slot' ||
+      session.metadata?.rolePassId === 'extra_role_slot' ||
+      Boolean(PROTECTED_ROLE_PASSES[(session.metadata?.rolePassId || packId) as ProtectedRolePassId])
+    ) {
+      const rawSlotKey = String(session.metadata?.rolePassId || packId || 'extra_role_slot')
+      const isExtraSlot =
+        audience === 'employer_extra_role_slot' ||
+        rawSlotKey === 'extra_role_slot' ||
+        !PROTECTED_ROLE_PASSES[rawSlotKey as ProtectedRolePassId]
+      const passDef = PROTECTED_ROLE_PASSES[rawSlotKey as ProtectedRolePassId]
+      let alreadyFulfilled = Boolean(session.metadata?.webhook_role_pass_fulfilled_at)
       if (!alreadyFulfilled && session.id) {
         try {
           const freshSession = await stripe.checkout.sessions.retrieve(session.id)
-          if (freshSession?.metadata?.webhook_bridge_pack_fulfilled_at) alreadyFulfilled = true
+          if (freshSession?.metadata?.webhook_role_pass_fulfilled_at) alreadyFulfilled = true
         } catch {}
       }
-      if (organizationId && creditsToAdd > 0 && !alreadyFulfilled) {
-        const res = await addEmployerBridgePackCredits(supabaseAdmin, organizationId, creditsToAdd)
-        if (res.ok && session.id) {
-          try {
-            await stripe.checkout.sessions.update(session.id, {
-              metadata: {
-                ...(session.metadata || {}),
-                webhook_bridge_pack_fulfilled_at: new Date().toISOString(),
-              },
+      if (organizationId && (isExtraSlot || passDef) && !alreadyFulfilled) {
+        const { data: orgObj } = await supabaseAdmin
+          .from('organizations')
+          .select('*')
+          .eq('id', organizationId)
+          .maybeSingle()
+        const csMarker = session.id ? `[RP_CS:${session.id.slice(-12)}]` : ''
+        if (orgObj && (!csMarker || !String(orgObj.description || '').includes(csMarker))) {
+          const inv = parseRolePassInventory(orgObj.description)
+          const nextInv = {
+            extraRoleSlots: inv.extraRoleSlots + (isExtraSlot ? 1 : 0),
+            role_25: inv.role_25 + (!isExtraSlot && passDef?.id === 'role_25' ? 1 : 0),
+            role_50: inv.role_50 + (!isExtraSlot && passDef?.id === 'role_50' ? 1 : 0),
+            role_100: inv.role_100 + (!isExtraSlot && passDef?.id === 'role_100' ? 1 : 0),
+            firstRoleGranted: inv.firstRoleGranted,
+          }
+          const preservedRpMarkers = (String(orgObj.description || '').match(/\[RP_CS:[^\]]+\]/gi) || []).slice(-8).join(' ')
+          const baseDesc = stripRolePassInventoryTags(orgObj.description)
+          const passTags = formatRolePassInventoryTags(nextInv)
+          const nextDesc = `${baseDesc} ${passTags} ${preservedRpMarkers} ${csMarker}`.replace(/\s+/g, ' ').trim()
+          await supabaseAdmin
+            .from('organizations')
+            .update({
+              description: nextDesc,
+              ...(typeof session.customer === 'string' ? { stripe_customer_id: session.customer } : {}),
             })
-          } catch {}
+            .eq('id', organizationId)
+          if (session.id) {
+            try {
+              await stripe.checkout.sessions.update(session.id, {
+                metadata: {
+                  ...(session.metadata || {}),
+                  webhook_role_pass_fulfilled_at: new Date().toISOString(),
+                },
+              })
+            } catch {}
+          }
         }
       }
     }
@@ -381,11 +421,20 @@ export async function POST(req: Request) {
       const currentTotal = Math.max(0, orgObj?.connection_credits || 0)
       const preservedRollover = Math.min(currentTotal, parseRolloverCreditsTag(orgObj?.description))
       const newTotalCredits = planCredits + preservedRollover
-      const cleanDesc = stripTags(orgObj?.description).replace(/\[(VERIFY_PAID|CREDIT25_USED)\]/gi, '').trim()
+      const inv = parseRolePassInventory(orgObj?.description)
+      const nextRoleInv = {
+        extraRoleSlots: inv.extraRoleSlots,
+        role_25: inv.role_25,
+        role_50: inv.role_50,
+        role_100: inv.role_100,
+        firstRoleGranted: true,
+      }
+      const preservedRpMarkers = (String(orgObj?.description || '').match(/\[RP_CS:[^\]]+\]/gi) || []).slice(-8).join(' ')
+      const cleanDesc = stripRolePassInventoryTags(stripTags(orgObj?.description)).replace(/\[(VERIFY_PAID|CREDIT25_USED)\]/gi, '').trim()
       const topupTag = preservedRollover > 0 ? `[TOPUP:${preservedRollover}]` : ''
-      const taggedDesc = `${cleanDesc} [TIER:${targetTier}] [VERIFY_PAID] [CREDIT25_USED] ${topupTag}`.replace(/\s+/g, ' ').trim()
+      const passTags = formatRolePassInventoryTags(nextRoleInv)
+      const taggedDesc = `${cleanDesc} [TIER:${targetTier}] [VERIFY_PAID] [CREDIT25_USED] ${topupTag} ${passTags} ${preservedRpMarkers}`.replace(/\s+/g, ' ').trim()
 
-      const sponsoredAllowance = getSponsoredVerificationAllowanceForTier(targetTier)
       const { error } = await supabaseAdmin
         .from('organizations')
         .update({
@@ -393,9 +442,6 @@ export async function POST(req: Request) {
           subscription_status: 'active',
           subscription_tier: targetTier,
           connection_credits: newTotalCredits,
-          sponsored_verifications_monthly_allowance: sponsoredAllowance,
-          sponsored_verifications_monthly_remaining: sponsoredAllowance,
-          sponsored_verifications_reset_at: new Date().toISOString(),
           description: taggedDesc,
           stripe_customer_id: session.customer as string,
           stripe_subscription_id: session.subscription as string,
@@ -409,7 +455,11 @@ export async function POST(req: Request) {
     const customerEmail = session.customer_details?.email || session.customer_email || ''
     const userSummary = await resolveUserSummary(userId, customerEmail)
     const amountFormatted = `$${((session.amount_total || 0) / 100).toFixed(2)} ${(session.currency || 'usd').toUpperCase()}`
-    const checkoutLabel = packId
+    const checkoutLabel = audience === 'employer_extra_role_slot' || packId === 'extra_role_slot'
+      ? 'Extra Protected Role Slot ($199)'
+      : audience === 'employer_role_pass'
+      ? `Protected Role Pass (${(session.metadata?.rolePassId || packId || 'role_25').toUpperCase()})`
+      : packId
       ? `Employer Top-Up Pack (${packId.toUpperCase()})`
       : audience === 'employer_verify' || tierId === 'employer_verify'
       ? 'Employer Verification Pass ($25 One-Time)'
@@ -482,16 +532,12 @@ export async function POST(req: Request) {
           .replace(/\s+/g, ' ')
           .trim()
 
-        const renewedSponsoredAllowance = getSponsoredVerificationAllowanceForTier(activeTier)
         await supabaseAdmin
           .from('organizations')
           .update({
             verification_status: 'verified',
             subscription_status: 'active',
             connection_credits: renewedTotal,
-            sponsored_verifications_monthly_allowance: renewedSponsoredAllowance,
-            sponsored_verifications_monthly_remaining: renewedSponsoredAllowance,
-            sponsored_verifications_reset_at: new Date().toISOString(),
             description: taggedDesc,
           })
           .eq('id', orgObj.id)
@@ -629,8 +675,13 @@ export async function POST(req: Request) {
         .maybeSingle()
       const isEmployerRole = existingProfile?.role === 'employer'
       const sponsoredByOrgId = String(session.metadata?.sponsoredByOrgId || '').trim()
+      const sponsoredJobId = String(session.metadata?.sponsoredJobId || '').trim()
       if (!isEmployerRole && sponsoredByOrgId) {
-        await consumeEmployerSponsoredVerification(supabaseAdmin, sponsoredByOrgId)
+        if (sponsoredJobId) {
+          await consumeJobSponsoredVerification(supabaseAdmin, sponsoredJobId)
+        } else {
+          await consumeEmployerSponsoredVerification(supabaseAdmin, sponsoredByOrgId)
+        }
         const rawSkills = Array.isArray((existingProfile as any)?.structured_skills) ? (existingProfile as any).structured_skills : []
         const existingMeta = rawSkills.find((item: any) => item && typeof item === 'object' && item._ss_meta) || {}
         const filtered = rawSkills.filter((item: any) => !(item && typeof item === 'object' && item._ss_meta))
