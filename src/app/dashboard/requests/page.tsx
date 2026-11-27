@@ -379,7 +379,7 @@ export default function CandidateRequestsInboxPage() {
         </div>
 
         <Link
-          href="/dashboard/jobs"
+          href="/dashboard/roles"
           className="shrink-0 inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-xs"
         >
           Browse Open Roles →
@@ -400,7 +400,7 @@ export default function CandidateRequestsInboxPage() {
             </p>
           </div>
           <Link
-            href={!hasActivePlan ? '/dashboard/billing' : '/dashboard'}
+            href={!hasActivePlan ? '/dashboard/membership' : '/dashboard'}
             className="shrink-0 inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors shadow-xs"
           >
             {!hasActivePlan

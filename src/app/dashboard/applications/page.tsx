@@ -195,7 +195,7 @@ export default function CandidateApplicationsPage() {
         </div>
 
         <Link
-          href="/dashboard/jobs"
+          href="/dashboard/roles"
           className="shrink-0 inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm"
         >
           + Browse More Roles →
@@ -320,7 +320,7 @@ export default function CandidateApplicationsPage() {
               </button>
             )}
             <Link
-              href="/dashboard/jobs"
+              href="/dashboard/roles"
               className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors"
             >
               Explore Open Roles →

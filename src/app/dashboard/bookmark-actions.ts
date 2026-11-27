@@ -106,6 +106,7 @@ export async function toggleBookmarkItem(
   }
 
   revalidatePath('/dashboard')
+  revalidatePath('/dashboard/roles')
   revalidatePath('/dashboard/jobs')
   revalidatePath('/dashboard/employer/search')
 

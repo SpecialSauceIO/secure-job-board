@@ -300,7 +300,7 @@ export default async function ProfilePage() {
             </p>
           </div>
           <Link
-            href="/dashboard/billing?select=explorer"
+            href="/dashboard/membership?select=explorer"
             className="shrink-0 inline-flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-400 px-4 py-2.5 text-xs font-black text-slate-950 shadow-sm transition"
           >
             Unlock Profile ($5 One-Time) →
@@ -567,7 +567,7 @@ export default async function ProfilePage() {
               </p>
             </div>
             <Link
-              href="/dashboard/billing?select=explorer"
+              href="/dashboard/membership?select=explorer"
               className="shrink-0 inline-flex items-center justify-center px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-extrabold shadow-sm transition-colors"
             >
               Complete $5 ID Check →

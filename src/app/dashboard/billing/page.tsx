@@ -101,7 +101,7 @@ export default function CandidateBillingPage() {
       sessionIdParam &&
       (planParam === 'explorer' || planParam === 'professional' || planParam === 'prestige')
     ) {
-      window.history.replaceState({}, '', '/dashboard/billing')
+      window.history.replaceState({}, '', '/dashboard/membership')
       activateSandboxCandidateTier(planParam, sessionIdParam).then((res: any) => {
         if (!res?.error) {
           const priceMap = { explorer: 5, professional: 12, prestige: 19 }
@@ -126,13 +126,13 @@ export default function CandidateBillingPage() {
         loadCandidateBillingState()
       })
     } else if (billingStatus === 'cancelled') {
-      window.history.replaceState({}, '', '/dashboard/billing')
+      window.history.replaceState({}, '', '/dashboard/membership')
       setFeedback({
         type: 'error',
         text: 'Checkout was cancelled. Your plan was not changed.',
       })
     } else if (messageParam) {
-        window.history.replaceState({}, '', '/dashboard/billing')
+        window.history.replaceState({}, '', '/dashboard/membership')
         setFeedback({
           type: 'error',
           text: messageParam,
@@ -142,7 +142,7 @@ export default function CandidateBillingPage() {
       selectParam === 'professional' ||
       selectParam === 'prestige'
     ) {
-      window.history.replaceState({}, '', '/dashboard/billing')
+      window.history.replaceState({}, '', '/dashboard/membership')
       setFeedback({
         type: 'success',
         text:
@@ -294,7 +294,7 @@ export default function CandidateBillingPage() {
             My Profile
           </Link>
           <Link
-            href="/dashboard/jobs"
+            href="/dashboard/roles"
             className="px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm"
           >
             Browse Open Roles →

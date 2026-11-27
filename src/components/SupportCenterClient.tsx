@@ -667,7 +667,7 @@ export default function SupportCenterClient({
           </p>
           <div className="pt-2">
             <Link
-              href={userRole === 'employer' ? '/dashboard/employer/membership' : '/dashboard/billing?select=explorer'}
+              href={userRole === 'employer' ? '/dashboard/employer/membership' : '/dashboard/membership?select=explorer'}
               className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-extrabold shadow-sm transition-colors"
             >
               {userRole === 'employer' ? 'Complete $25 Employer Verification →' : 'Complete $5 One-Time ID Check →'}
@@ -1457,7 +1457,7 @@ export default function SupportCenterClient({
                   Explorer ($0/mo) includes self-service FAQs and 1-way bug or feature reporting to our product team. Activate a monthly plan to unlock live 2-way support tickets and file attachments.
                 </p>
                 <Link
-                  href={userRole === 'employer' ? '/dashboard/employer/membership' : '/dashboard/billing'}
+                  href={userRole === 'employer' ? '/dashboard/employer/membership' : '/dashboard/membership'}
                   className="inline-flex w-full items-center justify-center px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-extrabold transition-colors"
                 >
                   View Monthly Plans →
@@ -1867,7 +1867,7 @@ export default function SupportCenterClient({
                 </button>
               ) : (
                 <Link
-                  href={userRole === 'employer' ? '/dashboard/employer/membership' : '/dashboard/billing'}
+                  href={userRole === 'employer' ? '/dashboard/employer/membership' : '/dashboard/membership'}
                   className="inline-block text-indigo-400 font-bold hover:underline mt-2"
                 >
                   Activate a monthly plan for 1-on-1 human support (or use Send Feedback in the top bar) →

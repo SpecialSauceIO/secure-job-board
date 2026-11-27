@@ -840,7 +840,9 @@ export async function activateSandboxCandidateTier(
   }
 
   revalidatePath('/dashboard')
+  revalidatePath('/dashboard/roles')
   revalidatePath('/dashboard/jobs')
+  revalidatePath('/dashboard/membership')
   revalidatePath('/dashboard/billing')
 
   const tierInfo = await resolveCandidateTierInfo(user.id)
@@ -1728,7 +1730,7 @@ export async function updateProfile(formData: FormData) {
     verProf?.is_verified === true ||
     String(verProf?.is_verified) === 'true'
   if (verProf?.role !== 'employer' && !isCandVerified) {
-    redirect('/dashboard/billing?select=explorer&message=' + encodeURIComponent('Please complete the $5 One-Time ID Verification to build and save your anonymous profile.'))
+    redirect('/dashboard/membership?select=explorer&message=' + encodeURIComponent('Please complete the $5 One-Time ID Verification to build and save your anonymous profile.'))
   }
 
   const full_name = ((formData.get('full_name') as string) || '').trim()
@@ -1882,7 +1884,9 @@ export async function updateProfile(formData: FormData) {
       revalidatePath('/dashboard')
       revalidatePath('/dashboard/profile')
       revalidatePath('/dashboard/preferences')
+      revalidatePath('/dashboard/roles')
       revalidatePath('/dashboard/jobs')
+      revalidatePath('/dashboard/invitations')
       revalidatePath('/dashboard/requests')
       revalidatePath('/dashboard/employer/search')
       revalidatePath('/dashboard/employer/applications')
@@ -1902,7 +1906,9 @@ export async function updateProfile(formData: FormData) {
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/profile')
   revalidatePath('/dashboard/preferences')
+  revalidatePath('/dashboard/roles')
   revalidatePath('/dashboard/jobs')
+  revalidatePath('/dashboard/invitations')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/search')
   revalidatePath('/dashboard/employer/applications')
@@ -1928,7 +1934,7 @@ export async function parseResumeAutoFill(formData: FormData) {
     verProf?.is_verified === true ||
     String(verProf?.is_verified) === 'true'
   if (verProf?.role !== 'employer' && !isCandVerified) {
-    redirect('/dashboard/billing?select=explorer&message=' + encodeURIComponent('Please complete the $5 One-Time ID Verification before using the One-Click Profile Builder.'))
+    redirect('/dashboard/membership?select=explorer&message=' + encodeURIComponent('Please complete the $5 One-Time ID Verification before using the One-Click Profile Builder.'))
   }
 
   const file = formData.get('resume') as File
@@ -2578,8 +2584,10 @@ export async function applyBlind(formData: FormData) {
   })
 
   revalidatePath('/dashboard')
+  revalidatePath('/dashboard/roles')
   revalidatePath('/dashboard/jobs')
   revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/membership')
   revalidatePath('/dashboard/billing')
   revalidatePath('/dashboard/employer/applications')
   return { success: true, referenceId: refId }
@@ -3471,6 +3479,7 @@ export async function recalculatePitchMatch(applicationId: string) {
     .eq('id', applicationId)
     .eq('candidate_id', user.id)
 
+  revalidatePath('/dashboard/invitations')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/applications')
   revalidatePath('/dashboard/employer/invitations')
@@ -3631,6 +3640,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
     }
 
     revalidatePath('/dashboard')
+    revalidatePath('/dashboard/invitations')
     revalidatePath('/dashboard/requests')
     revalidatePath('/dashboard/employer/search')
     revalidatePath('/dashboard/employer/invitations')
@@ -3773,11 +3783,12 @@ export async function respondToConnectionRequest(applicationId: string, decision
       `Connection Reference ID: ${referenceId}`,
       `🔒 Your raw email and PDF resume remain safely vaulted until you choose to click "Release Resume & Contact Vault" inside the message thread.`,
     ],
-    ctaUrl: '/dashboard/requests',
+    ctaUrl: '/dashboard/invitations',
     ctaLabel: 'Open Message Thread →',
   })
 
   revalidatePath('/dashboard')
+  revalidatePath('/dashboard/invitations')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/applications')
   revalidatePath('/dashboard/employer/invitations')
@@ -5329,6 +5340,7 @@ export async function createStructuredJob(formData: FormData) {
   }
 
   revalidatePath('/dashboard')
+  revalidatePath('/dashboard/roles')
   revalidatePath('/dashboard/jobs')
   revalidatePath('/dashboard/employer/roles')
   revalidatePath('/dashboard/employer/jobs')
@@ -5484,6 +5496,7 @@ export async function updateStructuredJob(formData: FormData) {
 
   await clearUserMatchCache(user.id)
   revalidatePath('/dashboard')
+  revalidatePath('/dashboard/roles')
   revalidatePath('/dashboard/jobs')
   revalidatePath('/dashboard/employer/roles')
   revalidatePath('/dashboard/employer/jobs')
@@ -6124,7 +6137,7 @@ export async function sendConnectionRequest(
       `Transaction Reference ID: ${refId}`,
       `Accepting opens a private chat thread while keeping your raw email and PDF resume vaulted until you choose to release them.`,
     ],
-    ctaUrl: '/dashboard/requests',
+    ctaUrl: '/dashboard/invitations',
     ctaLabel: 'Review Pitch in Inbox →',
   })
 
@@ -6134,6 +6147,7 @@ export async function sendConnectionRequest(
   revalidatePath('/dashboard/employer/pitches')
   revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
+  revalidatePath('/dashboard/invitations')
   revalidatePath('/dashboard/requests')
   return { success: true, referenceId: refId, remainingCredits: credits - 1 }
 }
@@ -6901,6 +6915,7 @@ export async function saveOrganizationProfile(formData: FormData) {
   revalidatePath('/dashboard/employer/jobs')
   revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
+  revalidatePath('/dashboard/roles')
   revalidatePath('/dashboard/jobs')
 
   return {
@@ -7459,6 +7474,7 @@ export async function verifyOrganizationDomain(domainInput?: string) {
   revalidatePath('/dashboard/employer/jobs')
   revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
+  revalidatePath('/dashboard/roles')
   revalidatePath('/dashboard/jobs')
 
   return {
@@ -7526,6 +7542,7 @@ export async function toggleSandboxDomainVerification(
   revalidatePath('/dashboard/employer/jobs')
   revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
+  revalidatePath('/dashboard/roles')
   revalidatePath('/dashboard/jobs')
 
   return {
@@ -8492,6 +8509,7 @@ export async function releaseCandidateVaultAndSyncAts(applicationId: string) {
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/invitations')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
   revalidatePath('/dashboard/employer/invitations')
@@ -9046,12 +9064,13 @@ export async function submitEmployerAirlockInvitationAction(params: {
       `Transaction Reference ID: ${refId}`,
       `Your personal contact details and resume remain private until you choose to accept and unlock Stage 2.`,
     ],
-    ctaUrl: '/dashboard/requests',
+    ctaUrl: '/dashboard/invitations',
     ctaLabel: 'Review Verified Invitation →',
   })
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/shield')
+  revalidatePath('/dashboard/invitations')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/invitations')
   revalidatePath('/dashboard/employer/pitches')
@@ -9792,6 +9811,7 @@ export async function redeemEmployerTalentShieldLinkAction(params: {
     }
 
     revalidatePath('/dashboard')
+    revalidatePath('/dashboard/invitations')
     revalidatePath('/dashboard/requests')
     revalidatePath('/dashboard/employer/hiring-bridge')
     revalidatePath('/dashboard/employer/shield')
@@ -9805,7 +9825,7 @@ export async function redeemEmployerTalentShieldLinkAction(params: {
       mode: 'outbound_sourcing' as const,
       referenceId: refId,
       matchScore,
-      destinationUrl: '/dashboard/requests',
+      destinationUrl: '/dashboard/invitations',
     }
   }
 

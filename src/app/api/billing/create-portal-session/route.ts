@@ -107,7 +107,7 @@ export async function POST(req: Request) {
     const returnUrl =
       audience === 'employer'
         ? `${origin}/dashboard/employer/membership`
-        : `${origin}/dashboard/billing`
+        : `${origin}/dashboard/membership`
 
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: stripeCustomerId,

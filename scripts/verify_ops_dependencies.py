@@ -182,7 +182,7 @@ if wh_file.exists():
         "webhooks/stripe/route.ts contains unguarded module-level env vars",
     )
 
-# Canonical Route Architecture Wave 1 & Wave 2 Guard
+# Canonical Route Architecture Wave 1, Wave 2 & Wave 3 Guard
 next_cfg_txt = (job_repo / "next.config.ts").read_text()
 required_canonical_pages = [
     "src/app/signup/professional/page.tsx",
@@ -197,6 +197,9 @@ required_canonical_pages = [
     "src/app/dashboard/employer/roles/[id]/edit/page.tsx",
     "src/app/dashboard/employer/invitations/page.tsx",
     "src/app/dashboard/employer/membership/page.tsx",
+    "src/app/dashboard/roles/page.tsx",
+    "src/app/dashboard/invitations/page.tsx",
+    "src/app/dashboard/membership/page.tsx",
 ]
 missing_canonical_pages = [p for p in required_canonical_pages if not (job_repo / p).exists()]
 required_redirects = [
@@ -206,11 +209,17 @@ required_redirects = [
     'source: "/dashboard/employer/pitches/:path*", destination: "/dashboard/employer/invitations/:path*"',
     'source: "/dashboard/employer/billing", destination: "/dashboard/employer/membership"',
     'source: "/dashboard/employer/billing/:path*", destination: "/dashboard/employer/membership/:path*"',
+    'source: "/dashboard/jobs", destination: "/dashboard/roles"',
+    'source: "/dashboard/jobs/:path*", destination: "/dashboard/roles/:path*"',
+    'source: "/dashboard/requests", destination: "/dashboard/invitations"',
+    'source: "/dashboard/requests/:path*", destination: "/dashboard/invitations/:path*"',
+    'source: "/dashboard/billing", destination: "/dashboard/membership"',
+    'source: "/dashboard/billing/:path*", destination: "/dashboard/membership/:path*"',
 ]
 missing_redirects = [r for r in required_redirects if r not in next_cfg_txt]
 check(
     len(missing_canonical_pages) == 0 and len(missing_redirects) == 0,
-    "Canonical Route Architecture (Wave 1 & Wave 2): All canonical Employer/Public entrypoints & HTTP 308 redirects active",
+    "Canonical Route Architecture (Wave 1, Wave 2 & Wave 3): All canonical Public, Employer & Professional entrypoints & HTTP 308 redirects active",
     f"Missing pages={missing_canonical_pages} | Missing redirects={missing_redirects}",
 )
 

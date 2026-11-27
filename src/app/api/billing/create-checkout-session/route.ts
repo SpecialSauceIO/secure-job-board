@@ -464,8 +464,8 @@ export async function POST(req: Request) {
           ? { discounts: [{ coupon: proVerifyCouponId }] }
           : { allow_promotion_codes: true }),
         billing_address_collection: 'auto',
-        success_url: body?.fromOnboarding ? `${origin}/onboarding?billing=success&plan=${candidateTier.id}&session_id={CHECKOUT_SESSION_ID}` : `${origin}/dashboard/billing?billing=success&plan=${candidateTier.id}&session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: body?.fromOnboarding ? `${origin}/onboarding?billing=cancelled` : `${origin}/dashboard/billing?billing=cancelled`,
+        success_url: body?.fromOnboarding ? `${origin}/onboarding?billing=success&plan=${candidateTier.id}&session_id={CHECKOUT_SESSION_ID}` : `${origin}/dashboard/membership?billing=success&plan=${candidateTier.id}&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: body?.fromOnboarding ? `${origin}/onboarding?billing=cancelled` : `${origin}/dashboard/membership?billing=cancelled`,
       })
 
       const cookieStore = await cookies()

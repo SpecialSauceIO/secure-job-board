@@ -755,7 +755,7 @@ export async function sendApplicationMessage(
           : '🔒 Privacy Lock Active: Your raw email and PDF resume are still vaulted. You can reply in the thread and release your full resume whenever you are ready.',
       ],
       ctaUrl: isEmployerInitiatedPitch
-        ? '/dashboard/requests'
+        ? '/dashboard/invitations'
         : '/dashboard/applications',
       ctaLabel: 'View & Reply in Secure Thread →',
     })
@@ -778,6 +778,7 @@ export async function sendApplicationMessage(
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/invitations')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
   revalidatePath('/dashboard/employer/invitations')
@@ -939,6 +940,7 @@ export async function releaseCandidateVaultToEmployer(
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/invitations')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
   revalidatePath('/dashboard/employer/invitations')
@@ -1581,12 +1583,13 @@ export async function proposeTrialToHireTerms(
         `• Statutory W-2 Coverage: Statutory payroll, direct deposit & Workers' Comp coverage`,
         `Review the terms inside your Secure Thread to accept or discuss.`,
       ],
-      ctaUrl: appRow.initiated_by === 'employer' ? '/dashboard/requests' : '/dashboard/applications',
+      ctaUrl: appRow.initiated_by === 'employer' ? '/dashboard/invitations' : '/dashboard/applications',
       ctaLabel: 'Review W-2 Contract Offer →',
     })
   }
 
   revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/invitations')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
   revalidatePath('/dashboard/employer/invitations')
@@ -1844,6 +1847,7 @@ export async function respondToTrialToHireTerms(
   revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
   revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/invitations')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
   revalidatePath('/dashboard/employer/invitations')
@@ -2016,6 +2020,7 @@ export async function recordDirectHirePlacement(
   revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
   revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/invitations')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
   revalidatePath('/dashboard/employer/invitations')
@@ -2237,6 +2242,7 @@ export async function manageActiveW2Engagement(formData: FormData): Promise<void
   revalidatePath('/dashboard/employer/roles')
   revalidatePath('/dashboard/employer/jobs')
   revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/invitations')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
   revalidatePath('/dashboard/employer/invitations')

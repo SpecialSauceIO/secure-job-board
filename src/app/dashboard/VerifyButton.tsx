@@ -75,7 +75,7 @@ export default function VerifyButton() {
           <p className="font-bold">{errorMsg}</p>
           {needsTierUpgrade && (
             <Link
-              href="/dashboard/billing"
+              href="/dashboard/membership"
               className="mt-1.5 inline-flex items-center font-extrabold text-rose-800 underline hover:text-rose-950"
             >
               View Professional Plans ($5 One-Time Explorer · $12/mo Pro · $19/mo Prestige) →

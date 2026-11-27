@@ -181,10 +181,10 @@ export default function DashboardNav({
 
   const candidateLinks = [
     { href: '/dashboard', label: 'Overview', exact: true },
-    { href: '/dashboard/jobs', label: 'Find Roles' },
+    { href: '/dashboard/roles', label: 'Find Roles' },
     ...(isTrueHorizonDlcEnabled() ? [{ href: '/dashboard/horizon', label: 'True Horizon™ (DLC)' }] : []),
     { href: '/dashboard/applications', label: 'My Applications' },
-    { href: '/dashboard/requests', label: 'Professional Invitations' },
+    { href: '/dashboard/invitations', label: 'Professional Invitations' },
     { href: '/dashboard/placements', label: 'My Placements' },
     { href: '/dashboard/profile', label: 'My Profile' },
     { href: '/dashboard/support', label: 'Support' },
@@ -212,7 +212,7 @@ export default function DashboardNav({
         ]
 
   const billingHref =
-    role === 'employer' ? '/dashboard/employer/membership' : '/dashboard/billing'
+    role === 'employer' ? '/dashboard/employer/membership' : '/dashboard/membership'
 
   const effectivePath = optimisticPath || pathname
   const isActive = (href: string, exact?: boolean) => {

@@ -601,7 +601,7 @@ export default function PublicInboundShieldAirlockPage() {
                               Because this role's requirements do not match your answers, this Employer's $0 sponsorship does not apply. You can still join SpecialSauce.io on your own with the one-time $5 Explorer Verification Pass ($0/mo forever, and 100% credited toward Month 1 if you ever subscribe) to access all verified Employers and Protected Roles.
                             </p>
                             <Link
-                              href="/dashboard/billing"
+                              href="/dashboard/membership"
                               className="inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 px-4 py-2 text-xs sm:text-sm font-semibold text-white transition">
                               Verify on Your Own ($5 One-Time) →
                             </Link>
@@ -627,7 +627,7 @@ export default function PublicInboundShieldAirlockPage() {
                       This Employer has used their monthly Sponsored Verification allowance. You can still verify directly with the one-time $5 Explorer Verification Pass ($0/mo forever, and 100% credited toward Month 1 if you ever subscribe), then reopen this link.
                     </p>
                     <Link
-                      href="/dashboard/billing"
+                      href="/dashboard/membership"
                       className="inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 px-4 py-2 text-xs sm:text-sm font-semibold text-white transition"
                     >
                       Complete Real-Person ID Check →
@@ -658,7 +658,7 @@ export default function PublicInboundShieldAirlockPage() {
                     This link is an Inbound Hiring-Manager DM Gate. Activate Professional ($12/mo — 15 Protected Applications/mo, with your $5 verification fee 100% credited toward Month 1) or Prestige ($19/mo — Unlimited) on Membership & Plan Settings, then reopen this link.
                   </p>
                   <Link
-                    href="/dashboard/billing"
+                    href="/dashboard/membership"
                     className="inline-flex items-center justify-center rounded-xl bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-xs sm:text-sm font-semibold text-white transition"
                   >
                     Upgrade Plan →

@@ -27,7 +27,7 @@ function LoginContent() {
   const postLoginDestination = safeNextShield
     ? safeNextShield
     : planParam === 'explorer' || planParam === 'professional' || planParam === 'prestige'
-      ? `/dashboard/billing?select=${encodeURIComponent(planParam)}`
+      ? `/dashboard/membership?select=${encodeURIComponent(planParam)}`
       : planParam === 'starter' || planParam === 'growth' || planParam === 'enterprise'
         ? `/dashboard/employer/membership?select=${encodeURIComponent(planParam)}`
         : '/dashboard'

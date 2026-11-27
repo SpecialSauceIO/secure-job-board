@@ -260,13 +260,13 @@ export default function ProfessionalPlacementsPage() {
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link
-              href="/dashboard/requests"
+              href="/dashboard/invitations"
               className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold transition-colors"
             >
               Check Professional Invitations →
             </Link>
             <Link
-              href="/dashboard/jobs"
+              href="/dashboard/roles"
               className="px-4 py-2 rounded-xl border-2 border-slate-300 bg-white hover:bg-slate-50 text-slate-800 text-xs font-extrabold transition-colors"
             >
               Browse Protected Roles →

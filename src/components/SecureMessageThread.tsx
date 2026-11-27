@@ -788,7 +788,7 @@ export default function SecureMessageThread({
                 </div>
               ) : (
                 <Link
-                  href="/dashboard/billing"
+                  href="/dashboard/employer/membership"
                   className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold transition-colors"
                 >
                   Activate Monthly Plan to Propose W-2 Offer →

@@ -37,6 +37,12 @@ const nextConfig: NextConfig = {
       { source: "/dashboard/employer/pitches/:path*", destination: "/dashboard/employer/invitations/:path*", permanent: true },
       { source: "/dashboard/employer/billing", destination: "/dashboard/employer/membership", permanent: true },
       { source: "/dashboard/employer/billing/:path*", destination: "/dashboard/employer/membership/:path*", permanent: true },
+      { source: "/dashboard/jobs", destination: "/dashboard/roles", permanent: true },
+      { source: "/dashboard/jobs/:path*", destination: "/dashboard/roles/:path*", permanent: true },
+      { source: "/dashboard/requests", destination: "/dashboard/invitations", permanent: true },
+      { source: "/dashboard/requests/:path*", destination: "/dashboard/invitations/:path*", permanent: true },
+      { source: "/dashboard/billing", destination: "/dashboard/membership", permanent: true },
+      { source: "/dashboard/billing/:path*", destination: "/dashboard/membership/:path*", permanent: true },
     ];
   },
   async headers() {

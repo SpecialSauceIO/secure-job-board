@@ -1056,7 +1056,7 @@ export function CandidateJobFeed({
                       )}
                       {(cardFeedback.text.includes('Membership & Plan Settings') || cardFeedback.text.includes('Membership & Billing')) && (
                         <Link
-                          href="/dashboard/billing"
+                          href="/dashboard/membership"
                           className="px-3.5 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors text-center"
                         >
                           Verify & Start for $5 →
@@ -1082,7 +1082,7 @@ export function CandidateJobFeed({
                     {!isApplied && (
                       !isVerified ? (
                         <Link
-                          href="/dashboard/billing?select=explorer"
+                          href="/dashboard/membership?select=explorer"
                           className="w-full sm:w-auto text-center justify-center px-4 py-2.5 sm:py-2 rounded-xl border-2 border-amber-300 bg-amber-50 text-amber-950 text-xs font-extrabold hover:bg-amber-100 transition-colors shadow-2xs whitespace-nowrap"
                         >
                           🔒 Verify ID ($5) to Check TrueFit™ →
@@ -1118,10 +1118,10 @@ export function CandidateJobFeed({
                       ) : (
                         !isVerified && score >= MIN_MATCH_THRESHOLD ? (
                           <Link
-                            href="/dashboard/billing"
+                            href="/dashboard/membership"
                             className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 sm:py-2 rounded-xl bg-indigo-600 text-white text-xs font-extrabold hover:bg-indigo-500 transition-colors shadow-2xs whitespace-nowrap"
                           >
-                            🔒 Unlock Outbound Apply ($12/mo Pro · $19/mo Prestige) →
+                            🔒 Unlock Protected Applications ($12/mo Pro · $19/mo Prestige) →
                           </Link>
                         ) : (
                           <button

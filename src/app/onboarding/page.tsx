@@ -52,7 +52,7 @@ export default function OnboardingPage() {
       window.location.href = consumeShieldReturnPath('/dashboard/employer/membership')
     } else {
       await activateSandboxCandidateTier('explorer')
-      window.location.href = consumeShieldReturnPath('/dashboard/billing')
+      window.location.href = consumeShieldReturnPath('/dashboard/membership')
     }
   }
 

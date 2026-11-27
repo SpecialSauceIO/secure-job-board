@@ -142,7 +142,7 @@ export async function login(formData: FormData) {
   })
   revalidatePath('/', 'layout')
   if (selectedPlan === 'professional' || selectedPlan === 'prestige') {
-    redirect('/dashboard/billing?select=' + encodeURIComponent(selectedPlan))
+    redirect('/dashboard/membership?select=' + encodeURIComponent(selectedPlan))
   }
   if (selectedPlan === 'starter' || selectedPlan === 'growth' || selectedPlan === 'enterprise') {
     redirect('/dashboard/employer/membership?select=' + encodeURIComponent(selectedPlan))

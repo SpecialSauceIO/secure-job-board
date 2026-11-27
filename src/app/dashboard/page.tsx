@@ -1148,7 +1148,7 @@ export default async function DashboardPage({
 
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <Link
-            href="/dashboard/jobs?saved=true"
+            href="/dashboard/roles?saved=true"
             className={`inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2.5 rounded-xl border-2 text-xs font-extrabold transition-colors shadow-xs ${
               activeSavedJobsCount > 0
                 ? 'bg-amber-50 border-slate-300 text-amber-900 hover:bg-amber-100'
@@ -1176,7 +1176,7 @@ export default async function DashboardPage({
           </Link>
 
           <Link
-            href="/dashboard/jobs"
+            href="/dashboard/roles"
             className="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold shadow-sm transition-colors"
           >
             Browse Open Roles →
@@ -1253,7 +1253,7 @@ export default async function DashboardPage({
                 <VerifyButton />
               ) : (
                 <Link
-                  href="/dashboard/billing"
+                  href="/dashboard/membership"
                   className="inline-flex items-center justify-center rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2.5 text-xs font-extrabold text-white shadow-sm transition-colors"
                 >
                   Verify &amp; Start ($5) →
@@ -1316,7 +1316,7 @@ export default async function DashboardPage({
 
         {/* Card 2: Professional Invitations */}
         <Link
-          href="/dashboard/requests"
+          href="/dashboard/invitations"
           className={`group p-4 sm:p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
             a11yColorTiles
               ? 'bg-blue-100/75 hover:bg-blue-200/60 border-blue-400 hover:border-blue-500 shadow-xs'
@@ -1580,13 +1580,13 @@ export default async function DashboardPage({
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
             <Link
-              href="/dashboard/jobs?mode=sandbox"
+              href="/dashboard/roles?mode=practice"
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 hover:bg-amber-100 text-xs font-extrabold transition-colors"
             >
               ⚡ Practice Mode →
             </Link>
             <Link
-              href="/dashboard/jobs"
+              href="/dashboard/roles"
               className="text-xs font-extrabold text-indigo-600 hover:text-indigo-800 transition-colors"
             >
               View all roles →
