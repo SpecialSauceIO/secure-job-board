@@ -358,7 +358,7 @@ export default function CandidateBillingPage() {
             </div>
 
             <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-              Match Free at $0/mo in Explorer or Upgrade to Apply Outbound
+              Match Free at $0/mo in Explorer or Upgrade to Apply
             </h2>
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
@@ -456,15 +456,12 @@ export default function CandidateBillingPage() {
                 <li>
                   ✓ <strong>Unlimited Employer Invitations</strong> &amp; Private Chat
                 </li>
-                <li>
-                  ✓ <strong>Personal Inbound Shield Links</strong> for cold recruiter DMs • <Link href="/dashboard/inbound-shield" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
-                </li>
                 <li>✓ Free TrueFit Score™ checks &amp; Weekly Drawing entry</li>
                 <li className="text-emerald-700 font-bold">
                   ✓ <strong>$5 credited toward Month 1</strong> if you ever subscribe
                 </li>
                 <li className="text-slate-400">
-                  ✕ Outbound Applications (Upgrade anytime)
+                  ✕ Protected Applications (Upgrade anytime)
                 </li>
               </ul>
             </div>
@@ -529,7 +526,7 @@ export default function CandidateBillingPage() {
                   🛡️ <strong>Includes Real-Person ID Verification</strong> &amp; Shield
                 </li>
                 <li>
-                  ✓ <strong>15 Outbound Protected Applications / mo</strong>
+                  ✓ <strong>15 Protected Applications / mo</strong>
                 </li>
                 <li>
                   ✓ <strong>Unlimited Employer Invitations</strong> &amp; Private Chat
@@ -597,7 +594,7 @@ export default function CandidateBillingPage() {
                   🛡️ <strong>Includes Real-Person ID Verification</strong> &amp; Shield
                 </li>
                 <li>
-                  ✓ <strong>Unlimited Outbound Protected Applications</strong>
+                  ✓ <strong>Unlimited Protected Applications</strong>
                 </li>
                 <li>
                   ✓ <strong>Unlimited Employer Invitations</strong> &amp; Private Chat

@@ -393,7 +393,7 @@ export default function EmployerBillingPage() {
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                 {maxActiveJobs < 1
                   ? 'Draft roles in $0/mo Practice Mode and activate Starter (2 Active Roles), Growth (5 Active Roles), or Enterprise (15 Active Roles) whenever you are ready to publish.'
-                  : `Your plan includes ${maxActiveJobs} Active Protected Roles at a time, plus flat $199 Extra Protected Role Slots whenever you open additional concurrent roles. Monthly outbound credits are used first, and rollover credits never expire while active.`}
+                  : `Your plan includes ${maxActiveJobs} Active Protected Roles at a time, plus flat $199 Extra Protected Role Slots whenever you open additional concurrent roles. Monthly invitation credits are used first, and rollover credits never expire while active.`}
               </p>
             </div>
 
@@ -550,7 +550,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Built-In W-2 Employer of Record (EOR)</strong> • Direct Hire, Contract-to-Hire ($0 conversion), Limited &amp; Indefinite W-2 • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">4 Hiring Paths →</Link>
               </li>
               <li>
-                ✓ <strong>10 Outbound Invitation Credits / mo</strong>
+                ✓ <strong>10 Invitation Credits / mo</strong>
               </li>
               <li className="text-emerald-700 font-bold">
                 🛡️ <strong>Accepted-Only Guarantee</strong> (Declined invites auto-refund)
@@ -630,7 +630,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Built-In W-2 Employer of Record (-1% W-2 Markup)</strong> • $0 conversion &amp; Net-30 billing • <Link href="/dashboard/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link>
               </li>
               <li>
-                ✓ <strong>35 Outbound Invitation Credits / mo</strong>
+                ✓ <strong>35 Invitation Credits / mo</strong>
               </li>
               <li className="text-emerald-300 font-bold">
                 🛡️ <strong>Accepted-Only Guarantee</strong> (Declined invites auto-refund)
@@ -712,7 +712,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>Built-In W-2 Employer of Record (-2% W-2 Markup)</strong> • Lowest volume W-2 rate &amp; $0 conversion • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">4 Hiring Paths →</Link>
               </li>
               <li>
-                ✓ <strong>120 Outbound Invitation Credits / mo</strong>
+                ✓ <strong>120 Invitation Credits / mo</strong>
               </li>
               <li className="text-emerald-700 font-bold">
                 🛡️ <strong>Accepted-Only Guarantee</strong> (Declined invites auto-refund)
@@ -832,7 +832,7 @@ export default function EmployerBillingPage() {
               <span>⚡ Rollover Invitation Credit Packs</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              Need Extra Outbound Reach?
+              Need Extra Invitation Credits?
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
               Add invitation credits anytime. Your monthly plan credits are used first, and top-up credits roll over and never expire while your plan is active. If a professional declines an invitation, your credit is automatically refunded.

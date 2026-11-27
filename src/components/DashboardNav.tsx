@@ -183,10 +183,9 @@ export default function DashboardNav({
     { href: '/dashboard', label: 'Overview', exact: true },
     { href: '/dashboard/jobs', label: 'Find Roles' },
     ...(isTrueHorizonDlcEnabled() ? [{ href: '/dashboard/horizon', label: 'True Horizon™ (DLC)' }] : []),
-    { href: '/dashboard/applications', label: 'Outbound Applications' },
+    { href: '/dashboard/applications', label: 'My Applications' },
     { href: '/dashboard/requests', label: 'Professional Invitations' },
     { href: '/dashboard/placements', label: 'My Placements' },
-    { href: '/dashboard/shield', label: 'Inbound Shield' },
     { href: '/dashboard/profile', label: 'My Profile' },
     { href: '/dashboard/support', label: 'Support' },
   ]

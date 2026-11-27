@@ -184,7 +184,7 @@ export const PLAYBOOK_GUIDES: Record<'employer' | 'candidate', PlaybookGuide> = 
         step: 'Step 4',
         title: 'Free Inbound Unlocks, Verified Hiring Bridge & Refund-Protected Invites',
         description:
-          'Unlocking inbound applicants is 100% free, one-time Verified Hiring Bridge links screen external leads on LinkedIn or email with ID and 40%+ TrueFit™ checks, and declined outbound invitations auto-refund.',
+          'Unlocking inbound applicants is 100% free, one-time Verified Hiring Bridge links screen external leads on LinkedIn or email with ID and 40%+ TrueFit™ checks, and declined invitations auto-refund.',
       },
       {
         step: 'Step 5',
@@ -201,7 +201,7 @@ SPECIAL SAUCE — HIRING TEAM QUICK-START GUIDE
 - Step 1 ($25 Practice Mode Pass): Complete your one-time verification to draft roles and preview matches in Practice Mode at $0/mo.
 - Step 2 (Business Verification): Confirm your company domain, EIN, and admin ID via Stripe.
 - Step 3 (Post Roles): Publish roles with upfront pay bands. Every role expires after 30 days unless renewed.
-- Step 4 (Connect): Inbound applicants are 100% free to unlock. Outbound invitations use 1 credit and are auto-refunded if declined.
+- Step 4 (Connect): Inbound applicants are 100% free to unlock. Talent Search invitations use 1 credit and are auto-refunded if declined.
 - Step 5 (Hire): Chat directly in The Introduction, then receive the full PDF resume and contact details when released by the professional.
 
 2. EMPLOYER BASE MEMBERSHIPS + EXTRA PROTECTED ROLE SLOTS:
@@ -239,9 +239,9 @@ SPECIAL SAUCE — HIRING TEAM QUICK-START GUIDE
       },
       {
         step: 'Step 4',
-        title: 'Check Your Fit, Inbound Shield & Connect',
+        title: 'Check Your Fit & Connect',
         description:
-          'Check your TrueFit Score™ for free, accept employer invitations at $0/mo, and mint one-time Inbound Shield links to gate cold recruiter DMs—or upgrade to Professional ($12/mo) or Prestige ($19/mo) to apply outbound.',
+          'Check your TrueFit Score™ on roles with upfront pay and accept unlimited employer invitations free at $0/mo—or upgrade to Professional ($12/mo) or Prestige ($19/mo) anytime to submit applications.',
       },
       {
         step: 'Step 5',
@@ -261,8 +261,8 @@ SPECIAL SAUCE — PROFESSIONAL QUICK-START GUIDE
 
 2. PROFESSIONAL PLANS:
 - Explorer ($5 one-time · $0/mo forever): Lifetime ID verification, live anonymous profile, free TrueFit Score™ checks, unlimited employer invitations, and Weekly 1-Year Prestige Drawing entry.
-- Professional ($12/mo): Everything in Explorer + 15 outbound applications/mo and Permanent Founding Member badge ($7 Month 1 when upgrading with your one-time $5 Explorer credit).
-- Prestige ($19/mo): Everything in Professional + unlimited outbound applications, top-priority search placement, and priority support ($14 Month 1 when upgrading with your one-time $5 Explorer credit).
+- Professional ($12/mo): Everything in Explorer + 15 applications/mo and Permanent Founding Member badge ($7 Month 1 when upgrading with your one-time $5 Explorer credit).
+- Prestige ($19/mo): Everything in Professional + unlimited applications, top-priority search placement, and priority support ($14 Month 1 when upgrading with your one-time $5 Explorer credit).
 (Includes Real-Person ID Verification at no extra fee. Downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime.)
 ====================================================================`,
   },
@@ -342,7 +342,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'What is the difference between Explorer ($5 once), Professional ($12/mo), and Prestige ($19/mo)?',
     answer:
-      'Explorer ($5 one-time ID verification · $0/mo forever) lets you get discovered by employers, run free TrueFit Score™ checks, accept unlimited employer invitations, and enter our Weekly 1-Year Prestige Drawing at $0/mo. If you ever upgrade from Explorer, your $5 verification is credited toward Month 1 ($7 today for Professional or $14 today for Prestige). Professional ($12/mo) adds 15 outbound applications per month and Founding Member status, while Prestige ($19/mo) unlocks unlimited outbound applications, top-priority search placement, and priority US support. Starting directly on Professional or Prestige includes ID verification at no extra fee, and you can downgrade to Explorer ($0/mo) anytime.',
+      'Explorer ($5 one-time ID verification · $0/mo forever) lets you get discovered by employers, run free TrueFit Score™ checks, accept unlimited employer invitations, and enter our Weekly 1-Year Prestige Drawing at $0/mo. If you ever upgrade from Explorer, your $5 verification is credited toward Month 1 ($7 today for Professional or $14 today for Prestige). Professional ($12/mo) adds 15 applications per month and Founding Member status, while Prestige ($19/mo) unlocks unlimited applications, top-priority search placement, and priority US support. Starting directly on Professional or Prestige includes ID verification at no extra fee, and you can downgrade to Explorer ($0/mo) anytime.',
   },
 
   // ------------------------------------------------------------------
@@ -391,7 +391,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How do Employer Base Memberships, included Active Protected Roles, $199 Extra Role Slots, and credit refunds work?',
     answer:
-      'Base Ecosystem Memberships include reusable concurrent Active Protected Roles—closing or pausing a filled role frees its plan slot right away: Starter ($299/mo: 2 Active Roles with up to 25 sponsored Bridge verifications/role, 2 seats, 10 credits/mo), Growth ($599/mo: 5 Active Roles with up to 50/role, 5 seats, 35 credits/mo, -1% W-2 markup), and Enterprise ($999/mo: 15 Active Roles with up to 100/role, unlimited seats, 120 credits/mo, -2% W-2 markup, HR sync). Whenever all included slots are active at once, add a flat $199 Extra Protected Role Slot (+1 concurrent role with up to 25 pre-gated Bridge verifications) without changing your monthly tier—while already-verified Ecosystem Professionals always apply unlimited at $0. Optional Top-Up Credit Packs (+10/$150, +25/$350, +75/$900) never expire while active, and declined outbound invitations auto-refund.',
+      'Base Ecosystem Memberships include reusable concurrent Active Protected Roles—closing or pausing a filled role frees its plan slot right away: Starter ($299/mo: 2 Active Roles with up to 25 sponsored Bridge verifications/role, 2 seats, 10 credits/mo), Growth ($599/mo: 5 Active Roles with up to 50/role, 5 seats, 35 credits/mo, -1% W-2 markup), and Enterprise ($999/mo: 15 Active Roles with up to 100/role, unlimited seats, 120 credits/mo, -2% W-2 markup, HR sync). Whenever all included slots are active at once, add a flat $199 Extra Protected Role Slot (+1 concurrent role with up to 25 pre-gated Bridge verifications) without changing your monthly tier—while already-verified Ecosystem Professionals always apply unlimited at $0. Optional Top-Up Credit Packs (+10/$150, +25/$350, +75/$900) never expire while active, and declined invitations auto-refund.',
   },
   {
     id: 'e5',
@@ -400,7 +400,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'Does unlocking an inbound applicant cost an Invitation Credit?',
     answer:
-      'No. Reviewing, unlocking, and messaging professionals who apply to your roles is 100% free (0 credits) on every active Employer plan. Credits are only used when you send an outbound invitation from Talent Search.',
+      'No. Reviewing, unlocking, and messaging professionals who apply to your roles is 100% free (0 credits) on every active Employer plan. Credits are only used when you send an invitation from Talent Search.',
   },
   {
     id: 'e6',
@@ -434,9 +434,9 @@ export const SUPPORT_FAQS: FAQ[] = [
     target: 'candidate',
     category: 'Applications & Roles',
     question:
-      'How is my TrueFit Score™ calculated, and why do outbound applications require 40%+?',
+      'How is my TrueFit Score™ calculated, and why do applications require 40%+?',
     answer:
-      'Your TrueFit Score™ compares your verified skills, experience, and preferences against the role requirements. You can run TrueFit Score™ checks for free in Explorer ($0/mo). Active Professional ($12/mo) and Prestige ($19/mo) members can submit outbound applications on any role where their TrueFit Score™ is 40% or higher, ensuring hiring teams review strong, relevant matches.',
+      'Your TrueFit Score™ compares your verified skills, experience, and preferences against the role requirements. You can run TrueFit Score™ checks for free in Explorer ($0/mo). Active Professional ($12/mo) and Prestige ($19/mo) members can submit applications on any role where their TrueFit Score™ is 40% or higher, ensuring hiring teams review strong, relevant matches.',
   },
   {
     id: 'e8',
@@ -454,16 +454,7 @@ export const SUPPORT_FAQS: FAQ[] = [
     question:
       'How do I switch plans, downgrade to Explorer ($0/mo), or manage my Membership & Plan Settings?',
     answer:
-      'You can switch plans or downgrade back to Explorer ($0/mo forever) anytime from your Membership & Plan Settings page. Downgrading to Explorer stops monthly charges while keeping your Verified Professional profile and one-time Inbound Shield links active.',
-  },
-  {
-    id: 'c11',
-    target: '\u0063andidate',
-    category: 'Verification & Privacy',
-    question:
-      'How does Personal Inbound Shield protect me from cold recruiter DMs?',
-    answer:
-      'Inbound Shield (included starting in Explorer at $0/mo) lets you mint single-use verification links to reply to cold recruiter messages on LinkedIn, email, or text without revealing your profile or employment status. Opening the link shows zero information about you; the recruiter must verify their company and real-person ID to send a Protected Role, and the link burns automatically once delivered to your Professional Invitations inbox.',
+      'You can switch plans or downgrade back to Explorer ($0/mo forever) anytime from your Membership & Plan Settings page. Downgrading to Explorer stops monthly charges while keeping your Verified Professional profile and unlimited inbound Employer invitations active.',
   },
   {
     id: 'c12',

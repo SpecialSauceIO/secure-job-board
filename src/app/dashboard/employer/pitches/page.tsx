@@ -161,7 +161,7 @@ export default function EmployerSentPitchesPage() {
             Sent Professional Invitations
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Track outbound role pitches sent to passive professionals, message accepted matches in private chat, and access unlocked resumes and contact info.
+            Track role invitations sent to matched professionals, message accepted matches in private chat, and access unlocked resumes and contact info.
           </p>
         </div>
 
@@ -252,7 +252,7 @@ export default function EmployerSentPitchesPage() {
         <div className="bg-white p-12 rounded-2xl border-2 border-slate-300 text-center shadow-xs border-slate-300">
           <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-3" />
           <p className="text-sm font-bold text-slate-500">
-            Loading outbound pitch pipeline...
+            Loading sent invitations...
           </p>
         </div>
       ) : filteredPitches.length === 0 ? (

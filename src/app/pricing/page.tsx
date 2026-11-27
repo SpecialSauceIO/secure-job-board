@@ -165,7 +165,7 @@ export default function PricingMatrixPage() {
                   Verify Your Organization for $25 • Preview Matches Free
                 </h2>
                 <p className="text-sm sm:text-base text-slate-200 max-w-3xl leading-relaxed">
-                  Already-verified Ecosystem Professionals apply unlimited at $0, external Verified Hiring Bridge applicants verify free up to each role's pre-gated sponsored allowance, and declined outbound invitations auto-refund.
+                  Already-verified Ecosystem Professionals apply unlimited at $0, external Verified Hiring Bridge applicants verify free up to each role's pre-gated sponsored allowance, and declined invitations auto-refund.
                 </p>
               </div>
               <div className="shrink-0">
@@ -215,7 +215,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">10 Outbound Invitation Credits / mo</strong> (Accepted-Only Guarantee)</span>
+                      <span><strong className="text-white">10 Invitation Credits / mo</strong> (Accepted-Only Guarantee)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -274,7 +274,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">35 Outbound Invitation Credits / mo</strong> (Accepted-Only Guarantee)</span>
+                      <span><strong className="text-white">35 Invitation Credits / mo</strong> (Accepted-Only Guarantee)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -333,7 +333,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">120 Outbound Invitation Credits / mo</strong> (Accepted-Only Guarantee)</span>
+                      <span><strong className="text-white">120 Invitation Credits / mo</strong> (Accepted-Only Guarantee)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -492,10 +492,6 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Personal Inbound Shield Links</strong> for cold recruiter DMs • <Link href="/inbound-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link></span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
                       <span>Free TrueFit Score™ checks &amp; Weekly 1-Year Prestige Drawing entry</span>
                     </li>
                     <li className="flex items-start gap-2.5 text-emerald-300 font-bold">
@@ -504,7 +500,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5 text-slate-300">
                       <span className="text-slate-400 font-bold shrink-0">✕</span>
-                      <span>Outbound Applications (Upgrade anytime)</span>
+                      <span>Protected Applications (Upgrade anytime)</span>
                     </li>
                   </ul>
                 </div>
@@ -547,7 +543,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">15 Outbound Protected Applications / mo</strong></span>
+                      <span><strong className="text-white">15 Protected Applications / mo</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
@@ -602,7 +598,7 @@ export default function PricingMatrixPage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                      <span><strong className="text-white">Unlimited Outbound Protected Applications</strong></span>
+                      <span><strong className="text-white">Unlimited Protected Applications</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-emerald-400 font-bold shrink-0">✓</span>

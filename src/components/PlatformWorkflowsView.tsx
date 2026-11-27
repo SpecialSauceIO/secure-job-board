@@ -44,9 +44,9 @@ const CANDIDATE_WORKFLOW_STEPS: WorkflowStep[] = [
     title: '4. Check Your Fit & Connect',
     bullets: [
       'Check your TrueFit Score™ on roles with upfront pay and accept employer invitations free at $0/mo.',
-      'Upgrade to Professional ($12/mo) or Prestige ($19/mo) anytime to submit outbound applications.',
+      'Upgrade to Professional ($12/mo) or Prestige ($19/mo) anytime to submit applications.',
     ],
-    unlockBadge: 'Unlocks: ✓ Free Invitations & Outbound Applications',
+    unlockBadge: 'Unlocks: ✓ Free Invitations & Applications',
   },
   {
     step: 'Step 5 • Privacy Handshake',

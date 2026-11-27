@@ -279,16 +279,12 @@ export default function WorkflowsPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-indigo-400 font-bold">•</span>
-                        <span>Generate one-time <strong>Inbound Shield</strong> links to gate cold recruiter DMs on LinkedIn or other communications.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-400 font-bold">•</span>
-                        <span>Upgrade to <strong>Professional ($12/mo)</strong> or <strong>Prestige ($19/mo)</strong> anytime to submit outbound applications.</span>
+                        <span>Upgrade to <strong>Professional ($12/mo)</strong> or <strong>Prestige ($19/mo)</strong> anytime to submit applications.</span>
                       </li>
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Free Invitations, Inbound Shield &amp; Outbound Applications
+                    Unlocks: ✓ Free Invitations &amp; Applications
                   </div>
                 </div>
 
@@ -438,7 +434,7 @@ export default function WorkflowsPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-emerald-400 font-bold">•</span>
-                        <span>Inbound applicants are 100% free to unlock, and declined outbound invitations are automatically refunded.</span>
+                        <span>Inbound applicants are 100% free to unlock, and declined invitations are automatically refunded.</span>
                       </li>
                     </ul>
                   </div>

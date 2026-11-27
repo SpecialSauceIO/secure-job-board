@@ -178,11 +178,7 @@ export default function PublicInboundShieldAirlockPage() {
       setLoading(false)
       return
     }
-    const res = await getAirlockEmployerContextAction(token)
-    setCtx(res as AirlockState)
-    if (res?.liveJobs && res.liveJobs.length > 0) {
-      setSelectedJobId(res.liveJobs[0].id)
-    }
+    setCtx({ active: false })
     setLoading(false)
   }, [token])
 
@@ -751,7 +747,7 @@ export default function PublicInboundShieldAirlockPage() {
         {loading ? (
           <div className="rounded-2xl border border-slate-200 bg-white p-8 sm:p-10 shadow-sm text-center space-y-3">
             <p className="text-sm font-semibold text-slate-600">
-              Checking one-time Inbound Shield verification link...
+              Checking one-time Verified Hiring Bridge link...
             </p>
           </div>
         ) : deliverySuccess ? (
@@ -798,7 +794,7 @@ export default function PublicInboundShieldAirlockPage() {
               This one-time verification link is no longer active.
             </h1>
             <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-              SpecialSauce.io Inbound Shield links are single-use and time-limited. Once a verified Protected Role invitation is delivered, expired, or retired by the member, the link closes permanently and reveals zero member details.
+              SpecialSauce.io Verified Hiring Bridge links are time-limited and tied to active Protected Roles. Legacy personal recruiter links have been retired, and expired or retired links close permanently while revealing zero member details.
             </p>
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link

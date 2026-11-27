@@ -6,7 +6,7 @@ export interface AnalyticsRecordItem {
   id: string
   referenceId: string
   roleTitle: string
-  channel: 'Inbound Application' | 'Outbound Invitation' | 'Employer Invitation' | 'Outbound Application' | 'Outbound Invitation'
+  channel: 'Inbound Application' | 'Sent Invitation' | 'Employer Invitation' | 'My Application'
   counterpartyId: string
   matchScore: number | null
   status: string
@@ -33,10 +33,10 @@ export default function DashboardAnalyticsReport({
   const filteredRecords = useMemo(() => {
     return records.filter((r) => {
       if (channelFilter === 'inbound') {
-        return r.channel === 'Inbound Application' || r.channel === 'Outbound Application'
+        return r.channel === 'Inbound Application' || r.channel === 'My Application'
       }
       if (channelFilter === 'pitch') {
-        return r.channel === 'Outbound Invitation' || r.channel === 'Employer Invitation'
+        return r.channel === 'Sent Invitation' || r.channel === 'Employer Invitation'
       }
       return true
     })
@@ -45,10 +45,10 @@ export default function DashboardAnalyticsReport({
   const stats = useMemo(() => {
     const total = filteredRecords.length
     const inbound = filteredRecords.filter(
-      (r) => r.channel === 'Inbound Application' || r.channel === 'Outbound Application'
+      (r) => r.channel === 'Inbound Application' || r.channel === 'My Application'
     ).length
     const pitches = filteredRecords.filter(
-      (r) => r.channel === 'Outbound Invitation' || r.channel === 'Employer Invitation'
+      (r) => r.channel === 'Sent Invitation' || r.channel === 'Employer Invitation'
     ).length
     const scored = filteredRecords.filter((r) => typeof r.matchScore === 'number' && r.matchScore > 0)
     const avgScore =
@@ -218,7 +218,7 @@ export default function DashboardAnalyticsReport({
                         : tab === 'inbound'
                         ? mode === 'employer'
                           ? 'Inbound Applications'
-                          : 'Outbound Applications'
+                          : 'My Applications'
                         : mode === 'employer'
                         ? 'Sent Invitations'
                         : 'Employer Invitations'}

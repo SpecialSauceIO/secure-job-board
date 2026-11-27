@@ -17,7 +17,7 @@ const STANDARD_PILLARS = [
     bullets: [
       "The Introduction (Private Chat): Reveals the verified company name and opens direct chat showing only your First Name + Last Initial.",
       "The Conversation (One-Click Release): Shares your full PDF resume and contact info only when you click Release Resume & Contact Vault.",
-      "Single-Use Verification Links: Personal Inbound Shield and Verified Hiring Bridge put a private verification gate on external messages and sourcing—deactivating automatically after one verified Protected Role connection.",
+      "Verified Hiring Bridge Gates: Employer Verified Hiring Bridge links screen external LinkedIn, careers-page, and sourcing leads with real-person ID verification and a 40%+ TrueFit Score™ floor while keeping your personal vault private.",
     ],
   },
   {

@@ -194,13 +194,7 @@ export default function LandingPage() {
                 </li>
                 <li className="flex items-start gap-2.5">
                   <span className="text-sky-400 font-extrabold leading-relaxed">•</span>
-                  <span>
-                    Filter outside messages with your{' '}
-                    <Link href="/inbound-shield" className="text-sky-300 underline decoration-sky-400/60 underline-offset-4 hover:text-white font-semibold transition-colors">
-                      Personal Inbound Shield
-                    </Link>
-                    .
-                  </span>
+                  <span>Accept verified employer invitations free at $0/mo forever.</span>
                 </li>
               </ul>
             </div>
@@ -736,7 +730,7 @@ export default function LandingPage() {
                   2. See Your Fit &amp; Get Discovered
                 </h3>
                 <p className="text-slate-500 leading-relaxed">
-                  Browse Direct Hire, W-2 Contract, and Contract-to-Hire roles with upfront pay ranges, check your TrueFit Score™ before applying, receive verified invitations, and gate cold recruiter messages with one-time <Link href="/inbound-shield" className="text-indigo-600 underline hover:text-indigo-800 font-bold">Personal Inbound Shield</Link> links.
+                  Browse Direct Hire, W-2 Contract, and Contract-to-Hire roles with upfront pay ranges, check your TrueFit Score™ before applying, and receive verified employer invitations directly in your private inbox.
                 </p>
               </div>
 

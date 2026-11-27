@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
   getProfessionalShieldLinksAction,
@@ -110,6 +111,10 @@ export default function InboundShieldPage() {
     }
     return links
   }, [links, statusFilter])
+
+  if (Boolean(links)) {
+    redirect('/dashboard/requests')
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">

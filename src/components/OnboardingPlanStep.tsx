@@ -63,7 +63,7 @@ export default function OnboardingPlanStep({
         <p className="mt-2 text-sm text-slate-300 max-w-2xl mx-auto">
           {role === 'employer'
             ? 'Complete your one-time company & Stripe ID check to publish Protected Roles, share Verified Hiring Bridge links on LinkedIn or your careers page, and stop applicant spam immediately. Start with the $25 Verification Pass (100% credited toward Month 1) or activate a Base Membership with 2, 5, or 15 Active Protected Roles included.'
-            : 'Every professional completes a one-time Stripe identity check to keep our talent pool 100% real people. Start in Explorer for a $5 one-time fee ($0/mo forever) or activate a monthly plan to apply outbound.'}
+            : 'Every professional completes a one-time Stripe identity check to keep our talent pool 100% real people. Start in Explorer for a $5 one-time fee ($0/mo forever) or activate a monthly plan when you are ready to apply.'}
         </p>
         {userEmail && (
           <p className="mt-1 text-xs text-slate-400">Signed in as <span className="font-semibold text-slate-200">{userEmail}</span></p>
@@ -128,7 +128,7 @@ export default function OnboardingPlanStep({
               </div>
               <ul className="mt-4 space-y-2 text-xs text-slate-300">
                 <li className="text-indigo-300 font-semibold">✓ Includes Real-Person ID Verification &amp; Shield</li>
-                <li>✓ 15 Outbound Protected Applications / mo</li>
+                <li>✓ 15 Protected Applications / mo</li>
                 <li>✓ Elevated Placement in Employer Search</li>
                 <li>✓ Founding Member Status &amp; Badge</li>
                 <li>✓ Downgrade to $0/mo Explorer anytime</li>
@@ -154,7 +154,7 @@ export default function OnboardingPlanStep({
               </div>
               <ul className="mt-4 space-y-2 text-xs text-slate-300">
                 <li className="text-amber-300 font-semibold">✓ Includes Real-Person ID Verification &amp; Shield</li>
-                <li>✓ Unlimited Outbound Protected Applications</li>
+                <li>✓ Unlimited Protected Applications</li>
                 <li>✓ Top-Priority Spotlight in Talent Search</li>
                 <li>✓ Priority Shortlist Placement &amp; 1-on-1 Support</li>
                 <li>✓ Downgrade to $0/mo Explorer anytime</li>
@@ -207,7 +207,7 @@ export default function OnboardingPlanStep({
               <ul className="mt-4 space-y-2 text-xs text-slate-300">
                 <li className="text-indigo-300 font-semibold">★ 2 Active Protected Roles Included</li>
                 <li>✓ +$199 Extra Protected Role Slots Anytime &amp; 2 Seats</li>
-                <li>✓ 10 Outbound Invites/mo &amp; Verified Hiring Bridge</li>
+                <li>✓ 10 Invitations/mo &amp; Verified Hiring Bridge</li>
               </ul>
             </div>
             <button
@@ -230,7 +230,7 @@ export default function OnboardingPlanStep({
               <ul className="mt-4 space-y-2 text-xs text-slate-300">
                 <li className="text-amber-300 font-semibold">★ 5 Active Protected Roles Included</li>
                 <li>✓ +$199 Extra Protected Role Slots Anytime &amp; 5 Seats</li>
-                <li>✓ 35 Outbound Invites/mo &amp; -1% W-2 Markup</li>
+                <li>✓ 35 Invitations/mo &amp; -1% W-2 Markup</li>
               </ul>
             </div>
             <button
@@ -253,7 +253,7 @@ export default function OnboardingPlanStep({
               <ul className="mt-4 space-y-2 text-xs text-slate-300">
                 <li className="text-amber-300 font-semibold">★ 15 Active Protected Roles Included</li>
                 <li>✓ +$199 Extra Role Slots, Unlimited Seats &amp; HR Sync</li>
-                <li>✓ 120 Outbound Invites/mo &amp; -2% W-2 Markup</li>
+                <li>✓ 120 Invitations/mo &amp; -2% W-2 Markup</li>
               </ul>
             </div>
             <button

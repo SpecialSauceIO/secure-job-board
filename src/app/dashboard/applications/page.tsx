@@ -187,7 +187,7 @@ export default function CandidateApplicationsPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-300">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Outbound Applications
+            My Applications
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Track your submitted applications, chat privately with verified employers, and share your full resume when ready.
@@ -302,7 +302,7 @@ export default function CandidateApplicationsPage() {
           <h3 className="text-lg font-extrabold text-slate-900">
             {hasActiveFilters
               ? 'No applications match your current filters'
-              : 'No outbound applications submitted yet'}
+              : 'No applications submitted yet'}
           </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
             {hasActiveFilters

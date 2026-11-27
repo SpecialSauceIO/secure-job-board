@@ -65,7 +65,7 @@ export default function AboutPage() {
                 After spending years inside global cloud, enterprise support, and frontier AI enablement teams, we watched both sides of the hiring market hit a wall at the exact same time. Qualified Professionals were sending tailored applications into a black hole—dodging ghost roles, identity harvesters, and automated rejections—while overwhelmed HR teams were buried under hundreds of bot-generated submissions within hours of posting a role.
               </p>
               <p className="text-slate-200 leading-relaxed text-base">
-                Most platforms tried to fix AI spam by selling job seekers more automation tools to spray applications even faster. We went the opposite direction: verify every human and every business at the front door, keep personal contact details locked inside a 2-Stage Privacy Vault until both sides agree to talk, protect external messages and sourcing with single-use Personal Inbound Shield and Verified Hiring Bridge links, and support Direct Hire, W-2 Contract, and Contract-to-Hire ($0 conversion fee) roles with upfront pay.
+                Most platforms tried to fix AI spam by selling job seekers more automation tools to spray applications even faster. We went the opposite direction: verify every human and every business at the front door, keep personal contact details locked inside a 2-Stage Privacy Vault until both sides agree to talk, protect external sourcing and career-page links with Verified Hiring Bridge gates, and support Direct Hire, W-2 Contract, and Contract-to-Hire ($0 conversion fee) roles with upfront pay.
               </p>
             </div>
 
