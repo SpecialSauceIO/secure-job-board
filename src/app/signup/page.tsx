@@ -31,8 +31,8 @@ export default async function SignupSelectionPage({
   }
 
   const candidateHref = isCandidatePlan
-    ? `/signup/candidate?plan=${encodeURIComponent(rawPlan)}`
-    : '/signup/candidate'
+    ? `/signup/professional?plan=${encodeURIComponent(rawPlan)}`
+    : '/signup/professional'
   const employerHref = isEmployerPlan
     ? `/signup/employer?plan=${encodeURIComponent(rawPlan)}`
     : '/signup/employer'

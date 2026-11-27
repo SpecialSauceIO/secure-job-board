@@ -36,7 +36,7 @@ export default function OnboardingPage() {
     if (typeof window === 'undefined') return fallbackPath
     try {
       const saved = window.sessionStorage.getItem('ss_shield_return_to')
-      if (saved && saved.startsWith('/shield/')) {
+      if (saved && (saved.startsWith('/hiring-bridge/') || saved.startsWith('/shield/'))) {
         window.sessionStorage.removeItem('ss_shield_return_to')
         return saved
       }
@@ -109,7 +109,7 @@ export default function OnboardingPage() {
 
       if (!prof?.id) {
         await supabase.auth.signOut()
-        router.replace('/signup/candidate')
+        router.replace('/signup/professional')
         return
       }
 

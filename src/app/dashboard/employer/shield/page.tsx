@@ -100,7 +100,7 @@ export default function EmployerTalentShieldPage() {
     const origin =
       typeof window !== 'undefined' ? window.location.origin : 'https://www.specialsauce.io'
     setFreshLinkId(res.record.id)
-    setFreshLinkUrl(`${origin}/shield/${res.token}`)
+    setFreshLinkUrl(`${origin}/hiring-bridge/${res.token}`)
     setFreshLinkMemo(res.record.private_memo || '')
     setFreshRoleTitle(res.record.job_title || 'Protected Role')
     setPrivateMemo('')
@@ -175,7 +175,7 @@ export default function EmployerTalentShieldPage() {
             🛡️ Verified Hiring Bridge • Included on Starter, Growth &amp; Enterprise
           </span>
           <Link
-            href="/dashboard/employer/talent-shield"
+            href="/dashboard/hiring-bridge"
             className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
           >
             How Verified Hiring Bridge works →

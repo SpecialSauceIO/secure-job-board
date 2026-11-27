@@ -37,8 +37,8 @@ interface AirlockState {
 
 function ShieldWorkspaceHeader({ viewerRole }: { viewerRole?: string | null }) {
   const isEmployer = viewerRole === 'employer'
-  const dashboardHref = isEmployer ? '/dashboard/employer' : '/dashboard'
-  const secondaryHref = isEmployer ? '/dashboard/employer/shield' : '/dashboard/profile'
+  const dashboardHref = '/dashboard'
+  const secondaryHref = isEmployer ? '/dashboard/employer/hiring-bridge' : '/dashboard/profile'
   const secondaryLabel = isEmployer ? 'Hiring Bridge' : 'My Profile'
   const primaryLabel = isEmployer ? 'Employer Workspace →' : 'Professional Dashboard →'
 
@@ -243,7 +243,7 @@ export default function PublicInboundShieldAirlockPage() {
     }
   }
 
-  const returnPath = `/shield/${encodeURIComponent(token)}`
+  const returnPath = `/hiring-bridge/${encodeURIComponent(token)}`
 
   const handleLaunchSponsoredIdentity = async () => {
     setErrorMsg(null)
@@ -432,7 +432,7 @@ export default function PublicInboundShieldAirlockPage() {
                       Professional Sign In →
                     </Link>
                     <Link
-                      href={`/signup/candidate?next=${encodeURIComponent(returnPath)}`}
+                      href={`/signup/professional?next=${encodeURIComponent(returnPath)}`}
                       className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white hover:bg-slate-50 px-5 py-2.5 text-sm font-semibold text-slate-800 transition"
                     >
                       Create Verified Professional Account
@@ -448,7 +448,7 @@ export default function PublicInboundShieldAirlockPage() {
                     You are viewing this link while signed in with an Employer account. Unverified visitors see zero company names, compensation bands, or role titles — only Real-Person ID-verified Professionals can preview and redeem this Protected Role.
                   </p>
                   <Link
-                    href="/dashboard/employer/shield"
+                    href="/dashboard/employer/hiring-bridge"
                     className="inline-flex items-center text-xs sm:text-sm font-semibold text-indigo-700 hover:underline"
                   >
                     ← Back to Verified Hiring Bridge
@@ -804,7 +804,7 @@ export default function PublicInboundShieldAirlockPage() {
                 Explore Verified Employer Access →
               </Link>
               <Link
-                href="/workflows"
+                href="/how-it-works"
                 className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white hover:bg-slate-50 px-5 py-2.5 text-sm font-semibold text-slate-800 transition"
               >
                 How the 2-Stage Privacy Handshake Works
@@ -884,9 +884,9 @@ export default function PublicInboundShieldAirlockPage() {
                   You are viewing this page while signed in with a Professional account. External recruiters who open this URL see zero personal or profile details and must sign in with a verified Employer account to submit a Protected Role.
                 </p>
                 <Link
-                  href="/dashboard/shield"
+                  href="/dashboard"
                   className="inline-flex items-center text-xs sm:text-sm font-semibold text-indigo-700 hover:underline">
-                  ← Back to Your Inbound Shield Hub
+                  ← Back to Professional Dashboard
                 </Link>
               </div>
             ) : (

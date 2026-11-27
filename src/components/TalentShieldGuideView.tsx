@@ -18,7 +18,7 @@ export default function TalentShieldGuideView({
           Drop a Verified Hiring Bridge link on your careers page, LinkedIn post, or external listing. Every applicant completes a quick real-person ID check at $0 cost (covered by your plan) and clears your 40%+ TrueFit Score™ before they ever reach your inbox.
         </p>
         <div className="flex flex-wrap gap-3 pt-2">
-          <Link href={isDashboard ? "/dashboard/employer/shield" : "/signup/employer"} className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm transition-colors">
+          <Link href={isDashboard ? "/dashboard/employer/hiring-bridge" : "/signup/employer"} className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm transition-colors">
             {isDashboard ? "Open Verified Hiring Bridge →" : "Verify Organization ($25 Credited Toward Month 1) →"}
           </Link>
           <Link href={isDashboard ? "/dashboard/employer/billing" : "/pricing"} className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-sm transition-colors">

@@ -46,17 +46,17 @@ export function PublicHeader({
   ]
 
   const employerLinks = [
-    { href: '/workflows?tab=employer', label: 'How It Works', sub: '5-step employer hiring guide' },
+    { href: '/how-it-works?tab=employer', label: 'How It Works', sub: '5-step employer hiring guide' },
     { href: '/pricing#employers', label: 'Plans & Pricing', sub: '$299–$999/mo • Roles included' },
-    { href: '/talent-shield', label: 'Verified Hiring Bridge', sub: 'Filter external links & leads' },
+    { href: '/hiring-bridge', label: 'Verified Hiring Bridge', sub: 'Filter external links & leads' },
     { href: '/w2-hiring', label: 'Built-In W-2 Hiring', sub: 'Direct hire & $0 conversion EOR' },
     { href: '/signup/employer', label: 'Verify Organization ($25)', sub: 'Start $0/mo Practice Mode', cta: true },
   ]
 
   const professionalLinks = [
-    { href: '/workflows?tab=professional', label: 'How It Works', sub: '5-step privacy-first guide' },
+    { href: '/how-it-works?tab=professional', label: 'How It Works', sub: '5-step privacy-first guide' },
     { href: '/pricing#professionals', label: 'Plans & Perks', sub: '$0/mo Explorer to Prestige' },
-    { href: '/signup/candidate', label: 'Start Explorer ($5)', sub: 'Verify once • $0/mo forever', cta: true },
+    { href: '/signup/professional', label: 'Start Explorer ($5)', sub: 'Verify once • $0/mo forever', cta: true },
   ]
 
   const isActive = (href: string, exact?: boolean) => {
@@ -65,12 +65,11 @@ export function PublicHeader({
   }
 
   const isEmployerActive =
-    pathname === '/talent-shield' ||
+    pathname === '/hiring-bridge' ||
     pathname === '/w2-hiring' ||
     pathname === '/signup/employer'
 
   const isProfessionalActive =
-    pathname === '/signup/candidate' ||
     pathname === '/signup/professional'
 
   return (

@@ -13,7 +13,7 @@ function getEncKey(): Buffer { const s = cleanEnvKey(process.env.SUPABASE_SERVIC
 function encJson(obj: object): string { const iv = crypto.randomBytes(12); const c = crypto.createCipheriv('aes-256-gcm', getEncKey(), iv); const e = Buffer.concat([c.update(JSON.stringify(obj), 'utf8'), c.final()]); return Buffer.concat([iv, c.getAuthTag(), e]).toString('base64url') }
 function decJson<T>(tok?: string | null): T | null { if (!tok) return null; try { const b = Buffer.from(tok, 'base64url'); const d = crypto.createDecipheriv('aes-256-gcm', getEncKey(), b.subarray(0, 12)); d.setAuthTag(b.subarray(12, 28)); const p = JSON.parse(Buffer.concat([d.update(b.subarray(28)), d.final()]).toString('utf8')); return p?.exp && Date.now() > p.exp ? null : (p as T) } catch { return null } }
 function maskEmail(e: string): string { const [l, d] = e.split('@'); if (!l || !d) return e; return (l.length <= 2 ? l[0] + '***' : l[0] + '***' + l[l.length - 1]) + '@' + d }
-export async function requestAccountSignupOtp(emailInput: string, passwordInput: string, roleInput: 'candidate' | 'employer', selectedPlanInput?: string) {
+export async function requestAccountSignupOtp(emailInput: string, passwordInput: string, roleInput: string, selectedPlanInput?: string) {
   const email = (emailInput || '').trim().toLowerCase(); const password = passwordInput || ''; const role = roleInput === 'employer' ? 'employer' : 'candidate'; const selectedPlan = (selectedPlanInput || '').trim().toLowerCase()
   if (!email || !password) return { success: false, error: 'Please enter both your email address and password.' }
   if (password.length < 6) return { success: false, error: 'Password must be at least 6 characters.' }
@@ -77,9 +77,9 @@ export async function verifyAccountSignupOtp(otpInput: string): Promise<{ succes
 }
 export async function signupCandidate(formData: FormData) {
   const email = ((formData.get('email') as string) || '').trim(); const password = formData.get('password') as string; const plan = ((formData.get('plan') as string) || '').trim().toLowerCase()
-  const res = await requestAccountSignupOtp(email, password, 'candidate', plan)
-  if (!res.success) return redirect('/signup/candidate?message=' + encodeURIComponent(res.error || 'Signup failed'))
-  return redirect('/signup/candidate?step=otp&plan=' + encodeURIComponent(plan || 'explorer'))
+  const res = await requestAccountSignupOtp(email, password, 'professional', plan)
+  if (!res.success) return redirect('/signup/professional?message=' + encodeURIComponent(res.error || 'Signup failed'))
+  return redirect('/signup/professional?step=otp&plan=' + encodeURIComponent(plan || 'explorer'))
 }
 export async function signupEmployer(formData: FormData) {
   const email = ((formData.get('email') as string) || '').trim(); const password = formData.get('password') as string; const plan = ((formData.get('plan') as string) || '').trim().toLowerCase()

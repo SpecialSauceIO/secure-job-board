@@ -215,7 +215,7 @@ export default function PlatformWorkflowsView({
 
           {!isDashboard && (
             <Link
-              href={isCandidate ? '/signup/candidate' : '/signup/employer'}
+              href={isCandidate ? '/signup/professional' : '/signup/employer'}
               className={`px-5 py-3 rounded-xl text-white text-sm font-extrabold transition-colors shrink-0 text-center ${
                 isCandidate
                   ? 'bg-indigo-600 hover:bg-indigo-500'

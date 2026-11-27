@@ -32,7 +32,7 @@ export default function WorkflowsPage() {
 
   const handleSelectTab = (nextTab: 'employer' | 'professional') => {
     setActiveTab(nextTab)
-    router.replace(`/workflows?tab=${nextTab}`, { scroll: false })
+    router.replace(`/how-it-works?tab=${nextTab}`, { scroll: false })
   }
 
   return (
@@ -180,7 +180,7 @@ export default function WorkflowsPage() {
                   </div>
                 </div>
                 <Link
-                  href="/signup/candidate"
+                  href="/signup/professional"
                   className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-extrabold text-center transition-colors shrink-0"
                 >
                   Get Started ($5) →

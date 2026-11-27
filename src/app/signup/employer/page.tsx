@@ -8,7 +8,7 @@ import { createClient } from '@/utils/supabase/client'
 export default function EmployerSignupPage({ searchParams }: { searchParams: Promise<{ message?: string; plan?: string; step?: string; next?: string }> }) {
   const resolvedParams = use(searchParams)
   const selectedPlan = resolvedParams.plan === 'starter' || resolvedParams.plan === 'growth' || resolvedParams.plan === 'enterprise' ? resolvedParams.plan : ''
-  const nextPath = typeof resolvedParams.next === 'string' && resolvedParams.next.startsWith('/shield/') ? resolvedParams.next : ''
+  const nextPath = typeof resolvedParams.next === 'string' && (resolvedParams.next.startsWith('/hiring-bridge/') || resolvedParams.next.startsWith('/shield/')) ? resolvedParams.next : ''
   const router = useRouter()
   const [step, setStep] = useState<'credentials' | 'otp'>(resolvedParams.step === 'otp' ? 'otp' : 'credentials')
   const [email, setEmail] = useState('')
