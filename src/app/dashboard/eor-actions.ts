@@ -186,6 +186,9 @@ export async function saveOrganizationEorSettings(formData: FormData) {
   }
 
   revalidatePath('/dashboard/employer/organization')
+  revalidatePath('/dashboard/employer/roles/new')
+  revalidatePath('/dashboard/employer/roles')
+  revalidatePath('/dashboard/employer/invitations')
   revalidatePath('/dashboard/employer/jobs/new')
   revalidatePath('/dashboard/employer/jobs')
   revalidatePath('/dashboard/employer/requests')

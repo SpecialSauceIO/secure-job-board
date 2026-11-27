@@ -111,21 +111,21 @@ export default function EmployerTeamSeatsPanel({
 
         {tier === 'free' ? (
           <Link
-            href="/dashboard/employer/billing"
+            href="/dashboard/employer/membership"
             className="shrink-0 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-extrabold hover:bg-indigo-700 transition-colors shadow-sm text-center"
           >
             Activate Plan for Team Seats →
           </Link>
         ) : seatsUsed >= maxSeats && tier === 'starter' ? (
           <Link
-            href="/dashboard/employer/billing"
+            href="/dashboard/employer/membership"
             className="shrink-0 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-extrabold hover:bg-indigo-700 transition-colors shadow-sm text-center"
           >
             Upgrade to Growth (5 Seats) →
           </Link>
         ) : seatsUsed >= maxSeats && tier === 'growth' ? (
           <Link
-            href="/dashboard/employer/billing"
+            href="/dashboard/employer/membership"
             className="shrink-0 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-extrabold hover:bg-indigo-600 transition-colors shadow-sm text-center"
           >
             Upgrade to Enterprise (Unlimited Seats) →
@@ -164,7 +164,7 @@ export default function EmployerTeamSeatsPanel({
             </p>
           </div>
           <Link
-            href="/dashboard/employer/billing"
+            href="/dashboard/employer/membership"
             className="shrink-0 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-extrabold hover:bg-indigo-700 transition-colors text-center shadow-sm"
           >
             View Plans →

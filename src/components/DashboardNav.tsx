@@ -193,9 +193,9 @@ export default function DashboardNav({
   const employerLinks = [
     { href: '/dashboard', label: 'Overview', exact: true },
     { href: '/dashboard/employer/search', label: 'Search Talent' },
-    { href: '/dashboard/employer/jobs', label: 'Manage Roles' },
+    { href: '/dashboard/employer/roles', label: 'Manage Roles' },
     { href: '/dashboard/employer/applications', label: 'Inbound Applications' },
-    { href: '/dashboard/employer/pitches', label: 'Sent Invitations' },
+    { href: '/dashboard/employer/invitations', label: 'Sent Invitations' },
     { href: '/dashboard/employer/hiring-bridge', label: 'Hiring Bridge' },
     { href: '/dashboard/employer/organization', label: 'Manage Company' },
     { href: '/dashboard/support', label: 'Support' },
@@ -212,7 +212,7 @@ export default function DashboardNav({
         ]
 
   const billingHref =
-    role === 'employer' ? '/dashboard/employer/billing' : '/dashboard/billing'
+    role === 'employer' ? '/dashboard/employer/membership' : '/dashboard/billing'
 
   const effectivePath = optimisticPath || pathname
   const isActive = (href: string, exact?: boolean) => {

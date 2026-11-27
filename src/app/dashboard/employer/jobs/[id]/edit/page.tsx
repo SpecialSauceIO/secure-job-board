@@ -292,7 +292,7 @@ export default function EditJobPage() {
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
-    router.push('/dashboard/employer/jobs')
+    router.push('/dashboard/employer/roles')
     router.refresh()
   }
 
@@ -332,7 +332,7 @@ export default function EditJobPage() {
           </Link>
           <span className="text-slate-300">•</span>
           <Link
-            href="/dashboard/employer/jobs"
+            href="/dashboard/employer/roles"
             className="text-slate-500 font-bold text-sm hover:text-slate-800"
           >
             Back to Manage Roles
@@ -355,7 +355,7 @@ export default function EditJobPage() {
             </p>
             {isPracticeMode && (
               <Link
-                href="/dashboard/employer/billing"
+                href="/dashboard/employer/membership"
                 className="shrink-0 px-3.5 py-2 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-indigo-600 transition-colors text-center"
               >
                 View Employer Plans →
@@ -1011,7 +1011,7 @@ export default function EditJobPage() {
 
         <div className="pt-2 flex items-center justify-end gap-3">
           <Link
-            href="/dashboard/employer/jobs"
+            href="/dashboard/employer/roles"
             className="px-6 py-3 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors border-slate-300"
           >
             Cancel

@@ -148,7 +148,7 @@ export default function EmployerJobsTableClient({
       passParam &&
       ['extra_role_slot', 'role_25', 'role_50', 'role_100'].includes(passParam)
     ) {
-      window.history.replaceState({}, '', '/dashboard/employer/jobs')
+      window.history.replaceState({}, '', '/dashboard/employer/roles')
       purchaseEmployerRolePass(passParam, sessionIdParam).then((res) => {
         if (res?.error) {
           setPassNotice({ type: 'error', text: res.error })
@@ -161,7 +161,7 @@ export default function EmployerJobsTableClient({
         }
       })
     } else if (billingStatus === 'cancelled') {
-      window.history.replaceState({}, '', '/dashboard/employer/jobs')
+      window.history.replaceState({}, '', '/dashboard/employer/roles')
     }
   }, [router])
 
@@ -765,7 +765,7 @@ export default function EmployerJobsTableClient({
 
                   <div className="grid grid-cols-2 sm:flex items-center gap-2 pt-1">
                     <Link
-                      href={`/dashboard/employer/jobs/${job.id}/edit`}
+                      href={`/dashboard/employer/roles/${job.id}/edit`}
                       className="px-3 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 text-center"
                     >
                       Edit Role
@@ -831,7 +831,7 @@ export default function EmployerJobsTableClient({
                         </>
                       ) : isPracticeMode ? (
                         <Link
-                          href="/dashboard/employer/billing"
+                          href="/dashboard/employer/membership"
                           className="block w-full text-center px-3 py-2 text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-300 rounded-xl hover:bg-indigo-100"
                         >
                           Activate Plan to Publish →
@@ -1204,7 +1204,7 @@ export default function EmployerJobsTableClient({
                       <td className="py-4 px-6 text-right">
                         <div className="flex flex-wrap items-center justify-end gap-2">
                           <Link
-                            href={`/dashboard/employer/jobs/${job.id}/edit`}
+                            href={`/dashboard/employer/roles/${job.id}/edit`}
                             className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-indigo-600 transition-colors"
                           >
                             Edit
@@ -1284,7 +1284,7 @@ export default function EmployerJobsTableClient({
                               </>
                             ) : isPracticeMode ? (
                               <Link
-                                href="/dashboard/employer/billing"
+                                href="/dashboard/employer/membership"
                                 className="px-3 py-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-300 rounded-lg hover:bg-indigo-100 transition-colors"
                               >
                                 Activate Plan to Publish →

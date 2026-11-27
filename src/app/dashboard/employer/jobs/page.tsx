@@ -345,6 +345,7 @@ export default async function JobManagementPage() {
       })
 
       if (hasBlockingW2OrGear || hasUnactionedInbound) {
+        revalidatePath('/dashboard/employer/roles')
         revalidatePath('/dashboard/employer/jobs')
         return
       }
@@ -373,6 +374,7 @@ export default async function JobManagementPage() {
         .eq('id', jobId)
         .eq('organization_id', memberRow.organization_id)
 
+      revalidatePath('/dashboard/employer/roles')
       revalidatePath('/dashboard/employer/jobs')
       revalidatePath('/dashboard/employer/applications')
       revalidatePath('/dashboard/jobs')
@@ -387,6 +389,7 @@ export default async function JobManagementPage() {
         .eq('id', jobId)
         .eq('organization_id', memberRow.organization_id)
 
+      revalidatePath('/dashboard/employer/roles')
       revalidatePath('/dashboard/employer/jobs')
       revalidatePath('/dashboard/jobs')
       revalidatePath('/dashboard')
@@ -397,11 +400,13 @@ export default async function JobManagementPage() {
     const actionTierNorm = String(orgRecord?.subscription_tier || '').toLowerCase()
     const actionStatusNorm = String(orgRecord?.subscription_status || '').toLowerCase()
     if (!(actionStatusNorm === 'active' && ['starter', 'growth', 'enterprise'].includes(actionTierNorm))) {
+      revalidatePath('/dashboard/employer/roles')
       revalidatePath('/dashboard/employer/jobs')
       return
     }
     const currentTier = await resolveEmployerTierInfo(orgRecord)
     if (currentTier.tier === 'free' || currentTier.maxActiveJobs < 1) {
+      revalidatePath('/dashboard/employer/roles')
       revalidatePath('/dashboard/employer/jobs')
       return
     }
@@ -443,6 +448,7 @@ export default async function JobManagementPage() {
       !isCurrentlyExpired &&
       currentDaysRemaining > RENEWAL_WINDOW_DAYS
     ) {
+      revalidatePath('/dashboard/employer/roles')
       revalidatePath('/dashboard/employer/jobs')
       return
     }
@@ -450,6 +456,7 @@ export default async function JobManagementPage() {
     // Gate 2: Max consecutive renewals cap (2 renewals = 90 days max per listing)
     const currentRenewalCount = Math.max(0, Number(existingMeta.renewal_count) || 0)
     if (currentRenewalCount >= MAX_JOB_RENEWALS) {
+      revalidatePath('/dashboard/employer/roles')
       revalidatePath('/dashboard/employer/jobs')
       return
     }
@@ -459,6 +466,7 @@ export default async function JobManagementPage() {
       memberRow.organization_id
     )
     if (!silentQuota.allowed) {
+      revalidatePath('/dashboard/employer/roles')
       revalidatePath('/dashboard/employer/jobs')
       return
     }
@@ -490,6 +498,7 @@ export default async function JobManagementPage() {
     })
 
     if (unactionedApps.length > 0) {
+      revalidatePath('/dashboard/employer/roles')
       revalidatePath('/dashboard/employer/jobs')
       return
     }
@@ -508,6 +517,7 @@ export default async function JobManagementPage() {
         )
       })
       if (!hasRealProgressionOrDecision) {
+        revalidatePath('/dashboard/employer/roles')
         revalidatePath('/dashboard/employer/jobs')
         return
       }
@@ -569,6 +579,7 @@ export default async function JobManagementPage() {
       if (overflowSlotsToConsume > 0) {
         const inv = parseRolePassInventory(orgRecord?.description)
         if (inv.totalPasses < overflowSlotsToConsume) {
+          revalidatePath('/dashboard/employer/roles')
           revalidatePath('/dashboard/employer/jobs')
           return
         }
@@ -620,7 +631,9 @@ export default async function JobManagementPage() {
         .eq('id', memberRow.organization_id)
     }
 
+    revalidatePath('/dashboard/employer/roles')
     revalidatePath('/dashboard/employer/jobs')
+    revalidatePath('/dashboard/employer/membership')
     revalidatePath('/dashboard/employer/billing')
     revalidatePath('/dashboard/jobs')
     revalidatePath('/dashboard')
@@ -680,7 +693,7 @@ export default async function JobManagementPage() {
           <div className="flex gap-3 shrink-0">
             {isOrgVerified ? (
               <Link
-                href="/dashboard/employer/jobs/new"
+                href="/dashboard/employer/roles/new"
                 className="w-full sm:w-auto text-center justify-center px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-sm transition-all text-sm"
               >
                 {isPracticeMode ? '+ Draft New Role' : '+ Post New Job'}
@@ -718,7 +731,7 @@ export default async function JobManagementPage() {
               Build and refine up to 5 Protected Role drafts right now at $0/mo. Activate Starter ($299/mo · 2 Active Roles), Growth ($599/mo · 5 Active Roles), or Enterprise ($999/mo · 15 Active Roles) whenever you are ready to publish live.
             </div>
             <Link
-              href="/dashboard/employer/billing"
+              href="/dashboard/employer/membership"
               className="shrink-0 px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-colors text-center"
             >
               Activate Monthly Plan →
@@ -805,7 +818,7 @@ export default async function JobManagementPage() {
               </p>
               {isOrgVerified ? (
                 <Link
-                  href="/dashboard/employer/jobs/new"
+                  href="/dashboard/employer/roles/new"
                   className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 shadow-sm transition-all"
                 >
                   {isPracticeMode ? 'Draft your first role' : 'Post your first job'}

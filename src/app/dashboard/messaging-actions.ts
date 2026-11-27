@@ -770,7 +770,7 @@ export async function sendApplicationMessage(
         `"${trimmed}"`,
       ],
       ctaUrl: isEmployerInitiatedPitch
-        ? '/dashboard/employer/pitches'
+        ? '/dashboard/employer/invitations'
         : '/dashboard/employer/applications',
       ctaLabel: 'Open Secure Thread →',
     })
@@ -780,6 +780,7 @@ export async function sendApplicationMessage(
   revalidatePath('/dashboard/applications')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
+  revalidatePath('/dashboard/employer/invitations')
   revalidatePath('/dashboard/employer/pitches')
 
   return {
@@ -931,7 +932,7 @@ export async function releaseCandidateVaultToEmployer(
     ],
     ctaUrl:
       appRow.initiated_by === 'employer'
-        ? '/dashboard/employer/pitches'
+        ? '/dashboard/employer/invitations'
         : '/dashboard/employer/applications',
     ctaLabel: 'View Released Resume & Contact Card →',
   })
@@ -940,6 +941,7 @@ export async function releaseCandidateVaultToEmployer(
   revalidatePath('/dashboard/applications')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
+  revalidatePath('/dashboard/employer/invitations')
   revalidatePath('/dashboard/employer/pitches')
 
   return {
@@ -1587,6 +1589,7 @@ export async function proposeTrialToHireTerms(
   revalidatePath('/dashboard/applications')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
+  revalidatePath('/dashboard/employer/invitations')
   revalidatePath('/dashboard/employer/pitches')
   return { success: true, trialToHire: trialObj }
 }
@@ -1826,7 +1829,7 @@ export async function respondToTrialToHireTerms(
           : [
               `${candName} asked to discuss or adjust the proposed W-2 contract terms in your Secure Thread for "${roleTitle}".`,
             ],
-      ctaUrl: appRow.initiated_by === 'employer' ? '/dashboard/employer/pitches' : '/dashboard/employer/applications',
+      ctaUrl: appRow.initiated_by === 'employer' ? '/dashboard/employer/invitations' : '/dashboard/employer/applications',
       ctaLabel: 'Open Secure Thread →',
     })
   }
@@ -1836,11 +1839,14 @@ export async function respondToTrialToHireTerms(
   }
 
   revalidatePath('/dashboard')
+  revalidatePath('/dashboard/employer/roles')
   revalidatePath('/dashboard/employer/jobs')
+  revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
   revalidatePath('/dashboard/applications')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
+  revalidatePath('/dashboard/employer/invitations')
   revalidatePath('/dashboard/employer/pitches')
   return { success: true, trialToHire: updatedTrial }
 }
@@ -2005,11 +2011,14 @@ export async function recordDirectHirePlacement(
   const roleSeatSummary = await syncJobRoleSeatFillState(adminDb, jobObj?.id)
 
   revalidatePath('/dashboard')
+  revalidatePath('/dashboard/employer/roles')
   revalidatePath('/dashboard/employer/jobs')
+  revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
   revalidatePath('/dashboard/applications')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
+  revalidatePath('/dashboard/employer/invitations')
   revalidatePath('/dashboard/employer/pitches')
 
   return { success: true, directHirePlaced: placed, roleSeatSummary }
@@ -2225,9 +2234,11 @@ export async function manageActiveW2Engagement(formData: FormData): Promise<void
     })
     .eq('id', applicationId)
 
+  revalidatePath('/dashboard/employer/roles')
   revalidatePath('/dashboard/employer/jobs')
   revalidatePath('/dashboard/applications')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
+  revalidatePath('/dashboard/employer/invitations')
   revalidatePath('/dashboard/employer/pitches')
 }

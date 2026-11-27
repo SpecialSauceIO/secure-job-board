@@ -255,7 +255,7 @@ export default function EmployerTalentShieldPage() {
             </p>
           </div>
           <Link
-            href="/dashboard/employer/billing"
+            href="/dashboard/employer/membership"
             className="shrink-0 inline-flex items-center justify-center rounded-xl bg-indigo-600 hover:bg-indigo-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition"
           >
             View Employer Plans →
@@ -274,7 +274,7 @@ export default function EmployerTalentShieldPage() {
             </p>
           </div>
           <Link
-            href="/dashboard/employer/jobs"
+            href="/dashboard/employer/roles"
             className="shrink-0 inline-flex items-center justify-center rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2.5 text-sm font-semibold shadow-sm transition"
           >
             Manage Roles →
@@ -528,7 +528,7 @@ export default function EmployerTalentShieldPage() {
                         href={
                           item.mode === 'inbound_dm_gate'
                             ? '/dashboard/employer/applications'
-                            : '/dashboard/employer/pitches'
+                            : '/dashboard/employer/invitations'
                         }
                         className="rounded-lg border border-indigo-300 dark:border-indigo-700 px-3 py-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition"
                       >

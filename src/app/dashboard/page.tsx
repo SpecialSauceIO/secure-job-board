@@ -528,14 +528,14 @@ export default async function DashboardPage({
               </Link>
             ) : canPostNewJob || canDraftPracticeJob ? (
               <Link
-                href="/dashboard/employer/jobs/new"
+                href="/dashboard/employer/roles/new"
                 className="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold shadow-sm transition-colors"
               >
                 {canDraftPracticeJob ? '+ Draft Role (Practice)' : '+ Post New Role'}
               </Link>
             ) : (
               <Link
-                href="/dashboard/employer/billing"
+                href="/dashboard/employer/membership"
                 className="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition-colors"
               >
                 {isPracticeEmployer
@@ -602,7 +602,7 @@ export default async function DashboardPage({
           <Link
             href={
               hasOrg
-                ? '/dashboard/employer/jobs'
+                ? '/dashboard/employer/roles'
                 : '/dashboard/employer/organization'
             }
             className={`group p-4 sm:p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
@@ -670,7 +670,7 @@ export default async function DashboardPage({
           <Link
             href={
               hasOrg
-                ? '/dashboard/employer/pitches'
+                ? '/dashboard/employer/invitations'
                 : '/dashboard/employer/organization'
             }
             className={`group p-4 sm:p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${

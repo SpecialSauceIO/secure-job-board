@@ -1886,6 +1886,7 @@ export async function updateProfile(formData: FormData) {
       revalidatePath('/dashboard/requests')
       revalidatePath('/dashboard/employer/search')
       revalidatePath('/dashboard/employer/applications')
+      revalidatePath('/dashboard/employer/invitations')
       revalidatePath('/dashboard/employer/pitches')
       return
     }
@@ -1905,6 +1906,7 @@ export async function updateProfile(formData: FormData) {
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/search')
   revalidatePath('/dashboard/employer/applications')
+  revalidatePath('/dashboard/employer/invitations')
   revalidatePath('/dashboard/employer/pitches')
 }
 
@@ -3471,6 +3473,7 @@ export async function recalculatePitchMatch(applicationId: string) {
 
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/employer/invitations')
   revalidatePath('/dashboard/employer/pitches')
   return {
     data: {
@@ -3622,7 +3625,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
             : `Connection Reference ID: ${referenceId}`,
           'Because the professional declined before opening a private chat, their identity remains vaulted.',
         ],
-        ctaUrl: '/dashboard/employer/pitches',
+        ctaUrl: '/dashboard/employer/invitations',
         ctaLabel: 'View Sent Invitations & Credit Balance →',
       })
     }
@@ -3630,7 +3633,9 @@ export async function respondToConnectionRequest(applicationId: string, decision
     revalidatePath('/dashboard')
     revalidatePath('/dashboard/requests')
     revalidatePath('/dashboard/employer/search')
+    revalidatePath('/dashboard/employer/invitations')
     revalidatePath('/dashboard/employer/pitches')
+    revalidatePath('/dashboard/employer/membership')
     revalidatePath('/dashboard/employer/billing')
     return {
       success: true,
@@ -3754,7 +3759,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
       `Connection Reference ID: ${referenceId}`,
       `Open your Sent Invitations tracker to message ${maskedCandidateName} in your encrypted thread. Once you introduce your team, the professional can release their Conversation Resume & Contact Vault.`,
     ],
-    ctaUrl: '/dashboard/employer/pitches',
+    ctaUrl: '/dashboard/employer/invitations',
     ctaLabel: 'Open Encrypted Thread →',
   })
 
@@ -3775,6 +3780,7 @@ export async function respondToConnectionRequest(applicationId: string, decision
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/employer/invitations')
   revalidatePath('/dashboard/employer/pitches')
   return {
     success: true,
@@ -5324,7 +5330,9 @@ export async function createStructuredJob(formData: FormData) {
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/jobs')
+  revalidatePath('/dashboard/employer/roles')
   revalidatePath('/dashboard/employer/jobs')
+  revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
 }
 
@@ -5477,8 +5485,11 @@ export async function updateStructuredJob(formData: FormData) {
   await clearUserMatchCache(user.id)
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/jobs')
+  revalidatePath('/dashboard/employer/roles')
   revalidatePath('/dashboard/employer/jobs')
+  revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
+  revalidatePath(`/dashboard/employer/roles/${jobId}/edit`)
   revalidatePath(`/dashboard/employer/jobs/${jobId}/edit`)
   return { success: true }
 }
@@ -6119,7 +6130,9 @@ export async function sendConnectionRequest(
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/employer/search')
+  revalidatePath('/dashboard/employer/invitations')
   revalidatePath('/dashboard/employer/pitches')
+  revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
   revalidatePath('/dashboard/requests')
   return { success: true, referenceId: refId, remainingCredits: credits - 1 }
@@ -6884,7 +6897,9 @@ export async function saveOrganizationProfile(formData: FormData) {
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/employer/organization')
   revalidatePath('/dashboard/employer/search')
+  revalidatePath('/dashboard/employer/roles')
   revalidatePath('/dashboard/employer/jobs')
+  revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
   revalidatePath('/dashboard/jobs')
 
@@ -7222,6 +7237,7 @@ export async function inviteOrganizationSeat(formData: FormData) {
   })
 
   revalidatePath('/dashboard/employer/organization')
+  revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
 
   const allSeats = await getOrganizationSeats()
@@ -7304,10 +7320,11 @@ export async function removeOrganizationSeat(
           .neq('role', 'owner')
       }
     } catch {}
-  }
+}
 
-  revalidatePath('/dashboard/employer/organization')
-  revalidatePath('/dashboard/employer/billing')
+revalidatePath('/dashboard/employer/organization')
+revalidatePath('/dashboard/employer/membership')
+revalidatePath('/dashboard/employer/billing')
 
   const allSeats = await getOrganizationSeats()
   return {
@@ -7438,7 +7455,9 @@ export async function verifyOrganizationDomain(domainInput?: string) {
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/employer/organization')
   revalidatePath('/dashboard/employer/search')
+  revalidatePath('/dashboard/employer/roles')
   revalidatePath('/dashboard/employer/jobs')
+  revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
   revalidatePath('/dashboard/jobs')
 
@@ -7503,7 +7522,9 @@ export async function toggleSandboxDomainVerification(
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/employer/organization')
   revalidatePath('/dashboard/employer/search')
+  revalidatePath('/dashboard/employer/roles')
   revalidatePath('/dashboard/employer/jobs')
+  revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
   revalidatePath('/dashboard/jobs')
 
@@ -7681,7 +7702,7 @@ export async function activateSandboxEmployerTier(
         `Your organization (${orgObj?.name || 'Verified Employer'}) is now active on ${chosen.label}.`,
         `Includes up to ${chosen.maxActiveJobs} concurrent Active Protected Roles ($199 Extra Protected Role Slot add-on for overflow) and ${chosen.credits} monthly Accepted-Only Invitation Credits.`,
       ],
-      ctaUrl: '/dashboard/employer/billing',
+      ctaUrl: '/dashboard/employer/membership',
       ctaLabel: 'View Membership & Plan Settings →',
     })
   }
@@ -7689,7 +7710,9 @@ export async function activateSandboxEmployerTier(
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/employer/organization')
   revalidatePath('/dashboard/employer/search')
+  revalidatePath('/dashboard/employer/roles')
   revalidatePath('/dashboard/employer/jobs')
+  revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
 
   return {
@@ -7842,7 +7865,9 @@ export async function purchaseEmployerCreditTopUp(
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/employer/organization')
   revalidatePath('/dashboard/employer/search')
+  revalidatePath('/dashboard/employer/roles')
   revalidatePath('/dashboard/employer/jobs')
+  revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
 
   return {
@@ -8235,8 +8260,11 @@ export async function purchaseEmployerRolePass(
   if (updateErr) return { error: updateErr.message }
 
   revalidatePath('/dashboard')
+  revalidatePath('/dashboard/employer/roles')
+  revalidatePath('/dashboard/employer/roles/new')
   revalidatePath('/dashboard/employer/jobs')
   revalidatePath('/dashboard/employer/jobs/new')
+  revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
 
   return {
@@ -8466,6 +8494,7 @@ export async function releaseCandidateVaultAndSyncAts(applicationId: string) {
   revalidatePath('/dashboard/applications')
   revalidatePath('/dashboard/requests')
   revalidatePath('/dashboard/employer/applications')
+  revalidatePath('/dashboard/employer/invitations')
   revalidatePath('/dashboard/employer/pitches')
 
   return {
@@ -9024,7 +9053,9 @@ export async function submitEmployerAirlockInvitationAction(params: {
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/shield')
   revalidatePath('/dashboard/requests')
+  revalidatePath('/dashboard/employer/invitations')
   revalidatePath('/dashboard/employer/pitches')
+  revalidatePath('/dashboard/employer/membership')
   revalidatePath('/dashboard/employer/billing')
 
   return {
@@ -9254,6 +9285,7 @@ export async function createEmployerTalentShieldLinkAction(params: {
     return { error: minted.error || 'Could not create Talent Shield link.' }
   }
 
+  revalidatePath('/dashboard/employer/hiring-bridge')
   revalidatePath('/dashboard/employer/shield')
   return {
     token: minted.token,
@@ -9283,6 +9315,7 @@ export async function revokeEmployerTalentShieldLinkAction(linkId: string) {
   })
   if (!res.ok) return { error: res.error || 'Could not retire link.' }
 
+  revalidatePath('/dashboard/employer/hiring-bridge')
   revalidatePath('/dashboard/employer/shield')
   return { ok: true }
 }
@@ -9753,15 +9786,18 @@ export async function redeemEmployerTalentShieldLinkAction(params: {
           target.privateMemo ? `Your Private Link Note: ${target.privateMemo}` : `One-Time Link Status: Redeemed & Burned`,
           `1 Outbound Credit was applied (Accepted-Only Guarantee protected). Their identity stays private until they accept and unlock Stage 2.`,
         ],
-        ctaUrl: '/dashboard/employer/pitches',
+        ctaUrl: '/dashboard/employer/invitations',
         ctaLabel: 'View Sent Invitations →',
       })
     }
 
     revalidatePath('/dashboard')
     revalidatePath('/dashboard/requests')
+    revalidatePath('/dashboard/employer/hiring-bridge')
     revalidatePath('/dashboard/employer/shield')
+    revalidatePath('/dashboard/employer/invitations')
     revalidatePath('/dashboard/employer/pitches')
+    revalidatePath('/dashboard/employer/membership')
     revalidatePath('/dashboard/employer/billing')
 
     return {
@@ -9835,6 +9871,7 @@ export async function redeemEmployerTalentShieldLinkAction(params: {
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard/employer/hiring-bridge')
   revalidatePath('/dashboard/employer/shield')
   revalidatePath('/dashboard/employer/applications')
 

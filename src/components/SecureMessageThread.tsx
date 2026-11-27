@@ -909,7 +909,7 @@ export default function SecureMessageThread({
                 </button>
                 {viewerRole === 'employer' && (
                   <a
-                    href="/dashboard/employer/jobs"
+                    href="/dashboard/employer/roles"
                     className="inline-flex items-center gap-1 text-[11px] font-extrabold text-indigo-700 hover:text-indigo-900 underline"
                   >
                     Manage Contract Extensions, $0 Direct Conversion &amp; Equipment Return in Manage Roles →

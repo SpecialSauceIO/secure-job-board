@@ -226,7 +226,7 @@ export default function NewJobPage() {
       passParam &&
       ['extra_role_slot', 'role_25', 'role_50', 'role_100'].includes(passParam)
     ) {
-      window.history.replaceState({}, '', '/dashboard/employer/jobs/new')
+      window.history.replaceState({}, '', '/dashboard/employer/roles/new')
       purchaseEmployerRolePass(passParam, sessionIdParam).then((res) => {
         if (res?.error) {
           setSubmitError(res.error)
@@ -239,7 +239,7 @@ export default function NewJobPage() {
         }
       })
     } else if (billingStatus === 'cancelled') {
-      window.history.replaceState({}, '', '/dashboard/employer/jobs/new')
+      window.history.replaceState({}, '', '/dashboard/employer/roles/new')
     }
   }, [])
 
@@ -351,7 +351,7 @@ export default function NewJobPage() {
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
-    router.push('/dashboard/employer/jobs')
+    router.push('/dashboard/employer/roles')
     router.refresh()
   }
 
@@ -460,7 +460,7 @@ export default function NewJobPage() {
               <strong>Practice Mode Active ($0/mo):</strong> Save up to 5 inactive Protected Role drafts right now. When you are ready to publish live, activate Starter ($299/mo · 2 Active Roles), Growth ($599/mo · 5 Active Roles), or Enterprise ($999/mo · 15 Active Roles) in Membership &amp; Plan Settings.
             </p>
             <Link
-              href="/dashboard/employer/billing"
+              href="/dashboard/employer/membership"
               className="shrink-0 px-3.5 py-2 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-indigo-600 transition-colors text-center"
             >
               View Employer Plans →
@@ -1175,7 +1175,7 @@ export default function NewJobPage() {
                       All {maxActiveJobs} Included Active Role Slots Are Currently in Use
                     </p>
                     <p className="text-xs text-amber-900 leading-relaxed">
-                      Close or pause an active role to free a plan slot, upgrade your plan in <Link href="/dashboard/employer/billing" className="underline font-bold">Membership &amp; Plan Settings</Link>, or add {shortfallSlots === 1 ? 'a flat $199 Extra Protected Role Slot' : `${shortfallSlots} Extra Protected Role Slots ($199 each)`} right here—your role fields on this page are saved automatically during checkout.
+                      Close or pause an active role to free a plan slot, upgrade your plan in <Link href="/dashboard/employer/membership" className="underline font-bold">Membership &amp; Plan Settings</Link>, or add {shortfallSlots === 1 ? 'a flat $199 Extra Protected Role Slot' : `${shortfallSlots} Extra Protected Role Slots ($199 each)`} right here—your role fields on this page are saved automatically during checkout.
                     </p>
                   </div>
                   <button

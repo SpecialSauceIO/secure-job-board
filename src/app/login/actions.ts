@@ -145,7 +145,7 @@ export async function login(formData: FormData) {
     redirect('/dashboard/billing?select=' + encodeURIComponent(selectedPlan))
   }
   if (selectedPlan === 'starter' || selectedPlan === 'growth' || selectedPlan === 'enterprise') {
-    redirect('/dashboard/employer/billing?select=' + encodeURIComponent(selectedPlan))
+    redirect('/dashboard/employer/membership?select=' + encodeURIComponent(selectedPlan))
   }
   redirect('/dashboard')
 }

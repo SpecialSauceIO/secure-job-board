@@ -771,7 +771,7 @@ export default function PublicInboundShieldAirlockPage() {
             </div>
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link
-                href="/dashboard/employer/pitches"
+                href="/dashboard/employer/invitations"
                 className="inline-flex items-center justify-center rounded-xl bg-indigo-600 hover:bg-indigo-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition"
               >
                 View Sent Invitations →
@@ -929,7 +929,7 @@ export default function PublicInboundShieldAirlockPage() {
                       )}
                       {(!ctx.tier || ctx.tier === 'free' || Number(ctx.credits || 0) < 1) && (
                         <Link
-                          href="/dashboard/employer/billing"
+                          href="/dashboard/employer/membership"
                           className="inline-flex items-center justify-center rounded-lg bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-xs font-semibold text-white transition"
                         >
                           Activate Plan ($25 Fee 100% Credited Toward Month 1) →
@@ -954,7 +954,7 @@ export default function PublicInboundShieldAirlockPage() {
                       You do not have an active published Protected Role yet. Publish your role on Manage Roles, then reopen this link to deliver your verified invitation.
                     </p>
                     <Link
-                      href="/dashboard/employer/jobs"
+                      href="/dashboard/employer/roles"
                       className="inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 px-4 py-2 text-xs sm:text-sm font-semibold text-white transition"
                     >
                       Go to Manage Roles →

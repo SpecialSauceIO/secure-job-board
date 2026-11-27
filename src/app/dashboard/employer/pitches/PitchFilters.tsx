@@ -28,7 +28,7 @@ export default function PitchFilters({
     } else {
       params.delete(key)
     }
-    router.push(`/dashboard/employer/pitches?${params.toString()}`)
+    router.push(`/dashboard/employer/invitations?${params.toString()}`)
   }
 
   return (

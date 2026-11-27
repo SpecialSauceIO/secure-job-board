@@ -92,7 +92,7 @@ export default async function EmployerSearchPage() {
         {isOrgVerified && (
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <Link
-              href="/dashboard/employer/pitches"
+              href="/dashboard/employer/invitations"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-slate-300 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-900 text-xs font-extrabold transition-colors shadow-2xs border-slate-300"
             >
               <span>Sent Invitations</span>

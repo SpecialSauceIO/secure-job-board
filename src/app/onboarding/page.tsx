@@ -49,7 +49,7 @@ export default function OnboardingPage() {
     setStatusText('Restoring verified QA access...')
     if (role === 'employer') {
       await activateSandboxEmployerTier('free')
-      window.location.href = consumeShieldReturnPath('/dashboard/employer/billing')
+      window.location.href = consumeShieldReturnPath('/dashboard/employer/membership')
     } else {
       await activateSandboxCandidateTier('explorer')
       window.location.href = consumeShieldReturnPath('/dashboard/billing')

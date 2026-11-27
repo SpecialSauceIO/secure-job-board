@@ -1212,7 +1212,7 @@ export default function EmployerCandidateSearch({
               {liveCredits === 1 ? 'Credit' : 'Credits'} Available
             </span>
             <Link
-              href="/dashboard/employer/billing"
+              href="/dashboard/employer/membership"
               className="text-indigo-600 hover:text-indigo-800 font-extrabold"
             >
               + Top Up
@@ -1233,7 +1233,7 @@ export default function EmployerCandidateSearch({
             </p>
           </div>
           <Link
-            href="/dashboard/employer/billing"
+            href="/dashboard/employer/membership"
             className="shrink-0 px-5 py-2.5 bg-rose-600 text-white text-xs font-extrabold rounded-xl hover:bg-rose-700 transition-colors text-center shadow-sm"
           >
             Top Up Credits →
@@ -1944,7 +1944,7 @@ export default function EmployerCandidateSearch({
                                 </Link>
                               ) : feedback.text.includes('Billing') || feedback.text.includes('Credits') || feedback.text.includes('Starter') || feedback.text.includes('Trial') ? (
                                 <Link
-                                  href="/dashboard/employer/billing"
+                                  href="/dashboard/employer/membership"
                                   className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors text-xs font-extrabold shrink-0"
                                 >
                                   Verify Org ($25) or Activate Plan →

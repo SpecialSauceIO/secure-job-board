@@ -182,6 +182,38 @@ if wh_file.exists():
         "webhooks/stripe/route.ts contains unguarded module-level env vars",
     )
 
+# Canonical Route Architecture Wave 1 & Wave 2 Guard
+next_cfg_txt = (job_repo / "next.config.ts").read_text()
+required_canonical_pages = [
+    "src/app/signup/professional/page.tsx",
+    "src/app/hiring-bridge/page.tsx",
+    "src/app/hiring-bridge/[token]/page.tsx",
+    "src/app/how-it-works/page.tsx",
+    "src/app/dashboard/hiring-bridge/page.tsx",
+    "src/app/dashboard/employer/hiring-bridge/page.tsx",
+    "src/app/dashboard/how-it-works/page.tsx",
+    "src/app/dashboard/employer/roles/page.tsx",
+    "src/app/dashboard/employer/roles/new/page.tsx",
+    "src/app/dashboard/employer/roles/[id]/edit/page.tsx",
+    "src/app/dashboard/employer/invitations/page.tsx",
+    "src/app/dashboard/employer/membership/page.tsx",
+]
+missing_canonical_pages = [p for p in required_canonical_pages if not (job_repo / p).exists()]
+required_redirects = [
+    'source: "/dashboard/employer/jobs", destination: "/dashboard/employer/roles"',
+    'source: "/dashboard/employer/jobs/:path*", destination: "/dashboard/employer/roles/:path*"',
+    'source: "/dashboard/employer/pitches", destination: "/dashboard/employer/invitations"',
+    'source: "/dashboard/employer/pitches/:path*", destination: "/dashboard/employer/invitations/:path*"',
+    'source: "/dashboard/employer/billing", destination: "/dashboard/employer/membership"',
+    'source: "/dashboard/employer/billing/:path*", destination: "/dashboard/employer/membership/:path*"',
+]
+missing_redirects = [r for r in required_redirects if r not in next_cfg_txt]
+check(
+    len(missing_canonical_pages) == 0 and len(missing_redirects) == 0,
+    "Canonical Route Architecture (Wave 1 & Wave 2): All canonical Employer/Public entrypoints & HTTP 308 redirects active",
+    f"Missing pages={missing_canonical_pages} | Missing redirects={missing_redirects}",
+)
+
 if failures:
     print(f"\n[DEPENDENCY GUARD FAILED] {len(failures)} issue(s) detected.")
     sys.exit(1)

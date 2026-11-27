@@ -254,7 +254,7 @@ export default function EmployerInboundApplicationsPage() {
           </div>
 
           <Link
-            href="/dashboard/employer/pitches"
+            href="/dashboard/employer/invitations"
             className="shrink-0 px-5 py-3 bg-white border-2 border-slate-300 text-slate-800 text-sm font-bold rounded-xl hover:bg-slate-100 transition-colors shadow-sm inline-flex items-center gap-2 border-slate-300"
           >
             View Sent Invitations →

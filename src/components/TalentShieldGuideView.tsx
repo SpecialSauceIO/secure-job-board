@@ -21,7 +21,7 @@ export default function TalentShieldGuideView({
           <Link href={isDashboard ? "/dashboard/employer/hiring-bridge" : "/signup/employer"} className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm transition-colors">
             {isDashboard ? "Open Verified Hiring Bridge →" : "Verify Organization ($25 Credited Toward Month 1) →"}
           </Link>
-          <Link href={isDashboard ? "/dashboard/employer/billing" : "/pricing"} className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-sm transition-colors">
+          <Link href={isDashboard ? "/dashboard/employer/membership" : "/pricing"} className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-sm transition-colors">
             {isDashboard ? "Back to Membership & Plan Settings" : "Compare Employer Memberships"}
           </Link>
         </div>

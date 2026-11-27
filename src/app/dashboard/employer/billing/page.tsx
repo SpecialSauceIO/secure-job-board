@@ -129,7 +129,7 @@ export default function EmployerBillingPage() {
     const selectParam = params.get('select') as 'starter' | 'growth' | 'enterprise' | null
 
     if (billingStatus === 'success' && sessionIdParam && tierParam && ['starter', 'growth', 'enterprise'].includes(tierParam)) {
-      window.history.replaceState({}, '', '/dashboard/employer/billing')
+      window.history.replaceState({}, '', '/dashboard/employer/membership')
       activateSandboxEmployerTier(tierParam, sessionIdParam).then((res) => {
         if (res?.error) {
           setFeedback({ type: 'error', text: res.error })
@@ -149,7 +149,7 @@ export default function EmployerBillingPage() {
         loadBillingState()
       })
     } else if (billingStatus === 'role_pass_success' && sessionIdParam && passParam && ['extra_role_slot', 'role_25', 'role_50', 'role_100'].includes(passParam)) {
-      window.history.replaceState({}, '', '/dashboard/employer/billing')
+      window.history.replaceState({}, '', '/dashboard/employer/membership')
       purchaseEmployerRolePass(passParam, sessionIdParam).then((res) => {
         if (res?.error) {
           setFeedback({ type: 'error', text: res.error })
@@ -169,7 +169,7 @@ export default function EmployerBillingPage() {
         loadBillingState()
       })
     } else if (billingStatus === 'topup_success' && sessionIdParam && packParam && ['boost', 'surge', 'scale'].includes(packParam)) {
-      window.history.replaceState({}, '', '/dashboard/employer/billing')
+      window.history.replaceState({}, '', '/dashboard/employer/membership')
       purchaseEmployerCreditTopUp(packParam, sessionIdParam).then((res) => {
         if (res?.error) {
           setFeedback({ type: 'error', text: res.error })
@@ -182,13 +182,13 @@ export default function EmployerBillingPage() {
         loadBillingState()
       })
     } else if (billingStatus === 'cancelled') {
-      window.history.replaceState({}, '', '/dashboard/employer/billing')
+      window.history.replaceState({}, '', '/dashboard/employer/membership')
       setFeedback({
         type: 'error',
         text: 'Checkout was cancelled. No billing changes were made.',
       })
     } else if (selectParam && ['starter', 'growth', 'enterprise'].includes(selectParam)) {
-      window.history.replaceState({}, '', '/dashboard/employer/billing')
+      window.history.replaceState({}, '', '/dashboard/employer/membership')
       const planNames: Record<string, string> = {
         starter: 'Starter ($299/mo Base Membership)',
         growth: 'Growth ($599/mo Base Membership)',
@@ -544,7 +544,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>+$199 Extra Protected Role Slots</strong> anytime you need more concurrent roles
               </li>
               <li>
-                ✓ <strong>Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/dashboard/talent-shield" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
+                ✓ <strong>Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/dashboard/hiring-bridge" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
               </li>
               <li>
                 ✓ <strong>Built-In W-2 Employer of Record (EOR)</strong> • Direct Hire, Contract-to-Hire ($0 conversion), Limited &amp; Indefinite W-2 • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">4 Hiring Paths →</Link>
@@ -624,7 +624,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>+$199 Extra Protected Role Slots</strong> anytime you need more concurrent roles
               </li>
               <li>
-                ✓ <strong>Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/dashboard/talent-shield" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link>
+                ✓ <strong>Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/dashboard/hiring-bridge" className="text-emerald-300 underline hover:text-emerald-200 font-bold">How it works →</Link>
               </li>
               <li>
                 ✓ <strong>Built-In W-2 Employer of Record (-1% W-2 Markup)</strong> • $0 conversion &amp; Net-30 billing • <Link href="/dashboard/w2-hiring" className="text-emerald-300 underline hover:text-emerald-200 font-bold">4 Hiring Paths →</Link>
@@ -706,7 +706,7 @@ export default function EmployerBillingPage() {
                 ✓ <strong>+$199 Extra Protected Role Slots</strong> anytime you need more concurrent roles
               </li>
               <li>
-                ✓ <strong>Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/dashboard/talent-shield" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
+                ✓ <strong>Verified Hiring Bridge</strong> links for external sourcing &amp; inbound leads • <Link href="/dashboard/hiring-bridge" className="text-indigo-700 underline hover:text-indigo-900 font-bold">How it works →</Link>
               </li>
               <li>
                 ✓ <strong>Built-In W-2 Employer of Record (-2% W-2 Markup)</strong> • Lowest volume W-2 rate &amp; $0 conversion • <Link href="/dashboard/w2-hiring" className="text-indigo-700 underline hover:text-indigo-900 font-bold">4 Hiring Paths →</Link>
@@ -771,7 +771,7 @@ export default function EmployerBillingPage() {
             </div>
             {(maxActiveJobs > activeJobsCount || rolePasses.totalPasses > 0) && (
               <div className="pt-1.5 border-t border-slate-200 text-right">
-                <Link href="/dashboard/employer/jobs/new" className="text-indigo-700 hover:text-indigo-900 font-extrabold underline">
+                <Link href="/dashboard/employer/roles/new" className="text-indigo-700 hover:text-indigo-900 font-extrabold underline">
                   Post a Protected Role →
                 </Link>
               </div>

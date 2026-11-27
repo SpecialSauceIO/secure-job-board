@@ -157,7 +157,7 @@ export default function EnterpriseAtsIntegrationPanel() {
 
           <div className="shrink-0">
             <Link
-              href="/dashboard/employer/billing"
+              href="/dashboard/employer/membership"
               className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-colors shadow-md"
             >
               Upgrade to Enterprise →

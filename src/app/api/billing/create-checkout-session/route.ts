@@ -522,8 +522,8 @@ export async function POST(req: Request) {
         billing_address_collection: 'auto',
         tax_id_collection: { enabled: true },
         ...(EMPLOYER_VERIFICATION_PASS.priceCents > 0 ? { invoice_creation: { enabled: true } } : {}),
-        success_url: body?.fromOnboarding ? `${origin}/onboarding?billing=verify_success&session_id={CHECKOUT_SESSION_ID}` : `${origin}/dashboard/employer/billing?billing=verify_success&session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: body?.fromOnboarding ? `${origin}/onboarding?billing=cancelled` : `${origin}/dashboard/employer/billing?billing=cancelled`,
+        success_url: body?.fromOnboarding ? `${origin}/onboarding?billing=verify_success&session_id={CHECKOUT_SESSION_ID}` : `${origin}/dashboard/employer/membership?billing=verify_success&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: body?.fromOnboarding ? `${origin}/onboarding?billing=cancelled` : `${origin}/dashboard/employer/membership?billing=cancelled`,
       })
 
       return NextResponse.json({ url: checkoutSession.url })
@@ -567,15 +567,15 @@ export async function POST(req: Request) {
       ).trim()
       const catalogPriceId = envPriceId.startsWith('price_') ? envPriceId : ''
       const returnToJobs = body?.returnTo === 'new_job'
-        ? `${origin}/dashboard/employer/jobs/new?billing=role_pass_success&pass=${EXTRA_PROTECTED_ROLE_SLOT.id}&session_id={CHECKOUT_SESSION_ID}`
+        ? `${origin}/dashboard/employer/roles/new?billing=role_pass_success&pass=${EXTRA_PROTECTED_ROLE_SLOT.id}&session_id={CHECKOUT_SESSION_ID}`
         : body?.returnTo === 'manage_jobs'
-        ? `${origin}/dashboard/employer/jobs?billing=role_pass_success&pass=${EXTRA_PROTECTED_ROLE_SLOT.id}&session_id={CHECKOUT_SESSION_ID}`
-        : `${origin}/dashboard/employer/billing?billing=role_pass_success&pass=${EXTRA_PROTECTED_ROLE_SLOT.id}&session_id={CHECKOUT_SESSION_ID}`
+        ? `${origin}/dashboard/employer/roles?billing=role_pass_success&pass=${EXTRA_PROTECTED_ROLE_SLOT.id}&session_id={CHECKOUT_SESSION_ID}`
+        : `${origin}/dashboard/employer/membership?billing=role_pass_success&pass=${EXTRA_PROTECTED_ROLE_SLOT.id}&session_id={CHECKOUT_SESSION_ID}`
       const cancelPath = body?.returnTo === 'new_job'
-        ? `${origin}/dashboard/employer/jobs/new?billing=cancelled`
+        ? `${origin}/dashboard/employer/roles/new?billing=cancelled`
         : body?.returnTo === 'manage_jobs'
-        ? `${origin}/dashboard/employer/jobs?billing=cancelled`
-        : `${origin}/dashboard/employer/billing?billing=cancelled`
+        ? `${origin}/dashboard/employer/roles?billing=cancelled`
+        : `${origin}/dashboard/employer/membership?billing=cancelled`
 
       const checkoutSession = await stripe.checkout.sessions.create({
         mode: 'payment',
@@ -662,8 +662,8 @@ export async function POST(req: Request) {
         billing_address_collection: 'auto',
         tax_id_collection: { enabled: true },
         invoice_creation: { enabled: true },
-        success_url: `${origin}/dashboard/employer/billing?billing=topup_success&pack=${topupPack.id}&session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: body?.fromOnboarding ? `${origin}/onboarding?billing=cancelled` : `${origin}/dashboard/employer/billing?billing=cancelled`,
+        success_url: `${origin}/dashboard/employer/membership?billing=topup_success&pack=${topupPack.id}&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: body?.fromOnboarding ? `${origin}/onboarding?billing=cancelled` : `${origin}/dashboard/employer/membership?billing=cancelled`,
       })
 
       return NextResponse.json({ url: checkoutSession.url })
@@ -796,8 +796,8 @@ export async function POST(req: Request) {
         : { allow_promotion_codes: true }),
       billing_address_collection: 'auto',
       tax_id_collection: { enabled: true },
-      success_url: body?.fromOnboarding ? `${origin}/onboarding?billing=success&tier=${tier.id}&plan=${tier.id}&session_id={CHECKOUT_SESSION_ID}` : `${origin}/dashboard/employer/billing?billing=success&tier=${tier.id}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: body?.fromOnboarding ? `${origin}/onboarding?billing=cancelled` : `${origin}/dashboard/employer/billing?billing=cancelled`,
+      success_url: body?.fromOnboarding ? `${origin}/onboarding?billing=success&tier=${tier.id}&plan=${tier.id}&session_id={CHECKOUT_SESSION_ID}` : `${origin}/dashboard/employer/membership?billing=success&tier=${tier.id}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: body?.fromOnboarding ? `${origin}/onboarding?billing=cancelled` : `${origin}/dashboard/employer/membership?billing=cancelled`,
     })
 
     const cookieStore = await cookies()

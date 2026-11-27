@@ -29,7 +29,7 @@ function LoginContent() {
     : planParam === 'explorer' || planParam === 'professional' || planParam === 'prestige'
       ? `/dashboard/billing?select=${encodeURIComponent(planParam)}`
       : planParam === 'starter' || planParam === 'growth' || planParam === 'enterprise'
-        ? `/dashboard/employer/billing?select=${encodeURIComponent(planParam)}`
+        ? `/dashboard/employer/membership?select=${encodeURIComponent(planParam)}`
         : '/dashboard'
 
   const emailInputRef = useRef<HTMLInputElement>(null)
