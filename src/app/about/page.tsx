@@ -49,61 +49,101 @@ export default function AboutPage() {
               Built to Put Real Humans Back at the Center of Hiring.
             </h1>
             <p className="text-base sm:text-xl text-slate-300 max-w-3xl leading-relaxed">
-              Modern hiring broke the moment automated tools made it free to flood every open job with hundreds of machine-generated applications—and just as easy for bad actors to post fake roles to harvest personal data. We built Special Sauce to close the door on the noise.
+              Automated bots flooded hiring with machine-generated spam while fake listings harvested personal data—so we built a verified ecosystem where real Employers and real Professionals connect without noise.
             </p>
           </div>
         </section>
 
-        {/* Origin Story & The Broken Middle */}
+        {/* Visual Contrast: The Old Way vs. Special Sauce */}
         <section className="py-12 sm:py-16 px-4 sm:px-6 md:px-12">
           <div className="max-w-5xl mx-auto space-y-12">
-            <div className="bg-slate-900 text-white rounded-2xl border border-slate-700 shadow-lg p-6 sm:p-10 space-y-5">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Why We Built the World's First Secured Workforce Ecosystem
-              </h2>
-              <p className="text-slate-200 leading-relaxed text-base">
-                After spending years inside global cloud, enterprise support, and frontier AI enablement teams, we watched both sides of the hiring market hit a wall at the exact same time. Qualified Professionals were sending tailored applications into a black hole—dodging ghost roles, identity harvesters, and automated rejections—while overwhelmed HR teams were buried under hundreds of bot-generated submissions within hours of posting a role.
-              </p>
-              <p className="text-slate-200 leading-relaxed text-base">
-                Most platforms tried to fix AI spam by selling job seekers more automation tools to spray applications even faster. We went the opposite direction: verify every human and every business at the front door, keep personal contact details locked inside a 2-Stage Privacy Vault until both sides agree to talk, protect external sourcing and career-page links with Verified Hiring Bridge gates, and support Direct Hire, W-2 Contract, and Contract-to-Hire ($0 conversion fee) roles with upfront pay.
-              </p>
+            <div className="bg-slate-900 text-white rounded-2xl border border-slate-700 shadow-lg p-6 sm:p-10 space-y-6">
+              <div className="space-y-2">
+                <p className="text-xs font-extrabold uppercase tracking-wider text-indigo-300">
+                  Why Special Sauce Exists
+                </p>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                  Why We Built the World's First Secured Workforce Ecosystem
+                </h2>
+                <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+                  Instead of selling more AI tools to spray applications faster, we fixed the front door for both sides:
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="rounded-xl bg-rose-950/30 border border-rose-500/30 p-5 space-y-3">
+                  <span className="inline-block px-2.5 py-1 rounded-lg bg-rose-500/15 border border-rose-400/30 text-xs font-extrabold uppercase tracking-wider text-rose-300">
+                    The Old Way • Public Boards &amp; Agencies
+                  </span>
+                  <ul className="space-y-2.5 text-sm text-slate-200 leading-relaxed">
+                    <li className="flex items-start gap-2.5"><span className="text-rose-400 font-extrabold shrink-0">✕</span><span>Bot-flooded inboxes burying qualified applicants in hours</span></li>
+                    <li className="flex items-start gap-2.5"><span className="text-rose-400 font-extrabold shrink-0">✕</span><span>Ghost roles and data harvesters scraping personal resumes</span></li>
+                    <li className="flex items-start gap-2.5"><span className="text-rose-400 font-extrabold shrink-0">✕</span><span>Automated keyword rejections and hidden pay expectations</span></li>
+                    <li className="flex items-start gap-2.5"><span className="text-rose-400 font-extrabold shrink-0">✕</span><span>20%–30% agency commissions and steep W-2 buyout fees</span></li>
+                  </ul>
+                </div>
+                <div className="rounded-xl bg-emerald-950/30 border border-emerald-500/35 p-5 space-y-3">
+                  <span className="inline-block px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-400/35 text-xs font-extrabold uppercase tracking-wider text-emerald-300">
+                    Special Sauce • Secured Workforce Ecosystem
+                  </span>
+                  <ul className="space-y-2.5 text-sm text-slate-100 leading-relaxed">
+                    <li className="flex items-start gap-2.5"><span className="text-emerald-400 font-extrabold shrink-0">✓</span><span>Every Employer and Professional verified via Stripe Identity</span></li>
+                    <li className="flex items-start gap-2.5"><span className="text-emerald-400 font-extrabold shrink-0">✓</span><span>2-Stage Privacy Vault keeps personal details locked until mutual fit</span></li>
+                    <li className="flex items-start gap-2.5"><span className="text-emerald-400 font-extrabold shrink-0">✓</span><span>Upfront pay, 40%+ TrueFit Score™ alignment &amp; Verified Hiring Bridge</span></li>
+                    <li className="flex items-start gap-2.5"><span className="text-emerald-400 font-extrabold shrink-0">✓</span><span>Direct Hire &amp; Built-In W-2 Contract-to-Hire ($0 conversion fee)</span></li>
+                  </ul>
+                </div>
+              </div>
             </div>
 
-            {/* Why Verification Exists Before Entry */}
+            {/* $5 / $25 Verification & 100% Credit Split */}
             <div className="bg-slate-900 text-white rounded-2xl border border-slate-800 p-6 sm:p-10 space-y-6 shadow-sm">
               <div className="space-y-2">
                 <p className="text-xs font-extrabold uppercase tracking-wider text-emerald-400">
-                  Plain-English Transparency
+                  Front-Door Protection • 100% Credited Back
                 </p>
                 <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                  Why Every Account Completes Verification at the Door
+                  Verified at Entry. 100% Credited Toward Month 1.
                 </h2>
+                <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+                  Free anonymous sign-ups invite bots and scam listings—so every member verifies once at entry, and 100% of that fee is credited toward Month 1 whenever you activate a paid plan.
+                </p>
               </div>
-              <p className="text-slate-300 leading-relaxed text-base">
-                When creating an account on a job board costs nothing and checks nothing, scam networks can spin up thousands of fake profiles and fake job listings before breakfast. Our upfront verification gate exists for one reason: mathematical protection for everyone inside—and whenever you choose to activate a paid monthly membership, 100% of your upfront verification fee is credited right back toward Month 1.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
-                <div className="rounded-xl bg-slate-800/80 border border-slate-700 p-5 space-y-2.5">
-                  <h3 className="text-lg font-extrabold text-white">
-                    For Professionals ($5 One-Time — $0/mo Explorer)
-                  </h3>
-                  <p className="text-sm text-slate-300 leading-relaxed">
-                    We do not believe in taxing people who are looking for work. Explorer is $0/month forever. The one-time $5 verification covers live government ID verification through Stripe Identity so automated bots cannot impersonate real talent—while keeping your name, resume, and contact details private inside your vault until you choose to unlock them.
-                  </p>
-                  <p className="text-xs font-bold text-emerald-400 pt-1">
-                    100% Credited Back: Whenever you upgrade to a Professional or Prestige monthly membership, your $5 verification fee is credited right toward Month 1.
-                  </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1">
+                <div className="rounded-xl bg-slate-800/80 border border-slate-700 p-5 flex flex-col justify-between space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-700/80">
+                      <h3 className="text-lg font-extrabold text-white">For Professionals</h3>
+                      <span className="px-2.5 py-1 rounded-lg bg-indigo-500/20 border border-indigo-400/35 text-xs font-extrabold text-indigo-300">
+                        $5 One-Time • $0/mo Explorer
+                      </span>
+                    </div>
+                    <ul className="space-y-2 text-sm text-slate-200 leading-relaxed">
+                      <li className="flex items-start gap-2"><span className="text-emerald-400 font-extrabold shrink-0">✓</span><span>Live Stripe Identity check blocks automated bots and impersonators</span></li>
+                      <li className="flex items-start gap-2"><span className="text-emerald-400 font-extrabold shrink-0">✓</span><span>$0/mo Explorer forever—receive Employer Invitations &amp; check TrueFit™</span></li>
+                      <li className="flex items-start gap-2"><span className="text-emerald-400 font-extrabold shrink-0">✓</span><span>Private vault keeps name, contact info &amp; resume locked until you unlock</span></li>
+                    </ul>
+                  </div>
+                  <div className="rounded-lg bg-emerald-500/15 border border-emerald-400/30 px-3.5 py-2.5 text-xs font-extrabold text-emerald-300">
+                    100% Credited Back: $5 applied toward Month 1 on Professional ($12/mo) or Prestige ($19/mo).
+                  </div>
                 </div>
-                <div className="rounded-xl bg-slate-800/80 border border-slate-700 p-5 space-y-2.5">
-                  <h3 className="text-lg font-extrabold text-white">
-                    For Employers ($25 One-Time — $0/mo Practice Mode)
-                  </h3>
-                  <p className="text-sm text-slate-300 leading-relaxed">
-                    Employers are held to an even stricter standard. Your $25 verification fee and administrator Stripe ID scan unlock Practice Mode immediately so your team can configure company settings and preview verified match counts—while corporate domain verification and U.S. business entity review must clear before publishing Protected Roles or sending Professional Invitations.
-                  </p>
-                  <p className="text-xs font-bold text-emerald-400 pt-1">
-                    100% Credited Back: When your team activates a Starter, Growth, or Enterprise monthly membership, your $25 verification fee is credited right toward Month 1.
-                  </p>
+                <div className="rounded-xl bg-slate-800/80 border border-slate-700 p-5 flex flex-col justify-between space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-700/80">
+                      <h3 className="text-lg font-extrabold text-white">For Employers</h3>
+                      <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-400/35 text-xs font-extrabold text-emerald-300">
+                        $25 One-Time • $0/mo Practice Mode
+                      </span>
+                    </div>
+                    <ul className="space-y-2 text-sm text-slate-200 leading-relaxed">
+                      <li className="flex items-start gap-2"><span className="text-emerald-400 font-extrabold shrink-0">✓</span><span>Admin Stripe ID + corporate domain + U.S. business entity verification</span></li>
+                      <li className="flex items-start gap-2"><span className="text-emerald-400 font-extrabold shrink-0">✓</span><span>Immediate $0/mo Practice Mode to draft roles &amp; preview verified counts</span></li>
+                      <li className="flex items-start gap-2"><span className="text-emerald-400 font-extrabold shrink-0">✓</span><span>Sponsor $0 Verified Hiring Bridge checks once a Base Membership is active</span></li>
+                    </ul>
+                  </div>
+                  <div className="rounded-lg bg-emerald-500/15 border border-emerald-400/30 px-3.5 py-2.5 text-xs font-extrabold text-emerald-300">
+                    100% Credited Back: $25 applied toward Month 1 on Starter ($299/mo), Growth ($599/mo), or Enterprise ($999/mo).
+                  </div>
                 </div>
               </div>
             </div>

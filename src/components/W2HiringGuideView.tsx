@@ -276,50 +276,23 @@ export default function W2HiringGuideView({
           Four Ways to Hire—Backed by Built-In U.S. W-2 Employer of Record, Net-30 Billing &amp; $0 Conversion Fees.
         </h1>
         <p className="text-sm sm:text-lg text-slate-300 max-w-3xl leading-relaxed">
-          Every Protected Role on Special Sauce supports Full-Time Direct Hire onto your own payroll alongside three built-in W-2 Employer of Record (EOR) tracks—W-2 Contract-to-Hire ($0 conversion fee), Limited W-2 Contract, and Indefinite W-2 Contract—giving Employers turnkey I-9/W-4 onboarding, statutory tax &amp; Workers' Comp coverage, and 100% funded Net-30 consolidated invoicing inside one portal.
+          Hire full-time onto your own payroll or launch built-in U.S. W-2 Employer of Record onboarding, statutory tax &amp; Workers' Comp coverage, and 100% funded Net-30 invoicing—with $0 conversion fees.
         </p>
         <div className="flex flex-wrap gap-3 pt-2">
           <Link href={isDashboard ? "/dashboard" : "/pricing"} className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm transition-colors">
             {isDashboard ? "Return to Dashboard →" : "View Membership Pricing →"}
           </Link>
-          <Link href={isDashboard ? "/dashboard/workflows" : "/workflows"} className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-sm transition-colors">
-            {isDashboard ? "View Platform Workflows" : "Explore End-to-End Workflows"}
+          <Link href={isDashboard ? "/dashboard/how-it-works" : "/how-it-works"} className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-sm transition-colors">
+            {isDashboard ? "How It Works" : "See How It Works"}
           </Link>
         </div>
       </section>
 
       <HiringTracksFlowchart isDashboard={isDashboard} showGuideLink={false} />
 
-      <section className="bg-indigo-950 text-white rounded-2xl border border-indigo-800 p-6 sm:p-8 space-y-3 shadow-sm">
-        <p className="text-xs font-extrabold uppercase tracking-wider text-indigo-300">
-          Clear Operational Structure • Turnkey W-2 Employer of Record
-        </p>
-        <h2 className="text-xl sm:text-2xl font-extrabold">
-          Platform Verification by Special Sauce + Licensed U.S. W-2 Employer-of-Record Infrastructure
-        </h2>
-        <p className="text-sm sm:text-base text-indigo-100 leading-relaxed">
-          Special Sauce Solutions LLC operates the secured workforce ecosystem—handling identity verification, TrueFit Score™ matching, the 2-Stage Privacy Vault, and lifecycle safeguards. Whenever you choose W-2 Contract-to-Hire, Limited W-2 Contract, or Indefinite W-2 Contract instead of Direct Hire, statutory Form I-9 and W-4 onboarding, scheduled W-2 direct deposits, federal and state employer payroll taxes, Workers' Compensation, year-end W-2 filings, and Net-30 consolidated employer billing are administered seamlessly under licensed U.S. W-2 employer-of-record infrastructure.
-        </p>
-      </section>
-
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-slate-900 text-white rounded-2xl border border-slate-800 p-6 sm:p-8 space-y-3">
-          <p className="text-xs font-extrabold uppercase tracking-wider text-emerald-400">How Employers Benefit</p>
-          <ul className="space-y-2.5 text-sm text-slate-200 leading-relaxed">
-            <li>✓ <strong className="text-white">Commission-Free W-2 Billing &amp; $0 Conversion:</strong> Skip 50%+ agency recruiter markups and convert any W-2 contractor to full-time staff anytime for $0—plus automatic 1% and 2% W-2 markup reductions on Growth and Enterprise.</li>
-            <li>✓ <strong className="text-white">100% Funded Net-30 Consolidated Billing:</strong> Offload digital I-9 and W-4 onboarding, payroll taxes, Workers' Comp, and multi-state compliance on one Net-30 invoice.</li>
-            <li>✓ <strong className="text-white">Built-In Hardware &amp; Lifecycle Safeguards:</strong> Track company-issued laptops and equipment with confirmation gates on contract wrap-up.</li>
-          </ul>
-        </div>
-        <div className="bg-slate-900 text-white rounded-2xl border border-slate-800 p-6 sm:p-8 space-y-3">
-          <p className="text-xs font-extrabold uppercase tracking-wider text-indigo-300">How Professionals Benefit</p>
-          <ul className="space-y-2.5 text-sm text-slate-200 leading-relaxed">
-            <li>✓ <strong className="text-white">Upfront Pay Transparency:</strong> Every Direct Hire, W-2 Contract, and Contract-to-Hire role displays hourly or salary pay before you release your resume.</li>
-            <li>✓ <strong className="text-white">Day-One W-2 Paycheck Protection:</strong> Receive legitimate W-2 paychecks and employer tax contributions instead of misclassified 1099 surprises.</li>
-            <li>✓ <strong className="text-white">Frictionless Path to Full-Time:</strong> Because employers pay $0 conversion fees, agency buyout costs never block your full-time offer.</li>
-          </ul>
-        </div>
-      </section>
+      <div className="rounded-2xl bg-slate-900 text-slate-300 border border-slate-800 px-5 py-4 text-xs sm:text-sm leading-relaxed">
+        <strong className="text-white">Operational Structure:</strong> Special Sauce Solutions LLC operates platform verification, TrueFit Score™ matching, and the 2-Stage Privacy Vault, while W-2 onboarding, statutory payroll filings, Workers' Comp, and Net-30 employer billing run on licensed U.S. W-2 Employer-of-Record infrastructure.
+      </div>
     </div>
   )
 }
