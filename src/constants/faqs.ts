@@ -617,22 +617,13 @@ export const SUPPORT_FAQS: FAQ[] = [
       'To replace your resume, open "My Profile" and upload your latest PDF into the "Private Resume Vault"—you can auto-fill updated skills or keep your edited anonymous profile summary intact, and previously locked threads still cannot see your PDF unless you click "Release Resume & Contact Vault." To take a break from new outreach without losing your Verified Shield, open "Match Preferences," set your availability to Paused, and click "Save Preferences."',
   },
   {
-    id: 'c17',
-    target: '\u0063andidate',
-    category: 'Verification & Privacy',
-    question:
-      'How do private context notes and retiring unused links work in Personal Inbound Shield?',
-    answer:
-      'When minting a single-use Personal Inbound Shield link, you can attach an optional encrypted private note (for example, "Sarah at Acme via LinkedIn DM on Nov 18"). The recruiter never sees that note—it only decrypts inside your Professional Invitations inbox if they verify and deliver a Protected Role, so you instantly know who replied. You can also retire any unused link with one click on your Inbound Shield page.',
-  },
-  {
     id: 'e15',
     target: 'employer',
     category: 'Connecting with Professionals',
     question:
       'Do Verified Hiring Bridge links cost Invitation Credits upfront, and what happens if someone scores below 40% TrueFit™?',
     answer:
-      'Generating and sharing single-use Verified Hiring Bridge links for external sourcing or inbound message gating uses zero Invitation Credits upfront. Unverified visitors and scrapers never see your company name or pay band. If a verified Professional checks the link and scores below 40% TrueFit™, alignment protection blocks submission anonymously without burning your link, and you can retire unused links anytime.',
+      'Generating and sharing Verified Hiring Bridge links for external sourcing, careers pages, or inbound message gating uses zero Invitation Credits upfront. Visitors see your verified company brand and confirm pay, location, and minimum experience before using a $0 Employer-Sponsored ID check (up to 25, 50, or 100 per role, while already-verified Ecosystem Professionals apply unlimited at $0). If someone scores below 40% TrueFit™, alignment protection blocks submission before reaching your inbox, and you can retire any link anytime.',
   },
   {
     id: 'e16',
