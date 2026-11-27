@@ -575,9 +575,12 @@ export async function GET(req: NextRequest) {
     await saveMergedOpsVault(client, vault)
   }
 
+  const hasDegradedCheck = checks.some((c) => c.status === 'degraded')
+  const overallStatus = criticalIssues.length > 0 ? 'critical' : hasDegradedCheck ? 'degraded' : 'healthy'
+
   return NextResponse.json({
     ok: criticalIssues.length === 0,
-    status: criticalIssues.length > 0 ? 'critical' : 'healthy',
+    status: overallStatus,
     checked_at: nowIso,
     latest_calibration: latestCalib,
     calibration_history: calibrationHistory,

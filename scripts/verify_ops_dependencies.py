@@ -151,10 +151,28 @@ tab8_ok = all(
     role_pass_txt.find(r_key) != -1 and r_str in role_pass_txt[role_pass_txt.find(r_key):role_pass_txt.find(r_key)+400]
     for r_key, r_str in required_role_passes
 )
+ops_health_txt = (job_repo / "src/app/api/ops-health/route.ts").read_text()
+ops_pricing_ok = all(
+    tok in ops_health_txt
+    for tok in [
+        "EMPLOYER_SAAS_TIERS?.starter?.priceCents === 29900",
+        "EMPLOYER_SAAS_TIERS?.growth?.priceCents === 59900",
+        "EMPLOYER_SAAS_TIERS?.enterprise?.priceCents === 99900",
+        "EXTRA_PROTECTED_ROLE_SLOT?.priceCents === 19900",
+    ]
+) and all(
+    tok in page_txt
+    for tok in [
+        "Starter ($299/mo)",
+        "Growth ($599/mo)",
+        "Enterprise ($999/mo)",
+        "+1 Extra Slot ($199)",
+    ]
+)
 check(
-    tab8_ok,
-    "Tab 8: All Professional ($5/$12/$19), Employer ($25/$299/$599/$999), Included Active Roles (2/5/15) & Extra Role Slot ($199) locked",
-    "Production pricing drift detected in create-checkout-session/route.ts or sponsored-verification.ts",
+    tab8_ok and ops_pricing_ok,
+    "Tab 8: All Professional ($5/$12/$19), Employer ($25/$299/$599/$999), Included Active Roles (2/5/15) & Extra Role Slot ($199) locked across Checkout, ops-health & Ops Console",
+    "Production pricing drift detected in create-checkout-session/route.ts, sponsored-verification.ts, ops-health/route.ts, or special-sauce-ops/src/app/page.tsx",
 )
 
 # Tab 9: Next.js Turbopack "use client" Directive First-Line Guard
