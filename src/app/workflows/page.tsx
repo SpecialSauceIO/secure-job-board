@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { PublicHeader } from '@/components/PublicHeader'
 import { PublicFooter } from '@/components/PublicFooter'
-import { HiringTracksFlowchart } from '@/components/W2HiringGuideView'
 
 function WorkflowsTabQuerySync({
   onSelectTab,
@@ -197,15 +196,9 @@ export default function WorkflowsPage() {
                     <h3 className="text-lg sm:text-xl font-black text-white">
                       1. Unlock Explorer Mode ($5 Once)
                     </h3>
-                    <ul className="space-y-2.5 text-sm text-slate-200">
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-400 font-bold">•</span>
-                        <span>Pay <strong>$5 once</strong> for lifetime verification and $0/mo Explorer access forever.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-400 font-bold">•</span>
-                        <span>Automatically enter our <strong>Weekly Drawing</strong> for a free 1-year Prestige membership.</span>
-                      </li>
+                    <ul className="space-y-2 text-sm text-slate-200">
+                      <li className="flex items-start gap-2"><span className="text-indigo-400 font-bold">✓</span><span><strong>$5 once</strong> ($0/mo forever — credited to Month 1).</span></li>
+                      <li className="flex items-start gap-2"><span className="text-indigo-400 font-bold">✓</span><span>Includes automatic entry into our <strong>Weekly Prestige Drawing</strong>.</span></li>
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
@@ -247,15 +240,9 @@ export default function WorkflowsPage() {
                     <h3 className="text-lg sm:text-xl font-black text-white">
                       3. Upload Resume &amp; Set Preferences
                     </h3>
-                    <ul className="space-y-2.5 text-sm text-slate-200">
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-400 font-bold">•</span>
-                        <span>Upload your PDF resume once to organize your skills, experience, and certifications automatically.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-400 font-bold">•</span>
-                        <span>Set your minimum pay and work model while keeping your name and contact info hidden.</span>
-                      </li>
+                    <ul className="space-y-2 text-sm text-slate-200">
+                      <li className="flex items-start gap-2"><span className="text-indigo-400 font-bold">✓</span><span>Auto-build your skill profile from one PDF resume upload.</span></li>
+                      <li className="flex items-start gap-2"><span className="text-indigo-400 font-bold">✓</span><span>Lock in pay &amp; location filters while keeping your name private.</span></li>
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
@@ -272,15 +259,9 @@ export default function WorkflowsPage() {
                     <h3 className="text-lg sm:text-xl font-black text-white">
                       4. Check Your Fit &amp; Connect
                     </h3>
-                    <ul className="space-y-2.5 text-sm text-slate-200">
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-400 font-bold">•</span>
-                        <span>Check your <strong>TrueFit Score™</strong> on roles with upfront pay and accept employer invitations free at $0/mo.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-400 font-bold">•</span>
-                        <span>Upgrade to <strong>Professional ($12/mo)</strong> or <strong>Prestige ($19/mo)</strong> anytime to submit applications.</span>
-                      </li>
+                    <ul className="space-y-2 text-sm text-slate-200">
+                      <li className="flex items-start gap-2"><span className="text-indigo-400 font-bold">✓</span><span>Check your <strong>TrueFit Score™</strong> and accept invitations free at $0/mo.</span></li>
+                      <li className="flex items-start gap-2"><span className="text-indigo-400 font-bold">✓</span><span>Subscribe ($12 or $19/mo) only when ready to submit Protected Applications.</span></li>
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
@@ -297,15 +278,9 @@ export default function WorkflowsPage() {
                     <h3 className="text-lg sm:text-xl font-black text-white">
                       5. Chat First, Share Your Resume When Ready
                     </h3>
-                    <ul className="space-y-2.5 text-sm text-slate-200">
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-400 font-bold">•</span>
-                        <span><strong>The Introduction:</strong> See the verified company name and chat directly while showing only your first name and last initial.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-400 font-bold">•</span>
-                        <span><strong>The Conversation:</strong> Click <strong>Release Resume &amp; Contact Vault</strong> only when you are ready to share your full resume and contact details.</span>
-                      </li>
+                    <ul className="space-y-2 text-sm text-slate-200">
+                      <li className="flex items-start gap-2"><span className="text-indigo-400 font-bold">✓</span><span><strong>Stage 1 — Chat:</strong> Message using only your First Name + Last Initial.</span></li>
+                      <li className="flex items-start gap-2"><span className="text-indigo-400 font-bold">✓</span><span><strong>Stage 2 — Vault Release:</strong> Share your full resume with one click when ready.</span></li>
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
@@ -423,23 +398,14 @@ export default function WorkflowsPage() {
                     <h3 className="text-lg sm:text-xl font-black text-white">
                       4. Publish Roles &amp; Invite Talent
                     </h3>
-                    <ul className="space-y-2.5 text-sm text-slate-200">
-                      <li className="flex items-start gap-2">
-                        <span className="text-emerald-400 font-bold">•</span>
-                        <span>Publish <strong>Full-Time Direct Hire</strong>, <strong>W-2 Contract-to-Hire ($0 conversion)</strong>, <strong>Limited W-2 Contract</strong>, or <strong>Indefinite W-2 Contract</strong> roles on <strong>Starter ($299/mo · 2 Active Roles)</strong>, <strong>Growth ($599/mo · 5 Active Roles)</strong>, or <strong>Enterprise ($999/mo · 15 Active Roles)</strong>, plus flat <strong>$199 Extra Protected Role Slots</strong> anytime you need more concurrent roles.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-emerald-400 font-bold">•</span>
-                        <span>Share one-time <strong>Verified Hiring Bridge</strong> links on LinkedIn, GitHub, or email to screen external leads with ID verification and 40%+ TrueFit™ checks.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-emerald-400 font-bold">•</span>
-                        <span>Inbound applicants are 100% free to unlock, and declined invitations are automatically refunded.</span>
-                      </li>
+                    <ul className="space-y-2 text-sm text-slate-200">
+                      <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span>Activate <strong>Starter ($299)</strong>, <strong>Growth ($599)</strong>, or <strong>Enterprise ($999)</strong>—with 2, 5, or 15 Active Roles included (+$199 Extra Slots anytime).</span></li>
+                      <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span>Screen external leads via <Link href="/hiring-bridge" className="text-emerald-300 underline hover:text-emerald-200 font-bold">Verified Hiring Bridge</Link> links.</span></li>
+                      <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span>Free inbound unlocks &amp; auto-refunded declined invitations.</span></li>
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Live Roles, Verified Hiring Bridge &amp; Refund-Protected Invitations
+                    Unlocks: ✓ Live Roles, Hiring Bridge &amp; Refund-Protected Invites
                   </div>
                 </div>
 
@@ -450,30 +416,34 @@ export default function WorkflowsPage() {
                       Step 5 • Chat &amp; Hire
                     </span>
                     <h3 className="text-lg sm:text-xl font-black text-white">
-                      5. Direct Chat, Resume Download &amp; Team Sync
+                      5. Direct Chat, W-2 Hiring &amp; Team Sync
                     </h3>
-                    <ul className="space-y-2.5 text-sm text-slate-200">
-                      <li className="flex items-start gap-2">
-                        <span className="text-emerald-400 font-bold">•</span>
-                        <span>Chat directly with matched professionals and download their full PDF resume once released.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-emerald-400 font-bold">•</span>
-                        <span>Hire directly onto your payroll or launch <strong>built-in W-2 Employer of Record (EOR)</strong> digital onboarding, Net-30 billing, and hardware return tracking.</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-emerald-400 font-bold">•</span>
-                        <span>Collaborate with your team seats, export via CSV, or auto-sync with <strong>Workday &amp; Greenhouse</strong> (Enterprise).</span>
-                      </li>
+                    <ul className="space-y-2 text-sm text-slate-200">
+                      <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span>Chat directly and download full PDF resumes once released.</span></li>
+                      <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span>Hire direct or launch <strong>Built-In W-2 Payroll</strong> ($0 conversion &amp; Net-30 billing).</span></li>
+                      <li className="flex items-start gap-2"><span className="text-emerald-400 font-bold">✓</span><span>Collaborate across team seats + <strong>Workday &amp; Greenhouse</strong> sync (Enterprise).</span></li>
                     </ul>
                   </div>
                   <div className="pt-4 border-t border-slate-800 text-xs font-extrabold text-emerald-400">
-                    Unlocks: ✓ Direct Hire, Built-In W-2 EOR, Team Seats &amp; HR Sync
+                    Unlocks: ✓ Direct Hire, Built-In W-2 Payroll &amp; HR Sync
                   </div>
                 </div>
               </div>
 
-              <HiringTracksFlowchart isDashboard={false} showGuideLink={true} />
+              {/* Compact 4-Path W-2 Hiring Strip */}
+              <div className="bg-slate-900 rounded-2xl p-5 sm:p-6 border border-emerald-500/40 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-300">⚡ Built-In W-2 Hiring Included on Every Plan</div>
+                  <h3 className="text-lg sm:text-xl font-black text-white">4 Flexible W-2 Hiring Paths • $0 Conversion Fee</h3>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold">
+                  <span className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200">1. Direct Hire</span>
+                  <span className="px-3 py-2 rounded-lg bg-slate-950 border border-emerald-500/40 text-emerald-300">2. Contract-to-Hire</span>
+                  <span className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200">3. Fixed Contract</span>
+                  <span className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200">4. Open Contract</span>
+                  <Link href="/w2-hiring" className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-colors">Explore W-2 Guide →</Link>
+                </div>
+              </div>
             </section>
           )}
 
@@ -495,26 +465,26 @@ export default function WorkflowsPage() {
                 <h3 className="text-base sm:text-lg font-black text-white">
                   1. Anonymous Discovery
                 </h3>
-                <p className="text-sm text-slate-200 leading-relaxed">
-                  Professionals appear as <strong className="text-emerald-400">Professional #ID</strong> showing skills and experience. Employers show industry, company size, and upfront pay bands.
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  Talent appears as <strong className="text-emerald-400">Professional #ID</strong> with verified skills; roles show verified company &amp; upfront pay.
                 </p>
               </div>
 
               <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 space-y-3">
                 <h3 className="text-base sm:text-lg font-black text-white">
-                  2. The Introduction (Private Chat)
+                  2. Private Chat
                 </h3>
-                <p className="text-sm text-slate-200 leading-relaxed">
-                  When an invitation is accepted or an application is unlocked, the verified company name is revealed and chat opens using <strong className="text-amber-300">First Name + Last Initial</strong>.
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  Direct messaging opens using only <strong className="text-amber-300">First Name + Last Initial</strong>—no personal phone or email exposed.
                 </p>
               </div>
 
               <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 space-y-3">
                 <h3 className="text-base sm:text-lg font-black text-white">
-                  3. The Conversation (Resume Shared)
+                  3. One-Click Vault Release
                 </h3>
-                <p className="text-sm text-slate-200 leading-relaxed">
-                  When ready to move forward, the professional clicks <strong className="text-white">Release Resume &amp; Contact Vault</strong> to share their full PDF resume and direct email.
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  The professional clicks <strong className="text-white">Release Resume &amp; Contact Vault</strong> when ready to share their full resume.
                 </p>
               </div>
             </div>

@@ -664,8 +664,8 @@ export default function LandingPage() {
                 <h3 className="text-xl font-bold text-slate-900 mb-3">
                   1. Build Your Private Profile
                 </h3>
-                <p className="text-slate-500 leading-relaxed">
-                  Upload your resume once to automatically organize your skills, experience, and credentials—while keeping your name and contact details completely private.
+                <p className="text-slate-600 leading-relaxed">
+                  Upload your resume once to auto-build your skill profile while keeping your name and contact info hidden.
                 </p>
               </div>
 
@@ -729,8 +729,8 @@ export default function LandingPage() {
                 <h3 className="text-xl font-bold text-slate-900 mb-3">
                   2. See Your Fit &amp; Get Discovered
                 </h3>
-                <p className="text-slate-500 leading-relaxed">
-                  Browse Direct Hire, W-2 Contract, and Contract-to-Hire roles with upfront pay ranges, check your TrueFit Score™ before applying, and receive verified employer invitations directly in your private inbox.
+                <p className="text-slate-600 leading-relaxed">
+                  See upfront pay and your TrueFit Score™ before applying—or accept verified employer invitations free.
                 </p>
               </div>
 
@@ -795,8 +795,8 @@ export default function LandingPage() {
                   <h3 className="text-xl font-bold text-slate-900 mb-3">
                     3. Chat First, Share When Ready
                   </h3>
-                  <p className="text-slate-500 leading-relaxed">
-                    Start with a private introduction showing only your first name and last initial. Release your full resume and contact details with one click when you are ready.
+                  <p className="text-slate-600 leading-relaxed">
+                    Chat first using only your first name and last initial. Release your full resume with one click when ready.
                   </p>
                 </div>
               </div>
@@ -876,8 +876,8 @@ export default function LandingPage() {
                 <h3 className="text-xl font-bold text-slate-900 mb-3">
                   1. Post Roles with Built-In W-2 Hiring
                 </h3>
-                <p className="text-slate-500 leading-relaxed">
-                  Set required skills, upfront pay, and 1 of 4 W-2 hiring paths—Full-Time Direct Hire, W-2 Contract-to-Hire ($0 conversion fee), Limited W-2 Contract, or Indefinite W-2 Contract—while keeping your company name private until you connect. <Link href="/w2-hiring" className="text-indigo-600 underline hover:text-indigo-800 font-bold">Explore Built-In W-2 Hiring →</Link>
+                <p className="text-slate-600 leading-relaxed">
+                  Set required skills, upfront pay, and 1 of 4 flexible W-2 hiring paths with $0 conversion fees. <Link href="/w2-hiring" className="text-indigo-600 underline hover:text-indigo-800 font-bold">4 W-2 Paths →</Link>
                 </p>
               </div>
 
@@ -941,8 +941,8 @@ export default function LandingPage() {
                 <h3 className="text-xl font-bold text-slate-900 mb-3">
                   2. Match by Skill &amp; Invite Directly
                 </h3>
-                <p className="text-slate-500 leading-relaxed">
-                  Invite matched professionals from Talent Search with automatic credit refunds if declined—or share one-time <Link href="/talent-shield" className="text-indigo-600 underline hover:text-indigo-800 font-bold">Verified Hiring Bridge</Link> links on LinkedIn, GitHub, and email to screen external leads without exposing your role to scrapers.
+                <p className="text-slate-600 leading-relaxed">
+                  Invite matched pros (auto-refunded if declined) or screen external applicants with <Link href="/hiring-bridge" className="text-indigo-600 underline hover:text-indigo-800 font-bold">Verified Hiring Bridge</Link> links.
                 </p>
               </div>
 
@@ -1007,8 +1007,8 @@ export default function LandingPage() {
                   <h3 className="text-xl font-bold text-slate-900 mb-3">
                     3. Direct Messaging &amp; Team Collaboration
                   </h3>
-                  <p className="text-slate-500 leading-relaxed">
-                    Unlocking and messaging inbound applicants is always free. Chat directly to confirm interest, collaborate with your hiring team, and download the full resume once released.
+                  <p className="text-slate-600 leading-relaxed">
+                    Message inbound applicants for free, collaborate with your team, and download resumes once released.
                   </p>
                 </div>
               </div>
@@ -1049,8 +1049,8 @@ export default function LandingPage() {
               <h3 className="text-xl font-bold text-slate-900 mb-3">
                 Verified People &amp; Real Companies
               </h3>
-              <p className="text-slate-500 leading-relaxed">
-                Every professional and employer completes a one-time identity check before connecting—keeping bots, fake profiles, and scam listings off the platform.
+              <p className="text-slate-600 leading-relaxed">
+                Every professional and employer verifies once—blocking bots, fake profiles, and scam listings.
               </p>
             </div>
 
@@ -1073,8 +1073,8 @@ export default function LandingPage() {
               <h3 className="text-xl font-bold text-slate-900 mb-3">
                 30-Day Fresh Job Guarantee
               </h3>
-              <p className="text-slate-500 leading-relaxed">
-                No forgotten job posts sitting around for months. Every listing closes automatically after 30 days unless renewed, and employers must respond to applicants to keep unlocking profiles.
+              <p className="text-slate-600 leading-relaxed">
+                Roles auto-close after 30 days unless renewed, and employers must stay responsive to keep unlocking talent.
               </p>
             </div>
 
@@ -1098,8 +1098,8 @@ export default function LandingPage() {
                 <h3 className="text-xl font-bold text-slate-900 mb-3">
                   US-Based Support &amp; Fair Matching
                 </h3>
-                <p className="text-slate-500 leading-relaxed">
-                  Special Sauce is 100% US-owned and operated with real human support specialists—no offshore call centers or automated support loops.
+                <p className="text-slate-600 leading-relaxed">
+                  100% US-owned and operated with real human support—zero offshore call centers or bot loops.
                 </p>
               </div>
             </div>
@@ -1127,7 +1127,7 @@ export default function LandingPage() {
                   Want to see how we protect your privacy and data?
                 </h4>
                 <p className="text-sm text-slate-500 mt-1">
-                  Read our straightforward overview of Stripe ID verification, private resume controls, and platform safeguards.
+                  See how Stripe ID checks, private resume controls, and encryption protect your account.
                 </p>
               </div>
             </div>

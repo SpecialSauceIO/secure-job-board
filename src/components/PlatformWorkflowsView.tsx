@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { HiringTracksFlowchart } from '@/components/W2HiringGuideView'
 
 interface WorkflowStep {
   step: string
@@ -91,19 +90,19 @@ const EMPLOYER_WORKFLOW_STEPS: WorkflowStep[] = [
     step: 'Step 4 • Post & Invite',
     title: '4. Publish Roles & Invite Talent',
     bullets: [
-      "Activate Starter ($299/mo • 2 Active Roles), Growth ($599/mo • 5 Active Roles), or Enterprise ($999/mo • 15 Active Roles) when ready—plus flat $199 Extra Protected Role Slots anytime.",
-      "Verified Ecosystem Professionals apply unlimited at $0, external Bridge applicants verify free up to each role's pre-gated allowance, and declined invitations auto-refund.",
+      'Activate Starter ($299), Growth ($599), or Enterprise ($999) with 2, 5, or 15 Active Roles (+$199 Extra Slots anytime).',
+      'Screen external leads via Verified Hiring Bridge links; declined invitations auto-refund.',
     ],
-    unlockBadge: 'Unlocks: ✓ Live Roles & Refund-Protected Invitations',
+    unlockBadge: 'Unlocks: ✓ Live Roles, Hiring Bridge & Refund-Protected Invites',
   },
   {
-    step: 'Step 5 • Chat & Hire (Direct or W-2 EOR)',
-    title: '5. Direct Hire or Built-In W-2 Employer of Record',
+    step: 'Step 5 • Chat & Hire',
+    title: '5. Direct Chat, W-2 Hiring & Team Sync',
     bullets: [
-      'Hire directly onto your payroll or launch built-in W-2 EOR (Contract-to-Hire, Limited, or Indefinite W-2) with digital onboarding and Net-30 billing.',
-      'Collaborate with your team seats, export via CSV, or auto-sync with Workday & Greenhouse (Enterprise).',
+      'Hire direct or launch Built-In W-2 Payroll ($0 conversion & Net-30 billing).',
+      'Collaborate across team seats + Workday & Greenhouse sync (Enterprise).',
     ],
-    unlockBadge: 'Unlocks: ✓ Direct Hire, Built-In W-2 EOR & HR Sync',
+    unlockBadge: 'Unlocks: ✓ Direct Hire, Built-In W-2 Payroll & HR Sync',
   },
 ]
 
@@ -274,7 +273,19 @@ export default function PlatformWorkflowsView({
         </div>
 
         {!isCandidate && (
-          <HiringTracksFlowchart isDashboard={isDashboard} showGuideLink={true} />
+          <div className="bg-slate-900 rounded-2xl p-5 sm:p-6 border border-emerald-500/40 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-300">⚡ Built-In W-2 Hiring Included</div>
+              <h3 className="text-lg sm:text-xl font-black text-white">4 Flexible W-2 Hiring Paths • $0 Conversion Fee</h3>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold">
+              <span className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200">1. Direct Hire</span>
+              <span className="px-3 py-2 rounded-lg bg-slate-950 border border-emerald-500/40 text-emerald-300">2. Contract-to-Hire</span>
+              <span className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200">3. Fixed Contract</span>
+              <span className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200">4. Open Contract</span>
+              <Link href={isDashboard ? '/dashboard/w2-hiring' : '/w2-hiring'} className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-colors">Explore W-2 Guide →</Link>
+            </div>
+          </div>
         )}
       </div>
 
