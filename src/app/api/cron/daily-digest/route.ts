@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
       client.from("organizations").select("*"),
       client
         .from("jobs")
-        .select("id, title, organization_id, is_active, created_at")
+        .select("id, title, organization_id, is_active, structured_requirements, created_at")
         .not("title", "ilike", "[CALIBRATION]%"),
       client.from("applications").select("*"),
       client
@@ -237,17 +237,31 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const classifyOrgTier = (o: any): "Sandbox" | "Starter" | "Growth" | "Enterprise" => {
-      const raw = String(o.subscription_tier || "sandbox").toLowerCase()
-      if (raw.includes("enterprise")) return "Enterprise"
-      if (raw.includes("growth") || raw.includes("scale")) return "Growth"
-      if (raw.includes("starter")) return "Starter"
-      return "Sandbox"
+    const classifyOrgTier = (o: any): "Practice" | "Starter" | "Growth" | "Enterprise" => {
+      const rawDesc = String(o?.description || "")
+      const descMatch = rawDesc.match(/\[TIER:(free|starter|growth|enterprise)\]/i)
+      const descTier = descMatch ? descMatch[1].toLowerCase() : ""
+      const rawCol = String(o?.subscription_tier || "").toLowerCase().trim()
+      const explicitTier =
+        descTier ||
+        (rawCol && rawCol !== "free" && rawCol !== "explorer" ? rawCol : "") ||
+        rawCol
+      if (descTier === "free") return "Practice"
+      if (explicitTier.includes("enterprise")) return "Enterprise"
+      if (explicitTier.includes("growth") || explicitTier.includes("scale")) return "Growth"
+      if (explicitTier.includes("starter")) return "Starter"
+      if (rawCol === "free" || rawCol === "explorer") return "Practice"
+      const totalCapacity = Number(o?.connection_credits || 0) + Number(o?.total_requests_sent || 0)
+      if (totalCapacity >= 50) return "Enterprise"
+      if (totalCapacity >= 20) return "Growth"
+      if (totalCapacity > 0) return "Starter"
+      return "Practice"
     }
 
-    const orgTiersTotal = { Sandbox: 0, Starter: 0, Growth: 0, Enterprise: 0 }
-    const orgTiers24h = { Sandbox: 0, Starter: 0, Growth: 0, Enterprise: 0 }
+    const orgTiersTotal = { Practice: 0, Starter: 0, Growth: 0, Enterprise: 0 }
+    const orgTiers24h = { Practice: 0, Starter: 0, Growth: 0, Enterprise: 0 }
     let verifiedOrgsTotal = 0
+    let extraRoleSlotsTotal = 0
     const newOrgs24h = orgs.filter(
       (o: any) => new Date(o.created_at || 0).getTime() >= oneDayAgoMs
     )
@@ -255,6 +269,10 @@ export async function GET(req: NextRequest) {
     for (const o of orgs) {
       const t = classifyOrgTier(o)
       orgTiersTotal[t]++
+      const extraMatch = String(o?.description || "").match(/\[EXTRA_ROLE_SLOTS:(\d+)\]/i)
+      if (extraMatch) {
+        extraRoleSlotsTotal += Math.max(0, parseInt(extraMatch[1], 10) || 0)
+      }
       if (String(o.verification_status || "").toLowerCase() === "verified") {
         verifiedOrgsTotal++
       }
@@ -263,9 +281,18 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 3. Jobs, Applications, Pitches & Stage 1 / Stage 2 Funnel
-    const activeJobs = jobs.filter((j: any) => j.is_active)
-    const newJobs24h = jobs.filter(
+    // 3. Protected Roles, Protected Applications, Invitations & 2-Stage Privacy Funnel
+    const isPracticeDraftJob = (j: any): boolean => {
+      const reqs = Array.isArray(j?.structured_requirements) ? j.structured_requirements : []
+      return reqs.some(
+        (item: any) =>
+          item && typeof item === "object" && item._ss_job_meta === true && item.practice_draft === true
+      )
+    }
+    const practiceDraftJobs = jobs.filter((j: any) => isPracticeDraftJob(j))
+    const publishedJobs = jobs.filter((j: any) => !isPracticeDraftJob(j))
+    const activeJobs = publishedJobs.filter((j: any) => j.is_active)
+    const newJobs24h = publishedJobs.filter(
       (j: any) => new Date(j.created_at || 0).getTime() >= oneDayAgoMs
     )
 
@@ -391,7 +418,7 @@ export async function GET(req: NextRequest) {
             10,000-Foot Platform Pulse — ${dateLabel}
           </h1>
           <p style="margin: 0; font-size: 12px; color: #94a3b8;">
-            Automated 24-Hour Operational Summary &amp; Cumulative Marketplace Telemetry
+            Automated 24-Hour Operational Summary &amp; Cumulative Secured Workforce Ecosystem Telemetry
           </p>
         </div>
 
@@ -414,17 +441,17 @@ export async function GET(req: NextRequest) {
             </thead>
             <tbody style="font-size: 13px; color: #e2e8f0;">
               <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding: 9px 14px; font-weight: 700;">Professionals — Explorer ($5 ID Pass)</td>
+                <td style="padding: 9px 14px; font-weight: 700;">Professionals — Explorer ($5 ID Verification • $0/mo)</td>
                 <td style="padding: 9px 14px; text-align: right; color: #34d399; font-weight: 800;">+${candTiers24h.Explorer}</td>
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${candTiersTotal.Explorer}</td>
               </tr>
               <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding: 9px 14px; font-weight: 700;">Professionals — Professional</td>
+                <td style="padding: 9px 14px; font-weight: 700;">Professionals — Professional ($12/mo)</td>
                 <td style="padding: 9px 14px; text-align: right; color: #34d399; font-weight: 800;">+${candTiers24h.Professional}</td>
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${candTiersTotal.Professional}</td>
               </tr>
               <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding: 9px 14px; font-weight: 700;">Professionals — Prestige</td>
+                <td style="padding: 9px 14px; font-weight: 700;">Professionals — Prestige ($19/mo)</td>
                 <td style="padding: 9px 14px; text-align: right; color: #34d399; font-weight: 800;">+${candTiers24h.Prestige}</td>
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${candTiersTotal.Prestige}</td>
               </tr>
@@ -434,36 +461,36 @@ export async function GET(req: NextRequest) {
                 <td style="padding: 9px 14px; text-align: right; color: #38bdf8; font-weight: 900;">${candidates.length}</td>
               </tr>
               <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding: 9px 14px; font-weight: 700;">Employers — Verification Pass (Sandbox)</td>
-                <td style="padding: 9px 14px; text-align: right; color: #fbbf24; font-weight: 800;">+${orgTiers24h.Sandbox}</td>
-                <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${orgTiersTotal.Sandbox}</td>
+                <td style="padding: 9px 14px; font-weight: 700;">Employers — Verification Pass ($25 • $0/mo Practice Mode)</td>
+                <td style="padding: 9px 14px; text-align: right; color: #fbbf24; font-weight: 800;">+${orgTiers24h.Practice}</td>
+                <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${orgTiersTotal.Practice}</td>
               </tr>
               <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding: 9px 14px; font-weight: 700;">Employers — Starter</td>
+                <td style="padding: 9px 14px; font-weight: 700;">Employers — Starter Base Membership ($299/mo • 2 Roles)</td>
                 <td style="padding: 9px 14px; text-align: right; color: #fbbf24; font-weight: 800;">+${orgTiers24h.Starter}</td>
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${orgTiersTotal.Starter}</td>
               </tr>
               <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding: 9px 14px; font-weight: 700;">Employers — Growth</td>
+                <td style="padding: 9px 14px; font-weight: 700;">Employers — Growth Base Membership ($599/mo • 5 Roles)</td>
                 <td style="padding: 9px 14px; text-align: right; color: #fbbf24; font-weight: 800;">+${orgTiers24h.Growth}</td>
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${orgTiersTotal.Growth}</td>
               </tr>
               <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding: 9px 14px; font-weight: 700;">Employers — Enterprise</td>
+                <td style="padding: 9px 14px; font-weight: 700;">Employers — Enterprise Base Membership ($999/mo • 15 Roles)</td>
                 <td style="padding: 9px 14px; text-align: right; color: #fbbf24; font-weight: 800;">+${orgTiers24h.Enterprise}</td>
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${orgTiersTotal.Enterprise}</td>
               </tr>
               <tr style="background: #020617;">
-                <td style="padding: 9px 14px; font-weight: 800; color: #f97316;">Total Employer Orgs (${verifiedOrgsTotal} DNS Verified)</td>
+                <td style="padding: 9px 14px; font-weight: 800; color: #f97316;">Total Employer Orgs (${verifiedOrgsTotal} Verified • ${extraRoleSlotsTotal} Extra Role Slots)</td>
                 <td style="padding: 9px 14px; text-align: right; color: #f97316; font-weight: 900;">+${newOrgs24h.length}</td>
                 <td style="padding: 9px 14px; text-align: right; color: #f97316; font-weight: 900;">${orgs.length}</td>
               </tr>
             </tbody>
           </table>
 
-          <!-- SECTION 2: MARKETPLACE & 2-STAGE PRIVACY HANDSHAKE FUNNEL -->
+          <!-- SECTION 2: ECOSYSTEM & 2-STAGE PRIVACY HANDSHAKE FUNNEL -->
           <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #f97316; margin-bottom: 10px;">
-            2. Marketplace Velocity &amp; 2-Stage Privacy Handshake Funnel
+            2. Ecosystem Velocity &amp; 2-Stage Privacy Handshake Funnel
           </div>
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 22px; background: #0f172a; border-radius: 12px; overflow: hidden; border: 1px solid #1e293b;">
             <thead>
@@ -475,12 +502,12 @@ export async function GET(req: NextRequest) {
             </thead>
             <tbody style="font-size: 13px; color: #e2e8f0;">
               <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding: 9px 14px; font-weight: 700;">Protected Roles Posted (Active Marketplace Roles)</td>
+                <td style="padding: 9px 14px; font-weight: 700;">Protected Roles Published (Live Active Roles)</td>
                 <td style="padding: 9px 14px; text-align: right; color: #34d399; font-weight: 800;">+${newJobs24h.length}</td>
-                <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${activeJobs.length} active (${jobs.length} total)</td>
+                <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${activeJobs.length} active (${publishedJobs.length} published • ${practiceDraftJobs.length} Practice drafts)</td>
               </tr>
               <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding: 9px 14px; font-weight: 700;">Outbound Protected Applications Submitted</td>
+                <td style="padding: 9px 14px; font-weight: 700;">Protected Applications Submitted</td>
                 <td style="padding: 9px 14px; text-align: right; color: #34d399; font-weight: 800;">+${candidateApps24h.length}</td>
                 <td style="padding: 9px 14px; text-align: right; font-weight: 700;">${candidateAppsTotal.length}</td>
               </tr>
@@ -596,16 +623,21 @@ export async function GET(req: NextRequest) {
       ok: true,
       generated_at: nowIso,
       recipient: targetInbox,
+      dispatched_to: targetInbox,
       dry_run: dryRun,
       email_sent: emailSent,
       email_error: emailError || undefined,
       summary: {
         professionals: { total: candidates.length, new_24h: newCandidates24h.length, verified: verifiedCandidatesTotal, by_tier: candTiersTotal },
-        organizations: { total: orgs.length, new_24h: newOrgs24h.length, verified: verifiedOrgsTotal, by_tier: orgTiersTotal },
+        organizations: { total: orgs.length, new_24h: newOrgs24h.length, verified: verifiedOrgsTotal, extra_role_slots_total: extraRoleSlotsTotal, by_tier: orgTiersTotal },
         marketplace: {
           jobs_active: activeJobs.length,
+          jobs_published_total: publishedJobs.length,
+          practice_drafts_total: practiceDraftJobs.length,
           jobs_total: jobs.length,
           jobs_new_24h: newJobs24h.length,
+          protected_applications_total: candidateAppsTotal.length,
+          protected_applications_24h: candidateApps24h.length,
           applications_total: candidateAppsTotal.length,
           applications_24h: candidateApps24h.length,
           employer_pitches_total: employerPitchesTotal.length,

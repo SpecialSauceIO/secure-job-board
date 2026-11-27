@@ -65,12 +65,27 @@ check(
     f"Got unexpected output: {stripped!r}"
 )
 
-# Tab 3: Outbound & Digest Routing Hygiene
+# Tab 3: Outbound & Digest Routing + Nomenclature/Pricing Hygiene
 digest_txt = (job_repo / "src/app/api/cron/daily-digest/route.ts").read_text()
+digest_parity_ok = (
+    "rochelle@specialsauce.io" not in digest_txt.lower()
+    and "Outbound Protected Applications" not in digest_txt
+    and all(
+        tok in digest_txt
+        for tok in [
+            "\\[TIER:(free|starter|growth|enterprise)\\]",
+            "Verification Pass ($25 • $0/mo Practice Mode)",
+            "Starter Base Membership ($299/mo • 2 Roles)",
+            "Growth Base Membership ($599/mo • 5 Roles)",
+            "Enterprise Base Membership ($999/mo • 15 Roles)",
+            "Protected Applications Submitted",
+        ]
+    )
+)
 check(
-    "rochelle@specialsauce.io" not in digest_txt.lower(),
-    "Tab 3: Daily digest routes exclusively to support@specialsauce.io",
-    "Found legacy rochelle@specialsauce.io in daily-digest/route.ts"
+    digest_parity_ok,
+    "Tab 3: Daily digest routes to support@specialsauce.io with Practice Mode, [TIER:...] ($299/$599/$999) & Protected Applications parity",
+    "Daily digest routing, Practice Mode, [TIER:...] Base Membership ($299/$599/$999), or Protected Applications drift in daily-digest/route.ts",
 )
 
 # Tab 4: Queue Owners & KB Integrity
