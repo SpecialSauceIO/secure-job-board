@@ -716,12 +716,21 @@ def cmd_audit_copy(repo_dir, args):
     print(final_out)
 
 def main():
-    argv = sys.argv[1:]
+    raw_argv = sys.argv[1:]
     repo_dir = SJB_DIR
-    if argv and argv[0] == "--ops":
-        repo_dir = OPS_DIR
-        argv = argv[1:]
-    elif pathlib.Path.cwd().resolve() == OPS_DIR.resolve():
+    argv = []
+    json_mode = False
+    for idx, tok in enumerate(raw_argv):
+        if json_mode:
+            argv.append(tok)
+            continue
+        if tok in ("--ops", "--opts"):
+            repo_dir = OPS_DIR
+            continue
+        if tok == "--json":
+            json_mode = True
+        argv.append(tok)
+    if repo_dir == SJB_DIR and pathlib.Path.cwd().resolve() == OPS_DIR.resolve():
         repo_dir = OPS_DIR
 
     cmd = argv[0] if argv else "status"
