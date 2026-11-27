@@ -311,7 +311,7 @@ export default function PublicInboundShieldAirlockPage() {
               </span>
               <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
                 {profRedeemSuccess.mode === 'inbound_dm_gate'
-                  ? 'Outbound Protected Application Submitted'
+                  ? 'Protected Application Submitted'
                   : 'Protected Role Invitation Delivered'}
               </h1>
               <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
@@ -325,7 +325,7 @@ export default function PublicInboundShieldAirlockPage() {
                   className="inline-flex items-center justify-center rounded-xl bg-indigo-600 hover:bg-indigo-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition"
                 >
                   {profRedeemSuccess.mode === 'inbound_dm_gate'
-                    ? 'View Outbound Applications →'
+                    ? 'View My Applications →'
                     : 'Open Professional Invitations →'}
                 </Link>
                 <Link
@@ -652,10 +652,10 @@ export default function PublicInboundShieldAirlockPage() {
               ) : isDmGate && !profCtx.canApplyOutbound ? (
                 <div className="rounded-xl border border-indigo-200 bg-indigo-50/70 p-5 space-y-3">
                   <p className="text-sm font-bold text-slate-900">
-                    Outbound Protected Application Plan Required
+                    Active Application Plan Required
                   </p>
                   <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                    This link is an Inbound Hiring-Manager DM Gate. Activate Professional ($12/mo — 15 Outbound Protected Applications/mo, with your $5 verification fee 100% credited toward Month 1) or Prestige ($19/mo — Unlimited) on Membership & Plan Settings, then reopen this link.
+                    This link is an Inbound Hiring-Manager DM Gate. Activate Professional ($12/mo — 15 Protected Applications/mo, with your $5 verification fee 100% credited toward Month 1) or Prestige ($19/mo — Unlimited) on Membership & Plan Settings, then reopen this link.
                   </p>
                   <Link
                     href="/dashboard/billing"

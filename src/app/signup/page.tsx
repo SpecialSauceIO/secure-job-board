@@ -75,7 +75,7 @@ export default async function SignupSelectionPage({
                 I&apos;m a Professional
               </h3>
               <p className="text-slate-500 leading-relaxed text-sm">
-                Verify your identity once for $5 to unlock your $0/mo Explorer Vault forever (unlimited TrueFit Score™ checks, inbound Employer Invitations, & Weekly 1-Year Prestige Drawing). Upgrade to Professional ($12/mo) or Prestige ($19/mo) anytime to apply outbound.
+                Verify your identity once for $5 to unlock your $0/mo Explorer Vault forever (unlimited TrueFit Score™ checks, inbound Employer Invitations, & Weekly 1-Year Prestige Drawing). Upgrade to Professional ($12/mo) or Prestige ($19/mo) anytime to apply to Protected Roles directly.
               </p>
               <div className="mt-5 sm:mt-6 flex items-center text-indigo-600 font-bold text-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-hover:translate-x-1 transition-all">
                 Create Verified Professional Vault

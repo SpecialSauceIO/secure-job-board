@@ -630,11 +630,11 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
   const meta = extractCandidateMeta(profile?.structured_skills)
   const rawPlan = String(meta.plan || '').toLowerCase()
 
-  // Prestige ($19/mo - Unlimited Outbound Applications)
+  // Prestige ($19/mo - Unlimited Protected Applications)
   if (rawPlan === 'prestige' || rawPlan === 'pro') {
     return {
       tier: 'prestige',
-      label: '★ Prestige Plan ($19/mo · Unlimited Outbound Applications)',
+      label: '★ Prestige Plan ($19/mo · Unlimited Protected Applications)',
       canApply: true,
       appsUsed: totalOutboundApps || 0,
       freeAppsRemaining: 999,
@@ -643,7 +643,7 @@ export async function resolveCandidateTierInfo(candidateUserId?: string): Promis
     }
   }
 
-  // Professional ($12/mo - 15 Outbound Applications/mo)
+  // Professional ($12/mo - 15 Protected Applications/mo)
   if (rawPlan === 'professional' || rawPlan === 'trial') {
     const baseline = meta.trialBaselineApps || 0
     const appsUsedInCycle = Math.max(0, (totalOutboundApps || 0) - baseline)
@@ -828,10 +828,10 @@ export async function activateSandboxCandidateTier(
         : 'Welcome to Professional ($12/mo)',
       bodyLines: [
         isPrestige
-          ? 'Your Prestige plan is active with Real-Person ID Verification access, Unlimited Outbound Protected Applications, Top-Priority Employer Search placement, and Founding Member status.'
+          ? 'Your Prestige plan is active with Real-Person ID Verification access, Unlimited Protected Applications, Top-Priority Employer Search placement, and Founding Member status.'
           : isExplorer
           ? 'Your Explorer plan ($0/mo forever after $5 1-time ID pass) is active with Real-Person ID Verification access, live placement in Employer Talent Search once verified, unlimited inbound Professional Invitation unlocks, and entry into our Weekly 1-Year Prestige Drawing.'
-          : 'Your Professional plan is active with Real-Person ID Verification access, 15 Outbound Protected Applications per month, and Founding Member status.',
+          : 'Your Professional plan is active with Real-Person ID Verification access, 15 Protected Applications per month, and Founding Member status.',
         `Subscription Reference ID: ${refId}`,
       ],
       ctaUrl: '/dashboard',
@@ -850,11 +850,11 @@ export async function activateSandboxCandidateTier(
     tierInfo,
     message:
       normalizedMode === 'prestige'
-        ? '✓ Activated Prestige Plan ($19/mo)! Unlimited outbound applications and invitation unlocks active.'
+        ? '✓ Activated Prestige Plan ($19/mo)! Unlimited Protected Applications and invitation unlocks active.'
         : normalizedMode === 'professional'
-        ? '✓ Activated Professional Plan ($12/mo)! 15 monthly outbound applications and invitation unlocks active.'
+        ? '✓ Activated Professional Plan ($12/mo)! 15 monthly Protected Applications and invitation unlocks active.'
         : normalizedMode === 'explorer'
-        ? '✓ Activated Explorer Plan ($5 One-Time · $0/mo Forever)! Real-Person ID Verification and unlimited inbound Professional Invitation unlocks are active. Upgrade to Professional ($12/mo) or Prestige ($19/mo) anytime to submit outbound applications.'
+        ? '✓ Activated Explorer Plan ($5 One-Time · $0/mo Forever)! Real-Person ID Verification and unlimited inbound Professional Invitation unlocks are active. Upgrade to Professional ($12/mo) or Prestige ($19/mo) anytime to submit Protected Applications.'
         : '✓ Reset professional plan to Unsubscribed Vault.',
   }
 }
@@ -2346,8 +2346,8 @@ export async function applyBlind(formData: FormData) {
     const isExplorer = candidateTier.tier === 'explorer' || candidateTier.tier === 'free'
     return {
       error: isExplorer
-        ? 'Active Outbound Plan Required: Upgrade to Professional ($12/mo for 15 monthly applications) or Prestige ($19/mo for unlimited applications) on your Membership & Plan Settings page to submit outbound protected applications (and downgrade back to $0/mo Explorer anytime once hired).'
-        : `Monthly Application Quota Reached (${CANDIDATE_TRIAL_MAX_APPS}/${CANDIDATE_TRIAL_MAX_APPS} Used): Upgrade to Prestige ($19/mo) on your Membership & Plan Settings page to unlock Unlimited Outbound Protected Applications.`,
+        ? 'Active Application Plan Required: Upgrade to Professional ($12/mo for 15 monthly Protected Applications) or Prestige ($19/mo for unlimited Protected Applications) on your Membership & Plan Settings page to apply to Protected Roles directly (and downgrade back to $0/mo Explorer anytime once hired).'
+        : `Monthly Application Quota Reached (${CANDIDATE_TRIAL_MAX_APPS}/${CANDIDATE_TRIAL_MAX_APPS} Used): Upgrade to Prestige ($19/mo) on your Membership & Plan Settings page to unlock Unlimited Protected Applications.`,
     }
   }
 

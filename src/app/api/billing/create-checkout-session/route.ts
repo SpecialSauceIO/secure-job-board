@@ -53,7 +53,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL_12',
     defaultPriceId: 'price_1UYCkxLAill3LX5X9ZT7w1w5',
     description:
-      'Includes Real-Person ID Verification, unlimited employer invitations, and 15 outbound protected applications per month. Downgrade to $0/mo Explorer anytime.',
+      'Includes Real-Person ID Verification, unlimited employer invitations, and 15 Protected Applications per month. Downgrade to $0/mo Explorer anytime.',
   },
   candidate_pro: {
     id: 'professional',
@@ -63,7 +63,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PROFESSIONAL_12',
     defaultPriceId: 'price_1UYCkxLAill3LX5X9ZT7w1w5',
     description:
-      'Includes Real-Person ID Verification, unlimited employer invitations, and 15 outbound protected applications per month. Downgrade to $0/mo Explorer anytime.',
+      'Includes Real-Person ID Verification, unlimited employer invitations, and 15 Protected Applications per month. Downgrade to $0/mo Explorer anytime.',
   },
   prestige: {
     id: 'prestige',
@@ -73,7 +73,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE_19',
     defaultPriceId: 'price_1UYCkxLAill3LX5XSZkyC6dF',
     description:
-      'Includes Real-Person ID Verification, unlimited outbound protected applications, and top-priority placement in Employer Search. Downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime.',
+      'Includes Real-Person ID Verification, unlimited Protected Applications, and top-priority placement in Employer Search. Downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime.',
   },
   candidate_prestige: {
     id: 'prestige',
@@ -83,7 +83,7 @@ export const CANDIDATE_SAAS_TIERS: Record<
     envVar: 'STRIPE_PRICE_CANDIDATE_PRESTIGE_19',
     defaultPriceId: 'price_1UYCkxLAill3LX5XSZkyC6dF',
     description:
-      'Includes Real-Person ID Verification, unlimited outbound protected applications, and top-priority placement in Employer Search. Downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime.',
+      'Includes Real-Person ID Verification, unlimited Protected Applications, and top-priority placement in Employer Search. Downgrade to Professional ($12/mo) or Explorer ($0/mo) anytime.',
   },
 }
 
