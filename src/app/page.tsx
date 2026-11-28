@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { PublicHeader } from '@/components/PublicHeader'
 import { PublicFooter } from '@/components/PublicFooter'
+import { ProblemSolvedScrollStage } from '@/components/ProblemSolvedScrollStage'
+import { PrivacyHandshakeScrollStage } from '@/components/PrivacyHandshakeScrollStage'
 
 export default function LandingPage() {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -585,14 +587,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Feature Section */}
-      <section
-        id="how-it-works"
-        className="scroll-mt-20 py-20 px-4 sm:px-6 md:px-12 bg-white border-t border-slate-300"
-      >
-        <div className="max-w-7xl mx-auto flex flex-col">
-          {/* TRACK 2: PROFESSIONALS (rendered below Employers) */}
-          <div className="order-2">
+      {/* Employer-First Scroll Concept Showcase: Problem Solved. */}
+      <ProblemSolvedScrollStage />
+
+      {/* Employer & Professional Feature Sections (Ordered Employer -> Privacy Scroll -> Professional) */}
+      <div id="how-it-works" className="scroll-mt-20 flex flex-col">
+        {/* TRACK 2: PROFESSIONALS (rendered below Employers + Privacy Scroll Showcase) */}
+        <section className="order-3 py-20 px-4 sm:px-6 md:px-12 bg-white border-t border-slate-300">
+          <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12">
               <span className="inline-block px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-xs font-extrabold uppercase tracking-wider mb-3">
                 Privacy, Transparency &amp; Fair Pay
@@ -802,9 +804,16 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+        </section>
 
-          {/* TRACK 1: EMPLOYERS (rendered above Professionals) */}
-          <div className="order-1 mb-24">
+        {/* Professional Scroll Concept Showcase: Your Privacy. Your Control. */}
+        <div className="order-2">
+          <PrivacyHandshakeScrollStage />
+        </div>
+
+        {/* TRACK 1: EMPLOYERS (rendered first) */}
+        <section className="order-1 py-20 px-4 sm:px-6 md:px-12 bg-white border-t border-slate-300">
+          <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12">
               <span className="inline-block px-3 py-1 rounded-full bg-indigo-50 border border-indigo-300 text-indigo-700 text-xs font-extrabold uppercase tracking-wider mb-3">
                 Built for Businesses Across All 28 Industries
@@ -1014,8 +1023,8 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       {/* Why Both Sides Trust Special Sauce */}
       <section className="py-24 px-4 sm:px-6 md:px-12 bg-slate-50 border-t border-slate-300">
